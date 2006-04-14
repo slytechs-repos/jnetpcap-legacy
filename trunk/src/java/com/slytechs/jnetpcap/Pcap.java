@@ -199,7 +199,7 @@ public class Pcap {
 	 * @return
 	 *   Pcap object that can be used to access the network interface.
 	 */
-	public static Pcap openLive (PcapNetworkInterface ni, int snapLen, boolean promiscousMode)  throws IOException{
+	public static Pcap openLive (PcapNetworkAdapter ni, int snapLen, boolean promiscousMode)  throws IOException{
 	
 		return null;
 	}
@@ -224,19 +224,19 @@ public class Pcap {
 		return false;
 	}
 	
-	public PcapNetworkInterface[] findAllDevices() throws IOException {
+	public PcapNetworkAdapter[] findAllDevices() throws IOException {
 		return null;
 	}
 	
-	public void freeAllDevs(PcapNetworkInterface[] netInterfaces) {
+	public void freeAllDevs(PcapNetworkAdapter[] netInterfaces) {
 		/* Empty method, structure automatically released. */
 	}
 	
-	public PcapNetworkInterface lookupDevice() throws IOException {
+	public PcapNetworkAdapter lookupDevice() throws IOException {
 		return null;
 	}
 	
-	public PcapIpNetwork lookupNetwork(PcapNetworkInterface netInterface) throws IOException {
+	public PcapIpNetwork lookupNetwork(PcapNetworkAdapter netInterface) throws IOException {
 		
 		return null;
 	}
@@ -281,11 +281,11 @@ public class Pcap {
 		return;
 	}
 	
-	public PcapDLT[] getDataLinkArray() {
+	public PcapDLT[] getDataLinkArray(PcapNetworkAdapter adapter) {
 		return null;
 	}
 	
-	public PcapDLT getDataLink() {
+	public PcapDLT getDataLink(PcapNetworkAdapter adapter) {
 		return null;
 	}
 	
