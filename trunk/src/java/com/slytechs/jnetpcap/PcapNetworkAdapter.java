@@ -24,7 +24,7 @@ package com.slytechs.jnetpcap;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public interface PcapNetworkInterface {
+public interface PcapNetworkAdapter {
 
 	/**
 	 * Returns an IpNetwork containing an address and netmask

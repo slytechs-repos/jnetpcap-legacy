@@ -1,5 +1,4 @@
 /**
- * $Id$
  * Copyright (C) 2006 Sly Technologies, Inc.
  * 
  * This library is free software; you can redistribute it and/or
@@ -26,21 +25,39 @@ package com.slytechs.jnetpcap;
  * DLT.
  * 
  * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
-public abstract class PcapDLT {
-
-	/**
-	 * Maps a DLT name to a DLT value.
-	 * 
-	 * @param name 
-	 *   DLT name to be mapped.
-	 * @return
-	 *   DLT object or null if not found.
-	 */
-	public static PcapDLT valueOf(String name) {
-		return null;
-	}
+public interface PcapDLT {
 	
+	public enum DLT implements PcapDLT {
+		NULL_BSD,
+		EN10MB,
+		IEEE802,
+		ARCNET,
+		SLIP,
+		PPP,
+		FDDI,
+		ATM_RFC1483,
+		RAW,
+		PPP_SERIAL,
+		PPP_ETHER,
+		C_HDLC,
+		IEEE802_11,
+		FRELAY,
+		LOOP,
+		LINUX_SLL,
+		LTALK,
+		PFLOG,
+		PRISM_HEADER,
+		IP_OVER_FC,
+		SUNATM,
+		IEEE802_11_RADIO,
+		ARCNET_LINUX,
+		LINUX_IRDA
+		;
+		
+	}
+
 	/**
 	 * Returns PCAP library supplied description 
 	 * for the given DLT.
@@ -48,9 +65,7 @@ public abstract class PcapDLT {
 	 * @return
 	 *   DLT description.
 	 */
-	public String getDescription() {
-		return "";
-	}
+	public String getDescription();
 	
 	
 	/**
@@ -60,9 +75,7 @@ public abstract class PcapDLT {
 	 * @return
 	 *   DLT name.
 	 */
-	public String getName() {
-		return "";
-	}
+	public String getName();
 	
 	/**
 	 * Maps object to an actual PCAP DLT integer value.
@@ -71,7 +84,5 @@ public abstract class PcapDLT {
 	 *   Integer value used by PCAP library in assigning
 	 *   DLTs to packets.
 	 */
-	public int value() {
-		return 0;
-	}
+	public int value();
 }
