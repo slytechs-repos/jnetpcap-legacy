@@ -1,0 +1,65 @@
+/*
+ * Backward compatible binary format with PCAP record size. The structure is
+ * somewhat different, but when recordType == 0, then protocol number is exactly
+ * the PCAP's DLT/Linktype value. The packet header fits exactly within 16 bytes,
+ * which is the size of PCAP record header. This means that PCAP record headers
+ * can be converted into JNS record headers in place without copies. Just rewrite
+ * the values.
+ *
+ * 1       4        8       12      16      20      24      28      32
+ * -------------------------------------------------------------------
+ * |rType=2|        reserved        |      channel type              |
+ * |-----------------------------------------------------------------|
+ * |                           record length                         |
+ * |-----------------------------------------------------------------|
+ * |                             reserved                            |
+ * |-----------------------------------------------------------------|
+ * |                             reserved                            |
+ * |-----------------------------------------------------------------|
+ *
+ */
+
+header JNSRecordChannelHeader {
+
+	field byte recordType:4 {
+		enum {
+			PacketRecord(0x0),
+			FileHeaderRecord(0x1)
+			ChannelHeaderRecord(0x2),
+			ChannelDataRecord(0x3),
+			IgnoreRecord(0xF),
+		};
+		
+		property description
+			"Record type. " + 
+			"The typical record type found in capture formats is PacketDatal " +
+			"Channel Description Record contains a chain of Channel headers " +
+			"";
+	};
+	
+	assert recordType == recordType.ChannelHeaderRecord;
+	
+	field short reserved: 12;
+
+	field int recordLength {
+		property description
+			"Length of this record. This includes the length of the header " +
+			"plus the data area length.";
+	};
+	
+	field short channelType enum {
+		NoMoreChannels(0x00),
+		PropertyChannel(0x01),
+		EntityChannel(0x02),
+		
+		BindingChannel(0x10),
+		ProtocolChannel(0x11),
+		
+		IndexChannel(0x20),
+		
+		CounterChannel(0x30)
+	};
+	
+	
+	field signed long reserved;
+};
