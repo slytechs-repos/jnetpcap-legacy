@@ -1,0 +1,20 @@
+The following use case document references the file header structure specified
+in NAP_Header_formats.txt document. In summary the document lists the following
+types if headers:
+
+*) BlockRecord  - Also called in other format the FileHeader or the main header
+                  that appears at the beginning of a capture file.
+
+*) PacketRecord - A record that contains PACKET data as array of bytes. It also
+                  contains small amount of meta information such as first protocol
+                  or linktype and capture timestamp of when the capture of the packet
+                  took place.
+
+*) MetaRecord   - A record containing additional information about the overall capture
+                  file, block and individual records.
+
+*) NoOpRecord   - A record that can take up space. This type of record can be used
+                  to allocate empty space for future use. Other records can be easily
+                  turned into a NoOpRecord by changing a 4 bit value of record type
+                  field, effectively being removed.
+                  
