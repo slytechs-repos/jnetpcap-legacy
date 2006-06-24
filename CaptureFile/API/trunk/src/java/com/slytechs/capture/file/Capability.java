@@ -15,7 +15,9 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.slytechs.capturefile;
+package com.slytechs.capture.file;
+
+import com.slytechs.capture.file.capabilities.InterfaceCounters;
 
 /**
  * Enum constants that describe certain capabilities and thus information
@@ -25,9 +27,7 @@ package com.slytechs.capturefile;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public enum RecordCapability {
-	
-	FilePaceholder,
+public enum Capability {
 	
 	/**
 	 * Record contains a packet buffer with packet data.
@@ -122,6 +122,16 @@ public enum RecordCapability {
 	 * Record contains analyzer produced statistics
 	 */
 	AnalyzerStatistics,
+	
+	/**
+	 * Block contents can be mutated in place without file copies (size and content can change)
+	 */
+	InPlaceMutableBlock, FilePaceholder,
+	
 	;
+	
+	public Class getCapabilityInterface() {
+		return InterfaceCounters.class;
+	}
 
 }

@@ -17,33 +17,20 @@
  */
 package com.slytechs.capturefile;
 
+import java.util.Set;
+
 /**
- * Defines constants for all the currently supported capture file types.
- * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public enum CaptureFileType {
-	NAP("Network Capture file format sponsored by Sly Technologies, Inc."),
-	PCAP("Packet Capture file format from Tcpdump.org"),
-	Snoop("Sun's capture file format"),
-	Snort("SNORT.org file capture format")
-	;
-	
-	private final String description;
+public interface CaptureFileType {
 
-	private CaptureFileType(String description) {
-		this.description = description;
-		
-	}
+	public String getDescription();
+	
+	public Set<Capability> getSupportedCapabilities();
 
 	/**
-	 * Returns a short description of the file format. 
-	 * 
-	 * @return Returns the description.
+	 * @return
 	 */
-	public String getDescription() {
-		return description;
-	}
-
+	public CaptureFileHandler getDefaultHandler();
 }

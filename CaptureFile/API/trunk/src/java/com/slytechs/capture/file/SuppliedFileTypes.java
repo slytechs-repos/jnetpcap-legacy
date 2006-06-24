@@ -15,53 +15,45 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.slytechs.capturefile.pcap;
+package com.slytechs.capture.file;
 
-import java.util.EnumSet;
 import java.util.Set;
 
-import com.slytechs.capturefile.RecordCapability;
-import com.slytechs.capturefile.RecordType;
-
 /**
+ * Defines constants for all the currently supported capture file types.
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public enum PCAPRecordType implements RecordType{
-	FileHeaderRecord("File header containing global file information",
-			EnumSet.of(
-					RecordCapability.EntityTimezone,
-					RecordCapability.FileMagicNumber,
-					RecordCapability.FileVersion,
-					RecordCapability.EntityTimezone,
-					RecordCapability.PacketProtocol)),
-	PacketRecord("Record containing packet buffer and capture timestamp",
-			EnumSet.of(
-					RecordCapability.PacketBuffer,
-					RecordCapability.CaptureTimestampSeconds,
-					RecordCapability.CaptureTimestampMicros)),
+public enum SuppliedFileTypes implements CaptureFileType {
+	NAP("Network Capture file format sponsored by Sly Technologies, Inc."),
+	PCAP("Packet Capture file format from Tcpdump.org"),
+	Snoop("Sun's capture file format"),
+	Snort("SNORT.org file capture format")
 	;
 	
 	private final String description;
-	private final Set<RecordCapability> capabilities;
 
-	private PCAPRecordType(String description, EnumSet<RecordCapability> capabilities) {
+	private SuppliedFileTypes(String description) {
 		this.description = description;
-		this.capabilities = capabilities;
+		
 	}
 
 	/**
+	 * Returns a short description of the file format. 
+	 * 
 	 * @return Returns the description.
 	 */
 	public String getDescription() {
 		return description;
 	}
-
-	/**
-	 * @return Returns the capabilities.
-	 */
-	public Set<RecordCapability> getCapabilities() {
-		return capabilities;
+	
+	public Set<Capability> getSupportedCapabilities() {
+		return null;
+	}
+	
+	public CaptureFileHandler getDefaultHandler() {
+		return null;
 	}
 
 }

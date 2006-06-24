@@ -15,43 +15,33 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.slytechs.capturefile;
+package com.slytechs.capture.file;
 
-import java.io.File;
-import java.nio.ByteOrder;
+import java.nio.ByteBuffer;
 
-import com.slytechs.utils.number.Version;
+import com.slytechs.capture.file.capabilities.CaptureTimestamp;
+import com.slytechs.utils.io.BitBuffer;
 
 /**
- * Main interface to an open capture file. Use the factory
- * method open(File) to get an instance of this interface.
- * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public abstract class CaptureFile implements Iterable<Record>{
-	
-	public static CaptureFile open(File file) {
-		return null;
-	}
-	
-	/**
-	 * Returns file type of the currently open file.
-	 * 
-	 * @return
-	 *   file type of the open capture file
-	 */
-	public abstract CaptureFileType getType();
-	
-	public abstract ByteOrder getByteOrder();
-	
-	/**
-	 * Returns the first file version found. There may be
-	 * multiple blocks within the file at different versions.
-	 *  
-	 * @return
-	 *   version of the file
-	 */
-	public abstract Version getVersion();
+public interface PacketRecord extends Record, CaptureTimestamp {
 
+	public int getProtocolNumber();
+	public String getProtocolName();
+	
+	public byte[] toByteArray();
+	
+	public ByteBuffer toByteBuffer();
+	
+	public BitBuffer toBitBuffer();
+	
+	public void setPacketData(byte[] data);
+	public void setPacketData(ByteBuffer buffer);
+	public void setPacketData(BitBuffer buffer);
+	
+	public long getPacketDataPosition();
+	
+	public int getPacketDataLength();
 }

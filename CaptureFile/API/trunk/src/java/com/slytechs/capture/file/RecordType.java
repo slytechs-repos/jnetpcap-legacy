@@ -15,25 +15,36 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.slytechs.capturefile;
+package com.slytechs.capture.file;
+
+import java.net.URI;
 
 /**
+ * Interface that allows retrieval of type information about
+ * each impelementation specific record type.
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public interface PacketRecord extends Record {
+public interface RecordType {
+	
+	/**
+	 * Short description of this type of record. The
+	 * description is implementation specific.
+	 * 
+	 * @return
+	 *   short description
+	 */
+	public String getDescription();
+	
+	/**
+	 * Returns the URI to formal specification for this record type.
+	 * Some records may be vendor specific and each vendor supply a
+	 * valid URI to the formal specification for this type of record.
+	 * 
+	 * @return
+	 *   URI which contains the formal specification of this record type
+	 */
+	public URI getSpec();
 
-	public boolean hasProtocol();
-	
-	public int getProtocol();
-	
-	public boolean isProtocolNameKnown();
-	
-	public String getProtocolName();
-	
-	public byte[] getPacketData();
-	
-	public long getPacketDataPosition();
-	
-	public int getPacketDataLength();
 }
