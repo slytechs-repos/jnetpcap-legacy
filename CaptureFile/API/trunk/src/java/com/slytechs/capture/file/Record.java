@@ -15,8 +15,12 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.slytechs.capturefile;
+package com.slytechs.capture.file;
 
+import java.io.IOException;
+import java.util.Set;
+
+import com.slytechs.capture.file.capabilities.UnsupportCapabilityException;
 import com.slytechs.utils.net.ByteEncoding;
 
 /**
@@ -24,32 +28,7 @@ import com.slytechs.utils.net.ByteEncoding;
  * @author Sly Technologies, Inc.
  */
 public interface Record {
-	
-	/**
-	 * Returns if this record contains packet data. Not all
-	 * records contain packet data, they may contain META information
-	 * that is not specifically packet data, but in support of the packet.
-	 * 
-	 * @return
-	 *   true if this record is of type PacketRecord otherwise false.
-	 */
-	public boolean isPacketRecord();
-	
-	/**
-	 * <P>Returns an instance of PacketRecord which contains packet data.
-	 * You must use isPacketRecord() before calling this method
-	 * to ensure that this record is of type PacketRecord. If you do
-	 * not call isPacketRecord() first, prior to this call, an
-	 * IllegalStateException will be thrown.</P>
-	 * 
-	 * <P>Further more, you may not typecast this Record object into
-	 * PacketRecord class even if you think it is of this type.</P>
-	 * 
-	 * @return
-	 *   Returns an instance of PacketRecord. This method never returns null.
-	 */
-	public PacketRecord getPacketRecord();
-	
+
 	/**
 	 * Returns the file position of the start of this record.
 	 * 
@@ -57,6 +36,8 @@ public interface Record {
 	 *   start of this record
 	 */
 	public long getFilePosition();
+	
+	public void setFilePosition(long position);
 	
 	/**
 	 * Returns the length of this record in bytes. The record
@@ -67,7 +48,7 @@ public interface Record {
 	 * 
 	 * @return
 	 */
-	public int getLength();
+	public long getLength();
 	
 	/**
 	 * Returns the type of this record.
@@ -88,4 +69,30 @@ public interface Record {
 	 *   the byte order of this record
 	 */
 	public ByteEncoding getByteEncoding();
+	
+	/**
+	 * Sets the byte encoding of this record. Care must be taken to set the
+	 * byte enconding of supported type for each record. Otherwise the method
+	 * will throw IllegalStateException.
+	 * 
+	 * @param encoding
+	 *   encoding to use for this record
+	 *   
+	 * @throws IllegalStateException
+	 *   if encoding format is not supported by this record type
+	 */
+	public void setByteEncoding(ByteEncoding encoding);
+	
+	public <C> C getCapability(Capability capabilty) throws UnsupportCapabilityException;
+	
+	public Set<Capability> getCapabilities();
+
+
+	public void read() throws IOException;
+	public void write() throws IOException;
+
+	public void readHeader() throws IOException;
+	public void writeHeader() throws IOException;
+
+	public Record getParent();
 }
