@@ -20,6 +20,7 @@ package com.slytechs.capture.file;
 import java.util.Set;
 
 import com.slytechs.capture.file.capabilities.Capability;
+import com.slytechs.capture.file.type.CaptureFileHandler;
 
 /**
  * @author Mark Bednarczyk
