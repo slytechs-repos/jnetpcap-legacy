@@ -15,9 +15,11 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.slytechs.capturefile;
+package com.slytechs.capture.file;
 
 import java.util.Set;
+
+import com.slytechs.capture.file.capabilities.Capability;
 
 /**
  * @author Mark Bednarczyk
@@ -33,4 +35,22 @@ public interface CaptureFileType {
 	 * @return
 	 */
 	public CaptureFileHandler getDefaultHandler();
+	
+	/**
+	 * <P>Helps deterimine if this file type is easily indexible or
+	 * if this is a major understask. Use this method to determine
+	 * the best algorithm to use with any specific file type. PCAP and
+	 * SNOOP files for example, are not easily indexible and can only be
+	 * done so at extreme resource expense, while other formats such as NAP are
+	 * easily indexible and can easily be indexed.</P>
+	 * 
+	 * <P>Note that in programming any type of file can be turned into an index file,
+	 * but at great CPU, time and memory expense. You can use this generic method to
+	 * determine if this is a worth while excersize of another approach or algorithm
+	 * should be used.</P>
+	 * 
+	 * @return
+	 *   true if file is easily indexible otherwise false. 
+	 */
+	public boolean isIndexable();
 }

@@ -15,7 +15,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.slytechs.capturefile.nap;
+package com.slytechs.capture.file.type.nap;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -41,7 +41,7 @@ public interface NAPRecord {
 	
 	public ByteBuffer getContentBuffer();
 	
-	public NAPCaptureFile getFile();
+	public NAPModel getFile();
 	
 	public ByteBuffer getHeaderBuffer();
 	public long getHeaderLength();

@@ -15,15 +15,15 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.slytechs.capture.file.pcap;
+package com.slytechs.capture.file.type.pcap;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.EnumSet;
 import java.util.Set;
 
-import com.slytechs.capture.file.Capability;
 import com.slytechs.capture.file.RecordType;
+import com.slytechs.capture.file.capabilities.Capability;
 
 /**
  * @author Mark Bednarczyk
