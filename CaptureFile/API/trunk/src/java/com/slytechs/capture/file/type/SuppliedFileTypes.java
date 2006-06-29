@@ -15,10 +15,11 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.slytechs.capture.file;
+package com.slytechs.capture.file.type;
 
 import java.util.Set;
 
+import com.slytechs.capture.file.CaptureFileType;
 import com.slytechs.capture.file.capabilities.Capability;
 
 /**
