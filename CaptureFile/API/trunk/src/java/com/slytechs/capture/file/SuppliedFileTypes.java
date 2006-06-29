@@ -19,6 +19,8 @@ package com.slytechs.capture.file;
 
 import java.util.Set;
 
+import com.slytechs.capture.file.capabilities.Capability;
+
 /**
  * Defines constants for all the currently supported capture file types.
  * 
@@ -54,6 +56,10 @@ public enum SuppliedFileTypes implements CaptureFileType {
 	
 	public CaptureFileHandler getDefaultHandler() {
 		return null;
+	}
+	
+	public boolean isIndexable() {
+		return false;
 	}
 
 }

@@ -17,14 +17,10 @@
  */
 package com.slytechs.capture.file;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteOrder;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
+import com.slytechs.capture.file.capabilities.PacketCounterModel;
 import com.slytechs.utils.number.Version;
 
 /**
@@ -39,196 +35,65 @@ import com.slytechs.utils.number.Version;
  * on what is required, this interface provides a user friendly abstraction
  * with most common features available.</P>
  * 
- * <P>To inquire what is capable with a given file format, you can query 
- * for capabilities of the capture file using the 
- * CaptureFile.getCapabilities(): Set<Capability> method. Also note that
- * records also provide their own capabilities Set, use the 
- * Record.getCapabilities(): Set<Capability> to inquire about individual record
- * capabilities. For example, NAP and SNOOP file formats are capable of storing
- * interface counters along with packet data, while PCAP is not.</P>
+ * <P>There are two main methods for accessing and possibly modifying the
+ * records within the capture file. Using RecordInterator and RecordIndexer interaces.
+ * Each interface provides its own specific API that achieve same result but using
+ * different level of convenience, capabilities and resources required to achieve
+ * the requested outcome.</P>
+ * 
+ * <P>The preferred method is using the RecordIterator interface which simply
+ * iterates over the records within the capture file. The interface provides
+ * methods for accessing, skipping, seeking (search + skip), adding and removing
+ * records from the capture file. This is the most efficient but least convenient
+ * method of accessing contents of a capture file. This method has very little
+ * overhead as most records are read from the physical disk on demand. Some caching
+ * is used to improve performance especially on peek() and skip() operations.</P>
+ * 
+ * <P>The second interface is most intuitive and convenient as it uses familiar Collection
+ * and List type methods which use indexes instead of iterations over the file. Iterating
+ * over the indexed records can also be achieved just as List can be easily iterated in standard
+ * Java Collection's Framework. The trade of is that not entire file can be indexed as some file
+ * sizes are just too great and only portions of the file at a time should be indexed. Once indexed
+ * access to any records is very constant as all the records are cached in memory.</P>
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public abstract class CaptureFile {
+public interface CaptureFile {
 	
-	private static Map<CaptureFileType, CaptureFileHandler> handlers = new HashMap<CaptureFileType, CaptureFileHandler>();
+	public void flush() throws IOException;
 	
-	/**
-	 * Concatenate all the files into the 
-	 * @param file1
-	 * @param files
-	 * @return
-	 */
-	public static boolean catFile(File file1, File ... files) {
-		return false;
-	}
-	
-	/**
-	 * Cleans up and compacts the file contents to most efficient size and layout.
-	 * 
-	 * @param file
-	 *   file to compact
-	 *   
-	 * @return
-	 *   true if successfull, otherwise false
-	 */
-	public static boolean compactFile(File file) {
-		return false;
-	}
-	
-	/**
-	 * Returns a mutable map of currently registerd capture file handlers. The default map is populated with
-	 * handlers defined by the SuppliedFileTypes enum structure.
-	 * 
-	 * @return
-	 *   map of registered handlers for capture file format
-	 */
-	public static Map<CaptureFileType, CaptureFileHandler> getHandlers() {
-		if (handlers.isEmpty()) {
-			for (CaptureFileType type: SuppliedFileTypes.values()) {
-				handlers.put(type, type.getDefaultHandler());
-			}
-		}
-		
-		return handlers;
-	}
-	
-	/**
-	 * Returns file type of the specified file. File will be opened
-	 * and its type verified.
-	 * 
-	 * @return
-	 *   file type of a capture file
-	 * @throws FileNotFoundException 
-	 * @throws IOException 
-	 */
-	public static CaptureFileType getType(File file) throws FileNotFoundException, IOException {
-		return null;
-	}
-	
-	public static CaptureFile newFile(File file, SuppliedFileTypes type) {
-		return null;
-	}
-	
-	public static CaptureFile newFile(File file, SuppliedFileTypes type, Version version) {
-		return null;
-	}
-	
-	public static CaptureFile newFile(File file, SuppliedFileTypes type, Version version, ByteOrder encoding) {
-		return null;
-	}
-	
-	public static CaptureFile openFile(File file) {
-		return null;
-	}
-	
-	/**
-	 * <P>Splits the file into smaller files according to default rules defined for each
-	 * file format. For NAP the file will be split with each Block Record being split
-	 * into its own seperate file. For other files, the defaults are to split the files
-	 * into 512Kb files.</P>
-	 * 
-	 * <P>The base filename supplied is used as the base filename for all newly created files
-	 * with the -XXXX appended to them.<P>
-	 * 
-	 * <P>The source file is unmodified</p>
-	 * 
-	 * @param file
-	 *   file to be split
-	 *   
-	 * @return
-	 *   list of newly created files 
-	 */
-	public static List<File> splitFile(File file) {
-		return null;
-	}
-	
-	/**
-	 * <P>Split the specified file into smaller files containing specified number of packets
-	 * each from the source file. New files are created to hold only the specified number
-	 * of packets and associated meta records. The supplied filename is used as a base filename
-	 * for all newly created files with the post fix of -XXXX appended to them.</P>
-	 * 
-	 * <P>The source file is unmodified</P>
-	 * 
-	 * @param file
-	 *   source file to split
-	 *   
-	 * @param packetCount
-	 *   split using this many packets from the source file copied into the newly created files
-	 *   
-	 * @param maxCompression
-	 *   true means produce the smallest possible file, while false means leave it upto the default
-	 *   algorithm for each spcific file type. For example NAP files pad their files to 512Kb by default
-	 *   which means that files containing even only a single packet are of minimum size 512 Kb, but this
-	 *   can be overriden by setting maxCompression to true. Notice that it will be harder to split the NAP file
-	 *   with regular unix commands if default padding is not used.
-	 *   
-	 * @return
-	 *   list of all the new files created
-	 */
-	public static List<File> splitFile(File file, long packetCount, boolean maxCompression) {
-		return null;
-	}
-	
-	/**
-	 * Determines the file type of the supplied file. This similar method to the dynamic counter
-	 * part CaptureFile.getType(), but does not require the file to be opened before hand and
-	 * is quicker then using CaptureFile.openFile().getType() sequence. As more specific algorithm
-	 * is used.
-	 * 
-	 * @param file
-	 *   file to check and return file type
-	 *   
-	 * @return
-	 *   file type of the supplied file or null if file type unknown or not supported
-	 */
-	public static CaptureFileType typeOfFile(File file) {
-		return null;
-	}
-
-	/**
-	 * Checks if the specified file is in a proper format 100% compabile with 
-	 * specification.
-	 * 
-	 * @param file
-	 *   file to validate
-	 *   
-	 * @return
-	 *   true if file is valid with the specification, otherwise false, even if
-	 *   minor infringements are found
-	 */
-	public static boolean validateFile(File file) {
-		return false;
-	}
-	
-	public abstract void flush() throws IOException;
-	
-	public abstract ByteOrder getByteOrder();
+	public ByteOrder getByteOrder();
 	
 	/**
 	 * Returns the number of packets within the file. This only includes
 	 * records that hold packet data and not any additional meta data records.
+	 * The method uses the default PacketCounter. If estimated packet counter 
+	 * is acceptable you can use one of of several other PacketCounterModels to
+	 * calculate estimated packet count using the getPacketCount(PacketCounterModel)
+	 * method.
 	 * 
 	 * @return
-	 *   total number of packets within the file
+	 *   total number of packets within the file using the default model
+	 *   
 	 * @throws IOException 
+	 *   any io errors
 	 */
-	public abstract long getPacketCount() throws IOException;
+	public long getPacketCount() throws IOException;
 	
 	/**
-	 * The list of all packet records within this capture file. Some meta information is
-	 * also supplied with the PacketRecords which in actuality is a read from other meta
-	 * records. This information is combined for convenience of the user. If raw record support
-	 * is required use the getDataRecords() or getAllRecords() method calls which supply unaltered
-	 * raw records.
+	 * Returns the packet count using user requested counter model.
 	 * 
+	 * @param model
+	 *   model to use to count packets
+	 *   
 	 * @return
+	 *   number of packets calculated by the model
+	 *   
+	 * @throws IOException
+	 *   any io exceptions
 	 */
-	public abstract List<? extends PacketRecord> getPacketRecords();
-	
-
+	public long getPacketCount(PacketCounterModel model) throws IOException;
 	
 	/**
 	 * Returns file type of the currently open file.
@@ -236,7 +101,7 @@ public abstract class CaptureFile {
 	 * @return
 	 *   file type of the open capture file
 	 */
-	public abstract CaptureFileType getType();
+	public CaptureFileType getType();
 	
 	/**
 	 * Returns the first file version found. There may be
@@ -246,4 +111,38 @@ public abstract class CaptureFile {
 	 *   version of the file
 	 */
 	public abstract Version getVersion();
+	
+	/**
+	 * Returns a higher level iterator that iterates through all of the PacketRecords within
+	 * the file. This is typically what the user is interested in. Any meta information 
+	 * contained in other types of records is not directly returned as a record but incorporated
+	 * into the PacketRecord interface as per its contract.
+	 * 
+	 * @return
+	 *   iterator that iterates through all of the PacketRecords and skips iterations through
+	 *   non packet records such as the file header (BlockRecord)
+	 * @throws IOException
+	 */
+	public CaptureIterator<CapturePacket> getPacketIterator() throws IOException;
+	
+	/**
+	 * <P>Returns a low level iterator that will iterate through all of the records within the capture file.
+	 * This includes the PacketRecord which contains captured packet data and any other type of 
+	 * records present within the file. For example in PCAP capture file, the file also contains
+	 * a file header (BlockRecord) which is always returned as the first record within the file.
+	 * Other formats such as NAP may return the BlockRecord periodically as multiple BlockRecords
+	 * exist in that file format.</P>
+	 * 
+	 * <P>This method returns the raw records and does not return PacketRecord objects which may contain
+	 * meta information not contained in a single record. All the meta records are returned individually 
+	 * instead.</P>
+	 * 
+	 * @return
+	 *   iterator that iterates through all the records including the file header (BlockRecord)
+	 *   
+	 * @throws IOException
+	 *   any IO errors
+	 */
+	public CaptureIterator<Record> getRecordIterator() throws IOException;
+	
 }

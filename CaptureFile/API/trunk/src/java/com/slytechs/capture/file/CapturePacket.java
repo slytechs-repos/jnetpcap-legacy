@@ -23,10 +23,21 @@ import com.slytechs.capture.file.capabilities.CaptureTimestamp;
 import com.slytechs.utils.io.BitBuffer;
 
 /**
+ * A special interface that provides access to captured packets data including 
+ * meta information that may reside in other places within the file. That is 
+ * this interface does not neccessarily represent a 1-to-1 relationship with
+ * any record contained within the capture file. For example, in the simplest 
+ * case the interface returns the DLT type of the first header within the 
+ * packet record content, while this information may be actually extracted from the
+ * file header (BlockRecord.) Or it may be provided from the packet record itself.
+ * In more advanced example packet counters may reside in some other meta records
+ * within the file associated with this particular packet. This is all file type
+ * dependent and abstracted by this high level interface.
+ *  
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public interface PacketRecord extends Record, CaptureTimestamp {
+public interface CapturePacket extends Record, CaptureTimestamp {
 
 	public int getProtocolNumber();
 	public String getProtocolName();

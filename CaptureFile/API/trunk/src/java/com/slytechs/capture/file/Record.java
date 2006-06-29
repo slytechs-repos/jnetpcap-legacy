@@ -20,6 +20,7 @@ package com.slytechs.capture.file;
 import java.io.IOException;
 import java.util.Set;
 
+import com.slytechs.capture.file.capabilities.Capability;
 import com.slytechs.capture.file.capabilities.UnsupportCapabilityException;
 import com.slytechs.utils.net.ByteEncoding;
 
