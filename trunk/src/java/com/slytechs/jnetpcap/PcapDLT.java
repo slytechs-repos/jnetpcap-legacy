@@ -29,7 +29,7 @@ package com.slytechs.jnetpcap;
  */
 public interface PcapDLT {
 	
-	public enum DLT implements PcapDLT {
+	public enum DLT  {
 		NULL_BSD,
 		EN10MB,
 		IEEE802,
