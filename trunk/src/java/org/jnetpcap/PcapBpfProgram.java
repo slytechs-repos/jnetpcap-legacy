@@ -16,27 +16,15 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.slytechs.jnetpcap;
+package org.jnetpcap;
 
 /**
- * A handler, listener or call back inteface that gets notified
- * when a new packet has been captured.
+ * PCAP's implementation of  BPF (Berkley Packet Filter) filter program 
+ * that has been compiled from source String.
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public interface PcapHandler {
+public interface PcapBpfProgram {
 
-	/**
-	 * Method that gets called when new packet has been received.
-	 * 
-	 * @param packet 
-	 * 	The PcapPacket containing the data and packet header as
-	 * 	created by PCAP library.
-	 * 
-	 * @param userObject
-	 * 	User supplied object at the time when one of the loops has been
-	 *  started either Pcap.loop() or Pcap.dispatch()
-	 */
-	public void nextPacket(PcapPacket packet, Object userObject);
 }

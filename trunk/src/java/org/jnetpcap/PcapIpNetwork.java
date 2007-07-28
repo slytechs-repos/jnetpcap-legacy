@@ -16,25 +16,47 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.slytechs.jnetpcap;
+package org.jnetpcap;
 
-import java.io.IOException;
+import java.net.InetAddress;
 
 /**
- * Save file or capture file dumper. This is used to very efficiently capture
- * data from a line network interface and write that data into a file. Possibly
- * even at kernel level with single buffer copy from start to finish.
+ * PCAP specific IP address and associated netmask that
+ * can be retrieved from a PcapNetworkInterface.
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public interface PcapDumper {
+public class PcapIpNetwork {
+
+	/**
+	 * Netmask of this network address.
+	 * 
+	 * @return netmask for this address.
+	 */
+	public byte[] getNetmask() {
 	
-	public void dump(PcapPacket packet) throws IOException;
+		return null;
+	}
 	
-	public void close() throws IOException;
+	/**
+	 * Address portion of this network address. Netmask is
+	 * not applied and address is not truncated to the number of
+	 * bits in the netmask.
+	 * 
+	 * @return Address portion of this network address.
+	 */
+	public byte[] getAddress() {
+		return null;
+	}
 	
-	public void flush() throws IOException;
-	
-	public long ftell();
+	/**
+	 * Converted address to an InetAddress object part so that further
+	 * name service queries can be made such as hostname lookup.
+	 * 
+	 * @return Full InetAddress name service lookup facility.
+	 */
+	public InetAddress getInetAddress() {
+		return null;
+	}
 }

@@ -16,47 +16,31 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.slytechs.jnetpcap;
-
-import java.net.InetAddress;
+package org.jnetpcap;
 
 /**
- * PCAP specific IP address and associated netmask that
- * can be retrieved from a PcapNetworkInterface.
+ * This interface accesses data returned by the PCAP library after a packet
+ * capture. You can access the packet header as returned and filled in by
+ * PCAP library and access the raw data of the packet in form of a byte[]
  * 
  * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
  */
-public class PcapIpNetwork {
+public interface PcapPacket {
 
 	/**
-	 * Netmask of this network address.
+	 * PCAP library header packet header describing the capture event
+	 * at the time the packet was captured.
 	 * 
-	 * @return netmask for this address.
+	 * @return PCAP generated packet header.
 	 */
-	public byte[] getNetmask() {
-	
-		return null;
-	}
+	public PcapPacketHeader getHeader();
 	
 	/**
-	 * Address portion of this network address. Netmask is
-	 * not applied and address is not truncated to the number of
-	 * bits in the netmask.
+	 * Original packet data as captured off of the wire by the PCAP library.
 	 * 
-	 * @return Address portion of this network address.
+	 * @return byte[] containing all of the byte captured. This can be less
+	 * then actual packet on the wire depending how the capture was setup
+	 * using the snapLen parameter.
 	 */
-	public byte[] getAddress() {
-		return null;
-	}
-	
-	/**
-	 * Converted address to an InetAddress object part so that further
-	 * name service queries can be made such as hostname lookup.
-	 * 
-	 * @return Full InetAddress name service lookup facility.
-	 */
-	public InetAddress getInetAddress() {
-		return null;
-	}
+	public byte[] getData();
 }
