@@ -16,31 +16,15 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.slytechs.jnetpcap;
+package org.jnetpcap;
 
 /**
- * This interface accesses data returned by the PCAP library after a packet
- * capture. You can access the packet header as returned and filled in by
- * PCAP library and access the raw data of the packet in form of a byte[]
+ * Authentication credential for establishing a remote capture
+ * session to a remote server using PCAP library functionality.
  * 
  * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
-public interface PcapPacket {
+public interface PcapRemoteAuthentication {
 
-	/**
-	 * PCAP library header packet header describing the capture event
-	 * at the time the packet was captured.
-	 * 
-	 * @return PCAP generated packet header.
-	 */
-	public PcapPacketHeader getHeader();
-	
-	/**
-	 * Original packet data as captured off of the wire by the PCAP library.
-	 * 
-	 * @return byte[] containing all of the byte captured. This can be less
-	 * then actual packet on the wire depending how the capture was setup
-	 * using the snapLen parameter.
-	 */
-	public byte[] getData();
 }

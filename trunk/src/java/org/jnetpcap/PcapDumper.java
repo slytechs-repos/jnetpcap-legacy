@@ -16,15 +16,25 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.slytechs.jnetpcap;
+package org.jnetpcap;
+
+import java.io.IOException;
 
 /**
- * PCAP's implementation of  BPF (Berkley Packet Filter) filter program 
- * that has been compiled from source String.
+ * Save file or capture file dumper. This is used to very efficiently capture
+ * data from a line network interface and write that data into a file. Possibly
+ * even at kernel level with single buffer copy from start to finish.
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public interface PcapBpfProgram {
-
+public interface PcapDumper {
+	
+	public void dump(PcapPacket packet) throws IOException;
+	
+	public void close() throws IOException;
+	
+	public void flush() throws IOException;
+	
+	public long ftell();
 }

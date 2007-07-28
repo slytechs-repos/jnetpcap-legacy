@@ -16,15 +16,21 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.slytechs.jnetpcap;
+package org.jnetpcap;
 
 /**
- * Authentication credential for establishing a remote capture
- * session to a remote server using PCAP library functionality.
+ * A physical network interface as detected by PCAP library.
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public interface PcapRemoteAuthentication {
+public interface PcapNetworkAdapter {
 
+	/**
+	 * Returns an IpNetwork containing an address and netmask
+	 * for this interface.
+	 * 
+	 * @return Network address of this interface.
+	 */
+	public PcapIpNetwork getAddress();
 }

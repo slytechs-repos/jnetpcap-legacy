@@ -16,21 +16,27 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package com.slytechs.jnetpcap;
+package org.jnetpcap;
 
 /**
- * A physical network interface as detected by PCAP library.
+ * A handler, listener or call back inteface that gets notified
+ * when a new packet has been captured.
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public interface PcapNetworkAdapter {
+public interface PcapHandler {
 
 	/**
-	 * Returns an IpNetwork containing an address and netmask
-	 * for this interface.
+	 * Method that gets called when new packet has been received.
 	 * 
-	 * @return Network address of this interface.
+	 * @param packet 
+	 * 	The PcapPacket containing the data and packet header as
+	 * 	created by PCAP library.
+	 * 
+	 * @param userObject
+	 * 	User supplied object at the time when one of the loops has been
+	 *  started either Pcap.loop() or Pcap.dispatch()
 	 */
-	public PcapIpNetwork getAddress();
+	public void nextPacket(PcapPacket packet, Object userObject);
 }
