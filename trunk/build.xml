@@ -102,11 +102,9 @@
 	<!-- =================================================================== -->
 	<!-- Initilise stuff                                                     -->
 	<!-- =================================================================== -->
-	<target name="prepare">
+	<target name="prepare-java" unless="do.prepare-java">
 		<echo>+---------------------------------------------------+</echo>
-		<echo>|                                                   |</echo>
 		<echo>| R U N N I N G   P R E P A R E                     |</echo>
-		<echo>|                                                   |</echo>
 		<echo>+---------------------------------------------------+</echo>
 
 		<tstamp>
@@ -123,14 +121,15 @@
 
 	</target>
 
+
+
+
 	<!-- =================================================================== -->
 	<!-- Initilise stuff for JNI                                             -->
 	<!-- =================================================================== -->
-	<target name="prepare-jni">
+	<target name="prepare-jni" unless="do.prepare-jni">
 		<echo>+---------------------------------------------------+</echo>
-		<echo>|                                                   |</echo>
 		<echo>| R U N N I N G   P R E P A R E   F O R   J N I     |</echo>
-		<echo>|                                                   |</echo>
 		<echo>+---------------------------------------------------+</echo>
 
 		<tstamp>
@@ -147,15 +146,21 @@
 
 	</target>
 
+	<target name="checks">
+		<uptodate srcfile="${pcap.zip.file}" targetfile="${build.pcap.dir}" property="do.prepare-jni" />
+		<uptodate srcfile="${pcap.zip.file}" targetfile="${build.dir}" property="do.prepare-java" />
+	</target>
+	
+	<target name="prepare" depends="checks, prepare-java, prepare-jni">
+	</target>
+
 	<!-- =================================================================== -->
 	<!-- Build JNI headers from Java file                                    -->
 	<!-- =================================================================== -->
 	<target name="headers" depends="prepare-jni" description="Compile JNI Headers">
 
 		<echo>+---------------------------------------------------+</echo>
-		<echo>|                                                   |</echo>
 		<echo>| R U N N I N G   H E A D E R S                     |</echo>
-		<echo>|                                                   |</echo>
 		<echo>+---------------------------------------------------+</echo>
 
 		<javah destdir="${build.h.dir}" classpath="${jni.h.classpath}" force="${javah.force}">
@@ -173,9 +178,7 @@
 	<target name="compile" depends="prepare" description="Compile java source">
 
 		<echo>+---------------------------------------------------+</echo>
-		<echo>|                                                   |</echo>
 		<echo>| R U N N I N G   C O M P I L E                     |</echo>
-		<echo>|                                                   |</echo>
 		<echo>+---------------------------------------------------+</echo>
 
 		<mkdir dir="${build.classes.dir}" />
@@ -189,9 +192,7 @@
 	<target name="cc-win32" depends="prepare-jni, headers" description="Compile JNI C++ source">
 
 		<echo>+---------------------------------------------------+</echo>
-		<echo>|                                                   |</echo>
 		<echo>| R U N N I N G   C O M P I L E  J N I  I N  C++    |</echo>
-		<echo>|                                                   |</echo>
 		<echo>+---------------------------------------------------+</echo>
 
 		<!--
@@ -241,7 +242,7 @@
 			<arg line="-l ${pcap.lib.name}" />
 
 		</exec>
-		<echo message="Created shared JNI libary: ${build.library.dir}/jnetpcap.dll"/>
+		<echo message="Created shared JNI libary: ${build.library.dir}/jnetpcap.dll" />
 
 
 	</target>
@@ -251,9 +252,7 @@
 	<!-- =================================================================== -->
 	<target name="manifest" depends="compile" description="Create manifest file">
 		<echo>+---------------------------------------------------+</echo>
-		<echo>|                                                   |</echo>
 		<echo>| R U N N I N G   M A N I F E S T                   |</echo>
-		<echo>|                                                   |</echo>
 		<echo>+---------------------------------------------------+</echo>
 
 		<!-- Create manifest -->
@@ -271,9 +270,7 @@
 	<target name="jar" depends="manifest" description="Package the files into a jar">
 
 		<echo>+---------------------------------------------------+</echo>
-		<echo>|                                                   |</echo>
 		<echo>| R U N N I N G   J A R                             |</echo>
-		<echo>|                                                   |</echo>
 		<echo>+---------------------------------------------------+</echo>
 
 		<!-- Create JAR file -->
@@ -293,9 +290,7 @@
 	<!-- =================================================================== -->
 	<target name="clean" description="Clean up the build and dist directories">
 		<echo>+---------------------------------------------------+</echo>
-		<echo>|                                                   |</echo>
 		<echo>| R U N N I N G   C L E A N                         |</echo>
-		<echo>|                                                   |</echo>
 		<echo>+---------------------------------------------------+</echo>
 
 		<delete dir="${build.dir}" />
@@ -309,9 +304,7 @@
 	<!-- =================================================================== -->
 	<target name="javadoc" depends="compile" description="Create Javadoc API documentation">
 		<echo>+---------------------------------------------------+</echo>
-		<echo>|                                                   |</echo>
 		<echo>| R U N N I N G   J A V A D O C                     |</echo>
-		<echo>|                                                   |</echo>
 		<echo>+---------------------------------------------------+</echo>
 
 		<javadoc sourcepath="${src.dir}" destdir="${dist.docs.api.dir}" packagenames="com.*" />
@@ -324,9 +317,7 @@
 	<!-- =================================================================== -->
 	<target name="dist" depends="jar" description="Build distribution">
 		<echo>+---------------------------------------------------+</echo>
-		<echo>|                                                   |</echo>
 		<echo>| R U N N I N G   D I S T                           |</echo>
-		<echo>|                                                   |</echo>
 		<echo>+---------------------------------------------------+</echo>
 
 		<!-- Copy documentation subdirectory -->
@@ -364,9 +355,7 @@
 	<!-- =================================================================== -->
 	<target name="all" depends="clean,dist" description="Clean then run distribution">
 		<echo>+---------------------------------------------------+</echo>
-		<echo>|                                                   |</echo>
 		<echo>| R U N N I N G   A L L                             |</echo>
-		<echo>|                                                   |</echo>
 		<echo>+---------------------------------------------------+</echo>
 	</target>
 
@@ -378,9 +367,7 @@
 	<!-- =================================================================== -->
 	<target name="test" depends="compile,cc-win32">
 		<echo>+---------------------------------------------------+</echo>
-		<echo>|                                                   |</echo>
 		<echo>| R U N N I N G   T E S T                           |</echo>
-		<echo>|                                                   |</echo>
 		<echo>+---------------------------------------------------+</echo>
 
 		<mkdir dir="${build.report.dir}" />
