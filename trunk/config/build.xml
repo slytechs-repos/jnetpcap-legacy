@@ -24,6 +24,7 @@
         jNetPcap project build file - stage 1
 
     File: build.xml
+    Includes: common.properties and build.properties
     Author: Mark Bednarczyk, Sly Technologies, Inc.
 
  -->
@@ -43,30 +44,60 @@
 	
 
 	<!-- load the common and build properties file -->
-	<property file="common.properties" />
-	<property file="build.properties" />
+	<property file="common.properties" prefix="prj"/>
+	<property file="build.properties" prefix="build"/>
 	
 	
 	
 	<!--                        PREPARE SECTION  -->
 
 	<!-- Creates top level build/ directory -->
-	<target name="prep-build"></target>
+	<target name="prep-build">
+		<tstamp>
+			<format 
+				property="build.timestamp.isoformat" 
+				pattern="${prj.format.timestamp.long}" 
+				locale="${prj.format.timestamp.locale}" />
+		</tstamp>
+		
+		<tstamp>
+			<format 
+				property="build.timestamp.short" 
+				pattern="${prj.format.timestamp.short}" 
+				locale="${prj.format.timestamp.locale}" />
+		</tstamp>
+		
+		<mkdir dir="${build.dir}" />
+	</target>
 
 	<!-- Creates classes/ directory -->
-	<target name="prep-java" depends="prep-build"></target>
+	<target name="prep-java" depends="prep-build">
+		<mkdir dir="${build.classes.dir}" />
+	</target>
 	
 	<!-- Creates jni/ directory -->
-	<target name="prep-jni" depends="prep-build"></target>
+	<target name="prep-jni" depends="prep-build">
+		<mkdir dir="${build.jni.dir}" />
+		<mkdir dir="${build.obj.dir}" />
+	</target>
 	
-	<!-- Creates pcap, obj directories and unzips PCAP dev pack -->
-	<target name="prep-pcap" depends="prep-build"></target>
+	<!-- Creates pcap directory and unzips PCAP dev pack -->
+	<target name="prep-pcap" depends="prep-build">
+		<mkdir dir="${build.pcap.dir}" />
+		
+		<unzip 
+			dest="${build.pcap.dir}" 
+			src="${pcap.zip.file}" 
+			overwrite="${pcap.zip.override}" />
+	</target>
 	
 	<!-- Creates api/ directory for JavaDoc -->
 	<target name="prep-api" depends="prep-build"></target>
 	
 	<!-- Creates include/ directory for JavaDoc -->
-	<target name="prep-javah" depends="prep-build"></target>
+	<target name="prep-javah" depends="prep-build">
+		<mkdir dir="${build.include.dir}" />
+	</target>
 	
 	<!-- empty -->
 	<target name="prep-tests"></target>
@@ -92,19 +123,40 @@
 	
 	<!--                        MAIN CONTROL SECTION  -->
 	
-	<!-- Cleans the build -->
-	<target name="clean"></target>
+	<target name="echo-properties" depends="prep-build">
+		<echo message="build.timestamp.isoformat=${build.timestamp.isoformat}" />
+		<echo message="build.timestamp.short=${build.timestamp.short}" />
+		
+		<echo message="prj.src.dir=${prj.src.dir}" />
+		<echo message="prj.src.java.dir=${prj.src.java.dir}" />
+		<echo message="prj.src.c.dir=${prj.src.c.dir}" />
+
+		<echo message="build.dir=${build.dir}" />
+		<echo message="build.include.dir=${build.include.dir}" />
+		<echo message="build.classes.dir=${build.classes.dir}" />
+		<echo message="build.obj.dir=${build.obj.dir}" />
+		<echo message="build.pcap.dsk.dir=${build.pcap.sdk.dir}" />
+		<echo message="build.pcap.lib.filepath=${build.pcap.lib.filepath}" />
+		<echo message="build.pcap.lib.name=${build.pcap.lib.name}" />
+		<echo message="build.jni.lib.name=${build.jni.lib.name}" />
+	</target>
 
 	<!-- Build all -->
-	<target name="all" depends="tests,comp-api"></target>
+	<target name="all" depends="tests,comp-api,echo-properties">
+	</target>
+	
+	<!-- Cleans the build -->
+	<target name="clean"></target>
+	
+	<!-- Compiles java and JNI sources -->
+	<target name="compile" depends="comp-api,comp-jni"></target>
 
 	<!-- Execute jUnit test cases -->
 	<target name="tests" depends="comp-tests"></target>
 
 	<!-- Displays java doc API in browser -->
-	<target name="docs"></target>
+	<target name="docs" depends="comp-api"></target>
 
-	
 	<!-- Help on all the targets -->
 	<target name="help"></target>
 </project>
