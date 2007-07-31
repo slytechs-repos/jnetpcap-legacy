@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="javadoc_deploy">
+	<property name="project.name" value="jNetStreamAPI"/>
+	<property name="project.version" value="3.0" />
+	<property name="project.stability" value="first-cut" />
+	<property name="project.title" value="${project.name} ${project.version} (${project.stability})" />
+
+	<property name="project.base.dir" value="${project_loc}" />
+	
+	<property name="webserver.docs.dir" value="jnetstream/htdocs/docs" />
+	<property name="webserver.project.dir" value="${webserver.docs.dir}/${project.name}-${project.version}" />
+	<property name="webserver.javadoc.dir" value="${webserver.project.dir}/api" />
+	<property name="webserver.auth" 
+		value="${webserver.shell.username}:${webserver.shell.password}" />
+	<property name="webserver.for.scp" 
+		value="${webserver.auth}@${webserver.shell.hostname}" />
+	
+	<property name="zipfile" value="javadoc.zip" />
+	<property name="webserver.zipfile" value="${webserver.docs.dir}/${zipfile}" />
+	<property name="local.zipfile" value="bin/${zipfile}" />
+	<property name="local.javadoc.dir" value="${project.base.dir}/bin/javadoc" />
+	
+	<property name="local.resources.napformatfile" value="docs/draft-slytechs-network-nap-00.htm" />
+	<property name="webserver.resources.dir" value="${webserver.docs.dir}/resources" />
+	<property name="webserver.resources.napformatfile" 
+		value="${webserver.resources.dir}/draft-slytechs-network-nap-00.htm" />
+
+	<target name="javadoc">
+		<javadoc access="public" 
+			author="true" 
+			classpath="${classpath};../CommonUtils/lib/commons-logging.jar;../CommonUtils/bin;../CommonUtils/lib/jcs-1.2.7.7.jar;../CommonUtils/lib/junit.jar;lib/commons-logging.jar"
+			destdir="${local.javadoc.dir}" 
+			doctitle="${project.title}" 
+			nodeprecated="false" 
+			nodeprecatedlist="false" 
+			noindex="false" 
+			nonavbar="false" 
+			notree="false" 
+			overview="${project.base.dir}\src\java\Capture_Intro.html" 
+			packagenames="*" 
+			source="1.5" 
+			sourcepath="src/java" 
+			splitindex="true" 
+			use="true" 
+			version="true" />
+	</target>
+		
+	<target name="javadoc_zip" depends="javadoc">
+		<zip destfile="${local.zipfile}" basedir="${local.javadoc.dir}" />
+	</target>
+	
+	<target name="javadoc_deploy" depends="javadoc_zip">
+		<echo>todir=${webserver.for.scp}:${webserver.project.dir} file=${local.zipfile}</echo>
+		<echo>command="rm -rf ${webserver.javadoc.dir}; mkdir -p ${webserver.javadoc.dir}; unzip ${webserver.zipfile} -d ${webserver.javadoc.dir};"
+</echo>
+	
+		<scp trust="yes" 
+			verbose="yes" 
+			todir="${webserver.for.scp}:${webserver.docs.dir}"
+			file="${local.zipfile}"
+		/>
+
+		<sshexec trust="yes" 
+			host="${webserver.shell.hostname}" 
+			username="${webserver.shell.username}" 
+			password="${webserver.shell.password}"
+			command="rm -rf ${webserver.javadoc.dir}; mkdir -p ${webserver.javadoc.dir}; unzip ${webserver.zipfile} -d ${webserver.javadoc.dir}; rm -f ${webserver.zipfile}"
+		/> 
+
+
+	</target>
+	
+	<target name="resources_deploy">
+		<echo>todir=${webserver.for.scp}:${webserver.resources.dir} file=${local.resources.napformatfile}</echo>
+
+		<sshexec trust="yes" 
+			host="${webserver.shell.hostname}" 
+			username="${webserver.shell.username}" 
+			password="${webserver.shell.password}"
+			command="mkdir -p ${webserver.resources.dir};"
+		/> 
+		
+		<scp trust="yes" 
+			verbose="yes" 
+			todir="${webserver.for.scp}:${webserver.resources.dir}"
+			file="${local.resources.napformatfile}"
+		/>
+
+	</target>
+	
+	<target name="deplay_all" depends="resources_deploy,javadoc_deploy" >
+	</target>
+
+
+</project>
