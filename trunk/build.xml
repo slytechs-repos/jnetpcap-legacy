@@ -377,7 +377,7 @@
 			<formatter type="plain" usefile="false" />
 			<sysproperty key="java.library.path" value="${build.library.dir}" />
 
-			<test name="org.jnetpcap.tests.TestPcapNativeInterface" todir="${build.report.dir}" />
+			<test name="org.jnetpcap.TestPcapJNI" todir="${build.report.dir}" />
 
 			<classpath refid="test.classpath" />
 
