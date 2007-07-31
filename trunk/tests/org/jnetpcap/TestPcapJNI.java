@@ -10,7 +10,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.tests;
+package org.jnetpcap;
 
 import java.net.SocketException;
 import java.nio.ByteBuffer;
@@ -29,14 +29,14 @@ import org.jnetpcap.PcapPkthdr;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class TestPcapNativeInterface
+public class TestPcapJNI
     extends TestCase {
 
 	private StringBuilder errbuf;
 
 	private final static String device = "\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
 
-	private final static String fname = "testdata/test-l2tp.pcap";
+	private final static String fname = "tests/test-l2tp.pcap";
 	
 	private static final int OK = 0;
 
