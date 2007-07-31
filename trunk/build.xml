@@ -29,12 +29,22 @@
  -->
 <project name="jNetPcap" default="help" basedir=".">
 
+    <!-- Get the enviroment collection from the OS -->
+    <property environment="env"/>
+	
+    <!-- 
+         Add the optional compiler task <cc></cc>, 
+         the JAR needs to be in the classpath or ANT_HOME 
+     -->
+	<taskdef resource="cpptasks.tasks"/>
+	<typedef resource="cpptasks.types"/>
+
+
 
     <!-- load the jNetPcap properties file -->
     <property file="build.properties"/>
 
-    <!-- Get the enviroment collection from the OS -->
-    <property environment="env"/>
+
     
     
     <!-- =================================================================== -->
@@ -102,7 +112,6 @@
         </tstamp>
 
         <mkdir dir="${build.dir}"/>
-        <mkdir dir="${build.h.dir}"/>
         <mkdir dir="${build.meta-inf.dir}"/>
         <mkdir dir="${dist.dir}"/>
         <mkdir dir="${dist.docs.dir}"/>
@@ -111,11 +120,38 @@
 	    <mkdir dir="${dist.lib.dir}"/>
         
     </target>
+	
+    <!-- =================================================================== -->
+    <!-- Initilise stuff for JNI                                             -->
+    <!-- =================================================================== -->
+    <target name="prepare-jni">
+        <echo>+---------------------------------------------------+</echo>
+        <echo>|                                                   |</echo>
+        <echo>| R U N N I N G   P R E P A R E   F O R   J N I     |</echo>
+        <echo>|                                                   |</echo>
+        <echo>+---------------------------------------------------+</echo>
+
+        <tstamp>
+            <format 
+            	property="timestamp.isoformat" 
+            	pattern="yyyy-mm-dd'T'HH:mm:ss" 
+            	locale="en" />
+        </tstamp>
+
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${build.pcap.dir}"/>
+        <mkdir dir="${build.h.dir}"/>
+        <mkdir dir="${build.library.dir}"/>
+        <mkdir dir="${build.obj.dir}"/>
+    	
+   		<unzip dest="${pcap.unzip.dir}" src="${pcap.zip.file}" overwrite="${pcap.zip.override}"/>
+
+    </target>
 
     <!-- =================================================================== -->
     <!-- Build JNI headers from Java file                                    -->
     <!-- =================================================================== -->
-    <target name="headers" depends="prepare" description="Compile JNI Headers">
+    <target name="headers" depends="prepare-jni" description="Compile JNI Headers">
 
         <echo>+---------------------------------------------------+</echo>
         <echo>|                                                   |</echo>
@@ -123,7 +159,11 @@
         <echo>|                                                   |</echo>
         <echo>+---------------------------------------------------+</echo>
         
-        <javah destdir="${build.h.dir}" classpath="${jni.h.classpath}" force="yes" >
+        <javah 
+        	destdir="${build.h.dir}" 
+        	classpath="${jni.h.classpath}" 
+        	force="${javah.force}" >
+        	
           <class name="org.jnetpcap.Pcap"/>
           <class name="org.jnetpcap.PcapBpfProgram"/>
 
@@ -152,7 +192,44 @@
             classpathref="compile.classpath"
             />
     </target>
+	
 
+    <!-- =================================================================== -->
+    <!-- Compile JNI source                                                 -->
+    <!-- =================================================================== -->
+    <target name="compile-jni" depends="prepare-jni, headers" description="Compile JNI C++ source">
+
+        <echo>+---------------------------------------------------+</echo>
+        <echo>|                                                   |</echo>
+        <echo>| R U N N I N G   C O M P I L E  J N I  I N  C++    |</echo>
+        <echo>|                                                   |</echo>
+        <echo>+---------------------------------------------------+</echo>
+
+    	<cc debug="${build.debug}"
+    		outtype="shared"
+    		outfile="${build.library.filename.nosuffix}"
+    		objdir="${build.obj.dir}"
+    		multithreaded="true"
+    		exceptions="true" >
+    		
+    		<fileset dir="${src.jni.dir}" />
+    		<includepath location="${build.h.dir}" />
+    		<includepath location="${src.jni.dir}" />
+			<sysincludepath location="${java.includes.dir}/win32" />
+			<sysincludepath location="${java.includes.dir}" />
+    		<sysincludepath location="${pcap.includes.dir}" />
+    		<sysincludepath location="${pcap.includes.dir}/win32" />
+    		<sysincludepath location="C:\Program Files\Microsoft Visual Studio 8\VC\include" />
+    		<sysincludepath location="C:\mingw\include" />
+    		
+    		<compiler name="msvc" />
+    		
+    		<linker name="msvc">
+    			<syslibset dir="${pcap.lib.dir}" libs="${pcap.lib.name}" />
+    		</linker>
+    	</cc>
+        
+    </target>
 
     <!-- =================================================================== -->
     <!-- Create manifest file                                                -->
@@ -307,7 +384,7 @@
 				todir="${build.report.dir}"/>
 			-->
 
-            <test name="com.voytechs.jnetstream.test.CodecGetValueTest" 
+            <test name="org.jnetpcap.tests.TestPcapNativeInterface" 
 				todir="${build.report.dir}"/>
 
 		    <classpath refid="test.classpath"/>
