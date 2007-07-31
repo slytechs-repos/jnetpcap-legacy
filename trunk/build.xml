@@ -1,4 +1,4 @@
- <!--
+<!--
 
     Copyright (C) 2003 Mark Wolfe
 
@@ -29,63 +29,65 @@
  -->
 <project name="jNetPcap" default="help" basedir=".">
 
-    <!-- Get the enviroment collection from the OS -->
-    <property environment="env"/>
-	
-    <!-- 
+	<!-- Get the enviroment collection from the OS -->
+	<property environment="env" />
+
+	<!-- 
          Add the optional compiler task <cc></cc>, 
          the JAR needs to be in the classpath or ANT_HOME 
      -->
-	<taskdef resource="cpptasks.tasks"/>
-	<typedef resource="cpptasks.types"/>
+	<taskdef resource="cpptasks.tasks" />
+	<typedef resource="cpptasks.types" />
 
 
 
-    <!-- load the jNetPcap properties file -->
-    <property file="build.properties"/>
+	<!-- load the jNetPcap properties file -->
+	<property file="build.properties" />
 
 
-    
-    
-    <!-- =================================================================== -->
-    <!-- class path used for compiling                                       -->
-    <!-- =================================================================== -->
-    <path id="compile.classpath">
-
-        <fileset dir="${lib.junit.dir}">
-            <include name="*.jar"/>
-        </fileset>
-
-    </path>
 
 
-    <!-- =================================================================== -->
-    <!-- Define the class path for testing                                   -->
-    <!-- =================================================================== -->
-    <path id="test.classpath">
+	<!-- =================================================================== -->
+	<!-- class path used for compiling                                       -->
+	<!-- =================================================================== -->
+	<path id="compile.classpath">
 
-        <fileset dir="${lib.junit.dir}">
-            <include name="*.jar"/>
-        </fileset>
+		<fileset dir="${lib.junit.dir}">
+			<include name="*.jar" />
+		</fileset>
 
-        <pathelement location="${build.classes.dir}"/>
-    </path>
+	</path>
 
 
-    <!-- =================================================================== -->
-    <!-- Define the class path for JNI headers                                   -->
-    <!-- =================================================================== -->
-    <property name="jni.h.classpath" value="${bin.classes.dir}"/>
-    
-    
-    <!-- =================================================================== -->
-    <!-- Print out a list of targets                                         -->
-    <!-- =================================================================== -->
-    <target name="help" description="Print out a list of targets">
+	<!-- =================================================================== -->
+	<!-- Define the class path for testing                                   -->
+	<!-- =================================================================== -->
+	<path id="test.classpath">
 
-        <echo>The list of ant tasks is as follows:</echo>
-        <echo></echo>
-        <echo>  help      - display this help.</echo>
+		<fileset dir="${lib.junit.dir}">
+			<include name="*.jar" />
+		</fileset>
+
+		<pathelement location="${bin.classes.dir}" />
+		<pathelement location="${build.classes.dir}" />
+	</path>
+
+
+	<!-- =================================================================== -->
+	<!-- Define the class path for JNI headers                                   -->
+	<!-- =================================================================== -->
+	<property name="jni.h.classpath" value="${bin.classes.dir}" />
+
+
+	<!-- =================================================================== -->
+	<!-- Print out a list of targets                                         -->
+	<!-- =================================================================== -->
+	<target name="help" description="Print out a list of targets">
+
+		<echo>The list of ant tasks is as follows:</echo>
+		<echo>
+		</echo>
+		<echo>  help      - display this help.</echo>
 		<echo>  prepare   - Initilise stuff.</echo>
 		<echo>  compile   - Compile java sources.</echo>
 		<echo>  manifest  - Create manifest file.</echo>
@@ -95,312 +97,305 @@
 		<echo>  dist      - Build distribution.</echo>
 		<echo>  all       - Clean then run distribution.</echo>
 
-    </target>
+	</target>
 
-    <!-- =================================================================== -->
-    <!-- Initilise stuff                                                     -->
-    <!-- =================================================================== -->
-    <target name="prepare">
-        <echo>+---------------------------------------------------+</echo>
-        <echo>|                                                   |</echo>
-        <echo>| R U N N I N G   P R E P A R E                     |</echo>
-        <echo>|                                                   |</echo>
-        <echo>+---------------------------------------------------+</echo>
+	<!-- =================================================================== -->
+	<!-- Initilise stuff                                                     -->
+	<!-- =================================================================== -->
+	<target name="prepare">
+		<echo>+---------------------------------------------------+</echo>
+		<echo>|                                                   |</echo>
+		<echo>| R U N N I N G   P R E P A R E                     |</echo>
+		<echo>|                                                   |</echo>
+		<echo>+---------------------------------------------------+</echo>
 
-        <tstamp>
-            <format property="timestamp.isoformat" pattern="yyyy-mm-dd'T'HH:mm:ss" locale="en" />
-        </tstamp>
+		<tstamp>
+			<format property="timestamp.isoformat" pattern="yyyy-mm-dd'T'HH:mm:ss" locale="en" />
+		</tstamp>
 
-        <mkdir dir="${build.dir}"/>
-        <mkdir dir="${build.meta-inf.dir}"/>
-        <mkdir dir="${dist.dir}"/>
-        <mkdir dir="${dist.docs.dir}"/>
-        <mkdir dir="${dist.docs.api.dir}"/>
-        <mkdir dir="${dist.bin.dir}"/>
-	    <mkdir dir="${dist.lib.dir}"/>
-        
-    </target>
-	
-    <!-- =================================================================== -->
-    <!-- Initilise stuff for JNI                                             -->
-    <!-- =================================================================== -->
-    <target name="prepare-jni">
-        <echo>+---------------------------------------------------+</echo>
-        <echo>|                                                   |</echo>
-        <echo>| R U N N I N G   P R E P A R E   F O R   J N I     |</echo>
-        <echo>|                                                   |</echo>
-        <echo>+---------------------------------------------------+</echo>
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${build.meta-inf.dir}" />
+		<mkdir dir="${dist.dir}" />
+		<mkdir dir="${dist.docs.dir}" />
+		<mkdir dir="${dist.docs.api.dir}" />
+		<mkdir dir="${dist.bin.dir}" />
+		<mkdir dir="${dist.lib.dir}" />
 
-        <tstamp>
-            <format 
-            	property="timestamp.isoformat" 
-            	pattern="yyyy-mm-dd'T'HH:mm:ss" 
-            	locale="en" />
-        </tstamp>
+	</target>
 
-        <mkdir dir="${build.dir}"/>
-        <mkdir dir="${build.pcap.dir}"/>
-        <mkdir dir="${build.h.dir}"/>
-        <mkdir dir="${build.library.dir}"/>
-        <mkdir dir="${build.obj.dir}"/>
-    	
-   		<unzip dest="${pcap.unzip.dir}" src="${pcap.zip.file}" overwrite="${pcap.zip.override}"/>
+	<!-- =================================================================== -->
+	<!-- Initilise stuff for JNI                                             -->
+	<!-- =================================================================== -->
+	<target name="prepare-jni">
+		<echo>+---------------------------------------------------+</echo>
+		<echo>|                                                   |</echo>
+		<echo>| R U N N I N G   P R E P A R E   F O R   J N I     |</echo>
+		<echo>|                                                   |</echo>
+		<echo>+---------------------------------------------------+</echo>
 
-    </target>
+		<tstamp>
+			<format property="timestamp.isoformat" pattern="yyyy-mm-dd'T'HH:mm:ss" locale="en" />
+		</tstamp>
 
-    <!-- =================================================================== -->
-    <!-- Build JNI headers from Java file                                    -->
-    <!-- =================================================================== -->
-    <target name="headers" depends="prepare-jni" description="Compile JNI Headers">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${build.pcap.dir}" />
+		<mkdir dir="${build.h.dir}" />
+		<mkdir dir="${build.library.dir}" />
+		<mkdir dir="${build.obj.dir}" />
 
-        <echo>+---------------------------------------------------+</echo>
-        <echo>|                                                   |</echo>
-        <echo>| R U N N I N G   H E A D E R S                     |</echo>
-        <echo>|                                                   |</echo>
-        <echo>+---------------------------------------------------+</echo>
-        
-        <javah 
-        	destdir="${build.h.dir}" 
-        	classpath="${jni.h.classpath}" 
-        	force="${javah.force}" >
-        	
-          <class name="org.jnetpcap.Pcap"/>
-          <class name="org.jnetpcap.PcapBpfProgram"/>
+		<unzip dest="${pcap.unzip.dir}" src="${pcap.zip.file}" overwrite="${pcap.zip.override}" />
 
-        </javah>
-        
-    </target>
+	</target>
 
-    <!-- =================================================================== -->
-    <!-- Compile java source                                                 -->
-    <!-- =================================================================== -->
-    <target name="compile" depends="prepare" description="Compile java source">
+	<!-- =================================================================== -->
+	<!-- Build JNI headers from Java file                                    -->
+	<!-- =================================================================== -->
+	<target name="headers" depends="prepare-jni" description="Compile JNI Headers">
 
-        <echo>+---------------------------------------------------+</echo>
-        <echo>|                                                   |</echo>
-        <echo>| R U N N I N G   C O M P I L E                     |</echo>
-        <echo>|                                                   |</echo>
-        <echo>+---------------------------------------------------+</echo>
+		<echo>+---------------------------------------------------+</echo>
+		<echo>|                                                   |</echo>
+		<echo>| R U N N I N G   H E A D E R S                     |</echo>
+		<echo>|                                                   |</echo>
+		<echo>+---------------------------------------------------+</echo>
 
-        <mkdir dir="${build.classes.dir}"/>
-        <javac
-            srcdir="${src.dir}"
-            destdir="${build.classes.dir}"
-            debug="${compile.debug}"
-            deprecation="${compile.deprecation}"
-            optimize="${compile.optimize}"
-            classpathref="compile.classpath"
-            />
-    </target>
-	
+		<javah destdir="${build.h.dir}" classpath="${jni.h.classpath}" force="${javah.force}">
 
-    <!-- =================================================================== -->
-    <!-- Compile JNI source                                                 -->
-    <!-- =================================================================== -->
-    <target name="compile-jni" depends="prepare-jni, headers" description="Compile JNI C++ source">
+			<class name="org.jnetpcap.Pcap" />
+			<class name="org.jnetpcap.PcapBpfProgram" />
 
-        <echo>+---------------------------------------------------+</echo>
-        <echo>|                                                   |</echo>
-        <echo>| R U N N I N G   C O M P I L E  J N I  I N  C++    |</echo>
-        <echo>|                                                   |</echo>
-        <echo>+---------------------------------------------------+</echo>
+		</javah>
 
-    	<cc debug="${build.debug}"
-    		outtype="shared"
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Compile java source                                                 -->
+	<!-- =================================================================== -->
+	<target name="compile" depends="prepare" description="Compile java source">
+
+		<echo>+---------------------------------------------------+</echo>
+		<echo>|                                                   |</echo>
+		<echo>| R U N N I N G   C O M P I L E                     |</echo>
+		<echo>|                                                   |</echo>
+		<echo>+---------------------------------------------------+</echo>
+
+		<mkdir dir="${build.classes.dir}" />
+		<javac srcdir="${src.dir}" destdir="${build.classes.dir}" debug="${compile.debug}" deprecation="${compile.deprecation}" optimize="${compile.optimize}" classpathref="compile.classpath" />
+	</target>
+
+
+	<!-- =================================================================== -->
+	<!-- Compile JNI source                                                 -->
+	<!-- =================================================================== -->
+	<target name="cc-win32" depends="prepare-jni, headers" description="Compile JNI C++ source">
+
+		<echo>+---------------------------------------------------+</echo>
+		<echo>|                                                   |</echo>
+		<echo>| R U N N I N G   C O M P I L E  J N I  I N  C++    |</echo>
+		<echo>|                                                   |</echo>
+		<echo>+---------------------------------------------------+</echo>
+
+		<!--
+     		outtype="shared"
     		outfile="${build.library.filename.nosuffix}"
-    		objdir="${build.obj.dir}"
-    		multithreaded="true"
-    		exceptions="true" >
-    		
-    		<fileset dir="${src.jni.dir}" />
-    		<includepath location="${build.h.dir}" />
-    		<includepath location="${src.jni.dir}" />
+      	-->
+
+		<cc debug="${build.debug}" objdir="${build.obj.dir}" multithreaded="true" exceptions="true">
+
+			<compiler name="gcc" />
+			<fileset dir="${src.jni.dir}" />
+			<includepath location="${build.h.dir}" />
+			<includepath location="${src.jni.dir}" />
 			<sysincludepath location="${java.includes.dir}/win32" />
 			<sysincludepath location="${java.includes.dir}" />
-    		<sysincludepath location="${pcap.includes.dir}" />
-    		<sysincludepath location="${pcap.includes.dir}/win32" />
-    		<sysincludepath location="C:\Program Files\Microsoft Visual Studio 8\VC\include" />
-    		<sysincludepath location="C:\mingw\include" />
-    		
-    		<compiler name="msvc" />
-    		
-    		<linker name="msvc">
-    			<syslibset dir="${pcap.lib.dir}" libs="${pcap.lib.name}" />
-    		</linker>
-    	</cc>
-        
-    </target>
-
-    <!-- =================================================================== -->
-    <!-- Create manifest file                                                -->
-    <!-- =================================================================== -->
-    <target name="manifest" depends="compile" description="Create manifest file">
-        <echo>+---------------------------------------------------+</echo>
-        <echo>|                                                   |</echo>
-        <echo>| R U N N I N G   M A N I F E S T                   |</echo>
-        <echo>|                                                   |</echo>
-        <echo>+---------------------------------------------------+</echo>
-
-        <!-- Create manifest -->
-        <manifest file="${build.meta-inf.dir}/MANIFEST.MF">
-            <attribute name="Built-By" value="${user.name}"/>
-            <attribute name="Built-On" value="${timestamp.isoformat}"/>
-            <attribute name="Main-Class" value="com.voytechs.tools.SlyDecoder"/>
-        </manifest>
-    </target>
+			<sysincludepath location="${pcap.includes.dir}" />
+			<sysincludepath location="${pcap.includes.dir}/win32" />
 
 
-    <!-- =================================================================== -->
-    <!-- Package the class files into an jar                                 -->
-    <!-- =================================================================== -->
-    <target name="jar" depends="manifest" description="Package the files into a jar">
 
-        <echo>+---------------------------------------------------+</echo>
-        <echo>|                                                   |</echo>
-        <echo>| R U N N I N G   J A R                             |</echo>
-        <echo>|                                                   |</echo>
-        <echo>+---------------------------------------------------+</echo>
-
-        <!-- Create JAR file -->
-        <jar jarfile="${dist.lib.dir}/${app.name}.jar"
-             manifest="${build.meta-inf.dir}/MANIFEST.MF">
-
-             <fileset dir="${build.classes.dir}"/>
-             <fileset dir="." includes="config/*"/>
-
-        </jar>
+			<linker name="gcc">
+				<linkerarg value="--add-stdcall-alias" />
+				<syslibset dir="${pcap.lib.dir}" libs="${pcap.lib.name}" />
+			</linker>
+		</cc>
 
 
-    </target>
+		<!--
+      	-->
 
 
-    <!-- =================================================================== -->
-    <!-- Clean up the build and dist directories                             -->
-    <!-- =================================================================== -->
-    <target name="clean" description="Clean up the build and dist directories" >
-        <echo>+---------------------------------------------------+</echo>
-        <echo>|                                                   |</echo>
-        <echo>| R U N N I N G   C L E A N                         |</echo>
-        <echo>|                                                   |</echo>
-        <echo>+---------------------------------------------------+</echo>
+		<uptodate targetfile="${${build.library.dir}/jnetpcap.dll}" property="doB">
+			<srcfiles dir="${build.obj.dir}" />
+		</uptodate>
 
-        <delete dir="${build.dir}"/>
-        <delete dir="${dist.dir}"/>
+		<exec executable="gcc">
+			<arg value="-shared" />
+			<arg value="-Wl,--add-stdcall-alias" />
+			<arg line="-o ${build.library.dir}/jnetpcap.dll" />
 
-    </target>
+			<arg value="${build.obj.dir}/jnetpcap.o" />
+			<arg value="${build.obj.dir}/jnetpcap_utils.o" />
+			<arg value="${build.obj.dir}/jnetpcap_bpf.o" />
 
+			<arg line="-L ${pcap.lib.dir}" />
 
-    <!-- =================================================================== -->
-    <!-- Create Javadoc API documentation                                    -->
-    <!-- =================================================================== -->
-    <target name="javadoc" depends="compile" description="Create Javadoc API documentation">
-        <echo>+---------------------------------------------------+</echo>
-        <echo>|                                                   |</echo>
-        <echo>| R U N N I N G   J A V A D O C                     |</echo>
-        <echo>|                                                   |</echo>
-        <echo>+---------------------------------------------------+</echo>
+			<arg line="-l ${pcap.lib.name}" />
 
-        <javadoc sourcepath="${src.dir}"
-            destdir="${dist.docs.api.dir}"
-            packagenames="com.*"
-            />
-
-    </target>
+		</exec>
+		<echo message="Created shared JNI libary: ${build.library.dir}/jnetpcap.dll"/>
 
 
-    <!-- =================================================================== -->
-    <!-- Build distribution                                                  -->
-    <!-- =================================================================== -->
-    <target name="dist" depends="jar" description="Build distribution">
-        <echo>+---------------------------------------------------+</echo>
-        <echo>|                                                   |</echo>
-        <echo>| R U N N I N G   D I S T                           |</echo>
-        <echo>|                                                   |</echo>
-        <echo>+---------------------------------------------------+</echo>
+	</target>
 
-        <!-- Copy documentation subdirectory -->
-        <copy todir="${dist.docs.dir}">
-            <fileset dir="${docs.dir}"/>
-        </copy>
+	<!-- =================================================================== -->
+	<!-- Create manifest file                                                -->
+	<!-- =================================================================== -->
+	<target name="manifest" depends="compile" description="Create manifest file">
+		<echo>+---------------------------------------------------+</echo>
+		<echo>|                                                   |</echo>
+		<echo>| R U N N I N G   M A N I F E S T                   |</echo>
+		<echo>|                                                   |</echo>
+		<echo>+---------------------------------------------------+</echo>
 
-        <!-- Copy configuration subdirectory -->
-        <copy todir="${dist.dir}/config">
-            <fileset dir="config"/>
-        </copy>
-
-        <!-- Copy script subdirectory -->
-        <copy todir="${dist.bin.dir}">
-            <fileset dir="script"/>
-        </copy>
-
-        <!-- Set permissions for bin subdirectory -->
-				<exec dir="${dist.bin.dir}"
-				      executable="chmod">
-            <arg line="555"/>
-            <arg line="slycopy"/>
-            <arg line="slydecoder"/>
-            <arg line="slycopy.bat"/>
-            <arg line="slydecoder.bat"/>
-        </exec>
-
-        <!-- Copy the readme.txt -->
-        <copy todir="${dist.dir}"
-            file="docs/README.txt"/>
-
-    </target>
+		<!-- Create manifest -->
+		<manifest file="${build.meta-inf.dir}/MANIFEST.MF">
+			<attribute name="Built-By" value="${user.name}" />
+			<attribute name="Built-On" value="${timestamp.isoformat}" />
+			<attribute name="Main-Class" value="com.voytechs.tools.SlyDecoder" />
+		</manifest>
+	</target>
 
 
-    <!-- =================================================================== -->
-    <!-- Clean then run distribution                                         -->
-    <!-- =================================================================== -->
-    <target name="all" depends="clean,dist" description="Clean then run distribution" >
-        <echo>+---------------------------------------------------+</echo>
-        <echo>|                                                   |</echo>
-        <echo>| R U N N I N G   A L L                             |</echo>
-        <echo>|                                                   |</echo>
-        <echo>+---------------------------------------------------+</echo>
-    </target>
+	<!-- =================================================================== -->
+	<!-- Package the class files into an jar                                 -->
+	<!-- =================================================================== -->
+	<target name="jar" depends="manifest" description="Package the files into a jar">
 
-    <!-- =================================================================== -->
-    <!-- Runs the configured tests                                           -->
-    <!--                                                                     -->
-    <!-- NOTE: To use this target copy lib/junit/junit.jar to $ANT_HOME/lib  -->
-    <!--       directory.                                                    -->
-    <!-- =================================================================== -->
-    <target name="test" depends="compile">
-        <echo>+---------------------------------------------------+</echo>
-        <echo>|                                                   |</echo>
-        <echo>| R U N N I N G   T E S T                           |</echo>
-        <echo>|                                                   |</echo>
-        <echo>+---------------------------------------------------+</echo>
+		<echo>+---------------------------------------------------+</echo>
+		<echo>|                                                   |</echo>
+		<echo>| R U N N I N G   J A R                             |</echo>
+		<echo>|                                                   |</echo>
+		<echo>+---------------------------------------------------+</echo>
 
-        <mkdir dir="${build.report.dir}"/>
+		<!-- Create JAR file -->
+		<jar jarfile="${dist.lib.dir}/${app.name}.jar" manifest="${build.meta-inf.dir}/MANIFEST.MF">
 
-        <junit printsummary="true" fork="no" showoutput="yes">
+			<fileset dir="${build.classes.dir}" />
+			<fileset dir="." includes="config/*" />
 
-            <formatter type="xml"/>
-            <!--
-			< test name="com.voytechs.jnetstream.test.ExampleTest" 
-				todir="${build.report.dir}"/>
-			-->
+		</jar>
 
-            <test name="org.jnetpcap.tests.TestPcapNativeInterface" 
-				todir="${build.report.dir}"/>
 
-		    <classpath refid="test.classpath"/>
+	</target>
 
-        </junit>
 
-        <junitreport todir="${build.report.dir}">
+	<!-- =================================================================== -->
+	<!-- Clean up the build and dist directories                             -->
+	<!-- =================================================================== -->
+	<target name="clean" description="Clean up the build and dist directories">
+		<echo>+---------------------------------------------------+</echo>
+		<echo>|                                                   |</echo>
+		<echo>| R U N N I N G   C L E A N                         |</echo>
+		<echo>|                                                   |</echo>
+		<echo>+---------------------------------------------------+</echo>
 
-            <fileset dir="${build.report.dir}">
-                <include name="TEST-*.xml"/>
-            </fileset>
+		<delete dir="${build.dir}" />
+		<delete dir="${dist.dir}" />
 
-            <report format="frames" todir="${build.report.dir}"/>
+	</target>
 
-        </junitreport>
 
-    </target>
+	<!-- =================================================================== -->
+	<!-- Create Javadoc API documentation                                    -->
+	<!-- =================================================================== -->
+	<target name="javadoc" depends="compile" description="Create Javadoc API documentation">
+		<echo>+---------------------------------------------------+</echo>
+		<echo>|                                                   |</echo>
+		<echo>| R U N N I N G   J A V A D O C                     |</echo>
+		<echo>|                                                   |</echo>
+		<echo>+---------------------------------------------------+</echo>
+
+		<javadoc sourcepath="${src.dir}" destdir="${dist.docs.api.dir}" packagenames="com.*" />
+
+	</target>
+
+
+	<!-- =================================================================== -->
+	<!-- Build distribution                                                  -->
+	<!-- =================================================================== -->
+	<target name="dist" depends="jar" description="Build distribution">
+		<echo>+---------------------------------------------------+</echo>
+		<echo>|                                                   |</echo>
+		<echo>| R U N N I N G   D I S T                           |</echo>
+		<echo>|                                                   |</echo>
+		<echo>+---------------------------------------------------+</echo>
+
+		<!-- Copy documentation subdirectory -->
+		<copy todir="${dist.docs.dir}">
+			<fileset dir="${docs.dir}" />
+		</copy>
+
+		<!-- Copy configuration subdirectory -->
+		<copy todir="${dist.dir}/config">
+			<fileset dir="config" />
+		</copy>
+
+		<!-- Copy script subdirectory -->
+		<copy todir="${dist.bin.dir}">
+			<fileset dir="script" />
+		</copy>
+
+		<!-- Set permissions for bin subdirectory -->
+		<exec dir="${dist.bin.dir}" executable="chmod">
+			<arg line="555" />
+			<arg line="slycopy" />
+			<arg line="slydecoder" />
+			<arg line="slycopy.bat" />
+			<arg line="slydecoder.bat" />
+		</exec>
+
+		<!-- Copy the readme.txt -->
+		<copy todir="${dist.dir}" file="docs/README.txt" />
+
+	</target>
+
+
+	<!-- =================================================================== -->
+	<!-- Clean then run distribution                                         -->
+	<!-- =================================================================== -->
+	<target name="all" depends="clean,dist" description="Clean then run distribution">
+		<echo>+---------------------------------------------------+</echo>
+		<echo>|                                                   |</echo>
+		<echo>| R U N N I N G   A L L                             |</echo>
+		<echo>|                                                   |</echo>
+		<echo>+---------------------------------------------------+</echo>
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Runs the configured tests                                           -->
+	<!--                                                                     -->
+	<!-- NOTE: To use this target copy lib/junit/junit.jar to $ANT_HOME/lib  -->
+	<!--       directory.                                                    -->
+	<!-- =================================================================== -->
+	<target name="test" depends="compile,cc-win32">
+		<echo>+---------------------------------------------------+</echo>
+		<echo>|                                                   |</echo>
+		<echo>| R U N N I N G   T E S T                           |</echo>
+		<echo>|                                                   |</echo>
+		<echo>+---------------------------------------------------+</echo>
+
+		<mkdir dir="${build.report.dir}" />
+
+		<junit printsummary="withOutAndErr" fork="yes" failureproperty="tests.failed">
+
+			<formatter type="plain" usefile="false" />
+			<sysproperty key="java.library.path" value="${build.library.dir}" />
+
+			<test name="org.jnetpcap.tests.TestPcapNativeInterface" todir="${build.report.dir}" />
+
+			<classpath refid="test.classpath" />
+
+		</junit>
+
+	</target>
 
 </project>
