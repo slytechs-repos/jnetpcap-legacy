@@ -13,6 +13,7 @@
 package org.jnetpcap;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,17 +24,32 @@ import org.apache.commons.logging.LogFactory;
  * impelementations. It provides a direct mapping of various library methods
  * from Java.
  * </P>
- * <P>
- * Usage is very intuitive and only slightly deviates from the strict "C" use
- * since Java is object orientend language.
- * </P>
- * 
- * <PRE style="float: right; border: double; margin-left: 1.5em;">
- * You should read libpcap introduction on
- *  &lt;A href=&quot;http://www.tcpdump.org&quot;&gt;tcpdump.org&lt;/A&gt; website for general overview 
- *  and functionality of libpcap.
- * </PRE>
- * 
+ * <h2>Getting started</h2>
+ * <p>
+ * <code>Pcap</code> class provides several static methods which allow
+ * discovery of networking interfaces and then subsequently open up either
+ * {@link #openLive}, {@link #openDead} or {@link #openOffline} pcap capture
+ * sessions. In all 3 cases a <code>Pcap</code> object is returned. The object
+ * is backed by a C <code>pcap_t</code> structure outside of java VM address
+ * space. Any non-static operations on the <code>Pcap</code> object, are
+ * translated using java JNI API into corresponding Libpcap C calls and the
+ * appropriate <code>pcap_t</code> C structure is supplied to complete the
+ * call.
+ * </p>
+ * <p>
+ * After aquiring a <code>Pcap</code> object from above mentioned static
+ * methods, you must call on {@link #close} call to release any Libpcap
+ * resources and the backing C structure. The <code>Pcap</code> object does
+ * implicitly call the {@link #close} method from its {@link #finalize} method,
+ * but that will only happen when the <code>Pcap</code> is garabage collected.
+ * Its best practice to remember to always call on {@link #close} when
+ * <code>Pcap</code> object and capture session is no longer needed.
+ * </p>
+ * <p>
+ * If <code>Pcap</code> object is closed and any of its non-static methods are
+ * called on, after the close, {@link IllegalStateException} will be thrown.
+ * </p>
+ * <h3>Getting a list of network interfaces from Pcap</h3>
  * Lets get started with little example on how to inquire about available
  * interfaces, ask the user to pick one of those interfaces for us, open it for
  * capture, compile and install a capture filter and then start processing some
@@ -43,14 +59,34 @@ import org.apache.commons.logging.LogFactory;
  * jNetPCAP to open one or more for reading. So first we inquire about the list
  * of interfaces on the system:
  * 
- * <PRE>
- * PcapNetworkInterface[] interfaces = Pcap.findAllDevices();
- * </PRE>
+ * <pre>
+ * StringBuilder errbuf = new StringBuilder();
+ * PcapIf if = new PcapIf(); // Start of the linked list returned by {@link #findAllDevs}
+ * int statusCode = {@link Pcap}.{@link #findAllDevs}(if, errbuf)};
+ * if (statusCode != 0) {
+ * 	 System.out.println(&quot;Error occured: &quot; + errbuf.toString());
+ *   return;
+ * }
+ * List ifs = if.toList(); // For convenience we can convert to a List
+ * </pre>
  * 
+ * <p>
+ * <b>Note:</b> the return value from {@link #findAllDevs} is an integer result
+ * code, just like in the C counter part. The <code>if</code> object is filled
+ * in with appropriate values, if the call succeeds and just like in C counter
+ * part {@link PcapIf} is a single node in a linked list. For your convenience
+ * there is a {@link PcapIf#toList} method, which returns a <code>List</code>
+ * of all of the interfaces. The list is not generic on purpose, to keep the
+ * library pre Java 1.5 complaint.<br>
+ * <b>Important!</b> The first <code>PcapIf</code> object in the linked list,
+ * the one we explicitely created, only has its <code>next</code> field
+ * initialized to point at the real first data structure. Therefore to access th
+ * </p>
+ * <p>
  * Now that we have a list of devices, we we print out the list of them and ask
  * the user to pick one to open for capture:
  * 
- * <PRE>
+ * <pre>
  * for (int i = 0; i &lt; interfaces.length; i++) {
  * 	System.out.println(&quot;#&quot; + i + &quot;: &quot; + interfaces[i].getName());
  * }
@@ -59,41 +95,41 @@ import org.apache.commons.logging.LogFactory;
  * Integer i = Integer.valueOf(l);
  * 
  * PcapNetworkInterface netInterface = interfaces[i.intValue()];
- * </PRE>
+ * </pre>
  * 
  * Next we open up a live capture from the network interface:
  * 
- * <PRE>
+ * <pre>
  * Pcap pcap = Pcap.openLive(netInterface, 64 * 1024, true);
- * </PRE>
+ * </pre>
  * 
  * First parameter is the itnerface we want to capture on, second is snaplen and
  * last is if we want the interface in promiscous mode. Once we have an open
  * interface for capture we can apply a filter to reduce amount of packets
  * captured to something that is interesting to us:
  * 
- * <PRE>
+ * <pre>
  * PcapBpfProgram filter = pcap
  *     .compile(&quot;port 23&quot;, true, netInterface.getNetmask());
  * pcap.setFilter(filter);
- * </PRE>
+ * </pre>
  * 
  * And lastly lets do something with the data.
  * 
- * <PRE>
+ * <pre>
  * 
  *  PcapHandler handler = new PcapHandler() {
  * 
  *  public void newPacket(PcapPacket packet, Object userData) {
- *  PrintStream out = userData;
- *  out.println(&quot;Packet captured on: &quot; + packet.getHeader().getTimestamp());
- *  }
+ *  	PrintStream out = userData;
+ * 	 	out.println(&quot;Packet captured on: &quot; + packet.getHeader().getTimestamp());
+ *  	}
  *  };
  * 
  *  pcap.loop(&lt;SPAN title=&quot;Read 100 packets and exit loop&quot;&gt;100&lt;/SPAN&gt;, &lt;SPAN title=&quot;our hander/callback method above&quot;&gt;handler&lt;/SPAN&gt;, &lt;SPAN title=&quot;Our user object, STDOUT in our case&quot;&gt;System.out&lt;/SPAN&gt;);
  * 
  *  pcap.close();
- * </PRE>
+ * </pre>
  * 
  * This sets up PCAP to capture 100 packets and notify our handler of each
  * packet as each one is captured. Then after 100 packets the loop exits and we
@@ -230,14 +266,15 @@ public class Pcap {
 	 * </ul>
 	 * 
 	 * @param alldevs
-	 *          is set to point to the first element of the list; each element of
-	 *          the list is of type PcapIf
+	 *          the list is filled in with <code>PcapIf</code> interface
+	 *          objects; the list must not be immutable
 	 * @param errbuf
 	 *          error buffer containing error message as a string on failure
 	 * @return -1 is returned on failure, in which case errbuf is filled in with
 	 *         an appropriate error message; 0 is returned on success
 	 */
-	public native static int findAllDevs(PcapIf alldevs, StringBuilder errbuf);
+	public native static int findAllDevs(List<PcapIf> alldevs,
+	    StringBuilder errbuf);
 
 	/**
 	 * This method does nothing. jNetPcap implementation frees up the device list
@@ -291,12 +328,12 @@ public class Pcap {
 		initError = null; // Clear previous error if any
 
 		if (libraryLoadStatus == false) {
-			System.loadLibrary("jnetpcap");
+			System.loadLibrary(JNI_SHARED_LIBRARY_NAME);
 			libraryLoadStatus = true; // Library loaded OK
 		}
 
 		if (jniInitStatus == false) {
-			jniInitialize();
+			initIDs();
 			jniInitStatus = true;
 		}
 
@@ -320,7 +357,7 @@ public class Pcap {
 	 *           the class was found, but did not contain the required field and
 	 *           JNI was unable to aquire its handle
 	 */
-	private native static void jniInitialize() throws IllegalStateException,
+	private native static void initIDs() throws IllegalStateException,
 	    ClassNotFoundException, NoSuchMethodException, NoSuchFieldException;
 
 	/**
