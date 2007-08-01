@@ -61,12 +61,12 @@ void *toPtr(jlong lp) {
  *  These are static and constant unless class file reloads
  */
 
-jclass pcapClass = 0;
-jclass byteBufferClass = 0;
-jclass stringBuilderClass = 0;
-jclass pcapIfClass = 0;
-jclass pcapAddrClass = 0;
-jclass pcapSockaddrClass = 0;
+jclass pcapClass = NULL;
+jclass byteBufferClass = NULL;
+jclass stringBuilderClass = NULL;
+jclass pcapIfClass = NULL;
+jclass pcapAddrClass = NULL;
+jclass pcapSockaddrClass = NULL;
 
 jfieldID pcapPhysicalFID = 0;
 
@@ -93,12 +93,15 @@ jfieldID pcapSockaddrFamilyFID = 0;
 jfieldID pcapSockaddrDataFID = 0;
 
 jmethodID pcapConstructorMID = 0;
+jmethodID pcapIfConstructorMID = 0;
+jmethodID pcapSockaddrConstructorMID = 0;
+jmethodID pcapAddrConstructorMID = 0;
 jmethodID appendMID = 0;
 jmethodID setLengthMID = 0;
 
 /*
  * Class:     org_jnetpcap_Pcap
- * Method:    jniInitialize
+ * Method:    initIDs
  * Signature: ()V
  * Description: Initializes all of the jmethodID, jclass and jfieldIDs that are
  *              used by the entire collection of Pcap JNI related methods.
@@ -107,10 +110,11 @@ jmethodID setLengthMID = 0;
  *              exceptions when something is not found. This is neccessary since
  *              no further runtime checks are performed after this initialization.
  */
-EXTERN void JNICALL Java_org_jnetpcap_Pcap_jniInitialize
+EXTERN void JNICALL Java_org_jnetpcap_Pcap_initIDs
 (JNIEnv *env, jclass clazz) {
 
-	pcapClass = clazz; // This one is easy
+	pcapClass = (jclass) env->NewGlobalRef(clazz); // This one is easy
+	
 	if ( (pcapConstructorMID = env->GetMethodID(clazz, "<init>", "(J)V")) == NULL) {
 		throwException(env, NO_SUCH_METHOD_EXCEPTION,
 				"Unable to initialize constructor Pcap.Pcap(long)");
@@ -123,15 +127,11 @@ EXTERN void JNICALL Java_org_jnetpcap_Pcap_jniInitialize
 		return;
 	}
 
-	if ( (byteBufferClass = env->FindClass("java/nio/ByteBuffer")) == NULL) {
-		throwException(env, CLASS_NOT_FOUND_EXCEPTION,
-				"Unable to initialize class java.nio.ByteBuffer");
+	if ( (byteBufferClass = findClass(env, "java/nio/ByteBuffer")) == NULL) {
 		return;
 	}
 
-	if ( (stringBuilderClass = env->FindClass("java/lang/StringBuilder")) == NULL) {
-		throwException(env, CLASS_NOT_FOUND_EXCEPTION,
-				"Unable to initialize class java.lang.StringBuilder");
+	if ( (stringBuilderClass = findClass(env, "java/lang/StringBuilder")) == NULL) {
 		return;
 	}
 
@@ -152,9 +152,7 @@ EXTERN void JNICALL Java_org_jnetpcap_Pcap_jniInitialize
 	jclass c;
 
 	// PcapPkthdr class
-	if ( (c = env->FindClass("org/jnetpcap/PcapPkthdr")) == NULL) {
-		throwException(env, CLASS_NOT_FOUND_EXCEPTION,
-				"Unable to initialize class org.jnetpcap.PcapPkthdr");
+	if ( (c = findClass(env, "org/jnetpcap/PcapPkthdr")) == NULL) {
 		return;
 	}
 
@@ -183,9 +181,7 @@ EXTERN void JNICALL Java_org_jnetpcap_Pcap_jniInitialize
 	}
 
 	// PcapPktbuffer class
-	if ( (c = env->FindClass("org/jnetpcap/PcapPktbuffer")) == NULL) {
-		throwException(env, CLASS_NOT_FOUND_EXCEPTION,
-				"Unable to initialize class org.jnetpcap.PcapPktbuffer");
+	if ( (c = findClass(env, "org/jnetpcap/PcapPktbuffer")) == NULL) {
 		return;
 	}
 
@@ -196,9 +192,15 @@ EXTERN void JNICALL Java_org_jnetpcap_Pcap_jniInitialize
 	}
 	
 	// PcapIf class
-	if ( (pcapIfClass = c = env->FindClass("org/jnetpcap/PcapIf")) == NULL) {
+	if ( (pcapIfClass = c = findClass(env, "org/jnetpcap/PcapIf")) == NULL) {
 		throwException(env, CLASS_NOT_FOUND_EXCEPTION,
 				"Unable to initialize class org.jnetpcap.PcapIf");
+		return;
+	}
+	
+	if ( (pcapIfConstructorMID = env->GetMethodID(c, "<init>", "()V")) == NULL) {
+		throwException(env, NO_SUCH_METHOD_EXCEPTION,
+				"Unable to initialize constructor org.jnetpcap.PcapIf()");
 		return;
 	}
 
@@ -220,9 +222,9 @@ EXTERN void JNICALL Java_org_jnetpcap_Pcap_jniInitialize
 		return;
 	}
 	
-	if ( ( pcapIfAddressesFID = env->GetFieldID(c, "addresses", "Lorg/jnetpcap/PcapAddr;")) == NULL) {
+	if ( ( pcapIfAddressesFID = env->GetFieldID(c, "addresses", "Ljava/util/List;")) == NULL) {
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field PcapIf.addresses:PcapAddr");
+				"Unable to initialize field PcapIf.addresses:List");
 		return;
 	}
 	
@@ -235,9 +237,15 @@ EXTERN void JNICALL Java_org_jnetpcap_Pcap_jniInitialize
 	
 	
 	// PcapAddr class
-	if ( (pcapAddrClass = c = env->FindClass("org/jnetpcap/PcapAddr")) == NULL) {
+	if ( (pcapAddrClass = c = findClass(env, "org/jnetpcap/PcapAddr")) == NULL) {
 		throwException(env, CLASS_NOT_FOUND_EXCEPTION,
 				"Unable to initialize class org.jnetpcap.PcapAddr");
+		return;
+	}
+	
+	if ( (pcapAddrConstructorMID = env->GetMethodID(c, "<init>", "()V")) == NULL) {
+		throwException(env, NO_SUCH_METHOD_EXCEPTION,
+				"Unable to initialize constructor org.jnetpcap.PcapAddr()");
 		return;
 	}
 
@@ -273,11 +281,18 @@ EXTERN void JNICALL Java_org_jnetpcap_Pcap_jniInitialize
 	
 	
 	// PcapSockaddr class
-	if ( (pcapSockaddrClass = c = env->FindClass("org/jnetpcap/PcapSockaddr")) == NULL) {
+	if ( (pcapSockaddrClass = c = findClass(env, "org/jnetpcap/PcapSockaddr")) == NULL) {
 		throwException(env, CLASS_NOT_FOUND_EXCEPTION,
 				"Unable to initialize class org.jnetpcap.PcapSockaddr");
 		return;
 	}
+	
+	if ( (pcapSockaddrConstructorMID = env->GetMethodID(c, "<init>", "()V")) == NULL) {
+		throwException(env, NO_SUCH_METHOD_EXCEPTION,
+				"Unable to initialize constructor org.jnetpcap.PcapSockaddr()");
+		return;
+	}
+
 
 	if ( ( pcapSockaddrFamilyFID = env->GetFieldID(c, "family", "S")) == NULL) {
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
@@ -293,7 +308,7 @@ EXTERN void JNICALL Java_org_jnetpcap_Pcap_jniInitialize
 	
 	
 	// PcapBpfProgram class
-	if ( (bpfProgramClass = c = env->FindClass("org/jnetpcap/PcapBpfProgram")) == NULL) {
+	if ( (bpfProgramClass = c = findClass(env, "org/jnetpcap/PcapBpfProgram")) == NULL) {
 		throwException(env, CLASS_NOT_FOUND_EXCEPTION,
 				"Unable to initialize class org.jnetpcap.PcapBpfProgram");
 		return;
@@ -304,6 +319,48 @@ EXTERN void JNICALL Java_org_jnetpcap_Pcap_jniInitialize
 				"Unable to initialize field PcapBpfProgram.physical:long");
 		return;
 	}
+}
+
+jmethodID findMethod(JNIEnv *env, jobject obj, char *name, char *signature) {
+	jclass clazz = (jclass)env->GetObjectClass(obj);
+	if (clazz == NULL) {
+		return 0; // Out of memory exception already thrown
+	}
+	
+	jmethodID id;
+	if ( (id = env->GetMethodID(clazz, name, signature)) == NULL) {
+		throwException(env, NO_SUCH_METHOD_EXCEPTION, name);
+		return 0;
+	}
+	
+	env->DeleteLocalRef(clazz);
+	
+	return id;
+}
+
+/**
+ * Find class or throw exception if not found.
+ * 
+ * @return global reference to class that needs to be freed manually before
+ *         library exit
+ */
+jclass findClass(JNIEnv *env, char *name) {
+	// List class
+	jclass local;
+	if ( (local = env->FindClass(name)) == NULL) {
+		throwException(env, CLASS_NOT_FOUND_EXCEPTION, name);
+		return NULL;
+	}
+	
+	jclass global = (jclass) env->NewGlobalRef(local);
+	
+	env->DeleteLocalRef(local);
+	
+	if (global == NULL) {
+		return NULL; // Out of memory exception already thrown
+	}
+	
+	return global;
 }
 
 void pcap_callback(u_char *user, const pcap_pkthdr *pkt_header,
@@ -398,73 +455,183 @@ void setString(JNIEnv *env, jobject buffer, const char *str) {
 }
 
 /**
+ * Creates a new instance of Java PcapIf object, intializes all of its fields
+ * from pcap_if_t structure and add the resulting element to jlist which is
+ * a Java java.util.List object. The method id is cached but has to discovered
+ * upon the first entry into findDevsAll since we don't know exactly the type
+ * of actual object implementing the List interface. Could be ArrayList,
+ * LinkedList or some other custom list. So that is the reason for the dynamic
+ * methodID lookup. We pass the ID along to reuse it through out the life of
+ * this recursive scan.
+ * 
  * @param obj Pcap
+ * @param jlist java.util.list to which we will add this PcapIf element
+ * @param MID_add cached dynamic method ID of the "add" method
  * @param ifp pcap_if_t structure to use in construction of java counter part
  * @return PcapIf
  */
-jobject newPcapIf(JNIEnv *env, pcap_if_t *ifp) {
+jobject newPcapIf(JNIEnv *env, jobject jlist, jmethodID MID_add, pcap_if_t *ifp) {
+	jobject js;
 
-	jobject obj = env->AllocObject(pcapIfClass);
+	// Invoke new PcapIf()
+	jobject obj = env->NewObject(pcapIfClass, pcapIfConstructorMID);
 	
+	/*
+	 * Initialize PcapIf.next field. Also add the new PcapIf object that went
+	 * into the field to the use supplied jlist.
+	 */ 
 	if (ifp->next != NULL) {
-		env->SetObjectField(obj, pcapIfNextFID, newPcapIf(env,  ifp->next));
+		jobject jpcapif = newPcapIf(env, jlist, MID_add, ifp->next);
+		if (jpcapif == NULL) {
+			return NULL; // Out of memory exception already thrown
+		}
+		
+		env->SetObjectField(obj, pcapIfNextFID, jpcapif);
+		if (env->CallBooleanMethod(jlist, MID_add, jpcapif) == JNI_FALSE) {
+			env->DeleteLocalRef(jpcapif);
+			return NULL; // Failed to add to the list
+		}
+		
+		env->DeleteLocalRef(jpcapif);
 	} else {
 		env->SetObjectField(obj, pcapIfNextFID, NULL);
 	}
 	
+	/**
+	 * Assign PcapIf.name string field.
+	 */
 	if (ifp->name != NULL) {
-		env->SetObjectField(obj, pcapIfNameFID, env->NewStringUTF(ifp->name));
+		js = env->NewStringUTF(ifp->name);
+		if (js == NULL) {
+			return NULL; // Out of memory exception already thrown
+		}
+		
+		env->SetObjectField(obj, pcapIfNameFID, js);
+		
+		env->DeleteLocalRef(js);
+		
 	} else {
 		env->SetObjectField(obj, pcapIfNameFID, NULL);
 	}
 	
+	/**
+	 * Assign PcapIf.description string field.
+	 */
 	if (ifp->description != NULL) {
-		env->SetObjectField(obj, pcapIfDescriptionFID, env->NewStringUTF(ifp->description));
+		js = env->NewStringUTF(ifp->description);
+		if (js == NULL) {
+			return NULL; // Out of memory exception already thrown
+		}
+		env->SetObjectField(obj, pcapIfDescriptionFID, js);
+		
+		env->DeleteLocalRef(js);
 	} else {
 		env->SetObjectField(obj, pcapIfDescriptionFID, NULL);
 	}
 	
+	/**
+	 * Add all addresses found in pcap_if.address linked list of sockaddr to
+	 * the already Java allocated list in the PcapIf.addresses field.
+	 */
 	if (ifp->addresses != NULL) {
-		env->SetObjectField(obj, pcapIfAddressesFID, newPcapAddr(env, ifp->addresses));
-	} else {
-		env->SetObjectField(obj, pcapIfAddressesFID, NULL);
+		
+		// Lookup field and the List object from PcapIf.addresses field
+		jobject jaddrlist = env->GetObjectField(obj, pcapIfAddressesFID);
+		if (jaddrlist == NULL) {
+			return NULL; // Exception already thrown
+		}
+		
+		// Lookup List.add method ID within the object, can't be static as this
+		// is a interface lookup, not a known object type implementing the
+		// interface
+		jmethodID MID_addr_add = findMethod(env, jaddrlist, "add", 
+				"(Ljava/lang/Object;)Z");
+		if (MID_addr_add == NULL) {
+			env->DeleteLocalRef(jaddrlist);
+			return NULL; // Exception already thrown
+		}
+		
+		// Process the structure and get the next addr
+		jobject jaddr = newPcapAddr(env, jaddrlist, MID_addr_add, ifp->addresses);
+		if (jaddr == NULL) {
+			env->DeleteLocalRef(jaddrlist);
+			return NULL; // Out of memory exception already thrown
+		}
+		
+		// Call on List.add method to add our new PcapAddr object
+		if (env->CallBooleanMethod(jaddrlist, MID_addr_add, jaddr) == JNI_FALSE) {
+			env->DeleteLocalRef(jaddrlist);
+			env->DeleteLocalRef(jaddr);
+			return NULL; // Failed to add to the list
+		}
+		
+		// Release local resources
+		env->DeleteLocalRef(jaddr);
+		env->DeleteLocalRef(jaddrlist);
 	}
-	
 	
 	env->SetIntField(obj, pcapIfFlagsFID, (jint) ifp->flags);
 	
 	return obj;
 }
 
-jobject newPcapAddr(JNIEnv *env, pcap_addr *a) {
-	jobject obj = env->AllocObject(pcapAddrClass);
+jobject newPcapAddr(JNIEnv *env, jobject jlist, jmethodID MID_add, pcap_addr *a) {
+	jobject obj = env->NewObject(pcapAddrClass, pcapAddrConstructorMID);
 
 	if (a->next != NULL) {
-		env->SetObjectField(obj, pcapAddrNextFID, newPcapAddr(env,  a->next));
+		jobject jaddr = newPcapAddr(env, jlist, MID_add, a->next);
+		if (jaddr == NULL) {
+			env->DeleteLocalRef(jaddr);
+			return NULL;
+		}
+		
+		// Set the next field for the hell of it, not accessed in java 
+		env->SetObjectField(obj, pcapAddrNextFID, jaddr);
+
+		// Call List.add method to add our PcapAddr object
+		if (env->CallBooleanMethod(jlist, MID_add, jaddr) == JNI_FALSE) {
+			env->DeleteLocalRef(jaddr);
+			return NULL;
+		}
+		
 	} else {
 		env->SetObjectField(obj, pcapAddrNextFID, NULL);
 	}
 	
+	jobject jsock;
 	if (a->addr != NULL) {
-		env->SetObjectField(obj, pcapAddrAddrFID, newPcapSockaddr(env, a->addr));
+		if ( (jsock = newPcapSockaddr(env, a->addr)) == NULL) {
+			return NULL;
+		}
+		
+		env->SetObjectField(obj, pcapAddrAddrFID, jsock);
 	} else {
 		env->SetObjectField(obj, pcapAddrAddrFID, NULL);
 	}
 	
 	if (a->netmask != NULL) {
-		env->SetObjectField(obj, pcapAddrNetmaskFID, newPcapSockaddr(env, a->netmask));
+		if ( (jsock = newPcapSockaddr(env, a->netmask)) == NULL) {
+			return NULL;
+		}
+		env->SetObjectField(obj, pcapAddrNetmaskFID, jsock);
 	} else {
 		env->SetObjectField(obj, pcapAddrNetmaskFID, NULL);
 	}
 	
 	if (a->broadaddr != NULL) {
-		env->SetObjectField(obj, pcapAddrBroadaddrFID, newPcapSockaddr(env, a->broadaddr));
+		if ( (jsock = newPcapSockaddr(env, a->broadaddr)) == NULL) {
+			return NULL;
+		}
+		env->SetObjectField(obj, pcapAddrBroadaddrFID, jsock);
 	} else {
 		env->SetObjectField(obj, pcapAddrBroadaddrFID, NULL);
 	}
 
 	if (a->dstaddr != NULL) {
-		env->SetObjectField(obj, pcapAddrDstaddrFID, newPcapSockaddr(env, a->dstaddr));
+		if ( (jsock = newPcapSockaddr(env, a->dstaddr)) == NULL) {
+			return NULL;
+		}
+		env->SetObjectField(obj, pcapAddrDstaddrFID, jsock);
 	} else {
 		env->SetObjectField(obj, pcapAddrDstaddrFID, NULL);
 	}
@@ -473,7 +640,7 @@ jobject newPcapAddr(JNIEnv *env, pcap_addr *a) {
 }
 
 jobject newPcapSockaddr(JNIEnv *env, sockaddr *a) {
-	jobject obj = env->AllocObject(pcapSockaddrClass);
+	jobject obj = env->NewObject(pcapSockaddrClass, pcapSockaddrConstructorMID);
 
 	env->SetShortField(obj, pcapSockaddrFamilyFID, (jshort) a->sa_family);
 		
@@ -482,13 +649,22 @@ jobject newPcapSockaddr(JNIEnv *env, sockaddr *a) {
 		env->SetByteArrayRegion(jarray, 0, 4, (jbyte *)(a->sa_data + 2));
 		
 		env->SetObjectField(obj, pcapSockaddrDataFID, jarray);
+		
+		env->DeleteLocalRef(jarray);
 	} else if (a->sa_family == AF_INET6) {
 		jbyteArray jarray = env->NewByteArray(16);
 		env->SetByteArrayRegion(jarray, 0, 16, (jbyte *)(a->sa_data + 2));
 		
 		env->SetObjectField(obj, pcapSockaddrDataFID, jarray);
+		env->DeleteLocalRef(jarray);
 	} else {
-		printf("Unknow sockaddr family=%d\n", a->sa_family);
+		jbyteArray jarray = env->NewByteArray(14); // Has to be atleast 14 bytes
+		env->SetByteArrayRegion(jarray, 0, 14, (jbyte *)(a->sa_data + 2));
+		
+		env->SetObjectField(obj, pcapSockaddrDataFID, jarray);
+		env->DeleteLocalRef(jarray);
+
+//		printf("Unknow sockaddr family=%d\n", a->sa_family);
 	}
 
 	return obj;

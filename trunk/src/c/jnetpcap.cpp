@@ -538,10 +538,10 @@ EXTERN jstring JNICALL Java_org_jnetpcap_Pcap_libVersion
 /*
  * Class:     org_jnetpcap_Pcap
  * Method:    findAllDevs
- * Signature: (Lorg/jnetpcap/PcapIf;Ljava/lang/StringBuilder;)I
+ * Signature: (Ljava/util/Listf;Ljava/lang/StringBuilder;)I
  */
 EXTERN jint JNICALL Java_org_jnetpcap_Pcap_findAllDevs
-(JNIEnv *env, jclass clazz, jobject jif, jobject jerrbuf) {
+(JNIEnv *env, jclass clazz, jobject jlist, jobject jerrbuf) {
 	char errbuf[PCAP_ERRBUF_SIZE];
 	pcap_if_t *alldevsp;
 
@@ -552,7 +552,23 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_findAllDevs
 	}
 
 	if (alldevsp != NULL) {
-		env->SetObjectField(jif, pcapIfNextFID, newPcapIf(env, alldevsp));
+		jmethodID MID_add = findMethod(env, jlist, "add", 
+				"(Ljava/lang/Object;)Z");
+		
+		jobject jpcapif = newPcapIf(env, jlist, MID_add, alldevsp);
+		if (jpcapif == NULL) {
+			return -1; // Out of memory
+		}
+		
+		if (env->CallBooleanMethod(jlist, MID_add, jpcapif) == JNI_FALSE) {
+			env->DeleteLocalRef(jpcapif);
+			
+			return -1; // Failed to add to the list
+		}
+		
+		env->DeleteLocalRef(jpcapif);
+		
+		return r;
 	}
 
 	/*
