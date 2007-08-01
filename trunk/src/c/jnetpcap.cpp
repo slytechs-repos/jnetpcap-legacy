@@ -78,6 +78,12 @@
 EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_openLive(JNIEnv *env, jclass clazz,
 		jstring jdevice, jint jsnaplen, jint jpromisc, jint jtimeout,
 		jobject jerrbuf) {
+	
+	if (jdevice == NULL || jerrbuf == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return NULL;
+	}
+	
 	char errbuf[PCAP_ERRBUF_SIZE];
 	const char *device = env->GetStringUTFChars(jdevice, 0);
 
@@ -120,6 +126,12 @@ EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_openDead
  */
 EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_openOffline
 (JNIEnv *env, jclass clazz, jstring jfname, jobject jerrbuf) {
+	
+	if (jfname == NULL || jerrbuf == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return NULL;
+	}
+	
 	char errbuf[PCAP_ERRBUF_SIZE];
 	const char *fname = env->GetStringUTFChars(jfname, 0);
 
@@ -159,6 +171,11 @@ EXTERN void JNICALL Java_org_jnetpcap_Pcap_close
  */
 EXTERN jint JNICALL Java_org_jnetpcap_Pcap_dispatch
 (JNIEnv *env, jobject obj, jint jcnt, jobject jhandler, jobject juser) {
+	
+	if (jhandler == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return -1;
+	}
 
 	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
@@ -189,6 +206,11 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_dispatch
 EXTERN jint JNICALL Java_org_jnetpcap_Pcap_loop
 (JNIEnv *env, jobject obj, jint jcnt, jobject jhandler, jobject juser) {
 
+	if (jhandler == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return -1;
+	}
+	
 	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
 		return -1; // Exception already thrown
@@ -217,6 +239,12 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_loop
  */
 EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_next
 (JNIEnv *env, jobject obj, jobject jpkt_header) {
+	
+	if (jpkt_header == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return NULL;
+	}
+	
 	pcap_pkthdr pkt_header;
 
 	pcap_t *p = getPcap(env, obj);
@@ -245,6 +273,12 @@ EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_next
  */
 EXTERN jint JNICALL Java_org_jnetpcap_Pcap_nextEx
 (JNIEnv *env, jobject obj, jobject jpkt_header, jobject jpkt_buffer) {
+	
+	if (jpkt_header == NULL || jpkt_buffer == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return -1;
+	}
+	
 	pcap_pkthdr *pkt_header;
 	const u_char *pkt_data; // PTR will be initialized by pcap_next_ex
 
@@ -306,6 +340,12 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_datalink
  */
 EXTERN jint JNICALL Java_org_jnetpcap_Pcap_setNonBlock
 (JNIEnv *env, jobject obj, jint jnonblock, jobject jerrbuf) {
+	
+	if (jerrbuf == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return -1;
+	}
+	
 	char errbuf[PCAP_ERRBUF_SIZE];
 
 	pcap_t *p = getPcap(env, obj);
@@ -328,6 +368,12 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_setNonBlock
  */
 EXTERN jint JNICALL Java_org_jnetpcap_Pcap_getNonBlock
 (JNIEnv *env, jobject obj, jobject jerrbuf) {
+	
+	if (jerrbuf == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return -1;
+	}
+	
 	char errbuf[PCAP_ERRBUF_SIZE];
 
 	pcap_t *p = getPcap(env, obj);
@@ -414,6 +460,11 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_setMode
  */
 EXTERN jint JNICALL Java_org_jnetpcap_Pcap_datalinkNameToVal
 (JNIEnv *env, jclass clazz, jstring jname) {
+	
+	if (jname == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return -1;
+	}
 
 	const char *name = env->GetStringUTFChars(jname, 0);
 
@@ -542,6 +593,12 @@ EXTERN jstring JNICALL Java_org_jnetpcap_Pcap_libVersion
  */
 EXTERN jint JNICALL Java_org_jnetpcap_Pcap_findAllDevs
 (JNIEnv *env, jclass clazz, jobject jlist, jobject jerrbuf) {
+	
+	if (jlist == NULL || jerrbuf == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return -1;
+	}
+	
 	char errbuf[PCAP_ERRBUF_SIZE];
 	pcap_if_t *alldevsp;
 
@@ -588,6 +645,12 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_findAllDevs
 EXTERN jint JNICALL Java_org_jnetpcap_Pcap_compileNoPcap
 (JNIEnv *env, jclass clazz, jint snaplen, jint dlt,
 		jobject jbpf, jstring jstr, jint optimize, jint mask) {
+	
+	if (jbpf == NULL || jstr == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return -1;
+	}
+	
 	bpf_program src;
 
 	freeBpfProgramIfExists(env, jbpf);
@@ -620,6 +683,12 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_compileNoPcap
  */
 EXTERN jint JNICALL Java_org_jnetpcap_Pcap_compile
   (JNIEnv *env, jobject obj, jobject jbpf, jstring jstr, jint optimize, jint mask) {
+	
+	if (jbpf == NULL || jstr == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return -1;
+	}
+	
 	bpf_program src;
 	
 	pcap_t *p = getPcap(env, obj);
@@ -658,6 +727,11 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_compile
 EXTERN void JNICALL Java_org_jnetpcap_Pcap_freecode
   (JNIEnv *env, jclass clazz, jobject jbpf) {
 	
+	if (jbpf == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return;
+	}
+	
 	freeBpfProgramIfExists(env, jbpf);
 }
 
@@ -669,6 +743,11 @@ EXTERN void JNICALL Java_org_jnetpcap_Pcap_freecode
  */
 EXTERN jint JNICALL Java_org_jnetpcap_Pcap_setFilter
   (JNIEnv *env, jobject obj, jobject jbpf) {
+	
+	if (jbpf == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return -1;
+	}
 	
 	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
