@@ -30,9 +30,6 @@
  -->
 <project name="jNetPcap build stage 1" default="all" basedir=".">
 
-	<!-- Get the enviroment collection from the OS -->
-	<property environment="env" />
-
 	<!-- 
          Add the optional compiler task <cc></cc>, 
          the JAR needs to be in the classpath or ANT_HOME 
@@ -43,12 +40,13 @@
 	<typedef resource="cpptasks.types" />
 
 
-	
-
 	<!-- load the common and build properties file -->
 	<property file="common.properties" prefix="prj"/>
 	<property file="build.properties" prefix="build"/>
 
+	<!-- Get the enviroment collection from the OS -->
+	<property environment="env" />
+	
 	<!--                        PREPARE PATHS SECTION  -->
 
 	<!-- =================================================================== -->
@@ -129,6 +127,8 @@
 	<!-- Creates api/ directory for JavaDoc -->
 	<!-- =================================================================== -->
 	<target name="prep-api" depends="prep-build">
+		<!-- always clean the api directory. We don't want any old mixed up files -->
+		<delete dir="${build.api.dir}" />
 		<mkdir dir="${build.api.dir}" />
 	</target>
 	
@@ -255,7 +255,13 @@
 	<!-- =================================================================== -->
 	<!-- Compiles java files using JavaDoc -->
 	<!-- =================================================================== -->
-	<target name="comp-api" depends="prep-api"></target>
+	<target name="comp-api" depends="prep-api">
+		<javadoc 
+			sourcepath="${prj.src.java.dir}" 
+			destdir="${build.api.dir}" 
+			packagenames="org.*" 
+		/>
+	</target>
 
 	<!-- =================================================================== -->
 	<!-- Compiles java files using JavaDoc -->
