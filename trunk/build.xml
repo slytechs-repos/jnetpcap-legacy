@@ -37,21 +37,49 @@
          Add the optional compiler task <cc></cc>, 
          the JAR needs to be in the classpath or ANT_HOME 
          Needed to compile JNI C++ source files and create shared library
+     -->
+
 	<taskdef resource="cpptasks.tasks" />
 	<typedef resource="cpptasks.types" />
-     -->
+
 
 	
 
 	<!-- load the common and build properties file -->
 	<property file="common.properties" prefix="prj"/>
 	<property file="build.properties" prefix="build"/>
+
+	<!--                        PREPARE PATHS SECTION  -->
+
+	<!-- =================================================================== -->
+	<!-- class path used for compiling                                       -->
+	<!-- =================================================================== -->
+	<path id="build.compiler.classpath">
+		<pathelement location="${prj.lib.prereq.java}" />
+	</path>
 	
+	<!-- =================================================================== -->
+	<!-- class path used for compiling javah classes into C++ headers -->
+	<!-- =================================================================== -->
+	<path id="build.javah.classpath">
+		<pathelement location="${build.classes.dir}" />
+	</path>
+		
+	<!-- =================================================================== -->
+	<!-- class path used for compiling jUnit test classes                    -->
+	<!-- =================================================================== -->
+	<path id="build.tests.classpath">
+		<pathelement location="${build.classes.dir}" />
+		<pathelement location="${prj.lib.prereq.java}" />
+		<pathelement location="${prj.lib.prereq.tests}" />
+	</path>
 	
 	
 	<!--                        PREPARE SECTION  -->
 
+	<!-- =================================================================== -->
 	<!-- Creates top level build/ directory -->
+	<!-- =================================================================== -->
 	<target name="prep-build">
 		<tstamp>
 			<format 
@@ -70,59 +98,185 @@
 		<mkdir dir="${build.dir}" />
 	</target>
 
+	<!-- =================================================================== -->
 	<!-- Creates classes/ directory -->
+	<!-- =================================================================== -->
 	<target name="prep-java" depends="prep-build">
 		<mkdir dir="${build.classes.dir}" />
 	</target>
 	
+	<!-- =================================================================== -->
 	<!-- Creates jni/ directory -->
-	<target name="prep-jni" depends="prep-build">
+	<!-- =================================================================== -->
+	<target name="prep-jni" depends="prep-build, prep-pcap">
 		<mkdir dir="${build.jni.dir}" />
 		<mkdir dir="${build.obj.dir}" />
 	</target>
 	
+	<!-- =================================================================== -->
 	<!-- Creates pcap directory and unzips PCAP dev pack -->
-	<target name="prep-pcap" depends="prep-build">
+	<!-- =================================================================== -->
+	<target name="prep-pcap" depends="prep-build" unless="build.do.prep-pcap">
 		<mkdir dir="${build.pcap.dir}" />
 		
 		<unzip 
 			dest="${build.pcap.dir}" 
-			src="${pcap.zip.file}" 
-			overwrite="${pcap.zip.override}" />
+			src="${build.pcap.sdk.zip.filepath}" 
+			overwrite="${build.pcap.opt.override}" />
 	</target>
 	
+	<!-- =================================================================== -->
 	<!-- Creates api/ directory for JavaDoc -->
-	<target name="prep-api" depends="prep-build"></target>
+	<!-- =================================================================== -->
+	<target name="prep-api" depends="prep-build">
+		<mkdir dir="${build.api.dir}" />
+	</target>
 	
+	<!-- =================================================================== -->
 	<!-- Creates include/ directory for JavaDoc -->
+	<!-- =================================================================== -->
 	<target name="prep-javah" depends="prep-build">
 		<mkdir dir="${build.include.dir}" />
 	</target>
 	
+	<!-- =================================================================== -->
 	<!-- empty -->
-	<target name="prep-tests"></target>
-	
+	<!-- =================================================================== -->
+	<target name="prep-tests" depends="prep-build">
+		<mkdir dir="${build.tests.report.dir}" />
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Sets flags on certain depency checks for conditional targets -->
+	<!-- =================================================================== -->
+	<target name="prep-checks">
+		<uptodate 
+			srcfile="${build.pcap.sdk.zip.filepath}" 
+			targetfile="${build.pcap.dir}" 
+			property="build.do.prep-pcap" 
+		/>
+	</target>
 	
 	<!--                        COMPILE SECTION  -->
 	
+	<!-- =================================================================== -->
 	<!-- Compiles java sources using javac -->
-	<target name="comp-java" depends="prep-java"></target>
+	<!-- =================================================================== -->
+	<target name="comp-java" depends="prep-java">
+		<javac 
+			srcdir="${prj.src.dir}" 
+			destdir="${build.classes.dir}" 
+			debug="${build.compiler.debug}" 
+			deprecation="${build.compiler.deprecate}" 
+			optimize="${build.compiler.optimize}"
+			classpathref="build.compiler.classpath" 
+		/>
+	</target>
 	
-	<!-- Compiles java sources using javah -->
-	<target name="comp-javah" depends="prep-javah"></target>
-	
-	<!-- Generates shared JNI library file from C++ sources -->
-	<target name="comp-jni" depends="prep-jni,comp-javah"></target>
+	<!-- =================================================================== -->
+	<!-- Compiles java binary classes, not sources, using javah -->
+	<!-- =================================================================== -->
+	<target name="comp-javah" depends="prep-javah,comp-java">
+		<javah 
+			destdir="${build.include.dir}" 
+			classpathref="build.javah.classpath" 
+			force="${build.javah.force}">
 
+			<class name="org.jnetpcap.Pcap" />
+			<class name="org.jnetpcap.PcapBpfProgram" />
+
+		</javah>
+
+		<echo message="Generating: ${build.include.dir}/org_jnetpcap_Pcap.h" />
+		<echo message="Generating: ${build.include.dir}/org_jnetpcap_PcapBpfProgram.h" />
+	</target>
+	
+	<!-- =================================================================== -->
+	<!-- Generates shared JNI library file from C++ sources -->
+	<!-- =================================================================== -->
+	<target name="comp-jni" depends="prep-checks,prep-jni,comp-javah">
+
+		<!-- Not supplying "outtype", disables the LINKER in CC tag
+     		outtype="shared"
+    		outfile="${build.library.filename.nosuffix}"
+      	-->
+
+		<echo message="compiling JNI C++ files to object code" />
+		<echo message="using ${build.cc.compiler.cmd} compiler" />
+		<cc 
+			debug="${build.debug}" 
+			objdir="${build.obj.dir}" 
+			multithreaded="true" 
+			exceptions="true">
+
+			<env
+				key="PATH"
+				path="${build.linker.bin.dir};${env.PATH}"
+			/>
+			<compiler name="${build.cc.compiler.cmd}" />
+			<fileset dir="${prj.src.c.dir}" />
+			<includepath location="${build.include.dir}" />
+			<includepath location="${prj.src.c.dir}" />
+			<sysincludepath location="${build.pcap.include.dir}" />
+			<sysincludepath location="${prj.java.sdk.include.dir}" />
+			<sysincludepath location="${prj.java.sdk.include.dir}/win32" />
+
+			<linker name="${build.cc.linker.cmd}">
+				<linkerarg value="--add-stdcall-alias" />
+				<syslibset dir="${build.pcap.lib.dir}" libs="${build.pcap.lib.name}" />
+			</linker>
+		</cc>
+
+
+		<echo message="linking object files" />
+		<echo message="using ${build.cc.linker.cmd} linker found at ${build.linker.bin.dir}" />
+		<exec executable="${build.cc.linker.cmd}">
+			<env
+				key="PATH"
+				path="${build.linker.bin.dir};${env.PATH}"
+			/>
+
+			<arg value="-shared" />
+			<arg value="-Wl,--add-stdcall-alias" />
+
+			<arg line="-o ${build.jni.lib.filepath}" />
+
+			<arg line="${build.jni.object.files}" />
+
+			<arg line="-L ${build.pcap.lib.dir}" />
+
+			<arg line="-l ${build.pcap.lib.name}" />
+
+		</exec>
+		<echo message="Created shared JNI libary: ${build.jni.lib.filepath}" />
+
+	</target>
+
+	<!-- =================================================================== -->
 	<!-- Compiles java files using JavaDoc -->
+	<!-- =================================================================== -->
 	<target name="comp-api" depends="prep-api"></target>
 
+	<!-- =================================================================== -->
 	<!-- Compiles java files using JavaDoc -->
-	<target name="comp-tests" depends="prep-tests,comp-java,comp-jni"></target>
+	<!-- =================================================================== -->
+	<target name="comp-tests" depends="prep-tests,comp-java,comp-jni">
+		<javac 
+			srcdir="${prj.tests.dir}" 
+			destdir="${build.classes.dir}" 
+			debug="${build.compiler.debug}" 
+			deprecation="${build.compiler.deprecate}" 
+			optimize="${build.compiler.optimize}"
+			classpathref="build.tests.classpath" 
+		/>
+	</target>
 	
 	
 	<!--                        MAIN CONTROL SECTION  -->
 	
+	<!-- =================================================================== -->
+	<!-- Echo certain properties for debugging purposes -->
+	<!-- =================================================================== -->
 	<target name="echo-properties" depends="prep-build">
 		<echo message="build.timestamp.isoformat=${build.timestamp.isoformat}" />
 		<echo message="build.timestamp.short=${build.timestamp.short}" />
@@ -141,22 +295,50 @@
 		<echo message="build.jni.lib.name=${build.jni.lib.name}" />
 	</target>
 
+	<!-- =================================================================== -->
 	<!-- Build all -->
-	<target name="all" depends="tests,comp-api,echo-properties">
+	<!-- =================================================================== -->
+	<target name="all" depends="clean,tests,comp-api,echo-properties">
 	</target>
 	
+	<!-- =================================================================== -->
 	<!-- Cleans the build -->
-	<target name="clean"></target>
+	<!-- =================================================================== -->
+	<target name="clean">
+		<delete dir="${build.dir}" />
+	</target>
 	
+	<!-- =================================================================== -->
 	<!-- Compiles java and JNI sources -->
+	<!-- =================================================================== -->
 	<target name="compile" depends="comp-api,comp-jni"></target>
 
+	<!-- =================================================================== -->
 	<!-- Execute jUnit test cases -->
-	<target name="tests" depends="comp-tests"></target>
+	<!-- =================================================================== -->
+	<target name="tests" depends="comp-tests">
+		<junit 
+			printsummary="withOutAndErr" 
+			fork="yes" 
+			failureproperty="tests.failed">
 
+			<formatter type="plain" usefile="false" />
+			<sysproperty key="java.library.path" value="${build.jni.dir}" />
+	
+			<test name="org.jnetpcap.TestPcapJNI" todir="${build.tests.dir}" />
+	
+			<classpath refid="build.tests.classpath" />
+
+		</junit>
+	</target>
+
+	<!-- =================================================================== -->
 	<!-- Displays java doc API in browser -->
+	<!-- =================================================================== -->
 	<target name="docs" depends="comp-api"></target>
 
+	<!-- =================================================================== -->
 	<!-- Help on all the targets -->
+	<!-- =================================================================== -->
 	<target name="help"></target>
 </project>
