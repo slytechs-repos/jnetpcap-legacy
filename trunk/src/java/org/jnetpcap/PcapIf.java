@@ -18,95 +18,108 @@ import java.util.List;
 /**
  * Object mimicking the structure of the Pcap <code>pcap_if_t</code> structure
  * where addresses is replaced as a list to simulate a linked list of address
- * structures. The {@link #addresses} is preallocated for convenience.
+ * structures. The {@link #addresses} is preallocated for convenience. This is
+ * not a JNI peering class, and is only a read-only object.
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class PcapIf {
-	
+public final class PcapIf {
+
+	/**
+	 * The field is initialized to the next object in native linked list, but is
+	 * not accessible from java.
+	 */
 	private PcapIf next;
-	
+
 	private String name;
-	
+
 	private String description;
-	
-	private PcapAddr addresses;
-	
+
+	/**
+	 * Preallocate the list. The list will be filled in based on pcap_addr
+	 * structure from JNI. The field can be assigned to any kind of list since JNI
+	 * does dynamic lookup on the List.add method. We allocate a more efficient
+	 * ArrayList with only 2 addresses max for its initial capacity, as its very
+	 * rare to have interfaces assigned multiple addresses. The list will resize
+	 * incase there are more then 2 automatically.
+	 */
+	private List<PcapAddr> addresses = new ArrayList<PcapAddr>(2);
+
 	private int flags;
 
 	/**
-   * @return the next
-   */
-  public final PcapIf getNext() {
-  	return this.next;
-  }
+	 * pcap_if.next field is unimportant since this java API fills in all the
+	 * entries into a List. Since the field does exist, though we leave the method
+	 * but make it private and not user accessible. This avoid when next is null
+	 * issues.
+	 * 
+	 * @return the next
+	 */
+	@SuppressWarnings("unused")
+	private final PcapIf getNext() {
+		return this.next;
+	}
 
 	/**
-   * @return the name
-   */
-  public final String getName() {
-  	return this.name;
-  }
+	 * pcap_if.name field.
+	 * 
+	 * @return the name
+	 */
+	public final String getName() {
+		return this.name;
+	}
 
 	/**
-   * @return the description
-   */
-  public final String getDescription() {
-  	return this.description;
-  }
+	 * pcap_if.description field.
+	 * 
+	 * @return the description
+	 */
+	public final String getDescription() {
+		return this.description;
+	}
 
 	/**
-   * @return the addresses
-   */
-  public final PcapAddr getAddresses() {
-  	return this.addresses;
-  }
+	 * A list of addresses for this field. The native C linked list of
+	 * <code>pcap_if</code> structures is turned into a java <code>List</code>
+	 * for convenience.
+	 * 
+	 * @return the addresses
+	 */
+	public final List<PcapAddr> getAddresses() {
+		return this.addresses;
+	}
 
 	/**
-   * @return the flags
-   */
-  public final int getFlags() {
-  	return this.flags;
-  }
-  
-  @SuppressWarnings("unchecked")
-  public List toList() {
-  	
-  	/**
-  	 * Don't use generics to keep compatiblity pre 1.5
-  	 */
-  	List list = new ArrayList();
-  	
-  	PcapIf i = next; // we skip the first one
-  	
-  	while (i != null) {
-  		list.add(i);
-  		
-  		i = i.next;
-  	}
-  	
-  	return list;
-  }
-  
-  public String toString() {
-  	StringBuilder out = new StringBuilder();
-  	
-  	out.append("[");
-  	out.append("flags=").append(flags);
-  	if (addresses != null) {
-  		out.append(", addresses=").append(addresses.toList());
-  	}
-//  	out.append(", name=").append(name);
-//  	out.append(", desc=").append(description);
-  	
-  	out.append("]");
-  	
-//  	if (next != null) {
-//  		out.append("\n").append(next.toString());
-//  	}
-  	
-  	return out.toString();
-  }
+	 * pcap_if.flags field.
+	 * 
+	 * @return the flags
+	 */
+	public final int getFlags() {
+		return this.flags;
+	}
+
+	/**
+	 * Debug string.
+	 */
+	public String toString() {
+		StringBuilder out = new StringBuilder();
+
+		out.append("[");
+		out.append("flags=").append(flags);
+		if (addresses != null) {
+			out.append(", addresses=").append(addresses);
+		}
+		// out.append(", name=").append(name);
+		// out.append(", desc=").append(description);
+
+		out.append("]");
+
+		// if (next != null) {
+		// out.append("\n").append(next.toString());
+		// }
+
+		return out.toString();
+	}
 
 }
