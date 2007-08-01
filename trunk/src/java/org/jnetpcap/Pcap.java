@@ -28,13 +28,13 @@ import org.apache.commons.logging.LogFactory;
  * <p>
  * <code>Pcap</code> class provides several static methods which allow
  * discovery of networking interfaces and then subsequently open up either
- * {@link #openLive}, {@link #openDead} or {@link #openOffline} pcap capture
- * sessions. In all 3 cases a <code>Pcap</code> object is returned. The object
- * is backed by a C <code>pcap_t</code> structure outside of java VM address
- * space. Any non-static operations on the <code>Pcap</code> object, are
- * translated using java JNI API into corresponding Libpcap C calls and the
- * appropriate <code>pcap_t</code> C structure is supplied to complete the
- * call.
+ * <code>openLive</code>, <code>openDead</code> or <code>openOffline</code>
+ * pcap capture sessions. In all 3 cases a <code>Pcap</code> object is
+ * returned. The object is backed by a C <code>pcap_t</code> structure outside
+ * of java VM address space. Any non-static operations on the <code>Pcap</code>
+ * object, are translated using java JNI API into corresponding Libpcap C calls
+ * and the appropriate <code>pcap_t</code> C structure is supplied to complete
+ * the call.
  * </p>
  * <p>
  * After aquiring a <code>Pcap</code> object from above mentioned static
@@ -61,84 +61,134 @@ import org.apache.commons.logging.LogFactory;
  * 
  * <pre>
  * StringBuilder errbuf = new StringBuilder();
- * PcapIf if = new PcapIf(); // Start of the linked list returned by {@link #findAllDevs}
- * int statusCode = {@link Pcap}.{@link #findAllDevs}(if, errbuf)};
+ * List&lt;PcapIf&gt; ifs = new ArrayList&lt;PcapIf&gt;(); // Will hold list of devices
+ * int statusCode = Pcap.findAllDevs(ifs, errbuf);
  * if (statusCode != 0) {
- * 	 System.out.println(&quot;Error occured: &quot; + errbuf.toString());
- *   return;
+ * 	System.out.println(&quot;Error occured: &quot; + errbuf.toString());
+ * 	return;
  * }
- * List ifs = if.toList(); // For convenience we can convert to a List
+ * // We have a list of PcapIf devices to work with now.
+ * 
  * </pre>
  * 
  * <p>
  * <b>Note:</b> the return value from {@link #findAllDevs} is an integer result
- * code, just like in the C counter part. The <code>if</code> object is filled
- * in with appropriate values, if the call succeeds and just like in C counter
- * part {@link PcapIf} is a single node in a linked list. For your convenience
- * there is a {@link PcapIf#toList} method, which returns a <code>List</code>
- * of all of the interfaces. The list is not generic on purpose, to keep the
- * library pre Java 1.5 complaint.<br>
- * <b>Important!</b> The first <code>PcapIf</code> object in the linked list,
- * the one we explicitely created, only has its <code>next</code> field
- * initialized to point at the real first data structure. Therefore to access th
+ * code, just like in the C counter part. The <code>ifs</code> list is filled
+ * in with all the network devices as found from the corresponding C structure
+ * <code>pcap_if</code> linked list returned from the C function call
+ * findAllDevs.
  * </p>
  * <p>
  * Now that we have a list of devices, we we print out the list of them and ask
  * the user to pick one to open for capture:
  * 
  * <pre>
- * for (int i = 0; i &lt; interfaces.length; i++) {
- * 	System.out.println(&quot;#&quot; + i + &quot;: &quot; + interfaces[i].getName());
+ * for (int i = 0; i &lt; ifs.size(); i++) {
+ * 	System.out.println(&quot;#&quot; + i + &quot;: &quot; + ifs.get(i).getName());
  * }
  * 
  * String l = System.in.readline().trim();
  * Integer i = Integer.valueOf(l);
  * 
- * PcapNetworkInterface netInterface = interfaces[i.intValue()];
+ * PcapIf netInterface = ifs.get(i);
  * </pre>
  * 
- * Next we open up a live capture from the network interface:
+ * <h3>Opening a network interface for live capture</h3>
+ * Next we open up a live capture from the network interface using
+ * {@link #openLive(String, int, int, int, StringBuilder)}:
  * 
  * <pre>
- * Pcap pcap = Pcap.openLive(netInterface, 64 * 1024, true);
+ * int snalen = 2048; // Truncate packet at this size
+ * 
+ * int promiscous = 1; // 1 means true, 0 is false
+ * 
+ * int timeout = 60 * 1000; // In milliseconds
+ * 
+ * Pcap pcap = Pcap.openLive(netInterface.getName(), snaplen, promiscous, timeout,
+ *     errbuf);
  * </pre>
  * 
- * First parameter is the itnerface we want to capture on, second is snaplen and
- * last is if we want the interface in promiscous mode. Once we have an open
- * interface for capture we can apply a filter to reduce amount of packets
- * captured to something that is interesting to us:
+ * Last argument is a buffer that will hold an error string, if error occures.
+ * On error <code>openLive</code> will return null.
+ * <h3>Compiling and applying a filter to network interface</h3>
+ * Once we have an open interface for capture we can apply a filter to reduce
+ * amount of packets captured to something that is interesting to us:
  * 
  * <pre>
- * PcapBpfProgram filter = pcap
- *     .compile(&quot;port 23&quot;, true, netInterface.getNetmask());
+ * PcapBpfProgram filter = new PcapBpfProgram();
+ * String expression = &quot;port 23&quot;
+ * int optimize = 0; // 1 means true, 0 means false
+ * int netmask = 0;
+ * 
+ * int r = pcap.compile(filter, expression, optimize, netmask);
+ * if (r != 0) {
+ *   System.out.println(&quot;Filter error: &quot; + pcap.getErr());
+ * }
  * pcap.setFilter(filter);
  * </pre>
  * 
+ * <p>
+ * If filter expression contained a syntax error, the return code will be -1 and
+ * exact error message can be retrieved using {@link #getErr} method.
+ * </p>
+ * <p>
+ * <b>Note of caution:</b> the <code>PcapBpfProgram</code> at the top of the
+ * previous code section, can not be accessed until successfully filled in with
+ * values in the <code>pcap.compile</code> code. If you try and access any of
+ * its methods an <code>IllegalStateException</code> will be thrown. Only
+ * after a successful call to <code>compile</code> does the object become
+ * usable. The object is peered with C structure and until properly intialized,
+ * can not be accessed from java.
+ * </p>
+ * <h3> Dispatcher to receive packets as they arrive</h3>
  * And lastly lets do something with the data.
  * 
  * <pre>
  * 
- *  PcapHandler handler = new PcapHandler() {
+ * PcapHandler handler = new PcapHandler() {
  * 
- *  public void newPacket(PcapPacket packet, Object userData) {
- *  	PrintStream out = userData;
- * 	 	out.println(&quot;Packet captured on: &quot; + packet.getHeader().getTimestamp());
- *  	}
- *  };
+ * 	public void newPacket(Object userData, int caplen, int len, int seconds,
+ * 	    int usecs, ByteBuffer buffer) {
  * 
- *  pcap.loop(&lt;SPAN title=&quot;Read 100 packets and exit loop&quot;&gt;100&lt;/SPAN&gt;, &lt;SPAN title=&quot;our hander/callback method above&quot;&gt;handler&lt;/SPAN&gt;, &lt;SPAN title=&quot;Our user object, STDOUT in our case&quot;&gt;System.out&lt;/SPAN&gt;);
+ * 		PrintStream out = (PrintStream) userData;
+ * 		out.println(&quot;Packet captured on: &quot; + new Date(seconds * 1000).toString());
+ * 	}
+ * };
  * 
- *  pcap.close();
+ * int cnt = 10; // Capture packet count
+ * PrintStream out = System.out; // Our custom object to send into the handler
+ * 
+ * pcap.loop(cnt, handler, out); // Each packet will be dispatched to the handler
+ * 
+ * pcap.close();
  * </pre>
  * 
- * This sets up PCAP to capture 100 packets and notify our handler of each
- * packet as each one is captured. Then after 100 packets the loop exits and we
- * call pcap.close() to free up all the resources and we can safely throw away
- * our pcap object. Also you may be curious why we pass System.out as userData
- * to the loop handler. This is simply to demonstrate the typical usage for this
+ * <p>
+ * This sets up PCAP to capture 10 packets and notify our handler of each packet
+ * as each one is captured. Then after 10 packets the loop exits and we call
+ * pcap.close() to free up all the resources and we can safely throw away our
+ * pcap object. Also you may be curious why we pass System.out as userData to
+ * the loop handler. This is simply to demonstrate the typical usage for this
  * kind of parameter. In our case we could easily pass a different PrintStream
  * bound to lets say a network socket and our handler would produce output to
- * it. It doesn't care.
+ * it.
+ * </p>
+ * <p>
+ * Alternative way of capturing packets from any of the open pcap sessions is to
+ * use {@link #dispatch(int, PcapHandler, Object)} method, which works very
+ * similarly to {@link #loop(int, PcapHandler, Object)}. You can also use
+ * {@link #next(PcapPkthdr)} and {@link #nextEx(PcapPkthdr, PcapPktbuffer)}
+ * methods which will deliver 1 packet at a time.
+ * </p>
+ * <h3>No packet data copies!</h3>
+ * <p>
+ * The packet data is delivered in a <code>java.nio.ByteBuffer</code>. The
+ * data is not copied into the buffer, but a direct byte buffer is allocated and
+ * wrapped around the packet data as returned from libpcap. No in memory copies
+ * are performed, so if the native operating system supports no-copy packet
+ * captures, the packet are delived to Java without copies. Only a single
+ * ByteBuffer object allocation is incured.
+ * </p>
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
@@ -190,11 +240,52 @@ public class Pcap {
 	 * This method checks the status of the initialization squence started in
 	 * static initializer right when the class was first loaded.
 	 * 
-	 * @return
+	 * @return null is returned on success otherwise the exception that caused the
+	 *         failure
 	 */
 	public static Exception checkStaticInitializerError() {
 		return initError;
 	}
+
+	/**
+	 * <p>
+	 * Compile a packet filter without the need of opening an adapter. This
+	 * function converts an high level filtering expression (see Filtering
+	 * expression syntax) in a program that can be interpreted by the kernel-level
+	 * filtering engine.
+	 * </p>
+	 * <p>
+	 * pcap_compile_nopcap() is similar to pcap_compile() except that instead of
+	 * passing a pcap structure, one passes the snaplen and linktype explicitly.
+	 * It is intended to be used for compiling filters for direct BPF usage,
+	 * without necessarily having called pcap_open(). (pcap_compile_nopcap() is a
+	 * wrapper around pcap_open_dead(), pcap_compile(), and pcap_close(); the
+	 * latter three routines can be used directly in order to get the error text
+	 * for a compilation error.)
+	 * </p>
+	 * <p>
+	 * Look at the Filtering expression syntax section for details on the str
+	 * parameter.
+	 * </p>
+	 * 
+	 * @param snaplen
+	 *          generate code to truncate packets to this length upon a match
+	 * @param dlt
+	 *          the first header type within the packet, or data link type of the
+	 *          interface
+	 * @param program
+	 *          initially empty, but after the method call will contain the
+	 *          compiled BPF program
+	 * @param str
+	 *          a string containing the textual expression to be compiled
+	 * @param optimize
+	 *          1 means to do optimizations, any other value means no
+	 * @param netmask
+	 *          netmask needed to determine the broadcast address
+	 * @return a return of -1 indicates an error; the error text is unavailable
+	 */
+	public native static int compileNoPcap(int snaplen, int dlt,
+	    PcapBpfProgram program, String str, int optimize, int netmask);
 
 	/**
 	 * Translates a data link type name, which is a DLT_ name with the DLT_
@@ -225,7 +316,7 @@ public class Pcap {
 	 * @param dlt
 	 *          data link type value
 	 * @return data link type value to the corresponding data link type name, NULL
-	 *         is returned on failure.
+	 *         is returned on failure
 	 */
 	public native static String datalinkValToName(int dlt);
 
@@ -288,11 +379,22 @@ public class Pcap {
 	 * @param errbuf
 	 *          error buffer containing error message as a string on failure
 	 */
-	public static void freeAllDevs(PcapIf alldev, byte[] errbuf) {
+	public static void freeAllDevs(List<PcapIf> alldevs, byte[] errbuf) {
 		// Empty do nothing method, java PcapIf objects currently have no link
 		// to C structures and do not need to be freed up. All the C structures
 		// used to building PcapIf chains are already free.
 	}
+
+	/**
+	 * This method forces deallocation of backend resources. After this call, any
+	 * access to the BPF program through any of its accessor methods, will result
+	 * in IllegalStateException raised. The user should release any references to
+	 * the java object after this call.
+	 * 
+	 * @param program
+	 *          program to free up the backend resources for
+	 */
+	public native static void freecode(PcapBpfProgram program);
 
 	/**
 	 * Initializes the jNetPcap library JNI component. This method is called
@@ -369,6 +471,8 @@ public class Pcap {
 	 */
 	public native static String libVersion();
 
+	// public native int loop(int cnt, PcapHandler heandler, Object user);
+
 	/**
 	 * Create a pcap_t structure without starting a capture. pcap_open_dead() is
 	 * used for creating a pcap_t structure to use when calling the other
@@ -437,8 +541,6 @@ public class Pcap {
 	 */
 	public native static Pcap openLive(String device, int snaplen, int promisc,
 	    int timeout, StringBuilder errbuf);
-
-	// public native int loop(int cnt, PcapHandler heandler, Object user);
 
 	/**
 	 * Open a savefile in the tcpdump/libpcap format to read packets.
@@ -511,11 +613,24 @@ public class Pcap {
 
 	/**
 	 * pcap_close() closes the files associated with p and deallocates resources.
-	 * 
-	 * @param p
-	 *          pcap structure
 	 */
 	public native void close();
+
+	/**
+	 * @param program
+	 *          initially empty, but after the method call will contain the
+	 *          compiled BPF program
+	 * @param str
+	 *          a string containing the textual expression to be compiled
+	 * @param optimize
+	 *          1 means to do optimizations, any other value means no
+	 * @param netmask
+	 *          netmask needed to determine the broadcast address
+	 * @return A return of -1 indicates an error in which case {@link #getErr()}
+	 *         may be used to display the error text.
+	 */
+	public native int compile(PcapBpfProgram program, String str, int optimize,
+	    int netmask);
 
 	/**
 	 * Returns the link layer of an adapter.
@@ -605,7 +720,7 @@ public class Pcap {
 	 * error, -1 is returned and errbuf is filled in with an appropriate error
 	 * message.
 	 * 
-	 * @see #setNonBlock(int, byte[])
+	 * @see #setNonBlock(int, StringBuilder)
 	 * @return if there is an error, -1 is returned and errbuf is filled in with
 	 *         an appropriate error message
 	 */
@@ -731,6 +846,19 @@ public class Pcap {
 	public native int setDatalink(int dlt);
 
 	/**
+	 * Associate a filter to a capture. pcap_setfilter() is used to specify a
+	 * filter program. fp is a pointer to a bpf_program struct, usually the result
+	 * of a call to pcap_compile(). -1 is returned on failure, in which case
+	 * pcap_geterr() may be used to display the error text; 0 is returned on
+	 * success.
+	 * 
+	 * @param program
+	 * @return -1 is returned on failure, in which case pcap_geterr() may be used
+	 *         to display the error text; 0 is returned on success
+	 */
+	public native int setFilter(PcapBpfProgram program);
+
+	/**
 	 * Set the minumum amount of data received by the kernel in a single call.
 	 * pcap_setmintocopy() changes the minimum amount of data in the kernel buffer
 	 * that causes a read from the application to return (unless the timeout
@@ -776,7 +904,7 @@ public class Pcap {
 	 * return 0 immediately rather than blocking waiting for packets to arrive.
 	 * pcap_loop() and pcap_next() will not work in ``non-blocking'' mode.
 	 * 
-	 * @see #getNonBlock()
+	 * @see #getNonBlock(StringBuilder)
 	 * @param nonBlock
 	 *          a non negative value means to set in non blocking mode
 	 * @return if there is an error, -1 is returned and errbuf is filled in with
@@ -793,86 +921,6 @@ public class Pcap {
 	 * @return the snapshot length specified when pcap_open_live was called
 	 */
 	public native int snapshot();
-
-	/**
-	 * <p>
-	 * Compile a packet filter without the need of opening an adapter. This
-	 * function converts an high level filtering expression (see Filtering
-	 * expression syntax) in a program that can be interpreted by the kernel-level
-	 * filtering engine.
-	 * </p>
-	 * <p>
-	 * pcap_compile_nopcap() is similar to pcap_compile() except that instead of
-	 * passing a pcap structure, one passes the snaplen and linktype explicitly.
-	 * It is intended to be used for compiling filters for direct BPF usage,
-	 * without necessarily having called pcap_open(). (pcap_compile_nopcap() is a
-	 * wrapper around pcap_open_dead(), pcap_compile(), and pcap_close(); the
-	 * latter three routines can be used directly in order to get the error text
-	 * for a compilation error.)
-	 * </p>
-	 * <p>
-	 * Look at the Filtering expression syntax section for details on the str
-	 * parameter.
-	 * </p>
-	 * 
-	 * @param snaplen
-	 *          generate code to truncate packets to this length upon a match
-	 * @param dlt
-	 *          the first header type within the packet, or data link type of the
-	 *          interface
-	 * @param program
-	 *          initially empty, but after the method call will contain the
-	 *          compiled BPF program
-	 * @param str
-	 *          a string containing the textual expression to be compiled
-	 * @param optimize
-	 *          1 means to do optimizations, any other value means no
-	 * @param netmask
-	 *          netmask needed to determine the broadcast address
-	 * @return a return of -1 indicates an error; the error text is unavailable
-	 */
-	public native static int compileNoPcap(int snaplen, int dlt,
-	    PcapBpfProgram program, String str, int optimize, int netmask);
-
-	/**
-	 * @param program
-	 *          initially empty, but after the method call will contain the
-	 *          compiled BPF program
-	 * @param str
-	 *          a string containing the textual expression to be compiled
-	 * @param optimize
-	 *          1 means to do optimizations, any other value means no
-	 * @param netmask
-	 *          netmask needed to determine the broadcast address
-	 * @return A return of -1 indicates an error in which case {@link #getErr()}
-	 *         may be used to display the error text.
-	 */
-	public native int compile(PcapBpfProgram program, String str, int optimize,
-	    int netmask);
-
-	/**
-	 * This method forces deallocation of backend resources. After this call, any
-	 * access to the BPF program through any of its accessor methods, will result
-	 * in IllegalStateException raised. The user should release any references to
-	 * the java object after this call.
-	 * 
-	 * @param program
-	 *          program to free up the backend resources for
-	 */
-	public native static void freecode(PcapBpfProgram program);
-
-	/**
-	 * Associate a filter to a capture. pcap_setfilter() is used to specify a
-	 * filter program. fp is a pointer to a bpf_program struct, usually the result
-	 * of a call to pcap_compile(). -1 is returned on failure, in which case
-	 * pcap_geterr() may be used to display the error text; 0 is returned on
-	 * success.
-	 * 
-	 * @param program
-	 * @return -1 is returned on failure, in which case pcap_geterr() may be used
-	 *         to display the error text; 0 is returned on success
-	 */
-	public native int setFilter(PcapBpfProgram program);
 
 	public String toString() {
 		return "jNetPcap based on " + libVersion();

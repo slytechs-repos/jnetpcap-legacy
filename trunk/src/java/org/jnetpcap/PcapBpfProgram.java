@@ -15,16 +15,31 @@ package org.jnetpcap;
 import java.nio.ByteBuffer;
 
 /**
+ * <p>
+ * Instance of a compiled Berkley Packet Filter program. The program is an
+ * interpreted binary byte program. Most modern unix and windows systems have a
+ * BPF interpreter builtin and execute the code very efficiently, close to the
+ * source of the capture and use the filter to permit or reject packets early.
+ * </p>
+ * <p>
+ * <b>Special note:</b><br>
+ * There also 2 private constructors which allow the object to be initialized in
+ * Java space with a BPF program. The corresponding native C structures are
+ * created and can be passed to <code>Pcap.setFilter</code> method. At this
+ * time, the constructors are kept private for further testing. At some point
+ * these private constructors will be made public and will allow outside filters
+ * to be used with <em>Pcap</em> capture sessions.
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
 public class PcapBpfProgram {
 	static {
 		/*
-		 * Touch Pcap class. PcapBpfProgram JNI jfieldID tables are loaded
-		 * during Pcap class static intialization process. Make sure Pcap loaded
-		 * before us, otherwise we could get UnsatisfiedLinkError from JNI runtime
-		 * if we're invoked before Pcap class.
+		 * Touch Pcap class. PcapBpfProgram JNI jfieldID tables are loaded during
+		 * Pcap class static intialization process. Make sure Pcap loaded before us,
+		 * otherwise we could get UnsatisfiedLinkError from JNI runtime if we're
+		 * invoked before Pcap class.
 		 */
 		try {
 			Class.forName("org.jnetpcap.Pcap");
@@ -42,7 +57,9 @@ public class PcapBpfProgram {
 	/**
 	 * Special constructor that allows creation of empty object ready for
 	 * initialization. The object is only suitable for passing to Pcap.compile or
-	 * Pcap.compileNoPcap which will initiliaze it.
+	 * Pcap.compileNoPcap which will initiliaze it. Using any of the getter
+	 * methods before the PcapBpfProgram object is succesfully initialized will
+	 * result in IllegalStateException being thrown.
 	 * 
 	 * @see Pcap#compile(PcapBpfProgram, String, int, int)
 	 * @see Pcap#compileNoPcap(int, int, PcapBpfProgram, String, int, int)
@@ -51,7 +68,8 @@ public class PcapBpfProgram {
 		// Empty uninitialized object.
 	}
 
-	private PcapBpfProgram(byte[] instructions) {
+	@SuppressWarnings("unused")
+  private PcapBpfProgram(byte[] instructions) {
 		if (instructions == null) {
 			throw new NullPointerException("BPF instruction array is null");
 		}
@@ -71,7 +89,8 @@ public class PcapBpfProgram {
 		initFromArray(instructions);
 	}
 
-	private PcapBpfProgram(ByteBuffer instructions) {
+	@SuppressWarnings("unused")
+  private PcapBpfProgram(ByteBuffer instructions) {
 		if (instructions == null) {
 			throw new NullPointerException("BPF instruction buffer is null");
 		}
@@ -97,6 +116,10 @@ public class PcapBpfProgram {
 		}
 	}
 
+	/**
+	 * Cleans up JNI resources and releases any unreleased BPF programs in native
+	 * land.
+	 */
 	protected void finalize() {
 
 		if (physical != 0) {
@@ -131,6 +154,11 @@ public class PcapBpfProgram {
 	 */
 	private native void initFromBuffer(ByteBuffer buffer, int start, int len);
 
+	/**
+	 * Gets the exact number of BPF instructions within this program.
+	 * 
+	 * @return number of 8 byte instructions within this program
+	 */
 	public native int getInstructionCount();
 
 	/**

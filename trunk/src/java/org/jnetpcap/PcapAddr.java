@@ -79,8 +79,8 @@ public final class PcapAddr {
 		return this.dstaddr;
 	}
 
-	@SuppressWarnings("unchecked")
-	public List toList() {
+	@SuppressWarnings({ "unchecked", "unused" })
+	private List toList() {
 
 		/**
 		 * Don't use generics to keep compatiblity pre 1.5

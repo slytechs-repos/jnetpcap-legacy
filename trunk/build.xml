@@ -73,6 +73,14 @@
 		<pathelement location="${prj.lib.prereq.tests}" />
 	</path>
 	
+	<!-- =================================================================== -->
+	<!-- class path used for compiling Java classes using JavaDoc -->
+	<!-- =================================================================== -->
+	<path id="build.api.classpath">
+		<pathelement location="${build.classes.dir}" />
+		<pathelement location="${prj.lib.prereq.java}" />
+	</path>
+	
 	
 	<!--                        PREPARE SECTION  -->
 
@@ -261,7 +269,8 @@
 		<javadoc 
 			sourcepath="${prj.src.java.dir}" 
 			destdir="${build.api.dir}" 
-			packagenames="org.*" 
+			packagenames="org.jnetpcap.*" 
+			classpathref="build.api.classpath"
 		/>
 	</target>
 
