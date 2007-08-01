@@ -30,6 +30,9 @@
  -->
 <project name="jNetPcap build stage 1" default="all" basedir=".">
 
+	<!-- Get the enviroment collection from the OS -->
+	<property environment="env" />
+	
 	<!-- 
          Add the optional compiler task <cc></cc>, 
          the JAR needs to be in the classpath or ANT_HOME 
@@ -44,8 +47,6 @@
 	<property file="common.properties" prefix="prj"/>
 	<property file="build.properties" prefix="build"/>
 
-	<!-- Get the enviroment collection from the OS -->
-	<property environment="env" />
 	
 	<!--                        PREPARE PATHS SECTION  -->
 
@@ -203,6 +204,7 @@
 
 		<echo message="compiling JNI C++ files to object code" />
 		<echo message="using ${build.cc.compiler.cmd} compiler" />
+		<echo message="system include = ${prj.java.sdk.include.dir}" />
 		<cc 
 			debug="${build.debug}" 
 			objdir="${build.obj.dir}" 
