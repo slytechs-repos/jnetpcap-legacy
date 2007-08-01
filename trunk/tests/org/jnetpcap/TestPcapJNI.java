@@ -14,16 +14,10 @@ package org.jnetpcap;
 
 import java.net.SocketException;
 import java.nio.ByteBuffer;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.TestCase;
-
-import org.jnetpcap.Pcap;
-import org.jnetpcap.PcapBpfProgram;
-import org.jnetpcap.PcapHandler;
-import org.jnetpcap.PcapIf;
-import org.jnetpcap.PcapPktbuffer;
-import org.jnetpcap.PcapPkthdr;
 
 /**
  * @author Mark Bednarczyk
@@ -37,7 +31,7 @@ public class TestPcapJNI
 	private final static String device = "\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
 
 	private final static String fname = "tests/test-l2tp.pcap";
-	
+
 	private static final int OK = 0;
 
 	/**
@@ -105,9 +99,9 @@ public class TestPcapJNI
 			public void nextPacket(Object user, long seconds, int useconds,
 			    int caplen, int len, ByteBuffer buffer) {
 
-//				System.out.printf("%s, ts=%s caplen=%d len=%d capacity=%d\n", user
-//				    .toString(), new Date(seconds * 1000).toString(), caplen, len,
-//				    buffer.capacity());
+				// System.out.printf("%s, ts=%s caplen=%d len=%d capacity=%d\n", user
+				// .toString(), new Date(seconds * 1000).toString(), caplen, len,
+				// buffer.capacity());
 
 			}
 
@@ -128,9 +122,9 @@ public class TestPcapJNI
 			public void nextPacket(Object user, long seconds, int useconds,
 			    int caplen, int len, ByteBuffer buffer) {
 
-//				System.out.printf("%s, ts=%s caplen=%d len=%d capacity=%d\n", user
-//				    .toString(), new Date(seconds * 1000).toString(), caplen, len,
-//				    buffer.capacity());
+				// System.out.printf("%s, ts=%s caplen=%d len=%d capacity=%d\n", user
+				// .toString(), new Date(seconds * 1000).toString(), caplen, len,
+				// buffer.capacity());
 
 			}
 
@@ -151,9 +145,9 @@ public class TestPcapJNI
 			public void nextPacket(Object user, long seconds, int useconds,
 			    int caplen, int len, ByteBuffer buffer) {
 
-//				System.out.printf("%s, ts=%s caplen=%d len=%d capacity=%d\n", user
-//				    .toString(), new Date(seconds * 1000).toString(), caplen, len,
-//				    buffer.capacity());
+				// System.out.printf("%s, ts=%s caplen=%d len=%d capacity=%d\n", user
+				// .toString(), new Date(seconds * 1000).toString(), caplen, len,
+				// buffer.capacity());
 
 			}
 
@@ -185,9 +179,9 @@ public class TestPcapJNI
 			public void nextPacket(Object user, long seconds, int useconds,
 			    int caplen, int len, ByteBuffer buffer) {
 
-//				System.out.printf("%s, ts=%s caplen=%d len=%d capacity=%d\n", user
-//				    .toString(), new Date(seconds * 1000).toString(), caplen, len,
-//				    buffer.capacity());
+				// System.out.printf("%s, ts=%s caplen=%d len=%d capacity=%d\n", user
+				// .toString(), new Date(seconds * 1000).toString(), caplen, len,
+				// buffer.capacity());
 
 			}
 
@@ -244,55 +238,56 @@ public class TestPcapJNI
 
 		pcap.close();
 	}
-	
+
 	public void testDatalinkValueToName() {
 		assertEquals("EN10MB", Pcap.datalinkValToName(1));
 
 	}
-	
+
 	public void testDatalinkNameToValue() {
 		assertEquals(1, Pcap.datalinkNameToVal("EN10MB"));
 	}
-	
+
 	public void testDatalinkValueToDescription() {
 		assertEquals("Ethernet", Pcap.datalinkValToDescription(1));
 
 	}
-	
+
 	public void testLibVersion() {
 		assertNotNull(Pcap.libVersion());
 	}
-	
+
 	public void testFindAllDevs() {
-		PcapIf devs = new PcapIf();
-		
+		List<PcapIf> devs = new ArrayList<PcapIf>(); // List filled in by
+																									// findAllDevs
+
 		int r = Pcap.findAllDevs(devs, errbuf);
 		assertEquals(errbuf.toString(), 0, r);
-		assertNotNull(devs.getNext());
-		
-//		System.out.println(devs.getNext().toString());		
-//		System.out.println(devs.toList());
+		assertFalse(devs.isEmpty());
+		assertEquals(2, devs.size());
+
+//		System.out.println(devs);
 	}
-	
+
 	public void testFilterCompileNoPcapAndAccessors() {
 		PcapBpfProgram bpf = new PcapBpfProgram();
-		
-		// Check state protection when object not ready yet. 
+
+		// Check state protection when object not ready yet.
 		try {
 			bpf.getInstructionCount();
 			fail("Should have generated an illegal state exception");
 		} catch (IllegalStateException e) {
 			// OK
 		}
-		
+
 		String str = "host 192.168.1.1";
-		
+
 		int r = Pcap.compileNoPcap(1024, 1, bpf, str, 0, 0);
 		assertEquals(OK, r);
-		
+
 		assertEquals(26, bpf.getInstructionCount());
 		assertEquals(120259084320L, bpf.getInstruction(10));
-		
+
 		// Boundary checks
 		try {
 			bpf.getInstruction(-10);
@@ -300,7 +295,7 @@ public class TestPcapJNI
 		} catch (IndexOutOfBoundsException e) {
 			// OK
 		}
-		
+
 		// Boundary checks
 		try {
 			bpf.getInstruction(26);
@@ -308,36 +303,35 @@ public class TestPcapJNI
 		} catch (IndexOutOfBoundsException e) {
 			// OK
 		}
-		
+
 		Pcap.freecode(bpf);
 	}
-	
+
 	public void testFilterCompileAndSetFilter() {
 		PcapBpfProgram bpf = new PcapBpfProgram();
 		String str = "host 192.168.101";
-		
+
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		assertNotNull(pcap);
-		
+
 		int r = pcap.compile(bpf, str, 0, 0);
 		assertEquals(pcap.getErr(), 0, r);
-		
-		
+
 		PcapHandler handler = new PcapHandler() {
 			public void nextPacket(Object user, long seconds, int useconds,
 			    int caplen, int len, ByteBuffer buffer) {
 
-//				System.out.printf("%s, ts=%s caplen=%d len=%d capacity=%d\n", user
-//				    .toString(), new Date(seconds * 1000).toString(), caplen, len,
-//				    buffer.capacity());
+				// System.out.printf("%s, ts=%s caplen=%d len=%d capacity=%d\n", user
+				// .toString(), new Date(seconds * 1000).toString(), caplen, len,
+				// buffer.capacity());
 			}
 		};
 
 		assertEquals(OK, pcap.setFilter(bpf));
 		assertEquals(OK, pcap.loop(10, handler, str));
-		
+
 		Pcap.freecode(bpf);
-		
+
 		pcap.close();
 	}
 }
