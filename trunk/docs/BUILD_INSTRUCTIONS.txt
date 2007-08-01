@@ -35,6 +35,7 @@ prep-jni:	prep-build	; creates obj/ and jni/ directories
 prep-pcap:	prep-build	; unzips the Libpcap SDK into the build/ directory
 prep-api:	prep-build	; creates api/ directory
 prep-tests:				; empty does nothing
+prep-javah:	prep-build	; creates includes/ directory
 
 compile:				; compiles all sources except jUnit tests
 	:	comp-java
@@ -44,7 +45,10 @@ comp-jni
 	:	prep-jni		; compiles src/c using gcc (mingw on Win32, gcc on unix)
 		comp-javah		
 		
-comp-javah:	prep-pcap	; generates JNI header files using javah
+comp-javah:				; generates JNI header files using javah
+	:	prep-javah
+		comp-java		; needs compiled classes, not source
+		
 comp-java:	prep-java	; compiles src/java using javac
 
 tests:		comp-tests	; runs jUnit test suites and individual cases

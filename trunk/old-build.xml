@@ -220,14 +220,6 @@
 		</cc>
 
 
-		<!--
-      	-->
-
-
-		<uptodate targetfile="${${build.library.dir}/jnetpcap.dll}" property="doB">
-			<srcfiles dir="${build.obj.dir}" />
-		</uptodate>
-
 		<exec executable="gcc">
 			<arg value="-shared" />
 			<arg value="-Wl,--add-stdcall-alias" />
