@@ -62,9 +62,11 @@ void setString(JNIEnv *env, jobject buffer, const char *);
 jmethodID getPcapConstructorMID(JNIEnv *env, jclass clazz);
 void setPktHeader(JNIEnv *env, jobject jpkt_header, pcap_pkthdr *pkt_header);
 void setPktBuffer(JNIEnv *env, jobject jpkt_buffer, jobject jbuffer);
+jclass findClass(JNIEnv *env, char *name);
+jmethodID findMethod(JNIEnv *env, jobject obj, char *name, char *signature);
 
-jobject newPcapAddr(JNIEnv *env, pcap_addr *addr);
-jobject newPcapIf(JNIEnv *env, pcap_if_t *ifp);
+jobject newPcapAddr(JNIEnv *env, jobject jlist, jmethodID MID_add, pcap_addr *addr);
+jobject newPcapIf(JNIEnv *env, jobject jlist, jmethodID MID_add, pcap_if_t *ifp);
 jobject newPcapSockaddr(JNIEnv *env, sockaddr *a);
 
 void throwException(JNIEnv *env, const char *excClassName, char *message);
