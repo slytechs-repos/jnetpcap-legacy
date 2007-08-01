@@ -11,17 +11,18 @@ with existing "C" counter part libpcap and winpcap libraries.</p>
 <p>This document describes the usage, implementation details and few
 differences between jNetPCAP and back end libpcap implementations. Java
 is after all OOPL (Object Oriented Programming Language).</p>
-<p>
-<b> Feature highlights:</b>
+<p><b> Feature highlights:</b>
 <ul>
-<li> Follows native <em>Libpcap</em> programming model. This makes learning <em>jNetPcap</em> API
-easy. </li>
-<li> <b> No packet buffer copies between Libpcap and java space. </b>Existing native
-in-memory buffer is wrapped inside a <code>java.nio.ByteBuffer</code> object.</li>
-<li> Low level and efficient JNI implementation.</li>
-<li> Provides some very low level functions previously not available in Java space.
-i.e. <code>setBuffer</code> for changing buffer size and others.</li>
-<li> Very small library footprint</li>
+	<li>Follows native <em>Libpcap</em> programming model. This makes
+	learning <em>jNetPcap</em> API easy.</li>
+	<li><b> No packet buffer copies between Libpcap and java
+	space. </b>Existing native in-memory buffer is wrapped inside a <code>java.nio.ByteBuffer</code>
+	object.</li>
+	<li>Low level and efficient JNI implementation.</li>
+	<li>Provides some very low level functions previously not
+	available in Java space. i.e. <code>setBuffer</code> for changing
+	buffer size and others.</li>
+	<li>Very small library footprint</li>
 </ul>
 
 <h2>Project website and the native <em>Libpcap</em> connection</h2>
@@ -32,18 +33,40 @@ library functions, users are encouraged to read libpcap documentation at
 project website for for more information and a user guide with tutorials
 at <a href="http://jnetpcap.sf.net">http://jnetpcap.sf.net</a> .</p>
 
+<h2>Java requirements</h2>
+<em>jNetPcap</em>
+requires Java JRE 1.5. All other requirements for this package are
+included as part of all distributions. All logging messages are logged
+using logger neutral
+<em>commons-logging</em>
+from Apache Foundation. jUnit tests are not distributed with the binary
+release, but are distributed with the source package. Any jUnit library
+is sufficient to run all jUnit test cases. Build environment requires
+ANT, ANT's contrib <em>cpptasks</em>, and a C++ compiler. Currently jNetPcap
+compiles using
+<em>MinGW</em>
+gcc compiler and environment on win32 platform and under regular gnu gcc on linux. No
+<em>Makefiles</em>
+are used nor required.
 <h2>Getting Started!</h2>
 <p>The starting point for <em>jNetPcap</em> is the <a
-	href="Pcap.html">Pcap class</a></b>. The <code>Pcap</code> class works
-directly with the native <em>Libpcap</em> by peering through the use of
-a native library and Java's JNI API. The class contains several static
-methods that create capture sessions at which point a dynamic session
-reference is returned. From then on, all operations are done through the
-dynamic <code>Pcap</code> methods. There are other static methods that
-have more global affect, such as tuning kernel buffer sizes, compiling
-filter expressions offline, etc.</p>
+	href="Pcap.html">Pcap class</a>
+</b>
+. The
+<code>Pcap</code>
+class works directly with the native
+<em>Libpcap</em>
+by peering through the use of a native library and Java's JNI API. The
+class contains several static methods that create capture sessions at
+which point a dynamic session reference is returned. From then on, all
+operations are done through the dynamic
+<code>Pcap</code>
+methods. There are other static methods that have more global affect,
+such as tuning kernel buffer sizes, compiling filter expressions
+offline, etc.
+</p>
 <p>Primary purpose of a capture session is to capture network
-packets. There are 3 main methods provided by <code>Pcap</code> class.
+packets. There are 3 main static methods provided by <code>Pcap</code> class.
 They are <code>openLive</code>, <code>openOffline</code> and <code>openDead</code>.
 <code>openLive</code> captures packets from a live network interface. <code>openOffline</code>
 reads packets from a file, and <code>openDead</code> is used to create a
@@ -92,9 +115,9 @@ if (pcap == null ) { return; }
 ByteBuffer buffer = pcap.next(hdr);
 if (buffer == null) { return; }
 
+int dlt = pcap.datalink(); // First header type.
 pcap.close(); // We're done capturing, only needed 1 packet
 
-int dlt = pcap.datalink(); // First header type.
 if (dlt == Pcap.EN10MB) {
 	int protocol = buffer.getShort(12); // Get a 16-bit short, at 12th byte in
 	
@@ -107,7 +130,7 @@ if (dlt == Pcap.EN10MB) {
 </pre>
 
 Using the manual approach only works for simple tasks and protocols. The
-complexity of protocol interactions are complex and not well handled
+complexity of protocol interactions are vast and not well handled
 manually. A better approach is to use decoder library to do the manual
 work for us.
 
@@ -135,13 +158,13 @@ if (pcap == null ) { return; }
 ByteBuffer buffer = pcap.next(hdr);
 if (buffer == null) { return; }
 
+int dlt = pcap.datalink(); // First header type.
 pcap.close(); // We're done capturing, only needed 1 packet
 
 long seconds = hdr.getSeconds();
 int nanosecs = hdr.getUSeconds() * 1000; // Convert from micro to nano
 int snaplen = hdr.getCaplen();
 int length = hdr.getLen();
-int dlt = pcap.datalink(); // First header type.
 </pre>
 Upto this point, we haven't used any jNetStream code. Now jNetStream
 library steps in.
@@ -242,7 +265,7 @@ myJNetPcapApp.jar</code>
 <h3>Library loading procedure on unix based systems</h3>
 On all unix systems the typical
 <code>LD_LIBRARY_PATH</code>
-environmental variable is to search for the library.
+environmental variable is used to search for the library.
 
 <h3>Name of the native library</h3>
 The name of jNetPcap's native library is
@@ -254,5 +277,10 @@ for all operating systems. Further information can be found in JavaDoc
 API documentation for
 <code>System.loadLibrary</code>
 .
-
+<h3>Where to final <code>jnetpcap</code> native library</h3>
+In binary distribution, the installation directory will have a <code>lib</code>
+directory. This directory will have appropriate library for the native operating
+system. (i.e. on windows this is lib\jnetpcap.dll.) In source distribution, the 
+library does not exist since its compiled from source. The source to jnetpcap native
+library is in <code>src/c</code> directory.
 </body>
