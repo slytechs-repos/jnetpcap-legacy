@@ -383,6 +383,9 @@ public class Pcap {
 		// Empty do nothing method, java PcapIf objects currently have no link
 		// to C structures and do not need to be freed up. All the C structures
 		// used to building PcapIf chains are already free.
+		if (alldevs == null || errbuf == null) {
+			throw new NullPointerException();
+		}
 	}
 
 	/**
