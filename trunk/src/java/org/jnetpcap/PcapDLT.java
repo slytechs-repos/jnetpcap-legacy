@@ -54,7 +54,8 @@ package org.jnetpcap;
  * <pre>
  * int dlt = pcap.datalink(); // Get DLT value from open Pcap capture
  * PcapDLT enumConst = PcapDLT.valueOf(dlt);
- * System.out.println("The Data Link Type is " + enumConst);
+ * System.out.println("The Data Link Type is " + enumConst + " described as " + 
+ * 		enumConst.description);
  * </pre> 
  * 
  * <h2>Converting string DLT name into a constant</h2>
@@ -159,10 +160,28 @@ public enum PcapDLT {
 	
 	;
 	
+  /**
+   * Integer dlt value assigned by libpcap to this constant
+   */
 	public final int value;
+	
+	/**
+	 * Description of the dlt retrieved by quering the native pcap library. The
+	 * description is not a static constant part of the API and may change from
+	 * native libpcap implementation to implementation.
+	 */
+	public final String description;
 
 	private PcapDLT(int value) {
 		this.value = value;
+		
+		// Assign description by quering the native Libpcap library
+		String str = Pcap.datalinkValToDescription(value);
+		if (str == null) {
+			str = name();
+		}
+		
+		this.description = str;
 		
 	}
 	
