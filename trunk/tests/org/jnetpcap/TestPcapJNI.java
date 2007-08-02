@@ -259,14 +259,14 @@ public class TestPcapJNI
 
 	public void testFindAllDevs() {
 		List<PcapIf> devs = new ArrayList<PcapIf>(); // List filled in by
-																									// findAllDevs
+		// findAllDevs
 
 		int r = Pcap.findAllDevs(devs, errbuf);
 		assertEquals(errbuf.toString(), 0, r);
 		assertFalse(devs.isEmpty());
 		assertEquals(2, devs.size());
 
-//		System.out.println(devs);
+		// System.out.println(devs);
 	}
 
 	public void testFilterCompileNoPcapAndAccessors() {
@@ -334,163 +334,194 @@ public class TestPcapJNI
 
 		pcap.close();
 	}
-	
+
 	public void testPcapOpenLiveNullPtrHandling() {
 		try {
-		Pcap.openLive(null, 1, 1, 1, null);
-		fail("Expected a NULL pointer exception.");
+			Pcap.openLive(null, 1, 1, 1, null);
+			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
 		}
 	}
-	
+
 	public void testPcapOpenOfflineNullPtrHandling() {
 		try {
-		Pcap.openOffline(null, null);
-		fail("Expected a NULL pointer exception.");
+			Pcap.openOffline(null, null);
+			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
 		}
 	}
-	
+
 	public void testCompileNoPcapNullPtrHandling() {
 		try {
-		Pcap.compileNoPcap(1, 1, null, null, 1, 1);
-		fail("Expected a NULL pointer exception.");
+			Pcap.compileNoPcap(1, 1, null, null, 1, 1);
+			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
 		}
 	}
-	
+
 	public void testCompileNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
-		pcap.compile(null, null, 1, 0);
-		fail("Expected a NULL pointer exception.");
+			pcap.compile(null, null, 1, 0);
+			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
 		} finally {
 			pcap.close();
 		}
 	}
-	
+
 	public void testGetNonBlockNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
-		pcap.getNonBlock(null);
-		fail("Expected a NULL pointer exception.");
+			pcap.getNonBlock(null);
+			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
 		} finally {
 			pcap.close();
 		}
 	}
-	
+
 	public void testLoopNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
-		pcap.loop(1, null, null);
-		fail("Expected a NULL pointer exception.");
+			pcap.loop(1, null, null);
+			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
 		} finally {
 			pcap.close();
 		}
 	}
-	
+
 	public void testDispatchNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
-		pcap.dispatch(1, null, "");
-		fail("Expected a NULL pointer exception.");
+			pcap.dispatch(1, null, "");
+			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
 		} finally {
 			pcap.close();
 		}
 	}
-	
+
 	public void testNextNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
-		pcap.next(null);
-		fail("Expected a NULL pointer exception.");
+			pcap.next(null);
+			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
 		} finally {
 			pcap.close();
 		}
 	}
-	
+
 	public void testNextExNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
-		pcap.nextEx(null, null);
-		fail("Expected a NULL pointer exception.");
+			pcap.nextEx(null, null);
+			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
 		} finally {
 			pcap.close();
 		}
 	}
-	
+
 	public void testSetFilterNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
-		pcap.setFilter(null);
-		fail("Expected a NULL pointer exception.");
+			pcap.setFilter(null);
+			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
 		} finally {
 			pcap.close();
 		}
 	}
-	
+
 	public void testSetNonBlockNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
-		pcap.setNonBlock(1, null);
-		fail("Expected a NULL pointer exception.");
+			pcap.setNonBlock(1, null);
+			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
 		} finally {
 			pcap.close();
 		}
 	}
-	
+
 	public void testDataLinkNameToValNullPtrHandling() {
 		try {
-		Pcap.datalinkNameToVal(null);
-		fail("Expected a NULL pointer exception.");
+			Pcap.datalinkNameToVal(null);
+			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
 		}
 	}
-	
+
 	public void testFindAllDevsNullPtrHandling() {
 		try {
-		Pcap.findAllDevs(null, null);
-		fail("Expected a NULL pointer exception.");
+			Pcap.findAllDevs(null, null);
+			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
 		}
 	}
-	
+
 	public void testFreeAllDevsNullPtrHandling() {
 		try {
-		Pcap.freeAllDevs(null, null);
-		fail("Expected a NULL pointer exception.");
+			Pcap.freeAllDevs(null, null);
+			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
 		}
 	}
-	
+
 	public void testFreeCodeNullPtrHandling() {
 		try {
-		Pcap.freecode(null);
-		fail("Expected a NULL pointer exception.");
+			Pcap.freecode(null);
+			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
 		}
+	}
+
+	public void testPcapDLTAndDoNameToValueComparison() {
+		int match = 0; // counts how many constants compared OK
+
+		for (PcapDLT c : PcapDLT.values()) {
+			int dlt = c.value;
+			String libName = Pcap.datalinkValToName(dlt);
+			if (libName == null) {
+				// System.out.printf("no dlt: dlt=%d enum=%s\n", dlt, c.toString());
+				continue;
+			}
+
+			if (libName.equals(c.name())) {
+				match++;
+
+				// System.out.printf("matched: dlt=%d enum=%s pcap=%s desc=%s\n", dlt, c
+				// .toString(), libName, c.description);
+			} else {
+				// System.out.printf("unmatched: dlt=%d enum=%s pcap=%s desc=%s\n", dlt,
+				// c
+				// .toString(), libName, c.description);
+			}
+		}
+
+		// System.out.println("Have " + match + " matches out of "
+		// + PcapDLT.values().length);
+
+		assertTrue(
+		    "Something is wrong, most constants should match native pcap library",
+		    match > 20);
 	}
 }
