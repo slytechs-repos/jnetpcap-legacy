@@ -201,7 +201,7 @@ public enum PcapDLT {
 	 * @param value Pcap DLT integer value to convert
 	 * @return constant assigned to the DLT integer, or null if not found
 	 */
-	public PcapDLT valueOf(int value) {
+	public static PcapDLT valueOf(int value) {
 		final PcapDLT[] values = values();
 		final int length = values.length;
 		
