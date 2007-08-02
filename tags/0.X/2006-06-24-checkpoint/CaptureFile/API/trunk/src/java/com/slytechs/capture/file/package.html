@@ -1,0 +1,50 @@
+<BODY>
+<P>Access to capture files. This package provides low level access to capture files.
+Currently NAP, PCAP and SNOOP formats are supported. This package has been designed
+to access all available information contained in these capture files including any META
+data. Or if you don't need that level of detail, you can just simply iterate and do operations
+on the files.</P>
+
+<h3>Getting started</h3>
+<P>The main method for opening a capture file is CaptureFile.open(File file). It will return
+appropriate instance of a CaptureFile abstract class which with the file open and ready for
+various operations on it.</P>
+
+<P>You can use collections views to manipulate and access capture file content. You can use 3 getters
+to get mutable views of the capture file:
+<UL>
+ <LI> getBlockRecords(): List<BlockRecord> </LI>
+ Retrieves a list of top level block records. For PCAP and SNOOP there is only 1 block record.
+ For NAP capture files there could be many block records.
+ <LI> getDataRecords(): List<DataRecord> </LI>
+ A list of all the data records independent of the blocks they are contained in, but in proper sequence.
+ Any data records that are out of seqeunces are mapped to be in sequence.
+ <LI> getPacketRecords(): List<PacketRecord> </LI>
+ A list of all the packet records, records containing packet data. All non packet records, usually contain
+ meta information, are skipped. The packet records are returned in the proper sequence even if they occure
+ out of sequence.
+ <LI> getAllRecords(): List<Record></LI>
+ Returns a list of all records in the order they appear in the capture file, not neccessarily in their proper
+ order.
+</UL>
+<P>The collections are marely views and do not prefetch all of the data. This means that delays while elements
+of the collections are being accessed while the actual data is loaded from the capture file. Also the returned 
+collections views are fully mutable which means you can add and remove records and the underlying
+capture file will be properly updated. For PCAP and SNOOP formats this may mean that a new copy of the original
+file may be created and modifications applied to it. For NAP capture files the modifications can be done in place
+without file copies.<P> 
+<P>Care must be taken when modifying a collection which hides the meta records or with the block record which is a container
+for a large number of data records. If a Data record or packet record is removed, care must be taken to remove any meta records
+that may have preceded the data or packet record.</P>
+<P>Also note that views returned are inter-dependent and changing one may change another view. For example when
+inserting a record into a block may mean that a new block is created as a result and if previously returned, the
+List<BlockRecord> collection will be modified.</P>
+
+<h3>Mutable behaviour and notification</h3>
+<P>You can monitor the state of the capture file and be notified when its modified. This is especially useful 
+when using collections views of the capture file. Since the views do not notify that they have been changed
+you need to use this mechanism to monitor changes to capture file and its views.</P>
+<UL>
+ <LI> 
+</UL>
+</BODY>

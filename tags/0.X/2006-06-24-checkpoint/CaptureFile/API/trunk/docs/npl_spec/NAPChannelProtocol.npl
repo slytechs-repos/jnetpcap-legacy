@@ -1,0 +1,40 @@
+header JNSChannelProperty {
+
+    assert JNS.channelOffset == 24;
+
+	field linked int channel {
+		property description
+			"Channel type of the next channel in the chain. " +
+			"Channel types are defined in the main JNS file. " +
+			"0 or NoMoreChannels value means this is the last channel.";
+	};
+
+	field int channelLength {
+		property description
+			"Length in bytes of this channel. Channel length may be " +
+			"bigger then actual data, as there is usually extra " +
+			"capacity allocated to allow for addition of properties " +
+			"without having to resize or rebuild the capture file." +
+			"The length must be in multiples of 256 bytes.";
+	};
+	
+	field int count {
+		property description
+			"Number of properties present in this channel.";
+	};
+	
+	field int type enum {
+		NPLProtocol(0x01)
+	};
+	
+	
+	field int reserved;
+	
+	field string protocol[count]:(10 * 1024) {
+		property description
+			"Array of protocol text blocks";
+	};
+	
+	field int hexdump extraCapacity:(channelLength - (10 * 1024 * count) - 20);
+	
+};
