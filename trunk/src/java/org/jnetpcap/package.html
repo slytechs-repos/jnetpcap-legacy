@@ -118,7 +118,7 @@ if (buffer == null) { return; }
 int dlt = pcap.datalink(); // First header type.
 pcap.close(); // We're done capturing, only needed 1 packet
 
-if (dlt == Pcap.EN10MB) {
+if (dlt == <a href="../../constant-values.html#org.jnetpcap.PcapDLT.CONST_EN3MB">PcapDLT.CONST_EN10MB</a>) {
 	int protocol = buffer.getShort(12); // Get a 16-bit short, at 12th byte in
 	
 	// convert from signed short, to unsigned short and store in an integer
