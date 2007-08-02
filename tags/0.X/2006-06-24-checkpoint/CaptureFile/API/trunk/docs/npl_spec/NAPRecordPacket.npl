@@ -1,0 +1,107 @@
+/*
+ * Backward compatible binary format with PCAP record size. The structure is
+ * somewhat different, but when recordType == 0, then protocol number is exactly
+ * the PCAP's DLT/Linktype value. The packet header fits exactly within 16 bytes,
+ * which is the size of PCAP record header. This means that PCAP record headers
+ * can be converted into JNS record headers in place without copies. Just rewrite
+ * the values.
+ *
+ * 1       4        8       12      16      20      24      28      32
+ * -------------------------------------------------------------------
+ * |rType=0| protocol DLT type      |      packet length...          |
+ * |-----------------------------------------------------------------|
+ * |                          record length                          |
+ * |-----------------------------------------------------------------|
+ * |                             seconds                             |
+ * |-----------------------------------------------------------------|
+ * |                              nanos                              |
+ * |-----------------------------------------------------------------|
+ *
+ */
+
+header JNSRecordPacket {
+
+	field byte recordType:4 {
+		enum {
+			PacketRecord(0x0),
+			ChannelHeaderRecord(0x1),
+			ChannelDataRecord(0x2),
+			IgnoreRecord(0xF),
+		};
+		
+		property description
+			"Record type. " + 
+			"The typical record type found in capture formats is PacketDatal " +
+			"Channel Description Record contains a chain of Channel headers " +
+			"";
+	};
+	
+	assert recordType == recordType.PacketRecord;
+
+	field linked short protocol:12 {
+		enum {
+			IgnoreRecord(0),
+			Ethernet(1),
+			EthernetExp(2),
+			AX25(3),
+			Pronet(4),
+			Chaos(5),
+			TokenRing(6),
+			Arcnet(7),
+			Slip(8),
+			PPP(9),
+			FDDI(10),
+			ATMLLC(11),
+			InternetProtocol(12),
+			SLIP(13),
+			PPP(14),
+			SLIP(15),
+			PPP(16),
+			ATMOverIP(19),
+			PPP(50),
+			PPPoE(51),
+			LinuxCookedCapture(0x71),			
+		
+		};
+		
+		property description
+			"The number of the first protocol as defined by PCAP library, for the first " +
+			"header within the packet buffer. PCAP protocol/datalink numbers " +
+			"are used since PCAP is the most common protocol and the values " +
+			"from PCAP files do not need any special translations going into " +
+			"JNS format. Actual Protocol bindings are defined in JNS.bindings file.";
+	};
+
+	field short packetLength {
+		property description
+			"The length of the packet in bytes, as it was seen on the wire, " +
+			"but may have been truncated down to dataLength.";
+	};
+	
+
+	field int recordLength {
+		property description
+			"Length of this record. This includes the length of the header " +
+			"plus the data area length. Or more specifically: " + 
+			"recordLength - dataLength - 16 = bytes padded." + 
+			"Could be different from dataLength. " +
+			"Some capture may choose to pad the record with extra bytes " +
+			"so that data area of the record can be expanded within " +
+			"the allocated record.";
+	};
+		
+	field int seconds; 
+	field int nanos {
+		property description 
+			"Fractional nano-second part of the second. Valid value is between 0 and 999,999,999." +
+			"Most other formats supply micros, to map from micros to nanos multiply by 1000. " +
+			"Latest hardware technology is capable of nano second resolution.";
+	};
+	
+	property local     packet.capture_linktype   protocol.valuename;
+	property local int packet.capture_snaplen    dataLength;
+	property local int packet.capture_length     packetLength;
+	property local int packet.capture_recordlen  recordLength;
+	property local int packet.capture_seconds    seconds;
+	property local int packet.capture_nanos      nanos;
+};

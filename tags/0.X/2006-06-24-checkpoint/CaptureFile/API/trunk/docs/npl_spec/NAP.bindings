@@ -1,0 +1,20 @@
+############################################################################
+# Protocol bindings JNS (jNetStream capture file format)
+#
+# JNS capture format uses PCAP compatible protocol to datalink
+# values as PCAP is the most popular 
+#
+############################################################################
+
+#Ethernet           = link JNS_Record protocol.Ethernet
+#ATMuni             = link JNS_Record protocol.ATMuni
+#LinuxCookedCapture = link JNS_Record protocol.LinuxCookedCapture
+
+
+JNS                        = link CaptureFile
+JNSChannelProperty         = link JNS JNS.channel.PropertyChannel
+JNSChannelEntity           = link JNS JNS.channel.EntityChannel
+JNSChannelIndex            = link JNS JNS.channel.IndexChannel
+JNSChannelBinding          = link JNS JNS.channel.BindingChannel
+JNSChannelProtocol         = link JNS JNS.channel.NPLChannel
+JNSChannelCounter          = link JNS JNS.channel.CounterChannel

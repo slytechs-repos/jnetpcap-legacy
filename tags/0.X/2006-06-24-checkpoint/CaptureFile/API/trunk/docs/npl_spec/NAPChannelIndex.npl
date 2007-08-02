@@ -1,0 +1,56 @@
+header JNSChannelIndex {
+
+    assert JNS.channelOffset == 24;
+
+	field linked int channel {
+		property description
+			"Channel type of the next channel in the chain. " +
+			"Channel types are defined in the main JNS file. " +
+			"0 or NoMoreChannels value means this is the last channel.";
+	};
+	
+	field int channelLength {
+		property description
+			"Length in bytes of this channel. Channel length may be " +
+			"bigger then actual data, as there is usually extra " +
+			"capacity allocated to allow for addition of properties " +
+			"without having to resize or rebuild the capture file." +
+			"The length must be in multiples of IndexBlock size.";
+	};
+	
+	
+	field int count {
+		property description
+			"Number of index records present";
+	};
+	
+	field int blockSize {
+		property description
+			"Number of elements within the data block, default 1000";
+	};
+
+	field int reserved;
+	
+	header IndexBlock[count] {
+		field int startingIndex;
+		field int endingIndex;
+		
+		field byte pointerSize {
+			enum {
+				TwoByte(0x02),
+				FourByte(0x04),
+				EightByte(0x08),
+				SixteenByte(0x10)
+			};
+		
+			property description
+				"Size in bytes of the pointer or offset value into the file";
+		};
+		
+		field int reserved:24;
+		
+		field long offset;
+	};
+	
+	field int hexdump extraCapacity:(channelLength - (20 * count) - 20);
+};

@@ -1,0 +1,95 @@
+/*
+ *
+ *    1       4        8       12      16      20      24      28      32
+ *    -------------------------------------------------------------------
+ * 0  |rType=1|             magic number = 0x2aa3bb4                    | 3
+ *    |-----------------------------------------------------------------|
+ * 4  |                     record length = file size                   | 7
+ *    |-----------------------------------------------------------------|
+ * 8  | major ver = 1  | minor ver = 0 |             flags              | 11
+ *    |-----------------------------------------------------------------|
+ * 12 |                          packet count                           | 15
+ *    |-----------------------------------------------------------------|
+ * 16 |                            reserved                             | 19
+ *    |-----------------------------------------------------------------|
+ * 20 |                            reserved                             | 23
+ *    |-----------------------------------------------------------------|
+ *
+ */
+header JNS {
+
+	field byte recordType:4 {
+		enum {
+			PacketRecord(0x0),
+			BlockDescriptorRecord(0x1)
+			ChannelDescriptorRecord(0x2),
+			ChannelDataRecord(0x3),
+			NoOpRecord(0xF),
+		};
+		
+		property description
+			"Record type. " + 
+			"The typical record type found in capture formats is PacketData " +
+			"Channel Description Record contains a chain of Channel headers " +
+			"FileHeaderRecord contains the main file header. " +
+			"Any of these records can appear multiple times in the file, including " +
+			"the file header when file size grows to 4G or multiple files are concatenated.";
+	};
+	
+	field hex int magic:28 enum {
+		JNSMagicNumber(0x2aa3bb4L)
+	};
+	
+	assert magic == magic.JNSMagicNumber;
+
+	field int recordLength {
+		property description
+			"Length of this record. This includes the length of the header " +
+			"plus the data area length.";
+	};
+	
+	field byte majorVersion;
+	field byte minorVersion; 
+
+	assert majorVersion == 1;
+	
+	field short flags {
+		enum {
+			PacketCount(0x0001),
+			BindingChannelPresent (0x0002),
+			ProtocolChannelPreset (0x0004),
+			IndexChannelPreset    (0x0010),
+			CounterChannelPreset  (0x0020),
+			EntityChannelPreset   (0x0040)
+		};
+		
+		property description
+			"file flags";
+	};
+
+	field int packetCount {
+		property description
+			"Packet count until the next FileHeaderRecord. " +
+			"The value of 0xFFFFFFFF, indicates that packet count is unknown. Packet count can not " +
+			"Contain the value of 0xFFFFFFFF in any other way. If a counter wrap around must occur, " +
+			"it must be wrapped at 0xFFFFFFFE.";
+	};
+		
+	field int fileSize {
+		property description
+			"The filesize of this file. If you think of this file as a single long record this is " +
+			"its size. So when 2 or more files get concatenated, and the physical file size " +
+			"does not match this filesize, that means that either the file has grown or shrunk. " +
+			"If grown, that means files were concatenated, you can expect another FileHeaderRecord at exact " +
+			"the filesize offset, from the position of this FileHeaderRecord. This way information about " +
+			"concatenated files can be learned quickly, such as actual packet count after such operation. " +
+			"If the file size has shrunk, that means that the file may have been split up into smaller pieces. " +
+			"In that case, the packet count has to be invalidated and indexed data validated and deprecated as needed.";
+	};
+	
+	field int reserved;
+	
+	property local packet.channel_offset channelOffset;
+	property local packet.record_offset  recordOffset;
+};
+
