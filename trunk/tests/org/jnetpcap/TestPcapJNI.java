@@ -523,5 +523,14 @@ public class TestPcapJNI
 		assertTrue(
 		    "Something is wrong, most constants should match native pcap library",
 		    match > 20);
+		
+//		for (int dlt = 0; dlt < 100; dlt ++) {
+//			String libName = Pcap.datalinkValToName(dlt);
+//			PcapDLT c = PcapDLT.valueOf(dlt);
+//			
+//			if (c == null && libName != null) {
+//				System.out.printf("We don't have dlt=%d pcap=%s\n", dlt, libName);
+//			}
+//		}
 	}
 }
