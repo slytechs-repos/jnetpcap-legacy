@@ -107,6 +107,8 @@
 				locale="${format.timestamp.locale}" />
 		</tstamp>
 		
+		<tstamp />
+		
 		<mkdir dir="${build.dir}" />
 	</target>
 
@@ -196,8 +198,14 @@
 		<!--       Copy, license, readme, release notes, etc..  -->
 		<!-- ############################################################### -->		
 		<copy file="${doc.LICENSE}" tofile="${pkg.lib.LICENSE}" />
-		<copy file="${doc.README}" tofile="${pkg.lib.README}" />
-		<copy file="${doc.RELEASE_NOTES}" tofile="${pkg.lib.RELEASE_NOTES}" />
+		<copy file="${doc.CHANGE_LOG}" tofile="${pkg.lib.CHANGE_LOG}" />
+		<copy file="${doc.RELEASE_NOTES}" tofile="${pkg.lib.RELEASE_NOTES}">
+			<filterset>
+				<filter token="DSTAMP" value="${DSTAMP}" />
+				<filter token="TSTAMP" value="${TSTAMP}" />
+				<filter token="TIMESTAMP.SHORT" value="${timestamp.short}" />
+			</filterset>
+		</copy>
 		
 		<!-- ############################################################### -->
 		<!--       Copy tests suite in source only  -->
@@ -266,7 +274,8 @@
 			debuglevel ="${compiler.debuglevel}"
 			deprecation="${compiler.deprecate}" 
 			optimize="${compiler.optimize}"
-			classpathref="compiler.classpath" 
+			classpathref="compiler.classpath"
+			target="${compiler.target}"
 		/>
 	</target>
 	

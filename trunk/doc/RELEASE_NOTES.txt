@@ -21,7 +21,7 @@
                               jNetPcap Package
                             Version 1.0b1 (beta 1)
                                Release Notes
-                     Created on @timestamp.isoformat@
+                            Created on 2007-07-03
 
 INTRODUCTION:
 ============
