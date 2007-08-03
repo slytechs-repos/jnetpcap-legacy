@@ -52,6 +52,9 @@
 	<!-- Deployable packages and their structure -->	
 	<property file="package.properties" />
 	
+	<!-- Properties for webserver we copy website related documents -->	
+	<property file="web.properties" />
+	
 	<!--                        PREPARE PATHS SECTION  -->
 
 	<!-- =================================================================== -->
@@ -205,6 +208,30 @@
 		<!-- ############################################################### -->
 		<zip destfile="${pkg.doc.zip}" >
 			<zipfileset dir="${pkg.doc.dir}" prefix="${pkg.doc}"/>
+		</zip>
+		
+	</target>
+	
+	<!-- =================================================================== -->
+	<!-- Packages up the javadoc as a simple deployable zip package -->
+	<!-- =================================================================== -->
+	<target name="package-doc-api" depends="prep-dist,comp-javadoc">
+
+		<mkdir dir="${pkg.doc-api.dir}" />
+		
+		
+		<!-- ############################################################### -->
+		<!--       Copy all API javadoc   -->
+		<!-- ############################################################### -->		
+		<copy todir="${pkg.doc-api.dir}" >
+			<fileset dir="${build.javadoc.dir}" />
+		</copy>
+		
+		<!-- ############################################################### -->
+		<!--       Now ZIP everything up into a distributable bundle  -->
+		<!-- ############################################################### -->
+		<zip destfile="${pkg.doc-api.zip}" >
+			<zipfileset dir="${pkg.doc-api.dir}" prefix="${pkg.doc-api}"/>
 		</zip>
 		
 	</target>
@@ -533,4 +560,43 @@
 			and make a new release </echo>
 	</target>
 
+	<!-- =================================================================== -->
+	<!-- Uploads packaged javadoc zip file to homepage  -->
+	<!-- =================================================================== -->
+	<target name="deploy-javadoc-web" depends="package-doc-api">
+	
+<!--
+<echo>== copy ==	
+scp trust="yes" 
+	verbose="yes" 
+	todir="${web.uri}"
+	file="${pkg.doc-api.zip}"
+</echo>
+		
+<echo>== sshexec ==
+sshexec trust="yes" 
+	host="${shell.host.name}" 
+	username="${shell.user.name}" 
+	password="${shell.user.pass}"
+	command="rm -rf ${web.unzip.dir}; unzip ${web.zip} -d ${web.doc.dir}; rm  ${web.zip}"		 
+</echo>
+-->
+		
+		<scp trust="yes" 
+			verbose="yes" 
+			todir="${web.uri}"
+			file="${pkg.doc-api.zip}"
+		/>
+		
+
+		<sshexec trust="yes" 
+			host="${shell.host.name}" 
+			username="${shell.user.name}" 
+			password="${shell.user.pass}"
+			command="rm -rf ${web.unzip.dir}; unzip ${web.zip} -d ${web.doc.dir}; rm  ${web.zip}"
+		/> 
+<!--
+			command="pwd; ls -l ${web.zip}"
+-->
+	</target>
 </project>
