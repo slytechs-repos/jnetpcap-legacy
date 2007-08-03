@@ -509,4 +509,28 @@
 	<!-- Help on all the targets -->
 	<!-- =================================================================== -->
 	<target name="help"></target>
+	
+	<!-- =================================================================== -->
+	<!-- Uploads packaged zip files to sourceforge.net  -->
+	<!-- =================================================================== -->
+	<target name="ftp-to-sourceforge">
+		
+		<ftp server="upload.sourceforge.net"
+			remotedir="incoming"
+			userid="ftp"
+			password="nobody@"
+			depends="true"
+			binary="true"
+			verbose="true">
+			
+			<fileset 
+				dir="${dist.dir}"
+				includes="${pkg.lib.zip},${pkg.doc.zip}"/>
+		</ftp>
+		
+		<echo>go to
+			https://sourceforge.net/projects/jnetpcap
+			and make a new release </echo>
+	</target>
+
 </project>
