@@ -21,7 +21,7 @@
 <!--
 
     Description:
-        jNetPcap project build file - stage 1
+        jNetPcap project build file 
 
     File: build.xml
     Includes: common.properties and build.properties
@@ -43,10 +43,14 @@
 	<typedef resource="cpptasks.types" />
 
 
-	<!-- load the common and build properties file -->
-	<property file="common.properties" />
+	<!-- load the build properties file -->
 	<property file="build.properties" />
-
+	
+	<!-- Dependency libraries -->
+	<property file="lib.properties" />
+	
+	<!-- Deployable packages and their structure -->	
+	<property file="package.properties" />
 	
 	<!--                        PREPARE PATHS SECTION  -->
 
@@ -72,6 +76,7 @@
 	<path id="test.classpath" >
 		<path refid="compiler.classpath" />
 		<pathelement location="${junit.jar}" />
+		<pathelement location="${build.tests.dir}" />
 	</path>
 	
 	<!-- =================================================================== -->
@@ -113,6 +118,13 @@
 	</target>
 	
 	<!-- =================================================================== -->
+	<!-- Creates meta-inf/ directory -->
+	<!-- =================================================================== -->
+	<target name="prep-meta-inf" depends="prep-build">
+		<mkdir dir="${build.meta-inf.dir}" />
+	</target>
+	
+	<!-- =================================================================== -->
 	<!-- Creates jni/ directory -->
 	<!-- =================================================================== -->
 	<target name="prep-jni" depends="prep-build">
@@ -146,7 +158,92 @@
 	<!-- empty -->
 	<!-- =================================================================== -->
 	<target name="prep-test" depends="prep-build">
-		<mkdir dir="${report.dir}" />
+		<mkdir dir="${build.tests.dir}" />
+	</target>
+	
+	<!--                  PACKAGING SECTION -->
+	
+	<!-- =================================================================== -->
+	<!-- Creates top level dist/ directory -->
+	<!-- =================================================================== -->
+	<target name="prep-dist">
+		<mkdir dir="${dist.dir}" />
+	</target>
+	
+	
+	<!-- =================================================================== -->
+	<!-- Packages up the 'library' package -->
+	<!-- =================================================================== -->
+	<target name="package-lib" depends="prep-dist,comp-jni,comp-manifest">
+		
+		<mkdir dir="${pkg.lib.dir}" />
+		
+		<!-- ############################################################### -->
+		<!--                  Distribute sources -->
+		<!-- ############################################################### -->	
+		<mkdir dir="${pkg.lib.src.dir}" />
+		<copy todir="${pkg.lib.src.dir}">
+			<fileset dir="${src.dir}" >
+				<include name="**/*.java" />
+				<include name="**/*.properties" />
+				<include name="**/*.html" />
+				<include name="**/*.cpp" />
+				<include name="**/*.h" />
+			</fileset>
+		</copy>
+		
+		<!-- ############################################################### -->
+		<!--       Copy, license, readme, release notes, etc..  -->
+		<!-- ############################################################### -->		
+		<copy file="${doc.LICENSE}" tofile="${pkg.lib.LICENSE}" />
+		<copy file="${doc.README}" tofile="${pkg.lib.README}" />
+		<copy file="${doc.RELEASE_NOTES}" tofile="${pkg.lib.RELEASE_NOTES}" />
+		
+		<!-- ############################################################### -->
+		<!--       Copy tests suite in source only  -->
+		<!-- ############################################################### -->		
+		<copy todir="${pkg.lib.tests.dir}" >
+			<fileset dir="${test.dir}" />
+		</copy>
+
+		<!-- ############################################################### -->
+		<!--       Copy build file and its properties  -->
+		<!-- ############################################################### -->		
+		<copy file="${build.xml}" todir="${pkg.lib.build.dir}" />
+		<copy todir="${pkg.lib.build.dir}">
+			<fileset dir="${build.properties.dir}" >
+				<include name="*.properties" />
+			</fileset>
+		</copy>
+
+		<!-- ############################################################### -->
+		<!--       Copy native library.  -->
+		<!-- ############################################################### -->
+		<copy file="${jni.build.filepath}" tofile="${pkg.lib.jnetpcap.so}" />
+		
+		<!-- ############################################################### -->
+		<!--       Create JAR file containing all the java classes  -->
+		<!-- ############################################################### -->
+		<jar destfile="${pkg.lib.jnetpcap.jar}" manifest="${build.classes.inf}">
+			<fileset dir="${build.classes.dir}" />
+		</jar>
+		
+		<!-- ############################################################### -->
+		<!--       Now ZIP everything up into a distributable bundle  -->
+		<!-- ############################################################### -->
+		<zip destfile="${pkg.lib.zip}" >
+			<zipfileset dir="${pkg.lib.dir}" prefix="${pkg.lib}"/>
+		</zip>
+		
+
+	</target>
+	
+	
+	<!-- =================================================================== -->
+	<!-- Sets certain properties for a "release.build" -->
+	<!-- =================================================================== -->
+	<target name="release-settings" if="release.build">
+		<property name="build.debuglevel" value="lines" />
 	</target>
 
 	<!-- =================================================================== -->
@@ -159,15 +256,35 @@
 	<!-- =================================================================== -->
 	<!-- Compiles java sources using javac -->
 	<!-- =================================================================== -->
-	<target name="comp-java" depends="prep-java">
+	<target name="comp-java" depends="prep-java,release-settings">
+		<property name="compiler.debuglevel" value="lines,vars,source" />
+		
 		<javac 
 			srcdir="${src.java.dir}" 
 			destdir="${build.classes.dir}" 
-			debug="${compiler.debug}" 
+			debug="${compiler.debug}"
+			debuglevel ="${compiler.debuglevel}"
 			deprecation="${compiler.deprecate}" 
 			optimize="${compiler.optimize}"
 			classpathref="compiler.classpath" 
 		/>
+	</target>
+	
+	<!-- =================================================================== -->
+	<!-- Compiles a manifest file for deployable jar file                    -->
+	<!-- =================================================================== -->
+	<target 
+		name="comp-manifest" 
+		depends="prep-meta-inf,compile" 
+		description="Create manifest file">
+
+		<!-- Create manifest -->
+		<manifest file="${build.classes.inf}">
+			<attribute name="Built-By" value="${company.name}" />
+			<attribute name="Built-On" value="${timestamp.isoformat}" />
+			<attribute name="Created-By" value="Apache Ant ${ant.version}" />
+		</manifest>
+		
 	</target>
 	
 	<!-- =================================================================== -->
@@ -268,7 +385,7 @@
 	<target name="comp-test" depends="prep-test,comp-java,comp-jni">
 		<javac 
 			srcdir="${test.dir}" 
-			destdir="${build.classes.dir}" 
+			destdir="${build.tests.dir}" 
 			debug="${compiler.debug}" 
 			deprecation="${compiler.deprecate}" 
 			optimize="${compiler.optimize}"
@@ -303,14 +420,15 @@
 	<!-- =================================================================== -->
 	<!-- Build all -->
 	<!-- =================================================================== -->
-	<target name="all" depends="echo-properties">
+	<target name="all" depends="clean,doc,test">
 	</target>
 	
 	<!-- =================================================================== -->
 	<!-- Cleans the build -->
 	<!-- =================================================================== -->
 	<target name="clean">
-		<!-- delete dir="${build.dir}" -->
+		<delete dir="${build.dir}" />
+		<delete dir="${dist.dir}" />
 	</target>
 	
 	<!-- =================================================================== -->
