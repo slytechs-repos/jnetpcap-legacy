@@ -200,6 +200,13 @@
 			<fileset dir="${build.javadoc.dir}" />
 		</copy>
 		
+		<!-- ############################################################### -->
+		<!--       Now ZIP everything up into a distributable bundle  -->
+		<!-- ############################################################### -->
+		<zip destfile="${pkg.doc.zip}" >
+			<zipfileset dir="${pkg.doc.dir}" prefix="${pkg.doc}"/>
+		</zip>
+		
 	</target>
 	
 	<!-- =================================================================== -->
