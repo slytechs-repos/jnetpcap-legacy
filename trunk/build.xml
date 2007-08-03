@@ -172,6 +172,35 @@
 		<mkdir dir="${dist.dir}" />
 	</target>
 	
+	<!-- =================================================================== -->
+	<!-- Packages up the 'library' package -->
+	<!-- =================================================================== -->
+	<target name="package-doc" depends="prep-dist,comp-javadoc">
+
+		<mkdir dir="${pkg.doc.dir}" />
+		<mkdir dir="${pkg.doc.javadoc.dir}" />
+		
+		<!-- ############################################################### -->
+		<!--       Copy, license, readme, release notes, etc..  -->
+		<!-- ############################################################### -->		
+		<copy file="${doc.LICENSE}" tofile="${pkg.doc.LICENSE}" />
+		<copy file="${doc.CHANGE_LOG}" tofile="${pkg.doc.CHANGE_LOG}" />
+		<copy file="${doc.RELEASE_NOTES}" tofile="${pkg.doc.RELEASE_NOTES}">
+			<filterset>
+				<filter token="DSTAMP" value="${DSTAMP}" />
+				<filter token="TSTAMP" value="${TSTAMP}" />
+				<filter token="TIMESTAMP.SHORT" value="${timestamp.short}" />
+			</filterset>
+		</copy>
+		
+		<!-- ############################################################### -->
+		<!--       Copy all API javadoc   -->
+		<!-- ############################################################### -->		
+		<copy todir="${pkg.doc.javadoc.dir}" >
+			<fileset dir="${build.javadoc.dir}" />
+		</copy>
+		
+	</target>
 	
 	<!-- =================================================================== -->
 	<!-- Packages up the 'library' package -->
@@ -443,7 +472,7 @@
 	<!-- =================================================================== -->
 	<!-- Compiles java and JNI sources -->
 	<!-- =================================================================== -->
-	<target name="compile" depends="comp-javadoc,comp-jni"></target>
+	<target name="compile" depends="comp-jni"></target>
 
 	<!-- =================================================================== -->
 	<!-- Execute jUnit test cases -->
