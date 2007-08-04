@@ -18,6 +18,9 @@
 #
 ################################################################################
 
+Updated: 2007-07-04 - Added to depencies section WinPcap requirements. 
+                      Added "Operating System Support" section.
+
                               jNetPcap Package
                             Version 1.0b1 (beta 1)
                                Release Notes
@@ -50,13 +53,16 @@ website at (http://jnetpcap.sourceforge.net).
 To install the library simply unzip the binary 'library' package into any
 directory. There are 2 parts to setting up environment for jNetPcap.
 
+  *) Win32 Dependency: jNetPcap requires WinPcap 3.1 or greater installed.
+     (http://winpcap.org)
+
   1) Add supplied jnetpcap-version.jar file to you build system's CLASSPATH.
      The jar file is found at the root of the installation directory.
   
   2) Setup native jnetpcap dynamically loadable library. This varies between
      operating systems.
      
-     * On Win32 systems do one of the following
+     * On Win32 systems do only one of the following
        - copy the jnetpcap.dll library file, found at root of jnetpcap's
          installation directory to one of the window's system folders. This
          could be \windows or \windows\system32 directory.
@@ -113,6 +119,15 @@ on windows systems.
 
 == Dependencies ==
 
+ * On win32 systems
+ 
+    - Install of WinPcap 3.1 or greater 
+ 
+ 	  + This is the main program pacakge. It installs drivers and DLLS
+ 	    (http://winpcap.org)
+ 	  
+ 	- No requirement for cgywin or mingw for runtime support
+
  * To run
  
    - Apache's commons-logging any version 
@@ -145,6 +160,28 @@ facility. Any version will work.
 
 Also if you want to run the included junit tests in the 'tests' sub directory,
 you will need to included any version of 'jUnit' in the CLASSPATH.
+
+== Operating System Notes ==
+
+ * WinPcap OS support
+ 
+ 	- "Starting from WinPcap 4.0beta3, support for the Windows 9x/ME family of
+ 	  operating systems has been dropped. The last builds supporting such OSes
+ 	  are WinPcap 3.1 and WinPcap 4.0beta2", source http://winpcap.org website.
+ 	  
+ 	- jNetPcap 1.0b1 has been tested with WinPcap versions 3.1, 4.0, 4.0.1
+ 	
+ 	- jNetPcap 1.0b1 will not work with versions prior to 3.1 including 3.0 
+ 	  itself.
+ 	  
+ * On Linux/Freebsd
+
+    - jNetPcap 1.0b1 does not provide support for these operating system. These
+      operating systems will be released starting with 1.0b2.
+      
+  * On Apple OS support - no immediate support planned, but will release support
+                          at some point.
+
 
 == General Notes ==
 
