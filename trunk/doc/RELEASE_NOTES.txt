@@ -18,7 +18,7 @@
 #
 ################################################################################
 
-Updated: 2007-07-04 - Added to depencies section WinPcap requirements. 
+Updated: 2007-07-04 - Added to dependencies section WinPcap requirements. 
                       Added "Operating System Support" section.
 
                               jNetPcap Package
@@ -56,13 +56,14 @@ directory. There are 2 parts to setting up environment for jNetPcap.
   *) Win32 Dependency: jNetPcap requires WinPcap 3.1 or greater installed.
      (http://winpcap.org)
 
-  1) Add supplied jnetpcap-version.jar file to you build system's CLASSPATH.
+  1) Add supplied jnetpcap-version.jar file to your build system's CLASSPATH.
      The jar file is found at the root of the installation directory.
   
   2) Setup native jnetpcap dynamically loadable library. This varies between
      operating systems.
      
      * On Win32 systems do only one of the following
+     
        - copy the jnetpcap.dll library file, found at root of jnetpcap's
          installation directory to one of the window's system folders. This
          could be \windows or \windows\system32 directory.
@@ -110,12 +111,17 @@ library, most of the classes in this jar file will throw a java
 
 The base directory of the distributed package contains a "native shared library"
 either called 'jnetpcap.dll' on windows platforms, or 'libjnetpcap.so' on
-unix based systems. The library is required in order utilize this distribution.
-Most of the java classes included in this package will throw 
+unix based systems. The library is required in order to utilize this 
+distribution. Most of the java classes included in this package will throw 
 'UnsatisfiedLinkException' without this library being loaded. 
 
-The native library to either LD_LIBRARY_PATH on unix system, or PATH variable 
-on windows systems.
+An environment variable pointing to the directory where the native library 
+is located needs to be setup. This is either LD_LIBRARY_PATH on unix system, 
+or PATH variable on windows systems. The library resides within the jnetpcap
+installation directory. 
+
+Within the package zip file, jnetpcap-1.0b1-win32.zip that would be 
+'jnetpcap-1.0b1-win32' directory.
 
 == Dependencies ==
 
@@ -123,7 +129,7 @@ on windows systems.
  
     - Install of WinPcap 3.1 or greater 
  
- 	  + This is the main program pacakge. It installs drivers and DLLS
+ 	  + This is the main program pacakge. It installs drivers and DLLs
  	    (http://winpcap.org)
  	  
  	- No requirement for cgywin or mingw for runtime support
@@ -146,11 +152,11 @@ on windows systems.
    - Optinal ANT task for <CC> tag
       (http://ant-contrib.sourceforge.net/cc.html)
       
-   - WIn32 MinGW with GCC (doesn't require 'cgywin' or any compatibility layers)
+   - Win32 MinGW with GCC (doesn't require 'cgywin' or any compatibility layers)
    
    - gcc on unix
 
-Both the jnetpcap-version-arch.jar file and native jnetpcap library have to be 
+Both the jnetpcap-version.jar file and native jnetpcap library have to be 
 loaded in order to use this package. The jnetpcap-version-arch.jar file needs
 to be added to CLASSPATH, while the native library to either LD_LIBRARY_PATH
 on unix system, or PATH variable on windows systems.
