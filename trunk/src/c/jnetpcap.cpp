@@ -188,7 +188,7 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_dispatch
 	 */
 	pcap_user_data_t data;
 	data.env = env;
-	data.obj = obj;
+	data.obj = jhandler;
 	data.user = juser;
 	data.clazz = env->GetObjectClass(jhandler);
 
@@ -222,7 +222,7 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_loop
 	 */
 	pcap_user_data_t data;
 	data.env = env;
-	data.obj = obj;
+	data.obj = jhandler;
 	data.user = juser;
 	data.clazz = env->GetObjectClass(jhandler);
 
