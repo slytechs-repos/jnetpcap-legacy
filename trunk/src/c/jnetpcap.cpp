@@ -85,14 +85,16 @@ EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_openLive(JNIEnv *env, jclass clazz
 	}
 	
 	char errbuf[PCAP_ERRBUF_SIZE];
+	errbuf[0] = '\0'; // Reset the buffer;
+	
 	const char *device = env->GetStringUTFChars(jdevice, 0);
 
 	//	printf("device=%s snaplen=%d, promisc=%d timeout=%d\n",
 	//			device, jsnaplen, jpromisc, jtimeout);
 
 	pcap_t *p = pcap_open_live(device, jsnaplen, jpromisc, jtimeout, errbuf);
+	setString(env, jerrbuf, errbuf); // Even if no error, could have warning msg
 	if (p == NULL) {
-		setString(env, jerrbuf, errbuf);
 		return NULL;
 	}
 
@@ -133,6 +135,7 @@ EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_openOffline
 	}
 	
 	char errbuf[PCAP_ERRBUF_SIZE];
+	errbuf[0] = '\0'; // Reset the buffer;
 	const char *fname = env->GetStringUTFChars(jfname, 0);
 
 	pcap_t *p = pcap_open_offline(fname, errbuf);
@@ -191,6 +194,7 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_dispatch
 	data.obj = jhandler;
 	data.user = juser;
 	data.clazz = env->GetObjectClass(jhandler);
+	data.p = p;
 
 	data.mid = env->GetMethodID(data.clazz, "nextPacket",
 			"(Ljava/lang/Object;JIIILjava/nio/ByteBuffer;)V");
@@ -225,6 +229,7 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_loop
 	data.obj = jhandler;
 	data.user = juser;
 	data.clazz = env->GetObjectClass(jhandler);
+	data.p = p;
 
 	data.mid = env->GetMethodID(data.clazz, "nextPacket",
 			"(Ljava/lang/Object;JIIILjava/nio/ByteBuffer;)V");
@@ -347,6 +352,7 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_setNonBlock
 	}
 	
 	char errbuf[PCAP_ERRBUF_SIZE];
+	errbuf[0] = '\0'; // Reset the buffer;
 
 	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
@@ -375,6 +381,7 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_getNonBlock
 	}
 	
 	char errbuf[PCAP_ERRBUF_SIZE];
+	errbuf[0] = '\0'; // Reset the buffer;
 
 	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
@@ -600,6 +607,8 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_findAllDevs
 	}
 	
 	char errbuf[PCAP_ERRBUF_SIZE];
+	errbuf[0] = '\0'; // Reset the buffer;
+
 	pcap_if_t *alldevsp;
 
 	int r = pcap_findalldevs(&alldevsp, errbuf);
