@@ -50,9 +50,11 @@ typedef struct pcap_user_data_t {
 	jobject user;
 	jclass clazz;
 	jmethodID mid;
+	pcap_t *p;
 	
 } pcap_user_data_t;
 
+extern "C"
 void pcap_callback(u_char*, const pcap_pkthdr*, const u_char*);
 pcap_t *getPcap(JNIEnv *env, jobject obj);
 jmethodID getPcapHandlerMID(JNIEnv *env);
