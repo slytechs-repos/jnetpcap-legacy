@@ -1,0 +1,285 @@
+<body>
+<p><em>jNetPCAP</em> is a complete and comprehensive Java wrapper
+around the popular libpcap and winpcap from tcpdump.org folks. jNetPCAP
+uses Java JNI (Java Native Interface) extensions that are platform
+specific to give access to libpcap functionality from java programs. The
+goal of jNetPCAP was to stick as close as possible to the actual libpcap
+API so that another API did not have to be learned. Thus its fairely
+easy to pickup with jNetPCAP and use it right away if you are familiar
+with existing "C" counter part libpcap and winpcap libraries.</p>
+
+<p>This document describes the usage, implementation details and few
+differences between jNetPCAP and back end libpcap implementations. Java
+is after all OOPL (Object Oriented Programming Language).</p>
+<p><b> Feature highlights:</b>
+<ul>
+	<li>Follows native <em>Libpcap</em> programming model. This makes
+	learning <em>jNetPcap</em> API easy.</li>
+	<li><b> No packet buffer copies between Libpcap and java
+	space. </b>Existing native in-memory buffer is wrapped inside a <code>java.nio.ByteBuffer</code>
+	object.</li>
+	<li>Low level and efficient JNI implementation.</li>
+	<li>Provides some very low level functions previously not
+	available in Java space. i.e. <code>setBuffer</code> for changing
+	buffer size and others.</li>
+	<li>Very small library footprint</li>
+</ul>
+
+<h2>Project website and the native <em>Libpcap</em> connection</h2>
+
+<p>Since <em>jNetPcap</em> is very closely mapped to native <em>Libpcap</em>
+library functions, users are encouraged to read libpcap documentation at
+<a href="http://tcpdump.org">tcpdump.org</a>. You can visit <em>jNetPcap</em>
+project website for for more information and a user guide with tutorials
+at <a href="http://jnetpcap.sf.net">http://jnetpcap.sf.net</a> .</p>
+
+<h2>Java requirements</h2>
+<em>jNetPcap</em>
+requires Java JRE 1.5. All other requirements for this package are
+included as part of all distributions. All logging messages are logged
+using logger neutral
+<em>commons-logging</em>
+from Apache Foundation. jUnit tests are not distributed with the binary
+release, but are distributed with the source package. Any jUnit library
+is sufficient to run all jUnit test cases. Build environment requires
+ANT, ANT's contrib <em>cpptasks</em>, and a C++ compiler. Currently jNetPcap
+compiles using
+<em>MinGW</em>
+gcc compiler and environment on win32 platform and under regular gnu gcc on linux. No
+<em>Makefiles</em>
+are used nor required.
+<h2>Getting Started!</h2>
+<p>The starting point for <em>jNetPcap</em> is the <a
+	href="Pcap.html">Pcap class</a>
+</b>
+. The
+<code>Pcap</code>
+class works directly with the native
+<em>Libpcap</em>
+by peering through the use of a native library and Java's JNI API. The
+class contains several static methods that create capture sessions at
+which point a dynamic session reference is returned. From then on, all
+operations are done through the dynamic
+<code>Pcap</code>
+methods. There are other static methods that have more global affect,
+such as tuning kernel buffer sizes, compiling filter expressions
+offline, etc.
+</p>
+<p>Primary purpose of a capture session is to capture network
+packets. There are 3 main static methods provided by <code>Pcap</code> class.
+They are <code>openLive</code>, <code>openOffline</code> and <code>openDead</code>.
+<code>openLive</code> captures packets from a live network interface. <code>openOffline</code>
+reads packets from a file, and <code>openDead</code> is used to create a
+dummy pcap session for use with certain functions.</p>
+<p>Once you have either an open live or offline session, you can
+capture packets using either a dispatch model, or read one packet at a
+time method. Methods <code>dispatch</code> and <code>loop</code> allow
+the user to register a packet handler to which all packets will be
+dispatched. Methods <code>next</code> and <code>nextEx</code> return one
+packet at a time.</p>
+<p>Pcap library also provides an efficient filtering mechanism that
+works at the kernel level and even hardware level in certain cases,
+where a text expression is used to construct a binary filter that can be
+applied to capture sessions. The methods <code>compile</code>, <code>compileNoPcap</code>
+and <code>setFilter</code> are used to compile and activate filters.</p>
+<h2>Decoding packets</h2>
+<p>The native <em>Libpcap</em>, on which <em>jNetPcap</em> is based
+on, does not provide facilities to decode packet contents. The users of
+the native library are expected to utilize existing system C structures
+to decode the content themselves. Libpcap only returns pointers to
+buffers that contain the data and some information about the packet,
+mainly amount of data captured and detailed timestamp of when the packet
+was captured.</p>
+
+
+<h3>Decoding packets manually</h3>
+<em>jNetPcap</em>
+library does not offer any decoding services by itself, just like native
+Libpcap. For basic things you can do some manual decoding of the raw
+packet buffers obtained from a capture. You know what the first protocol
+header within the buffer is using
+<code>Pcap.datalink()</code>
+instance method call.
+<code>java.nio.ByteBuffer</code>
+provides a a number of getter methods for accessing ints, shorts and
+other types of java primitives. Here is a short example of how to
+capture a single packet, make sure its an ethernet packet, and decode a
+single field within the ethernet header.
+<pre>
+StringBuilder errbuf = new StringBuilder();
+String file = "capturefile.pcap";
+PcapPktHdr hdr = new PcapPktHdr(); // Capture header, filled in at capture
+
+Pcap pcap = Pcap.openOffline(file, errbuf);
+if (pcap == null ) { return; }
+ByteBuffer buffer = pcap.next(hdr);
+if (buffer == null) { return; }
+
+int dlt = pcap.datalink(); // First header type.
+pcap.close(); // We're done capturing, only needed 1 packet
+
+if (dlt == <a href="../../constant-values.html#org.jnetpcap.PcapDLT.CONST_EN3MB">PcapDLT.CONST_EN10MB</a>) {
+	int protocol = buffer.getShort(12); // Get a 16-bit short, at 12th byte in
+	
+	// convert from signed short, to unsigned short and store in an integer
+	protocol = (protocol &lt; 0)?protocol + Short.MAX_VALUE * 2 : protocol;
+	
+	// 
+	System.out.printf("The value of Ethernet.protocol field is=0x%X\n", protocol);
+}
+</pre>
+
+Using the manual approach only works for simple tasks and protocols. The
+complexity of protocol interactions are vast and not well handled
+manually. A better approach is to use decoder library to do the manual
+work for us.
+
+<h3>Decoding packets with jNetStream</h3>
+<p>OpenSource <a href="http://jnetstream.sf.net">jNetStream</a> is a
+higher layer API, built upon <em>jNetPcap</em> library and provides very
+comprehesive decoding and and encoding facilities. <em>jNetStream</em>
+comes with a rich library of protocols. It also hides all of the low
+level details of <em>jNetPcap</em> API. Users work with higher level
+Capture sessions. Both <em>jNetPcap</em> and <em>jNetStream</em> were
+written by same author.</p>
+<p>jNetStream is fusion of Ethereal/Wireshark and NetDude for
+capture file manipulation. Utilizes the latest advances in Java
+technology, to provide comparable level of performance to its C counter
+parts.</p>
+<p>Here is a small code example how to decode a packet using <em>jNetStream</em>
+library.
+<pre>
+StringBuilder errbuf = new StringBuilder();
+String file = "capturefile.pcap";
+PcapPktHdr hdr = new PcapPktHdr(); // Capture header, filled in at capture
+
+Pcap pcap = Pcap.openOffline(file, errbuf);
+if (pcap == null ) { return; }
+ByteBuffer buffer = pcap.next(hdr);
+if (buffer == null) { return; }
+
+int dlt = pcap.datalink(); // First header type.
+pcap.close(); // We're done capturing, only needed 1 packet
+
+long seconds = hdr.getSeconds();
+int nanosecs = hdr.getUSeconds() * 1000; // Convert from micro to nano
+int snaplen = hdr.getCaplen();
+int length = hdr.getLen();
+</pre>
+Upto this point, we haven't used any jNetStream code. Now jNetStream
+library steps in.
+<pre>
+ProtocolID id = PcapDlt.valueOf(dlt); // In org.jnetstream.capture.file.pcap pkg
+
+Packet packet = Packets.newPacket(buffer, dlt, snaplen, length, seconds, nanosecs);
+
+// Now we can work with a decoded packet
+if (packet.hasHeader(Ip.class)) {
+	Ip ip = packet.get(Ip.class);
+	
+	System.out.println("IP.version = %\n", ip.version());
+	System.out.printf("%s -> %s\n", ip.source().toString(), ip.destination().toString());
+}
+// and so on...
+</pre>
+
+Since jNetStream is already layered ontop of jNetPcap, we could have
+saved ourselves a bunch of trouble. Here is the same example using only
+jNetStream API:
+<pre>
+String file = "capturefile.pcap";
+for (Packet packet: Captures.openFile(file)) {
+	if (packet.hasHeader(Ip.class)) {
+		Ip ip = packet.get(Ip.class);
+		
+		System.out.println("IP.version = %\n", ip.version());
+		System.out.printf("%s -> %s\n", ip.source().toString(), ip.destination().toString());
+	}
+	break; // We just wanted 1 packet
+}
+Captures.close();
+</pre>
+
+</p>
+<h2>Loading the native library</h2>
+The jNetPcap project is made up of 2 parts. The first part is the Java
+API described in this documentation along with Java class files. The
+second part is a native dynamically loaded C library, named
+<em>jnetpcap</em>
+. The library is loaded once when any of the jNetPcap class files are
+referenced. The
+<code>Pcap</code>
+class automatically requests to load the appropriate library for the
+native platform and initializes it.
+
+<h3>UnsatisfiedLinkError when accessing any of the native java
+methods</h3>
+<p>If you get this exception thrown when accessing or intializing
+Pcap library, it means that it did not load the native shared library,
+and corresponding JNI methods, are unlinked. Java VM <em>DOES NOT
+USE CLASSPATH</em> to load native libraries. Therefore it is not enough to
+have the library or just the jar file in classpath.</p>
+Java supports the following command line option to determine the
+location of a native library
+<code>-Djava.library.path=</code>
+to which you can assign a relative or absolute path where the library is
+stored. All implementations also look for libraries in the java
+extension point, which is in the
+<code>$JAVA_HOME/ext</code>
+directory.
+
+<h3>Library loading procedure on win32 systems</h3>
+In addition, on windows systems, Java looks in the
+<code>\windows</code>
+and
+<code>\windows\system32</code>
+directories. Windows also uses the familiar
+<code>PATH</code>
+environment variable to search for library. Just like when its looking
+for an executable. So just add the directory to the PATH variable. Here
+is how you would do it from the DOS
+<code>cmd</code>
+. (Note, to get
+<code>cmd</code>
+on WinXP or WinVista go to
+<code>Start -> Run</code>
+and type
+<code>cmd</code>
+. A cmd window should open up.) Lets assume that the library resides in
+<code>c:\jnetpcap\lib</code>
+directory.
+<pre>
+C:\> PATH=%PATH%;c:\jnetpcap\lib
+c:\> 
+</pre>
+In IDE's you would add the environment variable to the "launch" profile
+or build properties. But of course, setting the
+<code>-Djava.library.path=</code>
+on Java VM command line is the prefered way.
+<br>
+(i.e.
+<code> c:\> java -Djava.library.path=c:\jnetpcap\lib -jar
+myJNetPcapApp.jar</code>
+)
+
+<h3>Library loading procedure on unix based systems</h3>
+On all unix systems the typical
+<code>LD_LIBRARY_PATH</code>
+environmental variable is used to search for the library.
+
+<h3>Name of the native library</h3>
+The name of jNetPcap's native library is
+<b>jnetpcap</b>
+all lower case letters. When placing a call to
+<code>System.loadLibrary</code>
+do not specify any suffixes, postfixes or extensions. This holds true
+for all operating systems. Further information can be found in JavaDoc
+API documentation for
+<code>System.loadLibrary</code>
+.
+<h3>Where to find <code>jnetpcap</code> native library</h3>
+In library distribution package, the top level installation directory within the
+package, will have jnetpcap library for the appropriate native operating system. 
+(i.e. on windows this is ./jnetpcap.dll.) Source code is also distributed with
+the binary library package. You can find library source in ./src/c directory.
+</body>
