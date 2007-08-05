@@ -63,7 +63,7 @@ import org.apache.commons.logging.LogFactory;
  * StringBuilder errbuf = new StringBuilder();
  * List&lt;PcapIf&gt; ifs = new ArrayList&lt;PcapIf&gt;(); // Will hold list of devices
  * int statusCode = Pcap.findAllDevs(ifs, errbuf);
- * if (statusCode != 0) {
+ * if (statusCode != Pcap.OK) {
  * 	System.out.println(&quot;Error occured: &quot; + errbuf.toString());
  * 	return;
  * }
@@ -100,7 +100,7 @@ import org.apache.commons.logging.LogFactory;
  * <pre>
  * int snalen = 2048; // Truncate packet at this size
  * 
- * int promiscous = 1; // 1 means true, 0 is false
+ * int promiscous = Pcap.MODE_PROMISCUOUS;
  * 
  * int timeout = 60 * 1000; // In milliseconds
  * 
@@ -121,7 +121,7 @@ import org.apache.commons.logging.LogFactory;
  * int netmask = 0;
  * 
  * int r = pcap.compile(filter, expression, optimize, netmask);
- * if (r != 0) {
+ * if (r != Pcap.OK) {
  *   System.out.println(&quot;Filter error: &quot; + pcap.getErr());
  * }
  * pcap.setFilter(filter);
@@ -222,6 +222,101 @@ public class Pcap {
 	private static boolean libraryLoadStatus = false;
 
 	private static final Log logger = LogFactory.getLog(Pcap.class);
+
+	/**
+	 * Value of packet count argument for <code>loop</code> method call which
+	 * indicates that the loop should never exit, unless an error occured or
+	 * <code>breakloop</code> call was used to interrupt the dispatcher. Note,
+	 * that this constant is not appropriate value for <code>dispatch</code>
+	 * method call, which has a different meaning.
+	 */
+	public static final int LOOP_INFINATE = -1;
+
+	/**
+	 * Value of packet count argument for <code>dispatch</code> method call
+	 * which indicates that only as many packets should be returned as will fit in
+	 * a single buffer , unless an error occured or <code>breakloop</code> call
+	 * was used to interrupt the dispatcher. Note, that this constant is not
+	 * appropriate value for <code>dispatch</code> method call, which has a
+	 * different meaning.
+	 */
+	public static final int DISPATCH_BUFFER_FULL = -1;
+
+	/**
+	 * Pcap status return code for <code>loop</code> and <code>dispatch</code>
+	 * methods. This status code indicates that the the dispatcher was interrupted
+	 * by a call to <code>breakloop</code> call.
+	 */
+	public static final int LOOP_INTERRUPTED = -2;
+
+	/**
+	 * Flag which can be used with <code>setNonBlock</code> method to set the
+	 * previously opened pcap descriptor into 'blocking' mode. The flag can also
+	 * be the return code from <code>getNonBlock</code>. The flag has no affect
+	 * on 'savefiles'.
+	 */
+	public static final int MODE_BLOCKING = 0;
+
+	/**
+	 * Flag which can be used with <code>setNonBlock</code> method to set the
+	 * previously opened pcap descriptor into 'non-blocking' mode. The flag can
+	 * also be the return code from <code>getNonBlock</code>. The flag has no
+	 * affect on 'savefiles'.
+	 */
+	public static final int MODE_NON_BLOCKING = 1;
+
+	/**
+	 * Flag used with <code>openLive</code> to specify that the interface should
+	 * not be put into promisuous mode, but only if poassible. Note, the even
+	 * though the flag is specified, the interface could still be opened in
+	 * promiscous mode for other reasons, such as a different process had already
+	 * put the interface into promiscuous mode.
+	 */
+	public static final int MODE_NON_PROMISCUOUS = 0;
+
+	/**
+	 * Flag used with <code>openLive</code> to specify that the interface should
+	 * be put into promisuous mode.
+	 */
+	public static final int MODE_PROMISCUOUS = 1;
+
+	/**
+	 * Pcap status return code for most of the methods defined here. All methods
+	 * that return an intenger as a status code, use this constants as meaning the
+	 * call failed.
+	 */
+	public static final int NOT_OK = -1;
+
+	/**
+	 * Pcap status return code for most of the methods defined here. All methods
+	 * that return an intenger as a status code, use this constants as meaning the
+	 * call succeeded.
+	 */
+	public static final int OK = 0;
+
+	/**
+	 * Exit code for <code>nextEx</code> method which indicates success.
+	 */
+	public static final int NEXT_EX_OK = 1;
+
+	/**
+	 * Exit code for <code>nextEx</code> method which indicates timeout has
+	 * expired before a packet was captured. The packet header and packet buffer
+	 * do no point to any valid data.
+	 */
+	public static final int NEXT_EX_TIMEDOUT = 0;
+
+	/**
+	 * Exit code for <code>nextEx</code> method which indicates failure of some
+	 * kind. Use {@link #getErr()} to retrieve the error message.
+	 */
+	public static final int NEXT_EX_NOT_OK = -1;
+
+	/**
+	 * Exit code for <code>nextEx</code> method which indicates that pcap
+	 * reached end of file while reading a 'savefile'.
+	 */
+	public static final int NEXT_EX_EOF = -2;
 
 	/**
 	 * Static initializer
@@ -444,6 +539,8 @@ public class Pcap {
 
 	}
 
+	// public native int loop(int cnt, PcapHandler heandler, Object user);
+
 	/**
 	 * Initializes JNI. Mainly prefetches all the JNI class, method and field IDs
 	 * for everything that jnetpcap shared library needs inorder to interact with
@@ -473,8 +570,6 @@ public class Pcap {
 	 * @return version of the libpcap library being used
 	 */
 	public native static String libVersion();
-
-	// public native int loop(int cnt, PcapHandler heandler, Object user);
 
 	/**
 	 * Create a pcap_t structure without starting a capture. pcap_open_dead() is
