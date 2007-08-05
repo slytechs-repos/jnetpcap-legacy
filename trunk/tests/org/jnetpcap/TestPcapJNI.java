@@ -16,6 +16,7 @@ import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
@@ -29,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class TestPcapJNI
     extends TestCase {
-	
+
 	private static final Log logger = LogFactory.getLog(TestPcapJNI.class);
 
 	private final static String device = "\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
@@ -42,46 +43,46 @@ public class TestPcapJNI
 	 * Command line launcher to run the jUnit tests cases in this test class.
 	 * 
 	 * @param args
-	 *         -h for help
+	 *          -h for help
 	 */
 	public static void main(String[] args) {
 		if (args.length == 1 && "-h".equals(args[0])) {
-			System.out.println(
-					"Usage: java -jar jnetpcap.jar [-h]\n" +
-					"  -h  This help message\n" +
-					"   (No other command line options are supported.)\n" +
-					"----------------------------------------------------------------\n\n" +
-					"The 'main' method invoked here, runs several dozen jUnit tests\n" +
-					"which test the functionality of this jNetPcap library.\n" +
-					"The tests are actual excersizes using native libpcap\n" +
-					"library linked with 'jnetpcap.dll' or 'libjnetpcap.so' on\n" +
-					"unix systems.\n\n" +
-					"If you are having trouble linking the native library and get\n" +
-					"'UnsatisfiedLinkError', which means java is not finding the\n" +
-					"library, here are a few pointers:\n\n" +
-					"Java's native library loader DOES NOT USE CLASSPATH variable\n" +
-					"to locate native libraries. Each operating system uses different\n" +
-					"algorithm to locate files, as described below. You can always\n" +
-					"force java to look for native library with Java VM command\n" +
-					"line option 'java -Djava.library.path=lib' where lib is\n" +
-					"a directory where 'jnetpcap.dll' or 'libjnetpcap.so' resides\n" +
-					"relative to the installation directory of jNetStream package.\n" +
-					"Or replace lib with the directory where you have installed the\n" +
-					"library.\n\n" +
-					"On Win32 systems:\n" +
-					"  Windows systems use /windows and /windows/system32 folder\n" +
-					"  to search for jnetpcap.dll. Also the 'PATH' variable, the same\n" +
-					"  one used to specify executable commands, is used as well.\n\n" +
-					"On Unix systems:\n" +
-					"  All unix systems use the standard 'LD_LIBRARY_PATH' variable.\n\n" +
-					"Of course as mentioned earlier, to override this behaviour use\n" +
-					"the '-Djava.library.path=' directory, to force java to look in\n" +
-					"that particular directory. Do not set the path which includes the\n" +
-					"name of the library itself, just the directory to search in.\n\n" +
-					"Final note, native librariers can not be loaded from jar files.\n" +
-					"You have to extract it to a physical directory if you want java to\n" +
-					"load it. This was done purposely by Sun for security reasons.");
-			
+			System.out
+			    .println("Usage: java -jar jnetpcap.jar [-h]\n"
+			        + "  -h  This help message\n"
+			        + "   (No other command line options are supported.)\n"
+			        + "----------------------------------------------------------------\n\n"
+			        + "The 'main' method invoked here, runs several dozen jUnit tests\n"
+			        + "which test the functionality of this jNetPcap library.\n"
+			        + "The tests are actual excersizes using native libpcap\n"
+			        + "library linked with 'jnetpcap.dll' or 'libjnetpcap.so' on\n"
+			        + "unix systems.\n\n"
+			        + "If you are having trouble linking the native library and get\n"
+			        + "'UnsatisfiedLinkError', which means java is not finding the\n"
+			        + "library, here are a few pointers:\n\n"
+			        + "Java's native library loader DOES NOT USE CLASSPATH variable\n"
+			        + "to locate native libraries. Each operating system uses different\n"
+			        + "algorithm to locate files, as described below. You can always\n"
+			        + "force java to look for native library with Java VM command\n"
+			        + "line option 'java -Djava.library.path=lib' where lib is\n"
+			        + "a directory where 'jnetpcap.dll' or 'libjnetpcap.so' resides\n"
+			        + "relative to the installation directory of jNetStream package.\n"
+			        + "Or replace lib with the directory where you have installed the\n"
+			        + "library.\n\n"
+			        + "On Win32 systems:\n"
+			        + "  Windows systems use /windows and /windows/system32 folder\n"
+			        + "  to search for jnetpcap.dll. Also the 'PATH' variable, the same\n"
+			        + "  one used to specify executable commands, is used as well.\n\n"
+			        + "On Unix systems:\n"
+			        + "  All unix systems use the standard 'LD_LIBRARY_PATH' variable.\n\n"
+			        + "Of course as mentioned earlier, to override this behaviour use\n"
+			        + "the '-Djava.library.path=' directory, to force java to look in\n"
+			        + "that particular directory. Do not set the path which includes the\n"
+			        + "name of the library itself, just the directory to search in.\n\n"
+			        + "Final note, native librariers can not be loaded from jar files.\n"
+			        + "You have to extract it to a physical directory if you want java to\n"
+			        + "load it. This was done purposely by Sun for security reasons.");
+
 			return;
 		}
 		logger.info("Running jNetPcap jUnit tests cases.");
@@ -590,5 +591,147 @@ public class TestPcapJNI
 		} finally {
 			pcap.close();
 		}
+	}
+
+	/**
+	 * <p>
+	 * Test case in response to
+	 * <code>Bug #1767744 - PcapHandler object ptr error in loop() and dispatch()</code>.
+	 * The bug was that PcapHandler jobject ptr in JNI jnetpcap.cpp, was set
+	 * incorrectly to jobject of the parent which is the Pcap object itself. The
+	 * neccessary method "nextPacket" was looked up correctly using the proper
+	 * object but method execution was based on the parent Pcap object not the
+	 * PcapHandler object passed in. Therefore Java code when it was setting and
+	 * accessing properties within the PcapHandler sub-class, it was actually
+	 * clobering data within the Pcap object. Both object's states were terribly
+	 * incosinstent, private fields had bogus values, that changed for no reason,
+	 * etc... Very easy fix, the jobject for 'jhandler' was substituted for
+	 * jobject 'obj' that was used to fix this problem. The problem was both in
+	 * dispatch() and loop() methods since they are nearly an identical copy of
+	 * each other.
+	 * </p>
+	 * <p>
+	 * To test this we have to create a PcapHandler object set private fields
+	 * within it, we'll use an anonymous class, then read in the contents of the
+	 * entire contents of a test datafile, while updating the value of the field.
+	 * Then at the end we should have consitent value in that private field. Since
+	 * the problem seemed complex, but was actually a very easy fix, this should
+	 * never really break again, but we will check for it anyhow.
+	 * </p>
+	 */
+	public void testPcapHandlerParentOverrideBugUsingLoop() {
+
+		Pcap pcap = Pcap.openOffline(fname, errbuf);
+		if (pcap == null) {
+			fail("Unable to open test data file because " + errbuf.toString());
+		}
+		final Pcap parent = pcap;
+
+		// Tracking variable #1
+		final AtomicInteger pcapCount = new AtomicInteger();
+
+		final PcapHandler handler = new PcapHandler() {
+
+			// Tracking variable #2
+			private int count = 0;
+
+			public void nextPacket(Object userObject, long seconds, int useconds,
+			    int caplen, int len, ByteBuffer buffer) {
+
+				pcapCount.addAndGet(1);
+				count++;
+
+				if (pcapCount.get() != count) {
+					parent.breakloop(); // We exit with breakloop which means FAIL
+				}
+			}
+		};
+
+		int r = pcap.loop(Pcap.LOOP_INFINATE, handler, null);
+		if (r == Pcap.LOOP_INTERRUPTED) {
+
+			/*
+			 * Tracking variables are used to make sure they can sustain their
+			 * assigned values. The bug caused fields and object state to be overriden
+			 * by object of PcapHandler type. 
+			 */
+			fail("Handler indicates that 2 tracking variables in 2 objects, "
+			    + "did not match");
+		} else if (r != Pcap.OK) {
+			fail("Error occured: " + pcap.getErr());
+		}
+
+		pcap.close();
+	}
+	
+	/**
+	 * <p>
+	 * Test case in response to
+	 * <code>Bug #1767744 - PcapHandler object ptr error in loop() and dispatch()</code>.
+	 * The bug was that PcapHandler jobject ptr in JNI jnetpcap.cpp, was set
+	 * incorrectly to jobject of the parent which is the Pcap object itself. The
+	 * neccessary method "nextPacket" was looked up correctly using the proper
+	 * object but method execution was based on the parent Pcap object not the
+	 * PcapHandler object passed in. Therefore Java code when it was setting and
+	 * accessing properties within the PcapHandler sub-class, it was actually
+	 * clobering data within the Pcap object. Both object's states were terribly
+	 * incosinstent, private fields had bogus values, that changed for no reason,
+	 * etc... Very easy fix, the jobject for 'jhandler' was substituted for
+	 * jobject 'obj' that was used to fix this problem. The problem was both in
+	 * dispatch() and loop() methods since they are nearly an identical copy of
+	 * each other.
+	 * </p>
+	 * <p>
+	 * To test this we have to create a PcapHandler object set private fields
+	 * within it, we'll use an anonymous class, then read in the contents of the
+	 * entire contents of a test datafile, while updating the value of the field.
+	 * Then at the end we should have consitent value in that private field. Since
+	 * the problem seemed complex, but was actually a very easy fix, this should
+	 * never really break again, but we will check for it anyhow.
+	 * </p>
+	 */
+	public void testPcapHandlerParentOverrideBugUsingDispatch() {
+
+		Pcap pcap = Pcap.openOffline(fname, errbuf);
+		if (pcap == null) {
+			fail("Unable to open test data file because " + errbuf.toString());
+		}
+		final Pcap parent = pcap;
+
+		// Tracking variable #1
+		final AtomicInteger pcapCount = new AtomicInteger();
+
+		final PcapHandler handler = new PcapHandler() {
+
+			// Tracking variable #2
+			private int count = 0;
+
+			public void nextPacket(Object userObject, long seconds, int useconds,
+			    int caplen, int len, ByteBuffer buffer) {
+
+				pcapCount.addAndGet(1);
+				count++;
+
+				if (pcapCount.get() != count) {
+					parent.breakloop(); // We exit with breakloop which means FAIL
+				}
+			}
+		};
+
+		int r = pcap.dispatch(Pcap.DISPATCH_BUFFER_FULL, handler, null);
+		if (r == Pcap.LOOP_INTERRUPTED) {
+
+			/*
+			 * Tracking variables are used to make sure they can sustain their
+			 * assigned values. The bug caused fields and object state to be overriden
+			 * by object of PcapHandler type. 
+			 */
+			fail("Handler indicates that 2 tracking variables in 2 objects, "
+			    + "did not match");
+		} else if (r != Pcap.OK) {
+			fail("Error occured: " + pcap.getErr());
+		}
+
+		pcap.close();
 	}
 }
