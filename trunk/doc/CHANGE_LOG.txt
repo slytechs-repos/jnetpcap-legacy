@@ -19,9 +19,33 @@
 ################################################################################
 
                               jNetPcap Package
-                            Version 1.0b1 (beta 1)
                                  Change Log
+                                 
+== Release 1.0b2 ==
 
+* Bug #1767744  - PcapHandler object ptr error in loop() and dispatch()
+                  This is a critical bug, where PcapHandler objects clobers the
+                  parent Pcap object data after invocation through loop() or
+                  dispatch() method.
+                 
+* Add a number of int constants to Pcap.java class to represent various return
+  codes, flags, and mode settings. Each constant has detailed explanation of
+  its usage and where it is be applicable.
+  
+* openLive() method will now also return "warning" messages in errbuf, even if
+  result code from the OK was 0, meaning no error had occured, as per pcap 
+  specification.
+  
+* Possible issue uncovered, but not fixed in this release.
+
+  - setting the snaplen value on openLinve() call does not seem to cause a 
+    return of a truncated packet buffer from next(), nextEx(), dispatch() or 
+    loop(). The buffer always contains the entire packet. Significant
+    debugging effort does not point to a bug in jNetPcap software but in
+    underlying WinPcap library. This could be in issue with particular Network
+    Interface Card in use. The issue is still under investigation, but the fix 
+    to critical bug #1767744 can not be delayed.
+    
 == Release 1.0b1 ==
 
 * Initial release
