@@ -100,7 +100,7 @@ Also please join project's mailing list, to discuss the project or report bugs.
 
 == Distributed Jar Files ==
 
-The file jnetpcap-version-arch.jar provides the java implementation of the 
+The file jnetpcap-version.jar provides the java implementation of the 
 public API. The jar file will not function on its own and requires that the
 supplied "native shared library" be also utilized (see below.) Without the
 library, most of the classes in this jar file will throw a java 
@@ -119,8 +119,8 @@ is located needs to be setup. This is either LD_LIBRARY_PATH on unix system,
 or PATH variable on windows systems. The library resides within the jnetpcap
 installation directory. 
 
-Within the package zip file, jnetpcap-1.0b1-win32.zip that would be 
-'jnetpcap-1.0b1-win32' directory.
+Within the package zip file, jnetpcap-version-arch.zip that would be 
+'jnetpcap-version-arch' directory.
 
 == Dependencies ==
 
@@ -156,7 +156,7 @@ Within the package zip file, jnetpcap-1.0b1-win32.zip that would be
    - gcc on unix
 
 Both the jnetpcap-version.jar file and native jnetpcap library have to be 
-loaded in order to use this package. The jnetpcap-version-arch.jar file needs
+loaded in order to use this package. The jnetpcap-version.jar file needs
 to be added to CLASSPATH, while the native library to either LD_LIBRARY_PATH
 on unix system, or PATH variable on windows systems.
 
@@ -174,18 +174,20 @@ you will need to included any version of 'jUnit' in the CLASSPATH.
  	  operating systems has been dropped. The last builds supporting such OSes
  	  are WinPcap 3.1 and WinPcap 4.0beta2", source http://winpcap.org website.
  	  
- 	- jNetPcap 1.0b1 has been tested with WinPcap versions 3.1, 4.0, 4.0.1
+ 	- Current version of jNetPcap has been tested with WinPcap versions 3.1, 
+ 	  4.0, 4.0.1
  	
- 	- jNetPcap 1.0b1 will not work with versions prior to 3.1 including 3.0 
- 	  itself.
+ 	- jNetPcap will not work with versions prior to 3.1 including 3.0 itself.
  	  
  * On Linux/Freebsd
 
-    - jNetPcap 1.0b1 does not provide support for these operating system. These
-      operating systems will be released starting with 1.0b2.
+    - current release of jNetPcap does not provide support for these operating 
+      systems. These operating systems are planned to be released but at a later
+      timeframe.
       
-  * On Apple OS support - no immediate support planned, but will release support
-                          at some point.
+  * On Apple OS support 
+  
+    - no immediate support planned, but will release support at some point.
 
 
 == General Notes ==
