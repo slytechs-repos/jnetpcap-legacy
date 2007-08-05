@@ -387,6 +387,7 @@
     		outfile="${build.library.filename.nosuffix}"
       	-->
 
+		<echo message="Using WinPcap version ${pcap.version}" />
 		<echo message="compiling JNI C++ files to object code" />
 		<echo message="using ${compiler.cc.cmd} compiler" />
 		<echo message="system include = ${java.sdk.include.dir}" />
