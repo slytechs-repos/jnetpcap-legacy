@@ -18,22 +18,20 @@
 #
 ################################################################################
 
-Updated: 2007-07-04 - Added to dependencies section WinPcap requirements. 
-                      Added "Operating System Support" section.
 
                               jNetPcap Package
-                            Version 1.0b1 (beta 1)
+                            Version 1.0b2 (beta 2)
                                Release Notes
-                            Created on 2007-07-03
+                            Created on 2007-07-05
 
 INTRODUCTION:
 ============
 
-This release of jNetPcap library is the first beta release of the software. The
-API classes are compiled with Java 1.5.X compiler and require Java 1.5 
-compatibility. The package is platform dependent as there is a native library
-supplied for each supported operating system (i.e. jnetpcap.dll file for win32
-systems.)
+This release of jNetPcap library is a critical update to the first beta release 
+of the software. The API classes are compiled with Java 1.5.X compiler and 
+require Java 1.5 compatibility. The package is platform dependent as there is a 
+native library supplied for each supported operating system (i.e. jnetpcap.dll 
+file for win32 systems.)
 
 This release provides the API for most of the common Libpcap's operations which 
 are to open_live, open_offline, open_dead, compile filters and set them. For
@@ -53,8 +51,9 @@ website at (http://jnetpcap.sourceforge.net).
 To install the library simply unzip the binary 'library' package into any
 directory. There are 2 parts to setting up environment for jNetPcap.
 
-  *) Win32 Dependency: jNetPcap requires WinPcap 3.1 or greater installed.
-     (http://winpcap.org)
+  *) Win32 Dependency: jNetPcap requires WinPcap 3.1 or greater installed. 
+                       WinPcap version 4.0.1 or greater is recommended, but not 
+                       neccessary. (http://winpcap.org)
 
   1) Add supplied jnetpcap-version.jar file to your build system's CLASSPATH.
      The jar file is found at the root of the installation directory.
@@ -203,7 +202,7 @@ builds suitable for deployment in commercial products.
 
 == Bugs Fixed ==
 
-* No bugs found in this release
+* #1767744 - PcapHandler object ptr error in loop() and dispatch() 
 
 == Deprecations ==
 
