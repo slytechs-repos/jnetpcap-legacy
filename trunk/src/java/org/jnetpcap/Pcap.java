@@ -236,9 +236,10 @@ public class Pcap {
 	 * Value of packet count argument for <code>dispatch</code> method call
 	 * which indicates that only as many packets should be returned as will fit in
 	 * a single buffer , unless an error occured or <code>breakloop</code> call
-	 * was used to interrupt the dispatcher. Note, that this constant is not
-	 * appropriate value for <code>dispatch</code> method call, which has a
-	 * different meaning.
+	 * was used to interrupt the dispatcher. Note, that this constant is only
+	 * appropriate value for <code>dispatch</code> method call. Loop method uses
+	 * LOOP_INFINATE for something similar, but definately not identical to this
+	 * option.
 	 */
 	public static final int DISPATCH_BUFFER_FULL = -1;
 
