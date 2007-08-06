@@ -28,10 +28,12 @@ import org.jnetpcap.winpcap.WinPcap;
 public class TestWinPcapExtensions
     extends TestCase {
 
+	@SuppressWarnings("unused")
 	private static final Log logger = LogFactory.getLog(TestPcapJNI.class);
 
 	private final static String device = "\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
 
+	@SuppressWarnings("unused")
 	private final static String fname = "tests/test-l2tp.pcap";
 
 	private StringBuilder errbuf;
