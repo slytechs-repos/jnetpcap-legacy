@@ -74,6 +74,8 @@ jobject newPcapAddr(JNIEnv *env, jobject jlist, jmethodID MID_add, pcap_addr *ad
 jobject newPcapIf(JNIEnv *env, jobject jlist, jmethodID MID_add, pcap_if_t *ifp);
 jobject newPcapSockaddr(JNIEnv *env, sockaddr *a);
 
+void setPcapStat(JNIEnv *env, jobject jstats, pcap_stat *stats);
+
 void throwException(JNIEnv *env, const char *excClassName, char *message);
 
 #ifdef __cplusplus

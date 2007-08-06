@@ -788,3 +788,33 @@ EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_dumpOpen
 
 	return jdumper;
 }
+
+/*
+ * Class:     org_jnetpcap_Pcap
+ * Method:    stats
+ * Signature: (Lorg/jnetpcap/PcapStat;)I
+ */
+EXTERN jint JNICALL Java_org_jnetpcap_Pcap_stats
+  (JNIEnv *env, jobject obj, jobject jstats) {
+	
+	if (jstats == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "stats argument is null");
+		return -1;
+	}
+
+	pcap_t *p = getPcap(env, obj);
+	if (p == NULL) {
+		return -1; // Exception already thrown
+	}
+	
+	pcap_stat stats;
+	memset(&stats, 0, sizeof(stats));
+	int r = pcap_stats(p, &stats); // Fills the stats structure
+	if (r != 0) {
+		return r; // error
+	}
+
+	setPcapStat(env, jstats, &stats);
+	
+	return r;
+}
