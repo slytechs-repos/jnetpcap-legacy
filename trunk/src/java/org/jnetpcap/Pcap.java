@@ -189,6 +189,11 @@ import org.apache.commons.logging.LogFactory;
  * captures, the packet are delived to Java without copies. Only a single
  * ByteBuffer object allocation is incured.
  * </p>
+ * <h3>Omitted methods from standard lipcap API</h3>
+ * Certain deprecated methods from libpcap API have been omitted such as
+ * <code>lookupDev</code>, <code>lookupNet</code>. Also any methods that
+ * return <code>FILE *</code> since that is not appropriate for java
+ * environment.
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
@@ -808,6 +813,19 @@ public class Pcap {
 	public native int dispatch(int cnt, PcapHandler handler, Object user);
 
 	/**
+	 * Open a file to write packets. The <code>dumpOpen</code> method is called
+	 * to open a "savefile" for writing. The name '-' is a synonym for stdout.
+	 * 
+	 * @param fname
+	 *          specifies the name of the file to open; currently the libpcap
+	 *          option to open stdout by using "-" as a string, is not supported
+	 *          by jNetPcap
+	 * @return a dumper object or null on error; use <code>getErr</code> method
+	 *         to retrieve the error message
+	 */
+	public native PcapDumper dumpOpen(String fname);
+
+	/**
 	 * Cleanup before we're GCed. Will close connection to any open interface.
 	 * Does nothing if connection already closed.
 	 */
@@ -1017,15 +1035,15 @@ public class Pcap {
 	}
 
 	/**
-	 * Open a file to write packets. The <code>dumpOpen</code> method is called
-	 * to open a "savefile" for writing. The name '-' is a synonym for stdout.
+	 * Returns statistics on the current capture. The method fills in the PcapStat
+	 * structure. The values represent packet statistics from the start of the run
+	 * to the time of the call.
 	 * 
-	 * @param fname
-	 *          specifies the name of the file to open; currently the libpcap
-	 *          option to open stdout by using "-" as a string, is not supported
-	 *          by jNetPcap
-	 * @return a dumper object or null on error; use <code>getErr</code> method
-	 *         to retrieve the error message
+	 * @param stats
+	 *          PcapStat object to fill in
+	 * @return -1 if underlying packet capture doesn't support packet statistics
+	 *         or if there is an error; use <code>getErr</code> to retrieve the
+	 *         error message
 	 */
-	public native PcapDumper dumpOpen(String fname);
+	public native int stats(PcapStat stats);
 }

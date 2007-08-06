@@ -67,6 +67,7 @@ jclass stringBuilderClass = NULL;
 jclass pcapIfClass = NULL;
 jclass pcapAddrClass = NULL;
 jclass pcapSockaddrClass = NULL;
+jclass pcapStatClass = NULL;
 
 jfieldID pcapPhysicalFID = 0;
 
@@ -91,6 +92,11 @@ jfieldID pcapAddrDstaddrFID = 0;
 
 jfieldID pcapSockaddrFamilyFID = 0;
 jfieldID pcapSockaddrDataFID = 0;
+
+jfieldID pcapStatRecvFID = 0;
+jfieldID pcapStatDropFID = 0;
+jfieldID pcapStatIfDropFID = 0;
+jfieldID pcapStatCaptFID = 0;
 
 jmethodID pcapConstructorMID = 0;
 jmethodID pcapIfConstructorMID = 0;
@@ -336,6 +342,41 @@ jmethodID findMethod(JNIEnv *env, jobject obj, char *name, char *signature) {
 	env->DeleteLocalRef(clazz);
 	
 	return id;
+}
+
+/*
+ * Class:     org_jnetpcap_PcapStat
+ * Method:    initIDs
+ * Signature: ()V
+ */
+EXTERN void JNICALL Java_org_jnetpcap_PcapStat_initIDs
+  (JNIEnv *env, jclass clazz) {
+	
+	pcapStatClass = (jclass) env->NewGlobalRef(clazz); // This one is easy
+	
+	if ( (pcapStatRecvFID = env->GetFieldID(clazz, "recv", "J")) == NULL) {
+		throwException(env, NO_SUCH_FIELD_EXCEPTION,
+				"Unable to initialize field PcapStat.recv:long");
+		return;
+	}
+	
+	if ( (pcapStatDropFID = env->GetFieldID(clazz, "drop", "J")) == NULL) {
+		throwException(env, NO_SUCH_FIELD_EXCEPTION,
+				"Unable to initialize field PcapStat.drop:long");
+		return;
+	}
+	
+	if ( (pcapStatIfDropFID = env->GetFieldID(clazz, "ifDrop", "J")) == NULL) {
+		throwException(env, NO_SUCH_FIELD_EXCEPTION,
+				"Unable to initialize field PcapStat.ifDrop:long");
+		return;
+	}
+	
+	if ( (pcapStatCaptFID = env->GetFieldID(clazz, "capt", "J")) == NULL) {
+		throwException(env, NO_SUCH_FIELD_EXCEPTION,
+				"Unable to initialize field PcapStat.capt:long");
+		return;
+	}
 }
 
 /**
@@ -668,4 +709,11 @@ jobject newPcapSockaddr(JNIEnv *env, sockaddr *a) {
 	}
 
 	return obj;
+}
+
+void setPcapStat(JNIEnv *env, jobject jstats, pcap_stat *stats) {
+	
+	env->SetLongField(jstats, pcapStatRecvFID, (jlong) stats->ps_recv);
+	env->SetLongField(jstats, pcapStatDropFID, (jlong) stats->ps_drop);
+	env->SetLongField(jstats, pcapStatIfDropFID, (jlong) stats->ps_ifdrop);
 }

@@ -41,6 +41,12 @@ public class TestPcapJNI
 
 	private static final int OK = 0;
 
+	private static final int snaplen = 64 * 1024;
+
+	private static final int promisc = 1;
+
+	private static final int timeout = 1000;
+
 	private static File tmpFile;
 
 	static {
@@ -107,12 +113,21 @@ public class TestPcapJNI
 
 	private StringBuilder errbuf;
 
+	private final PcapHandler doNothingHandler = new PcapHandler() {
+
+		public void nextPacket(Object userObject, long seconds, int useconds,
+		    int caplen, int len, ByteBuffer buffer) {
+			// Do nothing handler
+		}
+	};
+
 	/**
 	 * @throws java.lang.Exception
 	 */
 	protected void setUp() throws Exception {
 
 		errbuf = new StringBuilder();
+
 	}
 
 	/**
@@ -777,7 +792,7 @@ public class TestPcapJNI
 		// System.out.printf("%s: tmp=%d, source=%d\n", tmpFile.getName(), tmpFile
 		// .length(), new File(fname).length());
 		//
-		 assertEquals("dumped file and source file lengths don't match", tmpFile
+		assertEquals("dumped file and source file lengths don't match", tmpFile
 		    .length(), new File(fname).length());
 	}
 
@@ -812,8 +827,23 @@ public class TestPcapJNI
 		// System.out.printf("%s: tmp=%d, source=%d\n", tmpFile.getName(), tmpFile
 		// .length(), new File(fname).length());
 		//
-		 assertEquals("dumped file and source file lengths don't match", tmpFile
+		assertEquals("dumped file and source file lengths don't match", tmpFile
 		    .length(), new File(fname).length());
 	}
 
+	public void testStats() {
+		PcapStat stats = new PcapStat();
+
+		Pcap pcap = Pcap.openLive(device, snaplen, promisc, timeout, errbuf);
+
+		pcap.loop(5, doNothingHandler, null);
+		pcap.stats(stats);
+		System.out.printf("stats=%s\n", stats.toString());
+	
+		pcap.loop(5, doNothingHandler, null);
+		pcap.stats(stats);
+		System.out.printf("stats=%s\n", stats.toString());
+
+		pcap.close();
+	}
 }
