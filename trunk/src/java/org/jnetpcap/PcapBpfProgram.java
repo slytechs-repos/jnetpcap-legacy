@@ -52,7 +52,7 @@ public class PcapBpfProgram {
 	 * Native address of the bpf_program C structure
 	 */
 	@SuppressWarnings("unused")
-	private long physical = 0;
+	private volatile long physical = 0;
 
 	/**
 	 * Special constructor that allows creation of empty object ready for

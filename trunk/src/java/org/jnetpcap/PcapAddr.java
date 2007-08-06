@@ -25,15 +25,15 @@ import java.util.List;
  */
 public final class PcapAddr {
 
-	private PcapAddr next;
+	private volatile PcapAddr next;
 
-	private PcapSockaddr addr;
+	private volatile PcapSockaddr addr;
 
-	private PcapSockaddr netmask;
+	private volatile PcapSockaddr netmask;
 
-	private PcapSockaddr broadaddr;
+	private volatile PcapSockaddr broadaddr;
 
-	private PcapSockaddr dstaddr;
+	private volatile PcapSockaddr dstaddr;
 
 	/**
 	 * @return the next

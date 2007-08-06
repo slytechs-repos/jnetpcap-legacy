@@ -33,9 +33,9 @@ public class PcapSockaddr {
 	 */
 	public final static int AF_INET6 = 23;
 
-	private short family;
+	private volatile short family;
 
-	private byte[] data;
+	private volatile byte[] data;
 
 	/**
 	 * Gets the socket's protocol family identifier.
