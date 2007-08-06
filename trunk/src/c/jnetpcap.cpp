@@ -98,7 +98,12 @@ EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_openLive(JNIEnv *env, jclass clazz
 		return NULL;
 	}
 
-	jobject obj = env->NewObject(clazz, pcapConstructorMID, toLong(p));
+	/*
+	 * Use a no-arg constructor and initialize 'physical' field using
+	 * special JNI priviledges.
+	 */
+	jobject obj = env->NewObject(clazz, pcapConstructorMID);
+	setPhysical(env, obj, toLong(p));
 
 	return obj;
 }
@@ -116,8 +121,13 @@ EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_openDead
 		return NULL;
 	}
 
-	jobject obj = env->NewObject(clazz, pcapConstructorMID, toLong(p));
-
+	/*
+	 * Use a no-arg constructor and initialize 'physical' field using
+	 * special JNI priviledges.
+	 */
+	jobject obj = env->NewObject(clazz, pcapConstructorMID);
+	setPhysical(env, obj, toLong(p));
+	
 	return obj;
 }
 
@@ -144,8 +154,13 @@ EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_openOffline
 		return NULL;
 	}
 
-	jobject obj = env->NewObject(clazz, pcapConstructorMID, toLong(p));
-
+	/*
+	 * Use a no-arg constructor and initialize 'physical' field using
+	 * special JNI priviledges.
+	 */
+	jobject obj = env->NewObject(clazz, pcapConstructorMID);
+	setPhysical(env, obj, toLong(p));
+	
 	return obj;
 }
 
