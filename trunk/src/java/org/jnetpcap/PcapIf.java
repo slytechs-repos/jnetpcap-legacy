@@ -30,11 +30,11 @@ public final class PcapIf {
 	 * The field is initialized to the next object in native linked list, but is
 	 * not accessible from java.
 	 */
-	private PcapIf next;
+	private volatile PcapIf next;
 
-	private String name;
+	private volatile String name;
 
-	private String description;
+	private volatile String description;
 
 	/**
 	 * Preallocate the list. The list will be filled in based on pcap_addr
@@ -46,7 +46,7 @@ public final class PcapIf {
 	 */
 	private List<PcapAddr> addresses = new ArrayList<PcapAddr>(2);
 
-	private int flags;
+	private volatile int flags;
 
 	/**
 	 * pcap_if.next field is unimportant since this java API fills in all the
