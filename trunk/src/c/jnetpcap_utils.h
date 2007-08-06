@@ -14,6 +14,7 @@ extern "C" {
 #define NO_SUCH_FIELD_EXCEPTION "java/lang/NoSuchFieldException"
 #define INDEX_OUT_OF_BOUNDS_EXCEPTION "java/lang/IndexOutOfBoundsException"
 #define NULL_PTR_EXCEPTION "java/lang/NullPointerException"
+#define UNSUPPORTED_OPERATION_EXCEPTION "java/lang/UnsuportOperationException"
 	
 extern	jclass pcapClass;
 extern	jclass pcapHandlerClass;
