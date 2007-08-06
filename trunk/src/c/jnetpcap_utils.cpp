@@ -115,9 +115,9 @@ EXTERN void JNICALL Java_org_jnetpcap_Pcap_initIDs
 
 	pcapClass = (jclass) env->NewGlobalRef(clazz); // This one is easy
 	
-	if ( (pcapConstructorMID = env->GetMethodID(clazz, "<init>", "(J)V")) == NULL) {
+	if ( (pcapConstructorMID = env->GetMethodID(clazz, "<init>", "()V")) == NULL) {
 		throwException(env, NO_SUCH_METHOD_EXCEPTION,
-				"Unable to initialize constructor Pcap.Pcap(long)");
+				"Unable to initialize constructor Pcap.Pcap()");
 		return;
 	}
 
