@@ -622,12 +622,23 @@ public class Pcap {
 	 * pcap_open_live() and display the warning to the user if errbuf is no longer
 	 * a zero-length string.
 	 * </p>
+	 * <p>
+	 * <b>Special note about <code>snaplen</code> argument.</b> The behaviour
+	 * of this argument may be suprizing to some. The <code>argument</code> is
+	 * only applied when there is a filter set using <code>setFilter</code>
+	 * method after the <code>openLive</code> call. Otherwise snaplen, even non
+	 * zero is ignored. This is the behavior of all BSD systems utilizing BPF and
+	 * WinPcap. This may change in the future, but that is the current behavior.
+	 * (For more detailed explanation and discussion please see jNetPcap website
+	 * and its FAQs.)
+	 * </p>
 	 * 
 	 * @param device
 	 *          buffer containing a C, '\0' terminated string with the the name of
 	 *          the device
 	 * @param snaplen
-	 *          amount of data to capture per packet
+	 *          amount of data to capture per packet; (see special note in doc
+	 *          comments about when this argument is ignored even when non-zero)
 	 * @param promisc
 	 *          1 means open in promiscious mode, a 0 means non-propmiscous
 	 * @param timeout
