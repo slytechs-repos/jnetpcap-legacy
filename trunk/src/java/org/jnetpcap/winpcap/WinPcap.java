@@ -39,7 +39,7 @@ public class WinPcap
 	 * Initialize JNI method, field and class IDs.
 	 */
 	private static native void initIDs();
-	
+
 	static {
 		initIDs();
 	}
@@ -165,7 +165,6 @@ public class WinPcap
 	private WinPcap() {
 		super();
 	}
-	
 
 	/**
 	 * Set the size of the kernel buffer associated with an adapter. If an old
@@ -182,7 +181,6 @@ public class WinPcap
 	 */
 	public native int setBuff(int dim);
 
-
 	/**
 	 * Set the working mode of the interface p to mode. Valid values for mode are
 	 * MODE_CAPT (default capture mode) and MODE_STAT (statistical mode).
@@ -192,5 +190,30 @@ public class WinPcap
 	 * @return the return value is 0 when the call succeeds, -1 otherwise
 	 */
 	public native int setMode(int mode);
+
+	/**
+	 * Set the minumum amount of data received by the kernel in a single call.
+	 * pcap_setmintocopy() changes the minimum amount of data in the kernel buffer
+	 * that causes a read from the application to return (unless the timeout
+	 * expires). If the value of size is large, the kernel is forced to wait the
+	 * arrival of several packets before copying the data to the user. This
+	 * guarantees a low number of system calls, i.e. low processor usage, and is a
+	 * good setting for applications like packet-sniffers and protocol analyzers.
+	 * Vice versa, in presence of a small value for this variable, the kernel will
+	 * copy the packets as soon as the application is ready to receive them. This
+	 * is useful for real time applications that need the best responsiveness from
+	 * the kernel.
+	 * 
+	 * @see #openLive(String, int, int, int, StringBuilder)
+	 * @see #loop(int, PcapHandler, Object)
+	 * @see #dispatch(int, PcapHandler, Object)
+	 * @param size
+	 *          minimum size
+	 * @return the return value is 0 when the call succeeds, -1 otherwise
+	 */
+	@SuppressWarnings("unused")
+	private int setMinToCopy(int size) {
+		throw new UnsatisfiedLinkError("Not supported in this version of Libpcap");
+	}
 
 }

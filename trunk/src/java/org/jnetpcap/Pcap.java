@@ -954,6 +954,43 @@ public class Pcap {
 	public native int nextEx(PcapPkthdr pkt_header, PcapPktbuffer buffer);
 
 	/**
+	 * This method allows to send a raw packet to the network. The MAC CRC doesn't
+	 * need to be included, because it is transparently calculated and added by
+	 * the network interface driver. The data will be taken from the supplied
+	 * buffer where the start of the packet is buffer's current position()
+	 * property and end its limit() properties.
+	 * 
+	 * @param buf
+	 *          contains the data of the packet to send (including the various
+	 *          protocol headers); the buffer should be a direct buffer; array
+	 *          based buffers will be copied into a direct buffer
+	 * @return 0 on success and -1 on failure
+	 */
+	public int sendPacket(final ByteBuffer buf) {
+		if (buf.isDirect() == false) {
+			final int length = buf.limit() - buf.position();
+			final ByteBuffer direct = ByteBuffer.allocateDirect(length);
+			direct.put(buf);
+			
+			return sendPacketPrivate(direct, 0, length);
+		} else {
+			return sendPacketPrivate(buf, buf.position(), buf.limit()
+			    - buf.position());
+		}
+	}
+
+	/**
+	 * Private method to perform work. The arguments are guarranteed to work with
+	 * buf since we're using a delagate method.
+	 * 
+	 * @param buf
+	 * @param start
+	 * @param len
+	 * @return
+	 */
+	private native int sendPacketPrivate(ByteBuffer buf, int start, int len);
+
+	/**
 	 * Set the current data link type of the pcap descriptor to the type specified
 	 * by dlt.
 	 * 
@@ -975,31 +1012,6 @@ public class Pcap {
 	 *         to display the error text; 0 is returned on success
 	 */
 	public native int setFilter(PcapBpfProgram program);
-
-	/**
-	 * Set the minumum amount of data received by the kernel in a single call.
-	 * pcap_setmintocopy() changes the minimum amount of data in the kernel buffer
-	 * that causes a read from the application to return (unless the timeout
-	 * expires). If the value of size is large, the kernel is forced to wait the
-	 * arrival of several packets before copying the data to the user. This
-	 * guarantees a low number of system calls, i.e. low processor usage, and is a
-	 * good setting for applications like packet-sniffers and protocol analyzers.
-	 * Vice versa, in presence of a small value for this variable, the kernel will
-	 * copy the packets as soon as the application is ready to receive them. This
-	 * is useful for real time applications that need the best responsiveness from
-	 * the kernel.
-	 * 
-	 * @see #openLive(String, int, int, int, StringBuilder)
-	 * @see #loop(int, PcapHandler, Object)
-	 * @see #dispatch(int, PcapHandler, Object)
-	 * @param size
-	 *          minimum size
-	 * @return the return value is 0 when the call succeeds, -1 otherwise
-	 */
-	@SuppressWarnings("unused")
-	private int setMinToCopy(int size) {
-		throw new UnsatisfiedLinkError("Not supported in this version of Libpcap");
-	}
 
 	/**
 	 * pcap_setnonblock() puts a capture descriptor, opened with pcap_open_live(),
@@ -1030,8 +1042,11 @@ public class Pcap {
 	 */
 	public native int snapshot();
 
+	/**
+	 * Prints libVersion that Pcap is based on.
+	 */
 	public String toString() {
-		return "jNetPcap based on " + libVersion();
+		return libVersion();
 	}
 
 	/**

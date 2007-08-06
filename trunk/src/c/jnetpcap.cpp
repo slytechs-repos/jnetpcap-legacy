@@ -324,6 +324,35 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_nextEx
 
 /*
  * Class:     org_jnetpcap_Pcap
+ * Method:    sendPacketPrivate
+ * Signature: (Ljava/nio/ByteBuffer;)I
+ */
+EXTERN jint JNICALL Java_org_jnetpcap_Pcap_sendPacketPrivate
+(JNIEnv *env, jobject obj, jobject jbytebuffer, int jstart, int jlength) {
+
+	if (jbytebuffer == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION,
+				"buffer argument is null");
+		return -1;
+	}
+
+	pcap_t *p = getPcap(env, obj);
+	if (p == NULL) {
+		return -1; // Exception already thrown
+	}
+
+	u_char *b = (u_char *)env->GetDirectBufferAddress(jbytebuffer);
+	if (b == NULL) {
+		throwException(env, INVALID_ARGUMENT_EXCEPTION,
+				"Unable to retrieve physical address from ByteBuffer");
+	}
+
+	int r = pcap_sendpacket(p, b + (int) jstart, (int) jlength);
+	return r;
+}
+
+/*
+ * Class:     org_jnetpcap_Pcap
  * Method:    breakloop
  * Signature: ()V
  */
@@ -783,7 +812,7 @@ EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_dumpOpen
 	if (d == NULL) {
 		return NULL; // Exception already thrown
 	}
-	
+
 	jobject jdumper = newPcapDumper(env, d);
 
 	return jdumper;
@@ -795,8 +824,8 @@ EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_dumpOpen
  * Signature: (Lorg/jnetpcap/PcapStat;)I
  */
 EXTERN jint JNICALL Java_org_jnetpcap_Pcap_stats
-  (JNIEnv *env, jobject obj, jobject jstats) {
-	
+(JNIEnv *env, jobject obj, jobject jstats) {
+
 	if (jstats == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, "stats argument is null");
 		return -1;
@@ -806,7 +835,7 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_stats
 	if (p == NULL) {
 		return -1; // Exception already thrown
 	}
-	
+
 	pcap_stat stats;
 	memset(&stats, 0, sizeof(stats));
 	int r = pcap_stats(p, &stats); // Fills the stats structure
@@ -815,6 +844,6 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_stats
 	}
 
 	setPcapStat(env, jstats, &stats);
-	
+
 	return r;
 }
