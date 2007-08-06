@@ -196,6 +196,17 @@ import org.apache.commons.logging.LogFactory;
 public class Pcap {
 
 	/**
+	 * Value of packet count argument for <code>dispatch</code> method call
+	 * which indicates that only as many packets should be returned as will fit in
+	 * a single buffer , unless an error occured or <code>breakloop</code> call
+	 * was used to interrupt the dispatcher. Note, that this constant is only
+	 * appropriate value for <code>dispatch</code> method call. Loop method uses
+	 * LOOP_INFINATE for something similar, but definately not identical to this
+	 * option.
+	 */
+	public static final int DISPATCH_BUFFER_FULL = -1;
+
+	/**
 	 * Holds the exception thrown from the static initializer only. After its been
 	 * reset by the init() function, this field is never set again.
 	 */
@@ -231,17 +242,6 @@ public class Pcap {
 	 * method call, which has a different meaning.
 	 */
 	public static final int LOOP_INFINATE = -1;
-
-	/**
-	 * Value of packet count argument for <code>dispatch</code> method call
-	 * which indicates that only as many packets should be returned as will fit in
-	 * a single buffer , unless an error occured or <code>breakloop</code> call
-	 * was used to interrupt the dispatcher. Note, that this constant is only
-	 * appropriate value for <code>dispatch</code> method call. Loop method uses
-	 * LOOP_INFINATE for something similar, but definately not identical to this
-	 * option.
-	 */
-	public static final int DISPATCH_BUFFER_FULL = -1;
 
 	/**
 	 * Pcap status return code for <code>loop</code> and <code>dispatch</code>
@@ -282,18 +282,16 @@ public class Pcap {
 	public static final int MODE_PROMISCUOUS = 1;
 
 	/**
-	 * Pcap status return code for most of the methods defined here. All methods
-	 * that return an intenger as a status code, use this constants as meaning the
-	 * call failed.
+	 * Exit code for <code>nextEx</code> method which indicates that pcap
+	 * reached end of file while reading a 'savefile'.
 	 */
-	public static final int NOT_OK = -1;
+	public static final int NEXT_EX_EOF = -2;
 
 	/**
-	 * Pcap status return code for most of the methods defined here. All methods
-	 * that return an intenger as a status code, use this constants as meaning the
-	 * call succeeded.
+	 * Exit code for <code>nextEx</code> method which indicates failure of some
+	 * kind. Use {@link #getErr()} to retrieve the error message.
 	 */
-	public static final int OK = 0;
+	public static final int NEXT_EX_NOT_OK = -1;
 
 	/**
 	 * Exit code for <code>nextEx</code> method which indicates success.
@@ -308,16 +306,18 @@ public class Pcap {
 	public static final int NEXT_EX_TIMEDOUT = 0;
 
 	/**
-	 * Exit code for <code>nextEx</code> method which indicates failure of some
-	 * kind. Use {@link #getErr()} to retrieve the error message.
+	 * Pcap status return code for most of the methods defined here. All methods
+	 * that return an intenger as a status code, use this constants as meaning the
+	 * call failed.
 	 */
-	public static final int NEXT_EX_NOT_OK = -1;
+	public static final int NOT_OK = -1;
 
 	/**
-	 * Exit code for <code>nextEx</code> method which indicates that pcap
-	 * reached end of file while reading a 'savefile'.
+	 * Pcap status return code for most of the methods defined here. All methods
+	 * that return an intenger as a status code, use this constants as meaning the
+	 * call succeeded.
 	 */
-	public static final int NEXT_EX_EOF = -2;
+	public static final int OK = 0;
 
 	/**
 	 * Static initializer
@@ -672,20 +672,21 @@ public class Pcap {
 	public native static Pcap openOffline(String fname, StringBuilder errbuf);
 
 	/**
-	 * Physical address of the corresponding <code>pcap_t</code> C structure on
+	 * Physical address of the peering <code>pcap_t</code> C structure on
 	 * native machine. <i>Libpcap</i> allocated this structure and deallocates it
 	 * when {@link #close} is called. This is the reason that in
 	 * {@link #finalize()} we call {@link #close} explicitely to let <i>Libpcap</i>
 	 * free up the structure.
 	 */
-	private final long physical;
+	private volatile long physical;
 
 	/**
 	 * Pcap object can only be created by calling one of the static
 	 * {@link #openLive} methods.
 	 */
-	private Pcap(long physical) {
-		this.physical = physical;
+	public Pcap() {
+		// Empty on purpose, the private field 'physical' is initialized
+		// from JNI call. That is the only way it can be initialized.
 	}
 
 	/**
@@ -931,21 +932,6 @@ public class Pcap {
 	public native int nextEx(PcapPkthdr pkt_header, PcapPktbuffer buffer);
 
 	/**
-	 * Set the size of the kernel buffer associated with an adapter. If an old
-	 * buffer was already created with a previous call to pcap_setbuff(), it is
-	 * deleted and its content is discarded. pcap_open_live() creates a 1 MByte
-	 * buffer by default.
-	 * 
-	 * @see #openLive(String, int, int, int, StringBuilder)
-	 * @see #loop(int, PcapHandler, Object)
-	 * @see #dispatch(int, PcapHandler, Object)
-	 * @param dim
-	 *          specifies the size of the buffer in bytes
-	 * @return the return value is 0 when the call succeeds, -1 otherwise
-	 */
-	public native int setBuff(int dim);
-
-	/**
 	 * Set the current data link type of the pcap descriptor to the type specified
 	 * by dlt.
 	 * 
@@ -992,16 +978,6 @@ public class Pcap {
 	private int setMinToCopy(int size) {
 		throw new UnsatisfiedLinkError("Not supported in this version of Libpcap");
 	}
-
-	/**
-	 * Set the working mode of the interface p to mode. Valid values for mode are
-	 * MODE_CAPT (default capture mode) and MODE_STAT (statistical mode).
-	 * 
-	 * @param mode
-	 *          pcap capture mode
-	 * @return the return value is 0 when the call succeeds, -1 otherwise
-	 */
-	public native int setMode(int mode);
 
 	/**
 	 * pcap_setnonblock() puts a capture descriptor, opened with pcap_open_live(),
