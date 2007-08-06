@@ -974,9 +974,9 @@ public class Pcap {
 	 */
 	public int sendPacket(final byte[] buf, int offset, int length) {
 		final ByteBuffer direct = ByteBuffer.allocateDirect(length);
-		direct.put(buf);
+		direct.put(buf, offset, length);
 
-		return sendPacketPrivate(direct, offset, length);
+		return sendPacketPrivate(direct, 0, length);
 	}
 
 	/**
