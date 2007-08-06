@@ -1,0 +1,409 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head><title>JDepend Source Code Analysis - Logging</title><style type="text/css" media="all">
+          @import url("./style/maven-base.css");
+          
+          @import url("./style/maven-theme.css");@import url("./style/project.css");</style><link rel="stylesheet" href="./style/print.css" type="text/css" media="print"></link><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"></meta><style type="text/css">.jdepend td ul, .jdepend td ul li { margin:0; padding:0; list-style-type: none; }</style></head><body class="jdepend"><div id="banner"><a href="http://jakarta.apache.org" id="organizationLogo"><img alt="The Apache Software Foundation" src="http://jakarta.apache.org/images/original-jakarta-logo.gif"></img></a><a href="http://jakarta.apache.org/commons/logging/" id="projectLogo"><img alt="Logging" src="./images/logo.png"></img></a><div class="clear"><hr></hr></div></div><div id="breadcrumbs"><div class="xleft">Last published: 09 May 2006
+                <span class="separator">|</span> Doc for  1.1
+                </div><div class="xright">
+        
+        <a href="http://jakarta.apache.org/commons/" class="externalLink" title="External Link">Jakarta Commons</a>
+      </div><div class="clear"><hr></hr></div></div><div id="leftColumn"><div id="navcolumn"><div id="menuCommons_Logging_1_1"><h5>Commons Logging 1.1</h5><ul><li class="none"><a href="index.html">Overview</a></li><li class="none"><a href="guide.html">User Guide</a></li><li class="none"><a href="tech.html">Tech Guide</a></li><li class="none"><a href="troubleshooting.html">Troubleshooting Guide</a></li><li class="none"><a href="http://wiki.apache.org/jakarta-commons/Logging" class="externalLink" title="External Link">Wiki</a></li><li class="none"><a href="apidocs/index.html">JavaDoc</a></li><li class="none"><a href="RELEASE-NOTES.txt">Release Notes</a></li><li class="none"><a href="building.html">Building</a></li><li class="none"><a href="http://jakarta.apache.org/site/downloads/downloads_commons-logging.cgi" class="externalLink" title="External Link">Download</a></li></ul></div><div id="menu1_0_4_Release"><h5>1.0.4 Release</h5><ul><li class="none"><a href="http://jakarta.apache.org/commons/logging/commons-logging-1.0.4/docs/" class="externalLink" title="External Link">Documentation</a></li><li class="none"><a href="http://jakarta.apache.org/commons/logging/commons-logging-1.0.4/docs/apidocs/" class="externalLink" title="External Link">JavaDoc</a></li><li class="none"><a href="http://jakarta.apache.org/commons/logging/commons-logging-1.0.4/RELEASE-NOTES.txt" class="externalLink" title="External Link">Release Notes</a></li></ul></div><div id="menu1_0_3_Release"><h5>1.0.3 Release</h5><ul><li class="none"><a href="http://jakarta.apache.org/commons/logging/commons-logging-1.0.3/usersguide.html" class="externalLink" title="External Link">User Guide</a></li><li class="none"><a href="http://jakarta.apache.org/commons/logging/commons-logging-1.0.3/docs/api/" class="externalLink" title="External Link">JavaDoc</a></li><li class="none"><a href="http://jakarta.apache.org/commons/logging/commons-logging-1.0.3/RELEASE-NOTES.txt" class="externalLink" title="External Link">Release Notes</a></li></ul></div><div id="menu1_0_2_Release"><h5>1.0.2 Release</h5><ul><li class="none"><a href="http://jakarta.apache.org/commons/logging/commons-logging-1.0.2/docs/api/" class="externalLink" title="External Link">JavaDoc</a></li></ul></div><div id="menuProject_Documentation"><h5>Project Documentation</h5><ul><li class="none"><a href="index.html">About</a></li><li class="collapsed"><a href="project-info.html">Project Info</a></li><li class="expanded"><a href="maven-reports.html">Project Reports</a><ul><li class="none"><a href="apidocs/index.html" class="newWindow" title="New Window" target="_blank">JavaDocs</a></li><li class="none"><a href="javadoc.html">JavaDoc Report</a></li><li class="none"><a href="javadoc-warnings-report.html">JavaDoc Warnings Report</a></li><li class="none"><strong><a href="jdepend-report.html">Metrics</a></strong></li><li class="none"><a href="junit-report.html">Unit Tests</a></li><li class="none"><a href="xref/index.html" class="newWindow" title="New Window" target="_blank">Source Xref</a></li><li class="none"><a href="xref-test/index.html" class="newWindow" title="New Window" target="_blank">Test Xref</a></li><li class="none"><a href="license.html">Project License</a></li></ul></li><li class="none"><a href="http://jakarta.apache.org/commons/charter.html" class="externalLink" title="External Link">Development Process</a></li></ul></div><div id="menuCommons"><h5>Commons</h5><ul><li class="none"><a href="http://jakarta.apache.org/commons/" class="externalLink" title="External Link">Home</a></li><li class="collapsed"><a href="http://jakarta.apache.org/commons/components.html" class="externalLink" title="External Link">Components</a></li><li class="collapsed"><a href="http://jakarta.apache.org/commons/sandbox/index.html" class="externalLink" title="External Link">Sandbox</a></li><li class="collapsed"><a href="http://jakarta.apache.org/commons/dormant/index.html" class="externalLink" title="External Link">Dormant</a></li><li class="none"><a href="http://jakarta.apache.org/commons/volunteering.html" class="externalLink" title="External Link">Volunteering</a></li><li class="none"><a href="http://jakarta.apache.org/commons/patches.html" class="externalLink" title="External Link">Contributing Patches</a></li><li class="none"><a href="http://jakarta.apache.org/commons/building.html" class="externalLink" title="External Link">Building Components</a></li><li class="none"><a href="http://jakarta.apache.org/commons/releases/index.html" class="externalLink" title="External Link">Releasing Components</a></li><li class="none"><a href="http://wiki.apache.org/jakarta-commons/FrontPage" class="externalLink" title="External Link">Wiki</a></li></ul></div><div id="legend"><h5>Legend</h5><ul><li class="externalLink">External Link</li><li class="newWindow">Opens in a new window</li></ul></div><a href="http://maven.apache.org/" title="Built by Maven" id="poweredBy"><img alt="Built by Maven" src="./images/logos/maven-feather.png"></img></a></div></div><div id="bodyColumn"><div class="contentBox"><div class="section"><a name="Metric_Results"></a><h2>Metric Results</h2>
+      <p>[
+        <a href="#Summary">summary</a>] [
+        <a href="#Packages">packages</a>] [
+        <a href="#Cycles">cycles</a>] [
+        <a href="#Explanations">explanations</a>]</p>
+      <p>The following document contains the results of a
+        <a href="http://www.clarkware.com/software/JDepend.html" class="externalLink" title="External Link">JDepend</a>metric analysis. The various metrics are defined at the bottom of this document.</p>
+    </div><div class="section"><a name="Summary"></a><h2>Summary</h2>
+      <p>[
+        <a href="#Summary">summary</a>] [
+        <a href="#Packages">packages</a>] [
+        <a href="#Cycles">cycles</a>] [
+        <a href="#Explanations">explanations</a>]</p>
+      <table class="bodyTable">
+        <thead>
+          <tr class="b">
+            <th title="Package">Package</th>
+            <th style="text-align:right">
+              <acronym title="Total Classes">TC</acronym>
+            </th>
+            <th style="text-align:right">
+              <acronym title="Abstract Classes">AC</acronym>
+            </th>
+            <th style="text-align:right">
+              <acronym title="Concrete Classes">CC</acronym>
+            </th>
+            <th style="text-align:right">
+              <acronym title="Afferent Couplings">AC</acronym>
+            </th>
+            <th style="text-align:right">
+              <acronym title="Efferent Couplings">EC</acronym>
+            </th>
+            <th style="text-align:right">
+              <acronym title="Abstractness">A</acronym>
+            </th>
+            <th style="text-align:right">
+              <acronym title="Instability">I</acronym>
+            </th>
+            <th style="text-align:right">
+              <acronym title="Distance">D</acronym>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="a">
+            <td>
+              <a href="#org_apache_commons_logging">org.apache.commons.logging</a>
+            </td>
+            <td style="text-align:right">9</td>
+            <td style="text-align:right">2</td>
+            <td style="text-align:right">7</td>
+            <td style="text-align:right">1</td>
+            <td style="text-align:right">7</td>
+            <td style="text-align:right">0.22</td>
+            <td style="text-align:right">88%</td>
+            <td style="text-align:right">10%</td>
+          </tr>
+          <tr class="b">
+            <td>
+              <a href="#org_apache_commons_logging_impl">org.apache.commons.logging.impl</a>
+            </td>
+            <td style="text-align:right">15</td>
+            <td style="text-align:right">0</td>
+            <td style="text-align:right">15</td>
+            <td style="text-align:right">1</td>
+            <td style="text-align:right">13</td>
+            <td style="text-align:right">0</td>
+            <td style="text-align:right">93%</td>
+            <td style="text-align:right">7%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div><div class="section"><a name="Packages"></a><h2>Packages</h2>
+      <p>[
+        <a href="#Summary">summary</a>] [
+        <a href="#Packages">packages</a>] [
+        <a href="#Cycles">cycles</a>] [
+        <a href="#Explanations">explanations</a>]</p>
+      <div class="subsection"><a name="org_apache_commons_logging"></a><h3>org.apache.commons.logging</h3>
+        <table class="bodyTable">
+          <thead>
+            <tr class="a">
+              <th>Afferent Couplings</th>
+              <th>Efferent Couplings</th>
+              <th>Abstractness</th>
+              <th>Instability</th>
+              <th>Distance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="b">
+              <td>1</td>
+              <td>7</td>
+              <td>22%</td>
+              <td>88%</td>
+              <td>10%</td>
+            </tr>
+          </tbody>
+        </table>
+        <table class="bodyTable">
+          <thead>
+            <tr class="a">
+              <th>Abstract Classes</th>
+              <th>Concrete Classes</th>
+              <th>Used by Packages</th>
+              <th>Uses Packages</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="b">
+              <td>
+                <ul>
+                  <li>
+                    <a href="xref/org/apache/commons/logging/Log.html">Log</a>
+                  </li>
+                  <li>
+                    <a href="xref/org/apache/commons/logging/LogFactory.html">LogFactory</a>
+                  </li>
+                </ul>
+              </td>
+              <td>
+                <ul>
+                  <li>
+                    <a href="xref/org/apache/commons/logging/LogConfigurationException.html">LogConfigurationException</a>
+                  </li>
+                  <li>
+                    <a href="xref/org/apache/commons/logging/LogFactory.html">LogFactory$1</a>
+                  </li>
+                  <li>
+                    <a href="xref/org/apache/commons/logging/LogFactory.html">LogFactory$2</a>
+                  </li>
+                  <li>
+                    <a href="xref/org/apache/commons/logging/LogFactory.html">LogFactory$3</a>
+                  </li>
+                  <li>
+                    <a href="xref/org/apache/commons/logging/LogFactory.html">LogFactory$4</a>
+                  </li>
+                  <li>
+                    <a href="xref/org/apache/commons/logging/LogFactory.html">LogFactory$5</a>
+                  </li>
+                  <li>
+                    <a href="xref/org/apache/commons/logging/LogSource.html">LogSource</a>
+                  </li>
+                </ul>
+              </td>
+              <td>
+                <ul>
+                  <li>
+                    <a href="#org_apache_commons_logging_impl">org.apache.commons.logging.impl</a>
+                  </li>
+                </ul>
+              </td>
+              <td>
+                <ul>
+                  <li>
+                    <a href="#java_io">java.io</a>
+                  </li>
+                  <li>
+                    <a href="#java_lang">java.lang</a>
+                  </li>
+                  <li>
+                    <a href="#java_lang_reflect">java.lang.reflect</a>
+                  </li>
+                  <li>
+                    <a href="#java_net">java.net</a>
+                  </li>
+                  <li>
+                    <a href="#java_security">java.security</a>
+                  </li>
+                  <li>
+                    <a href="#java_util">java.util</a>
+                  </li>
+                  <li>
+                    <a href="#org_apache_commons_logging_impl">org.apache.commons.logging.impl</a>
+                  </li>
+                </ul>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="subsection"><a name="org_apache_commons_logging_impl"></a><h3>org.apache.commons.logging.impl</h3>
+        <table class="bodyTable">
+          <thead>
+            <tr class="a">
+              <th>Afferent Couplings</th>
+              <th>Efferent Couplings</th>
+              <th>Abstractness</th>
+              <th>Instability</th>
+              <th>Distance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="b">
+              <td>1</td>
+              <td>13</td>
+              <td>0%</td>
+              <td>93%</td>
+              <td>7%</td>
+            </tr>
+          </tbody>
+        </table>
+        <table class="bodyTable">
+          <thead>
+            <tr class="a">
+              <th>Abstract Classes</th>
+              <th>Concrete Classes</th>
+              <th>Used by Packages</th>
+              <th>Uses Packages</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="b">
+              <td>
+                <em>None</em>
+              </td>
+              <td>
+                <ul>
+                  <li>
+                    <a href="xref/org/apache/commons/logging/impl/AvalonLogger.html">AvalonLogger</a>
+                  </li>
+                  <li>
+                    <a href="xref/org/apache/commons/logging/impl/Jdk13LumberjackLogger.html">Jdk13LumberjackLogger</a>
+                  </li>
+                  <li>
+                    <a href="xref/org/apache/commons/logging/impl/Jdk14Logger.html">Jdk14Logger</a>
+                  </li>
+                  <li>
+                    <a href="xref/org/apache/commons/logging/impl/Log4JLogger.html">Log4JLogger</a>
+                  </li>
+                  <li>
+                    <a href="xref/org/apache/commons/logging/impl/LogFactoryImpl.html">LogFactoryImpl</a>
+                  </li>
+                  <li>
+                    <a href="xref/org/apache/commons/logging/impl/LogKitLogger.html">LogKitLogger</a>
+                  </li>
+                  <li>
+                    <a href="xref/org/apache/commons/logging/impl/NoOpLog.html">NoOpLog</a>
+                  </li>
+                  <li>
+                    <a href="xref/org/apache/commons/logging/impl/ServletContextCleaner.html">ServletContextCleaner</a>
+                  </li>
+                  <li>
+                    <a href="xref/org/apache/commons/logging/impl/SimpleLog.html">SimpleLog</a>
+                  </li>
+                  <li>
+                    <a href="xref/org/apache/commons/logging/impl/SimpleLog.html">SimpleLog$1</a>
+                  </li>
+                  <li>
+                    <a href="xref/org/apache/commons/logging/impl/WeakHashtable.html">WeakHashtable</a>
+                  </li>
+                  <li>
+                    <a href="xref/org/apache/commons/logging/impl/WeakHashtable.html">WeakHashtable$1</a>
+                  </li>
+                  <li>
+                    <a href="xref/org/apache/commons/logging/impl/WeakHashtable.html">WeakHashtable$Entry</a>
+                  </li>
+                  <li>
+                    <a href="xref/org/apache/commons/logging/impl/WeakHashtable.html">WeakHashtable$Referenced</a>
+                  </li>
+                  <li>
+                    <a href="xref/org/apache/commons/logging/impl/WeakHashtable.html">WeakHashtable$WeakKey</a>
+                  </li>
+                </ul>
+              </td>
+              <td>
+                <ul>
+                  <li>
+                    <a href="#org_apache_commons_logging">org.apache.commons.logging</a>
+                  </li>
+                </ul>
+              </td>
+              <td>
+                <ul>
+                  <li>
+                    <a href="#java_io">java.io</a>
+                  </li>
+                  <li>
+                    <a href="#java_lang">java.lang</a>
+                  </li>
+                  <li>
+                    <a href="#java_lang_ref">java.lang.ref</a>
+                  </li>
+                  <li>
+                    <a href="#java_lang_reflect">java.lang.reflect</a>
+                  </li>
+                  <li>
+                    <a href="#java_security">java.security</a>
+                  </li>
+                  <li>
+                    <a href="#java_text">java.text</a>
+                  </li>
+                  <li>
+                    <a href="#java_util">java.util</a>
+                  </li>
+                  <li>
+                    <a href="#java_util_logging">java.util.logging</a>
+                  </li>
+                  <li>
+                    <a href="#javax_servlet">javax.servlet</a>
+                  </li>
+                  <li>
+                    <a href="#org_apache_avalon_framework_logger">org.apache.avalon.framework.logger</a>
+                  </li>
+                  <li>
+                    <a href="#org_apache_commons_logging">org.apache.commons.logging</a>
+                  </li>
+                  <li>
+                    <a href="#org_apache_log">org.apache.log</a>
+                  </li>
+                  <li>
+                    <a href="#org_apache_log4j">org.apache.log4j</a>
+                  </li>
+                </ul>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div><div class="section"><a name="Cycles"></a><h2>Cycles</h2>
+      <p>[
+        <a href="#Summary">summary</a>] [
+        <a href="#Packages">packages</a>] [
+        <a href="#Cycles">cycles</a>] [
+        <a href="#Explanations">explanations</a>]</p>
+      <table class="bodyTable">
+        <thead>
+          <tr class="a">
+            <th>Package</th>
+            <th>Cyclic Dependencies</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="b">
+            <td>org.apache.commons.logging</td>
+            <td>
+              <ul>
+                <li>org.apache.commons.logging.impl</li>
+                <li>org.apache.commons.logging</li>
+              </ul>
+            </td>
+          </tr>
+          <tr class="a">
+            <td>org.apache.commons.logging.impl</td>
+            <td>
+              <ul>
+                <li>org.apache.commons.logging</li>
+                <li>org.apache.commons.logging.impl</li>
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div><div class="section"><a name="Explanations"></a><h2>Explanations</h2>
+      <p>[
+        <a href="#Summary">summary</a>] [
+        <a href="#Packages">packages</a>] [
+        <a href="#Cycles">cycles</a>] [
+        <a href="#Explanations">explanations</a>]</p>
+      <p>The following explanations are for quick reference and are lifted directly from the original
+        <a href="http://www.clarkware.com/software/JDepend.html" class="externalLink" title="External Link">JDepend documentation</a>.</p>
+      <table class="bodyTable">
+        <thead>
+          <tr class="b">
+            <th>Term</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="a">
+            <td>Number of Classes</td>
+            <td>The number of concrete and abstract classes (and interfaces) in the package is an indicator of the extensibility of the package.</td>
+          </tr>
+          <tr class="b">
+            <td>Afferent Couplings</td>
+            <td>The number of other packages that depend upon classes within the package is an indicator of the package's responsibility.</td>
+          </tr>
+          <tr class="a">
+            <td>Efferent Couplings</td>
+            <td>The number of other packages that the classes in the package depend upon is an indicator of the package's independence.</td>
+          </tr>
+          <tr class="b">
+            <td>Abstractness</td>
+            <td>The ratio of the number of abstract classes (and interfaces) in the analyzed package to the total number of classes in the analyzed package. The range for this metric is 0 to 1, with A=0 indicating a completely concrete package and A=1 indicating a completely abstract package.</td>
+          </tr>
+          <tr class="a">
+            <td>Instability</td>
+            <td>The ratio of efferent coupling (Ce) to total coupling (Ce / (Ce + Ca)). This metric is an indicator of the package's resilience to change. The range for this metric is 0 to 1, with I=0 indicating a completely stable package and I=1 indicating a completely instable package.</td>
+          </tr>
+          <tr class="b">
+            <td>Distance</td>
+            <td>The perpendicular distance of a package from the idealized line A + I = 1. This metric is an indicator of the package's balance between abstractness and stability. A package squarely on the main sequence is optimally balanced with respect to its abstractness and stability. Ideal packages are either completely abstract and stable (x=0, y=1) or completely concrete and instable (x=1, y=0). The range for this metric is 0 to 1, with D=0 indicating a package that is coincident with the main sequence and D=1 indicating a package that is as far from the main sequence as possible.</td>
+          </tr>
+          <tr class="a">
+            <td>Cycles</td>
+            <td>Packages participating in a package dependency cycle are in a deadly embrace with respect to reusability and their release cycle. Package dependency cycles can be easily identified by reviewing the textual reports of dependency cycles. Once these dependency cycles have been identified with JDepend, they can be broken by employing various object-oriented techniques.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div></div></div><div class="clear"><hr></hr></div><div id="footer"><div class="xright">© 2001-2006, The Apache Software Foundation</div><div class="clear"><hr></hr></div></div></body></html>
