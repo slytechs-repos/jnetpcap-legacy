@@ -68,6 +68,7 @@
  */
 #include "jnetpcap_utils.h"
 #include "jnetpcap_bpf.h"
+#include "jnetpcap_dumper.h"
 #include "org_jnetpcap_Pcap.h"
 
 /*
@@ -78,15 +79,15 @@
 EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_openLive(JNIEnv *env, jclass clazz,
 		jstring jdevice, jint jsnaplen, jint jpromisc, jint jtimeout,
 		jobject jerrbuf) {
-	
+
 	if (jdevice == NULL || jerrbuf == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return NULL;
 	}
-	
+
 	char errbuf[PCAP_ERRBUF_SIZE];
 	errbuf[0] = '\0'; // Reset the buffer;
-	
+
 	const char *device = env->GetStringUTFChars(jdevice, 0);
 
 	//	printf("device=%s snaplen=%d, promisc=%d timeout=%d\n",
@@ -127,7 +128,7 @@ EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_openDead
 	 */
 	jobject obj = env->NewObject(clazz, pcapConstructorMID);
 	setPhysical(env, obj, toLong(p));
-	
+
 	return obj;
 }
 
@@ -138,12 +139,12 @@ EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_openDead
  */
 EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_openOffline
 (JNIEnv *env, jclass clazz, jstring jfname, jobject jerrbuf) {
-	
+
 	if (jfname == NULL || jerrbuf == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return NULL;
 	}
-	
+
 	char errbuf[PCAP_ERRBUF_SIZE];
 	errbuf[0] = '\0'; // Reset the buffer;
 	const char *fname = env->GetStringUTFChars(jfname, 0);
@@ -160,7 +161,7 @@ EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_openOffline
 	 */
 	jobject obj = env->NewObject(clazz, pcapConstructorMID);
 	setPhysical(env, obj, toLong(p));
-	
+
 	return obj;
 }
 
@@ -189,7 +190,7 @@ EXTERN void JNICALL Java_org_jnetpcap_Pcap_close
  */
 EXTERN jint JNICALL Java_org_jnetpcap_Pcap_dispatch
 (JNIEnv *env, jobject obj, jint jcnt, jobject jhandler, jobject juser) {
-	
+
 	if (jhandler == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -229,7 +230,7 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_loop
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
 	}
-	
+
 	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
 		return -1; // Exception already thrown
@@ -259,12 +260,12 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_loop
  */
 EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_next
 (JNIEnv *env, jobject obj, jobject jpkt_header) {
-	
+
 	if (jpkt_header == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return NULL;
 	}
-	
+
 	pcap_pkthdr pkt_header;
 
 	pcap_t *p = getPcap(env, obj);
@@ -293,12 +294,12 @@ EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_next
  */
 EXTERN jint JNICALL Java_org_jnetpcap_Pcap_nextEx
 (JNIEnv *env, jobject obj, jobject jpkt_header, jobject jpkt_buffer) {
-	
+
 	if (jpkt_header == NULL || jpkt_buffer == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
 	}
-	
+
 	pcap_pkthdr *pkt_header;
 	const u_char *pkt_data; // PTR will be initialized by pcap_next_ex
 
@@ -360,12 +361,12 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_datalink
  */
 EXTERN jint JNICALL Java_org_jnetpcap_Pcap_setNonBlock
 (JNIEnv *env, jobject obj, jint jnonblock, jobject jerrbuf) {
-	
+
 	if (jerrbuf == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
 	}
-	
+
 	char errbuf[PCAP_ERRBUF_SIZE];
 	errbuf[0] = '\0'; // Reset the buffer;
 
@@ -389,12 +390,12 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_setNonBlock
  */
 EXTERN jint JNICALL Java_org_jnetpcap_Pcap_getNonBlock
 (JNIEnv *env, jobject obj, jobject jerrbuf) {
-	
+
 	if (jerrbuf == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
 	}
-	
+
 	char errbuf[PCAP_ERRBUF_SIZE];
 	errbuf[0] = '\0'; // Reset the buffer;
 
@@ -427,7 +428,6 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_setDatalink
 	return pcap_set_datalink(p, value);
 }
 
-
 /*
  * Class:     org_jnetpcap_Pcap
  * Method:    snapshot
@@ -451,7 +451,7 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_snapshot
  */
 EXTERN jint JNICALL Java_org_jnetpcap_Pcap_datalinkNameToVal
 (JNIEnv *env, jclass clazz, jstring jname) {
-	
+
 	if (jname == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -584,12 +584,12 @@ EXTERN jstring JNICALL Java_org_jnetpcap_Pcap_libVersion
  */
 EXTERN jint JNICALL Java_org_jnetpcap_Pcap_findAllDevs
 (JNIEnv *env, jclass clazz, jobject jlist, jobject jerrbuf) {
-	
+
 	if (jlist == NULL || jerrbuf == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
 	}
-	
+
 	char errbuf[PCAP_ERRBUF_SIZE];
 	errbuf[0] = '\0'; // Reset the buffer;
 
@@ -602,22 +602,22 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_findAllDevs
 	}
 
 	if (alldevsp != NULL) {
-		jmethodID MID_add = findMethod(env, jlist, "add", 
+		jmethodID MID_add = findMethod(env, jlist, "add",
 				"(Ljava/lang/Object;)Z");
-		
+
 		jobject jpcapif = newPcapIf(env, jlist, MID_add, alldevsp);
 		if (jpcapif == NULL) {
 			return -1; // Out of memory
 		}
-		
+
 		if (env->CallBooleanMethod(jlist, MID_add, jpcapif) == JNI_FALSE) {
 			env->DeleteLocalRef(jpcapif);
-			
+
 			return -1; // Failed to add to the list
 		}
-		
+
 		env->DeleteLocalRef(jpcapif);
-		
+
 		return r;
 	}
 
@@ -638,12 +638,12 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_findAllDevs
 EXTERN jint JNICALL Java_org_jnetpcap_Pcap_compileNoPcap
 (JNIEnv *env, jclass clazz, jint snaplen, jint dlt,
 		jobject jbpf, jstring jstr, jint optimize, jint mask) {
-	
+
 	if (jbpf == NULL || jstr == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
 	}
-	
+
 	bpf_program src;
 
 	freeBpfProgramIfExists(env, jbpf);
@@ -654,12 +654,12 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_compileNoPcap
 	if (r != 0) {
 		return r;
 	}
-	
+
 	/*
 	 * Now make a copy and store reference to it in jbpf object
 	 */
 	bpfProgramInitFrom(env, jbpf, &src);
-	
+
 	/*
 	 * We're done with BPF copy of the code, we copied it and stored in PcapBpfProgram
 	 * object.
@@ -675,34 +675,34 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_compileNoPcap
  * Signature: (Lorg/jnetpcap/PcapBpfProgram;Ljava/lang/String;II)I
  */
 EXTERN jint JNICALL Java_org_jnetpcap_Pcap_compile
-  (JNIEnv *env, jobject obj, jobject jbpf, jstring jstr, jint optimize, jint mask) {
-	
+(JNIEnv *env, jobject obj, jobject jbpf, jstring jstr, jint optimize, jint mask) {
+
 	if (jbpf == NULL || jstr == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
 	}
-	
+
 	bpf_program src;
-	
+
 	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
 		return -1; // Exception already thrown
 	}
-	
+
 	freeBpfProgramIfExists(env, jbpf);
-	
+
 	char *str = (char *)env->GetStringUTFChars(jstr, 0);
 
 	int r = pcap_compile(p, &src, str, optimize, (bpf_u_int32) mask);
 	if (r != 0) {
 		return r;
 	}
-	
+
 	/*
 	 * Now make a copy and store reference to it in jbpf object
 	 */
 	bpfProgramInitFrom(env, jbpf, &src);
-	
+
 	/*
 	 * We're done with BPF copy of the code, we copied it and stored in PcapBpfProgram
 	 * object.
@@ -718,16 +718,15 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_compile
  * Signature: (Lorg/jnetpcap/PcapBpfProgram;)V
  */
 EXTERN void JNICALL Java_org_jnetpcap_Pcap_freecode
-  (JNIEnv *env, jclass clazz, jobject jbpf) {
-	
+(JNIEnv *env, jclass clazz, jobject jbpf) {
+
 	if (jbpf == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return;
 	}
-	
+
 	freeBpfProgramIfExists(env, jbpf);
 }
-
 
 /*
  * Class:     org_jnetpcap_Pcap
@@ -735,22 +734,57 @@ EXTERN void JNICALL Java_org_jnetpcap_Pcap_freecode
  * Signature: (Lorg/jnetpcap/PcapBpfProgram;)I
  */
 EXTERN jint JNICALL Java_org_jnetpcap_Pcap_setFilter
-  (JNIEnv *env, jobject obj, jobject jbpf) {
-	
+(JNIEnv *env, jobject obj, jobject jbpf) {
+
 	if (jbpf == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
 	}
-	
+
 	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
 		return -1; // Exception already thrown
 	}
-	
+
 	bpf_program *b = getBpfProgram(env, jbpf);
 	if (b == NULL) {
 		return -1; // Exception already thrown
 	}
-	
+
 	return pcap_setfilter(p, b);
+}
+
+/*
+ * Class:     org_jnetpcap_Pcap
+ * Method:    dumpOpen
+ * Signature: (Ljava/lang/String;)Lorg/jnetpcap/PcapDumper;
+ */
+EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_dumpOpen
+(JNIEnv *env, jobject obj, jstring jfname) {
+
+	if (jfname == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "fname argument is null");
+		return NULL;
+	}
+
+	pcap_t *p = getPcap(env, obj);
+	if (p == NULL) {
+		return NULL; // Exception already thrown
+	}
+
+	char *str = (char *)env->GetStringUTFChars(jfname, 0);
+	if (str[0] != '\0' && str[1] == '-' && str[2] == '\0') {
+		throwException(env, INVALID_ARGUMENT_EXCEPTION,
+				"use of '-' for dumping to stdout is not supported.");
+		return NULL;
+	}
+
+	pcap_dumper_t *d = pcap_dump_open(p, str);
+	if (d == NULL) {
+		return NULL; // Exception already thrown
+	}
+	
+	jobject jdumper = newPcapDumper(env, d);
+
+	return jdumper;
 }

@@ -9,6 +9,7 @@ extern "C" {
 #endif
 	
 #define ILLEGAL_STATE_EXCEPTION "java/lang/IllegalStateException"
+#define INVALID_ARGUMENT_EXCEPTION "java/leng/InvalidArgumentException"
 #define CLASS_NOT_FOUND_EXCEPTION "java/lang/ClassNotFoundException"
 #define NO_SUCH_METHOD_EXCEPTION "java/lang/NoSuchMethodException"
 #define NO_SUCH_FIELD_EXCEPTION "java/lang/NoSuchFieldException"

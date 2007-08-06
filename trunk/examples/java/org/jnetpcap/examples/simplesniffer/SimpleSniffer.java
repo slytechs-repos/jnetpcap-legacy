@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jnetpcap.Pcap;
+import org.jnetpcap.PcapBpfProgram;
 import org.jnetpcap.PcapDLT;
 import org.jnetpcap.PcapHandler;
 import org.jnetpcap.PcapIf;
@@ -87,6 +88,8 @@ public class SimpleSniffer {
 				}
 				tstamp = System.currentTimeMillis();
 
+				System.out.printf("caplen=%d len=%d\n", caplen, len);
+
 				if (bitRate.isEmpty() || packetRate.isEmpty()) {
 					return; // Nothing to print
 				}
@@ -109,13 +112,10 @@ public class SimpleSniffer {
 
 	public void openFirstFound(PcapDLT dlt) {
 
-		pcap = Pcap.openLive(
-		    "\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}", 32, 0, 60000,
-		    errbuf);
-
-		if (true)
-			return;
-
+//		pcap = Pcap.openLive(
+//		    "\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}", 32, 0, 60000,
+//		    errbuf);
+		
 		List<PcapIf> ifs = new ArrayList<PcapIf>();
 		if (Pcap.findAllDevs(ifs, errbuf) != 0) {
 			System.err.println("No interfaces found of specified type :" + dlt);
@@ -147,6 +147,15 @@ public class SimpleSniffer {
 			System.err.printf("Unable to find interface with dlt of %s\n", dlt);
 			return;
 		}
+
+		// Now apply a no-op filter so that snaplen will work
+		PcapBpfProgram prg = new PcapBpfProgram();
+		if (pcap.compile(prg, "len < 65535", 0, 0) == Pcap.NOT_OK) {
+			System.err.println("Error while setting filter: " + pcap.getErr());
+			return;
+		}
+		pcap.setFilter(prg);
+		System.out.println("Filter set OK");
 
 	}
 

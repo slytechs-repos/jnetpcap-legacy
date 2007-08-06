@@ -12,6 +12,8 @@
  */
 package org.jnetpcap;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -38,6 +40,18 @@ public class TestPcapJNI
 	private final static String fname = "tests/test-l2tp.pcap";
 
 	private static final int OK = 0;
+
+	private static File tmpFile;
+
+	static {
+		try {
+			tmpFile = File.createTempFile("temp-", "-TestPcapJNI");
+		} catch (IOException e) {
+			logger.error("Unable to create temporary file");
+			tmpFile = null;
+		}
+
+	}
 
 	/**
 	 * Command line launcher to run the jUnit tests cases in this test class.
@@ -134,6 +148,7 @@ public class TestPcapJNI
 	 */
 	protected void tearDown() throws Exception {
 		errbuf = null;
+		tmpFile.delete();
 	}
 
 	public void testCompileNoPcapNullPtrHandling() {
@@ -653,7 +668,7 @@ public class TestPcapJNI
 			/*
 			 * Tracking variables are used to make sure they can sustain their
 			 * assigned values. The bug caused fields and object state to be overriden
-			 * by object of PcapHandler type. 
+			 * by object of PcapHandler type.
 			 */
 			fail("Handler indicates that 2 tracking variables in 2 objects, "
 			    + "did not match");
@@ -663,7 +678,7 @@ public class TestPcapJNI
 
 		pcap.close();
 	}
-	
+
 	/**
 	 * <p>
 	 * Test case in response to
@@ -724,7 +739,7 @@ public class TestPcapJNI
 			/*
 			 * Tracking variables are used to make sure they can sustain their
 			 * assigned values. The bug caused fields and object state to be overriden
-			 * by object of PcapHandler type. 
+			 * by object of PcapHandler type.
 			 */
 			fail("Handler indicates that 2 tracking variables in 2 objects, "
 			    + "did not match");
@@ -734,4 +749,71 @@ public class TestPcapJNI
 
 		pcap.close();
 	}
+
+	public void testPcapDumperUsingLoop() {
+
+		Pcap pcap = Pcap.openOffline(fname, errbuf);
+		assertNotNull(errbuf.toString(), pcap);
+
+		PcapDumper dumper = pcap.dumpOpen(tmpFile.getPath());
+		assertNotNull(pcap.getErr(), dumper);
+
+		PcapHandler handler = new PcapHandler() {
+
+			public void nextPacket(Object userObject, long seconds, int useconds,
+			    int caplen, int len, ByteBuffer buffer) {
+				PcapDumper dumper = (PcapDumper) userObject;
+
+				dumper.dump(seconds, useconds, caplen, len, buffer);
+			}
+		};
+
+		int r = pcap.loop(Pcap.LOOP_INFINATE, handler, dumper);
+		assertTrue("Something happened in the loop", r == Pcap.OK);
+
+		dumper.close();
+		pcap.close();
+
+		// System.out.printf("%s: tmp=%d, source=%d\n", tmpFile.getName(), tmpFile
+		// .length(), new File(fname).length());
+		//
+		 assertEquals("dumped file and source file lengths don't match", tmpFile
+		    .length(), new File(fname).length());
+	}
+
+	public void testPcapDumperUsingDispatch() {
+
+		Pcap pcap = Pcap.openOffline(fname, errbuf);
+		assertNotNull(errbuf.toString(), pcap);
+
+		PcapDumper dumper = pcap.dumpOpen(tmpFile.getPath());
+		assertNotNull(pcap.getErr(), dumper);
+
+		PcapHandler handler = new PcapHandler() {
+
+			public void nextPacket(Object userObject, long seconds, int useconds,
+			    int caplen, int len, ByteBuffer buffer) {
+				PcapDumper dumper = (PcapDumper) userObject;
+
+				dumper.dump(seconds, useconds, caplen, len, buffer);
+			}
+		};
+
+		/*
+		 * Our test file is small, about 24K bytes in size, should fit inside a
+		 * buffer full.
+		 */
+		int r = pcap.dispatch(Pcap.DISPATCH_BUFFER_FULL, handler, dumper);
+		assertTrue("Something happened in dispatch", r == Pcap.OK);
+
+		dumper.close();
+		pcap.close();
+
+		// System.out.printf("%s: tmp=%d, source=%d\n", tmpFile.getName(), tmpFile
+		// .length(), new File(fname).length());
+		//
+		 assertEquals("dumped file and source file lengths don't match", tmpFile
+		    .length(), new File(fname).length());
+	}
+
 }
