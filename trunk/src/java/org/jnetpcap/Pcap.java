@@ -965,6 +965,49 @@ public class Pcap {
 	 * 
 	 * @param buf
 	 *          contains the data of the packet to send (including the various
+	 *          protocol headers)
+	 * @param offset
+	 *          offset of the first index into the byte array
+	 * @param length
+	 *          amount of data to write from the offset
+	 * @return 0 on success and -1 on failure
+	 */
+	public int sendPacket(final byte[] buf, int offset, int length) {
+		final ByteBuffer direct = ByteBuffer.allocateDirect(length);
+		direct.put(buf);
+
+		return sendPacketPrivate(direct, offset, length);
+	}
+
+	/**
+	 * This method allows to send a raw packet to the network. The MAC CRC doesn't
+	 * need to be included, because it is transparently calculated and added by
+	 * the network interface driver. The data will be taken from the supplied
+	 * buffer where the start of the packet is buffer's current position()
+	 * property and end its limit() properties.
+	 * 
+	 * @param buf
+	 *          contains the data of the packet to send (including the various
+	 *          protocol headers)
+	 * @return 0 on success and -1 on failure
+	 */
+	public int sendPacket(final byte[] buf) {
+		final int length = buf.length;
+		final ByteBuffer direct = ByteBuffer.allocateDirect(length);
+		direct.put(buf);
+
+		return sendPacketPrivate(direct, 0, length);
+	}
+
+	/**
+	 * This method allows to send a raw packet to the network. The MAC CRC doesn't
+	 * need to be included, because it is transparently calculated and added by
+	 * the network interface driver. The data will be taken from the supplied
+	 * buffer where the start of the packet is buffer's current position()
+	 * property and end its limit() properties.
+	 * 
+	 * @param buf
+	 *          contains the data of the packet to send (including the various
 	 *          protocol headers); the buffer should be a direct buffer; array
 	 *          based buffers will be copied into a direct buffer
 	 * @return 0 on success and -1 on failure
