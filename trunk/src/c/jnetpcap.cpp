@@ -427,21 +427,6 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_setDatalink
 	return pcap_set_datalink(p, value);
 }
 
-/*
- * Class:     org_jnetpcap_Pcap
- * Method:    setBuff
- * Signature: (I)I
- */
-EXTERN jint JNICALL Java_org_jnetpcap_Pcap_setBuff
-(JNIEnv *env, jobject obj, jint value) {
-
-	pcap_t *p = getPcap(env, obj);
-	if (p == NULL) {
-		return -1; // Exception already thrown
-	}
-
-	return pcap_setbuff(p, value);
-}
 
 /*
  * Class:     org_jnetpcap_Pcap
@@ -457,22 +442,6 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_snapshot
 	}
 
 	return pcap_snapshot(p);
-}
-
-/*
- * Class:     org_jnetpcap_Pcap
- * Method:    setMode
- * Signature: (I)I
- */
-EXTERN jint JNICALL Java_org_jnetpcap_Pcap_setMode
-(JNIEnv *env, jobject obj, jint value) {
-
-	pcap_t *p = getPcap(env, obj);
-	if (p == NULL) {
-		return -1; // Exception already thrown
-	}
-
-	return pcap_setmode(p, value);
 }
 
 /*
