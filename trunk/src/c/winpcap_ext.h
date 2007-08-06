@@ -1,8 +1,8 @@
 #include <jni.h>
 /* Header for jnetpcap_utils utility methods */
 
-#ifndef _Included_org_jnetpcap_Pcap
-#define _Included_org_jnetpcap_Pcap
+#ifndef _Included_org_jnetpcap_WinPcapExtensions
+#define _Included_org_jnetpcap_WinPcapExtensions
 #ifdef __cplusplus
 extern "C" {
 #define	EXTERN extern "C"

@@ -370,11 +370,15 @@
 
 			<class name="org.jnetpcap.Pcap" />
 			<class name="org.jnetpcap.PcapBpfProgram" />
+			<class name="org.jnetpcap.PcapDumper" />
+			<class name="org.jnetpcap.winpcap.WinPcap" />
 
 		</javah>
 
 		<echo message="Generating: ${build.include.dir}/org_jnetpcap_Pcap.h" />
 		<echo message="Generating: ${build.include.dir}/org_jnetpcap_PcapBpfProgram.h" />
+		<echo message="Generating: ${build.include.dir}/org_jnetpcap_PcapDumper.h" />
+		<echo message="Generating: ${build.include.dir}/org_jnetpcap_winpcap_WinPcap.h" />
 	</target>
 	
 	<!-- =================================================================== -->

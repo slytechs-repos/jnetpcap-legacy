@@ -12,7 +12,13 @@
  */
 package org.jnetpcap;
 
+import java.nio.ByteBuffer;
+
 /**
+ * A dumper that allows a previously opened pcap session to be dumped to a
+ * "savefile" which is a file containing captured packets in pcap file format.
+ * To get an object of type PcapDumper, use method <code>Pcap.dumpOpen</code>.
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
@@ -25,6 +31,39 @@ public class PcapDumper {
 	static {
 		initIDs();
 	}
+
+	/**
+	 * Outputs a packet to the "savefile" opened with <code>dumpOpen</code>.
+	 * Note that the calling arguments are suitable for use with dipstach() or
+	 * loop().
+	 * 
+	 * @param hdr
+	 * @param packet
+	 */
+	public void dump(PcapPkthdr hdr, ByteBuffer packet) {
+		dump(hdr.getSeconds(), hdr.getUseconds(), hdr.getCaplen(), hdr.getLen(),
+		    packet);
+	}
+
+	/**
+	 * Outputs a packet to the "savefile" opened with <code>dumpOpen</code>.
+	 * Note that the calling arguments are suitable for use with dipstach() or
+	 * loop(). This a convenience method, which takes the parameters of PcapPkthdr
+	 * class directly.
+	 * 
+	 * @param seconds
+	 *          timestamp in seconds
+	 * @param useconds
+	 *          timestamp fraction in microseconds
+	 * @param caplen
+	 *          how much was captured
+	 * @param len
+	 *          actual packet length on wire
+	 * @param packet
+	 *          packet buffer
+	 */
+	public native void dump(long seconds, int useconds, int caplen, int len,
+	    ByteBuffer packet);
 
 	/**
 	 * Returns the current file position for the "savefile", representing the

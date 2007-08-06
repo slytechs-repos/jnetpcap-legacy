@@ -325,6 +325,10 @@ public class Pcap {
 	static {
 		try {
 			init();
+			// Make sure some classes that are needed get loaded too
+			// we hold a Global reference to the class once initialized in JNI, will
+			// never be unloaded
+			Class.forName("org.jnetpcap.PcapDumper");
 		} catch (Exception e) {
 			initError = e;
 			logger.error("Unable to initialize JNI from static initializer: "
@@ -672,11 +676,11 @@ public class Pcap {
 	public native static Pcap openOffline(String fname, StringBuilder errbuf);
 
 	/**
-	 * Physical address of the peering <code>pcap_t</code> C structure on
-	 * native machine. <i>Libpcap</i> allocated this structure and deallocates it
-	 * when {@link #close} is called. This is the reason that in
-	 * {@link #finalize()} we call {@link #close} explicitely to let <i>Libpcap</i>
-	 * free up the structure.
+	 * Physical address of the peering <code>pcap_t</code> C structure on native
+	 * machine. <i>Libpcap</i> allocated this structure and deallocates it when
+	 * {@link #close} is called. This is the reason that in {@link #finalize()} we
+	 * call {@link #close} explicitely to let <i>Libpcap</i> free up the
+	 * structure.
 	 */
 	private volatile long physical;
 
@@ -1011,4 +1015,17 @@ public class Pcap {
 	public String toString() {
 		return "jNetPcap based on " + libVersion();
 	}
+
+	/**
+	 * Open a file to write packets. The <code>dumpOpen</code> method is called
+	 * to open a "savefile" for writing. The name '-' is a synonym for stdout.
+	 * 
+	 * @param fname
+	 *          specifies the name of the file to open; currently the libpcap
+	 *          option to open stdout by using "-" as a string, is not supported
+	 *          by jNetPcap
+	 * @return a dumper object or null on error; use <code>getErr</code> method
+	 *         to retrieve the error message
+	 */
+	public native PcapDumper dumpOpen(String fname);
 }
