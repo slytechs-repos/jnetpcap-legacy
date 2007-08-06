@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -45,7 +46,7 @@ public class TestPcapJNI
 
 	private static final int promisc = 1;
 
-	private static final int timeout = 1000;
+	private static final int oneSecond = 1000;
 
 	private static File tmpFile;
 
@@ -831,19 +832,42 @@ public class TestPcapJNI
 		    .length(), new File(fname).length());
 	}
 
-	public void testStats() {
+	public void SKIPtestStats() {
 		PcapStat stats = new PcapStat();
 
-		Pcap pcap = Pcap.openLive(device, snaplen, promisc, timeout, errbuf);
+		Pcap pcap = Pcap.openLive(device, snaplen, promisc, oneSecond, errbuf);
 
 		pcap.loop(5, doNothingHandler, null);
 		pcap.stats(stats);
 		System.out.printf("stats=%s\n", stats.toString());
-	
+
 		pcap.loop(5, doNothingHandler, null);
 		pcap.stats(stats);
 		System.out.printf("stats=%s\n", stats.toString());
 
 		pcap.close();
+	}
+
+	/**
+	 * This is a tricky test that must be disabled by default. We create a dummy
+	 * packet all filled with 0xFF for 14 bytes which is the size of ethernet
+	 * frame. This should produce a broadcast frame.
+	 */
+	public void SKIPtestSendPacket() {
+
+		Pcap pcap = Pcap.openLive(device, snaplen, 1, 10 * oneSecond, errbuf);
+		assertNotNull(pcap);
+		
+		byte[] a = new byte[14];
+		Arrays.fill(a, (byte) 0xff);
+		
+		ByteBuffer b = ByteBuffer.wrap(a);
+		
+		if (pcap.sendPacket(b) != Pcap.OK) {
+			fail(pcap.getErr());
+		}
+
+		pcap.close();
+
 	}
 }
