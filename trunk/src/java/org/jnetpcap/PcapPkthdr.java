@@ -23,13 +23,13 @@ package org.jnetpcap;
  */
 public class PcapPkthdr {
 
-	private long seconds;
+	private volatile long seconds;
 
-	private int useconds;
+	private volatile int useconds;
 
-	private int caplen;
+	private volatile int caplen;
 
-	private int len;
+	private volatile int len;
 
 	/**
 	 * Capture timestamp in seconds.
