@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="javadoc">
+    <target name="javadoc">
+        <javadoc 
+        	access="public" 
+        	author="true" 
+        	destdir="build/docs" 
+        	doctitle="jNetPcap" 
+        	nodeprecated="false" 
+        	nodeprecatedlist="false" 
+        	noindex="false" 
+        	nonavbar="false" 
+        	notree="false" 
+        	overview="C:\jnetstream\jNetPcap\src\java\overview.html" 
+        	packagenames="org.jnetpcap.*" 
+        	source="1.5" 
+        	sourcefiles="src/java/org/jnetpcap/PcapBpfProgram.java,src/java/org/jnetpcap/PcapDumper.java,src/java/org/jnetpcap/PcapPkthdr.java,src/java/org/jnetpcap/PcapPktbuffer.java,src/java/org/jnetpcap/PcapStat.java,src/java/org/jnetpcap/PcapDLT.java,src/java/org/jnetpcap/PcapSockaddr.java,src/java/org/jnetpcap/PcapIf.java,src/java/org/jnetpcap/PcapAddr.java,src/java/org/jnetpcap/Pcap.java,src/java/org/jnetpcap/PcapHandler.java" 
+        	sourcepath="src/java" 
+        	splitindex="true" 
+        	use="true" 
+        	version="true"/>
+    </target>
+</project>

@@ -1,6 +1,5 @@
 <body>
-<p><em>jNetPCAP</em> is a complete and comprehensive Java wrapper
-around the popular libpcap and winpcap from tcpdump.org folks. jNetPCAP
+<p>Core libpcap functionality available on all platforms. jNetPCAP
 uses Java JNI (Java Native Interface) extensions that are platform
 specific to give access to libpcap functionality from java programs. The
 goal of jNetPCAP was to stick as close as possible to the actual libpcap
@@ -8,52 +7,6 @@ API so that another API did not have to be learned. Thus its fairely
 easy to pickup with jNetPCAP and use it right away if you are familiar
 with existing "C" counter part libpcap and winpcap libraries.</p>
 
-<p>This document describes the usage, implementation details and few
-differences between jNetPcap API and the various back end libpcap
-implementations. Java is after all OOPL (Object Oriented Programming
-Language). Pcap class only provides the standard libpcap equivelent
-calls. Extensions to libpcap are described in their own sub packages
-such as <code>org.jnetpcap.winpcap</code> which provides platform
-specific WinPcap extensions.</p>
-<p><b> Feature highlights:</b>
-<ul>
-	<li>Follows native <em>Libpcap</em> programming model. This makes
-	learning <em>jNetPcap</em> API easy.</li>
-	<li><b> No packet buffer copies between Libpcap and java
-	space. </b>Existing native in-memory buffer is wrapped inside a <code>java.nio.ByteBuffer</code>
-	object.</li>
-	<li>Low level and efficient JNI implementation.</li>
-	<li>Provides some very low level functions previously not
-	available in Java space. i.e. <code>setBuffer</code> for changing
-	buffer size and others.</li>
-	<li>Very small library footprint</li>
-</ul>
-
-<h2>Project website and the native <em>Libpcap</em> connection</h2>
-
-<p>Since <em>jNetPcap</em> is very closely mapped to native <em>Libpcap</em>
-library functions, users are encouraged to read libpcap documentation at
-<a href="http://tcpdump.org">tcpdump.org</a>. You can visit <em>jNetPcap</em>
-project website for for more information and a user guide with tutorials
-at <a href="http://jnetpcap.sf.net">http://jnetpcap.sf.net</a> .</p>
-
-<h2>Java requirements</h2>
-<em>jNetPcap</em>
-requires Java JRE 1.5. All other requirements for this package are
-included as part of all distributions. All logging messages are logged
-using logger neutral
-<em>commons-logging</em>
-from Apache Foundation. jUnit tests are not distributed with the binary
-release, but are distributed with the source package. Any jUnit library
-is sufficient to run all jUnit test cases. Build environment requires
-ANT, ANT's contrib
-<em>cpptasks</em>
-, and a C++ compiler. Currently jNetPcap compiles using
-<em>MinGW</em>
-gcc compiler and environment on win32 platform and under regular gnu gcc
-on linux. No
-<em>Makefiles</em>
-are used nor required.
 <h2>Getting Started!</h2>
 <p>The starting point for <em>jNetPcap</em> is the <a
 	href="Pcap.html">Pcap class</a> </b> . The <code>Pcap</code> class works

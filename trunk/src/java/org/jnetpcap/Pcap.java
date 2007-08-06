@@ -737,6 +737,9 @@ public class Pcap {
 	public native void close();
 
 	/**
+	 * Compile a packet filter, converting a high level filtering expression in to
+	 * a progra that can be interpreted by the kernel-level filtering engine.
+	 * 
 	 * @param program
 	 *          initially empty, but after the method call will contain the
 	 *          compiled BPF program
@@ -971,7 +974,7 @@ public class Pcap {
 			final int length = buf.limit() - buf.position();
 			final ByteBuffer direct = ByteBuffer.allocateDirect(length);
 			direct.put(buf);
-			
+
 			return sendPacketPrivate(direct, 0, length);
 		} else {
 			return sendPacketPrivate(buf, buf.position(), buf.limit()

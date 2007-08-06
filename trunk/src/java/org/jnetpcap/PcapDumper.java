@@ -24,7 +24,8 @@ import java.nio.ByteBuffer;
  */
 public class PcapDumper {
 
-	private volatile long physical;
+	@SuppressWarnings("unused")
+  private volatile long physical;
 
 	private static native void initIDs();
 

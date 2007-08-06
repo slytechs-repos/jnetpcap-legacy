@@ -454,7 +454,9 @@
 	<target name="comp-javadoc" depends="prep-javadoc">
 		<javadoc 
 			sourcepath="${src.java.dir}" 
-			destdir="${build.javadoc.dir}" 
+			destdir="${build.javadoc.dir}"
+			doctitle="${doc.javadoc.title}"
+			overview="${doc.javadoc.overview.html}"
 			packagenames="org.jnetpcap.*" 
 			classpathref="javadoc.classpath"
 		/>
