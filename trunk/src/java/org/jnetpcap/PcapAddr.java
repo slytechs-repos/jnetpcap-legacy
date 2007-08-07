@@ -40,13 +40,13 @@ public final class PcapAddr {
 
 	private volatile PcapAddr next;
 
-	private volatile PcapSockaddr addr;
+	private volatile PcapSockAddr2 addr;
 
-	private volatile PcapSockaddr netmask;
+	private volatile PcapSockAddr2 netmask;
 
-	private volatile PcapSockaddr broadaddr;
+	private volatile PcapSockAddr2 broadaddr;
 
-	private volatile PcapSockaddr dstaddr;
+	private volatile PcapSockAddr2 dstaddr;
 
 	/**
 	 * @return the next
@@ -61,7 +61,7 @@ public final class PcapAddr {
 	 * 
 	 * @return the addr
 	 */
-	public final PcapSockaddr getAddr() {
+	public final PcapSockAddr2 getAddr() {
 		return this.addr;
 	}
 
@@ -70,7 +70,7 @@ public final class PcapAddr {
 	 * 
 	 * @return the netmask
 	 */
-	public final PcapSockaddr getNetmask() {
+	public final PcapSockAddr2 getNetmask() {
 		return this.netmask;
 	}
 
@@ -79,7 +79,7 @@ public final class PcapAddr {
 	 * 
 	 * @return the broadaddr
 	 */
-	public final PcapSockaddr getBroadaddr() {
+	public final PcapSockAddr2 getBroadaddr() {
 		return this.broadaddr;
 	}
 
@@ -88,7 +88,7 @@ public final class PcapAddr {
 	 * 
 	 * @return the dstaddr
 	 */
-	public final PcapSockaddr getDstaddr() {
+	public final PcapSockAddr2 getDstaddr() {
 		return this.dstaddr;
 	}
 
