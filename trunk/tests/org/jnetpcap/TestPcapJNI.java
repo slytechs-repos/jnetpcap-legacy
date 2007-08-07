@@ -23,9 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import sun.rmi.runtime.Log;
 
 /**
  * @author Mark Bednarczyk
@@ -33,8 +31,6 @@ import org.apache.commons.logging.LogFactory;
  */
 public class TestPcapJNI
     extends TestCase {
-
-	private static final Log logger = LogFactory.getLog(TestPcapJNI.class);
 
 	private final static String device = "\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
 
@@ -54,7 +50,6 @@ public class TestPcapJNI
 		try {
 			tmpFile = File.createTempFile("temp-", "-TestPcapJNI");
 		} catch (IOException e) {
-			logger.error("Unable to create temporary file");
 			tmpFile = null;
 		}
 
@@ -106,7 +101,6 @@ public class TestPcapJNI
 
 			return;
 		}
-		logger.info("Running jNetPcap jUnit tests cases.");
 
 		TestRunner.main(new String[] { "org.jnetpcap.TestPcapJNI" });
 

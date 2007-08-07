@@ -17,8 +17,6 @@ import java.util.Date;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jnetpcap.winpcap.WinPcap;
 import org.jnetpcap.winpcap.WinPcapStat;
 
@@ -26,15 +24,13 @@ import org.jnetpcap.winpcap.WinPcapStat;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@SuppressWarnings("unused")
 public class TestWinPcapExtensions
     extends TestCase {
 
-	@SuppressWarnings("unused")
-	private static final Log logger = LogFactory.getLog(TestPcapJNI.class);
-
 	private final static String device = "\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
 
-	private final static String fname = "tests/test-l2tp.pcap";
+  private final static String fname = "tests/test-l2tp.pcap";
 
 	private static final int OK = 0;
 
