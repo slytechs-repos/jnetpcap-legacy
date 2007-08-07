@@ -1,0 +1,651 @@
+    
+<html>
+<head>
+  <meta http-equiv="Content-Language" content="en-us">
+  <title>cc
+ Task</title>
+</head>
+
+<body bgcolor="#ffffff" text="#000000" link="#525D76"
+      alink="#525D76" vlink="#525D76">
+
+<table border="0" width="100%" cellspacing="4">
+
+  <!-- PAGE HEADER -->
+  <tr>
+    <td>
+      <table border="0" width="100%"><tr>
+          <td valign="bottom">
+            <font size="+3" face="arial,helvetica,sanserif"><strong>cc
+ Task</strong></font>
+            <br><font face="arial,helvetica,sanserif">Compile and link task.</font>
+          </td>
+          <td>
+            <!-- PROJECT LOGO -->
+            <a href="http://ant.apache.org/">
+              <img src="http://sourceforge.net/sflogo.php?group_id=36177&amp;type=4" align="right" alt="SourceForge logo" border="0"/>
+            </a>
+          </td>
+      </tr></table>
+    </td>
+  </tr>
+
+  <!-- START RIGHT SIDE MAIN BODY -->
+  <tr>
+    <td  valign="top" align="left">
+
+          <!-- Applying task/long-description -->
+    <!-- Start Description -->
+    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td>&nbsp;</td></tr>
+
+      <tr><td bgcolor="#525D76">
+        <font color="#ffffff" face="arial,helvetica.sanserif">
+          <a name="description">
+          <strong>Description</strong></a></font>
+      </td></tr>
+
+      <tr><td><blockquote>
+        Compile and link task. <p> This task can compile various source languages and produce executables, shared libraries (aka DLL's) and static libraries. Compiler adaptors are currently available for several C/C++ compilers, FORTRAN, MIDL and Windows Resource files. </p> <p> Copyright (c) 2001-2006, The Ant-Contrib project. </p> <p> Licensed under the Apache Software License 2.0, http://www.apache.org/licenses/LICENSE-2.0. </p> <p> For use with Apache Ant 1.5 or later. This software is not a product of the of the Apache Software Foundation and no endorsement is implied. </p> <p> THIS SOFTWARE IS PROVIDED 'AS-IS', See http://www.apache.org/licenses/LICENSE-2.0 for additional disclaimers. </p> To use: <ol> <li>Place cpptasks.jar into Ant's classpath by placing in Ant's lib directory, adding to CLASSPATH environment variable or using the -lib command line option.</li> <li>Add type and task definitions in build file: <ul><li>Ant 1.6 or later: add xmlns:cpptasks="antlib:org.sf.net.antcontrib.cpptasks" to &lt;project&gt; element.</li> <li>Ant 1.5 or later: Add &lt;taskdef resource="cpptasks.tasks"/&gt; and &lt;typedef resource="cpptasks.types"/&gt; to body of &lt;project&gt; element.</li></ul></li> <li>Add &lt;cc/&gt;, &lt;compiler/&gt; and &lt;linker/&gt elements to project.</li> <li>Set path and environment variables to be able to run compiler from command line.</li> <li>Build project.</li> </ol>
+      </blockquote></td></tr>
+
+    </table>
+    <!-- End Description -->
+
+ <!-- Ignore -->
+
+
+
+    <!-- Start Attributes -->
+    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td>&nbsp;</td></tr>
+      <tr><td bgcolor="#525D76">
+        <font color="#ffffff" face="arial,helvetica.sanserif">
+          <a name="attributes">
+          <strong>Parameters</strong></a></font>
+      </td></tr>
+      <tr><td><blockquote>
+        <table>
+          <tr>
+        <td bgcolor="#cccccc" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif"><b>Attribute</b></font>
+        </td>
+        <td bgcolor="#cccccc" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif"><b>Description</b></font>
+        </td>
+        <td bgcolor="#cccccc" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif"><b>Type</b></font>
+        </td>
+        <td bgcolor="#cccccc" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif"><b>Requirement</b></font>
+        </td>
+          </tr>
+    <!-- Attribute Group -->    
+    
+    <!-- Attribute Group -->    
+        <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">classname</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Sets the default compiler adapter. Use the "name" attribute when the compiler is a supported compiler.</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">String</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left" rowspan="24">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Optional</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">dataset</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Sets the dataset for OS/390 builds.</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">String</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">debug</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Enables or disables generation of debug info.</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">boolean</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">dependencydepth</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Deprecated.  Controls the depth of the dependency evaluation. Used to do a quick check of changes before a full build.  Any negative value which will perform full dependency checking. Positive values will truncate dependency checking. A value of 0 will cause only those files that changed to be recompiled, a value of 1 which cause files that changed or that explicitly include a file that changed to be recompiled.  Any non-negative value will cause a BuildException to be thrown before attempting a link or completing the task.</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">int</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">exceptions</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Enables generation of exception handling code</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">boolean</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">failonerror</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Indicates whether the build will continue even if there are compilation errors; defaults to true.</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">boolean</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">incremental</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Enables or disables incremental linking.</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">boolean</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">libtool</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Set use of libtool. If set to true, the "libtool " will be prepended to the command line for compatible processors</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">boolean</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">link</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Sets the output file type. Supported values "executable", "shared", and "static". Deprecated, specify outtype instead.</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">"executable", "plugin", "shared", "static"</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">multithreaded</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Enables or disables generation of multithreaded code</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">boolean</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">name</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Sets type of the default compiler and linker.  <table width="100%" border="1"> <thead>Supported compilers </thead> <tr> <td>gcc (default)</td> <td>GCC C++ compiler</td> </tr> <tr> <td>g++</td> <td>GCC C++ compiler</td> </tr> <tr> <td>c++</td> <td>GCC C++ compiler</td> </tr> <tr> <td>g77</td> <td>GNU FORTRAN compiler</td> </tr> <tr> <td>msvc</td> <td>Microsoft Visual C++</td> </tr> <tr> <td>bcc</td> <td>Borland C++ Compiler</td> </tr> <tr> <td>msrc</td> <td>Microsoft Resource Compiler</td> </tr> <tr> <td>brc</td> <td>Borland Resource Compiler</td> </tr> <tr> <td>df</td> <td>Compaq Visual Fortran Compiler</td> </tr> <tr> <td>midl</td> <td>Microsoft MIDL Compiler</td> </tr> <tr> <td>icl</td> <td>Intel C++ compiler for Windows (IA-32)</td> </tr> <tr> <td>ecl</td> <td>Intel C++ compiler for Windows (IA-64)</td> </tr> <tr> <td>icc</td> <td>Intel C++ compiler for Linux (IA-32)</td> </tr> <tr> <td>ecc</td> <td>Intel C++ compiler for Linux (IA-64)</td> </tr> <tr> <td>CC</td> <td>Sun ONE C++ compiler</td> </tr> <tr> <td>aCC</td> <td>HP aC++ C++ Compiler</td> </tr> <tr> <td>os390</td> <td>OS390 C Compiler</td> </tr> <tr> <td>os400</td> <td>Icc Compiler</td> </tr> <tr> <td>sunc89</td> <td>Sun C89 C Compiler</td> </tr> <tr> <td>xlC</td> <td>VisualAge C Compiler</td> </tr> <tr> <td>uic</td> <td>Qt user interface compiler (creates .h, .cpp and moc_*.cpp files).</td> </tr> <tr> <td>moc</td> <td>Qt meta-object compiler</td> </tr> <tr> <td>xpidl</td> <td>Mozilla xpidl compiler (creates .h and .xpt files).</td> </tr> <tr> <td>wcl</td> <td>OpenWatcom C/C++ compiler</td> </tr> <tr> <td>wfl</td> <td>OpenWatcom FORTRAN compiler</td> </tr> </table></font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">"gcc", "g++", "c++", "g77", "msvc", "bcc", "msrc", "brc", "df", "midl", "icl", "ecl", "icc", "ecc", "CC", "aCC", "os390", "os400", "sunc89", "xlC", "cl6x", "cl55", "armcc", "armcpp", "tcc", "tcpp", "sparc-sun-solaris2-gcc", "sparc-sun-solaris2-g++", "sparc-sun-solaris2-c++", "sparc-sun-solaris2-g77", "gcc-cross", "g++-cross", "c++-cross", "g77-cross", "uic", "moc", "xpidl", "wcl", "wfl"</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">newenvironment</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Do not propagate old environment when new environment variables are specified.</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">boolean</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">objdir</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Sets the destination directory for object files. Generally this should be a property expression that evaluates to distinct debug and release object file directories.</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">File</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">optimize</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Sets optimization.</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">"none", "size", "minimal", "speed", "full", "aggressive", "extreme", "unsafe"</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">outfile</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Sets the output file name. If not specified, the task will only compile files and not attempt to link. If an extension is not specified, the task may use a system appropriate extension and prefix, for example, outfile="example" may result in "libexample.so" being created.</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">File</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">outputfileproperty</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Specifies the name of a property to set with the physical filename that is produced by the linker</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">String</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">outtype</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Sets the output file type. Supported values "executable", "shared", and "static".</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">"executable", "plugin", "shared", "static"</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">projectsonly</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif"></font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">boolean</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">rebuild</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">If set to true, all files will be rebuilt.</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">boolean</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">relentless</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">If set to true, compilation errors will not stop the task until all files have been attempted.</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">boolean</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">rtti</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Enables run-time type information.</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">boolean</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">runtime</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Sets the type of runtime library, possible values "dynamic", "static".</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">"dynamic", "static"</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">subsystem</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Sets the nature of the subsystem under which that the program will execute. <table width="100%" border="1"> <thead>Supported subsystems </thead> <tr> <td>gui</td> <td>Graphical User Interface</td> </tr> <tr> <td>console</td> <td>Command Line Console</td> </tr> <tr> <td>other</td> <td>Other</td> </tr> </table></font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">"gui", "console", "other"</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">warnings</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Enumerated attribute with the values "none", "severe", "default", "production", "diagnostic", and "failtask".</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">"none", "severe", "default", "production", "diagnostic", "aserror"</font>
+        </td>
+    </tr>
+
+
+        </table>
+      </blockquote></td></tr>
+
+    </table>
+    <!-- End Attributes -->
+
+    <!-- Start Elements -->
+    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td>&nbsp;</td></tr>
+
+      <tr><td bgcolor="#525D76">
+        <font color="#ffffff" face="arial,helvetica.sanserif">
+          <a name="elements">
+          <strong>Parameters as nested elements</strong></a></font>
+      </td></tr>
+
+      <tr><td><blockquote>
+    <!-- Start Element -->
+    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td>&nbsp;</td></tr>
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica.sanserif" size="-1">
+          <strong><a href="compiler.html" style="color: white">compiler</a></strong></font>
+      </td></tr>
+      <tr><td><blockquote>
+        Adds a compiler definition or reference.
+ <!-- Ignore -->
+ <!-- Ignore -->
+
+      </blockquote></td></tr>
+    </table>
+    <!-- End Element -->
+    <!-- Start Element -->
+    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td>&nbsp;</td></tr>
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica.sanserif" size="-1">
+          <strong><a href="compilerarg.html" style="color: white">compilerarg</a></strong></font>
+      </td></tr>
+      <tr><td><blockquote>
+        Adds a compiler command-line arg. Argument will be inherited by all nested compiler elements that do not have inherit="false".
+ <!-- Ignore -->
+ <!-- Ignore -->
+
+      </blockquote></td></tr>
+    </table>
+    <!-- End Element -->
+    <!-- Start Element -->
+    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td>&nbsp;</td></tr>
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica.sanserif" size="-1">
+          <strong><a href="defineset.html" style="color: white">defineset</a></strong></font>
+      </td></tr>
+      <tr><td><blockquote>
+        Adds a defineset. Will be inherited by all compiler elements that do not have inherit="false".
+ <!-- Ignore -->
+ <!-- Ignore -->
+
+      </blockquote></td></tr>
+    </table>
+    <!-- End Element -->
+    <!-- Start Element -->
+    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td>&nbsp;</td></tr>
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica.sanserif" size="-1">
+          <strong><a href="distributer.html" style="color: white">distributer</a></strong></font>
+      </td></tr>
+      <tr><td><blockquote>
+        Adds a distributer definition or reference (Non-functional prototype).
+ <!-- Ignore -->
+ <!-- Ignore -->
+
+      </blockquote></td></tr>
+    </table>
+    <!-- End Element -->
+    <!-- Start Element -->
+    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td>&nbsp;</td></tr>
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica.sanserif" size="-1">
+          <strong><a href="linker.html" style="color: white">linker</a></strong></font>
+      </td></tr>
+      <tr><td><blockquote>
+        Adds a linker definition. The first linker that is not disqualified by its "if" and "unless" attributes will perform the link. If no child linker element is active, the linker implied by the cc elements name or classname attribute will be used.
+ <!-- Ignore -->
+ <!-- Ignore -->
+
+      </blockquote></td></tr>
+    </table>
+    <!-- End Element -->
+    <!-- Start Element -->
+    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td>&nbsp;</td></tr>
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica.sanserif" size="-1">
+          <strong><a href="linkerarg.html" style="color: white">linkerarg</a></strong></font>
+      </td></tr>
+      <tr><td><blockquote>
+        Adds a linker command-line arg. Argument will be inherited by all nested linker elements that do not have inherit="false".
+ <!-- Ignore -->
+ <!-- Ignore -->
+
+      </blockquote></td></tr>
+    </table>
+    <!-- End Element -->
+    <!-- Start Element -->
+    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td>&nbsp;</td></tr>
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica.sanserif" size="-1">
+          <strong><a href="target.html" style="color: white">target</a></strong></font>
+      </td></tr>
+      <tr><td><blockquote>
+        Adds a target definition or reference (Non-functional prototype).
+ <!-- Ignore -->
+ <!-- Ignore -->
+
+      </blockquote></td></tr>
+    </table>
+    <!-- End Element -->
+    <!-- Start Element -->
+    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td>&nbsp;</td></tr>
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica.sanserif" size="-1">
+          <strong><a href="versioninfo.html" style="color: white">versioninfo</a></strong></font>
+      </td></tr>
+      <tr><td><blockquote>
+        Adds desriptive version information to be included in the generated file.  The first active version info block will be used.
+ <!-- Ignore -->
+ <!-- Ignore -->
+
+      </blockquote></td></tr>
+    </table>
+    <!-- End Element -->
+    <!-- Start Element -->
+    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td>&nbsp;</td></tr>
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica.sanserif" size="-1">
+          <strong><a href="fileset.html" style="color: white">fileset</a></strong></font>
+      </td></tr>
+      <tr><td><blockquote>
+        Adds a source file set.  Files in these filesets will be auctioned to the available compiler configurations, with the default compiler implied by the cc element bidding last. If no compiler is interested in the file, it will be passed to the linker.  To have a file be processed by a particular compiler configuration, add a fileset to the corresponding compiler element.
+ <!-- Ignore -->
+ <!-- Ignore -->
+
+      </blockquote></td></tr>
+    </table>
+    <!-- End Element -->
+    <!-- Start Element -->
+    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td>&nbsp;</td></tr>
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica.sanserif" size="-1">
+          <strong><a href="libset.html" style="color: white">libset</a></strong></font>
+      </td></tr>
+      <tr><td><blockquote>
+        Adds a library set. Library sets will be inherited by all linker elements that do not have inherit="false".
+ <!-- Ignore -->
+ <!-- Ignore -->
+
+      </blockquote></td></tr>
+    </table>
+    <!-- End Element -->
+    <!-- Start Element -->
+    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td>&nbsp;</td></tr>
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica.sanserif" size="-1">
+          <strong><a href="project.html" style="color: white">project</a></strong></font>
+      </td></tr>
+      <tr><td><blockquote>
+        Specifies the generation of IDE project file. Experimental.
+ <!-- Ignore -->
+ <!-- Ignore -->
+
+      </blockquote></td></tr>
+    </table>
+    <!-- End Element -->
+    <!-- Start Element -->
+    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td>&nbsp;</td></tr>
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica.sanserif" size="-1">
+          <strong><a href="syslibset.html" style="color: white">syslibset</a></strong></font>
+      </td></tr>
+      <tr><td><blockquote>
+        Adds a system library set. Timestamps and locations of system library sets are not used in dependency analysis. Essential libraries (such as C Runtime libraries) should not be specified since the task will attempt to identify the correct libraries based on the multithread, debug and runtime attributes. System library sets will be inherited by all linker elements that do not have inherit="false".
+ <!-- Ignore -->
+ <!-- Ignore -->
+
+      </blockquote></td></tr>
+    </table>
+    <!-- End Element -->
+    <!-- Start Element -->
+    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td>&nbsp;</td></tr>
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica.sanserif" size="-1">
+          <strong><a href="includepath.html" style="color: white">includepath</a></strong></font>
+      </td></tr>
+      <tr><td><blockquote>
+        Adds an include path.  Include paths will be inherited by nested compiler elements that do not have inherit="false".
+ <!-- Ignore -->
+ <!-- Ignore -->
+
+      </blockquote></td></tr>
+    </table>
+    <!-- End Element -->
+    <!-- Start Element -->
+    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td>&nbsp;</td></tr>
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica.sanserif" size="-1">
+          <strong><a href="precompile.html" style="color: white">precompile</a></strong></font>
+      </td></tr>
+      <tr><td><blockquote>
+        Specifies precompilation prototype file and exclusions. Inherited by all compilers that do not have inherit="false".
+ <!-- Ignore -->
+ <!-- Ignore -->
+
+      </blockquote></td></tr>
+    </table>
+    <!-- End Element -->
+    <!-- Start Element -->
+    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td>&nbsp;</td></tr>
+      <tr><td bgcolor="#828DA6">
+        <font color="#ffffff" face="arial,helvetica.sanserif" size="-1">
+          <strong><a href="sysincludepath.html" style="color: white">sysincludepath</a></strong></font>
+      </td></tr>
+      <tr><td><blockquote>
+        Adds a system include path. Locations and timestamps of files located using the system include paths are not used in dependency analysis.   Standard include locations should not be specified. The compiler adapters should recognized the settings from the appropriate environment variables or configuration files.  System include paths will be inherited by nested compiler elements that do not have inherit="false".
+ <!-- Ignore -->
+ <!-- Ignore -->
+
+      </blockquote></td></tr>
+    </table>
+    <!-- End Element -->
+
+      </blockquote></td></tr>
+
+    </table>
+    <!-- End Elements -->
+
+
+    </td>
+  </tr>
+  <!-- END RIGHT SIDE MAIN BODY -->
+
+  <!-- FOOTER SEPARATOR -->
+  <tr>
+    <td>
+      <hr noshade="" size="1"/>
+    </td>
+  </tr>
+
+  <!-- PAGE FOOTER -->
+  <tr>
+    <td>
+      <div align="center"><font color="#525D76" size="-1"><em>
+        Copyright &#169; 2001-2005, Ant-Contrib Project
+      </em></font></div>
+    </td>
+  </tr>
+
+</table>
+
+</body>
+</html>
