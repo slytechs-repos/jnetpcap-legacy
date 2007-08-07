@@ -20,10 +20,10 @@ extern jclass pcapSockaddrClass;
 
 extern jfieldID pcapPhysicalFID;
 
-extern 	jfieldID pcapPkthdrSecondsFID;
-extern 	jfieldID pcapPkthdrUSecondsFID;
-extern 	jfieldID pcapPkthdrCaplenFID;
-extern 	jfieldID pcapPkthdrLenFID;
+extern 	jfieldID PcapPktHdrSecondsFID;
+extern 	jfieldID PcapPktHdrUSecondsFID;
+extern 	jfieldID PcapPktHdrCaplenFID;
+extern 	jfieldID PcapPktHdrLenFID;
 
 extern 	jfieldID PcapPktBufferFID;
 

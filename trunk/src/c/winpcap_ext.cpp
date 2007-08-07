@@ -276,7 +276,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_setMinToCopy
 /*
  * Class:     org_jnetpcap_winpcap_WinPcap
  * Method:    offlineFilter
- * Signature: (Lorg/jnetpcap/PcapBpfProgram;Lorg/jnetpcap/PcapPkthdr;Ljava/nio/ByteBuffer;)I
+ * Signature: (Lorg/jnetpcap/PcapBpfProgram;Lorg/jnetpcap/PcapPktHdr;Ljava/nio/ByteBuffer;)I
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_offlineFilter
 (JNIEnv *env, jclass clazz, jobject jbpf, jobject jhdr, jobject jbuf) {

@@ -162,20 +162,20 @@ void setPhysical(JNIEnv *env, jobject obj, jlong value) {
 
 void setPktHeader(JNIEnv *env, jobject jpkt_header, pcap_pkthdr *pkt_header) {
 
-	env->SetLongField(jpkt_header, pcapPkthdrSecondsFID,
+	env->SetLongField(jpkt_header, PcapPktHdrSecondsFID,
 			(jlong)pkt_header->ts.tv_sec);
 
-	env->SetIntField(jpkt_header, pcapPkthdrUSecondsFID,
+	env->SetIntField(jpkt_header, PcapPktHdrUSecondsFID,
 			(jint)pkt_header->ts.tv_usec);
 
-	env->SetIntField(jpkt_header, pcapPkthdrCaplenFID, (jint)pkt_header->caplen);
+	env->SetIntField(jpkt_header, PcapPktHdrCaplenFID, (jint)pkt_header->caplen);
 
-	env->SetIntField(jpkt_header, pcapPkthdrLenFID, (jint)pkt_header->len);
+	env->SetIntField(jpkt_header, PcapPktHdrLenFID, (jint)pkt_header->len);
 }
 
 /*
  * Function: getPktHeader
- * Description: extracts the contents of PcapPkthdr java object into a
+ * Description: extracts the contents of PcapPktHdr java object into a
  *              pcap_pkthdr structure.
  * Return: the supplied structured filled in or if null, new allocated one.
  */
@@ -185,13 +185,13 @@ pcap_pkthdr *getPktHeader(JNIEnv *env, jobject jpkt_header, pcap_pkthdr *pkt_hea
 		pkt_header = (pcap_pkthdr *) malloc(sizeof(pcap_pkthdr));
 	}
 
-	pkt_header->ts.tv_sec = (int) env->GetLongField(jpkt_header, pcapPkthdrSecondsFID);
+	pkt_header->ts.tv_sec = (int) env->GetLongField(jpkt_header, PcapPktHdrSecondsFID);
 
-	pkt_header->ts.tv_usec = (int) env->GetIntField(jpkt_header, pcapPkthdrUSecondsFID);
+	pkt_header->ts.tv_usec = (int) env->GetIntField(jpkt_header, PcapPktHdrUSecondsFID);
 
-	pkt_header->caplen = (int) env->GetIntField(jpkt_header, pcapPkthdrCaplenFID);
+	pkt_header->caplen = (int) env->GetIntField(jpkt_header, PcapPktHdrCaplenFID);
 
-	pkt_header->len = (int) env->GetIntField(jpkt_header, pcapPkthdrLenFID);
+	pkt_header->len = (int) env->GetIntField(jpkt_header, PcapPktHdrLenFID);
 	
 	return pkt_header;
 }
