@@ -27,16 +27,41 @@ public class PcapStat {
 		initIDs();
 	}
 
+	/**
+	 * number of packets received
+	 */
 	private long recv;
 
+	/**
+	 * number of packets dropped
+	 */
 	private long drop;
 
+	/**
+	 * drops by interface XXX not yet supported
+	 */
 	private long ifDrop;
 
+	/*
+	 * The rest of the fields are only filled in by a call to WinPcap.statsEx
+	 * which returns a subclass of PcapStat called WinPcapStat. The fields are
+	 * only accessible from WinPcapStat class.
+	 */
+
 	/**
-	 * This field is only accessible from subclass WinPcapStat.
+	 * number of packets that are received by the application
 	 */
 	protected long capt;
+
+	/**
+	 * number of packets sent by the server on the network
+	 */
+	protected long sent;
+
+	/**
+	 * number of packets lost on the network
+	 */
+	protected long netdrop;
 
 	/**
 	 * Number of packets transmitted on the network
@@ -64,8 +89,8 @@ public class PcapStat {
 	public final long getIfDrop() {
 		return this.ifDrop;
 	}
-	
+
 	public String toString() {
-		return "recv=" + recv + ", drop=" + drop + ", ifDrop=" + ifDrop; 
+		return "recv=" + recv + ", drop=" + drop + ", ifDrop=" + ifDrop;
 	}
 }

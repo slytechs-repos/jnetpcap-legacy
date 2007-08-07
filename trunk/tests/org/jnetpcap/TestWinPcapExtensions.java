@@ -19,8 +19,8 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jnetpcap.winpcap.PcapStatEx;
 import org.jnetpcap.winpcap.WinPcap;
+import org.jnetpcap.winpcap.WinPcapStat;
 
 /**
  * @author Mark Bednarczyk
@@ -115,15 +115,15 @@ public class TestWinPcapExtensions
 		PcapPktHdr hdr = new PcapPktHdr();
 		pcap.loop(1000, doNothingHandler, null);
 		
-		PcapStatEx stats = pcap.statsEx();
+		WinPcapStat stats = pcap.statsEx();
 		
 		System.out.printf("%d,%d,%d,%d,%d,%d\n",
-				stats.getRxPackets(),
-				stats.getTxPackets(),
-				stats.getRxBytes(),
-				stats.getTxBytes(),
-				stats.getRxErrors(),
-				stats.getTxErrors()
+				stats.getCapt(),
+				stats.getDrop(),
+				stats.getIfDrop(),
+				stats.getNetdrop(),
+				stats.getRecv(),
+				stats.getSent()
 				);
 		
 		pcap.close();

@@ -300,5 +300,5 @@ public class WinPcap
 	 * @see Pcap#stats(org.jnetpcap.PcapStat) return stats structure which is
 	 *      filled with statistics or null on error
 	 */
-	public native PcapStatEx statsEx();
+	public native WinPcapStat statsEx();
 }
