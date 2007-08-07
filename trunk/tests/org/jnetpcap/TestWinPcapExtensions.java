@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jnetpcap.winpcap.PcapStatEx;
 import org.jnetpcap.winpcap.WinPcap;
 
 /**
@@ -44,6 +45,15 @@ public class TestWinPcapExtensions
 	private static final int oneSecond = 1000;
 
 	private StringBuilder errbuf;
+	
+	private final PcapHandler doNothingHandler = new PcapHandler() {
+
+		public void nextPacket(Object userObject, long seconds, int useconds,
+		    int caplen, int len, ByteBuffer buffer) {
+			// Do nothing handler
+		}
+	};
+
 
 	/**
 	 * @throws java.lang.Exception
@@ -98,11 +108,25 @@ public class TestWinPcapExtensions
 		winPcap.close();
 	}
 
-	public void testStatsEx() {
+	public void SKIPtestStatsEx() {
 
 		WinPcap pcap = WinPcap.openLive(device, snaplen, promisc, oneSecond, errbuf);
+				
+		PcapPktHdr hdr = new PcapPktHdr();
+		pcap.loop(1000, doNothingHandler, null);
 		
+		PcapStatEx stats = pcap.statsEx();
 		
+		System.out.printf("%d,%d,%d,%d,%d,%d\n",
+				stats.getRxPackets(),
+				stats.getTxPackets(),
+				stats.getRxBytes(),
+				stats.getTxBytes(),
+				stats.getRxErrors(),
+				stats.getTxErrors()
+				);
+		
+		pcap.close();
 
 	}
 
