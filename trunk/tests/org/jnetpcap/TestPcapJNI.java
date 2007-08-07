@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
-import sun.rmi.runtime.Log;
 
 /**
  * @author Mark Bednarczyk
