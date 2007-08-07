@@ -1,0 +1,246 @@
+    
+<html>
+<head>
+  <meta http-equiv="Content-Language" content="en-us">
+  <title>syslibset
+ Task</title>
+</head>
+
+<body bgcolor="#ffffff" text="#000000" link="#525D76"
+      alink="#525D76" vlink="#525D76">
+
+<table border="0" width="100%" cellspacing="4">
+
+  <!-- PAGE HEADER -->
+  <tr>
+    <td>
+      <table border="0" width="100%"><tr>
+          <td valign="bottom">
+            <font size="+3" face="arial,helvetica,sanserif"><strong>syslibset
+ </strong></font>
+            <br><font face="arial,helvetica,sanserif">A set of system library names.</font>
+          </td>
+          <td>
+            <!-- PROJECT LOGO -->
+            <a href="http://ant.apache.org/">
+              <img src="http://sourceforge.net/sflogo.php?group_id=36177&amp;type=4" align="right" alt="SourceForge logo" border="0"/>
+            </a>
+          </td>
+      </tr></table>
+    </td>
+  </tr>
+
+  <!-- START RIGHT SIDE MAIN BODY -->
+  <tr>
+    <td  valign="top" align="left">
+
+          <!-- Applying task/long-description -->
+    <!-- Start Description -->
+    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td>&nbsp;</td></tr>
+
+      <tr><td bgcolor="#525D76">
+        <font color="#ffffff" face="arial,helvetica.sanserif">
+          <a name="description">
+          <strong>Description</strong></a></font>
+      </td></tr>
+
+      <tr><td><blockquote>
+        A set of system library names. Timestamp or location of system libraries are not considered in dependency analysis.  Libraries can also be added to a link by specifying them in a fileset.  For most Unix-like compilers, syslibset will result in a series of -l and -L linker arguments. For Windows compilers, the library names will be used to locate the appropriate library files which will be added to the linkers input file list as if they had been specified in a fileset.
+      </blockquote></td></tr>
+
+    </table>
+    <!-- End Description -->
+
+ <!-- Ignore -->
+
+
+
+    <!-- Start Attributes -->
+    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td>&nbsp;</td></tr>
+      <tr><td bgcolor="#525D76">
+        <font color="#ffffff" face="arial,helvetica.sanserif">
+          <a name="attributes">
+          <strong>Parameters</strong></a></font>
+      </td></tr>
+      <tr><td><blockquote>
+        <table>
+          <tr>
+        <td bgcolor="#cccccc" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif"><b>Attribute</b></font>
+        </td>
+        <td bgcolor="#cccccc" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif"><b>Description</b></font>
+        </td>
+        <td bgcolor="#cccccc" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif"><b>Type</b></font>
+        </td>
+        <td bgcolor="#cccccc" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif"><b>Requirement</b></font>
+        </td>
+          </tr>
+    <!-- Attribute Group -->    
+    
+    <!-- Attribute Group -->    
+        <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">casesensitive</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Sets case sensitivity of the file system. If not set, will default to the linker's case sensitivity.</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">boolean</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left" rowspan="9">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Optional</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">dataset</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Sets the dataset. Used on OS390 if the libs are in a dataset.</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">String</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">description</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif"></font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">String</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">dir</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Library directory.</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">File</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">if</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Sets the property name for the 'if' condition. The library set will be ignored unless the property is defined. The value of the property is insignificant, but values that would imply misinterpretation ("false", "no") will throw an exception when evaluated.</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">String</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">libs</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Comma-separated list of library names without leading prefixes, such as "lib", or extensions, such as ".so" or ".a".</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif"></font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">refid</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif"></font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Reference</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">type</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Sets the preferred library type. Supported values "shared", "static", and "framework".  "framework" is equivalent to "shared" on non-Darwin platforms.</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">"shared", "static", "framework"</font>
+        </td>
+    </tr>
+    <!-- Attribute -->
+    <tr>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">unless</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">Set the property name for the 'unless' condition. If named property is set, the library set will be ignored. The value of the property is insignificant, but values that would imply misinterpretation ("false", "no") of the behavior will throw an exception when evaluated.</font>
+        </td>
+        <td bgcolor="#eeeeee" valign="top" align="left">
+          <font color="#000000" size="-1" face="arial,helvetica,sanserif">String</font>
+        </td>
+    </tr>
+
+
+        </table>
+      </blockquote></td></tr>
+
+    </table>
+    <!-- End Attributes -->
+
+    <!-- Start Elements -->
+    <table border="0" cellspacing="0" cellpadding="2" width="100%">
+      <tr><td>&nbsp;</td></tr>
+
+      <tr><td bgcolor="#525D76">
+        <font color="#ffffff" face="arial,helvetica.sanserif">
+          <a name="elements">
+          <strong>Parameters as nested elements</strong></a></font>
+      </td></tr>
+
+      <tr><td><blockquote>
+
+      </blockquote></td></tr>
+
+    </table>
+    <!-- End Elements -->
+
+
+    </td>
+  </tr>
+  <!-- END RIGHT SIDE MAIN BODY -->
+
+  <!-- FOOTER SEPARATOR -->
+  <tr>
+    <td>
+      <hr noshade="" size="1"/>
+    </td>
+  </tr>
+
+  <!-- PAGE FOOTER -->
+  <tr>
+    <td>
+      <div align="center"><font color="#525D76" size="-1"><em>
+        Copyright &#169; 2001-2005, Ant-Contrib Project
+      </em></font></div>
+    </td>
+  </tr>
+
+</table>
+
+</body>
+</html>
