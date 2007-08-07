@@ -98,7 +98,7 @@ jfieldID pcapPkthdrUSecondsFID = 0;
 jfieldID pcapPkthdrCaplenFID = 0;
 jfieldID pcapPkthdrLenFID = 0;
 
-jfieldID pcapPktBufferFID = 0;
+jfieldID PcapPktBufferFID = 0;
 
 /*
  * Class:     org_jnetpcap_PcapPkthdr
@@ -137,14 +137,14 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_PcapPkthdr_initIDs
 		return;
 	}
 
-	// PcapPktbuffer class
-	if ( (c = findClass(env, "org/jnetpcap/PcapPktbuffer")) == NULL) {
+	// PcapPktBuffer class
+	if ( (c = findClass(env, "org/jnetpcap/PcapPktBuffer")) == NULL) {
 		return;
 	}
 
-	if ( ( pcapPktBufferFID = env->GetFieldID(c, "buffer", "Ljava/nio/ByteBuffer;")) == NULL) {
+	if ( ( PcapPktBufferFID = env->GetFieldID(c, "buffer", "Ljava/nio/ByteBuffer;")) == NULL) {
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field PcapPktbuffer.buffer:ByteBuffer");
+				"Unable to initialize field PcapPktBuffer.buffer:ByteBuffer");
 		return;
 	}
 

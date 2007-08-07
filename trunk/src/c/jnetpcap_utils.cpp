@@ -197,7 +197,7 @@ pcap_pkthdr *getPktHeader(JNIEnv *env, jobject jpkt_header, pcap_pkthdr *pkt_hea
 }
 
 void setPktBuffer(JNIEnv *env, jobject jpkt_buffer, jobject jbuffer) {
-	env->SetObjectField(jpkt_buffer, pcapPktBufferFID, jbuffer);
+	env->SetObjectField(jpkt_buffer, PcapPktBufferFID, jbuffer);
 }
 
 /*
