@@ -21,7 +21,7 @@ package org.jnetpcap;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class PcapSockAddr2 {
+public class PcapSockAddr {
 	
 	private native static void initIDs();
 	
