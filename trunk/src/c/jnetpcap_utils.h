@@ -66,6 +66,7 @@ void setPhysical(JNIEnv *, jobject, jlong);
 void setString(JNIEnv *env, jobject buffer, const char *);
 jmethodID getPcapConstructorMID(JNIEnv *env, jclass clazz);
 void setPktHeader(JNIEnv *env, jobject jpkt_header, pcap_pkthdr *pkt_header);
+pcap_pkthdr *getPktHeader(JNIEnv *env, jobject jpkt_header, pcap_pkthdr *pkt_header);
 void setPktBuffer(JNIEnv *env, jobject jpkt_buffer, jobject jbuffer);
 jclass findClass(JNIEnv *env, char *name);
 jmethodID findMethod(JNIEnv *env, jobject obj, char *name, char *signature);
@@ -75,6 +76,7 @@ jobject newPcapIf(JNIEnv *env, jobject jlist, jmethodID MID_add, pcap_if_t *ifp)
 jobject newPcapSockaddr(JNIEnv *env, sockaddr *a);
 
 void setPcapStat(JNIEnv *env, jobject jstats, pcap_stat *stats);
+void setWinPcapStat(JNIEnv *env, jobject jstats, pcap_stat *stats);
 
 void throwException(JNIEnv *env, const char *excClassName, char *message);
 
