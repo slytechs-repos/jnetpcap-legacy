@@ -91,49 +91,49 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_Pcap_initIDs
 }
 
 /*******************************************************************************
- * PcapPkthdr.java IDs
+ * PcapPktHdr.java IDs
  ******************************************************************************/
-jfieldID pcapPkthdrSecondsFID = 0;
-jfieldID pcapPkthdrUSecondsFID = 0;
-jfieldID pcapPkthdrCaplenFID = 0;
-jfieldID pcapPkthdrLenFID = 0;
+jfieldID PcapPktHdrSecondsFID = 0;
+jfieldID PcapPktHdrUSecondsFID = 0;
+jfieldID PcapPktHdrCaplenFID = 0;
+jfieldID PcapPktHdrLenFID = 0;
 
 jfieldID PcapPktBufferFID = 0;
 
 /*
- * Class:     org_jnetpcap_PcapPkthdr
+ * Class:     org_jnetpcap_PcapPktHdr
  * Method:    initIDs
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_org_jnetpcap_PcapPkthdr_initIDs
+JNIEXPORT void JNICALL Java_org_jnetpcap_PcapPktHdr_initIDs
 (JNIEnv *env, jclass clazz) {
 	jclass c;
-	// PcapPkthdr class
-	if ( (c = findClass(env, "org/jnetpcap/PcapPkthdr")) == NULL) {
+	// PcapPktHdr class
+	if ( (c = findClass(env, "org/jnetpcap/PcapPktHdr")) == NULL) {
 		return;
 	}
 
-	if ( (pcapPkthdrSecondsFID = env->GetFieldID(c, "seconds", "J")) == NULL) {
+	if ( (PcapPktHdrSecondsFID = env->GetFieldID(c, "seconds", "J")) == NULL) {
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field PcapPkthdr.seconds:long");
+				"Unable to initialize field PcapPktHdr.seconds:long");
 		return;
 	}
 
-	if ( (pcapPkthdrUSecondsFID = env->GetFieldID(c, "useconds", "I")) == NULL) {
+	if ( (PcapPktHdrUSecondsFID = env->GetFieldID(c, "useconds", "I")) == NULL) {
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field PcapPkthdr.useconds:int");
+				"Unable to initialize field PcapPktHdr.useconds:int");
 		return;
 	}
 
-	if ( (pcapPkthdrCaplenFID = env->GetFieldID(c, "caplen", "I")) == NULL) {
+	if ( (PcapPktHdrCaplenFID = env->GetFieldID(c, "caplen", "I")) == NULL) {
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field PcapPkthdr.caplen:int");
+				"Unable to initialize field PcapPktHdr.caplen:int");
 		return;
 	}
 
-	if ( (pcapPkthdrLenFID = env->GetFieldID(c, "len", "I")) == NULL) {
+	if ( (PcapPktHdrLenFID = env->GetFieldID(c, "len", "I")) == NULL) {
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field PcapPkthdr.len:int");
+				"Unable to initialize field PcapPktHdr.len:int");
 		return;
 	}
 
