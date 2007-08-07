@@ -65,6 +65,7 @@ jlong getPhysical(JNIEnv *, jobject);
 void setPhysical(JNIEnv *, jobject, jlong);
 void setString(JNIEnv *env, jobject buffer, const char *);
 jmethodID getPcapConstructorMID(JNIEnv *env, jclass clazz);
+pcap_pkthdr *getPktHeader(JNIEnv *env, jobject jpkt_header, pcap_pkthdr *pkt_header);
 void setPktHeader(JNIEnv *env, jobject jpkt_header, pcap_pkthdr *pkt_header);
 void setPktBuffer(JNIEnv *env, jobject jpkt_buffer, jobject jbuffer);
 jclass findClass(JNIEnv *env, char *name);
