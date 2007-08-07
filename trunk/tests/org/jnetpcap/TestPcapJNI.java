@@ -196,6 +196,18 @@ public class TestPcapJNI
 			// OK
 		}
 	}
+	
+	public void testPcapClosedExceptionHandling() {
+		Pcap pcap = Pcap.openOffline(fname, errbuf);
+		pcap.close();
+		
+		try {
+			pcap.breakloop();
+			fail("Expected PcapClosedException");
+		} catch (PcapClosedException e) {
+			// Success
+		}
+	}
 
 	public void testDatalinkNameToValue() {
 		assertEquals(1, Pcap.datalinkNameToVal("EN10MB"));
