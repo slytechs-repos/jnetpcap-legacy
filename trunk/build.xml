@@ -411,13 +411,18 @@
 				key="PATH"
 				path="${compiler.cc.bin.dir};${env.PATH}"
 			/>
-			<compiler name="${compiler.cc.cmd}" />
+			
+			<compiler name="${compiler.cc.cmd}" if="build.type.win32">
+				<compilerarg value="-DHAVE_REMOTE" />
+			</compiler>
+			
 			<fileset dir="${src.c.dir}" />
 			<includepath location="${build.include.dir}" />
 			<includepath location="${src.c.dir}" />
 			<sysincludepath location="${pcap.include.dir}" />
 			<sysincludepath location="${java.sdk.include.dir}" />
 			<sysincludepath location="${java.sdk.include.dir}/win32" />
+			
 
 			<linker name="${compiler.ld.cmd}">
 				<linkerarg value="--add-stdcall-alias" />

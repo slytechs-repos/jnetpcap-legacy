@@ -373,6 +373,9 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_winpcap_WinPcap_statsEx
 	if (jstats == NULL) {
 		return NULL;
 	}
+	
+	struct pcap_stat ps;
+	ps.ps_netdrop = 0;
 
 	setPcapStatEx(env, jstats, stats, size);
 	
