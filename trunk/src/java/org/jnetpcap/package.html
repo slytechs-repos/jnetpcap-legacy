@@ -122,13 +122,13 @@ int length = hdr.getLen();
 Upto this point, we haven't used any jNetStream code. Now jNetStream
 library steps in.
 <pre>
-ProtocolID id = PcapDlt.valueOf(dlt); // In org.jnetstream.capture.file.pcap pkg
+ProtocolID dlt = PcapDlt.valueOf(dlt); // In org.jnetstream.capture.file.pcap pkg
 
 Packet packet = Packets.newPacket(buffer, dlt, snaplen, length, seconds, nanosecs);
 
 // Now we can work with a decoded packet
 if (packet.hasHeader(Ip.class)) {
-	Ip ip = packet.get(Ip.class);
+	Ip ip = packet.getHeader(Ip.class);
 	
 	System.out.println("IP.version = %\n", ip.version());
 	System.out.printf("%s -> %s\n", ip.source().toString(), ip.destination().toString());
@@ -178,7 +178,7 @@ location of a native library
 to which you can assign a relative or absolute path where the library is
 stored. All implementations also look for libraries in the java
 extension point, which is in the
-<code>$JAVA_HOME/ext</code>
+<code>$JAVA_HOME/lib/ext</code>
 directory.
 
 <h3>Library loading procedure on win32 systems</h3>
