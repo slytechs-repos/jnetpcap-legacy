@@ -44,7 +44,7 @@ public class WinPcap
 
 		// Make sure some dependency classes get loaded
 		try {
-			Class.forName("org.jnetpcap.winpcap.PcapStatEx");
+			Class.forName("org.jnetpcap.winpcap.WinPcapStat");
 		} catch (ClassNotFoundException e) {
 			throw new IllegalStateException("Unable to find class: ", e);
 		}

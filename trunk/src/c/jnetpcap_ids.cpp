@@ -331,7 +331,11 @@ jclass pcapStatClass = NULL;
 jfieldID pcapStatRecvFID = 0;
 jfieldID pcapStatDropFID = 0;
 jfieldID pcapStatIfDropFID = 0;
+
+// These 3 are part of WinPcap, but they physically reside in PcapStat
 jfieldID pcapStatCaptFID = 0;
+jfieldID pcapStatSentFID = 0;
+jfieldID pcapStatNetdropFID = 0;
 
 /*
  * Class:     org_jnetpcap_PcapStat
@@ -364,6 +368,18 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_PcapStat_initIDs
 	if ( (pcapStatCaptFID = env->GetFieldID(clazz, "capt", "J")) == NULL) {
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
 				"Unable to initialize field PcapStat.capt:long");
+		return;
+	}
+	
+	if ( (pcapStatSentFID = env->GetFieldID(clazz, "sent", "J")) == NULL) {
+		throwException(env, NO_SUCH_FIELD_EXCEPTION,
+				"Unable to initialize field PcapStat.sent:long");
+		return;
+	}
+	
+	if ( (pcapStatNetdropFID = env->GetFieldID(clazz, "netdrop", "J")) == NULL) {
+		throwException(env, NO_SUCH_FIELD_EXCEPTION,
+				"Unable to initialize field PcapStat.netdrop:long");
 		return;
 	}
 }

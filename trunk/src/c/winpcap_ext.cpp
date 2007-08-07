@@ -362,14 +362,14 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_winpcap_WinPcap_statsEx
 		return NULL; // Exception already thrown
 	}
 
-	struct pcap_stat_ex *stats;
+	struct pcap_stat *stats;
 	int size = 0;
-	stats = (struct pcap_stat_ex *)pcap_stats_ex(p, &size); // Fills the stats structure
+	stats = (struct pcap_stat *)pcap_stats_ex(p, &size); // Fills the stats structure
 	if (stats == NULL) {
 		return NULL; // error
 	}
 	
-	jobject jstats = newPcapStatEx(env);
+	jobject jstats = newWinPcapStat(env);
 	if (jstats == NULL) {
 		return NULL;
 	}
@@ -377,7 +377,7 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_winpcap_WinPcap_statsEx
 	struct pcap_stat ps;
 	ps.ps_netdrop = 0;
 
-	setPcapStatEx(env, jstats, stats, size);
+	setWinPcapStat(env, jstats, stats, size);
 	
 	free(stats); // release the memory
 

@@ -55,6 +55,8 @@ extern jfieldID pcapStatRecvFID;
 extern jfieldID pcapStatDropFID;
 extern jfieldID pcapStatIfDropFID;
 extern jfieldID pcapStatCaptFID;
+extern jfieldID pcapStatSentFID;
+extern jfieldID pcapStatNetdropFID;
 
 #ifdef __cplusplus
 }
