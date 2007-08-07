@@ -17,7 +17,7 @@ import java.nio.ByteBuffer;
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapBpfProgram;
 import org.jnetpcap.PcapHandler;
-import org.jnetpcap.PcapPkthdr;
+import org.jnetpcap.PcapPktHdr2;
 
 /**
  * WinPcap specific extensions to libpcap library. To access WinPcap extensions,
@@ -83,7 +83,7 @@ public class WinPcap
 	 * @return snaplen of the packet or 0 if packet should be rejected
 	 */
 	public static native int offlineFilter(PcapBpfProgram program,
-	    PcapPkthdr header, ByteBuffer buf);
+	    PcapPktHdr2 header, ByteBuffer buf);
 
 	/**
 	 * Create a pcap_t structure without starting a capture. pcap_open_dead() is
