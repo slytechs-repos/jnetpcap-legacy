@@ -80,6 +80,8 @@ EXTERN void setPcapStatEx(JNIEnv *env, jobject jstats,
 	size = size / 8;
 	long *p = (long *)stats;
 	
+//	printf("setPcapStatEx(): size=%d\n", size);
+	
 	// Each field is a long, so iterate and assign by array lookup
 	for (int i = 0; i < size; i += 1) {
 		env->SetLongField(jstats, fieldIDs[i], (jlong) p[i]);
@@ -110,11 +112,19 @@ EXTERN void JNICALL Java_org_jnetpcap_winpcap_PcapStatEx_initIDs
 		env->DeleteGlobalRef(pcapStatExClass);
 	}
 	pcapStatExClass = (jclass) env->NewGlobalRef(clazz);
+	if ( (pcapStatExConstructorMID = env->GetMethodID(clazz, "<init>", "()V")) == 0) {
+		throwException(env, NO_SUCH_METHOD_EXCEPTION,
+				"PcapStatEx.PcapStatEx()");
+		return;		
+	}
 	
 	for (int i = 0; i < FIELD_COUNT; i ++) {
 		if ( (fieldIDs[i] = env->GetFieldID(clazz, fieldNames[i], "J")) == 0) {
 			throwException(env, NO_SUCH_FIELD_EXCEPTION,
 					fieldNames[i]);
+			return;
+		} else {
+//			printf("jfieldID(%s) = loaded OK\n", fieldNames[i]);
 		}
 	}
 	
