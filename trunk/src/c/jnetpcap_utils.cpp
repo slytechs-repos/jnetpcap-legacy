@@ -139,8 +139,7 @@ pcap_t *getPcap(JNIEnv *env, jobject obj) {
 	jlong pt = env->GetLongField(obj, pcapPhysicalFID);
 
 	if (pt == 0) {
-		throwException(env, ILLEGAL_STATE_EXCEPTION,
-				"Capture already closed (pcap_t) has already been deallocated.");
+		throwException(env, PCAP_CLOSED_EXCEPTION, NULL);
 
 		return NULL;
 	}
