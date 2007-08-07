@@ -24,6 +24,12 @@ import org.jnetpcap.PcapStat;
 public class WinPcapStat
     extends PcapStat {
 
+	private native static void initIDs();
+
+	static {
+		initIDs();
+	}
+
 	/**
 	 * number of packets that are received by the application
 	 */
@@ -45,4 +51,21 @@ public class WinPcapStat
 		return super.sent;
 	}
 
+
+	/**
+	 * Dumps all the values as a string.
+	 */
+	public String toString() {
+		
+		out.setLength(0);
+		
+		out.append("recv=").append(getRecv());
+		out.append(", drop=").append(getDrop());
+		out.append(", ifdrop=").append(getIfDrop());
+		out.append(", capt=").append(getCapt());
+		out.append(", netdrop=").append(getNetdrop());
+		out.append(", sent=").append(getSent());
+		
+		return out.toString();
+	}
 }

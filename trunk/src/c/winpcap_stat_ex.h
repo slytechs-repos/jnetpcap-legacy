@@ -1,18 +1,18 @@
 #include <jni.h>
 /* Header for jnetpcap_utils utility methods */
 
-#ifndef _Included_org_jnetpcap_WinPcapStatEx
-#define _Included_org_jnetpcap_WinPcapStatEx
+#ifndef _Included_org_jnetpcap_WinWinPcapStat
+#define _Included_org_jnetpcap_WinWinPcapStat
 #ifdef __cplusplus
 extern "C" {
 #define	EXTERN extern "C"
 #endif
 	
-extern	jclass winPcapStatExClass;
+extern	jclass winWinPcapStatClass;
 
 // Prototypes
-jobject newPcapStatEx(JNIEnv *env);
-void setPcapStatEx(JNIEnv *env, jobject jstats, struct pcap_stat_ex *stats, 
+jobject newWinPcapStat(JNIEnv *env);
+void setWinPcapStat(JNIEnv *env, jobject jstats, struct pcap_stat *stats, 
 		int size);
 
 

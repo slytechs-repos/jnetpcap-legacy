@@ -45,7 +45,7 @@ public class TestWinPcapExtensions
 	private static final int oneSecond = 1000;
 
 	private StringBuilder errbuf;
-	
+
 	private final PcapHandler doNothingHandler = new PcapHandler() {
 
 		public void nextPacket(Object userObject, long seconds, int useconds,
@@ -53,7 +53,6 @@ public class TestWinPcapExtensions
 			// Do nothing handler
 		}
 	};
-
 
 	/**
 	 * @throws java.lang.Exception
@@ -108,24 +107,18 @@ public class TestWinPcapExtensions
 		winPcap.close();
 	}
 
-	public void SKIPtestStatsEx() {
+	public void testWinPcapStats() {
 
-		WinPcap pcap = WinPcap.openLive(device, snaplen, promisc, oneSecond, errbuf);
-				
+		WinPcap pcap = WinPcap
+		    .openLive(device, snaplen, promisc, oneSecond, errbuf);
+
 		PcapPktHdr hdr = new PcapPktHdr();
-		pcap.loop(1000, doNothingHandler, null);
-		
+		pcap.loop(50, doNothingHandler, null);
+
 		WinPcapStat stats = pcap.statsEx();
-		
-		System.out.printf("%d,%d,%d,%d,%d,%d\n",
-				stats.getCapt(),
-				stats.getDrop(),
-				stats.getIfDrop(),
-				stats.getNetdrop(),
-				stats.getRecv(),
-				stats.getSent()
-				);
-		
+
+		System.out.printf("stats=%s\n", stats.toString());
+
 		pcap.close();
 
 	}

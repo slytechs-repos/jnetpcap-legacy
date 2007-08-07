@@ -28,6 +28,11 @@ public class PcapStat {
 	}
 
 	/**
+	 * For toString() to build its string. Should be made thread local.
+	 */
+	protected final static StringBuilder out = new StringBuilder();
+
+	/**
 	 * number of packets received
 	 */
 	private long recv;
@@ -91,6 +96,12 @@ public class PcapStat {
 	}
 
 	public String toString() {
-		return "recv=" + recv + ", drop=" + drop + ", ifDrop=" + ifDrop;
+		out.setLength(0);
+		
+		out.append("recv=").append(recv);
+		out.append(", drop=").append(drop);
+		out.append(", ifdrop=").append(ifDrop);
+		
+		return out.toString();
 	}
 }

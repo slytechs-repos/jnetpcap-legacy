@@ -10,6 +10,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pcap.h>
+
+#include "export.h"
 #include <jni.h>
 
 #ifndef WIN32
@@ -25,108 +27,76 @@
 #include <Win32-Extensions.h>
 #endif /*WIN32*/
 
-#include "jnetpcap_bpf.h"
 #include "winpcap_ext.h"
 #include "jnetpcap_utils.h"
+#include "jnetpcap_ids.h"
 
-jclass pcapStatExClass = 0;
+jclass WinPcapStatClass = 0;
 
-jmethodID pcapStatExConstructorMID = 0;
-
-int FIELD_COUNT = 21;
-char *fieldNames[] = {
-		"rxPackets",
-		"txPackets",
-		"rxBytes",
-		"txBytes",
-		"rxErrors",
-		"txErrors",
-		"rxDropped",
-		"txDropped",
-		"multicast",
-		"collisions",
-		"rxLengthErrors",
-		"rxOverErrors",
-		"rxCrcErrors",
-		"rxFrameErrors",
-		"rxFifoErrors",
-		"rxMissedErrors",
-		"txAbortedErrors",
-		"txCarrierErrors",
-		"txFifoErrors",
-		"txHeartbeatErrors",
-		"txWindowErrors",
-};
-
-jfieldID *fieldIDs = NULL;
+jmethodID WinPcapStatConstructorMID = 0;
 
 /*
- * Function: new newPcapStatEx()
- * Description: allocates a new PcapStatEx object
+ * Function: new newWinPcapStat()
+ * Description: allocates a new WinPcapStat object
  */
-EXTERN jobject newPcapStatEx(JNIEnv *env) {
+EXTERN jobject newWinPcapStat(JNIEnv *env) {
+	if (WinPcapStatClass == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "Class ID not initialized");
+		return NULL;
+	}
 	
-	jobject jstats = env->NewObject(pcapStatExClass, pcapStatExConstructorMID);
+	jobject jstats = env->NewObject(WinPcapStatClass, WinPcapStatConstructorMID);
 	return jstats;
 }
 
 /*
- * Function: setPcapStatEx
- * Description: copies from stat_ex structure all the members into a PcapStatEx
- *              object.
+ * Function: setWinPcapStat
+ * Description: copies from pcap_stat structure all the members into a WinPcapStat
+ *              object. Under MSDOS there are 21 fields within the structure.
  */
-EXTERN void setPcapStatEx(JNIEnv *env, jobject jstats, 
-		struct pcap_stat_ex *stats, int size) {
-	size = size / 8;
-	long *p = (long *)stats;
-	
-//	printf("setPcapStatEx(): size=%d\n", size);
-	
-	// Each field is a long, so iterate and assign by array lookup
-	for (int i = 0; i < size; i += 1) {
-		env->SetLongField(jstats, fieldIDs[i], (jlong) p[i]);
-	}
-	
-	// Fill any remaining fields with -1, to mark fields that received no value
-	for (int i = size; i < FIELD_COUNT; i += 1) {
-		env->SetLongField(jstats, fieldIDs[i], (jlong) -1);
+EXTERN void setWinPcapStat(JNIEnv *env, jobject jstats, 
+		struct pcap_stat *stats, int size) {
+
+	if (WinPcapStatClass == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "Class ID not initialized");
+		return;
 	}
 
+	setPcapStat(env, jstats, stats); // Sets 1st 3
+	
+	if (size <= 12) {
+		return;
+	}
+	env->SetLongField(jstats, pcapStatCaptFID, (jlong) stats->ps_capt);
+
+	if (size <= 16) {
+		return;
+	}
+	env->SetLongField(jstats, pcapStatSentFID, (jlong) stats->ps_sent);
+	
+	if (size <= 20) {
+		return;
+	}
+	env->SetLongField(jstats, pcapStatNetdropFID, (jlong) stats->ps_netdrop);
 }
 
 /*
- * Class:     org_jnetpcap_winpcap_PcapStatEx
+ * Class:     org_jnetpcap_winpcap_WinPcapStat
  * Method:    initIDs
  * Signature: ()V
  */
-EXTERN void JNICALL Java_org_jnetpcap_winpcap_PcapStatEx_initIDs
+EXTERN void JNICALL Java_org_jnetpcap_winpcap_WinPcapStat_initIDs
   (JNIEnv *env, jclass clazz) {
 	
-	if (fieldIDs != NULL) {
-		free(fieldIDs);
+	
+	if (WinPcapStatClass != NULL) {
+		env->DeleteGlobalRef(WinPcapStatClass);
 	}
 	
-	fieldIDs = (jfieldID *)malloc(sizeof(jfieldID) * FIELD_COUNT);
-	
-	if (pcapStatExClass != NULL) {
-		env->DeleteGlobalRef(pcapStatExClass);
-	}
-	pcapStatExClass = (jclass) env->NewGlobalRef(clazz);
-	if ( (pcapStatExConstructorMID = env->GetMethodID(clazz, "<init>", "()V")) == 0) {
+	WinPcapStatClass = (jclass) env->NewGlobalRef(clazz);
+	if ( (WinPcapStatConstructorMID = env->GetMethodID(clazz, "<init>", "()V")) == 0) {
 		throwException(env, NO_SUCH_METHOD_EXCEPTION,
-				"PcapStatEx.PcapStatEx()");
+				"WinPcapStat.WinPcapStat()");
 		return;		
 	}
-	
-	for (int i = 0; i < FIELD_COUNT; i ++) {
-		if ( (fieldIDs[i] = env->GetFieldID(clazz, fieldNames[i], "J")) == 0) {
-			throwException(env, NO_SUCH_FIELD_EXCEPTION,
-					fieldNames[i]);
-			return;
-		} else {
-//			printf("jfieldID(%s) = loaded OK\n", fieldNames[i]);
-		}
-	}
-	
 }
-
