@@ -374,6 +374,7 @@
 			<class name="org.jnetpcap.PcapStat" />
 
 			<class name="org.jnetpcap.winpcap.WinPcap" />
+			<class name="org.jnetpcap.winpcap.PcapStatEx" />
 
 		</javah>
 
@@ -383,6 +384,7 @@
 		<echo message="Generating: ${build.include.dir}/org_jnetpcap_PcapStat.h" />
 
 		<echo message="Generating: ${build.include.dir}/org_jnetpcap_winpcap_WinPcap.h" />
+		<echo message="Generating: ${build.include.dir}/org_jnetpcap_winpcap_PcapStatEx.h" />
 	</target>
 	
 	<!-- =================================================================== -->
