@@ -12,8 +12,12 @@
  */
 package org.jnetpcap.winpcap;
 
+import java.nio.ByteBuffer;
+
 import org.jnetpcap.Pcap;
+import org.jnetpcap.PcapBpfProgram;
 import org.jnetpcap.PcapHandler;
+import org.jnetpcap.PcapPkthdr;
 
 /**
  * WinPcap specific extensions to libpcap library. To access WinPcap extensions,
@@ -35,14 +39,21 @@ import org.jnetpcap.PcapHandler;
 public class WinPcap
     extends Pcap {
 
+	static {
+		initIDs();
+
+		// Make sure some dependency classes get loaded
+		try {
+			Class.forName("org.jnetpcap.winpcap.PcapStatEx");
+		} catch (ClassNotFoundException e) {
+			throw new IllegalStateException("Unable to find class: ", e);
+		}
+	}
+
 	/**
 	 * Initialize JNI method, field and class IDs.
 	 */
 	private static native void initIDs();
-
-	static {
-		initIDs();
-	}
 
 	/**
 	 * Checks if WinPcap extensions are available on this platform.
@@ -51,6 +62,28 @@ public class WinPcap
 	 *         false
 	 */
 	public static native boolean isSupported();
+
+	/**
+	 * Returns if a given filter applies to an offline packet. This function is
+	 * used to apply a filter to a packet that is currently in memory. This
+	 * process does not need to open an adapter; we need just to create the proper
+	 * filter (by settings parameters like the snapshot length, or the link-layer
+	 * type) by means of the pcap_compile_nopcap(). The current API of libpcap
+	 * does not allow to receive a packet and to filter the packet after it has
+	 * been received. However, this can be useful in case you want to filter
+	 * packets in the application, instead of into the receiving process. This
+	 * function allows you to do the job.
+	 * 
+	 * @param program
+	 *          bpf filter
+	 * @param header
+	 *          packets header
+	 * @param buf
+	 *          buffer containing packet data
+	 * @return snaplen of the packet or 0 if packet should be rejected
+	 */
+	public static native int offlineFilter(PcapBpfProgram program,
+	    PcapPkthdr header, ByteBuffer buf);
 
 	/**
 	 * Create a pcap_t structure without starting a capture. pcap_open_dead() is
@@ -159,6 +192,28 @@ public class WinPcap
 	public native static WinPcap openOffline(String fname, StringBuilder errbuf);
 
 	/**
+	 * Set the minumum amount of data received by the kernel in a single call.
+	 * pcap_setmintocopy() changes the minimum amount of data in the kernel buffer
+	 * that causes a read from the application to return (unless the timeout
+	 * expires). If the value of size is large, the kernel is forced to wait the
+	 * arrival of several packets before copying the data to the user. This
+	 * guarantees a low number of system calls, i.e. low processor usage, and is a
+	 * good setting for applications like packet-sniffers and protocol analyzers.
+	 * Vice versa, in presence of a small value for this variable, the kernel will
+	 * copy the packets as soon as the application is ready to receive them. This
+	 * is useful for real time applications that need the best responsiveness from
+	 * the kernel.
+	 * 
+	 * @see #openLive(String, int, int, int, StringBuilder)
+	 * @see #loop(int, PcapHandler, Object)
+	 * @see #dispatch(int, PcapHandler, Object)
+	 * @param size
+	 *          minimum size
+	 * @return the return value is 0 when the call succeeds, -1 otherwise
+	 */
+	public static native int setMinToCopy(int size);
+
+	/**
 	 * WinPcap objects make no sense unless they have been allocated from JNI
 	 * space and the physical address field has been set in super.physical.
 	 */
@@ -192,28 +247,58 @@ public class WinPcap
 	public native int setMode(int mode);
 
 	/**
-	 * Set the minumum amount of data received by the kernel in a single call.
-	 * pcap_setmintocopy() changes the minimum amount of data in the kernel buffer
-	 * that causes a read from the application to return (unless the timeout
-	 * expires). If the value of size is large, the kernel is forced to wait the
-	 * arrival of several packets before copying the data to the user. This
-	 * guarantees a low number of system calls, i.e. low processor usage, and is a
-	 * good setting for applications like packet-sniffers and protocol analyzers.
-	 * Vice versa, in presence of a small value for this variable, the kernel will
-	 * copy the packets as soon as the application is ready to receive them. This
-	 * is useful for real time applications that need the best responsiveness from
-	 * the kernel.
+	 * dumps the network traffic from an interface to a file. Using this function
+	 * the dump is performed at kernel level, therefore it is more efficient than
+	 * using Pcap.dump(). The parameters of this function are an interface
+	 * descriptor (obtained with openLive()), a string with the name of the dump
+	 * file, the maximum size of the file (in bytes) and the maximum number of
+	 * packets that the file will contain. Setting maxsize or maxpacks to 0 means
+	 * no limit. When maxsize or maxpacks are reached, the dump ends. liveDump()
+	 * is non-blocking, threfore Return immediately. liveDumpEnded() can be used
+	 * to check the status of the dump process or to wait until it is finished.
+	 * Pcap.close() can instead be used to end the dump process. Note that when
+	 * one of the two limits is reached, the dump is stopped, but the file remains
+	 * opened. In order to correctly flush the data and put the file in a
+	 * consistent state, the adapter must be closed with Pcap.close().
 	 * 
-	 * @see #openLive(String, int, int, int, StringBuilder)
-	 * @see #loop(int, PcapHandler, Object)
-	 * @see #dispatch(int, PcapHandler, Object)
-	 * @param size
-	 *          minimum size
-	 * @return the return value is 0 when the call succeeds, -1 otherwise
+	 * @param fname
+	 *          file name
+	 * @param maxsize
+	 *          maximum file size
+	 * @param maxpackets
+	 *          maximum number of packets to store
+	 * @return 0 on success otherwise -1
 	 */
-	@SuppressWarnings("unused")
-	private int setMinToCopy(int size) {
-		throw new UnsatisfiedLinkError("Not supported in this version of Libpcap");
-	}
+	public native int liveDump(String fname, int maxsize, int maxpackets);
 
+	/**
+	 * Return the status of the kernel dump process, i.e. tells if one of the
+	 * limits defined with pcap_live_dump() has been reached.
+	 * pcap_live_dump_ended() informs the user about the limits that were set with
+	 * a previous call to pcap_live_dump() on the interface pointed by p: if the
+	 * return value is nonzero, one of the limits has been reched and the dump
+	 * process is currently stopped. If sync is nonzero, the function blocks until
+	 * the dump is finished, otherwise Return immediately. Warning: if the dump
+	 * process has no limits (i.e. if the maxsize and maxpacks arguments of
+	 * pcap_live_dump() were both 0), the dump process will never stop, therefore
+	 * setting sync to TRUE will block the application on this call forever.
+	 * 
+	 * @param sync
+	 *          if sync is nonzero, the function blocks until the dump is
+	 *          finished, otherwise returns immediately
+	 * @return non zero value means that dump process has finished, a zero means
+	 *         its still in progress
+	 */
+	public native int liveDumpEnded(int sync);
+
+	/**
+	 * This method extends the <code>Pcap.stats</code> method and allows more
+	 * statistics to be returned. Note, the signature of this method deviates
+	 * slightly from WinPcap implementation due to programming differences of
+	 * java. There is no need to deallocate any structures.
+	 * 
+	 * @see Pcap#stats(org.jnetpcap.PcapStat) return stats structure which is
+	 *      filled with statistics or null on error
+	 */
+	public native PcapStatEx statsEx();
 }
