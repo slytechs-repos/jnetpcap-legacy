@@ -190,27 +190,27 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_PcapAddr_initIDs
 		return;
 	}
 
-	if ( ( pcapAddrAddrFID = env->GetFieldID(c, "addr", "Lorg/jnetpcap/PcapSockaddr;")) == NULL) {
+	if ( ( pcapAddrAddrFID = env->GetFieldID(c, "addr", "Lorg/jnetpcap/PcapSockAddr;")) == NULL) {
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field PcapAddr.addr:PcapSockaddr");
+				"Unable to initialize field PcapAddr.addr:PcapSockAddr");
 		return;
 	}
 
-	if ( ( pcapAddrNetmaskFID = env->GetFieldID(c, "netmask", "Lorg/jnetpcap/PcapSockaddr;")) == NULL) {
+	if ( ( pcapAddrNetmaskFID = env->GetFieldID(c, "netmask", "Lorg/jnetpcap/PcapSockAddr;")) == NULL) {
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field PcapAddr.netmask:PcapSockaddr");
+				"Unable to initialize field PcapAddr.netmask:PcapSockAddr");
 		return;
 	}
 
-	if ( ( pcapAddrBroadaddrFID = env->GetFieldID(c, "broadaddr", "Lorg/jnetpcap/PcapSockaddr;")) == NULL) {
+	if ( ( pcapAddrBroadaddrFID = env->GetFieldID(c, "broadaddr", "Lorg/jnetpcap/PcapSockAddr;")) == NULL) {
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field PcapAddr.broadaddr:PcapSockaddr");
+				"Unable to initialize field PcapAddr.broadaddr:PcapSockAddr");
 		return;
 	}
 
-	if ( ( pcapAddrDstaddrFID = env->GetFieldID(c, "dstaddr", "Lorg/jnetpcap/PcapSockaddr;")) == NULL) {
+	if ( ( pcapAddrDstaddrFID = env->GetFieldID(c, "dstaddr", "Lorg/jnetpcap/PcapSockAddr;")) == NULL) {
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field PcapAddr.dstaddr:PcapSockaddr");
+				"Unable to initialize field PcapAddr.dstaddr:PcapSockAddr");
 		return;
 	}
 }
@@ -279,44 +279,44 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_PcapIf_initIDs
 }
 
 /*******************************************************************************
- * PcapSockaddr.java IDs
+ * PcapSockAddr.java IDs
  ******************************************************************************/
-jclass pcapSockaddrClass = NULL;
-jfieldID pcapSockaddrFamilyFID = 0;
-jfieldID pcapSockaddrDataFID = 0;
-jmethodID pcapSockaddrConstructorMID = 0;
+jclass PcapSockAddrClass = NULL;
+jfieldID PcapSockAddrFamilyFID = 0;
+jfieldID PcapSockAddrDataFID = 0;
+jmethodID PcapSockAddrConstructorMID = 0;
 
 /*
- * Class:     org_jnetpcap_PcapSockaddr
+ * Class:     org_jnetpcap_PcapSockAddr
  * Method:    initIDs
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_org_jnetpcap_PcapSockaddr_initIDs
+JNIEXPORT void JNICALL Java_org_jnetpcap_PcapSockAddr_initIDs
 (JNIEnv *env, jclass clazz) {
 	jclass c;
 	
-	// PcapSockaddr class
-	if ( (pcapSockaddrClass = c = findClass(env, "org/jnetpcap/PcapSockaddr")) == NULL) {
+	// PcapSockAddr class
+	if ( (PcapSockAddrClass = c = findClass(env, "org/jnetpcap/PcapSockAddr")) == NULL) {
 		throwException(env, CLASS_NOT_FOUND_EXCEPTION,
-				"Unable to initialize class org.jnetpcap.PcapSockaddr");
+				"Unable to initialize class org.jnetpcap.PcapSockAddr");
 		return;
 	}
 
-	if ( (pcapSockaddrConstructorMID = env->GetMethodID(c, "<init>", "()V")) == NULL) {
+	if ( (PcapSockAddrConstructorMID = env->GetMethodID(c, "<init>", "()V")) == NULL) {
 		throwException(env, NO_SUCH_METHOD_EXCEPTION,
-				"Unable to initialize constructor org.jnetpcap.PcapSockaddr()");
+				"Unable to initialize constructor org.jnetpcap.PcapSockAddr()");
 		return;
 	}
 
-	if ( ( pcapSockaddrFamilyFID = env->GetFieldID(c, "family", "S")) == NULL) {
+	if ( ( PcapSockAddrFamilyFID = env->GetFieldID(c, "family", "S")) == NULL) {
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field PcapSockaddr.family:short");
+				"Unable to initialize field PcapSockAddr.family:short");
 		return;
 	}
 
-	if ( ( pcapSockaddrDataFID = env->GetFieldID(c, "data", "[B")) == NULL) {
+	if ( ( PcapSockAddrDataFID = env->GetFieldID(c, "data", "[B")) == NULL) {
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field PcapSockaddr.data:byte[]");
+				"Unable to initialize field PcapSockAddr.data:byte[]");
 		return;
 	}
 
