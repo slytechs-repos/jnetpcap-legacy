@@ -13,7 +13,7 @@ method which returns a boolean value. A return value of
 means that the extensions are supported and available, while a value of
 <code>false</code>
 means they are not. All methods will throw an
-<code>UnsupportedOperationException</code>
+<code>PcapExtensionNotAvailableException</code>
 if used and the extensions are not supported on this particular
 platform. Therefore it is essential to always perform this check before
 relying on these extensions.
