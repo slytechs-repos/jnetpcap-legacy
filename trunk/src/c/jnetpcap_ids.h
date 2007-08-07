@@ -16,7 +16,7 @@ extern jclass byteBufferClass;
 extern jclass stringBuilderClass;
 extern jclass pcapIfClass;
 extern jclass pcapAddrClass;
-extern jclass pcapSockaddrClass;
+extern jclass PcapSockAddrClass;
 
 extern jfieldID pcapPhysicalFID;
 
@@ -39,12 +39,12 @@ extern 	jfieldID pcapAddrNetmaskFID;
 extern 	jfieldID pcapAddrBroadaddrFID;
 extern 	jfieldID pcapAddrDstaddrFID;
 
-extern 	jfieldID pcapSockaddrFamilyFID;
-extern 	jfieldID pcapSockaddrDataFID;
+extern 	jfieldID PcapSockAddrFamilyFID;
+extern 	jfieldID PcapSockAddrDataFID;
 
 extern 	jmethodID pcapConstructorMID;
 extern 	jmethodID pcapIfConstructorMID;
-extern 	jmethodID pcapSockaddrConstructorMID;
+extern 	jmethodID PcapSockAddrConstructorMID;
 extern 	jmethodID pcapAddrConstructorMID;
 extern 	jmethodID appendMID;
 extern 	jmethodID setLengthMID;

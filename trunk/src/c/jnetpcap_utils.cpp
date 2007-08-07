@@ -372,7 +372,7 @@ jobject newPcapAddr(JNIEnv *env, jobject jlist, jmethodID MID_add, pcap_addr *a)
 	
 	jobject jsock;
 	if (a->addr != NULL) {
-		if ( (jsock = newPcapSockaddr(env, a->addr)) == NULL) {
+		if ( (jsock = newPcapSockAddr(env, a->addr)) == NULL) {
 			return NULL;
 		}
 		
@@ -382,7 +382,7 @@ jobject newPcapAddr(JNIEnv *env, jobject jlist, jmethodID MID_add, pcap_addr *a)
 	}
 	
 	if (a->netmask != NULL) {
-		if ( (jsock = newPcapSockaddr(env, a->netmask)) == NULL) {
+		if ( (jsock = newPcapSockAddr(env, a->netmask)) == NULL) {
 			return NULL;
 		}
 		env->SetObjectField(obj, pcapAddrNetmaskFID, jsock);
@@ -391,7 +391,7 @@ jobject newPcapAddr(JNIEnv *env, jobject jlist, jmethodID MID_add, pcap_addr *a)
 	}
 	
 	if (a->broadaddr != NULL) {
-		if ( (jsock = newPcapSockaddr(env, a->broadaddr)) == NULL) {
+		if ( (jsock = newPcapSockAddr(env, a->broadaddr)) == NULL) {
 			return NULL;
 		}
 		env->SetObjectField(obj, pcapAddrBroadaddrFID, jsock);
@@ -400,7 +400,7 @@ jobject newPcapAddr(JNIEnv *env, jobject jlist, jmethodID MID_add, pcap_addr *a)
 	}
 
 	if (a->dstaddr != NULL) {
-		if ( (jsock = newPcapSockaddr(env, a->dstaddr)) == NULL) {
+		if ( (jsock = newPcapSockAddr(env, a->dstaddr)) == NULL) {
 			return NULL;
 		}
 		env->SetObjectField(obj, pcapAddrDstaddrFID, jsock);
@@ -411,29 +411,29 @@ jobject newPcapAddr(JNIEnv *env, jobject jlist, jmethodID MID_add, pcap_addr *a)
 	return obj;
 }
 
-jobject newPcapSockaddr(JNIEnv *env, sockaddr *a) {
-	jobject obj = env->NewObject(pcapSockaddrClass, pcapSockaddrConstructorMID);
+jobject newPcapSockAddr(JNIEnv *env, sockaddr *a) {
+	jobject obj = env->NewObject(PcapSockAddrClass, PcapSockAddrConstructorMID);
 
-	env->SetShortField(obj, pcapSockaddrFamilyFID, (jshort) a->sa_family);
+	env->SetShortField(obj, PcapSockAddrFamilyFID, (jshort) a->sa_family);
 		
 	if (a->sa_family == AF_INET) {
 		jbyteArray jarray = env->NewByteArray(4);
 		env->SetByteArrayRegion(jarray, 0, 4, (jbyte *)(a->sa_data + 2));
 		
-		env->SetObjectField(obj, pcapSockaddrDataFID, jarray);
+		env->SetObjectField(obj, PcapSockAddrDataFID, jarray);
 		
 		env->DeleteLocalRef(jarray);
 	} else if (a->sa_family == AF_INET6) {
 		jbyteArray jarray = env->NewByteArray(16);
 		env->SetByteArrayRegion(jarray, 0, 16, (jbyte *)(a->sa_data + 2));
 		
-		env->SetObjectField(obj, pcapSockaddrDataFID, jarray);
+		env->SetObjectField(obj, PcapSockAddrDataFID, jarray);
 		env->DeleteLocalRef(jarray);
 	} else {
 		jbyteArray jarray = env->NewByteArray(14); // Has to be atleast 14 bytes
 		env->SetByteArrayRegion(jarray, 0, 14, (jbyte *)(a->sa_data + 2));
 		
-		env->SetObjectField(obj, pcapSockaddrDataFID, jarray);
+		env->SetObjectField(obj, PcapSockAddrDataFID, jarray);
 		env->DeleteLocalRef(jarray);
 
 //		printf("Unknow sockaddr family=%d\n", a->sa_family);

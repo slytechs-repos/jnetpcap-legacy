@@ -31,7 +31,7 @@ public final class PcapAddr {
 		initIDs();
 		
     try {
-	    Class.forName("org.jnetpcap.PcapSockaddr");
+	    Class.forName("org.jnetpcap.PcapSockAddr");
     } catch (ClassNotFoundException e) {
 	    throw new IllegalStateException(e);
     }

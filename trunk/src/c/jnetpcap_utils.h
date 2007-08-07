@@ -77,7 +77,7 @@ jmethodID findMethod(JNIEnv *env, jobject obj, char *name, char *signature);
 
 jobject newPcapAddr(JNIEnv *env, jobject jlist, jmethodID MID_add, pcap_addr *addr);
 jobject newPcapIf(JNIEnv *env, jobject jlist, jmethodID MID_add, pcap_if_t *ifp);
-jobject newPcapSockaddr(JNIEnv *env, sockaddr *a);
+jobject newPcapSockAddr(JNIEnv *env, sockaddr *a);
 
 void setPcapStat(JNIEnv *env, jobject jstats, pcap_stat *stats);
 
