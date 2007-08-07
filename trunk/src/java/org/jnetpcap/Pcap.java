@@ -177,7 +177,7 @@ import org.apache.commons.logging.LogFactory;
  * Alternative way of capturing packets from any of the open pcap sessions is to
  * use {@link #dispatch(int, PcapHandler, Object)} method, which works very
  * similarly to {@link #loop(int, PcapHandler, Object)}. You can also use
- * {@link #next(PcapPktHdr2)} and {@link #nextEx(PcapPktHdr2, PcapPktBuffer)}
+ * {@link #next(PcapPktHdr)} and {@link #nextEx(PcapPktHdr, PcapPktBuffer)}
  * methods which will deliver 1 packet at a time.
  * </p>
  * <h3>No packet data copies!</h3>
@@ -931,7 +931,7 @@ public class Pcap {
 	 *          structure captured values
 	 * @return buffer containing packet data or null if error occured
 	 */
-	public native ByteBuffer next(PcapPktHdr2 pkt_header);
+	public native ByteBuffer next(PcapPktHdr pkt_header);
 
 	/**
 	 * Read a packet from an interface or from an offline capture. This function
@@ -955,7 +955,7 @@ public class Pcap {
 	 *         <li>-2 if EOF was reached reading from an offline capture
 	 *         </ul>
 	 */
-	public native int nextEx(PcapPktHdr2 pkt_header, PcapPktBuffer buffer);
+	public native int nextEx(PcapPktHdr pkt_header, PcapPktBuffer buffer);
 
 	/**
 	 * This method allows to send a raw packet to the network. The MAC CRC doesn't
