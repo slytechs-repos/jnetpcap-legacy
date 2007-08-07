@@ -43,6 +43,7 @@
  * be encoded and decoded using the trivial UTC8 encoding.
  * 
  */
+#include "export.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,25 +59,26 @@
 #include <sys/ioctl.h>
 #include <net/if.h>
 #include <unistd.h>
-#include <Win32-Extensions.h>
 #endif /*WIN32*/
 
 /*
  *  jNetPcap header files
  * 
- * The EXTERN macro defines extern "C" for c++ or nothing for C
+ * The JNIEXPORT macro defines JNIEXPORT "C" for c++ or nothing for C
  */
 #include "jnetpcap_utils.h"
 #include "jnetpcap_bpf.h"
 #include "jnetpcap_dumper.h"
 #include "org_jnetpcap_Pcap.h"
 
+
+
 /*
  * Class:     org_jnetpcap_Pcap
  * Method:    openLive
  * Signature: (Ljava/lang/String;IIILjava/lang/StringBuilder;)Lorg/jnetpcap/Pcap;
  */
-EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_openLive(JNIEnv *env, jclass clazz,
+JNIEXPORT jobject JNICALL Java_org_jnetpcap_Pcap_openLive(JNIEnv *env, jclass clazz,
 		jstring jdevice, jint jsnaplen, jint jpromisc, jint jtimeout,
 		jobject jerrbuf) {
 
@@ -114,7 +116,7 @@ EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_openLive(JNIEnv *env, jclass clazz
  * Method:    openDead
  * Signature: (II)Lorg/jnetpcap/Pcap;
  */
-EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_openDead
+JNIEXPORT jobject JNICALL Java_org_jnetpcap_Pcap_openDead
 (JNIEnv *env, jclass clazz, jint jlinktype, jint jsnaplen) {
 
 	pcap_t *p = pcap_open_dead(jlinktype, jsnaplen);
@@ -137,7 +139,7 @@ EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_openDead
  * Method:    openOffline
  * Signature: (Ljava/lang/String;Ljava/lang/StringBuilder;)Lorg/jnetpcap/Pcap;
  */
-EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_openOffline
+JNIEXPORT jobject JNICALL Java_org_jnetpcap_Pcap_openOffline
 (JNIEnv *env, jclass clazz, jstring jfname, jobject jerrbuf) {
 
 	if (jfname == NULL || jerrbuf == NULL) {
@@ -170,7 +172,7 @@ EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_openOffline
  * Method:    close
  * Signature: ()V
  */
-EXTERN void JNICALL Java_org_jnetpcap_Pcap_close
+JNIEXPORT void JNICALL Java_org_jnetpcap_Pcap_close
 (JNIEnv *env, jobject obj) {
 
 	pcap_t *p = getPcap(env, obj);
@@ -188,7 +190,7 @@ EXTERN void JNICALL Java_org_jnetpcap_Pcap_close
  * Method:    dispatch
  * Signature: (ILorg/jnetpcap/PcapHandler;Ljava/lang/Object;)I
  */
-EXTERN jint JNICALL Java_org_jnetpcap_Pcap_dispatch
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch
 (JNIEnv *env, jobject obj, jint jcnt, jobject jhandler, jobject juser) {
 
 	if (jhandler == NULL) {
@@ -223,7 +225,7 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_dispatch
  * Method:    loop
  * Signature: (ILorg/jnetpcap/PcapHandler;Ljava/lang/Object;)I
  */
-EXTERN jint JNICALL Java_org_jnetpcap_Pcap_loop
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop
 (JNIEnv *env, jobject obj, jint jcnt, jobject jhandler, jobject juser) {
 
 	if (jhandler == NULL) {
@@ -258,7 +260,7 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_loop
  * Method:    next
  * Signature: (Lorg/jnetpcap/PcapPkthdr;)Ljava/nio/ByteBuffer;
  */
-EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_next
+JNIEXPORT jobject JNICALL Java_org_jnetpcap_Pcap_next
 (JNIEnv *env, jobject obj, jobject jpkt_header) {
 
 	if (jpkt_header == NULL) {
@@ -292,7 +294,7 @@ EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_next
  * Method:    nextEx
  * Signature: (Lorg/jnetpcap/PcapPkthdr;Lorg/jnetpcap/PcapPktbuffer;)I
  */
-EXTERN jint JNICALL Java_org_jnetpcap_Pcap_nextEx
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_nextEx
 (JNIEnv *env, jobject obj, jobject jpkt_header, jobject jpkt_buffer) {
 
 	if (jpkt_header == NULL || jpkt_buffer == NULL) {
@@ -327,8 +329,8 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_nextEx
  * Method:    sendPacketPrivate
  * Signature: (Ljava/nio/ByteBuffer;)I
  */
-EXTERN jint JNICALL Java_org_jnetpcap_Pcap_sendPacketPrivate
-(JNIEnv *env, jobject obj, jobject jbytebuffer, int jstart, int jlength) {
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_sendPacketPrivate
+(JNIEnv *env, jobject obj, jobject jbytebuffer, jint jstart, jint jlength) {
 
 	if (jbytebuffer == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION,
@@ -356,7 +358,7 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_sendPacketPrivate
  * Method:    breakloop
  * Signature: ()V
  */
-EXTERN void JNICALL Java_org_jnetpcap_Pcap_breakloop
+JNIEXPORT void JNICALL Java_org_jnetpcap_Pcap_breakloop
 (JNIEnv *env, jobject obj) {
 
 	pcap_t *p = getPcap(env, obj);
@@ -372,7 +374,7 @@ EXTERN void JNICALL Java_org_jnetpcap_Pcap_breakloop
  * Method:    datalink
  * Signature: ()I
  */
-EXTERN jint JNICALL Java_org_jnetpcap_Pcap_datalink
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_datalink
 (JNIEnv *env, jobject obj) {
 
 	pcap_t *p = getPcap(env, obj);
@@ -388,7 +390,7 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_datalink
  * Method:    setNonBlock
  * Signature: (ILjava/lang/StringBuilder;)I
  */
-EXTERN jint JNICALL Java_org_jnetpcap_Pcap_setNonBlock
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_setNonBlock
 (JNIEnv *env, jobject obj, jint jnonblock, jobject jerrbuf) {
 
 	if (jerrbuf == NULL) {
@@ -417,7 +419,7 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_setNonBlock
  * Method:    getNonBlock
  * Signature: (Ljava/lang/StringBuilder;)I
  */
-EXTERN jint JNICALL Java_org_jnetpcap_Pcap_getNonBlock
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_getNonBlock
 (JNIEnv *env, jobject obj, jobject jerrbuf) {
 
 	if (jerrbuf == NULL) {
@@ -446,7 +448,7 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_getNonBlock
  * Method:    setDatalink
  * Signature: (I)I
  */
-EXTERN jint JNICALL Java_org_jnetpcap_Pcap_setDatalink
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_setDatalink
 (JNIEnv *env, jobject obj, jint value) {
 
 	pcap_t *p = getPcap(env, obj);
@@ -462,7 +464,7 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_setDatalink
  * Method:    snapshot
  * Signature: ()I
  */
-EXTERN jint JNICALL Java_org_jnetpcap_Pcap_snapshot
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_snapshot
 (JNIEnv *env, jobject obj) {
 
 	pcap_t *p = getPcap(env, obj);
@@ -478,7 +480,7 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_snapshot
  * Method:    datalinkNameToVal
  * Signature: (Ljava/lang/String;)I
  */
-EXTERN jint JNICALL Java_org_jnetpcap_Pcap_datalinkNameToVal
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_datalinkNameToVal
 (JNIEnv *env, jclass clazz, jstring jname) {
 
 	if (jname == NULL) {
@@ -498,7 +500,7 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_datalinkNameToVal
  * Method:    datalinkValToName
  * Signature: (I)Ljava/lang/String;
  */
-EXTERN jstring JNICALL Java_org_jnetpcap_Pcap_datalinkValToName
+JNIEXPORT jstring JNICALL Java_org_jnetpcap_Pcap_datalinkValToName
 (JNIEnv *env, jclass clazz, jint jdlt) {
 
 	const char *name = pcap_datalink_val_to_name((int)jdlt);
@@ -513,7 +515,7 @@ EXTERN jstring JNICALL Java_org_jnetpcap_Pcap_datalinkValToName
  * Method:    datalinkValToDescription
  * Signature: (I)Ljava/lang/String;
  */
-EXTERN jstring JNICALL Java_org_jnetpcap_Pcap_datalinkValToDescription
+JNIEXPORT jstring JNICALL Java_org_jnetpcap_Pcap_datalinkValToDescription
 (JNIEnv *env, jclass clazz, jint jdlt) {
 
 	const char *name = pcap_datalink_val_to_description((int)jdlt);
@@ -528,7 +530,7 @@ EXTERN jstring JNICALL Java_org_jnetpcap_Pcap_datalinkValToDescription
  * Method:    isSwapped
  * Signature: ()I
  */
-EXTERN jint JNICALL Java_org_jnetpcap_Pcap_isSwapped
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_isSwapped
 (JNIEnv *env, jobject obj) {
 
 	pcap_t *p = getPcap(env, obj);
@@ -544,7 +546,7 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_isSwapped
  * Method:    majorVersion
  * Signature: ()I
  */
-EXTERN jint JNICALL Java_org_jnetpcap_Pcap_majorVersion
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_majorVersion
 (JNIEnv *env, jobject obj) {
 
 	pcap_t *p = getPcap(env, obj);
@@ -560,7 +562,7 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_majorVersion
  * Method:    minorVersion
  * Signature: ()I
  */
-EXTERN jint JNICALL Java_org_jnetpcap_Pcap_minorVersion
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_minorVersion
 (JNIEnv *env, jobject obj) {
 
 	pcap_t *p = getPcap(env, obj);
@@ -576,7 +578,7 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_minorVersion
  * Method:    getErr
  * Signature: ()Ljava/lang/String;
  */
-EXTERN jstring JNICALL Java_org_jnetpcap_Pcap_getErr
+JNIEXPORT jstring JNICALL Java_org_jnetpcap_Pcap_getErr
 (JNIEnv *env, jobject obj) {
 
 	pcap_t *p = getPcap(env, obj);
@@ -596,7 +598,7 @@ EXTERN jstring JNICALL Java_org_jnetpcap_Pcap_getErr
  * Method:    libVersion
  * Signature: ()Ljava/lang/String;
  */
-EXTERN jstring JNICALL Java_org_jnetpcap_Pcap_libVersion
+JNIEXPORT jstring JNICALL Java_org_jnetpcap_Pcap_libVersion
 (JNIEnv *env , jclass clazz) {
 
 	const char *str = pcap_lib_version();
@@ -611,7 +613,7 @@ EXTERN jstring JNICALL Java_org_jnetpcap_Pcap_libVersion
  * Method:    findAllDevs
  * Signature: (Ljava/util/Listf;Ljava/lang/StringBuilder;)I
  */
-EXTERN jint JNICALL Java_org_jnetpcap_Pcap_findAllDevs
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_findAllDevs
 (JNIEnv *env, jclass clazz, jobject jlist, jobject jerrbuf) {
 
 	if (jlist == NULL || jerrbuf == NULL) {
@@ -664,7 +666,7 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_findAllDevs
  * Method:    compileNoPcap
  * Signature: (IILorg/jnetpcap/PcapBpfProgram;Ljava/lang/String;II)I
  */
-EXTERN jint JNICALL Java_org_jnetpcap_Pcap_compileNoPcap
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_compileNoPcap
 (JNIEnv *env, jclass clazz, jint snaplen, jint dlt,
 		jobject jbpf, jstring jstr, jint optimize, jint mask) {
 
@@ -703,7 +705,7 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_compileNoPcap
  * Method:    compile
  * Signature: (Lorg/jnetpcap/PcapBpfProgram;Ljava/lang/String;II)I
  */
-EXTERN jint JNICALL Java_org_jnetpcap_Pcap_compile
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_compile
 (JNIEnv *env, jobject obj, jobject jbpf, jstring jstr, jint optimize, jint mask) {
 
 	if (jbpf == NULL || jstr == NULL) {
@@ -746,7 +748,7 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_compile
  * Method:    freecode
  * Signature: (Lorg/jnetpcap/PcapBpfProgram;)V
  */
-EXTERN void JNICALL Java_org_jnetpcap_Pcap_freecode
+JNIEXPORT void JNICALL Java_org_jnetpcap_Pcap_freecode
 (JNIEnv *env, jclass clazz, jobject jbpf) {
 
 	if (jbpf == NULL) {
@@ -762,7 +764,7 @@ EXTERN void JNICALL Java_org_jnetpcap_Pcap_freecode
  * Method:    setFilter
  * Signature: (Lorg/jnetpcap/PcapBpfProgram;)I
  */
-EXTERN jint JNICALL Java_org_jnetpcap_Pcap_setFilter
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_setFilter
 (JNIEnv *env, jobject obj, jobject jbpf) {
 
 	if (jbpf == NULL) {
@@ -788,7 +790,7 @@ EXTERN jint JNICALL Java_org_jnetpcap_Pcap_setFilter
  * Method:    dumpOpen
  * Signature: (Ljava/lang/String;)Lorg/jnetpcap/PcapDumper;
  */
-EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_dumpOpen
+JNIEXPORT jobject JNICALL Java_org_jnetpcap_Pcap_dumpOpen
 (JNIEnv *env, jobject obj, jstring jfname) {
 
 	if (jfname == NULL) {
@@ -823,7 +825,7 @@ EXTERN jobject JNICALL Java_org_jnetpcap_Pcap_dumpOpen
  * Method:    stats
  * Signature: (Lorg/jnetpcap/PcapStat;)I
  */
-EXTERN jint JNICALL Java_org_jnetpcap_Pcap_stats
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_stats
 (JNIEnv *env, jobject obj, jobject jstats) {
 
 	if (jstats == NULL) {

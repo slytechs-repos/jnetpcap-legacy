@@ -1,4 +1,3 @@
-#include <jni.h>
 /* Header for jnetpcap_utils utility methods */
 
 #ifndef _Included_org_jnetpcap_Pcap_utils
@@ -7,6 +6,11 @@
 extern "C" {
 #define	EXTERN extern "C"
 #endif
+
+#include "export.h"
+	
+#include <jni.h>
+
 	
 #define ILLEGAL_STATE_EXCEPTION "java/lang/IllegalStateException"
 #define INVALID_ARGUMENT_EXCEPTION "java/leng/InvalidArgumentException"

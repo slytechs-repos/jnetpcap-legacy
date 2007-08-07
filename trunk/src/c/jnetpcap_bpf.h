@@ -1,13 +1,16 @@
-#include <jni.h>
 /* Header for jnetpcap_utils utility methods */
 
-#ifndef _Included_org_jnetpcap_Pcap
-#define _Included_org_jnetpcap_Pcap
+#ifndef _Included_jnetpcap_bpf_h
+#define _Included_jnetpcap_bpf_h
 #ifdef __cplusplus
 extern "C" {
 #define	EXTERN extern "C"
 #endif
 	
+#include "export.h"
+	
+#include <jni.h>
+
 extern	jclass bpfProgramClass;
 
 extern	jfieldID bpfProgramPhysicalFID;

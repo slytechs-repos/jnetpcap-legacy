@@ -33,8 +33,15 @@ public class TestWinPcapExtensions
 
 	private final static String device = "\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
 
-	@SuppressWarnings("unused")
 	private final static String fname = "tests/test-l2tp.pcap";
+
+	private static final int OK = 0;
+
+	private static final int snaplen = 64 * 1024;
+
+	private static final int promisc = 1;
+
+	private static final int oneSecond = 1000;
 
 	private StringBuilder errbuf;
 
@@ -89,6 +96,14 @@ public class TestWinPcapExtensions
 		winPcap.dispatch(10, handler, "Hello");
 
 		winPcap.close();
+	}
+
+	public void testStatsEx() {
+
+		WinPcap pcap = WinPcap.openLive(device, snaplen, promisc, oneSecond, errbuf);
+		
+		
+
 	}
 
 }
