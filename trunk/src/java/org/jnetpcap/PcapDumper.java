@@ -41,7 +41,7 @@ public class PcapDumper {
 	 * @param hdr
 	 * @param packet
 	 */
-	public void dump(PcapPkthdr hdr, ByteBuffer packet) {
+	public void dump(PcapPktHdr2 hdr, ByteBuffer packet) {
 		dump(hdr.getSeconds(), hdr.getUseconds(), hdr.getCaplen(), hdr.getLen(),
 		    packet);
 	}

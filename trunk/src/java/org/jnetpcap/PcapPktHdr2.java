@@ -21,7 +21,7 @@ package org.jnetpcap;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class PcapPkthdr {
+public class PcapPktHdr2 {
 	
 	private native static void initIDs();
 	

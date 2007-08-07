@@ -499,7 +499,7 @@ public class TestPcapJNI
 
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		assertNotNull(pcap);
-		PcapPkthdr hdr = new PcapPkthdr();
+		PcapPktHdr2 hdr = new PcapPktHdr2();
 
 		ByteBuffer buffer = pcap.next(hdr);
 
@@ -516,7 +516,7 @@ public class TestPcapJNI
 
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		assertNotNull(pcap);
-		PcapPkthdr hdr = new PcapPkthdr();
+		PcapPktHdr2 hdr = new PcapPktHdr2();
 		PcapPktBuffer buf = new PcapPktBuffer();
 
 		int r = pcap.nextEx(hdr, buf);
