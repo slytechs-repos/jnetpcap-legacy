@@ -77,7 +77,7 @@ public class TestWinPcapExtensions
 	 * just rename the method, by removing the prefix SKIP. Then make sure there
 	 * are live packets to be captured.
 	 */
-	public void testOpenLiveAndDispatch() {
+	public void SKIPtestOpenLiveAndDispatch() {
 
 		WinPcap winPcap = WinPcap.openLive(device, 10000, 1, 60 * 1000, errbuf);
 		assertNotNull(winPcap);

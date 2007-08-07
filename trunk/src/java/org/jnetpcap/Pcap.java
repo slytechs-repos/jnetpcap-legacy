@@ -334,6 +334,7 @@ public class Pcap {
 			// we hold a Global reference to the class once initialized in JNI, will
 			// never be unloaded
 			Class.forName("org.jnetpcap.PcapDumper");
+			Class.forName("org.jnetpcap.PcapIf");
 		} catch (Exception e) {
 			initError = e;
 			logger.error("Unable to initialize JNI from static initializer: "

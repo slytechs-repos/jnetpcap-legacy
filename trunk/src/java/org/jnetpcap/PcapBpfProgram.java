@@ -34,6 +34,9 @@ import java.nio.ByteBuffer;
  * @author Sly Technologies, Inc.
  */
 public class PcapBpfProgram {
+	
+	private native static void initIDs();
+	
 	static {
 		/*
 		 * Touch Pcap class. PcapBpfProgram JNI jfieldID tables are loaded during
@@ -43,6 +46,7 @@ public class PcapBpfProgram {
 		 */
 		try {
 			Class.forName("org.jnetpcap.Pcap");
+			initIDs();
 		} catch (ClassNotFoundException e) {
 			// Empty on purpose
 		}

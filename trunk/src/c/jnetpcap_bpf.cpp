@@ -7,6 +7,7 @@
  * Utility file that provides various conversion methods for chaging objects
  * back and forth between C and Java JNI.
  */
+#include "export.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,6 +27,9 @@
 
 #include "jnetpcap_bpf.h"
 #include "jnetpcap_utils.h"
+#include "jnetpcap_ids.h"
+
+
 
 bpf_program *getBpfProgram(JNIEnv *env, jobject obj) {
 	jlong pt = env->GetLongField(obj, bpfProgramPhysicalFID);
@@ -85,10 +89,34 @@ jfieldID bpfProgramPhysicalFID = 0;
 
 /*
  * Class:     org_jnetpcap_PcapBpfProgram
+ * Method:    initIDs
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_PcapBpfProgram_initIDs
+(JNIEnv *env, jclass clazz) {
+
+	jclass c;
+	// PcapBpfProgram class
+	if ( (bpfProgramClass = c = findClass(env, "org/jnetpcap/PcapBpfProgram")) == NULL) {
+		throwException(env, CLASS_NOT_FOUND_EXCEPTION,
+				"Unable to initialize class org.jnetpcap.PcapBpfProgram");
+		return;
+	}
+
+	if ( ( bpfProgramPhysicalFID = env->GetFieldID(c, "physical", "J")) == NULL) {
+		throwException(env, NO_SUCH_FIELD_EXCEPTION,
+				"Unable to initialize field PcapBpfProgram.physical:long");
+		return;
+	}
+}
+
+
+/*
+ * Class:     org_jnetpcap_PcapBpfProgram
  * Method:    cleanup
  * Signature: ()V
  */
-EXTERN void JNICALL Java_org_jnetpcap_PcapBpfProgram_cleanup
+JNIEXPORT void JNICALL Java_org_jnetpcap_PcapBpfProgram_cleanup
 (JNIEnv *env , jobject obj) {
 
 	freeBpfProgramIfExists(env, obj);
@@ -99,7 +127,7 @@ EXTERN void JNICALL Java_org_jnetpcap_PcapBpfProgram_cleanup
  * Method:    initFromArray
  * Signature: ([B)V
  */
-EXTERN void JNICALL Java_org_jnetpcap_PcapBpfProgram_initFromArray
+JNIEXPORT void JNICALL Java_org_jnetpcap_PcapBpfProgram_initFromArray
 (JNIEnv *env, jobject obj, jbyteArray jinst) {
 
 }
@@ -109,7 +137,7 @@ EXTERN void JNICALL Java_org_jnetpcap_PcapBpfProgram_initFromArray
  * Method:    initFromBuffer
  * Signature: (Ljava/nio/ByteBuffer;II)V
  */
-EXTERN void JNICALL Java_org_jnetpcap_PcapBpfProgram_initFromBuffer
+JNIEXPORT void JNICALL Java_org_jnetpcap_PcapBpfProgram_initFromBuffer
 (JNIEnv *env , jobject obj, jobject jbuf, jint jstart, jint jlen) {
 
 }
@@ -119,7 +147,7 @@ EXTERN void JNICALL Java_org_jnetpcap_PcapBpfProgram_initFromBuffer
  * Method:    getInstructionCount
  * Signature: ()I
  */
-EXTERN jint JNICALL Java_org_jnetpcap_PcapBpfProgram_getInstructionCount
+JNIEXPORT jint JNICALL Java_org_jnetpcap_PcapBpfProgram_getInstructionCount
 (JNIEnv *env, jobject jbpf) {
 
 	bpf_program *b = getBpfProgram(env, jbpf);
@@ -135,7 +163,7 @@ EXTERN jint JNICALL Java_org_jnetpcap_PcapBpfProgram_getInstructionCount
  * Method:    getInstruction
  * Signature: (I)J
  */
-EXTERN jlong JNICALL Java_org_jnetpcap_PcapBpfProgram_getInstruction
+JNIEXPORT jlong JNICALL Java_org_jnetpcap_PcapBpfProgram_getInstruction
 (JNIEnv *env, jobject jbpf, jint index) {
 
 	bpf_program *b = getBpfProgram(env, jbpf);
