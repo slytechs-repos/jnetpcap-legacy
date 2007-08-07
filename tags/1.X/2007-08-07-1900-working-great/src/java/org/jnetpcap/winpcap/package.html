@@ -1,0 +1,20 @@
+<body>
+<p>WinPcap extensions to libpcap avialable on a limited set of
+platforms. This package adds additional functionality provided by
+WinPcap library widely available on win32 based platforms. These
+extensions are optional and are not available on unix based platforms.</p>
+<h1>Checking for WinPcap extension availability</h1>
+Before you utilize any of the extension in this package, the programmer
+must first check if the extensions are available on this particular
+platform. To do that use
+<code>WinPcap.isSupported()</code>
+method which returns a boolean value. A return value of
+<code>true</code>
+means that the extensions are supported and available, while a value of
+<code>false</code>
+means they are not. All methods will throw an
+<code>PcapExtensionNotAvailableException</code>
+if used and the extensions are not supported on this particular
+platform. Therefore it is essential to always perform this check before
+relying on these extensions.
+</body>

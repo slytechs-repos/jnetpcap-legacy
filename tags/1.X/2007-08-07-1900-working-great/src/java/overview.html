@@ -1,0 +1,136 @@
+<body>
+<h1>Introduction</h1>
+<p>jNetPcap is a java wrapper around Libpcap and WinPcap native
+libraries found on various unix and windows platforms. jNetPcap exposes
+the functionality as a java programming interface (API) which this
+documentation describes.
+<p><b> Feature highlights:</b>
+<ul>
+	<li>Follows native <em>Libpcap</em> programming model. This makes
+	learning <em>jNetPcap</em> API easy.</li>
+	<li><b> No packet buffer copies between Libpcap and java
+	space. </b>Existing native in-memory buffer is wrapped inside a <code>java.nio.ByteBuffer</code>
+	object.</li>
+	<li>Low level and efficient JNI implementation.</li>
+	<li>Provides some very low level functions previously not
+	available in Java space. i.e. <code>setBuffer</code> for changing
+	buffer size and others.</li>
+	<li>Very small library footprint</li>
+</ul>
+
+<h2>Project website and the native <em>Libpcap</em> connection</h2>
+
+<p>Since <em>jNetPcap</em> is very closely mapped to native <em>Libpcap</em>
+library functions, users are encouraged to read libpcap documentation at
+<a href="http://sourceforge.net/projects/libpcap">tcpdump.org</a>. You can visit <em>jNetPcap</em>
+project website for for more information and a user guide with tutorials
+at <a href="http://jnetpcap.sf.net">http://jnetpcap.sf.net</a> .</p>
+<h1>About Libpcap native library</h1>
+<p>Pcap is an application programming interface for packet
+capturing. The implementation of pcap for Unix-like systems is known as
+libpcap; the Windows port of libpcap is called WinPcap. libpcap and
+WinPcap may be used by a program to capture packets travelling over a
+network and, in newer versions, to transmit packets on a network at the
+link layer, as well as to get a list of network interfaces that can be
+used with libpcap or WinPcap. libpcap and WinPcap are the packet capture
+and filtering engines of many open source and commercial network tools,
+including protocol analyzers, network monitors, network intrusion
+detection systems, packet sniffers, traffic generators and network
+testers. The pcap API is designed for use from C and C++, so, for other
+languages such as scripting languages, Java, and .NET languages, a
+wrapper is generally used. (<em>Credit: wikipedia.org</em>)</p>
+<h1>About WinPcap windows libpcap implementation</h1>
+WinPcap WinPcap consists of:
+<ul>
+	<li>drivers for Windows 95/98/Me, and for the Windows NT family
+	(Windows NT 4.0, Windows 2000, Windows XP, Windows Server 2003, Windows
+	Vista, etc.), that use NDIS to read packets directly from a network
+	adapter
+	<li>implementations of a lower-level library for those OSes, to
+	communicate with those drivers
+	<li>a port of libpcap that uses the API offered by the low-level
+	library implementations. It was originally created at the Politecnico
+	di Torino. Now it's maintained by CACE Technologies, a company created
+	by some of the WinPcap developers.
+</ul>
+(
+<em>Credit: wikipedia.org</em>
+)
+<h1>About jNetPcap a java wrapper</h1>
+<b>jNetPcap</b>
+is a java wrapper based on both libpcap and WinPcap. jNetPcap's API
+provides core implementation based on unix libpcap API library (
+<code>org.jnetpcap</code>
+) while also providing the WinPcap extra functionality as an extension (
+<code>org.jnetpcap.winpcap</code>
+). The main classes which implement libpcap and WinPcap functinality
+are:
+<ul>
+	<li><code>org.jnetpcap.Pcap</code> class - core libpcap methods
+	available on all platforms</li>
+	<li><code>org.jnetpcap.winpcap.WinPcap</code> class - extensions
+	based on WinPcap library typically only available on windows based
+	system</li>
+</ul>
+The core libpcap implementation of jNetPcap, provides methods to do the
+following functions
+<ul>
+	<li>Find a complete list of network interfaces the system has</li>
+	<li>open either a network interface or a PCAP capture file for
+	reading packets</li>
+	<li>apply a packet filter</li>
+	<li>dump packets into a PCAP capture file</li>
+	<li>transmit raw link layer packets over a network interface</li>
+	<li>gather statistics on network interface counters</li>
+</ul>
+
+<h1>About jNetPcap's WinPcap extension</h1>
+WinPcap library from (http://winpcap.org), provides support for all of
+the core libpcap functions. It also provides numerous functions that are
+not part of the core libpcap functionality and are only available on
+platforms that support WinPcap. These extra functions greatly enhance
+libpcap calls, and generally don't provide features not found in the
+core. They simply provide enhanced versions of the functions that are
+more efficient or provide greater control over lets say the behaviour of
+the NPF driver within a windows kernel. This is great news for windows
+platforms.
+<h2>Checking for WinPcap extension support</h2>
+Since java can be run on nearly any platform and WinPcap extensions are
+only available on windows platforms, the user must check first if the
+extension is available before using it. The check is done using a static
+method call
+<code>WinPcap.isSupported</code>
+which will return a boolean value. Returned value of
+<code>true</code>
+means that the extension is supported otherwise
+<code>false</code>
+. WinPcap extension can not be used on a platform that does not support
+the extension. Any method call used with
+<code>WinPcap</code>
+class will throw an immediate
+<code>UnsupportedOperationException</code>
+. Therefore it is very important to always do a check first before
+relying on an extension.
+
+<h1>Other extensions?</h1>
+Currently no other extensions are supported, but can easily be added
+once suitable candidates are found such as (AirPcap from
+http://cacetech.com), as long licensing terms permit it.
+<h2>Java requirements</h2>
+<em>jNetPcap</em>
+requires Java JRE 1.5. All other requirements for this package are
+included as part of all distributions. All logging messages are logged
+using logger neutral
+<em>commons-logging</em>
+from Apache Foundation. jUnit tests are not distributed with the binary
+release, but are distributed with the source package. Any jUnit library
+is sufficient to run all jUnit test cases. Build environment requires
+ANT, ANT's contrib
+<em>cpptasks</em>
+, and a C++ compiler. Currently jNetPcap compiles using
+<em>MinGW</em>
+gcc compiler and environment on win32 platform and under regular gnu gcc
+on linux. No
+<em>Makefiles</em>
+are used nor required.
+</body>
