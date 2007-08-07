@@ -1,0 +1,326 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head><title>Project Team - Logging</title><style type="text/css" media="all">
+          @import url("./style/maven-base.css");
+          
+          @import url("./style/maven-theme.css");@import url("./style/project.css");</style><link rel="stylesheet" href="./style/print.css" type="text/css" media="print"></link><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"></meta><script type="text/javascript">
+            function offsetDate(id, offset) {
+              var now = new Date() ;
+              var nowTime = now.getTime() ;
+              var localOffset = now.getTimezoneOffset() ;
+              var developerTime = nowTime + (offset * 60 * 60 * 1000) + (localOffset * 60 * 1000) ;
+              var developerDate = new Date(developerTime) ;
+
+              document.getElementById(id).innerHTML = developerDate;
+            }
+
+            function init() {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
+        </script></head><body class="composite" onload="init();"><div id="banner"><a href="http://jakarta.apache.org" id="organizationLogo"><img alt="The Apache Software Foundation" src="http://jakarta.apache.org/images/original-jakarta-logo.gif"></img></a><a href="http://jakarta.apache.org/commons/logging/" id="projectLogo"><img alt="Logging" src="./images/logo.png"></img></a><div class="clear"><hr></hr></div></div><div id="breadcrumbs"><div class="xleft">Last published: 09 May 2006
+                <span class="separator">|</span> Doc for  1.1
+                </div><div class="xright">
+        
+        <a href="http://jakarta.apache.org/commons/" class="externalLink" title="External Link">Jakarta Commons</a>
+      </div><div class="clear"><hr></hr></div></div><div id="leftColumn"><div id="navcolumn"><div id="menuCommons_Logging_1_1"><h5>Commons Logging 1.1</h5><ul><li class="none"><a href="index.html">Overview</a></li><li class="none"><a href="guide.html">User Guide</a></li><li class="none"><a href="tech.html">Tech Guide</a></li><li class="none"><a href="troubleshooting.html">Troubleshooting Guide</a></li><li class="none"><a href="http://wiki.apache.org/jakarta-commons/Logging" class="externalLink" title="External Link">Wiki</a></li><li class="none"><a href="apidocs/index.html">JavaDoc</a></li><li class="none"><a href="RELEASE-NOTES.txt">Release Notes</a></li><li class="none"><a href="building.html">Building</a></li><li class="none"><a href="http://jakarta.apache.org/site/downloads/downloads_commons-logging.cgi" class="externalLink" title="External Link">Download</a></li></ul></div><div id="menu1_0_4_Release"><h5>1.0.4 Release</h5><ul><li class="none"><a href="http://jakarta.apache.org/commons/logging/commons-logging-1.0.4/docs/" class="externalLink" title="External Link">Documentation</a></li><li class="none"><a href="http://jakarta.apache.org/commons/logging/commons-logging-1.0.4/docs/apidocs/" class="externalLink" title="External Link">JavaDoc</a></li><li class="none"><a href="http://jakarta.apache.org/commons/logging/commons-logging-1.0.4/RELEASE-NOTES.txt" class="externalLink" title="External Link">Release Notes</a></li></ul></div><div id="menu1_0_3_Release"><h5>1.0.3 Release</h5><ul><li class="none"><a href="http://jakarta.apache.org/commons/logging/commons-logging-1.0.3/usersguide.html" class="externalLink" title="External Link">User Guide</a></li><li class="none"><a href="http://jakarta.apache.org/commons/logging/commons-logging-1.0.3/docs/api/" class="externalLink" title="External Link">JavaDoc</a></li><li class="none"><a href="http://jakarta.apache.org/commons/logging/commons-logging-1.0.3/RELEASE-NOTES.txt" class="externalLink" title="External Link">Release Notes</a></li></ul></div><div id="menu1_0_2_Release"><h5>1.0.2 Release</h5><ul><li class="none"><a href="http://jakarta.apache.org/commons/logging/commons-logging-1.0.2/docs/api/" class="externalLink" title="External Link">JavaDoc</a></li></ul></div><div id="menuProject_Documentation"><h5>Project Documentation</h5><ul><li class="none"><a href="index.html">About</a></li><li class="expanded"><a href="project-info.html">Project Info</a><ul><li class="none"><a href="mail-lists.html">Mailing Lists</a></li><li class="none"><strong><a href="team-list.html">Project Team</a></strong></li><li class="none"><a href="dependencies.html">Dependencies</a></li><li class="none"><a href="cvs-usage.html">Source Repository</a></li><li class="none"><a href="issue-tracking.html">Issue Tracking</a></li></ul></li><li class="collapsed"><a href="maven-reports.html">Project Reports</a></li><li class="none"><a href="http://jakarta.apache.org/commons/charter.html" class="externalLink" title="External Link">Development Process</a></li></ul></div><div id="menuCommons"><h5>Commons</h5><ul><li class="none"><a href="http://jakarta.apache.org/commons/" class="externalLink" title="External Link">Home</a></li><li class="collapsed"><a href="http://jakarta.apache.org/commons/components.html" class="externalLink" title="External Link">Components</a></li><li class="collapsed"><a href="http://jakarta.apache.org/commons/sandbox/index.html" class="externalLink" title="External Link">Sandbox</a></li><li class="collapsed"><a href="http://jakarta.apache.org/commons/dormant/index.html" class="externalLink" title="External Link">Dormant</a></li><li class="none"><a href="http://jakarta.apache.org/commons/volunteering.html" class="externalLink" title="External Link">Volunteering</a></li><li class="none"><a href="http://jakarta.apache.org/commons/patches.html" class="externalLink" title="External Link">Contributing Patches</a></li><li class="none"><a href="http://jakarta.apache.org/commons/building.html" class="externalLink" title="External Link">Building Components</a></li><li class="none"><a href="http://jakarta.apache.org/commons/releases/index.html" class="externalLink" title="External Link">Releasing Components</a></li><li class="none"><a href="http://wiki.apache.org/jakarta-commons/FrontPage" class="externalLink" title="External Link">Wiki</a></li></ul></div><div id="legend"><h5>Legend</h5><ul><li class="externalLink">External Link</li><li class="newWindow">Opens in a new window</li></ul></div><a href="http://maven.apache.org/" title="Built by Maven" id="poweredBy"><img alt="Built by Maven" src="./images/logos/maven-feather.png"></img></a></div></div><div id="bodyColumn"><div class="contentBox"><div class="section"><a name="The_Team"></a><h2>The Team</h2>
+            <p>
+                A successful project requires many people to play many roles. Some members write code or documentation, while others are valuable as testers, submitting patches and suggestions.
+            </p>
+
+            <p>
+                The team is comprised of Members and Contributors. Members have direct access to the source of a project and actively evolve the code-base. Contributors improve the project through submission of patches and suggestions to the Members. The number of Contributors to the project is unbounded. Get involved today. All contributions to the project are greatly appreciated.
+            </p>
+
+            <div class="subsection"><a name="Members"></a><h3>Members</h3>
+                                <p>
+                    The following is a list of developers with commit privileges that have directly contributed to the project in one way or another.  
+                </p>
+                <table class="bodyTable">
+                    <thead>
+                        <tr class="b">
+                            <th>
+                                Name
+                            </th>
+                            <th>
+                                Id
+                            </th>
+                            <th>
+                                Email
+                            </th>
+                            <th>
+                                Organization
+                            </th>
+                            <th>
+                                Roles
+                            </th>
+                            <th>
+                                TZ Offset
+                            </th>
+                            <th>
+                                Time
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                                                <tr class="a">
+                                                        <td>Morgan Delagrange</td>
+                                                        <td>
+                                <a name="morgand"></a>
+                                morgand
+                            </td>
+                            <td>
+                                <a href="mailto:morgand at apache dot org">
+                                    morgand at apache dot org
+                                </a>
+                            </td>
+                            <td>Apache</td>
+                            <td>
+                                                                Java Developer
+                                <br></br>
+                                                            </td>
+                            <td></td>
+                            <td>
+                                <span id="developer-morgand">
+                                    Unknown
+                                </span>
+                            </td>
+                        </tr>
+                                                <tr class="b">
+                                                        <td>Rodney Waldhoff</td>
+                                                        <td>
+                                <a name="rwaldhoff"></a>
+                                rwaldhoff
+                            </td>
+                            <td>
+                                <a href="mailto:rwaldhoff at apache org">
+                                    rwaldhoff at apache org
+                                </a>
+                            </td>
+                            <td>Apache Software Foundation</td>
+                            <td>
+                                                            </td>
+                            <td></td>
+                            <td>
+                                <span id="developer-rwaldhoff">
+                                    Unknown
+                                </span>
+                            </td>
+                        </tr>
+                                                <tr class="a">
+                                                        <td>Craig McClanahan</td>
+                                                        <td>
+                                <a name="craigmcc"></a>
+                                craigmcc
+                            </td>
+                            <td>
+                                <a href="mailto:craigmcc at apache org">
+                                    craigmcc at apache org
+                                </a>
+                            </td>
+                            <td>Apache Software Foundation</td>
+                            <td>
+                                                            </td>
+                            <td></td>
+                            <td>
+                                <span id="developer-craigmcc">
+                                    Unknown
+                                </span>
+                            </td>
+                        </tr>
+                                                <tr class="b">
+                                                        <td>Scott Sanders</td>
+                                                        <td>
+                                <a name="sanders"></a>
+                                sanders
+                            </td>
+                            <td>
+                                <a href="mailto:sanders at apache dot org">
+                                    sanders at apache dot org
+                                </a>
+                            </td>
+                            <td>Apache Software Foundation</td>
+                            <td>
+                                                            </td>
+                            <td></td>
+                            <td>
+                                <span id="developer-sanders">
+                                    Unknown
+                                </span>
+                            </td>
+                        </tr>
+                                                <tr class="a">
+                                                        <td>Robert Burrell Donkin</td>
+                                                        <td>
+                                <a name="rdonkin"></a>
+                                rdonkin
+                            </td>
+                            <td>
+                                <a href="mailto:rdonkin at apache dot org">
+                                    rdonkin at apache dot org
+                                </a>
+                            </td>
+                            <td>Apache Software Foundation</td>
+                            <td>
+                                                            </td>
+                            <td></td>
+                            <td>
+                                <span id="developer-rdonkin">
+                                    Unknown
+                                </span>
+                            </td>
+                        </tr>
+                                                <tr class="b">
+                                                        <td>Peter Donald</td>
+                                                        <td>
+                                <a name="donaldp"></a>
+                                donaldp
+                            </td>
+                            <td>
+                                <a href="mailto:donaldp at apache dot org">
+                                    donaldp at apache dot org
+                                </a>
+                            </td>
+                            <td></td>
+                            <td>
+                                                            </td>
+                            <td></td>
+                            <td>
+                                <span id="developer-donaldp">
+                                    Unknown
+                                </span>
+                            </td>
+                        </tr>
+                                                <tr class="a">
+                                                        <td>Costin Manolache</td>
+                                                        <td>
+                                <a name="costin"></a>
+                                costin
+                            </td>
+                            <td>
+                                <a href="mailto:costin at apache dot org">
+                                    costin at apache dot org
+                                </a>
+                            </td>
+                            <td>Apache Software Foundation</td>
+                            <td>
+                                                            </td>
+                            <td></td>
+                            <td>
+                                <span id="developer-costin">
+                                    Unknown
+                                </span>
+                            </td>
+                        </tr>
+                                                <tr class="b">
+                                                        <td>Richard Sitze</td>
+                                                        <td>
+                                <a name="rsitze"></a>
+                                rsitze
+                            </td>
+                            <td>
+                                <a href="mailto:rsitze at apache dot org">
+                                    rsitze at apache dot org
+                                </a>
+                            </td>
+                            <td>Apache Software Foundation</td>
+                            <td>
+                                                            </td>
+                            <td></td>
+                            <td>
+                                <span id="developer-rsitze">
+                                    Unknown
+                                </span>
+                            </td>
+                        </tr>
+                                                <tr class="a">
+                                                        <td>Juozas Baliuka</td>
+                                                        <td>
+                                <a name="baliuka"></a>
+                                baliuka
+                            </td>
+                            <td>
+                                <a href="mailto:baliuka@apache.org">
+                                    baliuka@apache.org
+                                </a>
+                            </td>
+                            <td></td>
+                            <td>
+                                                                Java Developer
+                                <br></br>
+                                                            </td>
+                            <td></td>
+                            <td>
+                                <span id="developer-baliuka">
+                                    Unknown
+                                </span>
+                            </td>
+                        </tr>
+                                                <tr class="b">
+                                                        <td>Simon Kitching</td>
+                                                        <td>
+                                <a name="skitching"></a>
+                                skitching
+                            </td>
+                            <td>
+                                <a href="mailto:skitching@apache.org">
+                                    skitching@apache.org
+                                </a>
+                            </td>
+                            <td>Apache Software Foundation</td>
+                            <td>
+                                                            </td>
+                            <td></td>
+                            <td>
+                                <span id="developer-skitching">
+                                    Unknown
+                                </span>
+                            </td>
+                        </tr>
+                                                <tr class="a">
+                                                        <td>Dennis Lundberg</td>
+                                                        <td>
+                                <a name="dennisl"></a>
+                                dennisl
+                            </td>
+                            <td>
+                                <a href="mailto:dennisl@apache.org">
+                                    dennisl@apache.org
+                                </a>
+                            </td>
+                            <td>Apache Software Foundation</td>
+                            <td>
+                                                            </td>
+                            <td></td>
+                            <td>
+                                <span id="developer-dennisl">
+                                    Unknown
+                                </span>
+                            </td>
+                        </tr>
+                                                <tr class="b">
+                                                        <td>Brian Stansberry</td>
+                                                        <td>
+                                <a name="bstansberry"></a>
+                                bstansberry
+                            </td>
+                            <td>
+                                <a href="mailto:">
+                                    
+                                </a>
+                            </td>
+                            <td></td>
+                            <td>
+                                                            </td>
+                            <td></td>
+                            <td>
+                                <span id="developer-bstansberry">
+                                    Unknown
+                                </span>
+                            </td>
+                        </tr>
+                                            </tbody>
+                </table>
+                            </div>
+            <div class="subsection"><a name="Contributors"></a><h3>Contributors</h3>
+                                <p>
+                    There are no contributors listed for this project. Please check back again later.
+                </p>
+                            </div>
+        </div></div></div><div class="clear"><hr></hr></div><div id="footer"><div class="xright">© 2001-2006, The Apache Software Foundation</div><div class="clear"><hr></hr></div></div></body></html>
