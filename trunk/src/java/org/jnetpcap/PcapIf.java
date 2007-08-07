@@ -25,6 +25,18 @@ import java.util.List;
  * @author Sly Technologies, Inc.
  */
 public final class PcapIf {
+	
+	private native static void initIDs();
+	
+	static {
+		initIDs();
+		
+		try {
+	    Class.forName("org.jnetpcap.PcapAddr");
+    } catch (ClassNotFoundException e) {
+	    throw new IllegalStateException(e);
+    }
+	}
 
 	/**
 	 * The field is initialized to the next object in native linked list, but is

@@ -24,6 +24,19 @@ import java.util.List;
  * @author Sly Technologies, Inc.
  */
 public final class PcapAddr {
+	
+	private native static void initIDs();
+	
+	static {
+		initIDs();
+		
+    try {
+	    Class.forName("org.jnetpcap.PcapSockaddr");
+    } catch (ClassNotFoundException e) {
+	    throw new IllegalStateException(e);
+    }
+
+	}
 
 	private volatile PcapAddr next;
 

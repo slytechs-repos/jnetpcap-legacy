@@ -22,6 +22,12 @@ package org.jnetpcap;
  * @author Sly Technologies, Inc.
  */
 public class PcapSockaddr {
+	
+	private native static void initIDs();
+	
+	static {
+		initIDs();
+	}
 
 	/**
 	 * Socket family internet version 4

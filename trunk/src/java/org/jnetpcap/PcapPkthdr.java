@@ -22,6 +22,12 @@ package org.jnetpcap;
  * @author Sly Technologies, Inc.
  */
 public class PcapPkthdr {
+	
+	private native static void initIDs();
+	
+	static {
+		initIDs();
+	}
 
 	private volatile long seconds;
 
