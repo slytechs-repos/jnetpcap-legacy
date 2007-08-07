@@ -22,9 +22,10 @@ documentation describes.
 
 <p>Since <em>jNetPcap</em> is very closely mapped to native <em>Libpcap</em>
 library functions, users are encouraged to read libpcap documentation at
-<a href="http://sourceforge.net/projects/libpcap">tcpdump.org</a>. You can visit <em>jNetPcap</em>
-project website for for more information and a user guide with tutorials
-at <a href="http://jnetpcap.sf.net">http://jnetpcap.sf.net</a> .</p>
+<a href="http://sourceforge.net/projects/libpcap">libpcap website</a> (former http://tcpdump.org). You
+can visit <em>jNetPcap</em> project website for for more information and
+a user guide with tutorials at <a href="http://jnetpcap.sf.net">http://jnetpcap.sf.net</a>
+.</p>
 <h1>About Libpcap native library</h1>
 <p>Pcap is an application programming interface for packet
 capturing. The implementation of pcap for Unix-like systems is known as
@@ -105,12 +106,12 @@ which will return a boolean value. Returned value of
 means that the extension is supported otherwise
 <code>false</code>
 . WinPcap extension can not be used on a platform that does not support
-the extension. Any method call used with
-<code>WinPcap</code>
-class will throw an immediate
-<code>UnsupportedOperationException</code>
-. Therefore it is very important to always do a check first before
-relying on an extension.
+the extension. Any method used with
+<code>WinPcap</code> on an unsupported platform, will throw an immediate
+<code>PcapExtensionNotAvailableException</code>, to indicate that its more 
+then just this one particular operation that
+is disabled. Therefore it is very important to always do a check first
+before relying on an extension.
 
 <h1>Other extensions?</h1>
 Currently no other extensions are supported, but can easily be added
