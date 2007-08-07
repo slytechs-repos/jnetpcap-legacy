@@ -15,9 +15,6 @@ package org.jnetpcap;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  * <P>
  * This class is the main wrapper around libpcap and winpcap library
@@ -212,34 +209,6 @@ public class Pcap {
 	public static final int DISPATCH_BUFFER_FULL = -1;
 
 	/**
-	 * Holds the exception thrown from the static initializer only. After its been
-	 * reset by the init() function, this field is never set again.
-	 */
-	private static Exception initError;
-
-	/**
-	 * Name of the dynamically loaded shared library (a .dll on windows and .so on
-	 * unix machines.) OS dependent library extension or prefixes are not and
-	 * should not be part of this name field.
-	 */
-	private static final String JNI_SHARED_LIBRARY_NAME = "jnetpcap";
-
-	/**
-	 * Boolean flag to tell if JNI shared library initialized itself properly
-	 * after it was loaded. Init uses it to try and re-initialize the JNI library
-	 * by calling its jniInitialize() method and it failed the last time.
-	 */
-	private static boolean jniInitStatus = false;
-
-	/**
-	 * Boolean flag to tell if the library loaded succesfully. Init uses it to try
-	 * and reload the library if it failed and init was called again by the user.
-	 */
-	private static boolean libraryLoadStatus = false;
-
-	private static final Log logger = LogFactory.getLog(Pcap.class);
-
-	/**
 	 * Value of packet count argument for <code>loop</code> method call which
 	 * indicates that the loop should never exit, unless an error occured or
 	 * <code>breakloop</code> call was used to interrupt the dispatcher. Note,
@@ -325,32 +294,28 @@ public class Pcap {
 	public static final int OK = 0;
 
 	/**
+	 * Name of the native library that wraps around libpcap and extensions
+	 */
+	public static final String JNETPCAP_LIBRARY_NAME = "jnetpcap";
+
+	/**
 	 * Static initializer
 	 */
 	static {
+
+		System.loadLibrary(JNETPCAP_LIBRARY_NAME);
+
+		initIDs();
+
 		try {
-			init();
 			// Make sure some classes that are needed get loaded too
 			// we hold a Global reference to the class once initialized in JNI, will
 			// never be unloaded
 			Class.forName("org.jnetpcap.PcapDumper");
 			Class.forName("org.jnetpcap.PcapIf");
 		} catch (Exception e) {
-			initError = e;
-			logger.error("Unable to initialize JNI from static initializer: "
-			    + e.toString(), e);
+			throw new IllegalStateException(e);
 		}
-	}
-
-	/**
-	 * This method checks the status of the initialization squence started in
-	 * static initializer right when the class was first loaded.
-	 * 
-	 * @return null is returned on success otherwise the exception that caused the
-	 *         failure
-	 */
-	public static Exception checkStaticInitializerError() {
-		return initError;
 	}
 
 	/**
@@ -506,53 +471,6 @@ public class Pcap {
 	public native static void freecode(PcapBpfProgram program);
 
 	/**
-	 * Initializes the jNetPcap library JNI component. This method is called
-	 * automatically by this class's static initializer and usually does not need
-	 * to be called again. Before calling on init, you should first check with
-	 * {@link #checkStaticInitializerError} method to see if the static
-	 * initializer generated any error. If there was an error, then you can try
-	 * and recover, after which init may be called again. Init does not catch any
-	 * exceptions that might be thrown from native initializer or library load
-	 * function. The method clears the error status as returned by
-	 * {@link #checkStaticInitializerError} and this error is never set again. All
-	 * error are thrown immediately from this time forward by this method.
-	 * 
-	 * @throws UnsatisfiedLinkError
-	 *           if native JNI shared library can not be found
-	 * @throws SecurityException
-	 *           if you don't have permission to load the JNI shared library
-	 * @throws IllegalStateException
-	 *           something terribly wrong during JNI initialization sequence
-	 * @throws ClassNotFoundException
-	 *           JNI unable to locate required class and aquire its handle
-	 * @throws NoSuchMethodException
-	 *           the class was found, but did not contain the required method and
-	 *           JNI was unable to aquire its handle
-	 * @throws NoSuchFieldException
-	 *           the class was found, but did not contain the required field and
-	 *           JNI was unable to aquire its handle
-	 */
-	public static void init() throws UnsatisfiedLinkError, SecurityException,
-	    IllegalStateException, ClassNotFoundException, NoSuchMethodException,
-	    NoSuchFieldException {
-
-		initError = null; // Clear previous error if any
-
-		if (libraryLoadStatus == false) {
-			System.loadLibrary(JNI_SHARED_LIBRARY_NAME);
-			libraryLoadStatus = true; // Library loaded OK
-		}
-
-		if (jniInitStatus == false) {
-			initIDs();
-			jniInitStatus = true;
-		}
-
-	}
-
-	// public native int loop(int cnt, PcapHandler heandler, Object user);
-
-	/**
 	 * Initializes JNI. Mainly prefetches all the JNI class, method and field IDs
 	 * for everything that jnetpcap shared library needs inorder to interact with
 	 * Java VM. This is done once and never has to be redone again. Once both the
@@ -570,8 +488,7 @@ public class Pcap {
 	 *           the class was found, but did not contain the required field and
 	 *           JNI was unable to aquire its handle
 	 */
-	private native static void initIDs() throws IllegalStateException,
-	    ClassNotFoundException, NoSuchMethodException, NoSuchFieldException;
+	private native static void initIDs();
 
 	/**
 	 * Returns a pointer to a string giving information about the version of the
