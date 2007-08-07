@@ -22,7 +22,7 @@ import java.nio.ByteBuffer;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class PcapPktbuffer {
+public class PcapPktBuffer2 {
 	private volatile ByteBuffer buffer;
 
 	/**

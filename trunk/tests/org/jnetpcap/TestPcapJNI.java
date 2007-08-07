@@ -517,7 +517,7 @@ public class TestPcapJNI
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		assertNotNull(pcap);
 		PcapPkthdr hdr = new PcapPkthdr();
-		PcapPktbuffer buf = new PcapPktbuffer();
+		PcapPktBuffer2 buf = new PcapPktBuffer2();
 
 		int r = pcap.nextEx(hdr, buf);
 		assertEquals(1, r);
