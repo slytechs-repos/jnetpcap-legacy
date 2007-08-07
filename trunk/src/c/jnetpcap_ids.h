@@ -25,7 +25,7 @@ extern 	jfieldID pcapPkthdrUSecondsFID;
 extern 	jfieldID pcapPkthdrCaplenFID;
 extern 	jfieldID pcapPkthdrLenFID;
 
-extern 	jfieldID pcapPktBufferFID;
+extern 	jfieldID PcapPktBufferFID;
 
 extern 	jfieldID pcapIfNextFID;
 extern 	jfieldID pcapIfNameFID;
