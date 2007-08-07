@@ -10,15 +10,15 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap;
+package org.jnetpcap.winpcap;
 
 import java.nio.ByteBuffer;
 import java.util.Date;
 
 import junit.framework.TestCase;
 
-import org.jnetpcap.winpcap.WinPcap;
-import org.jnetpcap.winpcap.WinPcapStat;
+import org.jnetpcap.PcapHandler;
+import org.jnetpcap.PcapPktHdr;
 
 /**
  * @author Mark Bednarczyk
