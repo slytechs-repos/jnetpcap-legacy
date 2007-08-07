@@ -465,6 +465,29 @@ void setPktHeader(JNIEnv *env, jobject jpkt_header, pcap_pkthdr *pkt_header) {
 	env->SetIntField(jpkt_header, pcapPkthdrLenFID, (jint)pkt_header->len);
 }
 
+/*
+ * Function: getPktHeader
+ * Description: extracts the contents of PcapPkthdr java object into a
+ *              pcap_pkthdr structure.
+ * Return: the supplied structured filled in or if null, new allocated one.
+ */
+pcap_pkthdr *getPktHeader(JNIEnv *env, jobject jpkt_header, pcap_pkthdr *pkt_header) {
+	
+	if (pkt_header == NULL) {
+		pkt_header = (pcap_pkthdr *) malloc(sizeof(pcap_pkthdr));
+	}
+
+	pkt_header->ts.tv_sec = (int) env->GetLongField(jpkt_header, pcapPkthdrSecondsFID);
+
+	pkt_header->ts.tv_usec = (int) env->GetIntField(jpkt_header, pcapPkthdrUSecondsFID);
+
+	pkt_header->caplen = (int) env->GetIntField(jpkt_header, pcapPkthdrCaplenFID);
+
+	pkt_header->len = (int) env->GetIntField(jpkt_header, pcapPkthdrLenFID);
+	
+	return pkt_header;
+}
+
 void setPktBuffer(JNIEnv *env, jobject jpkt_buffer, jobject jbuffer) {
 	env->SetObjectField(jpkt_buffer, pcapPktBufferFID, jbuffer);
 }
