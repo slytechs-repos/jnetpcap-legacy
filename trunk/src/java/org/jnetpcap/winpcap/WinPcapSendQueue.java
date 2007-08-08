@@ -54,6 +54,8 @@ public class WinPcapSendQueue {
 	 */
 	public WinPcapSendQueue(int size) {
 		this.buffer = ByteBuffer.allocateDirect(DEFAULT_QUEUE_SIZE);
+		this.buffer.flip();
+		this.buffer.order(ByteOrder.nativeOrder()); // Force byte ordering
 	}
 
 	/**
@@ -85,6 +87,7 @@ public class WinPcapSendQueue {
 		}
 
 		this.buffer = buffer;
+		this.buffer.order(ByteOrder.nativeOrder()); // Force byte ordering
 	}
 
 	/**
@@ -175,6 +178,13 @@ public class WinPcapSendQueue {
 			throw new IllegalArgumentException("Buffer length (limit - position) "
 			    + "does not equal length in packet header");
 		}
+		
+		int length = data.limit() - data.position();
+		
+		/*
+		 * Advance the limit to make room for our data
+		 */
+		buffer.limit(buffer.limit() + length + 4 * 4);
 
 		/*
 		 * Write the packet header first
@@ -224,6 +234,7 @@ public class WinPcapSendQueue {
 		/*
 		 * Write the packet header first
 		 */
+		buffer.limit(buffer.limit() + data.length + 4 * 4);
 		buffer.putInt((int) hdr.getSeconds());
 		buffer.putInt((int) hdr.getUseconds());
 		buffer.putInt((int) hdr.getCaplen());
