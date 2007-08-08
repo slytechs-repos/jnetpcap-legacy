@@ -18,6 +18,7 @@ import org.jnetpcap.PcapStat;
  * Provides access to additional statical fields as returned from a call to
  * WinPcap.statsEx().
  * 
+ * @see WinPcap#statsEx()
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
@@ -28,6 +29,14 @@ public class WinPcapStat
 
 	static {
 		initIDs();
+	}
+
+	/**
+	 * Empty stats structure that will be filled in after the call to
+	 * <code>statsEx</code>
+	 */
+	private WinPcapStat() {
+
 	}
 
 	/**
@@ -51,21 +60,20 @@ public class WinPcapStat
 		return super.sent;
 	}
 
-
 	/**
 	 * Dumps all the values as a string.
 	 */
 	public String toString() {
-		
+
 		out.setLength(0);
-		
+
 		out.append("recv=").append(getRecv());
 		out.append(", drop=").append(getDrop());
 		out.append(", ifdrop=").append(getIfDrop());
 		out.append(", capt=").append(getCapt());
 		out.append(", netdrop=").append(getNetdrop());
 		out.append(", sent=").append(getSent());
-		
+
 		return out.toString();
 	}
 }
