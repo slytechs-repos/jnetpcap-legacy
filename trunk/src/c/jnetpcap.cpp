@@ -849,3 +849,19 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_stats
 
 	return r;
 }
+
+/*
+ * Class:     org_jnetpcap_Pcap
+ * Method:    checkIsActive
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_Pcap_checkIsActive
+  (JNIEnv *env, jobject obj) {
+	
+	pcap_t *p = getPcap(env, obj);
+	if (p == NULL) {
+		return; // Exception already thrown
+	}
+
+	return; // No exception thrown, check OK
+}

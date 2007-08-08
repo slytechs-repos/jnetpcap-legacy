@@ -209,6 +209,11 @@ public class Pcap {
 	public static final int DISPATCH_BUFFER_FULL = -1;
 
 	/**
+	 * Name of the native library that wraps around libpcap and extensions
+	 */
+	public static final String JNETPCAP_LIBRARY_NAME = "jnetpcap";
+
+	/**
 	 * Value of packet count argument for <code>loop</code> method call which
 	 * indicates that the loop should never exit, unless an error occured or
 	 * <code>breakloop</code> call was used to interrupt the dispatcher. Note,
@@ -292,11 +297,6 @@ public class Pcap {
 	 * call succeeded.
 	 */
 	public static final int OK = 0;
-
-	/**
-	 * Name of the native library that wraps around libpcap and extensions
-	 */
-	public static final String JNETPCAP_LIBRARY_NAME = "jnetpcap";
 
 	/**
 	 * Static initializer
@@ -650,6 +650,23 @@ public class Pcap {
 	public native void breakloop();
 
 	/**
+	 * Checks if the current Pcap structure is active and open. It automatically
+	 * throws an exception when its closed, but will not crash the VM. All dynamic
+	 * non-native method in Pcap and any subclassed extensions should always make
+	 * this call before attempting to do anything with pcap. The call makes sure
+	 * that the pcap_t structure is still allocated and assigned to this object.
+	 * If Pcap has been closed, no dynamic methods should be allowed to do
+	 * anything. Native methods already perform this check. Static methods do not
+	 * rely on pcap_t structure, since they are static, so they can not do this
+	 * check.
+	 * 
+	 * @throws PcapClosedException
+	 *           if pcap_t structure has been deallocated, another words if
+	 *           Pcap.close has already been called.
+	 */
+	protected native void checkIsActive() throws PcapClosedException;
+
+	/**
 	 * pcap_close() closes the files associated with p and deallocates resources.
 	 */
 	public native void close();
@@ -884,15 +901,14 @@ public class Pcap {
 	 * @param buf
 	 *          contains the data of the packet to send (including the various
 	 *          protocol headers)
-	 * @param offset
-	 *          offset of the first index into the byte array
-	 * @param length
-	 *          amount of data to write from the offset
 	 * @return 0 on success and -1 on failure
 	 */
-	public int sendPacket(final byte[] buf, int offset, int length) {
+	public int sendPacket(final byte[] buf) {
+		checkIsActive(); // Check if Pcap.close wasn't called
+		
+		final int length = buf.length;
 		final ByteBuffer direct = ByteBuffer.allocateDirect(length);
-		direct.put(buf, offset, length);
+		direct.put(buf);
 
 		return sendPacketPrivate(direct, 0, length);
 	}
@@ -907,12 +923,17 @@ public class Pcap {
 	 * @param buf
 	 *          contains the data of the packet to send (including the various
 	 *          protocol headers)
+	 * @param offset
+	 *          offset of the first index into the byte array
+	 * @param length
+	 *          amount of data to write from the offset
 	 * @return 0 on success and -1 on failure
 	 */
-	public int sendPacket(final byte[] buf) {
-		final int length = buf.length;
+	public int sendPacket(final byte[] buf, int offset, int length) {
+		checkIsActive(); // Check if Pcap.close wasn't called
+		
 		final ByteBuffer direct = ByteBuffer.allocateDirect(length);
-		direct.put(buf);
+		direct.put(buf, offset, length);
 
 		return sendPacketPrivate(direct, 0, length);
 	}
@@ -931,6 +952,8 @@ public class Pcap {
 	 * @return 0 on success and -1 on failure
 	 */
 	public int sendPacket(final ByteBuffer buf) {
+		checkIsActive(); // Check if Pcap.close wasn't called
+
 		if (buf.isDirect() == false) {
 			final int length = buf.limit() - buf.position();
 			final ByteBuffer direct = ByteBuffer.allocateDirect(length);
@@ -1007,13 +1030,6 @@ public class Pcap {
 	public native int snapshot();
 
 	/**
-	 * Prints libVersion that Pcap is based on.
-	 */
-	public String toString() {
-		return libVersion();
-	}
-
-	/**
 	 * Returns statistics on the current capture. The method fills in the PcapStat
 	 * structure. The values represent packet statistics from the start of the run
 	 * to the time of the call.
@@ -1025,4 +1041,13 @@ public class Pcap {
 	 *         error message
 	 */
 	public native int stats(PcapStat stats);
+
+	/**
+	 * Prints libVersion that Pcap is based on.
+	 */
+	public String toString() {
+		checkIsActive(); // Check if Pcap.close wasn't called
+		
+		return libVersion();
+	}
 }
