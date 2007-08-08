@@ -21,6 +21,23 @@
                               jNetPcap Package
                                  Change Log
                                  
+== Release 1.0b3 ==
+
+* No bugs found or reported since previous release
+
+* Additions to org.jnetpcap package
+  
+  - <list of functions>
+    
+  - <list of exceptions>
+
+* Addtions of and to jnetpcap.org.winpcap package - WinPcap extensions
+  
+    + <list of functions>
+
+* Removed "commons-logging" dependency. Static initializers throw appropriate 
+  exceptions directly during initialization failure.
+
 == Release 1.0b2 ==
 
 * Bug #1767744  - PcapHandler object ptr error in loop() and dispatch()

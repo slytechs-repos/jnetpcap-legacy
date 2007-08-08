@@ -31,6 +31,7 @@
 #include "jnetpcap_bpf.h"
 #include "winpcap_ext.h"
 #include "jnetpcap_utils.h"
+#include "winpcap_ids.h"
 
 jclass winPcapClass = 0;
 
@@ -418,3 +419,122 @@ JNICALL Java_org_jnetpcap_winpcap_WinPcap_sendQueueTransmitPrivate
 	
 	return pcap_sendqueue_transmit(p, &queue, (int)jsync);
 }
+
+
+/*
+ * Function: newWinPcapSamp
+ * Description: create a new instance of WinPcapSamp class
+ */
+jobject newWinPcapSamp(JNIEnv *env, pcap_samp *samp) {
+	
+	long addr = toLong(samp);
+	jobject jsamp = env->NewObject(winPcapSampClass, winPcapSampConstructorMID, 
+			(jlong) addr);
+	
+	return jsamp;
+}
+
+/*
+ * Function: getWinPcapSamp
+ * Description: gets the pcap_samp structure from PcapWinSamp object
+ *              or thrown an exception if not initialized
+ */
+pcap_samp *getWinPcapSamp(JNIEnv *env, jobject obj) {
+	
+	long addr = (long) env->GetLongField(obj, winPcapSampPhysicalFID);
+	
+	if (addr == 0) {
+		throwException(env, ILLEGAL_STATE_EXCEPTION, 
+				"WinPcapSamp object not initialized properly. "
+				"Physical address is null.");
+		return NULL;
+	}
+	
+	return (pcap_samp *) toPtr(addr);
+}
+
+/*
+ * Class:     org_jnetpcap_winpcap_WinPcapSamp
+ * Method:    getMethod
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcapSamp_getMethod
+  (JNIEnv *env, jobject obj) {
+	
+	pcap_samp *samp = getWinPcapSamp(env, obj);
+	if (samp == NULL) {
+		return -1; // Exception already thrown
+	}
+	
+	return (jint) samp->method;
+}
+
+/*
+ * Class:     org_jnetpcap_winpcap_WinPcapSamp
+ * Method:    setMethod
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_winpcap_WinPcapSamp_setMethod
+  (JNIEnv *env, jobject obj, jint jmethod) {
+	
+	pcap_samp *samp = getWinPcapSamp(env, obj);
+	if (samp == NULL) {
+		return; // Exception already thrown
+	}
+	
+	samp->method = (int) jmethod;
+}
+
+/*
+ * Class:     org_jnetpcap_winpcap_WinPcapSamp
+ * Method:    getValue
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcapSamp_getValue
+  (JNIEnv *env, jobject obj) {
+	
+	pcap_samp *samp = getWinPcapSamp(env, obj);
+	if (samp == NULL) {
+		return -1; // Exception already thrown
+	}
+	
+	return (jint) samp->value;
+}
+
+/*
+ * Class:     org_jnetpcap_winpcap_WinPcapSamp
+ * Method:    setValue
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_winpcap_WinPcapSamp_setValue
+  (JNIEnv *env, jobject obj, jint jvalue) {
+	
+	pcap_samp *samp = getWinPcapSamp(env, obj);
+	if (samp == NULL) {
+		return; // Exception already thrown
+	}
+	
+	samp->value = (int) jvalue;
+}
+
+/*
+ * Class:     org_jnetpcap_winpcap_WinPcap
+ * Method:    setSampling
+ * Signature: ()Lorg/jnetpcap/winpcap/WinPcapSamp;
+ */
+JNIEXPORT jobject JNICALL Java_org_jnetpcap_winpcap_WinPcap_setSampling
+  (JNIEnv *env, jobject obj) {
+	
+	pcap_t *p = getPcap(env, obj);
+	if (p == NULL) {
+		return NULL; // Exception already thrown
+	}
+
+	pcap_samp *samp = pcap_setsampling(p);
+	if (samp == NULL) {
+		return NULL; // Method supported only on live captures, not on savefiles
+	}
+	
+	return newWinPcapSamp(env, samp);
+}
+

@@ -20,35 +20,37 @@
 
 
                               jNetPcap Package
-                            Version 1.0b2 (beta 2)
+                            Version 1.0b3 (beta 3)
                                Release Notes
-                            Created on 2007-07-05
+                            Created on 2007-08-XX
 
 INTRODUCTION:
 ============
 
-This release of jNetPcap library is a critical update to the first beta release 
-of the software. The API classes are compiled with Java 1.5.X compiler and 
+This release of jNetPcap library provides new features and a WinPcap extension
+java package. The API classes are compiled with Java 1.5.X compiler and 
 require Java 1.5 compatibility. The package is platform dependent as there is a 
-native library supplied for each supported operating system (i.e. jnetpcap.dll 
-file for win32 systems.)
+native library components supplied for each supported operating system 
+(i.e. jnetpcap.dll file for win32 systems.)
 
-This release provides the API for most of the common Libpcap's operations which 
-are to open_live, open_offline, open_dead, compile filters and set them. For
-capturing packets, both packet at a time and dispatched handler methods are 
-implemented. Also various low level kernel buffer operations that are natively 
-available through Libpcap library are implemented as well.
+This release provides the API for a complete list of Libpcap's operations which 
+are to openLive, openOffline, openDead, compile filters, set them and many
+others. For capturing packets, both packet at a time and dispatched handler 
+methods are implemented. Also various low level kernel buffer operations that 
+are natively available through WinPcap extension library are implemented as 
+well, but only available on windows based platforms.
 
 Since this is a beta release of the software the final version of the API and
 functionality may change slightly by the time we reach production status. 
 Feedback, peer review and feature requests are welcome. 
 
 The javadoc API documentation  and a user guide is available at the project's 
-website at (http://jnetpcap.sourceforge.net).
+website at:
+http://jnetpcap.sourceforge.net/docs/jnetpcap-1.0b3-javadoc/index.html
 
 == Installation Instruction ==
 
-To install the library simply unzip the binary 'library' package into any
+To install the library unzip the binary platform-dependent package into any
 directory. There are 2 parts to setting up environment for jNetPcap.
 
   *) Win32 Dependency: jNetPcap requires WinPcap 3.1 or greater installed. 
@@ -92,11 +94,10 @@ directory. There are 2 parts to setting up environment for jNetPcap.
 
 == Project Website and Support ==
 
-The project is actively maintained at (http://jnetpcap.sourceforge.net). For
-commercial support please visit (http://www.slytechs.com).
+The project is actively maintained at (http://jnetpcap.sourceforge.net).
 
-Also please join project's mailing list, to discuss the project or report bugs.
-(http://sourceforge.net/mail/?group_id=164277)
+Also please join project's jnetpcap-users@lists.sourceforge.net list, to discuss
+the project or report bugs at (http://sourceforge.net/mail/?group_id=164277).
 
 == Distributed Jar Files ==
 
@@ -135,8 +136,7 @@ Within the package zip file, jnetpcap-version-arch.zip that would be
 
  * To run
  
-   - Apache's commons-logging any version 
-      (http://commons.apache.org/logging/index.html)
+   - Dependency removed: Apache's commons-logging library is not longer required
       
  * In addition to run supplied tests (not required)
  
@@ -160,9 +160,6 @@ loaded in order to use this package. The jnetpcap-version.jar file needs
 to be added to CLASSPATH, while the native library to either LD_LIBRARY_PATH
 on unix system, or PATH variable on windows systems.
 
-The only external dependency (not supplied) is on Apache 'commons-logging' 
-facility. Any version will work.
-
 Also if you want to run the included junit tests in the 'tests' sub directory,
 you will need to included any version of 'jUnit' in the CLASSPATH.
 
@@ -178,12 +175,22 @@ you will need to included any version of 'jUnit' in the CLASSPATH.
  	  4.0, 4.0.1
  	
  	- jNetPcap will not work with versions prior to 3.1 including 3.0 itself.
+ 	
+ 	- WinPcap extension API is only available on windows based platforms. You
+ 	  must use org.jnetpcap.winpcap.WinPcap.isSupport method to check if the
+ 	  extension is available on this particular platform, even when code was
+ 	  built under windows environment. The java classes are included even
+ 	  on platforms that don't support WinPcap extensions, but those classes and
+ 	  any methods inkoved will throw a PcapExtensionNotAvailableException.
  	  
  * On Linux/Freebsd
 
     - current release of jNetPcap does not provide support for these operating 
       systems. These operating systems are planned to be released but at a later
       timeframe.
+     
+    - only org.jnetpcap package is supported on all Unix based platforms.
+      WinPcap extensions are disabled for non windows based platforms.
       
   * On Apple OS support 
   
@@ -192,7 +199,7 @@ you will need to included any version of 'jUnit' in the CLASSPATH.
 
 == General Notes ==
 
-This is the first beta release of jNetPcap. The library has been tested with
+This is new feature release of jNetPcap. The library has been tested with
 many jUnit test cases for both correct and out of bounds usage. The release's
 build process does testing on the code before and after its packaged to
 ensure everything is included and built with consistent environment and flags.
@@ -204,7 +211,7 @@ builds suitable for deployment in commercial products.
 
 == Bugs Fixed ==
 
-* #1767744 - PcapHandler object ptr error in loop() and dispatch() 
+* None found or reported 
 
 == Deprecations ==
 

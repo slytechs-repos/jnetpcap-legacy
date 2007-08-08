@@ -60,6 +60,7 @@ public class WinPcap
 		// Make sure some dependency classes get loaded
 		try {
 			Class.forName("org.jnetpcap.winpcap.WinPcapStat");
+			Class.forName("org.jnetpcap.winpcap.WinPcapSamp");
 		} catch (ClassNotFoundException e) {
 			throw new IllegalStateException("Unable to find class: ", e);
 		}
@@ -389,6 +390,28 @@ public class WinPcap
 	 * @return the return value is 0 when the call succeeds, -1 otherwise
 	 */
 	public native int setMode(int mode);
+
+	/**
+	 * <p>
+	 * Define a sampling method for packet capture. This function allows applying
+	 * a sampling method to the packet capture process. The currently sampling
+	 * methods (and the way to set them) are described into the struct pcap_samp.
+	 * In other words, the user must set the appropriate parameters into it; these
+	 * will be applied as soon as the capture starts.
+	 * </p>
+	 * <p>
+	 * Warning:<br>
+	 * Sampling parameters cannot be changed when a capture is active. These
+	 * parameters must be applied before starting the capture. If they are applied
+	 * when the capture is in progress, the new settings are ignored. Sampling
+	 * works only when capturing data on Win32 or reading from a file. It has not
+	 * been implemented on other platforms. Sampling works on remote machines
+	 * provided that the probe (i.e. the capturing device) is a Win32 workstation.
+	 * </p>
+	 * 
+	 * @return an object through which you can change the capture algorithm
+	 */
+	public native WinPcapSamp setSampling();
 
 	/**
 	 * This method extends the <code>Pcap.stats</code> method and allows more

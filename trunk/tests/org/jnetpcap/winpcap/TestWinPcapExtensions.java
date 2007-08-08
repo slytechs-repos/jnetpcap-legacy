@@ -145,4 +145,38 @@ public class TestWinPcapExtensions
 
 		WinPcap.sendQueueDestroy(queue);
 	}
+	
+	public void testSetSamplingLive() {
+		
+		// Only setSampling only supported on live captures
+		WinPcap pcap = WinPcap.openLive(device, snaplen, promisc, oneSecond, errbuf);
+		assertNotNull(pcap);
+		
+		WinPcapSamp samp = pcap.setSampling();
+		assertNotNull(samp);
+		
+		assertEquals("method", 0, samp.getMethod());
+		
+		samp.setMethod(WinPcapSamp.FIRST_AFTER_N_MS);
+		samp.setValue(10); // 10ms
+		assertEquals("method", 2, samp.getMethod());
+		pcap.close();
+	}
+	
+	public void testSetSamplingOffline() {
+		
+		// Only setSampling only supported on live captures
+		WinPcap pcap = WinPcap.openOffline(fname, errbuf);
+		assertNotNull(pcap);
+		
+		WinPcapSamp samp = pcap.setSampling();
+		assertNotNull(samp);
+		
+		assertEquals("method", 0, samp.getMethod());
+		
+		samp.setMethod(WinPcapSamp.FIRST_AFTER_N_MS);
+		samp.setValue(10); // 10ms
+		assertEquals("method", 2, samp.getMethod());
+		pcap.close();
+	}
 }
