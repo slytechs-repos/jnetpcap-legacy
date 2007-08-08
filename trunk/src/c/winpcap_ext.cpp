@@ -32,7 +32,6 @@
 #include "winpcap_ext.h"
 #include "jnetpcap_utils.h"
 
-
 jclass winPcapClass = 0;
 
 jmethodID winPcapConstructorMID = 0;
@@ -71,7 +70,8 @@ jboolean testExtensionSupportAndThrow(JNIEnv *env) {
  * Method:    initIDs
  * Signature: ()V
  */
-JNIEXPORT void Java_org_jnetpcap_winpcap_WinPcap_initIDs(JNIEnv *env, jclass jclazz) {
+JNIEXPORT void Java_org_jnetpcap_winpcap_WinPcap_initIDs(JNIEnv *env,
+		jclass jclazz) {
 	winPcapClass = (jclass) env->NewGlobalRef(jclazz); // This one is easy
 
 	/*
@@ -355,7 +355,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_liveDumpEnded
  * Signature: ()Lorg/jnetpcap/winpcap/PcapStatEx;
  */
 JNIEXPORT jobject JNICALL Java_org_jnetpcap_winpcap_WinPcap_statsEx
-  (JNIEnv *env, jobject obj) {
+(JNIEnv *env, jobject obj) {
 
 	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
@@ -368,18 +368,52 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_winpcap_WinPcap_statsEx
 	if (stats == NULL) {
 		return NULL; // error
 	}
-	
+
 	jobject jstats = newWinPcapStat(env);
 	if (jstats == NULL) {
 		return NULL;
 	}
-	
+
 	struct pcap_stat ps;
 	ps.ps_netdrop = 0;
 
 	setWinPcapStat(env, jstats, stats, size);
-	
+
 	free(stats); // release the memory
 
 	return jstats;
+}
+
+/*
+ * Class:     org_jnetpcap_winpcap_WinPcap
+ * Method:    sendQueueTransmitPrivate
+ * Signature: (Ljava/nio/ByteBuffer;III)I
+ */
+JNIEXPORT jint 
+JNICALL Java_org_jnetpcap_winpcap_WinPcap_sendQueueTransmitPrivate
+(JNIEnv *env, jobject obj, jobject jbuf, jint jlen, jint jmaxlen, jint jsync) {
+
+	if (jbuf == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return -1;
+	}
+
+	pcap_t *p = getPcap(env, obj);
+	if (p == NULL) {
+		return -1; // Exception already thrown
+	}
+
+	char *buffer = (char *)env->GetDirectBufferAddress(jbuf);
+	if (buffer == NULL) {
+		throwException(env, INVALID_ARGUMENT_EXCEPTION, 
+				"Invalid buffer, can not retrieve physical address");
+		return -1;
+	}
+	
+	pcap_send_queue queue;
+	queue.len    = (int) jlen;
+	queue.maxlen = (int) jmaxlen;
+	queue.buffer   = buffer;
+	
+	return pcap_sendqueue_transmit(p, &queue, (int)jsync);
 }

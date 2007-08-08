@@ -13,6 +13,7 @@
 package org.jnetpcap.winpcap;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Date;
 
 import junit.framework.TestCase;
@@ -30,7 +31,7 @@ public class TestWinPcapExtensions
 
 	private final static String device = "\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
 
-  private final static String fname = "tests/test-l2tp.pcap";
+	private final static String fname = "tests/test-l2tp.pcap";
 
 	private static final int OK = 0;
 
@@ -103,12 +104,12 @@ public class TestWinPcapExtensions
 		winPcap.close();
 	}
 
-	public void testWinPcapStats() {
+	public void SKIPtestWinPcapStats() {
 
 		WinPcap pcap = WinPcap
 		    .openLive(device, snaplen, promisc, oneSecond, errbuf);
 
-		PcapPktHdr hdr = new PcapPktHdr();
+		PcapPktHdr hdr = new PcapPktHdr(0, 0);
 		pcap.loop(50, doNothingHandler, null);
 
 		WinPcapStat stats = pcap.statsEx();
@@ -119,4 +120,30 @@ public class TestWinPcapExtensions
 
 	}
 
+	public void testSendQueue() {
+		WinPcapSendQueue queue = WinPcap.sendQueueAlloc(512);
+
+		WinPcap pcap = WinPcap
+		    .openLive(device, snaplen, promisc, oneSecond, errbuf);
+
+		byte[] pkt = new byte[128];
+		Arrays.fill(pkt, (byte) 255);
+
+		PcapPktHdr hdr = new PcapPktHdr(128, 128);
+		queue.queue(hdr, pkt); // Packet #1
+		queue.queue(hdr, pkt); // Packet #2
+
+		Arrays.fill(pkt, (byte) 0x11);
+		queue.queue(hdr, pkt); // Packet #3
+
+		if ((pcap.sendQueueTransmit(queue, WinPcap.TRANSMIT_SYNCH_ASAP) < queue
+		    .getLen())) {
+
+			fail("transmit() call failed");
+		}
+
+		pcap.close();
+		
+		WinPcap.sendQueueDestroy(queue);
+	}
 }

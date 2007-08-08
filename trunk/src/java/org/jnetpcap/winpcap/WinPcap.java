@@ -16,6 +16,7 @@ import java.nio.ByteBuffer;
 
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapBpfProgram;
+import org.jnetpcap.PcapExtensionNotAvailableException;
 import org.jnetpcap.PcapHandler;
 import org.jnetpcap.PcapPktHdr;
 
@@ -38,6 +39,20 @@ import org.jnetpcap.PcapPktHdr;
  */
 public class WinPcap
     extends Pcap {
+
+	/**
+	 * Flag used with {@link #sendQueueTransmit(WinPcapSendQueue, int), to tell
+	 * kernel to send packets as fast as possible, without synchronizing with
+	 * packet timestamps found in headers.
+	 */
+	public static final int TRANSMIT_SYNCH_ASAP = 0;
+
+	/**
+	 * Flag used with {@link #sendQueueTransmit(WinPcapSendQueue, int), to tell
+	 * kernel to send packets at the rate that is determined by the timestamp with
+	 * in the sendqueue. The transmittion is synchronized with timestamps.
+	 */
+	public static final int TRANSMIT_SYNCH_USE_TIMESTAMP = 1;
 
 	static {
 		initIDs();
@@ -192,6 +207,33 @@ public class WinPcap
 	public native static WinPcap openOffline(String fname, StringBuilder errbuf);
 
 	/**
+	 * Allocate a send queue. This method allocats a send queue, i.e. a buffer
+	 * containing a set of raw packets that will be transmittted on the network
+	 * with {@link #sendQueueTransmit} method.
+	 * 
+	 * @see #sendQueueTransmit
+	 * @param size
+	 * @return
+	 */
+	public static WinPcapSendQueue sendQueueAlloc(int size) {
+
+		if (isSupported() == false) {
+			throw new PcapExtensionNotAvailableException();
+		}
+
+		return new WinPcapSendQueue(size);
+	}
+
+	public static void sendQueueDestroy(WinPcapSendQueue queue) {
+
+		if (isSupported() == false) {
+			throw new PcapExtensionNotAvailableException();
+		}
+
+		// Nothing to do, queue java allocated
+	}
+
+	/**
 	 * Set the minumum amount of data received by the kernel in a single call.
 	 * pcap_setmintocopy() changes the minimum amount of data in the kernel buffer
 	 * that causes a read from the application to return (unless the timeout
@@ -220,31 +262,6 @@ public class WinPcap
 	private WinPcap() {
 		super();
 	}
-
-	/**
-	 * Set the size of the kernel buffer associated with an adapter. If an old
-	 * buffer was already created with a previous call to pcap_setbuff(), it is
-	 * deleted and its content is discarded. pcap_open_live() creates a 1 MByte
-	 * buffer by default.
-	 * 
-	 * @see #openLive(String, int, int, int, StringBuilder)
-	 * @see #loop(int, PcapHandler, Object)
-	 * @see #dispatch(int, PcapHandler, Object)
-	 * @param dim
-	 *          specifies the size of the buffer in bytes
-	 * @return the return value is 0 when the call succeeds, -1 otherwise
-	 */
-	public native int setBuff(int dim);
-
-	/**
-	 * Set the working mode of the interface p to mode. Valid values for mode are
-	 * MODE_CAPT (default capture mode) and MODE_STAT (statistical mode).
-	 * 
-	 * @param mode
-	 *          pcap capture mode
-	 * @return the return value is 0 when the call succeeds, -1 otherwise
-	 */
-	public native int setMode(int mode);
 
 	/**
 	 * dumps the network traffic from an interface to a file. Using this function
@@ -290,6 +307,88 @@ public class WinPcap
 	 *         its still in progress
 	 */
 	public native int liveDumpEnded(int sync);
+
+	/**
+	 * Send a queue of raw packets to the network. This function transmits the
+	 * content of a queue to the wire. p is a pointer to the adapter on which the
+	 * packets will be sent, queue points to a pcap_send_queue structure
+	 * containing the packets to send (see pcap_sendqueue_alloc() and
+	 * pcap_sendqueue_queue()), sync determines if the send operation must be
+	 * synchronized: if it is non-zero, the packets are sent respecting the
+	 * timestamps, otherwise they are sent as fast as possible. The return value
+	 * is the amount of bytes actually sent. If it is smaller than the size
+	 * parameter, an error occurred during the send. The error can be caused by a
+	 * driver/adapter problem or by an inconsistent/bogus send queue. Note: Using
+	 * this function is more efficient than issuing a series of pcap_sendpacket(),
+	 * because the packets are buffered in the kernel driver, so the number of
+	 * context switches is reduced. Therefore, expect a better throughput when
+	 * using pcap_sendqueue_transmit. When Sync is set to TRUE, the packets are
+	 * synchronized in the kernel with a high precision timestamp. This requires a
+	 * non-negligible amount of CPU, but allows normally to send the packets with
+	 * a precision of some microseconds (depending on the accuracy of the
+	 * performance counter of the machine). Such a precision cannot be reached
+	 * sending the packets with pcap_sendpacket().
+	 * 
+	 * @param queue
+	 *          queue containing the data to be sent
+	 * @param synch
+	 *          if it is non-zero, the packets are sent respecting the timestamps,
+	 *          otherwise they are sent as fast as possible
+	 * @return amount of bytes actually sent; error if less then queues len
+	 *         parameter
+	 */
+	public int sendQueueTransmit(WinPcapSendQueue queue, int synch) {
+		checkIsActive(); // Check if Pcap.close wasn't called
+
+		final ByteBuffer buffer = queue.getBuffer();
+		final int len = queue.getLen();
+		final int maxlen = queue.getMaxLen();
+
+		return sendQueueTransmitPrivate(buffer, len, maxlen, synch);
+	}
+
+	/**
+	 * Do the actual JNI call. It already checks for isSupported, so no need to do
+	 * it again in any wrapper methods.
+	 * 
+	 * @param buffer
+	 *          must be a direct buffer with the data
+	 * @param len
+	 *          how much data is to be sent from the buffer
+	 * @param maxlen
+	 *          buffer capacity
+	 * @param synch
+	 *          if it is non-zero, the packets are sent respecting the timestamps,
+	 *          otherwise they are sent as fast as possible
+	 * @return amount of bytes actually sent; error if less then len parameter
+	 */
+	private native int sendQueueTransmitPrivate(ByteBuffer buffer, int len,
+	    int maxlen, int synch);
+
+	/**
+	 * Set the size of the kernel buffer associated with an adapter. If an old
+	 * buffer was already created with a previous call to pcap_setbuff(), it is
+	 * deleted and its content is discarded. pcap_open_live() creates a 1 MByte
+	 * buffer by default.
+	 * 
+	 * @see #openLive(String, int, int, int, StringBuilder)
+	 * @see #loop(int, PcapHandler, Object)
+	 * @see #dispatch(int, PcapHandler, Object)
+	 * @param dim
+	 *          specifies the size of the buffer in bytes
+	 * @return the return value is 0 when the call succeeds, -1 otherwise
+	 */
+	public native int setBuff(int dim);
+
+	/**
+	 * Set the working mode of the interface p to mode. Valid values for mode are
+	 * MODE_CAPT (default capture mode) and MODE_STAT (statistical mode).
+	 * 
+	 * @param mode
+	 *          pcap capture mode
+	 * @return the return value is 0 when the call succeeds, -1 otherwise
+	 */
+	public native int setMode(int mode);
 
 	/**
 	 * This method extends the <code>Pcap.stats</code> method and allows more
