@@ -22,9 +22,9 @@ package org.jnetpcap;
  * @author Sly Technologies, Inc.
  */
 public class PcapPktHdr {
-	
+
 	private native static void initIDs();
-	
+
 	static {
 		initIDs();
 	}
@@ -36,6 +36,51 @@ public class PcapPktHdr {
 	private volatile int caplen;
 
 	private volatile int len;
+
+	/**
+	 * Initializes the timestamp fields to current time and length fields to 0.
+	 */
+	public PcapPktHdr() {
+		this.seconds = System.currentTimeMillis() / 1000; // In seconds
+		this.useconds = (int) (System.nanoTime() / 1000); // Microseconds
+
+		this.caplen = 0;
+		this.len = 0;
+	}
+
+	/**
+	 * Allocates a new packet header and initializes the caplen and len fields.
+	 * The timestamp fields are initialized to current timestamp.
+	 * 
+	 * @param caplen
+	 *          amount of data captured
+	 * @param len
+	 *          original packet length
+	 */
+	public PcapPktHdr(int caplen, int len) {
+		this.caplen = caplen;
+		this.len = len;
+
+		this.seconds = System.currentTimeMillis() / 1000; // In seconds
+		this.useconds = (int) (System.nanoTime() / 1000); // Microseconds
+	}
+
+	/**
+	 * @param seconds
+	 *          time stamp in seconds
+	 * @param useconds
+	 *          a fraction of a second. Valid value is from 0 to 999,999.
+	 * @param caplen
+	 *          amount of data captured
+	 * @param len
+	 *          original packet length
+	 */
+	public PcapPktHdr(long seconds, int useconds, int caplen, int len) {
+		this.seconds = seconds;
+		this.useconds = useconds;
+		this.caplen = caplen;
+		this.len = len;
+	}
 
 	/**
 	 * Capture timestamp in seconds.
@@ -71,6 +116,38 @@ public class PcapPktHdr {
 	 */
 	public final int getLen() {
 		return this.len;
+	}
+
+	/**
+	 * @param seconds
+	 *          the seconds to set
+	 */
+	public final void setSeconds(long seconds) {
+		this.seconds = seconds;
+	}
+
+	/**
+	 * @param useconds
+	 *          the useconds to set
+	 */
+	public final void setUseconds(int useconds) {
+		this.useconds = useconds;
+	}
+
+	/**
+	 * @param caplen
+	 *          the caplen to set
+	 */
+	public final void setCaplen(int caplen) {
+		this.caplen = caplen;
+	}
+
+	/**
+	 * @param len
+	 *          the len to set
+	 */
+	public final void setLen(int len) {
+		this.len = len;
 	}
 
 }
