@@ -135,15 +135,14 @@ public class TestWinPcapExtensions
 
 		Arrays.fill(pkt, (byte) 0x11);
 		queue.queue(hdr, pkt); // Packet #3
+		int r = pcap.sendQueueTransmit(queue, WinPcap.TRANSMIT_SYNCH_ASAP);
+		if (r != queue.getLen()) {
 
-		if ((pcap.sendQueueTransmit(queue, WinPcap.TRANSMIT_SYNCH_ASAP) < queue
-		    .getLen())) {
-
-			fail("transmit() call failed");
+			assertEquals("transmit() call failed [", queue.getLen(), r);
 		}
 
 		pcap.close();
-		
+
 		WinPcap.sendQueueDestroy(queue);
 	}
 }
