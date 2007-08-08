@@ -30,10 +30,9 @@
 #include "winpcap_ext.h"
 #include "jnetpcap_utils.h"
 #include "jnetpcap_ids.h"
+#include "winpcap_ids.h"
 
-jclass WinPcapStatClass = 0;
 
-jmethodID WinPcapStatConstructorMID = 0;
 
 /*
  * Function: new newWinPcapStat()
@@ -80,23 +79,4 @@ EXTERN void setWinPcapStat(JNIEnv *env, jobject jstats,
 	env->SetLongField(jstats, pcapStatNetdropFID, (jlong) stats->ps_netdrop);
 }
 
-/*
- * Class:     org_jnetpcap_winpcap_WinPcapStat
- * Method:    initIDs
- * Signature: ()V
- */
-EXTERN void JNICALL Java_org_jnetpcap_winpcap_WinPcapStat_initIDs
-  (JNIEnv *env, jclass clazz) {
-	
-	
-	if (WinPcapStatClass != NULL) {
-		env->DeleteGlobalRef(WinPcapStatClass);
-	}
-	
-	WinPcapStatClass = (jclass) env->NewGlobalRef(clazz);
-	if ( (WinPcapStatConstructorMID = env->GetMethodID(clazz, "<init>", "()V")) == 0) {
-		throwException(env, NO_SUCH_METHOD_EXCEPTION,
-				"WinPcapStat.WinPcapStat()");
-		return;		
-	}
-}
+

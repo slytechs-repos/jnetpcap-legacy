@@ -379,6 +379,7 @@
 
 			<class name="org.jnetpcap.winpcap.WinPcap" />
 			<class name="org.jnetpcap.winpcap.WinPcapStat" />
+			<class name="org.jnetpcap.winpcap.WinPcapSamp" />
 
 		</javah>
 
@@ -395,6 +396,7 @@
 		<echo message="Generating: ${build.include.dir}/org_jnetpcap_winpcap_WinPcap.h" />
 		<echo message="Generating: ${build.include.dir}/org_jnetpcap_winpcap_PcapStatEx.h" />
 		<echo message="Generating: ${build.include.dir}/org_jnetpcap_winpcap_WinPcapStat.h" />
+		<echo message="Generating: ${build.include.dir}/org_jnetpcap_winpcap_WinPcapSamp.h" />
 	</target>
 	
 	<!-- =================================================================== -->
@@ -547,8 +549,13 @@
 			<formatter type="plain" usefile="false" />
 			<sysproperty key="java.library.path" value="${jni.build.dir}" />
 	
-			<test name="org.jnetpcap.TestPcapJNI" todir="${report.dir}" />
-			<test name="org.jnetpcap.TestWinPcapExtensions" todir="${report.dir}" />
+			<test 
+				name="org.jnetpcap.TestPcapJNI" 
+				todir="${report.dir}" />
+			
+			<test 
+				name="org.jnetpcap.winpcap.TestWinPcapExtensions" 
+				todir="${report.dir}" />
 	
 			<classpath refid="test.classpath"/>
 
