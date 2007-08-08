@@ -405,8 +405,9 @@ JNICALL Java_org_jnetpcap_winpcap_WinPcap_sendQueueTransmitPrivate
 
 	char *buffer = (char *)env->GetDirectBufferAddress(jbuf);
 	if (buffer == NULL) {
-		throwException(env, INVALID_ARGUMENT_EXCEPTION, 
-				"Invalid buffer, can not retrieve physical address");
+		throwException(env, ILLEGAL_ARGUMENT_EXCEPTION, 
+				"Invalid buffer, can not retrieve physical address. "
+				"Must be a direct buffer.");
 		return -1;
 	}
 	

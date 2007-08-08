@@ -345,7 +345,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_sendPacketPrivate
 
 	u_char *b = (u_char *)env->GetDirectBufferAddress(jbytebuffer);
 	if (b == NULL) {
-		throwException(env, INVALID_ARGUMENT_EXCEPTION,
+		throwException(env, ILLEGAL_ARGUMENT_EXCEPTION,
 				"Unable to retrieve physical address from ByteBuffer");
 	}
 
@@ -805,7 +805,7 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_Pcap_dumpOpen
 
 	char *str = (char *)env->GetStringUTFChars(jfname, 0);
 	if (str[0] != '\0' && str[1] == '-' && str[2] == '\0') {
-		throwException(env, INVALID_ARGUMENT_EXCEPTION,
+		throwException(env, ILLEGAL_ARGUMENT_EXCEPTION,
 				"use of '-' for dumping to stdout is not supported.");
 		return NULL;
 	}
