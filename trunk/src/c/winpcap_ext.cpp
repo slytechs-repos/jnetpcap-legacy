@@ -390,7 +390,7 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_winpcap_WinPcap_statsEx
  * Method:    sendQueueTransmitPrivate
  * Signature: (Ljava/nio/ByteBuffer;III)I
  */
-JNIEXPORT jint 
+JNIEXPORT jint
 JNICALL Java_org_jnetpcap_winpcap_WinPcap_sendQueueTransmitPrivate
 (JNIEnv *env, jobject obj, jobject jbuf, jint jlen, jint jmaxlen, jint jsync) {
 
@@ -406,31 +406,30 @@ JNICALL Java_org_jnetpcap_winpcap_WinPcap_sendQueueTransmitPrivate
 
 	char *buffer = (char *)env->GetDirectBufferAddress(jbuf);
 	if (buffer == NULL) {
-		throwException(env, ILLEGAL_ARGUMENT_EXCEPTION, 
+		throwException(env, ILLEGAL_ARGUMENT_EXCEPTION,
 				"Invalid buffer, can not retrieve physical address. "
 				"Must be a direct buffer.");
 		return -1;
 	}
-	
+
 	pcap_send_queue queue;
-	queue.len    = (int) jlen;
+	queue.len = (int) jlen;
 	queue.maxlen = (int) jmaxlen;
-	queue.buffer   = buffer;
-	
+	queue.buffer = buffer;
+
 	return pcap_sendqueue_transmit(p, &queue, (int)jsync);
 }
-
 
 /*
  * Function: newWinPcapSamp
  * Description: create a new instance of WinPcapSamp class
  */
 jobject newWinPcapSamp(JNIEnv *env, pcap_samp *samp) {
-	
+
 	long addr = toLong(samp);
-	jobject jsamp = env->NewObject(winPcapSampClass, winPcapSampConstructorMID, 
+	jobject jsamp = env->NewObject(winPcapSampClass, winPcapSampConstructorMID,
 			(jlong) addr);
-	
+
 	return jsamp;
 }
 
@@ -440,16 +439,16 @@ jobject newWinPcapSamp(JNIEnv *env, pcap_samp *samp) {
  *              or thrown an exception if not initialized
  */
 pcap_samp *getWinPcapSamp(JNIEnv *env, jobject obj) {
-	
+
 	long addr = (long) env->GetLongField(obj, winPcapSampPhysicalFID);
-	
+
 	if (addr == 0) {
-		throwException(env, ILLEGAL_STATE_EXCEPTION, 
+		throwException(env, ILLEGAL_STATE_EXCEPTION,
 				"WinPcapSamp object not initialized properly. "
-				"Physical address is null.");
+					"Physical address is null.");
 		return NULL;
 	}
-	
+
 	return (pcap_samp *) toPtr(addr);
 }
 
@@ -459,13 +458,13 @@ pcap_samp *getWinPcapSamp(JNIEnv *env, jobject obj) {
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcapSamp_getMethod
-  (JNIEnv *env, jobject obj) {
-	
+(JNIEnv *env, jobject obj) {
+
 	pcap_samp *samp = getWinPcapSamp(env, obj);
 	if (samp == NULL) {
 		return -1; // Exception already thrown
 	}
-	
+
 	return (jint) samp->method;
 }
 
@@ -475,13 +474,13 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcapSamp_getMethod
  * Signature: (I)V
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_winpcap_WinPcapSamp_setMethod
-  (JNIEnv *env, jobject obj, jint jmethod) {
-	
+(JNIEnv *env, jobject obj, jint jmethod) {
+
 	pcap_samp *samp = getWinPcapSamp(env, obj);
 	if (samp == NULL) {
 		return; // Exception already thrown
 	}
-	
+
 	samp->method = (int) jmethod;
 }
 
@@ -491,13 +490,13 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_winpcap_WinPcapSamp_setMethod
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcapSamp_getValue
-  (JNIEnv *env, jobject obj) {
-	
+(JNIEnv *env, jobject obj) {
+
 	pcap_samp *samp = getWinPcapSamp(env, obj);
 	if (samp == NULL) {
 		return -1; // Exception already thrown
 	}
-	
+
 	return (jint) samp->value;
 }
 
@@ -507,13 +506,13 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcapSamp_getValue
  * Signature: (I)V
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_winpcap_WinPcapSamp_setValue
-  (JNIEnv *env, jobject obj, jint jvalue) {
-	
+(JNIEnv *env, jobject obj, jint jvalue) {
+
 	pcap_samp *samp = getWinPcapSamp(env, obj);
 	if (samp == NULL) {
 		return; // Exception already thrown
 	}
-	
+
 	samp->value = (int) jvalue;
 }
 
@@ -523,8 +522,8 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_winpcap_WinPcapSamp_setValue
  * Signature: ()Lorg/jnetpcap/winpcap/WinPcapSamp;
  */
 JNIEXPORT jobject JNICALL Java_org_jnetpcap_winpcap_WinPcap_setSampling
-  (JNIEnv *env, jobject obj) {
-	
+(JNIEnv *env, jobject obj) {
+
 	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
 		return NULL; // Exception already thrown
@@ -534,7 +533,143 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_winpcap_WinPcap_setSampling
 	if (samp == NULL) {
 		return NULL; // Method supported only on live captures, not on savefiles
 	}
-	
+
 	return newWinPcapSamp(env, samp);
 }
+
+/*
+ * Function: getWinPcapRmtAuth
+ * Description: reads and returns pcap_rmtauth structure from java object
+ *              If auth is null, it will be allocated, otherwise its just filled
+ *              in.
+ */
+pcap_rmtauth *getWinPcapRmtAuth(JNIEnv *env, jobject jauth, pcap_rmtauth *auth) {
+
+	if (jauth == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "jauth is null");
+		return NULL;
+	}
+
+	if (auth == NULL) {
+		auth = (pcap_rmtauth *) malloc(sizeof(pcap_rmtauth));
+	}
+
+	jstring jusername = (jstring) env->GetObjectField(jauth,
+			winPcapRmtAuthUsernameFID);
+	jstring jpassword = (jstring) env->GetObjectField(jauth,
+			winPcapRmtAuthPasswordFID);
+
+	if (jusername != NULL) {
+		auth->username = (char *)env->GetStringUTFChars(jusername, 0);
+	}
+
+	if (jpassword != NULL) {
+		auth->password = (char *)env->GetStringUTFChars(jpassword, 0);
+	}
+
+	auth->type = (int) env->GetIntField(jauth, winPcapRmtAuthTypeFID);
+
+	return auth;
+}
+
+/*
+ * Class:     org_jnetpcap_winpcap_WinPcap
+ * Method:    findAllDevsEx
+ * Signature: (Ljava/lang/String;Lorg/jnetpcap/winpcap/WinPcapRmtAuth;Ljava/util/List;Ljava/lang/StringBuilder;)I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_findAllDevsEx
+(JNIEnv *env, jclass clazz, jstring jsource, jobject jauth, jobject jlist,
+		jobject jerrbuf) {
+	
+	if (jlist == NULL || jerrbuf == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return -1;
+	}
+
+	char errbuf[PCAP_ERRBUF_SIZE];
+	errbuf[0] = '\0'; // Reset the buffer;
+	
+	pcap_rmtauth buf;
+	pcap_rmtauth *auth = (jauth != NULL)?getWinPcapRmtAuth(env, jauth, &buf):NULL;
+
+	char *source = (char *) env->GetStringUTFChars(jsource, 0);
+
+	pcap_if_t *alldevsp;
+
+	int r = pcap_findalldevs_ex(source, auth, &alldevsp, errbuf);
+	if (r != 0) {
+		setString(env, jerrbuf, errbuf);
+		return r;
+	}
+
+	if (alldevsp != NULL) {
+		jmethodID MID_add = findMethod(env, jlist, "add",
+				"(Ljava/lang/Object;)Z");
+
+		jobject jpcapif = newPcapIf(env, jlist, MID_add, alldevsp);
+		if (jpcapif == NULL) {
+			return -1; // Out of memory
+		}
+
+		if (env->CallBooleanMethod(jlist, MID_add, jpcapif) == JNI_FALSE) {
+			env->DeleteLocalRef(jpcapif);
+
+			return -1; // Failed to add to the list
+		}
+
+		env->DeleteLocalRef(jpcapif);
+
+		return r;
+	}
+
+	/*
+	 * The device list is freed up, since we copied all the info into Java
+	 * objects that are no longer dependent on native C classes.
+	 */
+	pcap_freealldevs(alldevsp);
+
+	return r;
+
+}
+
+/*
+ * Class:     org_jnetpcap_winpcap_WinPcap
+ * Method:    open
+ * Signature: (Ljava/lang/String;IIILorg/jnetpcap/winpcap/WinPcapRmtAuth;Ljava/lang/StringBuilder;)Lorg/jnetpcap/winpcap/WinPcap;
+ */
+JNIEXPORT jobject JNICALL 
+Java_org_jnetpcap_winpcap_WinPcap_open
+  (JNIEnv *env, jclass clazz, jstring jsource, jint jsnaplen, jint jtimeout, 
+		  jint jflags, jobject jauth, jobject jerrbuf) {
+	
+	if (jsource == NULL || jerrbuf == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return NULL;
+	}
+
+	char errbuf[PCAP_ERRBUF_SIZE];
+	errbuf[0] = '\0'; // Reset the buffer;
+	
+	pcap_rmtauth buf;
+	pcap_rmtauth *auth = (jauth != NULL)?getWinPcapRmtAuth(env, jauth, &buf):NULL;
+
+	char *source = (char *) env->GetStringUTFChars(jsource, 0);
+
+	pcap_t * p = pcap_open(source, (int)jsnaplen, (int) jflags, (int) jtimeout,
+			auth, errbuf);
+	setString(env, jerrbuf, errbuf); // Even if no error, could have warning msg
+	if (p == NULL) {
+		return NULL;
+	}
+
+	/*
+	 * Use a no-arg constructor and initialize 'physical' field using
+	 * special JNI priviledges.
+	 */
+	jobject obj = env->NewObject(clazz, winPcapConstructorMID);
+	setPhysical(env, obj, toLong(p));
+
+	return obj;
+}
+
 

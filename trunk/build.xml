@@ -380,23 +380,27 @@
 			<class name="org.jnetpcap.winpcap.WinPcap" />
 			<class name="org.jnetpcap.winpcap.WinPcapStat" />
 			<class name="org.jnetpcap.winpcap.WinPcapSamp" />
+			<class name="org.jnetpcap.winpcap.WinPcapRmtAuth" />
 
 		</javah>
+		
+		<property name="a" value="Generating: ${build.include.dir}" />
 
-		<echo message="Generating: ${build.include.dir}/org_jnetpcap_Pcap.h" />
-		<echo message="Generating: ${build.include.dir}/org_jnetpcap_PcapBpfProgram.h" />
-		<echo message="Generating: ${build.include.dir}/org_jnetpcap_PcapDumper.h" />
-		<echo message="Generating: ${build.include.dir}/org_jnetpcap_PcapPktHdr.h" />
-		<echo message="Generating: ${build.include.dir}/org_jnetpcap_PcapPktBuffer.h" />
-		<echo message="Generating: ${build.include.dir}/org_jnetpcap_PcapStat.h" />
-		<echo message="Generating: ${build.include.dir}/org_jnetpcap_PcapIf.h" />
-		<echo message="Generating: ${build.include.dir}/org_jnetpcap_PcapAddr.h" />
-		<echo message="Generating: ${build.include.dir}/org_jnetpcap_PcapSockAddr.h" />
+		<echo message="${a}/org_jnetpcap_Pcap.h" />
+		<echo message="${a}/org_jnetpcap_PcapBpfProgram.h" />
+		<echo message="${a}/org_jnetpcap_PcapDumper.h" />
+		<echo message="${a}/org_jnetpcap_PcapPktHdr.h" />
+		<echo message="${a}/org_jnetpcap_PcapPktBuffer.h" />
+		<echo message="${a}/org_jnetpcap_PcapStat.h" />
+		<echo message="${a}/org_jnetpcap_PcapIf.h" />
+		<echo message="${a}/org_jnetpcap_PcapAddr.h" />
+		<echo message="${a}/org_jnetpcap_PcapSockAddr.h" />
 
-		<echo message="Generating: ${build.include.dir}/org_jnetpcap_winpcap_WinPcap.h" />
-		<echo message="Generating: ${build.include.dir}/org_jnetpcap_winpcap_PcapStatEx.h" />
-		<echo message="Generating: ${build.include.dir}/org_jnetpcap_winpcap_WinPcapStat.h" />
-		<echo message="Generating: ${build.include.dir}/org_jnetpcap_winpcap_WinPcapSamp.h" />
+		<echo message="${a}/org_jnetpcap_winpcap_WinPcap.h" />
+		<echo message="${a}/org_jnetpcap_winpcap_PcapStatEx.h" />
+		<echo message="${a}/org_jnetpcap_winpcap_WinPcapStat.h" />
+		<echo message="${a}/org_jnetpcap_winpcap_WinPcapSamp.h" />
+		<echo message="${a}/org_jnetpcap_winpcap_WinPcapRmtAuth.h" />
 	</target>
 	
 	<!-- =================================================================== -->

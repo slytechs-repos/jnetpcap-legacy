@@ -13,12 +13,16 @@
 package org.jnetpcap.winpcap;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapHandler;
+import org.jnetpcap.PcapIf;
 import org.jnetpcap.PcapPktHdr;
 
 /**
@@ -31,11 +35,15 @@ public class TestWinPcapExtensions
 
 	private final static String device = "\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
 
+	private final static String rdevice = "rpcap://[192.168.1.100]/\\Device\\NPF_{04BD71F0-BAD6-4C51-96A4-B05562FAD4F9}";
+
 	private final static String fname = "tests/test-l2tp.pcap";
 
 	private static final int OK = 0;
 
 	private static final int snaplen = 64 * 1024;
+
+	private static final int flags = Pcap.MODE_PROMISCUOUS;
 
 	private static final int promisc = 1;
 
@@ -51,12 +59,29 @@ public class TestWinPcapExtensions
 		}
 	};
 
+	private PcapHandler printTimestampHandler;
+
 	/**
 	 * @throws java.lang.Exception
 	 */
 	protected void setUp() throws Exception {
 
 		errbuf = new StringBuilder();
+
+		printTimestampHandler = new PcapHandler() {
+			private int i = 0;
+
+			public void nextPacket(Object userObject, long seconds, int useconds,
+			    int caplen, int len, ByteBuffer buffer) {
+				Date ts = new Date(seconds * 1000);
+
+				String msg = (userObject == null) ? "captured on" : userObject
+				    .toString();
+
+				System.out.printf("Packet #%d %s %s (cap=%d, len=%d)\n", i++, msg, ts,
+				    caplen, len);
+			}
+		};
 	}
 
 	/**
@@ -145,38 +170,62 @@ public class TestWinPcapExtensions
 
 		WinPcap.sendQueueDestroy(queue);
 	}
-	
+
 	public void testSetSamplingLive() {
-		
+
 		// Only setSampling only supported on live captures
-		WinPcap pcap = WinPcap.openLive(device, snaplen, promisc, oneSecond, errbuf);
+		WinPcap pcap = WinPcap
+		    .openLive(device, snaplen, promisc, oneSecond, errbuf);
 		assertNotNull(pcap);
-		
+
 		WinPcapSamp samp = pcap.setSampling();
 		assertNotNull(samp);
-		
+
 		assertEquals("method", 0, samp.getMethod());
-		
+
 		samp.setMethod(WinPcapSamp.FIRST_AFTER_N_MS);
 		samp.setValue(10); // 10ms
 		assertEquals("method", 2, samp.getMethod());
 		pcap.close();
 	}
-	
+
 	public void testSetSamplingOffline() {
-		
+
 		// Only setSampling only supported on live captures
 		WinPcap pcap = WinPcap.openOffline(fname, errbuf);
 		assertNotNull(pcap);
-		
+
 		WinPcapSamp samp = pcap.setSampling();
 		assertNotNull(samp);
-		
+
 		assertEquals("method", 0, samp.getMethod());
-		
+
 		samp.setMethod(WinPcapSamp.FIRST_AFTER_N_MS);
 		samp.setValue(10); // 10ms
 		assertEquals("method", 2, samp.getMethod());
 		pcap.close();
+	}
+
+	public void testFindAllDevsEx() {
+		String source = "rpcap://192.168.1.100/";
+		List<PcapIf> ifs = new ArrayList<PcapIf>();
+		WinPcapRmtAuth auth = new WinPcapRmtAuth();
+
+		int r = WinPcap.findAllDevsEx(source, auth, ifs, errbuf);
+		assertEquals(errbuf.toString(), 0, r);
+
+		assertFalse("expected to find some devices", ifs.isEmpty());
+//		System.out.printf("ifs=%s\n", ifs);
+	}
+
+	public void testRemoteOpen() {
+
+		WinPcap pcap = WinPcap.open(rdevice, snaplen, flags, oneSecond, null,
+		    errbuf);
+
+		pcap.loop(10, printTimestampHandler, null);
+
+		pcap.close();
+
 	}
 }

@@ -82,3 +82,44 @@ EXTERN void JNICALL Java_org_jnetpcap_winpcap_WinPcapStat_initIDs
 		return;
 	}
 }
+
+
+/*******************************************************************************
+ * WinPcapRmtAuth.java IDs
+ ******************************************************************************/
+jclass winPcapRmtAuthClass = NULL;
+
+jfieldID winPcapRmtAuthTypeFID = 0;
+jfieldID winPcapRmtAuthUsernameFID = 0;
+jfieldID winPcapRmtAuthPasswordFID = 0;
+
+
+
+/*
+ * Class:     org_jnetpcap_winpcap_WinPcapRmtAuth
+ * Method:    initIDs
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_winpcap_WinPcapRmtAuth_initIDs
+  (JNIEnv *env , jclass clazz) {
+	
+	if (winPcapRmtAuthClass != NULL) {
+		env->DeleteGlobalRef(WinPcapStatClass);
+	}
+
+	winPcapRmtAuthClass = (jclass) env->NewGlobalRef(clazz);
+	
+	if ( (winPcapRmtAuthTypeFID = env->GetFieldID(clazz, "type", "I")) == 0) {
+		return;
+	}
+
+	if ( (winPcapRmtAuthUsernameFID = env->GetFieldID(clazz, "username", 
+			"Ljava/lang/String;")) == 0) {
+		return;
+	}
+	
+	if ( (winPcapRmtAuthPasswordFID = env->GetFieldID(clazz, "password", 
+			"Ljava/lang/String;")) == 0) {
+		return;
+	}
+}

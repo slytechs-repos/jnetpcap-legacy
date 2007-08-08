@@ -25,17 +25,17 @@ import java.util.List;
  * @author Sly Technologies, Inc.
  */
 public final class PcapIf {
-	
+
 	private native static void initIDs();
-	
+
 	static {
 		initIDs();
-		
+
 		try {
-	    Class.forName("org.jnetpcap.PcapAddr");
-    } catch (ClassNotFoundException e) {
-	    throw new IllegalStateException(e);
-    }
+			Class.forName("org.jnetpcap.PcapAddr");
+		} catch (ClassNotFoundException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	/**
@@ -117,15 +117,16 @@ public final class PcapIf {
 	public String toString() {
 		StringBuilder out = new StringBuilder();
 
-		out.append("[");
-		out.append("flags=").append(flags);
-		if (addresses != null) {
+		out.append("<");
+		if (addresses != null && addresses.isEmpty() == false) {
+			out.append("flags=").append(flags);
 			out.append(", addresses=").append(addresses);
+			out.append(", ");
 		}
-		// out.append(", name=").append(name);
-		// out.append(", desc=").append(description);
+		out.append("name=").append(name);
+		out.append(", desc=").append(description);
 
-		out.append("]");
+		out.append(">");
 
 		// if (next != null) {
 		// out.append("\n").append(next.toString());
