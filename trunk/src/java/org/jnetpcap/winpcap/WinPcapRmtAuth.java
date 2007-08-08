@@ -49,13 +49,42 @@ public final class WinPcapRmtAuth {
 	private String password;
 
 	/**
-	 * @return the type
+	 * Allocates an empty authentication object so that it may be setup
+	 */
+	public WinPcapRmtAuth() {
+
+	}
+
+	/**
+	 * Allocates and configures authentication object.
+	 * 
+	 * @param type
+	 *          authentication type; values of 0 or 1 permitted
+	 * @param username
+	 *          string containing the username that has to be used on the remote
+	 *          machine for authentication
+	 * @param password
+	 *          string containing the password that has to be used on the remote
+	 *          machine for authentication
+	 */
+	public WinPcapRmtAuth(int type, String username, String password) {
+		this.type = type;
+		this.username = username;
+		this.password = password;
+	}
+
+	/**
+	 * Gets the type of the authentication required.
+	 * 
+	 * @return Type of the authentication required.
 	 */
 	public final int getType() {
 		return this.type;
 	}
 
 	/**
+	 * Type of the authentication required.
+	 * 
 	 * @param type
 	 *          the type to set
 	 */
@@ -64,6 +93,9 @@ public final class WinPcapRmtAuth {
 	}
 
 	/**
+	 * String containing the username that has to be used on the remote machine
+	 * for authentication.
+	 * 
 	 * @return the username
 	 */
 	public final String getUsername() {
@@ -71,6 +103,9 @@ public final class WinPcapRmtAuth {
 	}
 
 	/**
+	 * Sets the string containing the username that has to be used on the remote
+	 * machine for authentication.
+	 * 
 	 * @param username
 	 *          the username to set
 	 */
@@ -79,6 +114,9 @@ public final class WinPcapRmtAuth {
 	}
 
 	/**
+	 * Gets the string containing the password that has to be used on the remote
+	 * machine for authentication.
+	 * 
 	 * @return the password
 	 */
 	public final String getPassword() {
@@ -86,6 +124,9 @@ public final class WinPcapRmtAuth {
 	}
 
 	/**
+	 * Sets the string containing the password that has to be used on the remote
+	 * machine for authentication.
+	 * 
 	 * @param password
 	 *          the password to set
 	 */
