@@ -13,11 +13,13 @@
 package org.jnetpcap.winpcap;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapBpfProgram;
 import org.jnetpcap.PcapExtensionNotAvailableException;
 import org.jnetpcap.PcapHandler;
+import org.jnetpcap.PcapIf;
 import org.jnetpcap.PcapPktHdr;
 
 /**
@@ -41,14 +43,24 @@ public class WinPcap
     extends Pcap {
 
 	/**
-	 * Flag used with {@link #sendQueueTransmit(WinPcapSendQueue, int), to tell
+	 * default capture mode
+	 */
+	public static final int MODE_CAPT = 0;
+
+	/**
+	 * statistical mode
+	 */
+	public static final int MODE_STAT = 1;
+
+	/**
+	 * Flag used with {@link #sendQueueTransmit(WinPcapSendQueue, int)}, to tell
 	 * kernel to send packets as fast as possible, without synchronizing with
 	 * packet timestamps found in headers.
 	 */
 	public static final int TRANSMIT_SYNCH_ASAP = 0;
 
 	/**
-	 * Flag used with {@link #sendQueueTransmit(WinPcapSendQueue, int), to tell
+	 * Flag used with {@link #sendQueueTransmit(WinPcapSendQueue, int)}, to tell
 	 * kernel to send packets at the rate that is determined by the timestamp with
 	 * in the sendqueue. The transmittion is synchronized with timestamps.
 	 */
@@ -65,6 +77,81 @@ public class WinPcap
 			throw new IllegalStateException("Unable to find class: ", e);
 		}
 	}
+
+	/**
+	 * Create a list of network devices that can be opened with pcap_open().
+	 * </p>
+	 * <p>
+	 * This function is a superset of the old 'pcap_findalldevs()', which is
+	 * obsolete, and which allows listing only the devices present on the local
+	 * machine. Vice versa, pcap_findalldevs_ex() allows listing the devices
+	 * present on a remote machine as well. Additionally, it can list all the pcap
+	 * files available into a given folder. Moreover, pcap_findalldevs_ex() is
+	 * platform independent, since it relies on the standard pcap_findalldevs() to
+	 * get addresses on the local machine.
+	 * </p>
+	 * <p>
+	 * In case the function has to list the interfaces on a remote machine, it
+	 * opens a new control connection toward that machine, it retrieves the
+	 * interfaces, and it drops the connection. However, if this function detects
+	 * that the remote machine is in 'active' mode, the connection is not dropped
+	 * and the existing socket is used.
+	 * </p>
+	 * <p>
+	 * The 'source' is a parameter that tells the function where the lookup has to
+	 * be done and it uses the same syntax of the pcap_open().
+	 * </p>
+	 * <p>
+	 * Differently from the pcap_findalldevs(), the interface names (pointed by
+	 * the alldevs->name and the other ones in the linked list) are already ready
+	 * to be used in the pcap_open() call. Vice versa, the output that comes from
+	 * pcap_findalldevs() must be formatted with the new pcap_createsrcstr()
+	 * before passing the source identifier to the pcap_open().
+	 * </p>
+	 * <p>
+	 * The error message is returned in the 'errbuf' variable. An error could be
+	 * due to several reasons:
+	 * <ul>
+	 * <li>libpcap/WinPcap was not installed on the local/remote host
+	 * <li>the user does not have enough privileges to list the devices / files
+	 * <li> a network problem
+	 * <li> the RPCAP version negotiation failed
+	 * <li> other errors (not enough memory and others).
+	 * </ul>
+	 * </p>
+	 * <p>
+	 * Warning:<br>
+	 * There may be network devices that cannot be opened with pcap_open() by the
+	 * process calling pcap_findalldevs(), because, for example, that process
+	 * might not have sufficient privileges to open them for capturing; if so,
+	 * those devices will not appear on the list. The interface list must be
+	 * deallocated manually by using the pcap_freealldevs().
+	 * </p>
+	 * 
+	 * @param source
+	 *          a char* buffer that keeps the 'source localtion', according to the
+	 *          new WinPcap syntax. This source will be examined looking for
+	 *          adapters (local or remote) (e.g. source can be 'rpcap://' for
+	 *          local adapters or 'rpcap://host:port' for adapters on a remote
+	 *          host) or pcap files (e.g. source can be 'file://c:/myfolder/').
+	 *          The strings that must be prepended to the 'source' in order to
+	 *          define if we want local/remote adapters or files is defined in the
+	 *          new Source Specification Syntax
+	 * @param auth
+	 *          a pointer to a pcap_rmtauth structure. This pointer keeps the
+	 *          information required to authenticate the RPCAP connection to the
+	 *          remote host. This parameter is not meaningful in case of a query
+	 *          to the local host: in that case it can be NULL.
+	 * @param alldevs
+	 *          a list of all the network interfaces
+	 * @param errbuf
+	 *          error message (in case there is one)
+	 * @return '0' if everything is fine, '-1' if some errors occurred; this
+	 *         function returns '-1' also in case the system does not have any
+	 *         interface to list
+	 */
+	public native static int findAllDevsEx(String source, WinPcapRmtAuth auth,
+	    List<PcapIf> alldevs, StringBuilder errbuf);
 
 	/**
 	 * Initialize JNI method, field and class IDs.
@@ -100,6 +187,80 @@ public class WinPcap
 	 */
 	public static native int offlineFilter(PcapBpfProgram program,
 	    PcapPktHdr header, ByteBuffer buf);
+
+	/**
+	 * Open a generic source in order to capture/send (WinPcap only) traffic. The
+	 * <code>open</code> replaces all the <code>openXxx()</code> methods with
+	 * a single call. This method hides the differences between the different
+	 * <code>openXxx()</code> methods so that the programmer does not have to
+	 * manage different opening function. In this way, the 'true' open method is
+	 * decided according to the source type, which is included into the source
+	 * string (in the form of source prefix). This function can rely on the
+	 * <code>createSrcStr</code> to create the string that keeps the capture
+	 * device according to the new syntax, and the <code>parseSrcStr</code> for
+	 * the other way round.
+	 * <p>
+	 * <b>Warning:</b> The source cannot be larger than PCAP_BUF_SIZE. The
+	 * following formats are not allowed as 'source' strings:
+	 * <ul>
+	 * <li>rpcap:// [to open the first local adapter]
+	 * <li>rpcap://hostname/ [to open the first remote adapter]
+	 * </ul>
+	 * 
+	 * @param source
+	 *          The source name has to include the format prefix according to the
+	 *          new Source Specification Syntax and it cannot be NULL. <br>
+	 *          On on Linux systems with 2.2 or later kernels, a device argument
+	 *          of "any" (i.e. rpcap://any) can be used to capture packets from
+	 *          all interfaces. In order to makes the source syntax easier, please
+	 *          remember that:
+	 *          <ul>
+	 *          <li>the adapters returned by the pcap_findalldevs_ex() can be
+	 *          used immediately by the pcap_open()
+	 *          <li> in case the user wants to pass its own source string to the
+	 *          pcap_open(), the pcap_createsrcstr() helps in creating the correct
+	 *          source identifier.
+	 *          </ul>
+	 * @param snaplen
+	 *          length of the packet that has to be retained. For each packet
+	 *          received by the filter, only the first 'snaplen' bytes are stored
+	 *          in the buffer and passed to the user application. For instance,
+	 *          snaplen equal to 100 means that only the first 100 bytes of each
+	 *          packet are stored.
+	 * @param flags
+	 *          keeps several flags that can be needed for capturing packet
+	 * @param timeout
+	 *          read timeout in milliseconds. The read timeout is used to arrange
+	 *          that the read not necessarily return immediately when a packet is
+	 *          seen, but that it waits for some amount of time to allow more
+	 *          packets to arrive and to read multiple packets from the OS kernel
+	 *          in one operation. Not all platforms support a read timeout; on
+	 *          platforms that don't, the read timeout is ignored.
+	 * @param auth
+	 *          a pointer to a 'struct pcap_rmtauth' that keeps the information
+	 *          required to authenticate the user on a remote machine. In case
+	 *          this is not a remote capture, this pointer can be set to NULL.
+	 * @param errbuf
+	 *          a pointer to a user-allocated buffer which will contain the error
+	 *          in case this function fails. The pcap_open() and findalldevs() are
+	 *          the only two functions which have this parameter, since they do
+	 *          not have (yet) a pointer to a pcap_t structure, which reserves
+	 *          space for the error string. Since these functions do not have
+	 *          (yet) a pcap_t pointer (the pcap_t pointer is NULL in case of
+	 *          errors), they need an explicit 'errbuf' variable. 'errbuf' may
+	 *          also be set to warning text when pcap_open_live() succeds; to
+	 *          detect this case the caller should store a zero-length string in
+	 *          'errbuf' before calling pcap_open_live() and display the warning
+	 *          to the user if 'errbuf' is no longer a zero-length string.
+	 * @return in case of problems, it returns null and the 'errbuf' variable
+	 *         keeps the error message.
+	 */
+	public native static WinPcap open(String source, int snaplen, int flags,
+	    int timeout, WinPcapRmtAuth auth, StringBuilder errbuf);
+
+	private native static int createSrcStr();
+
+	private native static int parseSrcStr();
 
 	/**
 	 * Create a pcap_t structure without starting a capture. pcap_open_dead() is
@@ -212,9 +373,10 @@ public class WinPcap
 	 * containing a set of raw packets that will be transmittted on the network
 	 * with {@link #sendQueueTransmit} method.
 	 * 
-	 * @see #sendQueueTransmit
+	 * @see #sendQueueTransmit(WinPcapSendQueue, int)
 	 * @param size
-	 * @return
+	 *          size of the sendqueue to allocate
+	 * @return allocated sendqueue
 	 */
 	public static WinPcapSendQueue sendQueueAlloc(int size) {
 
@@ -225,6 +387,13 @@ public class WinPcap
 		return new WinPcapSendQueue(size);
 	}
 
+	/**
+	 * Destroy a send queue. Deletes a send queue and frees all the memory
+	 * associated with it.
+	 * 
+	 * @param queue
+	 *          the queue to free up
+	 */
 	public static void sendQueueDestroy(WinPcapSendQueue queue) {
 
 		if (isSupported() == false) {

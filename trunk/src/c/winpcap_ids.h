@@ -20,6 +20,12 @@ extern jmethodID winPcapSampConstructorMID;
 extern jclass WinPcapStatClass;
 extern jmethodID WinPcapStatConstructorMID;
 
+// WinPcapRmtAuth
+extern jclass winPcapRmtAuthClass;
+extern jfieldID winPcapRmtAuthTypeFID;
+extern jfieldID winPcapRmtAuthUsernameFID;
+extern jfieldID winPcapRmtAuthPasswordFID;
+
 #ifdef __cplusplus
 }
 #endif

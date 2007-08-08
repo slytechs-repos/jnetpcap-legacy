@@ -272,6 +272,7 @@ jobject newPcapIf(JNIEnv *env, jobject jlist, jmethodID MID_add, pcap_if_t *ifp)
 	 * Assign PcapIf.name string field.
 	 */
 	if (ifp->name != NULL) {
+		
 		js = env->NewStringUTF(ifp->name);
 		if (js == NULL) {
 			return NULL; // Out of memory exception already thrown
