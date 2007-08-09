@@ -14,7 +14,7 @@ package org.jnetpcap;
 
 /**
  * <p>Constants that represent the Pcap's Data Link Type assignments. The most
- * popular constant is the {@link #EN10MB} (alternatively {@link #CONST_EN10MB}
+ * popular constant is the {@link #EN10MB} (alternatively {@link #CONST_EN10MB})
  *  which represents
  * <em>Ethernet2</em> based physical medium. This includes 10, 100, and 1000
  * mega-bit ethernets.</p>

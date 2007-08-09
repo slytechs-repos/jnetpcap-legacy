@@ -651,11 +651,20 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_findAllDevsEx
  */
 JNIEXPORT jobject JNICALL 
 Java_org_jnetpcap_winpcap_WinPcap_open
-  (JNIEnv *env, jclass clazz, jstring jsource, jint jsnaplen, jint jtimeout, 
-		  jint jflags, jobject jauth, jobject jerrbuf) {
+  (JNIEnv *env, jclass clazz, jstring jsource, jint jsnaplen, jint jflags, 
+		  jint jtimeout, jobject jauth, jobject jerrbuf) {
 	
 	if (jsource == NULL || jerrbuf == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return NULL;
+	}
+	
+	/*
+	 * There is a bug in WinPcap where flags >= 8 will cause a coredump.
+	 * No resolution to the issue be yet, so we catch the invalid flag ourselves.
+	 */
+	if ((int)jflags >= 8) {
+		setString(env, jerrbuf, "Invalid flag value.");
 		return NULL;
 	}
 
@@ -667,10 +676,11 @@ Java_org_jnetpcap_winpcap_WinPcap_open
 
 	char *source = (char *) env->GetStringUTFChars(jsource, 0);
 
+	
+	printf("open():source=%s snap=%d flags=%d timeout=%d\n", source,(int)jsnaplen, (int)jflags, (int)jtimeout);
 	pcap_t * p = pcap_open(source, (int)jsnaplen, (int) jflags, (int) jtimeout,
-			auth, errbuf);
+			NULL, errbuf);
 	setString(env, jerrbuf, errbuf); // Even if no error, could have warning msg
-
 	env->ReleaseStringUTFChars(jsource, source);
 	
 	if (p == NULL) {
