@@ -15,6 +15,8 @@ package org.jnetpcap.winpcap;
 import junit.framework.TestCase;
 
 import org.jnetpcap.Pcap;
+import org.jnetpcap.winpcap.WinPcap;
+import org.jnetpcap.winpcap.WinPcapRmtAuth;
 import org.junit.After;
 import org.junit.Before;
 
