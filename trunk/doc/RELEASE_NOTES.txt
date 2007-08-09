@@ -22,15 +22,16 @@
                               jNetPcap Package
                             Version 1.0b3 (beta 3)
                                Release Notes
-                            Created on 2007-08-XX
+                            Created on 2007-08-09
 
 INTRODUCTION:
 ============
 
 This release of jNetPcap library provides new features and a WinPcap extension
-java package. The API classes are compiled with Java 1.5.X compiler and 
-require Java 1.5 compatibility. The package is platform dependent as there is a 
-native library components supplied for each supported operating system 
+java package and no longer requires the inclusion of Apache's commons-logging.
+The API classes are compiled with Java 1.5.X compiler and require Java 1.5 
+compatibility. The package is platform dependent as there is a native library 
+components supplied for each supported operating system 
 (i.e. jnetpcap.dll file for win32 systems.)
 
 This release provides the API for a complete list of Libpcap's operations which 
@@ -211,8 +212,14 @@ builds suitable for deployment in commercial products.
 
 == Bugs Fixed ==
 
-* None found or reported 
+#1770987 - Invalid flag to WinPcap.open will cause a VM crash
+
+  * This is a WinPcap bug that is being fixed. This release of jNetPcap
+    catches the condition that triggers the crash and properly handles the 
+    error situation. No crashes. Bug is in "pending" status until fixed by
+    WinPcap group.
 
 == Deprecations ==
 
-* None
+* No longer need commons-logging for logging services. All static initializer 
+  error conditions throw an exception.
