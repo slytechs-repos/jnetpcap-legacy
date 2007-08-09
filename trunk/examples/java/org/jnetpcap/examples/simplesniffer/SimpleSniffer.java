@@ -42,10 +42,6 @@ public class SimpleSniffer {
 
 	public static void main(String[] args) {
 
-		if (Pcap.checkStaticInitializerError() != null) {
-			throw new IllegalStateException(Pcap.checkStaticInitializerError());
-		}
-
 		SimpleSniffer sniffer = new SimpleSniffer();
 
 		sniffer.openFirstFound(PcapDLT.EN10MB);
