@@ -15,17 +15,16 @@ documentation describes.
 	<li>Provides some very low level functions previously not
 	available in Java space. i.e. <code>setBuffer</code> for changing
 	buffer size and others.</li>
-	<li>Very small library footprint</li>
 </ul>
 
 <h2>Project website and the native <em>Libpcap</em> connection</h2>
 
 <p>Since <em>jNetPcap</em> is very closely mapped to native <em>Libpcap</em>
 library functions, users are encouraged to read libpcap documentation at
-<a href="http://sourceforge.net/projects/libpcap">libpcap website</a> (former http://tcpdump.org). You
-can visit <em>jNetPcap</em> project website for for more information and
-a user guide with tutorials at <a href="http://jnetpcap.sf.net">http://jnetpcap.sf.net</a>
-.</p>
+<a href="http://sourceforge.net/projects/libpcap">libpcap website</a>
+(former http://tcpdump.org). You can visit <em>jNetPcap</em> project
+website for for more information and a user guide with tutorials at <a
+	href="http://jnetpcap.sf.net">http://jnetpcap.sf.net</a> .</p>
 <h1>About Libpcap native library</h1>
 <p>Pcap is an application programming interface for packet
 capturing. The implementation of pcap for Unix-like systems is known as
@@ -86,15 +85,15 @@ following functions
 </ul>
 
 <h1>About jNetPcap's WinPcap extension</h1>
-WinPcap library from (http://winpcap.org), provides support for all of
-the core libpcap functions. It also provides numerous functions that are
-not part of the core libpcap functionality and are only available on
-platforms that support WinPcap. These extra functions greatly enhance
-libpcap calls, and generally don't provide features not found in the
-core. They simply provide enhanced versions of the functions that are
-more efficient or provide greater control over lets say the behaviour of
-the NPF driver within a windows kernel. This is great news for windows
-platforms.
+WinPcap library from (
+<a href="http://winpcap.org">http://winpcap.org</a>), provides support for all of the core libpcap functions. It also
+provides numerous functions that are not part of the core libpcap
+functionality and are only available on platforms that support WinPcap.
+These extra functions greatly enhance libpcap calls, and generally don't
+provide features not found in the core. They simply provide enhanced
+versions of the functions that are more efficient or provide greater
+control over lets say the behaviour of the NPF driver within a windows
+kernel. This is great news for windows platforms.
 <h2>Checking for WinPcap extension support</h2>
 Since java can be run on nearly any platform and WinPcap extensions are
 only available on windows platforms, the user must check first if the
@@ -107,9 +106,10 @@ means that the extension is supported otherwise
 <code>false</code>
 . WinPcap extension can not be used on a platform that does not support
 the extension. Any method used with
-<code>WinPcap</code> on an unsupported platform, will throw an immediate
-<code>PcapExtensionNotAvailableException</code>, to indicate that its more 
-then just this one particular operation that
+<code>WinPcap</code>
+on an unsupported platform, will throw an immediate
+<code>PcapExtensionNotAvailableException</code>
+, to indicate that its more then just this one particular operation that
 is disabled. Therefore it is very important to always do a check first
 before relying on an extension.
 
@@ -119,17 +119,19 @@ once suitable candidates are found such as (AirPcap from
 http://cacetech.com), as long licensing terms permit it.
 <h2>Java requirements</h2>
 <em>jNetPcap</em>
-requires Java JRE 1.5. All other requirements for this package are
-included as part of all distributions. All logging messages are logged
-using logger neutral
-<em>commons-logging</em>
-from Apache Foundation. jUnit tests are not distributed with the binary
-release, but are distributed with the source package. Any jUnit library
-is sufficient to run all jUnit test cases. Build environment requires
-ANT, ANT's contrib
-<em>cpptasks</em>
+Requires Java JRE 1.5. It also requires the binary WinPcap package to be
+installed on the system (downloadable from
+<a href="http://winpcap.org">WinPcap website</a>
+.) jUnit tests are distributed in source form found in the
+<em>tests/java</em>
+directory. No compiled classes are supplied of jUnit tests with the
+binary release. Any
+<a href="junit.org">jUnit library</a>
+is sufficient to compile and run all jUnit test cases. Build environment
+requires ANT, ANT's contrib
+<a href="http://ant-contrib.sourceforge.net">cpptasks</a>
 , and a C++ compiler. Currently jNetPcap compiles using
-<em>MinGW</em>
+<a href="http://mingw.org">MinGW</a>
 gcc compiler and environment on win32 platform and under regular gnu gcc
 on linux. No
 <em>Makefiles</em>
