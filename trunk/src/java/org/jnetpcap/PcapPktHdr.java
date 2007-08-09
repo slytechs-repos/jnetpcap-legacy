@@ -13,9 +13,9 @@
 package org.jnetpcap;
 
 /**
- * A class that is bound to Libpcap <code>pcap_pkthdr</code> structure. This
- * classes fields are initialized with values from the C structure. There are no
- * setter methods, since the <code>pcap_pkthdr</code> C structure is used in
+ * Class peered with native <code>pcap_pkthdr</code> structure. This classes
+ * fields are initialized with values from the C structure. There are no setter
+ * methods, since the <code>pcap_pkthdr</code> C structure is used in
  * read-only fassion.
  * 
  * @author Mark Bednarczyk

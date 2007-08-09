@@ -13,6 +13,10 @@
 package org.jnetpcap.winpcap;
 
 /**
+ * Class peered with native <code>pcap_rmtauth</code> structure. Provides
+ * authentication data for establishing remote capture and lookup operations
+ * using WinPcap extensions.
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */

@@ -16,10 +16,11 @@ import java.nio.ByteBuffer;
 
 /**
  * <p>
- * Instance of a compiled Berkley Packet Filter program. The program is an
- * interpreted binary byte program. Most modern unix and windows systems have a
- * BPF interpreter builtin and execute the code very efficiently, close to the
- * source of the capture and use the filter to permit or reject packets early.
+ * Class peered with native <code>bpf_program</code> structure. Instance of a
+ * compiled Berkley Packet Filter program. The program is an interpreted binary
+ * byte program. Most modern unix and windows systems have a BPF interpreter
+ * builtin and execute the code very efficiently, close to the source of the
+ * capture and use the filter to permit or reject packets early.
  * </p>
  * <p>
  * <b>Special note:</b><br>
@@ -34,9 +35,9 @@ import java.nio.ByteBuffer;
  * @author Sly Technologies, Inc.
  */
 public class PcapBpfProgram {
-	
+
 	private native static void initIDs();
-	
+
 	static {
 		/*
 		 * Touch Pcap class. PcapBpfProgram JNI jfieldID tables are loaded during
@@ -73,7 +74,7 @@ public class PcapBpfProgram {
 	}
 
 	@SuppressWarnings("unused")
-  private PcapBpfProgram(byte[] instructions) {
+	private PcapBpfProgram(byte[] instructions) {
 		if (instructions == null) {
 			throw new NullPointerException("BPF instruction array is null");
 		}
@@ -94,7 +95,7 @@ public class PcapBpfProgram {
 	}
 
 	@SuppressWarnings("unused")
-  private PcapBpfProgram(ByteBuffer instructions) {
+	private PcapBpfProgram(ByteBuffer instructions) {
 		if (instructions == null) {
 			throw new NullPointerException("BPF instruction buffer is null");
 		}

@@ -20,7 +20,8 @@ import org.jnetpcap.PcapPktHdr;
  */
 
 /**
- * A queue of raw packets that will be sent to the network with
+ * Class peered with native <code>pcap_send_queue</code> structure. A queue
+ * of raw packets that will be sent to the network with
  * <code>WinPcap.sendqueueTransmit()</code>. The class peers with native C
  * pcap_send_queue structure and allows direct control. The structure can be
  * allocated using WinPcap.sendQueueAlloc method or can be directly instantiated
@@ -178,9 +179,9 @@ public class WinPcapSendQueue {
 			throw new IllegalArgumentException("Buffer length (limit - position) "
 			    + "does not equal length in packet header");
 		}
-		
+
 		int length = data.limit() - data.position();
-		
+
 		/*
 		 * Advance the limit to make room for our data
 		 */

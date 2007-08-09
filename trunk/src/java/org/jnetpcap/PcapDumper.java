@@ -15,9 +15,10 @@ package org.jnetpcap;
 import java.nio.ByteBuffer;
 
 /**
- * A dumper that allows a previously opened pcap session to be dumped to a
- * "savefile" which is a file containing captured packets in pcap file format.
- * To get an object of type PcapDumper, use method <code>Pcap.dumpOpen</code>.
+ * Class peered with native <code>pcap_dumper</code> structure. A dumper that
+ * allows a previously opened pcap session to be dumped to a "savefile" which is
+ * a file containing captured packets in pcap file format. To get an object of
+ * type PcapDumper, use method <code>Pcap.dumpOpen</code>.
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
@@ -25,7 +26,7 @@ import java.nio.ByteBuffer;
 public class PcapDumper {
 
 	@SuppressWarnings("unused")
-  private volatile long physical;
+	private volatile long physical;
 
 	private static native void initIDs();
 

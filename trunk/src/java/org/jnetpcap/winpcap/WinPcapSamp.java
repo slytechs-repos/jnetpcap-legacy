@@ -13,7 +13,10 @@
 package org.jnetpcap.winpcap;
 
 /**
- * A class which can change the capture algorithm used by WinPcap.
+ * Class peered with native <code>pcap_samp</code> structure. This class can
+ * change the capture algorithm used by WinPcap. By changing the values within
+ * this specially peered object, before any capture takes place, you can
+ * influence the sampling algorithm used during capture.
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.

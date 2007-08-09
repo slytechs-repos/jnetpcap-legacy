@@ -17,9 +17,9 @@ import java.util.List;
 
 /**
  * <P>
- * This class is the main wrapper around libpcap and winpcap library
- * impelementations. It provides a direct mapping of various library methods
- * from Java.
+ * This class is the main class peered with native <code>pcap_t</code>
+ * structure in libpcap and winpcap library impelementations. It provides a
+ * direct mapping of various library methods from Java.
  * </P>
  * <h2>Getting started</h2>
  * <p>
@@ -905,7 +905,7 @@ public class Pcap {
 	 */
 	public int sendPacket(final byte[] buf) {
 		checkIsActive(); // Check if Pcap.close wasn't called
-		
+
 		final int length = buf.length;
 		final ByteBuffer direct = ByteBuffer.allocateDirect(length);
 		direct.put(buf);
@@ -931,7 +931,7 @@ public class Pcap {
 	 */
 	public int sendPacket(final byte[] buf, int offset, int length) {
 		checkIsActive(); // Check if Pcap.close wasn't called
-		
+
 		final ByteBuffer direct = ByteBuffer.allocateDirect(length);
 		direct.put(buf, offset, length);
 
@@ -1047,7 +1047,7 @@ public class Pcap {
 	 */
 	public String toString() {
 		checkIsActive(); // Check if Pcap.close wasn't called
-		
+
 		return libVersion();
 	}
 }
