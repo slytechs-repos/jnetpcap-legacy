@@ -171,6 +171,7 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_winpcap_WinPcap_openLive
 
 	pcap_t *p = pcap_open_live(device, jsnaplen, jpromisc, jtimeout, errbuf);
 	setString(env, jerrbuf, errbuf); // Even if no error, could have warning msg
+	env->ReleaseStringUTFChars(jdevice, device);
 	if (p == NULL) {
 		return NULL;
 	}
@@ -212,8 +213,11 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_winpcap_WinPcap_openOffline
 	const char *fname = env->GetStringUTFChars(jfname, 0);
 
 	pcap_t *p = pcap_open_offline(fname, errbuf);
+	setString(env, jerrbuf, errbuf);
+	
+	env->ReleaseStringUTFChars(jfname, fname);
+	
 	if (p == NULL) {
-		setString(env, jerrbuf, errbuf);
 		return NULL;
 	}
 
@@ -330,8 +334,11 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_liveDump
 		return -1; // Out of memory
 	}
 
-	return pcap_live_dump(p, fname, (int) jmaxsize, (int) jmaxpackets);
-
+	int r = pcap_live_dump(p, fname, (int) jmaxsize, (int) jmaxpackets);
+	
+	env->ReleaseStringUTFChars(jfname, fname);
+	
+	return r;
 }
 
 /*
@@ -561,10 +568,12 @@ pcap_rmtauth *getWinPcapRmtAuth(JNIEnv *env, jobject jauth, pcap_rmtauth *auth) 
 
 	if (jusername != NULL) {
 		auth->username = (char *)env->GetStringUTFChars(jusername, 0);
+		env->ReleaseStringUTFChars(jusername, auth->username);
 	}
 
 	if (jpassword != NULL) {
 		auth->password = (char *)env->GetStringUTFChars(jpassword, 0);
+		env->ReleaseStringUTFChars(jpassword, auth->password);
 	}
 
 	auth->type = (int) env->GetIntField(jauth, winPcapRmtAuthTypeFID);
@@ -597,6 +606,9 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_findAllDevsEx
 	pcap_if_t *alldevsp;
 
 	int r = pcap_findalldevs_ex(source, auth, &alldevsp, errbuf);
+	
+	env->ReleaseStringUTFChars(jsource, source);
+	
 	if (r != 0) {
 		setString(env, jerrbuf, errbuf);
 		return r;
