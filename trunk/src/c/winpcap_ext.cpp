@@ -658,6 +658,9 @@ Java_org_jnetpcap_winpcap_WinPcap_open
 	pcap_t * p = pcap_open(source, (int)jsnaplen, (int) jflags, (int) jtimeout,
 			auth, errbuf);
 	setString(env, jerrbuf, errbuf); // Even if no error, could have warning msg
+
+	env->ReleaseStringUTFChars(jsource, source);
+	
 	if (p == NULL) {
 		return NULL;
 	}
@@ -672,4 +675,43 @@ Java_org_jnetpcap_winpcap_WinPcap_open
 	return obj;
 }
 
+/*
+ * Class:     org_jnetpcap_winpcap_WinPcap
+ * Method:    createSrcStr
+ * Signature: (Ljava/lang/StringBuilder;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/StringBuilder;)I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_createSrcStr
+  (JNIEnv *env, jclass clazz, jobject jsource, jint jtype, jstring jhost,
+		  jstring jport, jstring jname, jobject jerrbuf) {
+	
+	if (jsource == NULL || jerrbuf == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return -1;
+	}
+
+	char errbuf[PCAP_ERRBUF_SIZE];
+	errbuf[0] = '\0'; // Reset the buffer;
+
+	char source[PCAP_BUF_SIZE];
+	source[0] = '\0'; // Reset the buffer;
+
+	const char *host = (jhost == NULL)?NULL:env->GetStringUTFChars(jhost, 0);
+	const char *port = (jport == NULL)?NULL:env->GetStringUTFChars(jport, 0);
+	const char *name = (jname == NULL)?NULL:env->GetStringUTFChars(jname, 0);
+	
+	int r = pcap_createsrcstr(source, (int) jtype, host, port, name, errbuf);
+	setString(env, jerrbuf, errbuf); // Even if no error, could have warning msg
+	
+	env->ReleaseStringUTFChars(jhost, host);
+	env->ReleaseStringUTFChars(jport, port);
+	env->ReleaseStringUTFChars(jname, name);
+	
+	if (r != 0) {
+		return r;
+	}
+	
+	setString(env, jsource, source);
+	
+	return r;
+}
 
