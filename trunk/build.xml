@@ -469,7 +469,49 @@
 		</exec>
 		<echo message="Created shared JNI libary: ${jni.build.filepath}" />
 
+
 	</target>
+	
+	<!-- =================================================================== -->
+	<!-- Compiles C++ test files -->
+	<!-- =================================================================== -->
+	<target name="comp-testjni" depends="prep-javadoc">
+		
+		<exec executable="g++" dir="tests/c" >
+			<env
+				key="PATH"
+				path="${compiler.ld.bin.dir};${env.PATH}"
+			/>
+			<arg line="-DHAVE_REMOTE" />
+			<arg line="-I ../../${pcap.include.dir}" />
+
+			<arg line="-L ../../${pcap.lib.dir}" />
+
+			<arg line="testjnetpcap.cpp" />
+			
+			<arg line="-o testjnetpcap.exe" />
+			<arg line="-l ${pcap.lib.name}" />
+
+		</exec>
+		<echo message="Created test program: src/c/testjnetpcap.exe" />
+
+	</target>
+	
+	<!-- =================================================================== -->
+	<!-- Executes C++ test files -->
+	<!-- =================================================================== -->
+	<target name="run-testjni" depends="comp-testjni">
+		
+		<exec executable="testjnetpcap" dir="tests/c">
+			<env
+				key="PATH"
+				path="${compiler.ld.bin.dir};${env.PATH};."
+			/>
+			
+		</exec>
+
+	</target>
+	
 
 	<!-- =================================================================== -->
 	<!-- Compiles java files using JavaDoc -->
