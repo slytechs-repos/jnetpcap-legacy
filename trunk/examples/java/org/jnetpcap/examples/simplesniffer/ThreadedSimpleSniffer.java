@@ -22,6 +22,7 @@ import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapDLT;
 import org.jnetpcap.PcapHandler;
 import org.jnetpcap.PcapIf;
+import org.jnetpcap.winpcap.WinPcap;
 
 /**
  * Threaded Simple Sniffer example. Where pcap is started in an infinate
@@ -39,7 +40,7 @@ import org.jnetpcap.PcapIf;
 public class ThreadedSimpleSniffer {
 	private static final StringBuilder errbuf = new StringBuilder();
 
-	private Pcap pcap = null;
+	private WinPcap pcap = null;
 
 	private static final IntRate bitRate = new IntRate("bits", "b", 1024);
 
@@ -48,6 +49,11 @@ public class ThreadedSimpleSniffer {
 	private Timer timer;
 
 	public static void main(String[] args) {
+
+		if (WinPcap.isSupported() == false) {
+			System.out.println("WinPcap extensions not supported on this platform.");
+			return;
+		}
 
 		ThreadedSimpleSniffer sniffer = new ThreadedSimpleSniffer();
 
@@ -137,7 +143,7 @@ public class ThreadedSimpleSniffer {
 		System.out.println(ifs.toString());
 
 		for (PcapIf i : ifs) {
-			if ((pcap = Pcap.openLive(i.getName(), 2 * 1024, 1, 0, errbuf)) == null) {
+			if ((pcap = WinPcap.openLive(i.getName(), 2 * 1024, 1, 0, errbuf)) == null) {
 				System.err.printf("Capture open %s: %s\n", i.getName(), errbuf
 				    .toString());
 			}
@@ -155,6 +161,12 @@ public class ThreadedSimpleSniffer {
 			System.err.printf("Unable to find interface with dlt of %s\n", dlt);
 			return;
 		}
+
+		/*
+		 * Alternative way is to use WinPcap.open() and use flag:
+		 * WinPcap.OPENFLAG_MAX_RESPONSIVENESS. Flag not supported with openLive.
+		 */
+		pcap.setMinToCopy(0); // Make the capture realtime, no waits
 
 	}
 
