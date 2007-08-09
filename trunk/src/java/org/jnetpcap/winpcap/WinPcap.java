@@ -23,6 +23,7 @@ import org.jnetpcap.PcapIf;
 import org.jnetpcap.PcapPktHdr;
 
 /**
+ * <p>
  * Class peered with native <code>pcap_t</code> structure providing WinPcap
  * specific extensions to libpcap library. To access WinPcap extensions, you
  * must use WinPcap class and its methods. <code>WinPcap</code> class extends
@@ -35,6 +36,64 @@ import org.jnetpcap.PcapPktHdr;
  * are not supported, another words <code>WinPcap.isSupport()</code> returned
  * false, every method in this calls will throw unchecked
  * <code>{@link PcapExtensionNotAvailableException}</code>.
+ * </p>
+ * <h1>Using WinPcap class</h1>
+ * For the most part, you use <code>WinPcap</code> the same way you would use
+ * <code>Pcap</code> class. <code>WinPcap</code> class provides many
+ * different static methods, and the same main three methods that
+ * <code>Pcap</code> does to open a capture session, plus one extra. They are:
+ * <ul>
+ * <li> openLive - opens a live capture from network interface
+ * <li> openOffline - opens a capture file
+ * <li> openDead - opens a dummy capture for filter compiling
+ * <li> open - special open command that uses the <em>source string</em>
+ * syntax to accomplish the same tasks as the three openXXX methods before it.
+ * </ul>
+ * Once you have a reference to a WinPcap object, you can then call any of its
+ * dynamic methods. Here is a straight forward example how to open a capture
+ * session and then close it: 
+ * <pre>
+ * WinPcap pcap = WinPcap.openLive(device, snaplen, flags, timeout, errbuf);
+ * // Do something
+ * pcap.close();
+ * </pre> 
+ * This is identical to <code>Pcap.openLive</code> method with the exception
+ * that <code>WinPcap</code> object is returned. You can easily typecast
+ * <code>
+ * WinPcap</code> object in to a plain <code>Pcap</code> object like
+ * this:
+ * <pre>
+ * Pcap pcap = WinPcap.openLive(device, snaplen, flags, timeout, errbuf);
+ * pcap.close();
+ * </pre>
+ * That is becuase WinPcap extends Pcap. Here is the same example this time
+ * using WinPcap's <em>source string</em> code:
+ * <pre>
+ * 
+ * String source = &quot;rpcap://192.168.1.100/&lt;remote interface name goes here&gt;&quot;;
+ * WinPcapRmtAuth auth = null; // Using 'NULL' authentication method
+ * StringBuilder errbuf = new StringBuilder();
+ * WinPcap pcap = WinPcap.open(source, snaplen, timeout, auth, errbuf);
+ * if (pcap == null) {
+ *   System.err.println(errbuf.toString());
+ *   return;
+ * }
+ * pcap.close();
+ * </pre>
+ * Where we need to substitute the name of the device. We use <code>open</code>
+ * method which takes a <code>WinPcapRmtAuth</code> object. We could set
+ * username and password in it, but we chose the 'NULL' authentication method.
+ * The remote server has to be configured with a '-n' command line argument to
+ * access 'NULL' authentication.
+ * <h1>Using WinPcap.findAllDevsEx</h1>
+ * The new method uses <em>source string</em> and WinPcapRmtAuth object and
+ * allows remote lookups of interfraces and files. A local lookup:
+ * <pre>
+ * String source = "rpcap://"; // Lookup network interfaces on local system
+ * List<PcapIf> alldevs = new ArrayList<PcapIf>(); // Will be filled with NICs
+ * WinPcapRmtAuth auth = new WinPcapRmtAuth(WinPcap.
+ * int r = WinPcap.findAllDevsEx(source, 
+ * </pre>
  * 
  * @see Pcap
  * @author Mark Bednarczyk
