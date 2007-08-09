@@ -56,10 +56,12 @@ and
 <code>findAllDevsEx</code>
 methods. A utility method is provided to help you build a
 <em>source string</em>
-from individual components, {@link #createSrcStr(StringBuilder, int,
-String, String, String, StringBuilder)}. The method does take quiet a
-few parameters, but most of them are optional and null can be supplied
-instead. With the utility method you can build
+from individual components,
+<code>createSrcStr(StringBuilder, int, String, String, String,
+StringBuilder)</code>
+. The method does take quiet a few parameters, but most of them are
+optional and null can be supplied instead. With the utility method you
+can build
 <em>source strings</em>
 based on user interactions. The result is stored in the first
 StringBuilder which is essentially a char buffer.
@@ -94,6 +96,7 @@ allowed by the <code>open</code> method:
 	<li>rpcap://host.foo.bar:1234/devicename [everything literal, with
 	port number]
 	<li>rpcap://10.11.12.13/devicename [IPv4 numeric, no port number]
+
 	
 	<li>rpcap://10.11.12.13:1234/devicename [IPv4 numeric, with port
 	number]

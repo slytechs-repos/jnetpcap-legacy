@@ -13,6 +13,7 @@
 package org.jnetpcap.winpcap;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jnetpcap.Pcap;
@@ -33,9 +34,19 @@ import org.jnetpcap.PcapPktHdr;
  * <code>WinPcap.isSupported()</code> method call which will return a boolean
  * that will indicate if WinPcap extensions are supported on this particular
  * platform. If you try and use any method in this class when WinPcap extensions
- * are not supported, another words <code>WinPcap.isSupport()</code> returned
- * false, every method in this calls will throw unchecked
- * <code>{@link PcapExtensionNotAvailableException}</code>.
+ * are not supported, another words <code>WinPcap.isSupported()</code>
+ * returned false, every method in this calls will throw unchecked
+ * <code>{@link PcapExtensionNotAvailableException}</code>. Of course,
+ * <code>isSupported</code> call itself never throws an exception. So its safe
+ * to use on any platform.
+ * 
+ * <pre>
+ * // Before using any WinPcap code
+ * if (WinPcap.isSupported() == false) {
+ * 	return; // Can't use WinPcap extensions
+ * }
+ * </pre>
+ * 
  * </p>
  * <h1>Using WinPcap class</h1>
  * For the most part, you use <code>WinPcap</code> the same way you would use
@@ -49,51 +60,81 @@ import org.jnetpcap.PcapPktHdr;
  * <li> open - special open command that uses the <em>source string</em>
  * syntax to accomplish the same tasks as the three openXXX methods before it.
  * </ul>
+ * There are also several addition methods:
+ * <ul>
+ * <li> findAllDevsEx - extended version of <code>Pcap.findAllDevs</code>
+ * which allows you to not only find network interfaces, but also PCAP files.
+ * This can be done locally or remotely.
+ * <li> liveDump - which can dump captured packets to a savefile automatically
+ * at the kernel level.
+ * <li> sendQueueTransmit - and related method, which allow raw packets to be
+ * sent in bulk, efficiently.
+ * <li> setMinToCopy, setMode and setBuf - allow tweaking of kernel buffers and
+ * enable/disable statistical captures
+ * <li> offlineFilter - ability to apply the BPF filter on your own packets
+ * without a capture
+ * <li> setSampling - changes the mode of the capture where only samples of a
+ * capture are retruend. packets
+ * <li> statEx - extended statistics that include counters on RPCAP remote
+ * connection
+ * </ul>
+ * <h1>Using WinPcap.findAllDevsEx</h1>
+ * The new method uses <em>source string</em> and WinPcapRmtAuth object and
+ * allows remote lookups of interfraces and files. A local lookup:
+ * 
+ * <pre>
+ * String source = &quot;rpcap://&quot;;
+ * List&lt;PcapIf&gt; alldevs = new ArrayList&lt;PcapIf&gt;();
+ * 
+ * int r = WinPcap.findAllDevsEx(source, auth, alldevs, errbuf);
+ * if (r != Pcap.OK) {
+ * 	fail(errbuf.toString());
+ * 	return;
+ * }
+ * 
+ * System.out.println(&quot;device list is &quot; + alldevs);
+ * </pre>
+ * 
+ * Now we have a list of PcapIf objects. You can use
+ * <code>PcapIf.getName()</code> which contains already properly formatted
+ * name to be passed to <code>WinPcap.open</code> call.
+ * <h1>Using WinPcap.open method</h1>
  * Once you have a reference to a WinPcap object, you can then call any of its
  * dynamic methods. Here is a straight forward example how to open a capture
- * session and then close it: 
+ * session and then close it:
+ * 
  * <pre>
  * WinPcap pcap = WinPcap.openLive(device, snaplen, flags, timeout, errbuf);
  * // Do something
  * pcap.close();
- * </pre> 
- * This is identical to <code>Pcap.openLive</code> method with the exception
- * that <code>WinPcap</code> object is returned. You can easily typecast
- * <code>
- * WinPcap</code> object in to a plain <code>Pcap</code> object like
- * this:
- * <pre>
- * Pcap pcap = WinPcap.openLive(device, snaplen, flags, timeout, errbuf);
- * pcap.close();
  * </pre>
- * That is becuase WinPcap extends Pcap. Here is the same example this time
- * using WinPcap's <em>source string</em> code:
- * <pre>
  * 
- * String source = &quot;rpcap://192.168.1.100/&lt;remote interface name goes here&gt;&quot;;
- * WinPcapRmtAuth auth = null; // Using 'NULL' authentication method
- * StringBuilder errbuf = new StringBuilder();
- * WinPcap pcap = WinPcap.open(source, snaplen, timeout, auth, errbuf);
- * if (pcap == null) {
- *   System.err.println(errbuf.toString());
- *   return;
- * }
- * pcap.close();
- * </pre>
- * Where we need to substitute the name of the device. We use <code>open</code>
- * method which takes a <code>WinPcapRmtAuth</code> object. We could set
- * username and password in it, but we chose the 'NULL' authentication method.
- * The remote server has to be configured with a '-n' command line argument to
- * access 'NULL' authentication.
- * <h1>Using WinPcap.findAllDevsEx</h1>
- * The new method uses <em>source string</em> and WinPcapRmtAuth object and
- * allows remote lookups of interfraces and files. A local lookup:
+ * This is identical to <code>Pcap.openLive</code> method with the exception
+ * that <code>WinPcap</code> object is returned. WinPcap extends Pcap. Here is
+ * the same example this time using WinPcap's <em>source string</em> code and
+ * a bogus device name (you will need to substitute your own actual device
+ * name):
+ * 
  * <pre>
- * String source = "rpcap://"; // Lookup network interfaces on local system
- * List<PcapIf> alldevs = new ArrayList<PcapIf>(); // Will be filled with NICs
- * WinPcapRmtAuth auth = new WinPcapRmtAuth(WinPcap.
- * int r = WinPcap.findAllDevsEx(source, 
+ *  String source = &quot;rpcap://\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}&quot;;
+ *  int snaplen = 64 * 1024;
+ *  int flags = Pcap.MODE_NON_PROMISCUOUS;
+ *  int timeout = 1000;
+ *  WinPcapRmtAuth auth = null;
+ *  StringBuilder errbuf = new StringBuilder();
+ * 
+ *  WinPcap pcap = WinPcap.open(source, snaplen, flags, timeout, auth, errbuf);
+ *  if (pcap == null) {
+ *  	System.err.println(errbuf.toString());
+ *  	return;
+ *  }
+ *  pcap.close();	}
  * </pre>
+ * 
+ * We use <code>open</code> method which takes a <code>WinPcapRmtAuth</code>
+ * object. We could set username and password in it, but we chose the 'NULL'
+ * authentication method. The remote server has to be configured with a '-n'
+ * command line argument to access 'NULL' authentication.
  * 
  * @see Pcap
  * @author Mark Bednarczyk
