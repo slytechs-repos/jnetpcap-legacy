@@ -15,8 +15,9 @@ package org.jnetpcap.winpcap;
 import org.jnetpcap.PcapStat;
 
 /**
- * Provides access to additional statical fields as returned from a call to
- * WinPcap.statsEx().
+ * Class peered with native <code>pcap_stat</code> structure providing all
+ * available extensions part of WinPcap extensions. Provides access to
+ * additional statical fields as returned from a call to WinPcap.statsEx().
  * 
  * @see WinPcap#statsEx()
  * @author Mark Bednarczyk

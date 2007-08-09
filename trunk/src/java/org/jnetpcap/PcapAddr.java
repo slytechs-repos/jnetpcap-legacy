@@ -16,25 +16,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Readonly JNI wrapper around native C <code>pcap_addr</code> structure. The
- * fields are initialized to corresponding values of the structure. If any of
- * the structure fields are NULL, the java field is also initialized to null.
+ * Class peered with native <code>pcap_addr</code> structure. Holds pcap
+ * addresses.
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
 public final class PcapAddr {
-	
+
 	private native static void initIDs();
-	
+
 	static {
 		initIDs();
-		
-    try {
-	    Class.forName("org.jnetpcap.PcapSockAddr");
-    } catch (ClassNotFoundException e) {
-	    throw new IllegalStateException(e);
-    }
+
+		try {
+			Class.forName("org.jnetpcap.PcapSockAddr");
+		} catch (ClassNotFoundException e) {
+			throw new IllegalStateException(e);
+		}
 
 	}
 
@@ -92,7 +91,7 @@ public final class PcapAddr {
 		return this.dstaddr;
 	}
 
-	@SuppressWarnings({ "unchecked", "unused" })
+	@SuppressWarnings( { "unchecked", "unused" })
 	private List toList() {
 
 		/**

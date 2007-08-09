@@ -13,8 +13,10 @@
 package org.jnetpcap;
 
 /**
- * Class that is filled in by a call to method <code>Pcap.stats</code>. The
- * structure keeps statisical values on an interface.
+ * Class peered with native <code>pcap_stat</code> structure providing only
+ * the core statistics. Class that is filled in by a call to method
+ * <code>Pcap.stats</code>. The structure keeps statisical values on an
+ * interface.
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
@@ -97,11 +99,11 @@ public class PcapStat {
 
 	public String toString() {
 		out.setLength(0);
-		
+
 		out.append("recv=").append(recv);
 		out.append(", drop=").append(drop);
 		out.append(", ifdrop=").append(ifDrop);
-		
+
 		return out.toString();
 	}
 }

@@ -16,10 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Object mimicking the structure of the Pcap <code>pcap_if_t</code> structure
- * where addresses is replaced as a list to simulate a linked list of address
- * structures. The {@link #addresses} is preallocated for convenience. This is
- * not a JNI peering class, and is only a read-only object.
+ * Class peered with native <code>pcap_if_t</code> structure. Addresses is
+ * replaced as a list to simulate a linked list of address structures. The
+ * {@link #addresses} is preallocated for convenience. This is not a JNI peering
+ * class, and is only a read-only object.
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.

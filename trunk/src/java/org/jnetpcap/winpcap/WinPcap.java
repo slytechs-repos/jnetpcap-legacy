@@ -23,17 +23,18 @@ import org.jnetpcap.PcapIf;
 import org.jnetpcap.PcapPktHdr;
 
 /**
- * WinPcap specific extensions to libpcap library. To access WinPcap extensions,
- * you must use WinPcap class and its methods. <code>WinPcap</code> class
- * extends Pcap class so you have all of the typeical <code>Pcap</code> class
+ * Class peered with native <code>pcap_t</code> structure providing WinPcap
+ * specific extensions to libpcap library. To access WinPcap extensions, you
+ * must use WinPcap class and its methods. <code>WinPcap</code> class extends
+ * Pcap class so you have all of the typeical <code>Pcap</code> class
  * functionality. WinPcap provides many additional methods which are only
  * available on platforms what support WinPcap. First you must use static
  * <code>WinPcap.isSupported()</code> method call which will return a boolean
  * that will indicate if WinPcap extensions are supported on this particular
  * platform. If you try and use any method in this class when WinPcap extensions
  * are not supported, another words <code>WinPcap.isSupport()</code> returned
- * false, every method in this calls will throw
- * <code>UnsupportOperationException</code>.
+ * false, every method in this calls will throw unchecked
+ * <code>{@link PcapExtensionNotAvailableException}</code>.
  * 
  * @see Pcap
  * @author Mark Bednarczyk

@@ -13,18 +13,18 @@
 package org.jnetpcap;
 
 /**
- * Counter part to <code>sockaddr</code> structure in C. The class contains
- * the same fields of the counter part C structure. In jNetPcap library its
- * fields are initialized within the native library and returned to java space.
- * The class is readonly, and only provides getter methods.
+ * Class peered with native <code>struct sockaddr</code> structure. The class
+ * contains the same fields of the counter part C structure. In jNetPcap library
+ * its fields are initialized within the native library and returned to java
+ * space. The class is readonly, and only provides getter methods.
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
 public class PcapSockAddr {
-	
+
 	private native static void initIDs();
-	
+
 	static {
 		initIDs();
 	}
