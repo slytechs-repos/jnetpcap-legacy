@@ -97,6 +97,9 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_Pcap_openLive(JNIEnv *env, jclass cl
 
 	pcap_t *p = pcap_open_live(device, jsnaplen, jpromisc, jtimeout, errbuf);
 	setString(env, jerrbuf, errbuf); // Even if no error, could have warning msg
+	
+	env->ReleaseStringUTFChars(jdevice, device);
+	
 	if (p == NULL) {
 		return NULL;
 	}
@@ -152,6 +155,9 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_Pcap_openOffline
 	const char *fname = env->GetStringUTFChars(jfname, 0);
 
 	pcap_t *p = pcap_open_offline(fname, errbuf);
+	
+	env->ReleaseStringUTFChars(jfname, fname);
+	
 	if (p == NULL) {
 		setString(env, jerrbuf, errbuf);
 		return NULL;
@@ -491,7 +497,9 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_datalinkNameToVal
 	const char *name = env->GetStringUTFChars(jname, 0);
 
 	int r = (jint) pcap_datalink_name_to_val(name);
-
+	
+	env->ReleaseStringUTFChars(jname, name);
+	
 	return r;
 }
 
@@ -682,6 +690,9 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_compileNoPcap
 	char *str = (char *)env->GetStringUTFChars(jstr, 0);
 
 	int r = pcap_compile_nopcap(snaplen, dlt, &src, str, optimize, (bpf_u_int32) mask);
+	
+	env->ReleaseStringUTFChars(jstr, str);
+	
 	if (r != 0) {
 		return r;
 	}
@@ -725,6 +736,9 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_compile
 	char *str = (char *)env->GetStringUTFChars(jstr, 0);
 
 	int r = pcap_compile(p, &src, str, optimize, (bpf_u_int32) mask);
+	
+	env->ReleaseStringUTFChars(jstr, str);
+	
 	if (r != 0) {
 		return r;
 	}
@@ -807,10 +821,16 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_Pcap_dumpOpen
 	if (str[0] != '\0' && str[1] == '-' && str[2] == '\0') {
 		throwException(env, ILLEGAL_ARGUMENT_EXCEPTION,
 				"use of '-' for dumping to stdout is not supported.");
+		
+		env->ReleaseStringUTFChars(jfname, str);
+		
 		return NULL;
 	}
 
 	pcap_dumper_t *d = pcap_dump_open(p, str);
+	
+	env->ReleaseStringUTFChars(jfname, str);
+	
 	if (d == NULL) {
 		return NULL; // Exception already thrown
 	}
