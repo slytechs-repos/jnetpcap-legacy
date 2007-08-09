@@ -8,7 +8,7 @@ int main() {
 	
 	char errbuf[1024];
 	char source[1024];
-	strcpy(source, "rpcap://\\Device\\NPF_{04BD71F0-BAD6-4C51-96A4-B05562FAD4F9}");
+	strcpy(source, "rpcap://\\Device\\PF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}");
 	char device[1024];
 	strcpy(device, "\\Device\\NPF_{04BD71F0-BAD6-4C51-96A4-B05562FAD4F9}");
 	
