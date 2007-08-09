@@ -35,7 +35,11 @@ public class TestWinPcapExtensions
 
 	private final static String device = "\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
 
-	private final static String rdevice = "rpcap://[192.168.1.100]/\\Device\\NPF_{04BD71F0-BAD6-4C51-96A4-B05562FAD4F9}";
+	private final static String uri = "rpcap://[192.168.1.100]/\\Device\\NPF_{04BD71F0-BAD6-4C51-96A4-B05562FAD4F9}";
+
+	private final static String rdevice = "\\Device\\NPF_{04BD71F0-BAD6-4C51-96A4-B05562FAD4F9}";
+
+	private final static String rhost = "192.168.1.100";
 
 	private final static String fname = "tests/test-l2tp.pcap";
 
@@ -206,7 +210,7 @@ public class TestWinPcapExtensions
 		pcap.close();
 	}
 
-	public void testFindAllDevsEx() {
+	public void SKIPtestFindAllDevsEx() {
 		String source = "rpcap://192.168.1.100/";
 		List<PcapIf> ifs = new ArrayList<PcapIf>();
 		WinPcapRmtAuth auth = new WinPcapRmtAuth();
@@ -215,17 +219,26 @@ public class TestWinPcapExtensions
 		assertEquals(errbuf.toString(), 0, r);
 
 		assertFalse("expected to find some devices", ifs.isEmpty());
-//		System.out.printf("ifs=%s\n", ifs);
+		// System.out.printf("ifs=%s\n", ifs);
 	}
 
 	public void testRemoteOpen() {
 
-		WinPcap pcap = WinPcap.open(rdevice, snaplen, flags, oneSecond, null,
-		    errbuf);
+		StringBuilder source = new StringBuilder();
+		int r = WinPcap.createSrcStr(source, WinPcap.SRC_IFREMOTE, rhost, null,
+		    rdevice, errbuf);
+		if (r != Pcap.OK) {
+			fail(errbuf.toString());
+		} else {
+			System.out.printf("source=%s\n", source);
+		}
+
+		WinPcap pcap = WinPcap.open(source.toString(), snaplen, flags, oneSecond,
+		    null, errbuf);
+		assertNotNull(errbuf.toString(), pcap);
 
 		pcap.loop(10, printTimestampHandler, null);
 
 		pcap.close();
-
 	}
 }

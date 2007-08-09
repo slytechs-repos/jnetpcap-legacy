@@ -66,6 +66,24 @@ public class WinPcap
 	 */
 	public static final int TRANSMIT_SYNCH_USE_TIMESTAMP = 1;
 
+	/**
+	 * Internal representation of the type of source in use (file, remote/local
+	 * interface).
+	 */
+	public final static int SRC_FILE = 2;
+
+	/**
+	 * Internal representation of the type of source in use (file, remote/local
+	 * interface).
+	 */
+	public final static int SRC_IFLOCAL = 3;
+
+	/**
+	 * Internal representation of the type of source in use (file, remote/local
+	 * interface).
+	 */
+	public final static int SRC_IFREMOTE = 4;
+
 	static {
 		initIDs();
 
@@ -258,9 +276,43 @@ public class WinPcap
 	public native static WinPcap open(String source, int snaplen, int flags,
 	    int timeout, WinPcapRmtAuth auth, StringBuilder errbuf);
 
-	private native static int createSrcStr();
-
-	private native static int parseSrcStr();
+	/**
+	 * Accept a set of strings (host name, port, ...), and it returns the complete
+	 * source string according to the new format (e.g. 'rpcap://1.2.3.4/eth0').
+	 * This function is provided in order to help the user creating the source
+	 * string according to the new format. An unique source string is used in
+	 * order to make easy for old applications to use the remote facilities. Think
+	 * about tcpdump, for example, which has only one way to specify the interface
+	 * on which the capture has to be started. However, GUI-based programs can
+	 * find more useful to specify hostname, port and interface name separately.
+	 * In that case, they can use this function to create the source string before
+	 * passing it to the pcap_open() function.
+	 * 
+	 * @param source
+	 *          will contain the complete source string wen the function returns
+	 * @param type
+	 *          its value tells the type of the source we want to created
+	 * @param host
+	 *          an user-allocated buffer that keeps the host (e.g. "foo.bar.com")
+	 *          we want to connect to. It can be NULL in case we want to open an
+	 *          interface on a local host
+	 * @param port
+	 *          an user-allocated buffer that keeps the network port (e.g. "2002")
+	 *          we want to use for the RPCAP protocol. It can be NULL in case we
+	 *          want to open an interface on a local host.
+	 * @param name
+	 *          an user-allocated buffer that keeps the interface name we want to
+	 *          use (e.g. "eth0"). It can be NULL in case the return string (i.e.
+	 *          'source') has to be used with the pcap_findalldevs_ex(), which
+	 *          does not require the interface name.
+	 * @param errbuf
+	 *          buffer that will contain the error message (in case there is one).
+	 * @return '0' if everything is fine, '-1' if some errors occurred. The string
+	 *         containing the complete source is returned in the 'source'
+	 *         variable.
+	 */
+	public native static int createSrcStr(StringBuilder source, int type,
+	    String host, String port, String name, StringBuilder errbuf);
 
 	/**
 	 * Create a pcap_t structure without starting a capture. pcap_open_dead() is
