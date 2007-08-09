@@ -13,7 +13,6 @@
 package org.jnetpcap.winpcap;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.jnetpcap.Pcap;
@@ -154,6 +153,11 @@ public class WinPcap
 	public static final int MODE_STAT = 1;
 
 	/**
+	 * monitor mode
+	 */
+	public static final int MODE_MONITOR = 2;
+
+	/**
 	 * Flag used with {@link #sendQueueTransmit(WinPcapSendQueue, int)}, to tell
 	 * kernel to send packets as fast as possible, without synchronizing with
 	 * packet timestamps found in headers.
@@ -168,22 +172,71 @@ public class WinPcap
 	public static final int TRANSMIT_SYNCH_USE_TIMESTAMP = 1;
 
 	/**
-	 * Internal representation of the type of source in use (file, remote/local
-	 * interface).
+	 * Used to create a <em>source string</em> using method
+	 * <code>createSrcStr</code>, which will be used to open a local capture
+	 * file. Used with <code>createSrcStr</code> for its type field. Used with
+	 * <code>createSrcStr</code> for its type field.
 	 */
 	public final static int SRC_FILE = 2;
 
 	/**
-	 * Internal representation of the type of source in use (file, remote/local
-	 * interface).
+	 * Used to create a <em>source string</em> using method
+	 * <code>createSrcStr</code>, which will be used to open a local network
+	 * interface. Used with <code>createSrcStr</code> for its type field.
 	 */
 	public final static int SRC_IFLOCAL = 3;
 
 	/**
-	 * Internal representation of the type of source in use (file, remote/local
-	 * interface).
+	 * Used to create a <em>source string</em> using method
+	 * <code>createSrcStr</code>,which will be used to open a remote connection
+	 * (could be file, or network interface on remote system). Used with
+	 * <code>createSrcStr</code> for its type field.
 	 */
 	public final static int SRC_IFREMOTE = 4;
+
+	/**
+	 * Defines if the data trasfer (in case of a remote capture) has to be done
+	 * with UDP protocol and can only be used with <code>WinPcap.open</code>.
+	 * If it is '1' if you want a UDP data connection, '0' if you want a TCP data
+	 * connection; control connection is always TCP-based. A UDP connection is
+	 * much lighter, but it does not guarantee that all the captured packets
+	 * arrive to the client workstation. Moreover, it could be harmful in case of
+	 * network congestion. This flag is meaningless if the source is not a remote
+	 * interface. In that case, it is simply ignored.
+	 */
+	public final static int OPENFLAG_DATATX_UDP = 2;
+
+	/**
+	 * Defines if the remote probe will capture its own generated traffic and can
+	 * only be used with <code>WinPcap.open</code>. In case the remote probe
+	 * uses the same interface to capture traffic and to send data back to the
+	 * caller, the captured traffic includes the RPCAP traffic as well. If this
+	 * flag is turned on, the RPCAP traffic is excluded from the capture, so that
+	 * the trace returned back to the collector is does not include this traffic.
+	 */
+	public final static int OPENFLAG_NOCAPTURE_RPCAP = 4;
+
+	/**
+	 * Defines if the local adapter will capture its own generated traffic and can
+	 * only be used with <code>WinPcap.open</code>. This flag tells the
+	 * underlying capture driver to drop the packets that were sent by itself.
+	 * This is usefult when building applications like bridges, that should ignore
+	 * the traffic they just sent.
+	 */
+	public final static int OPENFLAG_NOCAPTURE_LOCAL = 8;
+
+	/**
+	 * This flag configures the adapter for maximum responsiveness and can only be
+	 * used with <code>WinPcap.open</code>. In presence of a large value for
+	 * nbytes, WinPcap waits for the arrival of several packets before copying the
+	 * data to the user. This guarantees a low number of system calls, i.e. lower
+	 * processor usage, i.e. better performance, which is good for applications
+	 * like sniffers. If the user sets the PCAP_OPENFLAG_MAX_RESPONSIVENESS flag,
+	 * the capture driver will copy the packets as soon as the application is
+	 * ready to receive them. This is suggested for real time applications (like,
+	 * for example, a bridge) that need the best responsiveness.
+	 */
+	public final static int OPENFLAG_MAX_RESPONSIVENESS = 16;
 
 	static {
 		initIDs();
@@ -576,7 +629,7 @@ public class WinPcap
 	 *          minimum size
 	 * @return the return value is 0 when the call succeeds, -1 otherwise
 	 */
-	public static native int setMinToCopy(int size);
+	public native int setMinToCopy(int size);
 
 	/**
 	 * WinPcap objects make no sense unless they have been allocated from JNI

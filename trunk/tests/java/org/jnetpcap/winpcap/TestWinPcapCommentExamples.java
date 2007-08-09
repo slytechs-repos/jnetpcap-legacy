@@ -73,16 +73,16 @@ public class TestWinPcapCommentExamples
 	}
 
 	public void testWinPcapMainCommentEx2() {
-		String source = "rpcap://\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
+		String source = "rpcap://\\Device\\PF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
 		int snaplen = 64 * 1024;
 		int flags = Pcap.MODE_NON_PROMISCUOUS;
 		int timeout = 1000;
 		WinPcapRmtAuth auth = null;
 		StringBuilder errbuf = new StringBuilder();
 
-		WinPcap pcap = WinPcap.open(source, snaplen, flags, timeout, auth, errbuf);
+		WinPcap pcap = WinPcap.open(source, snaplen, timeout, timeout, auth, errbuf);
 		if (pcap == null) {
-			System.err.println(errbuf.toString());
+			fail(errbuf.toString());
 			return;
 		}
 		pcap.close();
