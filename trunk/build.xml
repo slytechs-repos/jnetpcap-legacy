@@ -477,9 +477,13 @@
 	<!-- =================================================================== -->
 	<target name="comp-testjni" depends="prep-javadoc">
 		
+		<echo>
+Using lib: ${pcap.lib.dir}
+		</echo>
+		
 		<exec executable="g++" dir="tests/c" >
 			<env
-				key="PATH"
+				key="PATH" 
 				path="${compiler.ld.bin.dir};${env.PATH}"
 			/>
 			<arg line="-DHAVE_REMOTE" />
