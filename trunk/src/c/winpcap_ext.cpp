@@ -214,9 +214,9 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_winpcap_WinPcap_openOffline
 
 	pcap_t *p = pcap_open_offline(fname, errbuf);
 	setString(env, jerrbuf, errbuf);
-	
+
 	env->ReleaseStringUTFChars(jfname, fname);
-	
+
 	if (p == NULL) {
 		return NULL;
 	}
@@ -335,9 +335,9 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_liveDump
 	}
 
 	int r = pcap_live_dump(p, fname, (int) jmaxsize, (int) jmaxpackets);
-	
+
 	env->ReleaseStringUTFChars(jfname, fname);
-	
+
 	return r;
 }
 
@@ -589,7 +589,7 @@ pcap_rmtauth *getWinPcapRmtAuth(JNIEnv *env, jobject jauth, pcap_rmtauth *auth) 
 JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_findAllDevsEx
 (JNIEnv *env, jclass clazz, jstring jsource, jobject jauth, jobject jlist,
 		jobject jerrbuf) {
-	
+
 	if (jlist == NULL || jerrbuf == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -597,7 +597,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_findAllDevsEx
 
 	char errbuf[PCAP_ERRBUF_SIZE];
 	errbuf[0] = '\0'; // Reset the buffer;
-	
+
 	pcap_rmtauth buf;
 	pcap_rmtauth *auth = (jauth != NULL)?getWinPcapRmtAuth(env, jauth, &buf):NULL;
 
@@ -606,9 +606,9 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_findAllDevsEx
 	pcap_if_t *alldevsp;
 
 	int r = pcap_findalldevs_ex(source, auth, &alldevsp, errbuf);
-	
+
 	env->ReleaseStringUTFChars(jsource, source);
-	
+
 	if (r != 0) {
 		setString(env, jerrbuf, errbuf);
 		return r;
@@ -649,38 +649,63 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_findAllDevsEx
  * Method:    open
  * Signature: (Ljava/lang/String;IIILorg/jnetpcap/winpcap/WinPcapRmtAuth;Ljava/lang/StringBuilder;)Lorg/jnetpcap/winpcap/WinPcap;
  */
-JNIEXPORT jobject JNICALL 
+JNIEXPORT jobject JNICALL
 Java_org_jnetpcap_winpcap_WinPcap_open
-  (JNIEnv *env, jclass clazz, jstring jsource, jint jsnaplen, jint jflags, 
-		  jint jtimeout, jobject jauth, jobject jerrbuf) {
-	
+(JNIEnv *env, jclass clazz, jstring jsource, jint jsnaplen, jint jflags,
+		jint jtimeout, jobject jauth, jobject jerrbuf) {
+
 	if (jsource == NULL || jerrbuf == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
-		return NULL;
-	}
-	
-	/*
-	 * There is a bug in WinPcap where flags >= 8 will cause a coredump.
-	 * No resolution to the issue be yet, so we catch the invalid flag ourselves.
-	 */
-	if ((int)jflags >= 8) {
-		setString(env, jerrbuf, "Invalid flag value.");
 		return NULL;
 	}
 
 	char errbuf[PCAP_ERRBUF_SIZE];
 	errbuf[0] = '\0'; // Reset the buffer;
-	
+
+	char *source = (char *) env->GetStringUTFChars(jsource, 0);
+
+#ifndef DONT_FIX_WINPCAP_BUGS
+	/*
+	 * 2007-08-09 - Mark Bednarczyk
+	 * There is a bug in WinPcap where flags | 8 == 8 or flag | 16 == 16 and the 
+	 * device name is wrong (pcap_open_live would fail), wpdpack doesn't catch 
+	 * it and crashes. We need to test for valid device name for IFLOCAL type 
+	 * ourselves.
+	 */
+	char host[PCAP_BUF_SIZE], port[PCAP_BUF_SIZE], name[PCAP_BUF_SIZE];
+	int type = 0;
+	if (pcap_parsesrcstr(source, &type, host, port, name, errbuf) == -1) {
+		setString(env, jerrbuf, errbuf); // Even if no error, could have warning msg
+		return NULL; // error already set in errbuf
+	}
+
+	if (type == PCAP_SRC_IFLOCAL) {
+		int flags = (int) jflags;
+		pcap_t *temp = pcap_open_live(
+				name,
+				(int) jsnaplen,
+				(flags & PCAP_OPENFLAG_PROMISCUOUS),
+				(int) jtimeout,
+				errbuf);
+
+		if (temp == NULL) {
+			env->ReleaseStringUTFChars(jsource, source);
+			setString(env, jerrbuf, errbuf); // Even if no error, could have warning msg
+			return NULL; // error already set in errbuf
+		} else {
+			pcap_close(temp); // Close it, and let the call pass through
+		}
+	}
+#endif
+
 	pcap_rmtauth buf;
 	pcap_rmtauth *auth = (jauth != NULL)?getWinPcapRmtAuth(env, jauth, &buf):NULL;
 
-	char *source = (char *) env->GetStringUTFChars(jsource, 0);
-	
 	pcap_t * p = pcap_open(source, (int)jsnaplen, (int) jflags, (int) jtimeout,
-			NULL, errbuf);
+			auth, errbuf);
 	setString(env, jerrbuf, errbuf); // Even if no error, could have warning msg
 	env->ReleaseStringUTFChars(jsource, source);
-	
+
 	if (p == NULL) {
 		return NULL;
 	}
@@ -690,6 +715,9 @@ Java_org_jnetpcap_winpcap_WinPcap_open
 	 * special JNI priviledges.
 	 */
 	jobject obj = env->NewObject(clazz, winPcapConstructorMID);
+	if (obj == NULL) {
+		return NULL; // OutOfMemory exception already thrown.
+	}
 	setPhysical(env, obj, toLong(p));
 
 	return obj;
@@ -701,9 +729,9 @@ Java_org_jnetpcap_winpcap_WinPcap_open
  * Signature: (Ljava/lang/StringBuilder;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/StringBuilder;)I
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_createSrcStr
-  (JNIEnv *env, jclass clazz, jobject jsource, jint jtype, jstring jhost,
-		  jstring jport, jstring jname, jobject jerrbuf) {
-	
+(JNIEnv *env, jclass clazz, jobject jsource, jint jtype, jstring jhost,
+		jstring jport, jstring jname, jobject jerrbuf) {
+
 	if (jsource == NULL || jerrbuf == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -718,20 +746,20 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_createSrcStr
 	const char *host = (jhost == NULL)?NULL:env->GetStringUTFChars(jhost, 0);
 	const char *port = (jport == NULL)?NULL:env->GetStringUTFChars(jport, 0);
 	const char *name = (jname == NULL)?NULL:env->GetStringUTFChars(jname, 0);
-	
+
 	int r = pcap_createsrcstr(source, (int) jtype, host, port, name, errbuf);
 	setString(env, jerrbuf, errbuf); // Even if no error, could have warning msg
-	
+
 	env->ReleaseStringUTFChars(jhost, host);
 	env->ReleaseStringUTFChars(jport, port);
 	env->ReleaseStringUTFChars(jname, name);
-	
+
 	if (r != 0) {
 		return r;
 	}
-	
+
 	setString(env, jsource, source);
-	
+
 	return r;
 }
 
