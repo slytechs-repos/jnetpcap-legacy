@@ -27,13 +27,13 @@
 
 * Additions to org.jnetpcap package
   
-  - <list of functions>
+  - All core 'libpcap' functions
     
-  - <list of exceptions>
+  - PcapClosedException, PcapExtensionNotAvailableException exceptions
 
 * Addtions of and to jnetpcap.org.winpcap package - WinPcap extensions
   
-    + <list of functions>
+    + Nearly all WinPcap based functions, very few exceptions
 
 * Removed "commons-logging" dependency. Static initializers throw appropriate 
   exceptions directly during initialization failure.
