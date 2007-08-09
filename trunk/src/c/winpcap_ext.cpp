@@ -675,9 +675,7 @@ Java_org_jnetpcap_winpcap_WinPcap_open
 	pcap_rmtauth *auth = (jauth != NULL)?getWinPcapRmtAuth(env, jauth, &buf):NULL;
 
 	char *source = (char *) env->GetStringUTFChars(jsource, 0);
-
 	
-	printf("open():source=%s snap=%d flags=%d timeout=%d\n", source,(int)jsnaplen, (int)jflags, (int)jtimeout);
 	pcap_t * p = pcap_open(source, (int)jsnaplen, (int) jflags, (int) jtimeout,
 			NULL, errbuf);
 	setString(env, jerrbuf, errbuf); // Even if no error, could have warning msg
