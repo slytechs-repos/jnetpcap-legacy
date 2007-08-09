@@ -12,9 +12,13 @@
  */
 package org.jnetpcap.winpcap;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.jnetpcap.Pcap;
+import org.jnetpcap.PcapIf;
 import org.jnetpcap.winpcap.WinPcap;
 import org.jnetpcap.winpcap.WinPcapRmtAuth;
 import org.junit.After;
@@ -33,7 +37,7 @@ import org.junit.Before;
 public class TestWinPcapCommentExamples
     extends TestCase {
 
-	String source = "rpcap://";
+	String source = "rpcap://\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
 
 	int snaplen = 64 * 1024;
 
@@ -59,21 +63,59 @@ public class TestWinPcapCommentExamples
 	public void tearDown() throws Exception {
 	}
 
-	public void SKIPtestWinPcapMainCommentEx1() {
+	public void testWinPcapMainCommentEx1() {
+		assertTrue("WinPcap extension not supported on this platform", WinPcap
+		    .isSupported());
+
 		WinPcap pcap = WinPcap.open(source, snaplen, flags, timeout, auth, errbuf);
+		assertNotNull(pcap);
+		pcap.close();
 	}
 
 	public void testWinPcapMainCommentEx2() {
-		
-		  String source = "rpcap://\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
-		  WinPcapRmtAuth auth = null; // Using 'NULL' authentication method
-		  StringBuilder errbuf = new StringBuilder();
-		  
-		  WinPcap pcap = WinPcap.open(source, snaplen, flags, timeout, auth, errbuf);
-		  if (pcap == null) {
-		    System.err.println(errbuf.toString());
-		    return;
-		  }
-		  pcap.close();	}
+		String source = "rpcap://\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
+		int snaplen = 64 * 1024;
+		int flags = Pcap.MODE_NON_PROMISCUOUS;
+		int timeout = 1000;
+		WinPcapRmtAuth auth = null;
+		StringBuilder errbuf = new StringBuilder();
 
+		WinPcap pcap = WinPcap.open(source, snaplen, flags, timeout, auth, errbuf);
+		if (pcap == null) {
+			System.err.println(errbuf.toString());
+			return;
+		}
+		pcap.close();
+	}
+
+	public void testWinPcapMainCommentFindAllDevsEx() {
+		String source = "rpcap://";
+		List<PcapIf> alldevs = new ArrayList<PcapIf>();
+
+		int r = WinPcap.findAllDevsEx(source, auth, alldevs, errbuf);
+		if (r != Pcap.OK) {
+			fail(errbuf.toString());
+			return;
+		}
+
+		System.out.println("device list is " + alldevs);
+
+	}
+
+	public void testWinPcapMainCommentCreateStr() {
+		String source = "rpcap://";
+		List<PcapIf> alldevs = new ArrayList<PcapIf>();
+
+		int r = WinPcap.findAllDevsEx(source, auth, alldevs, errbuf);
+		if (r != Pcap.OK) {
+			fail(errbuf.toString());
+			return;
+		}
+
+		StringBuilder buf = new StringBuilder();
+		WinPcap.createSrcStr(buf, WinPcap.SRC_IFLOCAL, null, null, alldevs.get(0)
+		    .getName(), errbuf);
+
+		System.out.println("Our source string is " + alldevs.get(0).getName());
+	}
 }
