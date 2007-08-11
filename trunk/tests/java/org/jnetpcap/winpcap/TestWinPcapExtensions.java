@@ -12,6 +12,8 @@
  */
 package org.jnetpcap.winpcap;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,6 +23,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.jnetpcap.Pcap;
+import org.jnetpcap.PcapDumper;
 import org.jnetpcap.PcapHandler;
 import org.jnetpcap.PcapIf;
 import org.jnetpcap.PcapPktHdr;
@@ -65,6 +68,17 @@ public class TestWinPcapExtensions
 
 	private PcapHandler printTimestampHandler;
 
+	private static File tmpFile;
+
+	static {
+		try {
+			tmpFile = File.createTempFile("temp-", "-TestPcapJNI");
+		} catch (IOException e) {
+			tmpFile = null;
+		}
+
+	}
+
 	/**
 	 * @throws java.lang.Exception
 	 */
@@ -86,12 +100,16 @@ public class TestWinPcapExtensions
 				    caplen, len);
 			}
 		};
+
 	}
 
 	/**
 	 * @throws java.lang.Exception
 	 */
 	protected void tearDown() throws Exception {
+		if (tmpFile.exists()) {
+			assertTrue(tmpFile.delete());
+		}
 	}
 
 	public void testIsWinPcapExtSupported() {
@@ -222,7 +240,7 @@ public class TestWinPcapExtensions
 		// System.out.printf("ifs=%s\n", ifs);
 	}
 
-	public void testRemoteOpen() {
+	public void SKIPtestRemoteOpen() {
 
 		StringBuilder source = new StringBuilder();
 		int r = WinPcap.createSrcStr(source, WinPcap.SRC_IFREMOTE, rhost, null,
@@ -240,5 +258,24 @@ public class TestWinPcapExtensions
 		pcap.loop(10, printTimestampHandler, null);
 
 		pcap.close();
+	}
+
+	public void testLiveDump() {
+
+		System.out.printf("tmpFile=%s\n", tmpFile.getAbsoluteFile());
+
+		WinPcap pcap = WinPcap
+		    .openLive(device, snaplen, promisc, oneSecond, errbuf);
+		assertNotNull(errbuf.toString(), pcap);
+
+		int r = pcap.liveDump(tmpFile.getAbsolutePath(), 100 * 1024, 10);
+		assertEquals(pcap.getErr(), 0, r);
+
+		pcap.liveDumpEnded(1); // Wait for dump to finish
+
+		assertTrue("Empty dump file " + tmpFile.getAbsolutePath(),
+		    tmpFile.length() > 0);
+		pcap.close();
+
 	}
 }
