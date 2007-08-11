@@ -21,6 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.jnetpcap.winpcap.WinPcap;
+
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
@@ -43,6 +45,13 @@ public class TestPcapJNI
 
 	private static final int oneSecond = 1000;
 
+	/**
+	 * Will generate HTTP traffic to a website. Use start() to start in a test
+	 * method, and always put stop() in tearDown. Safe to call stop even when
+	 * never started.
+	 */
+	private static final HttpTrafficGenerator gen = new HttpTrafficGenerator();
+
 	private static File tmpFile;
 
 	static {
@@ -50,6 +59,7 @@ public class TestPcapJNI
 			tmpFile = File.createTempFile("temp-", "-TestPcapJNI");
 		} catch (IOException e) {
 			tmpFile = null;
+			System.err.println("Unable to initialize a temporary file");
 		}
 
 	}
@@ -122,6 +132,10 @@ public class TestPcapJNI
 
 		errbuf = new StringBuilder();
 
+		if (tmpFile.exists()) {
+			assertTrue(tmpFile.delete());
+		}
+
 	}
 
 	/**
@@ -157,7 +171,16 @@ public class TestPcapJNI
 	 */
 	protected void tearDown() throws Exception {
 		errbuf = null;
-		tmpFile.delete();
+
+		/*
+		 * Stop the traffic generator, even when not running need to call to make
+		 * sure its not running.
+		 */
+		gen.stop();
+
+		if (tmpFile != null && tmpFile.exists()) {
+			tmpFile.delete();
+		}
 	}
 
 	public void testCompileNoPcapNullPtrHandling() {
@@ -189,11 +212,11 @@ public class TestPcapJNI
 			// OK
 		}
 	}
-	
+
 	public void testPcapClosedExceptionHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		pcap.close();
-		
+
 		try {
 			pcap.breakloop();
 			fail("Expected PcapClosedException");
@@ -862,16 +885,48 @@ public class TestPcapJNI
 
 		Pcap pcap = Pcap.openLive(device, snaplen, 1, 10 * oneSecond, errbuf);
 		assertNotNull(pcap);
-		
+
 		byte[] a = new byte[14];
 		Arrays.fill(a, (byte) 0xff);
-		
+
 		ByteBuffer b = ByteBuffer.wrap(a);
-		
+
 		if (pcap.sendPacket(b) != Pcap.OK) {
 			fail(pcap.getErr());
 		}
 
+		pcap.close();
+
+	}
+
+	public void testDumper() {
+		
+		gen.start(); // Generate network traffic - async method
+
+		System.out.printf("tmpFile=%s\n", tmpFile.getAbsoluteFile());
+
+		Pcap pcap = Pcap.openLive(device, snaplen, promisc, oneSecond, errbuf);
+		assertNotNull(errbuf.toString(), pcap);
+
+		PcapDumper dumper = pcap.dumpOpen(tmpFile.getAbsolutePath());
+		assertNotNull(pcap.getErr(), dumper);
+
+		PcapHandler dumpHandler = new PcapHandler() {
+
+			public void nextPacket(Object userObject, long seconds, int useconds,
+			    int caplen, int len, ByteBuffer buffer) {
+				PcapDumper dumper = (PcapDumper) userObject;
+
+				dumper.dump(seconds, useconds, caplen, len, buffer);
+			}
+		};
+
+		pcap.loop(10, dumpHandler, dumper);
+
+		assertTrue("Empty dump file " + tmpFile.getAbsolutePath(),
+		    tmpFile.length() > 0);
+
+//		System.out.printf("Temp dumpfile size=%s\n", tmpFile.length());
 		pcap.close();
 
 	}
