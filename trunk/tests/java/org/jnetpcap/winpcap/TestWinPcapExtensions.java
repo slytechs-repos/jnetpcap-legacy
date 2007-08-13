@@ -58,7 +58,7 @@ public class TestWinPcapExtensions
 
 	private StringBuilder errbuf;
 
-	private final PcapHandler doNothingHandler = new PcapHandler() {
+	private final PcapHandler<?> doNothingHandler = new PcapHandler<Object>() {
 
 		public void nextPacket(Object userObject, long seconds, int useconds,
 		    int caplen, int len, ByteBuffer buffer) {
@@ -66,7 +66,7 @@ public class TestWinPcapExtensions
 		}
 	};
 
-	private PcapHandler printTimestampHandler;
+	private PcapHandler<String> printTimestampHandler;
 
 	private static File tmpFile;
 
@@ -86,15 +86,14 @@ public class TestWinPcapExtensions
 
 		errbuf = new StringBuilder();
 
-		printTimestampHandler = new PcapHandler() {
+		printTimestampHandler = new PcapHandler<String>() {
 			private int i = 0;
 
-			public void nextPacket(Object userObject, long seconds, int useconds,
+			public void nextPacket(String msg, long seconds, int useconds,
 			    int caplen, int len, ByteBuffer buffer) {
 				Date ts = new Date(seconds * 1000);
 
-				String msg = (userObject == null) ? "captured on" : userObject
-				    .toString();
+				msg = (msg == null) ? "captured on" : msg;
 
 				System.out.printf("Packet #%d %s %s (cap=%d, len=%d)\n", i++, msg, ts,
 				    caplen, len);
@@ -135,9 +134,9 @@ public class TestWinPcapExtensions
 		WinPcap winPcap = WinPcap.openLive(device, 10000, 1, 60 * 1000, errbuf);
 		assertNotNull(winPcap);
 
-		PcapHandler handler = new PcapHandler() {
+		PcapHandler<String> handler = new PcapHandler<String>() {
 
-			public void nextPacket(Object user, long seconds, int useconds,
+			public void nextPacket(String user, long seconds, int useconds,
 			    int caplen, int len, ByteBuffer buffer) {
 
 				System.out.printf("%s, ts=%s caplen=%d len=%d capacity=%d\n", user
