@@ -21,8 +21,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.jnetpcap.winpcap.WinPcap;
-
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
@@ -117,7 +115,7 @@ public class TestPcapJNI
 
 	private StringBuilder errbuf;
 
-	private final PcapHandler doNothingHandler = new PcapHandler() {
+	private final PcapHandler<?> doNothingHandler = new PcapHandler<Object>() {
 
 		public void nextPacket(Object userObject, long seconds, int useconds,
 		    int caplen, int len, ByteBuffer buffer) {
@@ -148,9 +146,9 @@ public class TestPcapJNI
 		Pcap pcap = Pcap.openLive(device, 10000, 1, 60 * 1000, errbuf);
 		assertNotNull(pcap);
 
-		PcapHandler handler = new PcapHandler() {
+		PcapHandler<String> handler = new PcapHandler<String>() {
 
-			public void nextPacket(Object user, long seconds, int useconds,
+			public void nextPacket(String user, long seconds, int useconds,
 			    int caplen, int len, ByteBuffer buffer) {
 
 				// System.out.printf("%s, ts=%s caplen=%d len=%d capacity=%d\n", user
@@ -275,8 +273,8 @@ public class TestPcapJNI
 		int r = pcap.compile(bpf, str, 0, 0);
 		assertEquals(pcap.getErr(), 0, r);
 
-		PcapHandler handler = new PcapHandler() {
-			public void nextPacket(Object user, long seconds, int useconds,
+		PcapHandler<String> handler = new PcapHandler<String>() {
+			public void nextPacket(String user, long seconds, int useconds,
 			    int caplen, int len, ByteBuffer buffer) {
 
 				// System.out.printf("%s, ts=%s caplen=%d len=%d capacity=%d\n", user
@@ -456,9 +454,9 @@ public class TestPcapJNI
 		Pcap pcap = Pcap.openLive(device, 10000, 1, 60 * 1000, errbuf);
 		assertNotNull(pcap);
 
-		PcapHandler handler = new PcapHandler() {
+		PcapHandler<String> handler = new PcapHandler<String>() {
 
-			public void nextPacket(Object user, long seconds, int useconds,
+			public void nextPacket(String user, long seconds, int useconds,
 			    int caplen, int len, ByteBuffer buffer) {
 
 				// System.out.printf("%s, ts=%s caplen=%d len=%d capacity=%d\n", user
@@ -482,9 +480,9 @@ public class TestPcapJNI
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		assertNotNull(pcap);
 
-		PcapHandler handler = new PcapHandler() {
+		PcapHandler<String> handler = new PcapHandler<String>() {
 
-			public void nextPacket(Object user, long seconds, int useconds,
+			public void nextPacket(String user, long seconds, int useconds,
 			    int caplen, int len, ByteBuffer buffer) {
 
 				// System.out.printf("%s, ts=%s caplen=%d len=%d capacity=%d\n", user
@@ -505,9 +503,9 @@ public class TestPcapJNI
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		assertNotNull(pcap);
 
-		PcapHandler handler = new PcapHandler() {
+		PcapHandler<String> handler = new PcapHandler<String>() {
 
-			public void nextPacket(Object user, long seconds, int useconds,
+			public void nextPacket(String user, long seconds, int useconds,
 			    int caplen, int len, ByteBuffer buffer) {
 
 				// System.out.printf("%s, ts=%s caplen=%d len=%d capacity=%d\n", user
@@ -689,7 +687,7 @@ public class TestPcapJNI
 		// Tracking variable #1
 		final AtomicInteger pcapCount = new AtomicInteger();
 
-		final PcapHandler handler = new PcapHandler() {
+		final PcapHandler<?> handler = new PcapHandler<Object>() {
 
 			// Tracking variable #2
 			private int count = 0;
@@ -760,7 +758,7 @@ public class TestPcapJNI
 		// Tracking variable #1
 		final AtomicInteger pcapCount = new AtomicInteger();
 
-		final PcapHandler handler = new PcapHandler() {
+		final PcapHandler<?> handler = new PcapHandler<Object>() {
 
 			// Tracking variable #2
 			private int count = 0;
@@ -802,11 +800,10 @@ public class TestPcapJNI
 		PcapDumper dumper = pcap.dumpOpen(tmpFile.getPath());
 		assertNotNull(pcap.getErr(), dumper);
 
-		PcapHandler handler = new PcapHandler() {
+		PcapHandler<PcapDumper> handler = new PcapHandler<PcapDumper>() {
 
-			public void nextPacket(Object userObject, long seconds, int useconds,
+			public void nextPacket(PcapDumper dumper, long seconds, int useconds,
 			    int caplen, int len, ByteBuffer buffer) {
-				PcapDumper dumper = (PcapDumper) userObject;
 
 				dumper.dump(seconds, useconds, caplen, len, buffer);
 			}
@@ -833,11 +830,10 @@ public class TestPcapJNI
 		PcapDumper dumper = pcap.dumpOpen(tmpFile.getPath());
 		assertNotNull(pcap.getErr(), dumper);
 
-		PcapHandler handler = new PcapHandler() {
+		PcapHandler<PcapDumper> handler = new PcapHandler<PcapDumper>() {
 
-			public void nextPacket(Object userObject, long seconds, int useconds,
+			public void nextPacket(PcapDumper dumper, long seconds, int useconds,
 			    int caplen, int len, ByteBuffer buffer) {
-				PcapDumper dumper = (PcapDumper) userObject;
 
 				dumper.dump(seconds, useconds, caplen, len, buffer);
 			}
@@ -911,11 +907,10 @@ public class TestPcapJNI
 		PcapDumper dumper = pcap.dumpOpen(tmpFile.getAbsolutePath());
 		assertNotNull(pcap.getErr(), dumper);
 
-		PcapHandler dumpHandler = new PcapHandler() {
+		PcapHandler<PcapDumper> dumpHandler = new PcapHandler<PcapDumper>() {
 
-			public void nextPacket(Object userObject, long seconds, int useconds,
+			public void nextPacket(PcapDumper dumper, long seconds, int useconds,
 			    int caplen, int len, ByteBuffer buffer) {
-				PcapDumper dumper = (PcapDumper) userObject;
 
 				dumper.dump(seconds, useconds, caplen, len, buffer);
 			}
