@@ -72,12 +72,11 @@ public class PcapDumperExample {
 		 * Fouth we create a packet hander which receive packets and tell the dumper
 		 * to write those packets to its output file
 		 **************************************************************************/
-		PcapHandler dumpHandler = new PcapHandler() {
+		PcapHandler<PcapDumper> dumpHandler = new PcapHandler<PcapDumper>() {
 
-			public void nextPacket(Object user, long seconds, int useconds,
+			public void nextPacket(PcapDumper dumper, long seconds, int useconds,
 			    int caplen, int len, ByteBuffer buffer) {
 
-				PcapDumper dumper = (PcapDumper) user;
 				dumper.dump(seconds, useconds, caplen, len, buffer);
 			}
 		};
