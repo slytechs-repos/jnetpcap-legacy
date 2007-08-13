@@ -21,7 +21,7 @@ import java.nio.ByteBuffer;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public interface PcapHandler {
+public interface PcapHandler<T> {
 
 	/**
 	 * Method gets called when a packet is available as dispatched by Libpcap
@@ -39,7 +39,7 @@ public interface PcapHandler {
 	 * to directly by the kernel. This ensures that data is only written once into
 	 * the buffer and then returned to java envioronment.
 	 * 
-	 * @param userObject
+	 * @param user
 	 *          user supplied object to dispatch or loop calls
 	 * @param seconds
 	 *          timestamp
@@ -49,9 +49,11 @@ public interface PcapHandler {
 	 *          amount of data captured
 	 * @param len
 	 *          original packet length as seen on the network
+	 * @param T
+	 *          user object type
 	 * @param buffer
 	 *          buffer containing the packet data.
 	 */
-	public void nextPacket(Object userObject, long seconds, int useconds,
-	    int caplen, int len, ByteBuffer buffer);
+	public void nextPacket(T user, long seconds, int useconds, int caplen,
+	    int len, ByteBuffer buffer);
 }
