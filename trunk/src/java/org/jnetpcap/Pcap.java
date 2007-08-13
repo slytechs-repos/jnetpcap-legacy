@@ -739,6 +739,8 @@ public class Pcap {
 	 * pcap_dispatch() will return after the timeout expires.
 	 * </p>
 	 * 
+	 * @param <T>
+	 *          handler's user object type
 	 * @param cnt
 	 *          number of packets to read
 	 * @param handler
@@ -748,7 +750,7 @@ public class Pcap {
 	 * @return 0 on success, -1 on error and -2 if breakloop was used interrupt
 	 *         the captue
 	 */
-	public native int dispatch(int cnt, PcapHandler handler, Object user);
+	public native <T> int dispatch(int cnt, PcapHandler<T> handler, T user);
 
 	/**
 	 * Open a file to write packets. The <code>dumpOpen</code> method is called
@@ -818,6 +820,8 @@ public class Pcap {
 	 * application uses pcap_breakloop(), make sure that you explicitly check for
 	 * -1 and -2, rather than just checking for a return value < 0.
 	 * 
+	 * @param <T>
+	 *          handler's user object type
 	 * @param cnt
 	 *          number of packets to read
 	 * @param handler
@@ -827,7 +831,7 @@ public class Pcap {
 	 * @return 0 on success, -1 on error and -2 if breakloop was used interrupt
 	 *         the captue
 	 */
-	public native int loop(int cnt, PcapHandler handler, Object user);
+	public native <T> int loop(int cnt, PcapHandler<T> handler, T user);
 
 	/**
 	 * Return the major version number of the pcap library used to write the
