@@ -60,7 +60,7 @@ public class SimpleSniffer {
 			throw new IllegalStateException("Pcap not opened.");
 		}
 
-		final PcapHandler h = new PcapHandler() {
+		final PcapHandler<?> h = new PcapHandler<Object>() {
 
 			private long tstamp = 0;
 
