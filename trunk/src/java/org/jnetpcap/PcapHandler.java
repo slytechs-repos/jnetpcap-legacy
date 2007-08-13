@@ -20,6 +20,8 @@ import java.nio.ByteBuffer;
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
+ * @param <T>
+ *          user object type
  */
 public interface PcapHandler<T> {
 
@@ -49,8 +51,6 @@ public interface PcapHandler<T> {
 	 *          amount of data captured
 	 * @param len
 	 *          original packet length as seen on the network
-	 * @param T
-	 *          user object type
 	 * @param buffer
 	 *          buffer containing the packet data.
 	 */
