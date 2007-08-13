@@ -80,7 +80,7 @@ public class ThreadedSimpleSniffer {
 			throw new IllegalStateException("Pcap not opened.");
 		}
 
-		PcapHandler h = new PcapHandler() {
+		PcapHandler<?> h = new PcapHandler<Object>() {
 			/*
 			 * (non-Javadoc)
 			 * 
