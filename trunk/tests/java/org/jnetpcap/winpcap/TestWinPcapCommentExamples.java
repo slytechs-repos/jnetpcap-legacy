@@ -80,7 +80,7 @@ public class TestWinPcapCommentExamples
 		WinPcapRmtAuth auth = null;
 		StringBuilder errbuf = new StringBuilder();
 
-		WinPcap pcap = WinPcap.open(source, snaplen, timeout, timeout, auth, errbuf);
+		WinPcap pcap = WinPcap.open(source, snaplen, flags, timeout, auth, errbuf);
 		if (pcap == null) {
 			fail(errbuf.toString());
 			return;
