@@ -37,11 +37,7 @@ public class ClassicPcapExample {
 
 	public static void main(String[] args) {
 		List<PcapIf> alldevs = new ArrayList<PcapIf>(); // Will be filled with NICs
-		int snaplen = 64 * 1024;           // Capture all packets, no trucation
-		int flags = Pcap.MODE_PROMISCUOUS; // capture all packets
-		int timeout = 10 * 1000;           // 10 seconds in millis
-		StringBuilder errbuf = new StringBuilder(); // For any error msgs
-
+		StringBuilder errbuf = new StringBuilder();     // For any error msgs
 		
 		/********************************************
 		 * First get a list of devices on this system
@@ -64,12 +60,13 @@ public class ClassicPcapExample {
 		PcapIf device = alldevs.get(0); // We know we have atleast 1 device
 		System.out.printf("\nChoosing '%s' on your behalf:\n", device
 		    .getDescription());
-
-		
-		
+	
 		/***************************************
 		 * Second we open up the selected device
 		 ***************************************/
+		int snaplen = 64 * 1024;           // Capture all packets, no trucation
+		int flags = Pcap.MODE_PROMISCUOUS; // capture all packets
+		int timeout = 10 * 1000;           // 10 seconds in millis
 		Pcap pcap = Pcap
 		    .openLive(device.getName(), snaplen, flags, timeout, errbuf);
 
@@ -78,29 +75,26 @@ public class ClassicPcapExample {
 			    + errbuf.toString());
 			return;
 		}
-
-		
 		
 		/**********************************************************************
 		 * Third we create a packet hander which will be dispatched to from the
 		 * libpcap loop.
 		 **********************************************************************/
-		PcapHandler printSummaryHandler = new PcapHandler() {
+		PcapHandler<String> printSummaryHandler = new PcapHandler<String>() {
 
-			public void nextPacket(Object user, long seconds, int useconds,
+			public void nextPacket(String user, long seconds, int useconds,
 			    int caplen, int len, ByteBuffer buffer) {
-				Date timestamp = new Date(seconds * 1000); // In millis
+				Date timestamp = new Date(seconds * 1000 + useconds/1000); // In millis
 
 				System.out.printf("Received packet at %s caplen=%-4d len=%-4d %s\n",
-				    timestamp.toString(), caplen, // Length actually captured
-				    len, // Original length of the packet
-				    user // User supplied object
+				    timestamp.toString(), // timestamp to 1 ms accuracy
+				    caplen, // Length actually captured
+				    len,    // Original length of the packet
+				    user    // User supplied object
 				    );
 			}
 		};
 
-		
-		
 		/************************************************************
 		 * Fourth we enter the loop and tell it to capture 10 packets
 		 ************************************************************/
