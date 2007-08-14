@@ -87,11 +87,19 @@ public class PcapDumperExample {
 		 **************************************************************************/
 		pcap.loop(10, dumpHandler, dumper);
 		
-		System.out.printf("%s file has %d bytes in it!\n", ofile, new File(ofile).length());
+		File file = new File(ofile);
+		System.out.printf("%s file has %d bytes in it!\n", ofile, file.length());
+		
 
 		/*
-		 * Last thing to do is close the pcap handle
+		 * Last thing to do is close the dumper and pcap handles
 		 */
+		dumper.close(); // Won't be able to delete without explicit close
 		pcap.close();
+		
+		if (file.exists()) {
+			file.delete(); // Cleanup
+		}
+
 	}
 }
