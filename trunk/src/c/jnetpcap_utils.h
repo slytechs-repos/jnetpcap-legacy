@@ -83,7 +83,7 @@ jobject newPcapSockAddr(JNIEnv *env, sockaddr *a);
 
 void setPcapStat(JNIEnv *env, jobject jstats, pcap_stat *stats);
 
-void throwException(JNIEnv *env, const char *excClassName, char *message);
+void throwException(JNIEnv *env, const char *exception, char *message);
 
 #ifdef __cplusplus
 }

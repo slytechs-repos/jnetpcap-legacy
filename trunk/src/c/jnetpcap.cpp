@@ -43,7 +43,6 @@
  * be encoded and decoded using the trivial UTC8 encoding.
  * 
  */
-#include "export.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -70,6 +69,7 @@
 #include "jnetpcap_bpf.h"
 #include "jnetpcap_dumper.h"
 #include "org_jnetpcap_Pcap.h"
+#include "export.h"
 
 
 
@@ -338,6 +338,8 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_nextEx
 JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_sendPacketPrivate
 (JNIEnv *env, jobject obj, jobject jbytebuffer, jint jstart, jint jlength) {
 
+
+#ifdef WIN32
 	if (jbytebuffer == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION,
 				"buffer argument is null");
@@ -357,6 +359,10 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_sendPacketPrivate
 
 	int r = pcap_sendpacket(p, b + (int) jstart, (int) jlength);
 	return r;
+#else
+	 throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
+	return -1;
+#endif
 }
 
 /*

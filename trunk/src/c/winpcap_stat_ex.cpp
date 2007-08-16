@@ -11,7 +11,6 @@
 #include <stdlib.h>
 #include <pcap.h>
 
-#include "export.h"
 #include <jni.h>
 
 #ifndef WIN32
@@ -31,6 +30,7 @@
 #include "jnetpcap_utils.h"
 #include "jnetpcap_ids.h"
 #include "winpcap_ids.h"
+#include "export.h"
 
 
 
@@ -56,6 +56,7 @@ EXTERN jobject newWinPcapStat(JNIEnv *env) {
 EXTERN void setWinPcapStat(JNIEnv *env, jobject jstats, 
 		struct pcap_stat *stats, int size) {
 
+#ifdef WIN32
 	if (WinPcapStatClass == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, "Class ID not initialized");
 		return;
@@ -77,6 +78,10 @@ EXTERN void setWinPcapStat(JNIEnv *env, jobject jstats,
 		return;
 	}
 	env->SetLongField(jstats, pcapStatNetdropFID, (jlong) stats->ps_netdrop);
+#else
+	 throwException(env, (const char*)PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, "");
+	return;
+#endif
 }
 
 

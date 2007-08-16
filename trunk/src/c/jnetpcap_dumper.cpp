@@ -141,12 +141,17 @@ EXTERN void JNICALL Java_org_jnetpcap_PcapDumper_dump
 EXTERN jlong JNICALL Java_org_jnetpcap_PcapDumper_ftell
 (JNIEnv *env, jobject obj) {
 
+#ifdef WIN32
 	pcap_dumper_t *d = getPcapDumper(env, obj);
 	if (d == NULL) {
 		return -1; // Exception already thrown
 	}
 
 	return (jlong) pcap_dump_ftell(d);
+#else
+	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, NULL);
+	return -1;
+#endif
 }
 
 /*

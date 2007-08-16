@@ -7,7 +7,6 @@
  * Utility file that provides various conversion methods for chaging objects
  * back and forth between C and Java JNI.
  */
-#include "export.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,6 +27,7 @@
 #include "jnetpcap_bpf.h"
 #include "jnetpcap_utils.h"
 #include "jnetpcap_ids.h"
+#include "export.h"
 
 
 
@@ -55,8 +55,7 @@ void freeBpfProgramIfExists(JNIEnv *env, jobject obj) {
 
 	bpf_program *p = (bpf_program *) toPtr(pt);
 
-	free(p->bf_insns);
-	free(p);
+	pcap_freecode(p);
 
 	setBpfProgramPhysical(env, obj, (jlong) 0);
 
