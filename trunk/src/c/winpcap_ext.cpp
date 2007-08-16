@@ -7,7 +7,6 @@
  * Main WinPcap extensions file for jNetPcap.
  */
 
-#include "export.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,6 +31,7 @@
 #include "winpcap_ext.h"
 #include "jnetpcap_utils.h"
 #include "winpcap_ids.h"
+#include "export.h"
 
 jclass winPcapClass = 0;
 
@@ -114,6 +114,8 @@ JNIEXPORT jboolean JNICALL Java_org_jnetpcap_winpcap_WinPcap_isSupported
 JNIEXPORT jobject JNICALL Java_org_jnetpcap_winpcap_WinPcap_openDead
 (JNIEnv *env, jclass clazz, jint jlinktype, jint jsnaplen) {
 
+#ifdef WIN32
+
 	/*
 	 * Make sure extensions are supported, these methods will compile on
 	 * non WinPcap based systems, so we rely on exception handling to prevent
@@ -136,6 +138,10 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_winpcap_WinPcap_openDead
 	setPhysical(env, obj, toLong(p));
 
 	return obj;
+#else
+	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
+	return NULL;
+#endif
 }
 
 /*
@@ -147,6 +153,7 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_winpcap_WinPcap_openLive
 (JNIEnv *env, jclass clazz, jstring jdevice, jint jsnaplen, jint jpromisc, jint jtimeout,
 		jobject jerrbuf) {
 
+#ifdef WIN32
 	/*
 	 * Make sure extensions are supported, these methods will compile on
 	 * non WinPcap based systems, so we rely on exception handling to prevent
@@ -184,6 +191,10 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_winpcap_WinPcap_openLive
 	setPhysical(env, obj, toLong(p));
 
 	return obj;
+#else
+	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
+	return NULL;
+#endif
 }
 
 /*
@@ -194,6 +205,7 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_winpcap_WinPcap_openLive
 JNIEXPORT jobject JNICALL Java_org_jnetpcap_winpcap_WinPcap_openOffline
 (JNIEnv *env, jclass clazz, jstring jfname, jobject jerrbuf) {
 
+#ifdef WIN32
 	/*
 	 * Make sure extensions are supported, these methods will compile on
 	 * non WinPcap based systems, so we rely on exception handling to prevent
@@ -229,6 +241,10 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_winpcap_WinPcap_openOffline
 	setPhysical(env, obj, toLong(p));
 
 	return obj;
+#else
+	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
+	return NULL;
+#endif
 }
 
 /*
@@ -239,12 +255,17 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_winpcap_WinPcap_openOffline
 JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_setBuff
 (JNIEnv *env, jobject obj, jint value) {
 
+#ifdef WIN32
 	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
 		return -1; // Exception already thrown
 	}
 
 	return pcap_setbuff(p, value);
+#else
+	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
+	return -1;
+#endif
 }
 /*
  * Class:     org_jnetpcap_winpcap_WinPcap
@@ -254,12 +275,17 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_setBuff
 JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_setMode
 (JNIEnv *env, jobject obj, jint value) {
 
+#ifdef WIN32
 	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
 		return -1; // Exception already thrown
 	}
 
 	return pcap_setmode(p, value);
+#else
+	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
+	return -1;
+#endif
 }
 
 /*
@@ -270,12 +296,17 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_setMode
 JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_setMinToCopy
 (JNIEnv *env, jclass obj, jint jminsize) {
 
+#ifdef WIN32
 	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
 		return -1; // Exception already thrown
 	}
 
 	return pcap_setmintocopy(p, (int)jminsize);
+#else
+	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
+	return -2;
+#endif
 }
 
 /*
@@ -286,6 +317,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_setMinToCopy
 JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_offlineFilter
 (JNIEnv *env, jclass clazz, jobject jbpf, jobject jhdr, jobject jbuf) {
 
+#ifdef WIN32
 	/*
 	 * Make sure extensions are supported, these methods will compile on
 	 * non WinPcap based systems, so we rely on exception handling to prevent
@@ -314,6 +346,10 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_offlineFilter
 	}
 
 	return (jint) pcap_offline_filter (bpf, &hdr, b);
+#else
+	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
+	return -1;
+#endif
 }
 
 /*
@@ -324,6 +360,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_offlineFilter
 JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_liveDump
 (JNIEnv *env, jobject obj, jstring jfname, jint jmaxsize, jint jmaxpackets) {
 
+#ifdef WIN32
 	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
 		return -1; // Exception already thrown
@@ -339,6 +376,10 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_liveDump
 	env->ReleaseStringUTFChars(jfname, fname);
 
 	return r;
+#else
+	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
+	return -1;
+#endif
 }
 
 /*
@@ -349,12 +390,17 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_liveDump
 JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_liveDumpEnded
 (JNIEnv *env, jobject obj, jint jsync) {
 
+#ifdef WIN32
 	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
 		return -1; // Exception already thrown
 	}
 
 	return pcap_live_dump_ended(p, (int) jsync);
+#else
+	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
+	return -1;
+#endif
 }
 
 /*
@@ -365,6 +411,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_liveDumpEnded
 JNIEXPORT jobject JNICALL Java_org_jnetpcap_winpcap_WinPcap_statsEx
 (JNIEnv *env, jobject obj) {
 
+#ifdef WIN32
 	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
 		return NULL; // Exception already thrown
@@ -390,6 +437,10 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_winpcap_WinPcap_statsEx
 	free(stats); // release the memory
 
 	return jstats;
+#else
+	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
+	return NULL;
+#endif
 }
 
 /*
@@ -401,6 +452,7 @@ JNIEXPORT jint
 JNICALL Java_org_jnetpcap_winpcap_WinPcap_sendQueueTransmitPrivate
 (JNIEnv *env, jobject obj, jobject jbuf, jint jlen, jint jmaxlen, jint jsync) {
 
+#ifdef WIN32
 	if (jbuf == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -425,8 +477,14 @@ JNICALL Java_org_jnetpcap_winpcap_WinPcap_sendQueueTransmitPrivate
 	queue.buffer = buffer;
 
 	return pcap_sendqueue_transmit(p, &queue, (int)jsync);
+#else
+	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
+	return -1;
+#endif
 }
 
+
+#ifdef WIN32
 /*
  * Function: newWinPcapSamp
  * Description: create a new instance of WinPcapSamp class
@@ -439,7 +497,9 @@ jobject newWinPcapSamp(JNIEnv *env, pcap_samp *samp) {
 
 	return jsamp;
 }
+#endif
 
+#ifdef WIN32
 /*
  * Function: getWinPcapSamp
  * Description: gets the pcap_samp structure from PcapWinSamp object
@@ -458,6 +518,7 @@ pcap_samp *getWinPcapSamp(JNIEnv *env, jobject obj) {
 
 	return (pcap_samp *) toPtr(addr);
 }
+#endif
 
 /*
  * Class:     org_jnetpcap_winpcap_WinPcapSamp
@@ -467,12 +528,17 @@ pcap_samp *getWinPcapSamp(JNIEnv *env, jobject obj) {
 JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcapSamp_getMethod
 (JNIEnv *env, jobject obj) {
 
+#ifdef WIN32
 	pcap_samp *samp = getWinPcapSamp(env, obj);
 	if (samp == NULL) {
 		return -1; // Exception already thrown
 	}
 
 	return (jint) samp->method;
+#else
+	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
+	return -1;
+#endif
 }
 
 /*
@@ -483,12 +549,17 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcapSamp_getMethod
 JNIEXPORT void JNICALL Java_org_jnetpcap_winpcap_WinPcapSamp_setMethod
 (JNIEnv *env, jobject obj, jint jmethod) {
 
+#ifdef WIN32
 	pcap_samp *samp = getWinPcapSamp(env, obj);
 	if (samp == NULL) {
 		return; // Exception already thrown
 	}
 
 	samp->method = (int) jmethod;
+#else
+	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
+	return;
+#endif
 }
 
 /*
@@ -499,12 +570,17 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_winpcap_WinPcapSamp_setMethod
 JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcapSamp_getValue
 (JNIEnv *env, jobject obj) {
 
+#ifdef WIN32
 	pcap_samp *samp = getWinPcapSamp(env, obj);
 	if (samp == NULL) {
 		return -1; // Exception already thrown
 	}
 
 	return (jint) samp->value;
+#else
+	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
+	return -1;
+#endif
 }
 
 /*
@@ -515,12 +591,17 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcapSamp_getValue
 JNIEXPORT void JNICALL Java_org_jnetpcap_winpcap_WinPcapSamp_setValue
 (JNIEnv *env, jobject obj, jint jvalue) {
 
+#ifdef WIN32
 	pcap_samp *samp = getWinPcapSamp(env, obj);
 	if (samp == NULL) {
 		return; // Exception already thrown
 	}
 
 	samp->value = (int) jvalue;
+#else
+	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
+	return;
+#endif
 }
 
 /*
@@ -531,6 +612,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_winpcap_WinPcapSamp_setValue
 JNIEXPORT jobject JNICALL Java_org_jnetpcap_winpcap_WinPcap_setSampling
 (JNIEnv *env, jobject obj) {
 
+#ifdef WIN32
 	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
 		return NULL; // Exception already thrown
@@ -542,8 +624,13 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_winpcap_WinPcap_setSampling
 	}
 
 	return newWinPcapSamp(env, samp);
+#else
+	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
+	return NULL;
+#endif
 }
 
+#ifdef WIN32
 /*
  * Function: getWinPcapRmtAuth
  * Description: reads and returns pcap_rmtauth structure from java object
@@ -580,6 +667,7 @@ pcap_rmtauth *getWinPcapRmtAuth(JNIEnv *env, jobject jauth, pcap_rmtauth *auth) 
 
 	return auth;
 }
+#endif
 
 /*
  * Class:     org_jnetpcap_winpcap_WinPcap
@@ -590,6 +678,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_findAllDevsEx
 (JNIEnv *env, jclass clazz, jstring jsource, jobject jauth, jobject jlist,
 		jobject jerrbuf) {
 
+#ifdef WIN32
 	if (jlist == NULL || jerrbuf == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -641,6 +730,10 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_findAllDevsEx
 	pcap_freealldevs(alldevsp);
 
 	return r;
+#else
+	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
+	return -1;
+#endif
 
 }
 
@@ -654,6 +747,7 @@ Java_org_jnetpcap_winpcap_WinPcap_open
 (JNIEnv *env, jclass clazz, jstring jsource, jint jsnaplen, jint jflags,
 		jint jtimeout, jobject jauth, jobject jerrbuf) {
 
+#ifdef WIN32
 	if (jsource == NULL || jerrbuf == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return NULL;
@@ -721,6 +815,10 @@ Java_org_jnetpcap_winpcap_WinPcap_open
 	setPhysical(env, obj, toLong(p));
 
 	return obj;
+#else
+	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
+	return NULL;
+#endif
 }
 
 /*
@@ -732,6 +830,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_createSrcStr
 (JNIEnv *env, jclass clazz, jobject jsource, jint jtype, jstring jhost,
 		jstring jport, jstring jname, jobject jerrbuf) {
 
+#ifdef WIN32
 	if (jsource == NULL || jerrbuf == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -761,5 +860,9 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_createSrcStr
 	setString(env, jsource, source);
 
 	return r;
+#else
+	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
+	return -1;
+#endif
 }
 

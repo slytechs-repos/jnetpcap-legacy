@@ -7,7 +7,6 @@
  * Utility file that provides various conversion methods for chaging objects
  * back and forth between C and Java JNI.
  */
-#include "export.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,6 +23,7 @@
 #include <net/if.h>
 #include <unistd.h>
 #endif /*WIN32*/
+#include "export.h"
 
 #include "jnetpcap_utils.h"
 

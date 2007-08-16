@@ -9,7 +9,8 @@
 #ifdef JNIEXPORT
 #undef JNIEXPORT
 #endif
-//#define JNIEXPORT extern "C"
+#undef JNIEXPORT
+#define JNIEXPORT extern "C"
 
 #undef __declspec
 #define __declspec(a) extern "C"

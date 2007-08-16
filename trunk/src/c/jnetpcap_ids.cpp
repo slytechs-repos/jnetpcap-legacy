@@ -7,7 +7,6 @@
  * Utility file that provides various conversion methods for chaging objects
  * back and forth between C and Java JNI.
  */
-#include "export.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,6 +25,7 @@
 #endif /*WIN32*/
 
 #include "jnetpcap_utils.h"
+#include "export.h"
 
 /*******************************************************************************
  * Pcap.java IDs
@@ -39,6 +39,7 @@ jfieldID pcapPhysicalFID = 0;
 jmethodID pcapConstructorMID = 0;
 jmethodID appendMID = 0;
 jmethodID setLengthMID = 0;
+
 /*
  * Class:     org_jnetpcap_Pcap
  * Method:    initIDs
@@ -50,7 +51,7 @@ jmethodID setLengthMID = 0;
  *              exceptions when something is not found. This is neccessary since
  *              no further runtime checks are performed after this initialization.
  */
-JNIEXPORT void JNICALL Java_org_jnetpcap_Pcap_initIDs
+JNIEXPORT void JNICALL JNICALL Java_org_jnetpcap_Pcap_initIDs
 (JNIEnv *env, jclass clazz) {
 
 	pcapClass = (jclass) env->NewGlobalRef(clazz); // This one is easy
