@@ -32,11 +32,12 @@
 
 
 bpf_program *getBpfProgram(JNIEnv *env, jobject obj) {
+	
 	jlong pt = env->GetLongField(obj, bpfProgramPhysicalFID);
 
 	if (pt == 0) {
 		throwException(env, ILLEGAL_STATE_EXCEPTION,
-				"BpfProgram already deallocated (bpf_program).");
+				"BpfProgram is NULL, not possible (bpf_program).");
 
 		return NULL;
 	}
@@ -46,26 +47,14 @@ bpf_program *getBpfProgram(JNIEnv *env, jobject obj) {
 	return p;
 }
 
-void freeBpfProgramIfExists(JNIEnv *env, jobject obj) {
-	jlong pt = env->GetLongField(obj, bpfProgramPhysicalFID);
-
-	if (pt == 0) {
-		return;
-	}
-
-	bpf_program *p = (bpf_program *) toPtr(pt);
-
-	pcap_freecode(p);
-
-	setBpfProgramPhysical(env, obj, (jlong) 0);
-
-	return;
-}
-
 void setBpfProgramPhysical(JNIEnv *env, jobject obj, jlong value) {
 	env->SetLongField(obj, bpfProgramPhysicalFID, value);
 }
 
+/*
+ * Disabled. Classes is not fully peered and copies no longer required.
+ * We leave the method in here just for reference purposes.
+ * 
 bpf_program *bpfProgramInitFrom(JNIEnv *env, jobject obj, bpf_program *src) {
 	bpf_program *dst = (bpf_program *)malloc(sizeof(bpf_program));
 	dst->bf_insns = (bpf_insn *)malloc(src->bf_len * 8); // Each inst is 8 bytes
@@ -77,6 +66,7 @@ bpf_program *bpfProgramInitFrom(JNIEnv *env, jobject obj, bpf_program *src) {
 
 	return dst;
 }
+*/
 
 /*****************************************************************************
  *  These are static and constant unless class file reloads
@@ -109,6 +99,25 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_PcapBpfProgram_initIDs
 	}
 }
 
+/*
+ * Class:     org_jnetpcap_PcapBpfProgram
+ * Method:    initPeer
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_PcapBpfProgram_initPeer
+  (JNIEnv *env, jobject obj) {
+	
+	bpf_program *b = (bpf_program *)malloc(sizeof(bpf_program));
+	if (b == NULL) {
+		throwException(env, OUT_OF_MEMORY_ERROR, "");
+		return;
+	}
+	
+	b->bf_insns = NULL;
+	b->bf_len = 0;
+	
+	setBpfProgramPhysical(env, obj, toLong(b));
+}
 
 /*
  * Class:     org_jnetpcap_PcapBpfProgram
@@ -118,7 +127,23 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_PcapBpfProgram_initIDs
 JNIEXPORT void JNICALL Java_org_jnetpcap_PcapBpfProgram_cleanup
 (JNIEnv *env , jobject obj) {
 
-	freeBpfProgramIfExists(env, obj);
+	bpf_program *b = getBpfProgram(env, obj);
+	if (b == NULL) {
+		return; // Exception already thrown
+	}
+
+	/*
+	 * Frees the data pointed by the bf_insns
+	 */
+	if (b->bf_insns != NULL) {
+		pcap_freecode(b);
+	}
+	
+	/*
+	 * Release the main structure
+	 */
+	free(b);
+	setBpfProgramPhysical(env, obj, (jlong) 0);
 }
 
 /*

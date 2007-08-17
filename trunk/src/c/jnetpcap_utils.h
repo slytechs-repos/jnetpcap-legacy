@@ -22,6 +22,7 @@ extern "C" {
 #define UNSUPPORTED_OPERATION_EXCEPTION "java/lang/UnsuportOperationException"
 #define PCAP_CLOSED_EXCEPTION "org/jnetpcap/PcapClosedException"
 #define PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION "org/jnetpcap/PcapExtensionNotAvailableException"
+#define OUT_OF_MEMORY_ERROR "java/lang/OutOfMemoryError"
 	
 extern	jclass pcapClass;
 extern	jclass pcapHandlerClass;
