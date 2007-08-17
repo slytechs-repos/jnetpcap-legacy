@@ -101,8 +101,8 @@ import java.util.List;
  * 
  * int timeout = 60 * 1000; // In milliseconds
  * 
- * Pcap pcap = Pcap.openLive(netInterface.getName(), snaplen, promiscous, timeout,
- *     errbuf);
+ * Pcap pcap =
+ *     Pcap.openLive(netInterface.getName(), snaplen, promiscous, timeout, errbuf);
  * </pre>
  * 
  * Last argument is a buffer that will hold an error string, if error occures.
@@ -460,10 +460,10 @@ public class Pcap {
 	}
 
 	/**
-	 * This method forces deallocation of backend resources. After this call, any
-	 * access to the BPF program through any of its accessor methods, will result
-	 * in IllegalStateException raised. The user should release any references to
-	 * the java object after this call.
+	 * This frees up the code structures, but does not released the peered base
+	 * bpf_program peer structure. Only the allocated storage to hold the code is
+	 * freedup. The peered bpf_program structure is only freed when the program
+	 * object is garbage collected.
 	 * 
 	 * @param program
 	 *          program to free up the backend resources for
