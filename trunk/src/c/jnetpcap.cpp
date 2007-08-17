@@ -689,30 +689,17 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_compileNoPcap
 		return -1;
 	}
 
-	bpf_program src;
-
-	freeBpfProgramIfExists(env, jbpf);
+	bpf_program *b = getBpfProgram(env, jbpf);
+	if (b == NULL) {
+		return -1; // Exception already thrown
+	}
 
 	char *str = (char *)env->GetStringUTFChars(jstr, 0);
 
-	int r = pcap_compile_nopcap(snaplen, dlt, &src, str, optimize, (bpf_u_int32) mask);
+	int r = pcap_compile_nopcap(snaplen, dlt, b, str, optimize, (bpf_u_int32) mask);
 	
 	env->ReleaseStringUTFChars(jstr, str);
 	
-	if (r != 0) {
-		return r;
-	}
-
-	/*
-	 * Now make a copy and store reference to it in jbpf object
-	 */
-	bpfProgramInitFrom(env, jbpf, &src);
-
-	/*
-	 * We're done with BPF copy of the code, we copied it and stored in PcapBpfProgram
-	 * object.
-	 */
-	pcap_freecode(&src);
 
 	return r;
 }
@@ -730,36 +717,23 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_compile
 		return -1;
 	}
 
-	bpf_program src;
 
 	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
 		return -1; // Exception already thrown
 	}
-
-	freeBpfProgramIfExists(env, jbpf);
+	
+	bpf_program *b = getBpfProgram(env, jbpf);
+	if (b == NULL) {
+		return -1; // Exception already thrown
+	}
 
 	char *str = (char *)env->GetStringUTFChars(jstr, 0);
 
-	int r = pcap_compile(p, &src, str, optimize, (bpf_u_int32) mask);
+	int r = pcap_compile(p, b, str, optimize, (bpf_u_int32) mask);
 	
 	env->ReleaseStringUTFChars(jstr, str);
 	
-	if (r != 0) {
-		return r;
-	}
-
-	/*
-	 * Now make a copy and store reference to it in jbpf object
-	 */
-	bpfProgramInitFrom(env, jbpf, &src);
-
-	/*
-	 * We're done with BPF copy of the code, we copied it and stored in PcapBpfProgram
-	 * object.
-	 */
-	pcap_freecode(&src);
-
 	return r;
 }
 
@@ -775,8 +749,13 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_Pcap_freecode
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return;
 	}
-
-	freeBpfProgramIfExists(env, jbpf);
+	
+	bpf_program *b = getBpfProgram(env, jbpf);
+	if (b == NULL) {
+		return; // Exception already thrown
+	}
+	
+	pcap_freecode(b);
 }
 
 /*

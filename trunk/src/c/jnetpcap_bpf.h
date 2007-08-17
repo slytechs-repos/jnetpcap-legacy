@@ -18,8 +18,6 @@ extern	jfieldID bpfProgramPhysicalFID;
 // Prototypes
 bpf_program *getBpfProgram(JNIEnv *env, jobject obj);
 void setBpfProgramPhysical(JNIEnv *env, jobject obj, jlong value);
-bpf_program *bpfProgramInitFrom(JNIEnv *env, jobject obj, bpf_program *src);
-void freeBpfProgramIfExists(JNIEnv *env, jobject obj);
 
 #ifdef __cplusplus
 }
