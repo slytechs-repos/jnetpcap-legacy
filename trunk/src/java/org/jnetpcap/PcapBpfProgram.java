@@ -70,8 +70,13 @@ public class PcapBpfProgram {
 	 * @see Pcap#compileNoPcap(int, int, PcapBpfProgram, String, int, int)
 	 */
 	public PcapBpfProgram() {
-		// Empty uninitialized object.
+		initPeer();
 	}
+	
+	/**
+	 * Allocates object's peered C structure bpf_program.
+	 */
+	private native void initPeer();
 
 	@SuppressWarnings("unused")
 	private PcapBpfProgram(byte[] instructions) {
