@@ -48,7 +48,7 @@ public class PcapDumperExample {
 			System.err.printf("Can't read list of devices, error is %s", errbuf.toString());
 			return;
 		}
-		PcapIf device = alldevs.get(0); // We know we have atleast 1 device
+		PcapIf device = alldevs.get(1); // We know we have atleast 1 device
 
 		/***************************************************************************
 		 * Second we open up the selected device
