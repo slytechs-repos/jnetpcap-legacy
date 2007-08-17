@@ -31,7 +31,8 @@ import junit.textui.TestRunner;
 public class TestPcapJNI
     extends TestCase {
 
-	private final static String device = "\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
+//	private final static String device = "\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
+	private final static String device = "any";
 
 	private final static String fname = "tests/test-l2tp.pcap";
 
@@ -144,7 +145,7 @@ public class TestPcapJNI
 	public void SKIPtestOpenLiveAndDispatch() {
 
 		Pcap pcap = Pcap.openLive(device, 10000, 1, 60 * 1000, errbuf);
-		assertNotNull(pcap);
+		assertNotNull(errbuf.toString(), pcap);
 
 		PcapHandler<String> handler = new PcapHandler<String>() {
 
@@ -267,8 +268,10 @@ public class TestPcapJNI
 		PcapBpfProgram bpf = new PcapBpfProgram();
 		String str = "host 192.168.101";
 
+		System.out.println("trying to compiler the filter() OK\n"); System.out.flush();
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
-		assertNotNull(pcap);
+		System.out.println("filter was compiled OK\n"); System.out.flush();
+		assertNotNull(errbuf.toString(), pcap);
 
 		int r = pcap.compile(bpf, str, 0, 0);
 		assertEquals(pcap.getErr(), 0, r);
@@ -283,7 +286,9 @@ public class TestPcapJNI
 			}
 		};
 
-		assertEquals(OK, pcap.setFilter(bpf));
+		System.out.println("trying to set the filter() OK\n"); System.out.flush();
+		assertEquals(OK, pcap.setFilter(bpf)); 
+		System.out.println("filter was set OK\n"); System.out.flush();
 		assertEquals(OK, pcap.loop(10, handler, str));
 
 		Pcap.freecode(bpf);
@@ -328,7 +333,7 @@ public class TestPcapJNI
 		int r = Pcap.findAllDevs(devs, errbuf);
 		assertEquals(errbuf.toString(), 0, r);
 		assertFalse(devs.isEmpty());
-		assertEquals(2, devs.size());
+		assertEquals(3, devs.size());
 
 		// System.out.println(devs);
 	}
@@ -415,7 +420,7 @@ public class TestPcapJNI
 	public void testOpenDeadAndClose() {
 
 		Pcap pcap = Pcap.openDead(1, 10000); // DLT, SNAPLEN
-		assertNotNull(pcap);
+		assertNotNull(errbuf.toString(), pcap);
 
 		pcap.close();
 	}
@@ -424,12 +429,13 @@ public class TestPcapJNI
 	    InterruptedException {
 
 		Pcap pcap = Pcap.openLive(device, 101, 1, 60, errbuf);
+		assertNotNull(errbuf.toString(), pcap);
 
 		// Physical field initialized from JNI space
 		assertFalse("0".equals(pcap.toString()));
 
 		// Check linklayer 1 is for DLT_EN10MB
-		assertEquals(1, pcap.datalink());
+		assertEquals(113, pcap.datalink());
 
 		pcap.close();
 
@@ -444,7 +450,7 @@ public class TestPcapJNI
 	public void testOpenLiveAndLoopWithBreakloop() {
 
 		Pcap pcap = Pcap.openLive(device, 10000, 1, 60 * 1000, errbuf);
-		assertNotNull(pcap);
+		assertNotNull(errbuf.toString(), pcap);
 
 		PcapHandler<String> handler = new PcapHandler<String>() {
 
@@ -470,7 +476,7 @@ public class TestPcapJNI
 	public void testOpenOfflineAndClose() {
 
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
-		assertNotNull(pcap);
+		assertNotNull(errbuf.toString(), pcap);
 
 		PcapHandler<String> handler = new PcapHandler<String>() {
 
@@ -493,7 +499,7 @@ public class TestPcapJNI
 	public void testOpenOfflineAndLoop() {
 
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
-		assertNotNull(pcap);
+		assertNotNull(errbuf.toString(), pcap);
 
 		PcapHandler<String> handler = new PcapHandler<String>() {
 
@@ -516,7 +522,7 @@ public class TestPcapJNI
 	public void testOpenOfflineAndNext() {
 
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
-		assertNotNull(pcap);
+		assertNotNull(errbuf.toString(), pcap);
 		PcapPktHdr hdr = new PcapPktHdr();
 
 		ByteBuffer buffer = pcap.next(hdr);
@@ -533,7 +539,7 @@ public class TestPcapJNI
 	public void testOpenOfflineAndNextEx() {
 
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
-		assertNotNull(pcap);
+		assertNotNull(errbuf.toString(), pcap);
 		PcapPktHdr hdr = new PcapPktHdr();
 		PcapPktBuffer buf = new PcapPktBuffer();
 
@@ -611,7 +617,7 @@ public class TestPcapJNI
 
 	public void testSetAndGetNonblock() {
 		Pcap pcap = Pcap.openLive(device, 10000, 1, 60 * 1000, errbuf);
-		assertNotNull(pcap);
+		assertNotNull(errbuf.toString(), pcap);
 
 		assertEquals(OK, pcap.getNonBlock(errbuf));
 
@@ -848,7 +854,7 @@ public class TestPcapJNI
 		    .length(), new File(fname).length());
 	}
 
-	public void SKIPtestStats() {
+	public void testStats() {
 		PcapStat stats = new PcapStat();
 
 		Pcap pcap = Pcap.openLive(device, snaplen, promisc, oneSecond, errbuf);
@@ -872,7 +878,7 @@ public class TestPcapJNI
 	public void SKIPtestSendPacket() {
 
 		Pcap pcap = Pcap.openLive(device, snaplen, 1, 10 * oneSecond, errbuf);
-		assertNotNull(pcap);
+		assertNotNull(errbuf.toString(), pcap);
 
 		byte[] a = new byte[14];
 		Arrays.fill(a, (byte) 0xff);
@@ -887,7 +893,7 @@ public class TestPcapJNI
 
 	}
 
-	public void testDumper() {
+	public void SKIPtestDumper() {
 		
 		gen.start(); // Generate network traffic - async method
 
