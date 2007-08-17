@@ -294,14 +294,6 @@ public class TestPcapJNI
 	public void testFilterCompileNoPcapAndAccessors() {
 		PcapBpfProgram bpf = new PcapBpfProgram();
 
-		// Check state protection when object not ready yet.
-		try {
-			bpf.getInstructionCount();
-			fail("Should have generated an illegal state exception");
-		} catch (IllegalStateException e) {
-			// OK
-		}
-
 		String str = "host 192.168.1.1";
 
 		int r = Pcap.compileNoPcap(1024, 1, bpf, str, 0, 0);
