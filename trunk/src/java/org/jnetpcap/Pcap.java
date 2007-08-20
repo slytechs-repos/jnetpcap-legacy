@@ -800,6 +800,109 @@ public class Pcap {
 	public native int getNonBlock(StringBuilder errbuf);
 
 	/**
+	 * This method allows to send a raw packet to the network. The MAC CRC doesn't
+	 * need to be included, because it is transparently calculated and added by
+	 * the network interface driver. The data will be taken from the supplied
+	 * buffer where the start of the packet is buffer's current position()
+	 * property and end its limit() properties.
+	 * 
+	 * @param buf
+	 *          contains the data of the packet to send (including the various
+	 *          protocol headers)
+	 * @return 0 number of bytes written otherwise -1 on failure
+	 */
+	public int inject(final byte[] buf) {
+		checkIsActive(); // Check if Pcap.close wasn't called
+
+		final int length = buf.length;
+		final ByteBuffer direct = ByteBuffer.allocateDirect(length);
+		direct.put(buf);
+
+		return injectPrivate(direct, 0, length);
+	}
+
+	/**
+	 * This method allows to send a raw packet to the network. The MAC CRC doesn't
+	 * need to be included, because it is transparently calculated and added by
+	 * the network interface driver. The data will be taken from the supplied
+	 * buffer where the start of the packet is buffer's current position()
+	 * property and end its limit() properties.
+	 * 
+	 * @param buf
+	 *          contains the data of the packet to send (including the various
+	 *          protocol headers)
+	 * @param offset
+	 *          offset of the first index into the byte array
+	 * @param length
+	 *          amount of data to write from the offset
+	 * @return 0 number of bytes written otherwise -1 on failure
+	 */
+	public int inject(final byte[] buf, int offset, int length) {
+		checkIsActive(); // Check if Pcap.close wasn't called
+
+		final ByteBuffer direct = ByteBuffer.allocateDirect(length);
+		direct.put(buf, offset, length);
+
+		return injectPrivate(direct, 0, length);
+	}
+
+	/**
+	 * This method allows to send a raw packet to the network. The MAC CRC doesn't
+	 * need to be included, because it is transparently calculated and added by
+	 * the network interface driver. The data will be taken from the supplied
+	 * buffer where the start of the packet is buffer's current position()
+	 * property and end its limit() properties.
+	 * 
+	 * @param buf
+	 *          contains the data of the packet to send (including the various
+	 *          protocol headers); the buffer should be a direct buffer; array
+	 *          based buffers will be copied into a direct buffer
+	 * @return 0 number of bytes written otherwise -1 on failure
+	 */
+	public int inject(final ByteBuffer buf) {
+		checkIsActive(); // Check if Pcap.close wasn't called
+
+		if (buf.isDirect() == false) {
+			final int length = buf.limit() - buf.position();
+			final ByteBuffer direct = ByteBuffer.allocateDirect(length);
+			direct.put(buf);
+
+			return injectPrivate(direct, 0, length);
+		} else {
+			return injectPrivate(buf, buf.position(), buf.limit() - buf.position());
+		}
+	}
+
+	/**
+	 * Private method to perform work. The arguments are guarranteed to work with
+	 * buf since we're using a delagate method.
+	 * 
+	 * @param buf
+	 * @param start
+	 * @param len
+	 * @return 0 number of bytes written otherwise -1 on failure
+	 */
+	private native int injectPrivate(ByteBuffer buf, int start, int len);
+
+	/**
+	 * Checks if the current platform has support for pcap_inject call. The
+	 * support is libpcap version and platform dependent.
+	 * 
+	 * @see #inject
+	 * @return true means {@link #inject) is supported, otherwise not
+	 */
+	public native boolean isInjectSupported();
+
+	/**
+	 * Checks if the current platform has support for pcap_sendpacket call. The
+	 * support is libpcap version and platform dependent.
+	 * 
+	 * @see #inject
+	 * @return true means {@link #sendPacket) is supported, otherwise not
+	 */
+	public native boolean isSendPacketSupported();
+
+	/**
 	 * returns true if the current savefile uses a different byte order than the
 	 * current system
 	 * 
