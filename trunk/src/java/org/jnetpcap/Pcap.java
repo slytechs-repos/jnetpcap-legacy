@@ -491,6 +491,24 @@ public class Pcap {
 	private native static void initIDs();
 
 	/**
+	 * Checks if the current platform has support for pcap_inject call. The
+	 * support is libpcap version and platform dependent.
+	 * 
+	 * @see #inject
+	 * @return true means {@link #inject) is supported, otherwise not
+	 */
+	public native static boolean isInjectSupported();
+
+	/**
+	 * Checks if the current platform has support for pcap_sendpacket call. The
+	 * support is libpcap version and platform dependent.
+	 * 
+	 * @see #inject
+	 * @return true means {@link #sendPacket) is supported, otherwise not
+	 */
+	public native static boolean isSendPacketSupported();
+
+	/**
 	 * Returns a pointer to a string giving information about the version of the
 	 * libpcap library being used; note that it contains more information than
 	 * just a version number
@@ -883,24 +901,6 @@ public class Pcap {
 	 * @return 0 number of bytes written otherwise -1 on failure
 	 */
 	private native int injectPrivate(ByteBuffer buf, int start, int len);
-
-	/**
-	 * Checks if the current platform has support for pcap_inject call. The
-	 * support is libpcap version and platform dependent.
-	 * 
-	 * @see #inject
-	 * @return true means {@link #inject) is supported, otherwise not
-	 */
-	public native boolean isInjectSupported();
-
-	/**
-	 * Checks if the current platform has support for pcap_sendpacket call. The
-	 * support is libpcap version and platform dependent.
-	 * 
-	 * @see #inject
-	 * @return true means {@link #sendPacket) is supported, otherwise not
-	 */
-	public native boolean isSendPacketSupported();
 
 	/**
 	 * returns true if the current savefile uses a different byte order than the
