@@ -495,7 +495,7 @@ public class Pcap {
 	 * support is libpcap version and platform dependent.
 	 * 
 	 * @see #inject
-	 * @return true means {@link #inject) is supported, otherwise not
+	 * @return true means {@link #inject} is supported, otherwise not
 	 */
 	public native static boolean isInjectSupported();
 
@@ -504,7 +504,7 @@ public class Pcap {
 	 * support is libpcap version and platform dependent.
 	 * 
 	 * @see #inject
-	 * @return true means {@link #sendPacket) is supported, otherwise not
+	 * @return true means {@link #sendPacket} is supported, otherwise not
 	 */
 	public native static boolean isSendPacketSupported();
 
