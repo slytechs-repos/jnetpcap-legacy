@@ -332,6 +332,52 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_nextEx
 
 /*
  * Class:     org_jnetpcap_Pcap
+ * Method:    isInjectSupported
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_org_jnetpcap_Pcap_isInjectSupported
+  (JNIEnv *env, jclass clazz) {
+	
+#ifdef WIN32
+	return JNI_TRUE;
+#else
+	return JNI_FALSE;
+#endif
+	
+}
+
+/*
+ * Class:     org_jnetpcap_Pcap
+ * Method:    isSendPacketSupported
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_org_jnetpcap_Pcap_isSendPacketSupported
+  (JNIEnv *env, jclass clazz) {
+#ifdef WIN32
+	return JNI_TRUE;
+#else
+	return JNI_FALSE;
+#endif	
+}
+
+/*
+ * Class:     org_jnetpcap_Pcap
+ * Method:    injectPrivate
+ * Signature: (Ljava/nio/ByteBuffer;II)I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_injectPrivate
+  (JNIEnv *env, jobject obj, jobject jbytebuffer, jint jstart, jint jlength) {
+#ifdef WIN32
+	 throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
+	return -1;
+#else
+	 throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
+	return -1;
+#endif		
+}
+
+/*
+ * Class:     org_jnetpcap_Pcap
  * Method:    sendPacketPrivate
  * Signature: (Ljava/nio/ByteBuffer;)I
  */
