@@ -20,15 +20,16 @@
 
 
                               jNetPcap Package
-                            Version 1.0b3 (beta 3)
+                            Version 1.0b4 (beta 4)
                                Release Notes
                             Created on 2007-08-09
 
 INTRODUCTION:
 ============
 
-This release of jNetPcap library provides new features and a WinPcap extension
-java package and no longer requires the inclusion of Apache's commons-logging.
+This release of jNetPcap library provides new features, linux platform 
+support and a bug fix.
+
 The API classes are compiled with Java 1.5.X compiler and require Java 1.5 
 compatibility. The package is platform dependent as there is a native library 
 components supplied for each supported operating system 
@@ -41,25 +42,40 @@ methods are implemented. Also various low level kernel buffer operations that
 are natively available through WinPcap extension library are implemented as 
 well, but only available on windows based platforms.
 
+The linux distribution comes with Pcap.sendPacket() and Pcap.inject() methods
+disabled. These methods are enabled on win32 platforms. You can check if methods
+are available with Pcap.isSendPacketSupported() and Pcap.isInjectSupported().
+They will be enabled on linux platform once pre-requisite for libpcap is raised
+to libpcap version 0.9.3 and above on linux platforms.
+
 Since this is a beta release of the software the final version of the API and
 functionality may change slightly by the time we reach production status. 
 Feedback, peer review and feature requests are welcome. 
 
 The javadoc API documentation  and a user guide is available at the project's 
 website at:
-http://jnetpcap.sourceforge.net/docs/jnetpcap-1.0b3-javadoc/index.html
+http://jnetpcap.sourceforge.net/docs/jnetpcap-1.0b4-javadoc/index.html
 
 == Installation Instruction ==
 
 To install the library unzip the binary platform-dependent package into any
-directory. There are 2 parts to setting up environment for jNetPcap.
+directory, or install the RPM package on unix based systems into its default
+directories. There are 2 parts to setting up environment for jNetPcap.
 
   *) Win32 Dependency: jNetPcap requires WinPcap 3.1 or greater installed. 
                        WinPcap version 4.0.1 or greater is recommended, but not 
                        neccessary. (http://winpcap.org)
+                       
+  *) Linux notes: main files of interest from linux RPM package are installed 
+                  in the following locations:
+  
+     - /usr/lib/libjnetpcap.so
+     - /usr/share/java/jnetpcap-1.0b4.jar 
+     - /usr/share/doc/jnetpcap-1.0b4 = contains RELEASE notes and javadocs
 
   1) Add supplied jnetpcap-version.jar file to your build system's CLASSPATH.
-     The jar file is found at the root of the installation directory.
+     The jar file is found at the root of the installation directory in zip 
+     files and in /usr/share/java on linux systems.
   
   2) Setup native jnetpcap dynamically loadable library. This varies between
      operating systems.
@@ -80,8 +96,9 @@ directory. There are 2 parts to setting up environment for jNetPcap.
        - You can change working directory into the root of jnetpcap's 
          installation directory.
          
-     * On unix based systems
-       - add jNetPcap's installation directory to LD_LIBRARY_PATH variable
+     * On unix based systems, use one of the following
+       - add /usr/lib directory to LD_LIBRARY_PATH variable as java JRE does not
+         look in this directory by default
        
        - Tell Java VM at startup exactly where to find jnetpcap.dll by setting
          a java system property 'java.library.path' such as:
@@ -119,7 +136,8 @@ distribution. Most of the java classes included in this package will throw
 An environment variable pointing to the directory where the native library 
 is located needs to be setup. This is either LD_LIBRARY_PATH on unix system, 
 or PATH variable on windows systems. The library resides within the jnetpcap
-installation directory. 
+installation directory using zip packages and in /usr/lib directory using RPM
+packages.
 
 Within the package zip file, jnetpcap-version-arch.zip that would be 
 'jnetpcap-version-arch' directory.
@@ -186,12 +204,19 @@ you will need to included any version of 'jUnit' in the CLASSPATH.
  	  
  * On Linux/Freebsd
 
-    - current release of jNetPcap does not provide support for these operating 
-      systems. These operating systems are planned to be released but at a later
-      timeframe.
+    - current release of jNetPcap only provides support for all linux based
+      operating platforms. The RPM package does not place any explicit 
+      dependencies but does require libpcap RPM package to be installed. Any 
+      version of 0.8 or above will do.
+      
+      Currently two methods that send packets are disabled on linux platform
+      since those functions were introduced in libpcap version 0.9.3. (Future
+      releases of jNetPcap will provide support for these functions and will
+      at the same time have a minimum requirement of 0.9.3 or above.)
      
     - only org.jnetpcap package is supported on all Unix based platforms.
-      WinPcap extensions are disabled for non windows based platforms.
+      WinPcap extensions are disabled for non windows based platforms. (Use
+      WinPcap.isSupported() method to check for support.)
       
   * On Apple OS support 
   
@@ -212,14 +237,8 @@ builds suitable for deployment in commercial products.
 
 == Bugs Fixed ==
 
-#1770987 - Invalid flag to WinPcap.open will cause a VM crash
-
-  * This is a WinPcap bug that is being fixed. This release of jNetPcap
-    catches the condition that triggers the crash and properly handles the 
-    error situation. No crashes. Bug is in "pending" status until fixed by
-    WinPcap group.
+Bug #1776380 - PcapBpfProgram exceptions on linux platform
 
 == Deprecations ==
 
-* No longer need commons-logging for logging services. All static initializer 
-  error conditions throw an exception.
+* None
