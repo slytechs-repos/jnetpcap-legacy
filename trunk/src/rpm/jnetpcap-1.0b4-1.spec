@@ -1,23 +1,19 @@
 #
-#   RPM package specification for jpcap
+#   RPM package specification for JNETPCAP
 #
-%define JNETPCAP_VERSION 1.0b4
-%define JNETPCAP jnetpcap-%JNETPCAP_VERSION
+%define JNETPCAP_VERSION @pkg.version@
+%define JNETPCAP jnetpcap-%{JNETPCAP_VERSION}
 
 Summary: A libpcap java wrapper
 Name: jnetpcap
-Version: %JNETPCAP_VERSION
-Release: 1
-Copyright: LGPL
+Version: %{JNETPCAP_VERSION}
+Release: linux
+License: LGPL
 Group: Development/Java
-Packager: Mark Bednarczyk <mark@slytechs.com>
-Source: http://downloads.sourceforge.net/jnetpcap/jnetpcap-1.0b3-win32.zip
-Vendor: <http://jnetpcap.sf.net>
-# Distribution: jnetpcap <http://jnetpcap.sf.net>
+Packager: Sly Technologies, Inc. <http://slytechs.com>
+Vendor: Sly Technologies, Inc <http://jnetpcap.sf.net>
+Distribution: jnetpcap <http://jnetpcap.sf.net>
 
-BuildRequires: j2sdk >= 1.5, libpcap >= 0.8
-Requires: j2sdk >= 1.5, libpcap >= 0.8
-BuildRoot: /tmp/%{name}-%JNETPCAP_VERSION-pkgroot
 
 %description
 jNetPcap is a java wrapper around libpcap. It provides all of the same methods
@@ -27,38 +23,13 @@ providing entire libpcap environment under java.
 
 %prep
 
-%setup
-
 %build
-PROJECT_HOME=/usr/src/redhat/BUILD/%JNETPCAP
-cd $PROJECT_HOME
-ant clean package
-
-%pre 
+pwd
 
 %install
-cd $PROJECT_HOME
-
-
-%post
-
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 %files
-%defattr(+r,nobody,nobody)
-%doc docs/RELEASE_NOTES docs/CHANGE_LOG
+%doc LICENSE.txt RELEASE_NOTES.txt CHANGE_LOG.txt javadoc
 
 /usr/lib/libjnetpcap.so
-/usr/lib/%JNETPCAP/%JNETPCAP.jar
-/usr/lib/%jpcap/jars/javadoc_net.sourceforge.%jpcap.jar
-/usr/lib/%jpcap/thirdParty/jars/dev-classes_net.ultrametrics-0.03.jar
-/usr/lib/%jpcap/thirdParty/jars/fooware_CommandLine-1.0.jar
-/usr/lib/%jpcap/properties/tool.properties
-/usr/lib/%jpcap/properties/simulator.properties
-
-
-%changelog
-* Friday August 17 2007 Mark Bednarczyk <mark@slytechs.com>
-
-- Initial RPM build
+/usr/share/java/%{JNETPCAP}.jar
