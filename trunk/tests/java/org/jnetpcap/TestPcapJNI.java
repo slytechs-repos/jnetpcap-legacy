@@ -944,7 +944,7 @@ public class TestPcapJNI
 		PcapInteger netp = new PcapInteger();
 		PcapInteger maskp = new PcapInteger();
 
-		int r = Pcap.lookupNet("abc", netp, maskp, errbuf);
+		int r = Pcap.lookupNet(device, netp, maskp, errbuf);
 		assertEquals(errbuf.toString(), 0, r);
 
 		System.out.printf("device=%s netp=%X maskp=%X errbuf=%s\n", device, netp.getValue(),
