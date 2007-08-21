@@ -440,25 +440,24 @@
      			runtime="dynamic"
 			debug="${compiler.debug}" 
 			objdir="${build.obj.dir}" 
-			multithreaded="compiler.multithreaded" 
-			exceptions="compiler.exceptions">
+			multithreaded="${compiler.multithreaded}" 
+			exceptions="${compiler.exceptions}">
 
 			<env
 				key="PATH"
 				path="${compiler.cc.bin.dir};${env.PATH}"
 			/>
 			
-			<compiler name="${compiler.cc.cmd}" if="build.type.win32">
-				<compilerarg value="-ansi" />
+			<compiler name="${compiler.cc.cmd}">
 				<compilerarg value="-DHAVE_REMOTE" />
 			</compiler>
 			
 			<fileset dir="${src.c.dir}" />
 			<includepath location="${build.include.dir}" />
 			<includepath location="${src.c.dir}" />
+			<sysincludepath location="${pcap.include.dir}" />
 			<sysincludepath location="${java.sdk.include.dir}" />
 			<sysincludepath location="${java.sdk.include.dir}/win32" />
-			<sysincludepath location="${java.sdk.include.dir}/linux" />
 			
 		</cc>
 
@@ -472,7 +471,7 @@
 			/>
 
 			<arg value="-shared" />
-			<arg value="-Wl,- -add-stdcall-alias" />
+			<arg value="-Wl,--add-stdcall-alias" />
 
 			<arg line="-o ${jni.build.filepath}" />
 
@@ -519,16 +518,10 @@
 				path="${compiler.cc.bin.dir};${env.PATH}"
 			/>
 			
-			<compiler name="${compiler.cc.cmd}" if="build.type.win32">
-				<compilerarg value="-ansi" />
-				<compilerarg value="-DHAVE_REMOTE" />
-			</compiler>
-			
 			<fileset dir="${src.c.dir}" />
 			<includepath location="${build.include.dir}" />
 			<includepath location="${src.c.dir}" />
 			<sysincludepath location="${java.sdk.include.dir}" />
-			<sysincludepath location="${java.sdk.include.dir}/win32" />
 			<sysincludepath location="${java.sdk.include.dir}/linux" />
 			
 
