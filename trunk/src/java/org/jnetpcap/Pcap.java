@@ -518,6 +518,39 @@ public class Pcap {
 	public native static String libVersion();
 
 	/**
+	 * Returns a network device suitable for use with <code>openLive</code> and
+	 * <code>lookupNet</code>.
+	 * 
+	 * @param errbuf
+	 *          if there is an error, errbuf is filled with appropriate message
+	 * @return name of the device or null on error
+	 */
+	public native static String lookupDev(StringBuilder errbuf);
+
+	/**
+	 * Determines the network number and mask associated with the network device.
+	 * Both netp and maskp are integer object references whos value is set from
+	 * within the call. This is the way that pcap natively passes back these two
+	 * values.
+	 * <p>
+	 * <b>Note:</b> this method is deprecated in pcap as it can not be used to
+	 * pass back information about IP v6 addresses.
+	 * </p>
+	 * 
+	 * @param device
+	 *          device to do the lookup on
+	 * @param netp
+	 *          object which will contain the value of network address
+	 * @param maskp
+	 *          object which will contain the value of network netmask
+	 * @param errbuf
+	 *          any error messages if return value is -1
+	 * @return 0 on success otherwise -1 on error
+	 */
+	public native static int lookupNet(String device, PcapInteger netp,
+	    PcapInteger maskp, StringBuilder errbuf);
+
+	/**
 	 * Create a pcap_t structure without starting a capture. pcap_open_dead() is
 	 * used for creating a pcap_t structure to use when calling the other
 	 * functions in libpcap. It is typically used when just using libpcap for

@@ -447,7 +447,7 @@ public class TestPcapJNI
 		assertFalse("0".equals(pcap.toString()));
 
 		// Check linklayer 1 is for DLT_EN10MB
-//		assertEquals(113, pcap.datalink());
+		// assertEquals(113, pcap.datalink());
 
 		pcap.close();
 
@@ -874,11 +874,11 @@ public class TestPcapJNI
 
 		pcap.loop(5, doNothingHandler, null);
 		pcap.stats(stats);
-//		System.out.printf("stats=%s\n", stats.toString());
+		// System.out.printf("stats=%s\n", stats.toString());
 
 		pcap.loop(5, doNothingHandler, null);
 		pcap.stats(stats);
-//		System.out.printf("stats=%s\n", stats.toString());
+		// System.out.printf("stats=%s\n", stats.toString());
 
 		pcap.close();
 	}
@@ -935,5 +935,19 @@ public class TestPcapJNI
 		// System.out.printf("Temp dumpfile size=%s\n", tmpFile.length());
 		pcap.close();
 
+	}
+
+	public void testLookupDevAndLookupNet() {
+		String device = Pcap.lookupDev(errbuf);
+		assertNotNull(errbuf.toString(), device);
+
+		PcapInteger netp = new PcapInteger();
+		PcapInteger maskp = new PcapInteger();
+
+		int r = Pcap.lookupNet("abc", netp, maskp, errbuf);
+		assertEquals(errbuf.toString(), 0, r);
+
+		System.out.printf("device=%s netp=%X maskp=%X errbuf=%s\n", device, netp.getValue(),
+		    maskp.getValue(), errbuf.toString());
 	}
 }
