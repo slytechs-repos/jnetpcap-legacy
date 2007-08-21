@@ -439,7 +439,7 @@ public class TestPcapJNI
 	public void testOpenLiveAndDatalinkAndClose() throws SocketException,
 	    InterruptedException {
 
-		System.out.println(System.getProperty("os.name"));
+//		System.out.println(System.getProperty("os.name"));
 		Pcap pcap = Pcap.openLive(device, 101, 1, 60, errbuf);
 		assertNotNull(errbuf.toString(), pcap);
 
@@ -947,7 +947,7 @@ public class TestPcapJNI
 		int r = Pcap.lookupNet(device, netp, maskp, errbuf);
 		assertEquals(errbuf.toString(), 0, r);
 
-		System.out.printf("device=%s netp=%X maskp=%X errbuf=%s\n", device, netp.getValue(),
-		    maskp.getValue(), errbuf.toString());
+//		System.out.printf("device=%s netp=%X maskp=%X errbuf=%s\n", device, netp.getValue(),
+//		    maskp.getValue(), errbuf.toString());
 	}
 }
