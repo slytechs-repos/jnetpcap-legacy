@@ -17,8 +17,11 @@ extern jclass stringBuilderClass;
 extern jclass pcapIfClass;
 extern jclass pcapAddrClass;
 extern jclass PcapSockAddrClass;
+extern jclass pcapIntegerClass;
 
 extern jfieldID pcapPhysicalFID;
+extern jfieldID pcapIntegerValueFID;
+
 
 extern 	jfieldID PcapPktHdrSecondsFID;
 extern 	jfieldID PcapPktHdrUSecondsFID;

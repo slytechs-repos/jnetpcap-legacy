@@ -68,10 +68,9 @@
 #include "jnetpcap_utils.h"
 #include "jnetpcap_bpf.h"
 #include "jnetpcap_dumper.h"
+#include "jnetpcap_ids.h"
 #include "org_jnetpcap_Pcap.h"
 #include "export.h"
-
-
 
 /*
  * Class:     org_jnetpcap_Pcap
@@ -97,9 +96,9 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_Pcap_openLive(JNIEnv *env, jclass cl
 
 	pcap_t *p = pcap_open_live(device, jsnaplen, jpromisc, jtimeout, errbuf);
 	setString(env, jerrbuf, errbuf); // Even if no error, could have warning msg
-	
+
 	env->ReleaseStringUTFChars(jdevice, device);
-	
+
 	if (p == NULL) {
 		return NULL;
 	}
@@ -155,9 +154,9 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_Pcap_openOffline
 	const char *fname = env->GetStringUTFChars(jfname, 0);
 
 	pcap_t *p = pcap_open_offline(fname, errbuf);
-	
+
 	env->ReleaseStringUTFChars(jfname, fname);
-	
+
 	if (p == NULL) {
 		setString(env, jerrbuf, errbuf);
 		return NULL;
@@ -336,14 +335,14 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_nextEx
  * Signature: ()Z
  */
 JNIEXPORT jboolean JNICALL Java_org_jnetpcap_Pcap_isInjectSupported
-  (JNIEnv *env, jclass clazz) {
-	
+(JNIEnv *env, jclass clazz) {
+
 #ifdef WIN32
 	return JNI_TRUE;
 #else
 	return JNI_FALSE;
 #endif
-	
+
 }
 
 /*
@@ -352,7 +351,7 @@ JNIEXPORT jboolean JNICALL Java_org_jnetpcap_Pcap_isInjectSupported
  * Signature: ()Z
  */
 JNIEXPORT jboolean JNICALL Java_org_jnetpcap_Pcap_isSendPacketSupported
-  (JNIEnv *env, jclass clazz) {
+(JNIEnv *env, jclass clazz) {
 #ifdef WIN32
 	return JNI_TRUE;
 #else
@@ -366,12 +365,12 @@ JNIEXPORT jboolean JNICALL Java_org_jnetpcap_Pcap_isSendPacketSupported
  * Signature: (Ljava/nio/ByteBuffer;II)I
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_injectPrivate
-  (JNIEnv *env, jobject obj, jobject jbytebuffer, jint jstart, jint jlength) {
+(JNIEnv *env, jobject obj, jobject jbytebuffer, jint jstart, jint jlength) {
 #ifdef WIN32
-	 throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
+	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
 	return -1;
 #else
-	 throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
+	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
 	return -1;
 #endif		
 }
@@ -383,7 +382,6 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_injectPrivate
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_sendPacketPrivate
 (JNIEnv *env, jobject obj, jobject jbytebuffer, jint jstart, jint jlength) {
-
 
 #ifdef WIN32
 	if (jbytebuffer == NULL) {
@@ -406,7 +404,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_sendPacketPrivate
 	int r = pcap_sendpacket(p, b + (int) jstart, (int) jlength);
 	return r;
 #else
-	 throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
+	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
 	return -1;
 #endif
 }
@@ -549,9 +547,9 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_datalinkNameToVal
 	const char *name = env->GetStringUTFChars(jname, 0);
 
 	int r = (jint) pcap_datalink_name_to_val(name);
-	
+
 	env->ReleaseStringUTFChars(jname, name);
-	
+
 	return r;
 }
 
@@ -743,9 +741,8 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_compileNoPcap
 	char *str = (char *)env->GetStringUTFChars(jstr, 0);
 
 	int r = pcap_compile_nopcap(snaplen, dlt, b, str, optimize, (bpf_u_int32) mask);
-	
+
 	env->ReleaseStringUTFChars(jstr, str);
-	
 
 	return r;
 }
@@ -763,12 +760,11 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_compile
 		return -1;
 	}
 
-
 	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
 		return -1; // Exception already thrown
 	}
-	
+
 	bpf_program *b = getBpfProgram(env, jbpf);
 	if (b == NULL) {
 		return -1; // Exception already thrown
@@ -777,9 +773,9 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_compile
 	char *str = (char *)env->GetStringUTFChars(jstr, 0);
 
 	int r = pcap_compile(p, b, str, optimize, (bpf_u_int32) mask);
-	
+
 	env->ReleaseStringUTFChars(jstr, str);
-	
+
 	return r;
 }
 
@@ -795,12 +791,12 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_Pcap_freecode
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return;
 	}
-	
+
 	bpf_program *b = getBpfProgram(env, jbpf);
 	if (b == NULL) {
 		return; // Exception already thrown
 	}
-	
+
 	pcap_freecode(b);
 }
 
@@ -852,16 +848,16 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_Pcap_dumpOpen
 	if (str[0] != '\0' && str[1] == '-' && str[2] == '\0') {
 		throwException(env, ILLEGAL_ARGUMENT_EXCEPTION,
 				"use of '-' for dumping to stdout is not supported.");
-		
+
 		env->ReleaseStringUTFChars(jfname, str);
-		
+
 		return NULL;
 	}
 
 	pcap_dumper_t *d = pcap_dump_open(p, str);
-	
+
 	env->ReleaseStringUTFChars(jfname, str);
-	
+
 	if (d == NULL) {
 		return NULL; // Exception already thrown
 	}
@@ -907,8 +903,8 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_stats
  * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_Pcap_checkIsActive
-  (JNIEnv *env, jobject obj) {
-	
+(JNIEnv *env, jobject obj) {
+
 	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
 		return; // Exception already thrown
@@ -916,3 +912,72 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_Pcap_checkIsActive
 
 	return; // No exception thrown, check OK
 }
+
+/*
+ * Class:     org_jnetpcap_Pcap
+ * Method:    lookupDev
+ * Signature: (Ljava/lang/StringBuilder;)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_org_jnetpcap_Pcap_lookupDev
+(JNIEnv *env, jclass clazz, jobject jerrbuf) {
+	
+	if (jerrbuf == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "errbuf argument is null");
+		return NULL;
+	}
+	
+	
+	char errbuf[PCAP_ERRBUF_SIZE];
+	errbuf[0] = '\0'; // Reset the buffer;
+
+	//	printf("device=%s snaplen=%d, promisc=%d timeout=%d\n",
+	//			device, jsnaplen, jpromisc, jtimeout);
+
+	char *device = pcap_lookupdev(errbuf);
+	setString(env, jerrbuf, errbuf); // Even if no error, could have warning msg
+	if (device == NULL) {
+		return NULL;
+	}
+	
+	jstring jdevice = env->NewStringUTF(device);
+	
+	return jdevice;
+}
+
+/*
+ * Class:     org_jnetpcap_Pcap
+ * Method:    lookupNet
+ * Signature: (Ljava/lang/String;Lorg/jnetpcap/PcapInteger;Lorg/jnetpcap/PcapInteger;Ljava/lang/StringBuilder;)I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_lookupNet
+(JNIEnv *env, jclass clazz, jstring jdevice, jobject jnetp, jobject jmaskp, jobject jerrbuf) {
+
+	if (jdevice == NULL || jnetp == NULL | jmaskp == NULL || jerrbuf == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return -1;
+	}
+	
+	char errbuf[PCAP_ERRBUF_SIZE];
+	errbuf[0] = '\0'; // Reset the buffer;
+
+	const char *device = env->GetStringUTFChars(jdevice, 0);
+
+	//	printf("device=%s snaplen=%d, promisc=%d timeout=%d\n",
+	//			device, jsnaplen, jpromisc, jtimeout);
+
+	bpf_u_int32 netp;
+	bpf_u_int32 maskp;
+	int r = pcap_lookupnet(device, &netp, &maskp, errbuf);
+	setString(env, jerrbuf, errbuf); // Even if no error, could have warning msg
+	env->ReleaseStringUTFChars(jdevice, device);
+	
+	if (r == -1) {
+		return -1;
+	}
+
+	env->SetIntField(jnetp, pcapIntegerValueFID, (jint)netp);
+	env->SetIntField(jmaskp, pcapIntegerValueFID, (jint)maskp);
+	
+	return r;
+}
+

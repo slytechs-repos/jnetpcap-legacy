@@ -33,8 +33,10 @@
 jclass pcapClass = NULL;
 jclass byteBufferClass = NULL;
 jclass stringBuilderClass = NULL;
+jclass pcapIntegerClass = NULL;
 
 jfieldID pcapPhysicalFID = 0;
+jfieldID pcapIntegerValueFID = 0;
 
 jmethodID pcapConstructorMID = 0;
 jmethodID appendMID = 0;
@@ -57,14 +59,10 @@ JNIEXPORT void JNICALL JNICALL Java_org_jnetpcap_Pcap_initIDs
 	pcapClass = (jclass) env->NewGlobalRef(clazz); // This one is easy
 
 	if ( (pcapConstructorMID = env->GetMethodID(clazz, "<init>", "()V")) == NULL) {
-		throwException(env, NO_SUCH_METHOD_EXCEPTION,
-				"Unable to initialize constructor Pcap.Pcap()");
 		return;
 	}
 
 	if ( (pcapPhysicalFID = env->GetFieldID(clazz, "physical", "J")) == NULL) {
-		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field Pcap.physical:long");
 		return;
 	}
 
@@ -78,17 +76,23 @@ JNIEXPORT void JNICALL JNICALL Java_org_jnetpcap_Pcap_initIDs
 
 	if ( (appendMID = env->GetMethodID(stringBuilderClass, "append",
 							"(Ljava/lang/String;)Ljava/lang/StringBuilder;")) == NULL) {
-		throwException(env, NO_SUCH_METHOD_EXCEPTION,
-				"Unable to initialize constructor java.lang.StringBuilder(String):StringBuilder");
 		return;
 	}
 
 	if ( (setLengthMID = env->GetMethodID(stringBuilderClass, "setLength",
 							"(I)V")) == NULL) {
-		throwException(env, NO_SUCH_METHOD_EXCEPTION,
-				"Unable to initialize constructor java.lang.StringBuilder.setLength(int):void)");
 		return;
 	}
+	
+	if ( (pcapIntegerClass = findClass(env, "org/jnetpcap/PcapInteger")) == NULL) {
+		return;
+	}
+	
+	if ( (pcapIntegerValueFID = env->GetFieldID(pcapIntegerClass, "value",
+							"I")) == NULL) {
+		return;
+	}
+
 }
 
 /*******************************************************************************
