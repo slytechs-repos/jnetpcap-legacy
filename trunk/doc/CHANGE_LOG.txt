@@ -21,6 +21,17 @@
                               jNetPcap Package
                                  Change Log
                                  
+== Release 1.0b4 (2007-08-21) ==
+
+* Linux support
+
+* Bug #1776380 - PcapBpfProgram exceptions on linux platform
+
+* Added
+
+  - Pcap.inject, Pcap.isSendPacketSupported, Pcap.isInjectPacketSupported,
+    Pcap.lookupDev, Pcap.lookupNet
+                                 
 == Release 1.0b3 ==
 
 * No bugs found or reported since previous release
