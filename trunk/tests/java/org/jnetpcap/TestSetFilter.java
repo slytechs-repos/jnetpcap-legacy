@@ -1,14 +1,7 @@
 package org.jnetpcap;
 
-import org.jnetpcap.*;
-import java.io.File;
-import java.io.IOException;
-import java.net.SocketException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Date;
 
 public class TestSetFilter {
 
@@ -25,6 +18,7 @@ public class TestSetFilter {
                 Pcap pcap = Pcap.openOffline(fname, errbuf);
                 System.out.println("filter was compiled OK\n"); System.out.flush();
 
+                @SuppressWarnings("unused")
                 int r = pcap.compile(bpf, str, 0, 0);
                 System.out.println("err=" + pcap.getErr());
 
@@ -32,9 +26,9 @@ public class TestSetFilter {
                         public void nextPacket(String user, long seconds, int useconds,
                             int caplen, int len, ByteBuffer buffer) {
 
-                                // System.out.printf("%s, ts=%s caplen=%d len=%d capacity=%d\n", user
-                                // .toString(), new Date(seconds * 1000).toString(), caplen, len,
-                                // buffer.capacity());
+                                 System.out.printf("%s, ts=%s caplen=%d len=%d capacity=%d\n", user
+                                 .toString(), new Date(seconds * 1000).toString(), caplen, len,
+                                 buffer.capacity());
                         }
                 };
 
