@@ -950,4 +950,23 @@ public class TestPcapJNI
 //		System.out.printf("device=%s netp=%X maskp=%X errbuf=%s\n", device, netp.getValue(),
 //		    maskp.getValue(), errbuf.toString());
 	}
+	
+	/**
+	 * Bug#1855589 
+	 */
+	public void testIsInjectSupportedWin32() {
+		if (System.getProperty("os.name").toLowerCase().contains("win")) {
+			assertFalse(Pcap.isInjectSupported());
+		} else {
+			assertTrue(true); // Be explicit
+		}
+	}
+	
+	public void testIsSendpacketSupportedWin32() {
+		if (System.getProperty("os.name").toLowerCase().contains("win")) {
+			assertTrue(Pcap.isSendPacketSupported());
+		} else {
+			assertTrue(true); // Be explicit
+		}
+	}
 }

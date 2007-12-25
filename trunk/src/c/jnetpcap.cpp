@@ -338,7 +338,7 @@ JNIEXPORT jboolean JNICALL Java_org_jnetpcap_Pcap_isInjectSupported
 (JNIEnv *env, jclass clazz) {
 
 #ifdef WIN32
-	return JNI_TRUE;
+	return JNI_FALSE;
 #else
 	return JNI_FALSE;
 #endif

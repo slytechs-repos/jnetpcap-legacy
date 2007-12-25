@@ -20,15 +20,16 @@
 
 
                               jNetPcap Package
-                            Version 1.0b4 (beta 4)
+                            Version 1.0 (production)
                                Release Notes
-                            Created on 2007-08-09
+                            Created on 2007-12-21
 
 INTRODUCTION:
 ============
 
-This release of jNetPcap library provides new features, linux platform 
-support and a bug fix.
+This is the first production release of jNetPcap library with 4 previous beta
+releases. The release numbering for production starts at 1.0 which is preceded 
+by 1.0b4 (beta 4) release. 
 
 The API classes are compiled with Java 1.5.X compiler and require Java 1.5 
 compatibility. The package is platform dependent as there is a native library 
@@ -48,15 +49,11 @@ are available with Pcap.isSendPacketSupported() and Pcap.isInjectSupported().
 They will be enabled on linux platform once pre-requisite for libpcap is raised
 to libpcap version 0.9.3 and above on linux platforms.
 
-Since this is a beta release of the software the final version of the API and
-functionality may change slightly by the time we reach production status. 
-Feedback, peer review and feature requests are welcome. 
-
-The javadoc API documentation  and a user guide is available at the project's 
+The javadoc API documentation and a user guide is available at the project's 
 website at:
-http://jnetpcap.sourceforge.net/docs/jnetpcap-1.0b4-javadoc/index.html
+http://jnetpcap.sourceforge.net/docs/jnetpcap-1.0-javadoc/index.html
 
-== Installation Instruction ==
+== Installation Instructions ==
 
 To install the library unzip the binary platform-dependent package into any
 directory, or install the RPM package on unix based systems into its default
@@ -70,8 +67,8 @@ directories. There are 2 parts to setting up environment for jNetPcap.
                   in the following locations:
   
      - /usr/lib/libjnetpcap.so
-     - /usr/share/java/jnetpcap-1.0b4.jar 
-     - /usr/share/doc/jnetpcap-1.0b4 = contains RELEASE notes and javadocs
+     - /usr/share/java/jnetpcap-1.0.jar 
+     - /usr/share/doc/jnetpcap-1.0 = contains RELEASE notes and javadocs
 
   1) Add supplied jnetpcap-version.jar file to your build system's CLASSPATH.
      The jar file is found at the root of the installation directory in zip 
@@ -225,7 +222,7 @@ you will need to included any version of 'jUnit' in the CLASSPATH.
 
 == General Notes ==
 
-This is new feature release of jNetPcap. The library has been tested with
+This is bug fix release of jNetPcap. The library has been tested with
 many jUnit test cases for both correct and out of bounds usage. The release's
 build process does testing on the code before and after its packaged to
 ensure everything is included and built with consistent environment and flags.
@@ -237,7 +234,7 @@ builds suitable for deployment in commercial products.
 
 == Bugs Fixed ==
 
-Bug #1776380 - PcapBpfProgram exceptions on linux platform
+Bug #1855589 - Win32 isInjectSupported returned incorrect value 
 
 == Deprecations ==
 

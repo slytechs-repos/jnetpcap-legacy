@@ -21,6 +21,12 @@
                               jNetPcap Package
                                  Change Log
                                  
+== Release 1.0 (2007-12-21) ==
+
+* First production release
+
+* Bug #1855589 - Win32 isInjectSupported returned incorrect value 
+
 == Release 1.0b4 (2007-08-21) ==
 
 * Linux support
