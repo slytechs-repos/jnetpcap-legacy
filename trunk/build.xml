@@ -39,8 +39,16 @@
          Needed to compile JNI C++ source files and create shared library
      -->
 
-	<taskdef resource="cpptasks.tasks" />
-	<typedef resource="cpptasks.types" />
+	<taskdef resource="cpptasks.tasks" >
+		<classpath>
+			<pathelement location="/tmp/cpptasks-1.0b5/target/lib/cpptasks.jar" />
+		</classpath>
+	</taskdef>
+	<typedef resource="cpptasks.types" >
+		<classpath>
+			<pathelement location="/tmp/cpptasks-1.0b5/target/lib/cpptasks.jar" />
+		</classpath>
+	</typedef>
 
 	<!-- Deployable packages and their structure -->	
 	<property file="package.properties" />
@@ -774,9 +782,9 @@ sshexec trust="yes"
 	</copy>
 
 	<rpm 
-		specfile="jnetpcap-1.0b4-1.spec" 
+		specfile="jnetpcap-1.1-1.spec" 
 		topdir="build/rpm" 
-		command="-bb --buildroot=/home/markbe/prjs/jnetpcap/build/rpm/INSTALL" />
+		command="-bb --buildroot=/home/mark/prjs/jnetpcap/build/rpm/INSTALL" />
 
 	</target>
 
