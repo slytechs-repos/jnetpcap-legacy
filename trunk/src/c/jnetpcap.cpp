@@ -720,8 +720,6 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_findAllDevs
 		}
 
 		env->DeleteLocalRef(jpcapif);
-
-		return r;
 	}
 
 	/*
