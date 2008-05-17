@@ -20,6 +20,13 @@
 
                               jNetPcap Package
                                  Change Log
+== Release 1.1 (2008-05-17) ==
+
+* Maintenance release
+
+* Provides packages for: Fedora Core 8 (Linux), Debian 4 (Linux), Win32 (WinXP/Vista)
+
+* NO BUG FIXES - no bugs reported from the time of previous release
                                  
 == Release 1.0 (2007-12-21) ==
 
