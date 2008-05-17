@@ -39,16 +39,8 @@
          Needed to compile JNI C++ source files and create shared library
      -->
 
-	<taskdef resource="cpptasks.tasks" >
-		<classpath>
-			<pathelement location="/tmp/cpptasks-1.0b5/target/lib/cpptasks.jar" />
-		</classpath>
-	</taskdef>
-	<typedef resource="cpptasks.types" >
-		<classpath>
-			<pathelement location="/tmp/cpptasks-1.0b5/target/lib/cpptasks.jar" />
-		</classpath>
-	</typedef>
+	<taskdef resource="cpptasks.tasks" classpath="lib/cpptasks-1.0b4/cpptasks.jar" />
+	<typedef resource="cpptasks.types" classpath="lib/cpptasks-1.0b4/cpptasks.jar" />
 
 	<!-- Deployable packages and their structure -->	
 	<property file="package.properties" />
@@ -150,12 +142,12 @@
 	<!-- Creates rpm/ directory -->
 	<!-- =================================================================== -->
 	<target name="prep-rpm" depends="prep-build" if="platform.linux">
-		<mkdir dir="${build.rpm.dir}/RPMS" />
-		<mkdir dir="${build.rpm.dir}/SPECS" />
-		<mkdir dir="${build.rpm.dir}/SOURCES" />
-		<mkdir dir="${build.rpm.dir}/BUILD" />
-		<mkdir dir="${build.rpm.dir}/SRPMS" />
-		<mkdir dir="${build.rpm.dir}/INSTALL" />
+		<mkdir dir="${rpm.build.dir}/RPMS" />
+		<mkdir dir="${rpm.build.dir}/SPECS" />
+		<mkdir dir="${rpm.build.dir}/SOURCES" />
+		<mkdir dir="${rpm.build.dir}/BUILD" />
+		<mkdir dir="${rpm.build.dir}/SRPMS" />
+		<mkdir dir="${rpm.build.dir}/INSTALL" />
 
 	</target>
 	
@@ -515,7 +507,7 @@
 		<cc 
      			runtime="dynamic"
      			outtype="shared"
-    			outfile="${jni.build.filepath}"
+    			outfile="${build.lib.dir}/${lib.pcap.basename}"
 			debug="${compiler.debug}" 
 			objdir="${build.obj.dir}" 
 			multithreaded="compiler.multithreaded" 
@@ -536,11 +528,14 @@
 			<linker name="${compiler.ld.cmd}">
 				<syslibset libs="pcap" />
 
-				<linkerarg value="-Wl,-soname,libjnetpcap.so" />
+				<linkerarg value="-Wl,-soname,${lib.pcap.basename}" />
 
                                 <linkerarg value="-lstdc++"/>
 			</linker>
 		</cc>
+
+		<copy	tofile="${build.lib.dir}/${lib.pcap.fullname}" 
+			file="${build.lib.dir}/${lib.pcap.name}" />
 
 		<echo message="Created shared JNI libary: ${jni.build.filepath}" />
 
@@ -606,18 +601,50 @@
 	<target name="echo-properties" depends="prep-build">
 		<echo message="timestamp.isoformat=${timestamp.isoformat}" />
 		<echo message="timestamp.short=${timestamp.short}" />
+		<echo message=""/>
 		
 		<echo message="src.dir=${src.dir}" />
 		<echo message="src.java.dir=${src.java.dir}" />
 		<echo message="src.c.dir=${src.c.dir}" />
+		<echo message=""/>
 
 		<echo message="build.dir=${build.dir}" />
 		<echo message="build.include.dir=${build.include.dir}" />
 		<echo message="build.classes.dir=${build.classes.dir}" />
 		<echo message="build.obj.dir=${build.obj.dir}" />
+		<echo message=""/>
+
 		<echo message="jni.build.filepath=${jni.build.filepath}" />
-		
 		<echo message="junit.jar=${junit.jar}" />
+		<echo message=""/>
+
+		<echo message="os.name=${os.name}" />
+		<echo message="os.arch=${os.arch}" />
+		<echo message="os.version=${os.version}" />
+		<echo message=""/>
+
+		<echo message="java.version=${java.version}" />
+		<echo message="java.vendor=${java.vendor}" />
+		<echo message="java.vendor.url=${java.vendor.url}" />
+		<echo message="java.home=${java.home}" />
+		<echo message=""/>
+
+		<echo message="java.vm.specification.version=${java.vm.specification.version}" />
+		<echo message="java.vm.specification.vendor=${java.vm.specification.vendor}" />
+		<echo message="java.vm.specification.name=${java.vm.specification.name}" />
+		<echo message="java.vm.version=${java.vm.version}" />
+		<echo message="java.vm.vendor=${java.vm.vendor}" />
+		<echo message="java.vm.name=${java.vm.name}" />
+		<echo message=""/>
+
+		<echo message="java.specification.version=${java.specification.vendor}" />
+		<echo message="java.specification.vendor=${java.specification.vendor}" />
+		<echo message="java.specification.name=${java.specification.name}" />
+		<echo message=""/>
+
+		<echo message="user.name=${user.name}" />
+		<echo message="user.home=${user.home}" />
+		<echo message="user.dir=${user.dir}" />
 	</target>
 
 	<!-- =================================================================== -->
@@ -764,27 +791,28 @@ sshexec trust="yes"
 	<!-- =================================================================== -->
 	<target name="build-rpm" depends="build-jar,prep-rpm,comp-javadoc" if="platform.linux">
 
-	 <copy todir="${build.rpm.dir}/SPECS" file="${rpm.spec}">
+	 <copy todir="${rpm.build.dir}/SPECS" file="${rpm.spec.file}">
 		<filterset>
 			<filter token="pkg.version" value="${pkg.version}" />
+			<filter token="platform.os.name" value="${platform.os.name}" />
 		</filterset>
 	</copy>
 
-	<copy todir="${build.rpm.dir}/INSTALL/usr/lib" file="${build.lib.dir}/libjnetpcap.so" />
-	<copy todir="${build.rpm.dir}/INSTALL/usr/lib" file="${build.lib.dir}/libjnetpcap.so" />
-	<copy todir="${build.rpm.dir}/INSTALL/usr/share/java" file="${build.jnetpcap.jar}" />
-	<copy todir="${build.rpm.dir}/BUILD" file="${doc.dir}/RELEASE_NOTES.txt" />
-	<copy todir="${build.rpm.dir}/BUILD" file="${doc.dir}/CHANGE_LOG.txt" />
-	<copy todir="${build.rpm.dir}/BUILD" file="${doc.dir}/LICENSE.txt" />
+	<copy todir="${rpm.build.dir}/INSTALL/usr/lib" file="${build.lib.dir}/${lib.pcap.fullname}" />
+	<copy todir="${rpm.build.dir}/INSTALL/usr/lib" file="${build.lib.dir}/${lib.pcap.fullname}" />
+	<copy todir="${rpm.build.dir}/INSTALL/usr/share/java" file="${build.jnetpcap.jar}" />
+	<copy todir="${rpm.build.dir}/BUILD" file="${doc.dir}/RELEASE_NOTES.txt" />
+	<copy todir="${rpm.build.dir}/BUILD" file="${doc.dir}/CHANGE_LOG.txt" />
+	<copy todir="${rpm.build.dir}/BUILD" file="${doc.dir}/LICENSE.txt" />
 
-	<copy todir="${build.rpm.dir}/BUILD/javadoc" >
+	<copy todir="${rpm.build.dir}/BUILD/javadoc" >
 		<fileset dir="${build.javadoc.dir}" />
 	</copy>
 
 	<rpm 
-		specfile="jnetpcap-1.1-1.spec" 
-		topdir="build/rpm" 
-		command="-bb --buildroot=/home/mark/prjs/jnetpcap/build/rpm/INSTALL" />
+		specfile="${rpm.spec.name}" 
+		topdir="${rpm.build.dir}" 
+		command="-bb --buildroot=${rpm.buildroot.dir}" />
 
 	</target>
 
@@ -792,6 +820,6 @@ sshexec trust="yes"
 	<!-- create  a RPM package -->
 	<!-- =================================================================== -->
 	<target name="package-rpm" depends="build-rpm,prep-dist" if="platform.linux">
-		<copy todir="${dist.dir}" file="${build.rpm.dir}/RPMS/i386/jnetpcap-1.0b4-linux.i386.rpm" />
+		<copy todir="${dist.dir}" file="${rpm.build.dir}/RPMS/i386/${rpm.name}" />
 	</target>
 </project>
