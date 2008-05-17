@@ -20,16 +20,14 @@
 
 
                               jNetPcap Package
-                            Version 1.0 (production)
+                                Version 1.1
                                Release Notes
-                            Created on 2007-12-21
+                            Created on 2008-05-17
 
 INTRODUCTION:
 ============
 
-This is the first production release of jNetPcap library with 4 previous beta
-releases. The release numbering for production starts at 1.0 which is preceded 
-by 1.0b4 (beta 4) release. 
+This is a production release of jNetPcap library. 
 
 The API classes are compiled with Java 1.5.X compiler and require Java 1.5 
 compatibility. The package is platform dependent as there is a native library 
@@ -43,15 +41,15 @@ methods are implemented. Also various low level kernel buffer operations that
 are natively available through WinPcap extension library are implemented as 
 well, but only available on windows based platforms.
 
-The linux distribution comes with Pcap.sendPacket() and Pcap.inject() methods
-disabled. These methods are enabled on win32 platforms. You can check if methods
-are available with Pcap.isSendPacketSupported() and Pcap.isInjectSupported().
-They will be enabled on linux platform once pre-requisite for libpcap is raised
-to libpcap version 0.9.3 and above on linux platforms.
+This release adds support for additional platforms. Specifically Linux Fedora 
+Core 8 and Linux Debian 4. 
+
+This release adds full support for libpcap functions inject_packet and 
+send_packet. The support for both of these methods under Fedora Core 8 (FC8) 
+in libpcap RPM 9.7 or greater.
 
 The javadoc API documentation and a user guide is available at the project's 
-website at:
-http://jnetpcap.sourceforge.net/docs/jnetpcap-1.0-javadoc/index.html
+website at: http://jnetpcap.org/docs/jnetpcap-1.1-javadoc/index.html
 
 == Installation Instructions ==
 
@@ -63,7 +61,7 @@ directories. There are 2 parts to setting up environment for jNetPcap.
                        WinPcap version 4.0.1 or greater is recommended, but not 
                        neccessary. (http://winpcap.org)
                        
-  *) Linux notes: main files of interest from linux RPM package are installed 
+  *) FC8 notes: main files of interest from linux RPM package are installed 
                   in the following locations:
   
      - /usr/lib/libjnetpcap.so
@@ -109,7 +107,7 @@ directories. There are 2 parts to setting up environment for jNetPcap.
 
 == Project Website and Support ==
 
-The project is actively maintained at (http://jnetpcap.sourceforge.net).
+The project is actively maintained at (http://jnetpcap.org).
 
 Also please join project's jnetpcap-users@lists.sourceforge.net list, to discuss
 the project or report bugs at (http://sourceforge.net/mail/?group_id=164277).
@@ -234,7 +232,7 @@ builds suitable for deployment in commercial products.
 
 == Bugs Fixed ==
 
-Bug #1855589 - Win32 isInjectSupported returned incorrect value 
+No bugs reported or fixed in this release :)
 
 == Deprecations ==
 
