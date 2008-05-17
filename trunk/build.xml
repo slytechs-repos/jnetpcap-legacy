@@ -692,6 +692,26 @@
 
 		</junit>
 	</target>
+	
+	<target name="test-transmitter" >
+		<junit 
+			printsummary="withOutAndErr" 
+			fork="yes" 
+			failureproperty="test.failed">
+
+			<!-- jvmarg value="-verbose:jni" /-->
+
+			<formatter type="plain" usefile="false" />
+			<sysproperty key="java.library.path" value="${jni.build.dir}" />
+	
+			<test 
+				name="org.jnetpcap.TestTransmitter" 
+				todir="${report.dir}" />
+	
+			<classpath refid="test.classpath"/>
+
+		</junit>
+	</target>
 
 	<!-- =================================================================== -->
 	<!-- Displays java doc API in browser -->
