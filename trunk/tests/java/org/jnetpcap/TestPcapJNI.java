@@ -888,9 +888,9 @@ public class TestPcapJNI
 	 * packet all filled with 0xFF for 14 bytes which is the size of ethernet
 	 * frame. This should produce a broadcast frame.
 	 */
-	public void SKIPtestSendPacket() {
+	public void testSendPacket() {
 
-		Pcap pcap = Pcap.openLive(device, snaplen, 1, 10 * oneSecond, errbuf);
+		Pcap pcap = Pcap.openLive("eth0", snaplen, 1, 10 * oneSecond, errbuf);
 		assertNotNull(errbuf.toString(), pcap);
 
 		byte[] a = new byte[14];
@@ -899,6 +899,29 @@ public class TestPcapJNI
 		ByteBuffer b = ByteBuffer.wrap(a);
 
 		if (pcap.sendPacket(b) != Pcap.OK) {
+			fail(pcap.getErr());
+		}
+
+		pcap.close();
+
+	}
+
+	/**
+	 * This is a tricky test that must be disabled by default. We create a dummy
+	 * packet all filled with 0xFF for 14 bytes which is the size of ethernet
+	 * frame. This should produce a broadcast frame.
+	 */
+	public void SKIPtestInjectPacket() {
+
+		Pcap pcap = Pcap.openLive("eth0", snaplen, 1, 10 * oneSecond, errbuf);
+		assertNotNull(errbuf.toString(), pcap);
+
+		byte[] a = new byte[14];
+		Arrays.fill(a, (byte) 0xff);
+
+		ByteBuffer b = ByteBuffer.wrap(a);
+
+		if (pcap.inject(b) < 0) {
 			fail(pcap.getErr());
 		}
 
