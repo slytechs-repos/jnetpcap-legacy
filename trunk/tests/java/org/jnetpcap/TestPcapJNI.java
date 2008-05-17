@@ -124,7 +124,7 @@ public class TestPcapJNI
 
 	}
 
-	private StringBuilder errbuf;
+	private StringBuilder errbuf = new StringBuilder();
 
 	private final PcapHandler<?> doNothingHandler = new PcapHandler<Object>() {
 
