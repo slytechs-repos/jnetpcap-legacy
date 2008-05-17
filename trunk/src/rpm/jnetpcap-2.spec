@@ -1,18 +1,20 @@
 #
 #   RPM package specification for JNETPCAP
 #
-%define JNETPCAP_VERSION @pkg.version@
-%define JNETPCAP jnetpcap-%{JNETPCAP_VERSION}
+%define VERSION @pkg.version@
+%define RELEASE @platform.os.name@
+%define JNETPCAP jnetpcap-%{VERSION}
 
 Summary: A libpcap java wrapper
 Name: jnetpcap
-Version: %{JNETPCAP_VERSION}
-Release: linux
+Version: %{VERSION}
+Release: %{RELEASE}
 License: LGPL
 Group: Development/Java
-Packager: Sly Technologies, Inc. <http://slytechs.com>
-Vendor: Sly Technologies, Inc <http://jnetpcap.sf.net>
-Distribution: jnetpcap <http://jnetpcap.sf.net>
+Packager: Sly Technologies, Inc. <http://www.slytechs.com>
+Vendor: Sly Technologies, Inc <http://www.slytechs.com>
+Distribution: jnetpcap <http://jnetpcap.org>
+PreReq: libpcap >= 9.7
 
 
 %description
@@ -31,5 +33,8 @@ pwd
 %files
 %doc LICENSE.txt RELEASE_NOTES.txt CHANGE_LOG.txt javadoc
 
-/usr/lib/libjnetpcap.so
+/usr/lib/libjnetpcap.so.%{VERSION}
 /usr/share/java/%{JNETPCAP}.jar
+
+%post
+ln -s /usr/lib/libjnetpcap.so.%{VERSION} /usr/lib/libjnetpcap.so
