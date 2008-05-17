@@ -41,6 +41,8 @@
 
 	<taskdef resource="cpptasks.tasks" classpath="lib/cpptasks-1.0b4/cpptasks.jar" />
 	<typedef resource="cpptasks.types" classpath="lib/cpptasks-1.0b4/cpptasks.jar" />
+	<taskdef name="deb" classpath="lib/jdeb-0.6.jar" classname="org.vafer.jdeb.ant.DebAntTask"/>
+
 
 	<!-- Deployable packages and their structure -->	
 	<property file="package.properties" />
@@ -149,6 +151,13 @@
 		<mkdir dir="${rpm.build.dir}/SRPMS" />
 		<mkdir dir="${rpm.build.dir}/INSTALL" />
 
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Creates deb/ directory -->
+	<!-- =================================================================== -->
+	<target name="prep-deb" depends="prep-build" if="platform.linux">
+		<mkdir dir="${deb.build.dir}/control" />
 	</target>
 	
 	<!-- =================================================================== -->
@@ -806,6 +815,9 @@ sshexec trust="yes"
 		</jar>
 	</target>
 
+
+
+
 	<!-- =================================================================== -->
 	<!-- build a RPM -->
 	<!-- =================================================================== -->
@@ -836,10 +848,55 @@ sshexec trust="yes"
 
 	</target>
 
+
+
+
 	<!-- =================================================================== -->
 	<!-- create  a RPM package -->
 	<!-- =================================================================== -->
 	<target name="package-rpm" depends="build-rpm,prep-dist" if="platform.linux">
 		<copy todir="${dist.dir}" file="${rpm.build.dir}/RPMS/i386/${rpm.name}" />
+	</target>
+
+
+
+
+
+	<!-- =================================================================== -->
+	<!-- build a DEB (A debian package) -->
+	<!-- =================================================================== -->
+	<target name="build-deb" depends="build-jar,prep-deb,comp-javadoc" if="platform.linux">
+
+	 <copy todir="${deb.build.dir}/control" file="${deb.spec.file}">
+		<filterset>
+			<filter token="pkg.version" value="${pkg.version}" />
+			<filter token="platform.os.name" value="${platform.os.name}" />
+		</filterset>
+	</copy>
+
+	<copy todir="${deb.buildroot.dir}" file="${build.lib.dir}/${lib.pcap.fullname}" />
+	<copy todir="${deb.buildroot.dir}" file="${build.lib.dir}/${lib.pcap.fullname}" />
+	<copy todir="${deb.buildroot.dir}" file="${build.jnetpcap.jar}" />
+	<copy todir="${deb.buildroot.dir}" file="${doc.dir}/RELEASE_NOTES.txt" />
+	<copy todir="${deb.buildroot.dir}" file="${doc.dir}/CHANGE_LOG.txt" />
+	<copy todir="${deb.buildroot.dir}" file="${doc.dir}/LICENSE.txt" />
+
+	<copy todir="${deb.buildroot.dir}/doc" >
+		<fileset dir="${build.javadoc.dir}" />
+	</copy>
+
+	<echo message="control=${deb.build.dir}/control/${deb.spec.name}" />
+	<echo message="src=${deb.buildroot.dir}" />
+	<deb destfile="${deb.file}" control="${deb.build.dir}/control" >
+		<data src="${deb.buildroot.dir}" />
+	</deb>
+
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- create  a DEB package -->
+	<!-- =================================================================== -->
+	<target name="package-deb" depends="build-deb,prep-dist" if="platform.linux">
+		<copy todir="${dist.dir}" file="${deb.file}" />
 	</target>
 </project>
