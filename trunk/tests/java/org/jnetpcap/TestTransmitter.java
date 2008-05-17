@@ -169,7 +169,7 @@ public class TestTransmitter
 	 * packet all filled with 0xFF for 14 bytes which is the size of ethernet
 	 * frame. This should produce a broadcast frame.
 	 */
-	public void SKIPtestInjectPacket() {
+	public void testInjectPacket() {
 
 		Pcap pcap = Pcap.openLive("eth0", snaplen, 1, 10 * oneSecond, errbuf);
 		assertNotNull(errbuf.toString(), pcap);
