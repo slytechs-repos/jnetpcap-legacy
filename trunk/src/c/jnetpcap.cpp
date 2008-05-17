@@ -340,7 +340,7 @@ JNIEXPORT jboolean JNICALL Java_org_jnetpcap_Pcap_isInjectSupported
 #ifdef WIN32
 	return JNI_FALSE;
 #else
-	return JNI_FALSE;
+	return JNI_TRUE;
 #endif
 
 }
@@ -355,7 +355,7 @@ JNIEXPORT jboolean JNICALL Java_org_jnetpcap_Pcap_isSendPacketSupported
 #ifdef WIN32
 	return JNI_TRUE;
 #else
-	return JNI_FALSE;
+	return JNI_TRUE;
 #endif	
 }
 
@@ -370,8 +370,26 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_injectPrivate
 	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
 	return -1;
 #else
-	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
-	return -1;
+	if (jbytebuffer == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION,
+				"buffer argument is null");
+		return -1;
+	}
+
+	pcap_t *p = getPcap(env, obj);
+	if (p == NULL) {
+		return -1; // Exception already thrown
+	}
+
+	u_char *b = (u_char *)env->GetDirectBufferAddress(jbytebuffer);
+	if (b == NULL) {
+		throwException(env, ILLEGAL_ARGUMENT_EXCEPTION,
+				"Unable to retrieve physical address from ByteBuffer");
+	}
+
+	int r = pcap_inject(p, b + (int) jstart, (int) jlength);
+	return r;
+	
 #endif		
 }
 
@@ -382,8 +400,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_injectPrivate
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_sendPacketPrivate
 (JNIEnv *env, jobject obj, jobject jbytebuffer, jint jstart, jint jlength) {
-
-#ifdef WIN32
+ 
 	if (jbytebuffer == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION,
 				"buffer argument is null");
@@ -403,10 +420,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_sendPacketPrivate
 
 	int r = pcap_sendpacket(p, b + (int) jstart, (int) jlength);
 	return r;
-#else
-	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
-	return -1;
-#endif
+
 }
 
 /*
