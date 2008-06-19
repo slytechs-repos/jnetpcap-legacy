@@ -20,9 +20,9 @@
 
 
                               jNetPcap Package
-                                Version 1.1
+                                Version 1.2
                                Release Notes
-                            Created on 2008-05-17
+                            Created on 2008-06-19
 
 INTRODUCTION:
 ============
@@ -62,6 +62,13 @@ directories. There are 2 parts to setting up environment for jNetPcap.
                        neccessary. (http://winpcap.org)
                        
   *) FC8 notes: main files of interest from linux RPM package are installed 
+                  in the following locations:
+  
+     - /usr/lib/libjnetpcap.so
+     - /usr/share/java/jnetpcap-1.0.jar 
+     - /usr/share/doc/jnetpcap-1.0 = contains RELEASE notes and javadocs
+
+  *) Debian notes: main files of interest from linux deb package are installed 
                   in the following locations:
   
      - /usr/lib/libjnetpcap.so
@@ -146,13 +153,13 @@ Within the package zip file, jnetpcap-version-arch.zip that would be
  	  + This is the main program pacakge. It installs drivers and DLLs
  	    (http://winpcap.org)
  	  
- 	- No requirement for cgywin or mingw for runtime support
+ 	- No requirement for cgywin or mingw for runtime support, only to build.
 
  * To run
  
    - Dependency removed: Apache's commons-logging library is not longer required
       
- * In addition to run supplied tests (not required)
+ * In addition to run supplied tests (optional)
  
    - jUnit any version
       (http://www.junit.org/index.htm)
@@ -197,18 +204,13 @@ you will need to included any version of 'jUnit' in the CLASSPATH.
  	  on platforms that don't support WinPcap extensions, but those classes and
  	  any methods inkoved will throw a PcapExtensionNotAvailableException.
  	  
- * On Linux/Freebsd
+ * On Linux/Debian
 
     - current release of jNetPcap only provides support for all linux based
       operating platforms. The RPM package does not place any explicit 
       dependencies but does require libpcap RPM package to be installed. Any 
       version of 0.8 or above will do.
-      
-      Currently two methods that send packets are disabled on linux platform
-      since those functions were introduced in libpcap version 0.9.3. (Future
-      releases of jNetPcap will provide support for these functions and will
-      at the same time have a minimum requirement of 0.9.3 or above.)
-     
+           
     - only org.jnetpcap package is supported on all Unix based platforms.
       WinPcap extensions are disabled for non windows based platforms. (Use
       WinPcap.isSupported() method to check for support.)
@@ -220,19 +222,31 @@ you will need to included any version of 'jUnit' in the CLASSPATH.
 
 == General Notes ==
 
-This is bug fix release of jNetPcap. The library has been tested with
-many jUnit test cases for both correct and out of bounds usage. The release's
-build process does testing on the code before and after its packaged to
-ensure everything is included and built with consistent environment and flags.
+This is maintenance release of jNetPcap. Adds support for Debian platform. 
+The library has been tested with many jUnit test cases for both correct and out 
+of bounds usage. The release's build process does testing on the code before and
+after its packaged to ensure everything is included and built with consistent 
+environment and flags.
 
-The beta version's of the library contain full debug information, in case any
-problems are encountered and to allow troubleshooting of such problems. 
-Eventual production release will have debugging information removed from default
-builds suitable for deployment in commercial products.
+Debug information in the libraries has been stripped and optimization during
+compilation has been set at maximum. This should reduce the library size and
+increase performance.
 
 == Bugs Fixed ==
 
 No bugs reported or fixed in this release :)
+
+== Changes ==
+
+ * Added Debian platform
+
+ * Updated javadoc documentation throughly
+
+ * Implemented methods on Linux:
+
+   - sendPacket()
+ 
+   - inject()
 
 == Deprecations ==
 

@@ -371,7 +371,7 @@
 	<!-- =================================================================== -->
 	<target 
 		name="comp-manifest" 
-		depends="prep-meta-inf,compile" 
+		depends="prep-meta-inf,comp-java" 
 		description="Create manifest file">
 
 		<!-- Create manifest -->
@@ -659,7 +659,7 @@
 	<!-- =================================================================== -->
 	<!-- Build all -->
 	<!-- =================================================================== -->
-	<target name="all" depends="clean,doc,test">
+	<target name="all" depends="clean,doc,comp-test,test">
 	</target>
 	
 	<!-- =================================================================== -->
