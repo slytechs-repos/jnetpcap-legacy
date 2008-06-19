@@ -805,7 +805,7 @@ sshexec trust="yes"
 	<!-- =================================================================== -->
 	<target name="build-jar" depends="comp-java,comp-manifest">
 
-		<mkdir dir="${pkg.lib.dir}" />
+		<mkdir dir="${build.lib.dir}" />
 
 		<!-- ############################################################### -->
 		<!--       Create JAR file containing all the java classes  -->
