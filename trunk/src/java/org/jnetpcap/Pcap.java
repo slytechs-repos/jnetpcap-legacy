@@ -170,8 +170,8 @@ import java.util.List;
  * </p>
  * <p>
  * Alternative way of capturing packets from any of the open pcap sessions is to
- * use {@link #dispatch(int, PcapHandler, T)} method, which works very similarly
- * to {@link #loop(int, PcapHandler, T)}. You can also use
+ * use {@link #dispatch(int, PcapHandler, Object)} method, which works very similarly
+ * to {@link #loop(int, PcapHandler, Object)}. You can also use
  * {@link #next(PcapPktHdr)} and {@link #nextEx(PcapPktHdr, PcapPktBuffer)}
  * methods which will deliver 1 packet at a time.
  * </p>
