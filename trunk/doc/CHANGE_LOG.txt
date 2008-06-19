@@ -20,7 +20,7 @@
 
                               jNetPcap Package
                                  Change Log
-== Release 1.1 (2008-05-17) ==
+== Release 1.1 (2008-06-19) ==
 
 * Maintenance release
 
