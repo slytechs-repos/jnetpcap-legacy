@@ -821,7 +821,7 @@ sshexec trust="yes"
 	<!-- =================================================================== -->
 	<!-- build a RPM -->
 	<!-- =================================================================== -->
-	<target name="build-rpm" depends="build-jar,prep-rpm,comp-javadoc" if="platform.linux">
+	<target name="build-rpm" depends="comp-jni,build-jar,prep-rpm,comp-javadoc" if="platform.linux">
 
 	 <copy todir="${rpm.build.dir}/SPECS" file="${rpm.spec.file}">
 		<filterset>
