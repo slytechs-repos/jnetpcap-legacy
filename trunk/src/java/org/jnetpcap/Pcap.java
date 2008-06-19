@@ -141,13 +141,11 @@ import java.util.List;
  * And lastly lets do something with the data.
  * 
  * <pre>
+ * PcapHandler&lt;PrintStream&gt; handler = new PcapHandler&lt;PrintStream&gt;() {
  * 
- * PcapHandler handler = new PcapHandler() {
- * 
- * 	public void newPacket(Object userData, int caplen, int len, int seconds,
+ * 	public void newPacket(PrintStream out, int caplen, int len, int seconds,
  * 	    int usecs, ByteBuffer buffer) {
  * 
- * 		PrintStream out = (PrintStream) userData;
  * 		out.println(&quot;Packet captured on: &quot; + new Date(seconds * 1000).toString());
  * 	}
  * };
@@ -172,8 +170,8 @@ import java.util.List;
  * </p>
  * <p>
  * Alternative way of capturing packets from any of the open pcap sessions is to
- * use {@link #dispatch(int, PcapHandler, Object)} method, which works very
- * similarly to {@link #loop(int, PcapHandler, Object)}. You can also use
+ * use {@link #dispatch(int, PcapHandler, T)} method, which works very similarly
+ * to {@link #loop(int, PcapHandler, T)}. You can also use
  * {@link #next(PcapPktHdr)} and {@link #nextEx(PcapPktHdr, PcapPktBuffer)}
  * methods which will deliver 1 packet at a time.
  * </p>
@@ -191,6 +189,18 @@ import java.util.List;
  * <code>lookupDev</code>, <code>lookupNet</code>. Also any methods that
  * return <code>FILE *</code> since that is not appropriate for java
  * environment.
+ * <h3>Multithreading issues</h3>
+ * <code>Pcap</code> class does not provide any multithreading capabilities.
+ * As a pure wrapper for native <em>libpcap</em> library, <code>Pcap</code>
+ * does not provide any additional locking or multithreaded paradigms. The most
+ * suggesting method is the {@link #breakloop()}, which can only be used from
+ * another thread. This is the extent of <code>Pcap</code>'s multithreading
+ * capabilities and threads have to be synchronized externally. Extrememe care
+ * must be taken, to ensure that no two methods are in use at the same time,
+ * with the exception of <code>breakloop()</code>. For example, calling on
+ * {@link #close()} while a loop is still in progress will cause
+ * <em>libpcap</em> libpcap to crash or coredump which will also crash the
+ * entire Java VM.
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
