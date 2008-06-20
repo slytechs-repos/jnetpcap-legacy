@@ -805,7 +805,7 @@ sshexec trust="yes"
 	<!-- =================================================================== -->
 	<target name="build-jar" depends="comp-java,comp-manifest">
 
-		<mkdir dir="${build.lib.dir}" />
+		<mkdir dir="${pkg.lib.subdir}" />
 
 		<!-- ############################################################### -->
 		<!--       Create JAR file containing all the java classes  -->
@@ -821,7 +821,7 @@ sshexec trust="yes"
 	<!-- =================================================================== -->
 	<!-- build a RPM -->
 	<!-- =================================================================== -->
-	<target name="build-rpm" depends="comp-jni,build-jar,prep-rpm,comp-javadoc" if="platform.linux">
+	<target name="build-rpm" depends="build-jar,prep-rpm,comp-javadoc" if="platform.linux">
 
 	 <copy todir="${rpm.build.dir}/SPECS" file="${rpm.spec.file}">
 		<filterset>
@@ -865,7 +865,7 @@ sshexec trust="yes"
 	<!-- =================================================================== -->
 	<!-- build a DEB (A debian package) -->
 	<!-- =================================================================== -->
-	<target name="build-deb" depends="build-jar,prep-deb,comp-javadoc" if="platform.linux">
+	<target name="build-deb" depends="comp-jni,build-jar,prep-deb,comp-javadoc" if="platform.linux">
 
 	 <copy todir="${deb.build.dir}/control" file="${deb.spec.file}">
 		<filterset>
