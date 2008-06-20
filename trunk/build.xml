@@ -866,7 +866,7 @@ sshexec trust="yes"
 	<!-- =================================================================== -->
 	<target name="build-deb" depends="comp-jni,build-jar,prep-deb,comp-javadoc" if="platform.linux">
 
-	 <copy todir="${deb.build.control.dir}" file="${deb.spec.file}">
+	 <copy tofile="${deb.build.control.dir}/control" file="${deb.spec.file}">
 		<filterset>
 			<filter token="pkg.version" value="${pkg.version}" />
 			<filter token="platform.os.name" value="${platform.os.name}" />
