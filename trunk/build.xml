@@ -831,7 +831,6 @@ sshexec trust="yes"
 	</copy>
 
 	<copy todir="${rpm.build.dir}/INSTALL/usr/lib" file="${build.lib.dir}/${lib.pcap.fullname}" />
-	<copy todir="${rpm.build.dir}/INSTALL/usr/lib" file="${build.lib.dir}/${lib.pcap.fullname}" />
 	<copy todir="${rpm.build.dir}/INSTALL/usr/share/java" file="${build.jnetpcap.jar}" />
 	<copy todir="${rpm.build.dir}/BUILD" file="${doc.dir}/RELEASE_NOTES.txt" />
 	<copy todir="${rpm.build.dir}/BUILD" file="${doc.dir}/CHANGE_LOG.txt" />
@@ -867,28 +866,27 @@ sshexec trust="yes"
 	<!-- =================================================================== -->
 	<target name="build-deb" depends="comp-jni,build-jar,prep-deb,comp-javadoc" if="platform.linux">
 
-	 <copy todir="${deb.build.dir}/control" file="${deb.spec.file}">
+	 <copy todir="${deb.build.control.dir}" file="${deb.spec.file}">
 		<filterset>
 			<filter token="pkg.version" value="${pkg.version}" />
 			<filter token="platform.os.name" value="${platform.os.name}" />
 		</filterset>
 	</copy>
 
-	<copy todir="${deb.buildroot.dir}" file="${build.lib.dir}/${lib.pcap.fullname}" />
-	<copy todir="${deb.buildroot.dir}" file="${build.lib.dir}/${lib.pcap.fullname}" />
-	<copy todir="${deb.buildroot.dir}" file="${build.jnetpcap.jar}" />
-	<copy todir="${deb.buildroot.dir}" file="${doc.dir}/RELEASE_NOTES.txt" />
-	<copy todir="${deb.buildroot.dir}" file="${doc.dir}/CHANGE_LOG.txt" />
-	<copy todir="${deb.buildroot.dir}" file="${doc.dir}/LICENSE.txt" />
+	<copy todir="${deb.build.lib.dir}" file="${build.lib.dir}/${lib.pcap.fullname}" />
+	<copy todir="${deb.build.java.dir}" file="${build.jnetpcap.jar}" />
+	<copy todir="${deb.build.doc.dir}" file="${doc.dir}/RELEASE_NOTES.txt" />
+	<copy todir="${deb.build.doc.dir}" file="${doc.dir}/CHANGE_LOG.txt" />
+	<copy todir="${deb.build.doc.dir}" file="${doc.dir}/LICENSE.txt" />
 
-	<copy todir="${deb.buildroot.dir}/doc" >
+	<copy todir="${deb.build.javadocs.dir}" >
 		<fileset dir="${build.javadoc.dir}" />
 	</copy>
 
-	<echo message="control=${deb.build.dir}/control/${deb.spec.name}" />
+	<echo message="control=${deb.build.control.dir}/${deb.spec.name}" />
 	<echo message="src=${deb.buildroot.dir}" />
-	<deb destfile="${deb.file}" control="${deb.build.dir}/control" >
-		<data src="${deb.buildroot.dir}" />
+	<deb destfile="${deb.file}" control="${deb.build.control.dir}" >
+		<data src="${deb.build.root.dir}" />
 	</deb>
 
 	</target>
