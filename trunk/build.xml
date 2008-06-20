@@ -803,7 +803,7 @@ sshexec trust="yes"
 	<!-- =================================================================== -->
 	<!-- Creates a JAR file -->
 	<!-- =================================================================== -->
-	<target name="build-jar" depends="comp-java,comp-manifest">
+	<target name="build-jar" depends="prep-lib,comp-java,comp-manifest">
 
 		<mkdir dir="${pkg.lib.subdir}" />
 
@@ -821,7 +821,7 @@ sshexec trust="yes"
 	<!-- =================================================================== -->
 	<!-- build a RPM -->
 	<!-- =================================================================== -->
-	<target name="build-rpm" depends="build-jar,prep-rpm,comp-javadoc" if="platform.linux">
+	<target name="build-rpm" depends="comp-jni,build-jar,prep-rpm,comp-javadoc" if="platform.linux">
 
 	 <copy todir="${rpm.build.dir}/SPECS" file="${rpm.spec.file}">
 		<filterset>
