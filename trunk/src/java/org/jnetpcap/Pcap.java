@@ -170,8 +170,8 @@ import java.util.List;
  * </p>
  * <p>
  * Alternative way of capturing packets from any of the open pcap sessions is to
- * use {@link #dispatch(int, PcapHandler, Object)} method, which works very similarly
- * to {@link #loop(int, PcapHandler, Object)}. You can also use
+ * use {@link #dispatch(int, PcapHandler, Object)} method, which works very
+ * similarly to {@link #loop(int, PcapHandler, Object)}. You can also use
  * {@link #next(PcapPktHdr)} and {@link #nextEx(PcapPktHdr, PcapPktBuffer)}
  * methods which will deliver 1 packet at a time.
  * </p>
@@ -363,7 +363,9 @@ public class Pcap {
 	 *          1 means to do optimizations, any other value means no
 	 * @param netmask
 	 *          netmask needed to determine the broadcast address
-	 * @return a return of -1 indicates an error; the error text is unavailable
+	 * @return a return of -1 indicates an error; the error text is unavailable;
+	 *         lastly, the compiled program is stored and therefore returned
+	 *         in the formal parameter <code>program</code>
 	 */
 	public native static int compileNoPcap(int snaplen, int dlt,
 	    PcapBpfProgram program, String str, int optimize, int netmask);
