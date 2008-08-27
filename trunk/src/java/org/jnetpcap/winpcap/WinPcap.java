@@ -148,28 +148,58 @@ public class WinPcap
 	public static final int MODE_CAPT = 0;
 
 	/**
-	 * statistical mode
-	 */
-	public static final int MODE_STAT = 1;
-
-	/**
 	 * monitor mode
 	 */
 	public static final int MODE_MONITOR = 2;
 
 	/**
-	 * Flag used with {@link #sendQueueTransmit(WinPcapSendQueue, int)}, to tell
-	 * kernel to send packets as fast as possible, without synchronizing with
-	 * packet timestamps found in headers.
+	 * statistical mode
 	 */
-	public static final int TRANSMIT_SYNCH_ASAP = 0;
+	public static final int MODE_STAT = 1;
 
 	/**
-	 * Flag used with {@link #sendQueueTransmit(WinPcapSendQueue, int)}, to tell
-	 * kernel to send packets at the rate that is determined by the timestamp with
-	 * in the sendqueue. The transmittion is synchronized with timestamps.
+	 * Defines if the data trasfer (in case of a remote capture) has to be done
+	 * with UDP protocol and can only be used with <code>WinPcap.open</code>.
+	 * If it is '1' if you want a UDP data connection, '0' if you want a TCP data
+	 * connection; control connection is always TCP-based. A UDP connection is
+	 * much lighter, but it does not guarantee that all the captured packets
+	 * arrive to the client workstation. Moreover, it could be harmful in case of
+	 * network congestion. This flag is meaningless if the source is not a remote
+	 * interface. In that case, it is simply ignored.
 	 */
-	public static final int TRANSMIT_SYNCH_USE_TIMESTAMP = 1;
+	public final static int OPENFLAG_DATATX_UDP = 2;
+
+	/**
+	 * This flag configures the adapter for maximum responsiveness and can only be
+	 * used with <code>WinPcap.open</code>. In presence of a large value for
+	 * nbytes, WinPcap waits for the arrival of several packets before copying the
+	 * data to the user. This guarantees a low number of system calls, i.e. lower
+	 * processor usage, i.e. better performance, which is good for applications
+	 * like sniffers. If the user sets the PCAP_OPENFLAG_MAX_RESPONSIVENESS flag,
+	 * the capture driver will copy the packets as soon as the application is
+	 * ready to receive them. This is suggested for real time applications (like,
+	 * for example, a bridge) that need the best responsiveness.
+	 */
+	public final static int OPENFLAG_MAX_RESPONSIVENESS = 16;
+
+	/**
+	 * Defines if the local adapter will capture its own generated traffic and can
+	 * only be used with <code>WinPcap.open</code>. This flag tells the
+	 * underlying capture driver to drop the packets that were sent by itself.
+	 * This is usefult when building applications like bridges, that should ignore
+	 * the traffic they just sent.
+	 */
+	public final static int OPENFLAG_NOCAPTURE_LOCAL = 8;
+
+	/**
+	 * Defines if the remote probe will capture its own generated traffic and can
+	 * only be used with <code>WinPcap.open</code>. In case the remote probe
+	 * uses the same interface to capture traffic and to send data back to the
+	 * caller, the captured traffic includes the RPCAP traffic as well. If this
+	 * flag is turned on, the RPCAP traffic is excluded from the capture, so that
+	 * the trace returned back to the collector is does not include this traffic.
+	 */
+	public final static int OPENFLAG_NOCAPTURE_RPCAP = 4;
 
 	/**
 	 * Used to create a <em>source string</em> using method
@@ -195,48 +225,18 @@ public class WinPcap
 	public final static int SRC_IFREMOTE = 4;
 
 	/**
-	 * Defines if the data trasfer (in case of a remote capture) has to be done
-	 * with UDP protocol and can only be used with <code>WinPcap.open</code>.
-	 * If it is '1' if you want a UDP data connection, '0' if you want a TCP data
-	 * connection; control connection is always TCP-based. A UDP connection is
-	 * much lighter, but it does not guarantee that all the captured packets
-	 * arrive to the client workstation. Moreover, it could be harmful in case of
-	 * network congestion. This flag is meaningless if the source is not a remote
-	 * interface. In that case, it is simply ignored.
+	 * Flag used with {@link #sendQueueTransmit(WinPcapSendQueue, int)}, to tell
+	 * kernel to send packets as fast as possible, without synchronizing with
+	 * packet timestamps found in headers.
 	 */
-	public final static int OPENFLAG_DATATX_UDP = 2;
+	public static final int TRANSMIT_SYNCH_ASAP = 0;
 
 	/**
-	 * Defines if the remote probe will capture its own generated traffic and can
-	 * only be used with <code>WinPcap.open</code>. In case the remote probe
-	 * uses the same interface to capture traffic and to send data back to the
-	 * caller, the captured traffic includes the RPCAP traffic as well. If this
-	 * flag is turned on, the RPCAP traffic is excluded from the capture, so that
-	 * the trace returned back to the collector is does not include this traffic.
+	 * Flag used with {@link #sendQueueTransmit(WinPcapSendQueue, int)}, to tell
+	 * kernel to send packets at the rate that is determined by the timestamp with
+	 * in the sendqueue. The transmittion is synchronized with timestamps.
 	 */
-	public final static int OPENFLAG_NOCAPTURE_RPCAP = 4;
-
-	/**
-	 * Defines if the local adapter will capture its own generated traffic and can
-	 * only be used with <code>WinPcap.open</code>. This flag tells the
-	 * underlying capture driver to drop the packets that were sent by itself.
-	 * This is usefult when building applications like bridges, that should ignore
-	 * the traffic they just sent.
-	 */
-	public final static int OPENFLAG_NOCAPTURE_LOCAL = 8;
-
-	/**
-	 * This flag configures the adapter for maximum responsiveness and can only be
-	 * used with <code>WinPcap.open</code>. In presence of a large value for
-	 * nbytes, WinPcap waits for the arrival of several packets before copying the
-	 * data to the user. This guarantees a low number of system calls, i.e. lower
-	 * processor usage, i.e. better performance, which is good for applications
-	 * like sniffers. If the user sets the PCAP_OPENFLAG_MAX_RESPONSIVENESS flag,
-	 * the capture driver will copy the packets as soon as the application is
-	 * ready to receive them. This is suggested for real time applications (like,
-	 * for example, a bridge) that need the best responsiveness.
-	 */
-	public final static int OPENFLAG_MAX_RESPONSIVENESS = 16;
+	public static final int TRANSMIT_SYNCH_USE_TIMESTAMP = 1;
 
 	static {
 		initIDs();
@@ -245,10 +245,48 @@ public class WinPcap
 		try {
 			Class.forName("org.jnetpcap.winpcap.WinPcapStat");
 			Class.forName("org.jnetpcap.winpcap.WinPcapSamp");
-		} catch (ClassNotFoundException e) {
+		} catch (final ClassNotFoundException e) {
 			throw new IllegalStateException("Unable to find class: ", e);
 		}
 	}
+
+	/**
+	 * Accept a set of strings (host name, port, ...), and it returns the complete
+	 * source string according to the new format (e.g. 'rpcap://1.2.3.4/eth0').
+	 * This function is provided in order to help the user creating the source
+	 * string according to the new format. An unique source string is used in
+	 * order to make easy for old applications to use the remote facilities. Think
+	 * about tcpdump, for example, which has only one way to specify the interface
+	 * on which the capture has to be started. However, GUI-based programs can
+	 * find more useful to specify hostname, port and interface name separately.
+	 * In that case, they can use this function to create the source string before
+	 * passing it to the pcap_open() function.
+	 * 
+	 * @param source
+	 *          will contain the complete source string wen the function returns
+	 * @param type
+	 *          its value tells the type of the source we want to created
+	 * @param host
+	 *          an user-allocated buffer that keeps the host (e.g. "foo.bar.com")
+	 *          we want to connect to. It can be NULL in case we want to open an
+	 *          interface on a local host
+	 * @param port
+	 *          an user-allocated buffer that keeps the network port (e.g. "2002")
+	 *          we want to use for the RPCAP protocol. It can be NULL in case we
+	 *          want to open an interface on a local host.
+	 * @param name
+	 *          an user-allocated buffer that keeps the interface name we want to
+	 *          use (e.g. "eth0"). It can be NULL in case the return string (i.e.
+	 *          'source') has to be used with the pcap_findalldevs_ex(), which
+	 *          does not require the interface name.
+	 * @param errbuf
+	 *          buffer that will contain the error message (in case there is one).
+	 * @return '0' if everything is fine, '-1' if some errors occurred. The string
+	 *         containing the complete source is returned in the 'source'
+	 *         variable.
+	 */
+	public native static int createSrcStr(StringBuilder source, int type,
+	    String host, String port, String name, StringBuilder errbuf);
 
 	/**
 	 * Create a list of network devices that can be opened with pcap_open().
@@ -331,12 +369,37 @@ public class WinPcap
 	private static native void initIDs();
 
 	/**
-	 * Checks if WinPcap extensions are available on this platform.
+	 * Checks if <i>WinPcap</i> extensions are available on this platform. WinPcap extensions
+	 * are found in <i>org.jnetpcap.winpcap</i> package.
 	 * 
-	 * @return true means WinPcap extensions are available and loaded, otherwise
-	 *         false
+	 * @return <code>true</code> means <i>WinPcap</i> extensions are available and loaded, otherwise
+	 *         <code>false</code>
 	 */
 	public static native boolean isSupported();
+
+	/**
+	 * Returns if a given filter applies to an offline packet. This function is
+	 * used to apply a filter to a packet that is currently in memory. This
+	 * process does not need to open an adapter; we need just to create the proper
+	 * filter (by settings parameters like the snapshot length, or the link-layer
+	 * type) by means of the pcap_compile_nopcap(). The current API of libpcap
+	 * does not allow to receive a packet and to filter the packet after it has
+	 * been received. However, this can be useful in case you want to filter
+	 * packets in the application, instead of into the receiving process. This
+	 * function allows you to do the job.
+	 * 
+	 * @param program
+	 *          bpf filter
+	 * @param caplen
+	 *          length of the captured packet
+	 * @param len
+	 *          length of the packet on the wire
+	 * @param buf
+	 *          buffer containing packet data
+	 * @return snaplen of the packet or 0 if packet should be rejected
+	 */
+	public static native int offlineFilter(PcapBpfProgram program, int caplen,
+	    int len, ByteBuffer buf);
 
 	/**
 	 * Returns if a given filter applies to an offline packet. This function is
@@ -429,44 +492,6 @@ public class WinPcap
 	 */
 	public native static WinPcap open(String source, int snaplen, int flags,
 	    int timeout, WinPcapRmtAuth auth, StringBuilder errbuf);
-
-	/**
-	 * Accept a set of strings (host name, port, ...), and it returns the complete
-	 * source string according to the new format (e.g. 'rpcap://1.2.3.4/eth0').
-	 * This function is provided in order to help the user creating the source
-	 * string according to the new format. An unique source string is used in
-	 * order to make easy for old applications to use the remote facilities. Think
-	 * about tcpdump, for example, which has only one way to specify the interface
-	 * on which the capture has to be started. However, GUI-based programs can
-	 * find more useful to specify hostname, port and interface name separately.
-	 * In that case, they can use this function to create the source string before
-	 * passing it to the pcap_open() function.
-	 * 
-	 * @param source
-	 *          will contain the complete source string wen the function returns
-	 * @param type
-	 *          its value tells the type of the source we want to created
-	 * @param host
-	 *          an user-allocated buffer that keeps the host (e.g. "foo.bar.com")
-	 *          we want to connect to. It can be NULL in case we want to open an
-	 *          interface on a local host
-	 * @param port
-	 *          an user-allocated buffer that keeps the network port (e.g. "2002")
-	 *          we want to use for the RPCAP protocol. It can be NULL in case we
-	 *          want to open an interface on a local host.
-	 * @param name
-	 *          an user-allocated buffer that keeps the interface name we want to
-	 *          use (e.g. "eth0"). It can be NULL in case the return string (i.e.
-	 *          'source') has to be used with the pcap_findalldevs_ex(), which
-	 *          does not require the interface name.
-	 * @param errbuf
-	 *          buffer that will contain the error message (in case there is one).
-	 * @return '0' if everything is fine, '-1' if some errors occurred. The string
-	 *         containing the complete source is returned in the 'source'
-	 *         variable.
-	 */
-	public native static int createSrcStr(StringBuilder source, int type,
-	    String host, String port, String name, StringBuilder errbuf);
 
 	/**
 	 * Create a pcap_t structure without starting a capture. pcap_open_dead() is
@@ -584,7 +609,7 @@ public class WinPcap
 	 *          size of the sendqueue to allocate
 	 * @return allocated sendqueue
 	 */
-	public static WinPcapSendQueue sendQueueAlloc(int size) {
+	public static WinPcapSendQueue sendQueueAlloc(final int size) {
 
 		if (isSupported() == false) {
 			throw new PcapExtensionNotAvailableException();
@@ -600,7 +625,7 @@ public class WinPcap
 	 * @param queue
 	 *          the queue to free up
 	 */
-	public static void sendQueueDestroy(WinPcapSendQueue queue) {
+	public static void sendQueueDestroy(final WinPcapSendQueue queue) {
 
 		if (isSupported() == false) {
 			throw new PcapExtensionNotAvailableException();
@@ -608,28 +633,6 @@ public class WinPcap
 
 		// Nothing to do, queue java allocated
 	}
-
-	/**
-	 * Set the minumum amount of data received by the kernel in a single call.
-	 * pcap_setmintocopy() changes the minimum amount of data in the kernel buffer
-	 * that causes a read from the application to return (unless the timeout
-	 * expires). If the value of size is large, the kernel is forced to wait the
-	 * arrival of several packets before copying the data to the user. This
-	 * guarantees a low number of system calls, i.e. low processor usage, and is a
-	 * good setting for applications like packet-sniffers and protocol analyzers.
-	 * Vice versa, in presence of a small value for this variable, the kernel will
-	 * copy the packets as soon as the application is ready to receive them. This
-	 * is useful for real time applications that need the best responsiveness from
-	 * the kernel.
-	 * 
-	 * @see #openLive(String, int, int, int, StringBuilder)
-	 * @see #loop(int, PcapHandler, Object)
-	 * @see #dispatch(int, PcapHandler, Object)
-	 * @param size
-	 *          minimum size
-	 * @return the return value is 0 when the call succeeds, -1 otherwise
-	 */
-	public native int setMinToCopy(int size);
 
 	/**
 	 * WinPcap objects make no sense unless they have been allocated from JNI
@@ -713,7 +716,7 @@ public class WinPcap
 	 * @return amount of bytes actually sent; error if less then queues len
 	 *         parameter
 	 */
-	public int sendQueueTransmit(WinPcapSendQueue queue, int synch) {
+	public int sendQueueTransmit(final WinPcapSendQueue queue, final int synch) {
 		checkIsActive(); // Check if Pcap.close wasn't called
 
 		final ByteBuffer buffer = queue.getBuffer();
@@ -755,6 +758,28 @@ public class WinPcap
 	 * @return the return value is 0 when the call succeeds, -1 otherwise
 	 */
 	public native int setBuff(int dim);
+
+	/**
+	 * Set the minumum amount of data received by the kernel in a single call.
+	 * pcap_setmintocopy() changes the minimum amount of data in the kernel buffer
+	 * that causes a read from the application to return (unless the timeout
+	 * expires). If the value of size is large, the kernel is forced to wait the
+	 * arrival of several packets before copying the data to the user. This
+	 * guarantees a low number of system calls, i.e. low processor usage, and is a
+	 * good setting for applications like packet-sniffers and protocol analyzers.
+	 * Vice versa, in presence of a small value for this variable, the kernel will
+	 * copy the packets as soon as the application is ready to receive them. This
+	 * is useful for real time applications that need the best responsiveness from
+	 * the kernel.
+	 * 
+	 * @see #openLive(String, int, int, int, StringBuilder)
+	 * @see #loop(int, PcapHandler, Object)
+	 * @see #dispatch(int, PcapHandler, Object)
+	 * @param size
+	 *          minimum size
+	 * @return the return value is 0 when the call succeeds, -1 otherwise
+	 */
+	public native int setMinToCopy(int size);
 
 	/**
 	 * Set the working mode of the interface p to mode. Valid values for mode are

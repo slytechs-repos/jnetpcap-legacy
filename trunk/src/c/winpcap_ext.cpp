@@ -312,9 +312,54 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_setMinToCopy
 /*
  * Class:     org_jnetpcap_winpcap_WinPcap
  * Method:    offlineFilter
+ * Signature: (Lorg/jnetpcap/PcapBpfProgram;I;I;Ljava/nio/ByteBuffer;)I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_offlineFilter__Lorg_jnetpcap_PcapBpfProgram_2IILjava_nio_ByteBuffer_2
+(JNIEnv *env, jclass clazz, jobject jbpf, jint caplen, jint len, jobject jbuf) {
+
+#ifdef WIN32
+	/*
+	 * Make sure extensions are supported, these methods will compile on
+	 * non WinPcap based systems, so we rely on exception handling to prevent
+	 * people from using these methods.
+	 */
+	if (testExtensionSupportAndThrow(env) == JNI_FALSE) {
+		return -1; // Exception already thrown
+	}
+
+	if (jbpf == NULL || jbuf == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return -1;
+	}
+
+	bpf_program *bpf = getBpfProgram(env, jbpf);
+	if (bpf == NULL) {
+		return -1; // Exception already thrown
+	}
+
+	pcap_pkthdr hdr;
+	hdr.len = (int)len;
+	hdr.caplen = (int)caplen;
+
+	u_char *b = (u_char *)env->GetDirectBufferAddress(jbuf);
+	if (b == NULL) {
+		return -1; // Exception already thrown
+	}
+
+	return (jint) pcap_offline_filter (bpf, &hdr, b);
+#else
+	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
+	return -1;
+#endif
+}
+
+
+/*
+ * Class:     org_jnetpcap_winpcap_WinPcap
+ * Method:    offlineFilter
  * Signature: (Lorg/jnetpcap/PcapBpfProgram;Lorg/jnetpcap/PcapPktHdr;Ljava/nio/ByteBuffer;)I
  */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_offlineFilter
+JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_offlineFilter__Lorg_jnetpcap_PcapBpfProgram_2Lorg_jnetpcap_PcapPktHdr_2Ljava_nio_ByteBuffer_2
 (JNIEnv *env, jclass clazz, jobject jbpf, jobject jhdr, jobject jbuf) {
 
 #ifdef WIN32
