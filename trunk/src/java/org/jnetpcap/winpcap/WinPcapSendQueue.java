@@ -54,7 +54,7 @@ public class WinPcapSendQueue {
 	 *          size of the queue in bytes
 	 */
 	public WinPcapSendQueue(int size) {
-		this.buffer = ByteBuffer.allocateDirect(DEFAULT_QUEUE_SIZE);
+		this.buffer = ByteBuffer.allocateDirect(size);
 		this.buffer.flip();
 		this.buffer.order(ByteOrder.nativeOrder()); // Force byte ordering
 	}
