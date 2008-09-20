@@ -20,6 +20,21 @@
 
                               jNetPcap Package
                                  Change Log
+                                 
+== Release 1.2 (2008-09-20) ==
+
+* Feature release
+
+* Added
+
+  - WinPcap.offlineFilter variation which accepts len and caplen parameters 
+    directly
+
+* Bugs
+
+  - WinPcapSendQueue(int size) constructor was ignoring size parameter and using
+    a constant
+                                 
 == Release 1.1 (2008-06-19) ==
 
 * Maintenance release
