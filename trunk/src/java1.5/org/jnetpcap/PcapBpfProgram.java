@@ -59,7 +59,7 @@ public class PcapBpfProgram {
 	private volatile long physical = 0;
 
 	@SuppressWarnings("unused")
-  private final ByteBuffer keepBufferReference;
+	private ByteBuffer buffer;
 
 	/**
 	 * Special constructor that allows creation of empty object ready for
@@ -73,7 +73,7 @@ public class PcapBpfProgram {
 	 */
 	public PcapBpfProgram() {
 		initPeer();
-		keepBufferReference = null;
+		buffer = null;
 	}
 
 	/**
@@ -85,11 +85,12 @@ public class PcapBpfProgram {
 	 * Allocates a peering C structure and initializes it with data from the
 	 * supplied buffer
 	 * 
+	 * @since 1.2
 	 * @param instructions
 	 *          buffer containing BPF instructions
 	 */
 	public PcapBpfProgram(byte[] instructions) {
-		keepBufferReference = null;
+		buffer = null;
 
 		if (instructions == null) {
 			throw new NullPointerException("BPF instruction array is null");
@@ -116,6 +117,7 @@ public class PcapBpfProgram {
 	 * Allocates a peering C structure and initializes it with data from the
 	 * supplied buffer
 	 * 
+	 * @since 1.2
 	 * @param instructions
 	 *          buffer containing BPF instructions
 	 */
@@ -142,7 +144,6 @@ public class PcapBpfProgram {
 		 */
 		if (instructions.isDirect() == false) {
 			initFromArray(instructions.array());
-			keepBufferReference = null;
 		} else {
 			initFromBuffer(instructions);
 			/*
@@ -150,7 +151,7 @@ public class PcapBpfProgram {
 			 * get GCed since we're referencing its memory from peered bpf_program
 			 * structure.
 			 */
-			keepBufferReference = instructions;
+			buffer = instructions;
 		}
 	}
 
@@ -177,7 +178,12 @@ public class PcapBpfProgram {
 	 * @param array
 	 *          bpf instruction array
 	 */
-	private native void initFromArray(byte[] array);
+	private void initFromArray(byte[] array) {
+		buffer  = ByteBuffer.allocateDirect(array.length);
+		buffer.put(array);
+		
+		initFromBuffer(buffer);
+	}
 
 	/**
 	 * Allocates new bpf_program structure and references the native memory
@@ -213,6 +219,7 @@ public class PcapBpfProgram {
 	/**
 	 * Retrieves a program as an array of longs.
 	 * 
+	 * @since 1.2
 	 * @return array containing the program
 	 */
 	public long[] toLongArray() {

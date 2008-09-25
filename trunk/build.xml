@@ -44,12 +44,12 @@
 	<taskdef name="deb" classpath="lib/jdeb-0.6.jar" classname="org.vafer.jdeb.ant.DebAntTask"/>
 
 
-	<!-- Deployable packages and their structure -->	
-	<property file="package.properties" />
-
 	<!-- load the build properties file -->
 	<property file="build.properties" />
 	
+	<!-- Deployable packages and their structure -->	
+	<property file="package.properties" />
+
 	<!-- Dependency libraries -->
 	<property file="lib.properties" />
 	
