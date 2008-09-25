@@ -148,32 +148,22 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_PcapBpfProgram_cleanup
 
 /*
  * Class:     org_jnetpcap_PcapBpfProgram
- * Method:    initFromArray
- * Signature: ([B)V
- */
-JNIEXPORT void JNICALL Java_org_jnetpcap_PcapBpfProgram_initFromArray
-(JNIEnv *env, jobject obj, jbyteArray jinst) {
-	
-}
-
-/*
- * Class:     org_jnetpcap_PcapBpfProgram
  * Method:    initFromBuffer
  * Signature: (Ljava/nio/ByteBuffer;II)V
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_PcapBpfProgram_initFromBuffer
-(JNIEnv *env , jobject obj, jobject jbuf, jint jstart, jint jlen) {
+(JNIEnv *env , jobject jbpf, jobject jbuf, jint jstart, jint jlen) {
 	
-	void* ptr = GetDirectBufferAddress(env, jbuf);
-	jlong len = GetDirectBufferCapacity(env, buf); 
+	bpf_insn* ptr = (bpf_insn*) env->GetDirectBufferAddress(jbuf);
+	jlong len = env->GetDirectBufferCapacity(jbuf); 
 	
 	bpf_program *b = getBpfProgram(env, jbpf);
 	if (b == NULL) {
-		return -1; // Exception already thrown
+		return; // Exception already thrown
 	}
 
 	b->bf_insns = ptr;
-	b->bf_len = len / 8;
+	b->bf_len = len / sizeof(bpf_insn);
 }
 
 /*
