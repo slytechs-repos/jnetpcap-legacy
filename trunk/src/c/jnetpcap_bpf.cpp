@@ -153,7 +153,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_PcapBpfProgram_cleanup
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_PcapBpfProgram_initFromArray
 (JNIEnv *env, jobject obj, jbyteArray jinst) {
-
+	
 }
 
 /*
@@ -163,7 +163,17 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_PcapBpfProgram_initFromArray
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_PcapBpfProgram_initFromBuffer
 (JNIEnv *env , jobject obj, jobject jbuf, jint jstart, jint jlen) {
+	
+	void* ptr = GetDirectBufferAddress(env, jbuf);
+	jlong len = GetDirectBufferCapacity(env, buf); 
+	
+	bpf_program *b = getBpfProgram(env, jbpf);
+	if (b == NULL) {
+		return -1; // Exception already thrown
+	}
 
+	b->bf_insns = ptr;
+	b->bf_len = len / 8;
 }
 
 /*
