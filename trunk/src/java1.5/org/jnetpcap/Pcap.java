@@ -364,8 +364,8 @@ public class Pcap {
 	 * @param netmask
 	 *          netmask needed to determine the broadcast address
 	 * @return a return of -1 indicates an error; the error text is unavailable;
-	 *         lastly, the compiled program is stored and therefore returned
-	 *         in the formal parameter <code>program</code>
+	 *         lastly, the compiled program is stored and therefore returned in
+	 *         the formal parameter <code>program</code>
 	 */
 	public native static int compileNoPcap(int snaplen, int dlt,
 	    PcapBpfProgram program, String str, int optimize, int netmask);
@@ -816,6 +816,31 @@ public class Pcap {
 	public native <T> int dispatch(int cnt, PcapHandler<T> handler, T user);
 
 	/**
+	 * <p>
+	 * Runs the dispatch function in a background thread. The method returns
+	 * immediately and returns a PcapTask from which the user can interact with
+	 * the background task.
+	 * </p>
+	 * <p>
+	 * Note that this method is not part of the native libpcap API specification.
+	 * </p>
+	 * 
+	 * @since 1.2
+	 * @param cnt
+	 *          number of packets to capture and exit, 0 for infinate
+	 * @param handler
+	 *          user supplied callback handler
+	 * @param data
+	 *          opaque, user supplied data object dispatched back to the handler
+	 * @return a task object which allows interaction with the underlying capture
+	 *         loop and thread
+	 */
+	public <T> PcapTask<T> dispatchInBackground(int cnt, PcapHandler<T> handler,
+	    final T data) {
+		return PcapUtils.dispatchInBackground(this, cnt, handler, data);
+	}
+
+	/**
 	 * Open a file to write packets. The <code>dumpOpen</code> method is called
 	 * to open a "savefile" for writing. The name '-' is a synonym for stdout.
 	 * 
@@ -980,6 +1005,31 @@ public class Pcap {
 	 *         the captue
 	 */
 	public native <T> int loop(int cnt, PcapHandler<T> handler, T user);
+
+	/**
+	 * <p>
+	 * Runs the loop function in a background thread. The method returns
+	 * immediately and returns a PcapTask from which the user can interact with
+	 * the background task.
+	 * </p>
+	 * <p>
+	 * Note that this method is not part of the native libpcap API specification.
+	 * </p>
+	 * 
+	 * @since 1.2
+	 * @param cnt
+	 *          number of packets to capture and exit, 0 for infinate
+	 * @param handler
+	 *          user supplied callback handler
+	 * @param data
+	 *          opaque, user supplied data object dispatched back to the handler
+	 * @return a task object which allows interaction with the underlying capture
+	 *         loop and thread
+	 */
+	public <T> PcapTask<T> loopInBackground(int cnt, PcapHandler<T> handler,
+	    final T data) {
+		return PcapUtils.loopInBackground(this, cnt, handler, data);
+	}
 
 	/**
 	 * Return the major version number of the pcap library used to write the
