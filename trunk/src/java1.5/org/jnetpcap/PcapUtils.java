@@ -16,7 +16,7 @@ import java.io.IOException;
 
 /**
  * A Pcap utility class which provides certain additional and convenience
- * methods. 
+ * methods.
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
@@ -48,9 +48,39 @@ public final class PcapUtils {
 		return new PcapTask<T>(pcap, cnt, handler, data) {
 
 			public void run() {
-				this.result = pcap.dispatch(count, handler, data);
-			}
+				int remaining = count;
 
+				while (remaining > 0) {
+
+					/*
+					 * Yield to other threads on every iteration of the loop, another
+					 * words everytime the libpcap buffer has been completely filled.
+					 * Except on the first loop, we don't want to yield but go right into
+					 * the dispatch loop. Also having the yield at the top allows the
+					 * thread to exit when total count packets have been dispatched and
+					 * thus avoid an extra explicit yied, but achive implicit yield
+					 * because this thread will terminate.
+					 */
+					if (remaining != 0) {
+						Thread.yield();
+					}
+
+					this.result = this.pcap.dispatch(count, this.handler, data);
+
+					/*
+					 * Check for errors
+					 */
+					if (result < 0) {
+						break;
+					}
+
+					/*
+					 * If not an error, result contains number of packets dispatched or
+					 * how many packets fit into the libpcap buffer
+					 */
+					remaining -= result;
+				}
+			}
 		};
 	}
 
@@ -81,24 +111,58 @@ public final class PcapUtils {
 		};
 
 	}
-	
-	private final static StringBuffer buf = new StringBuffer();
-	
+
+	/**
+	 * Make sure that we are thread safe and don't clober each others messages
+	 */
+	private final static ThreadLocal<StringBuffer> buf =
+	    new ThreadLocal<StringBuffer>() {
+
+		    @Override
+		    protected StringBuffer initialValue() {
+			    return new StringBuffer();
+		    }
+
+	    };
+
+	/**
+	 * Returns a common shared StringBuffer buffer
+	 * 
+	 * @return a buffer
+	 */
 	public static StringBuffer getBuf() {
-		return buf;
+		return buf.get();
 	}
-	
-	public static void toAppendable(StringBuffer buf, Appendable appendable) throws IOException {
-		
+
+	/**
+	 * Copies the contents of the source buf to appendable
+	 * 
+	 * @param buf
+	 *          source
+	 * @param appendable
+	 *          destination
+	 * @throws IOException
+	 *           any IO errors produced by the appendable
+	 */
+	public static void toAppendable(StringBuffer buf, Appendable appendable)
+	    throws IOException {
+
 		if (buf.length() != 0) {
 			appendable.append(buf);
 		}
 	}
 
-	
+	/**
+	 * Copies the contents of the source buf to builder
+	 * 
+	 * @param buf
+	 *          source
+	 * @param builder
+	 *          destination
+	 */
 	public static void toStringBuilder(StringBuffer buf, StringBuilder builder) {
 		builder.setLength(0);
-		
+
 		if (buf.length() != 0) {
 			builder.append(buf);
 		}
