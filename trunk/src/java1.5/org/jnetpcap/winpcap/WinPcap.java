@@ -12,6 +12,7 @@
  */
 package org.jnetpcap.winpcap;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import org.jnetpcap.PcapExtensionNotAvailableException;
 import org.jnetpcap.PcapHandler;
 import org.jnetpcap.PcapIf;
 import org.jnetpcap.PcapPktHdr;
+import org.jnetpcap.PcapUtils;
 
 /**
  * <p>
@@ -120,7 +122,7 @@ import org.jnetpcap.PcapPktHdr;
  *  int flags = Pcap.MODE_NON_PROMISCUOUS;
  *  int timeout = 1000;
  *  WinPcapRmtAuth auth = null;
- *  StringBuilder errbuf = new StringBuilder();
+ *  StringBuffer errbuf = new StringBuffer();
  * 
  *  WinPcap pcap = WinPcap.open(source, snaplen, flags, timeout, auth, errbuf);
  *  if (pcap == null) {
@@ -285,8 +287,106 @@ public class WinPcap
 	 *         containing the complete source is returned in the 'source'
 	 *         variable.
 	 */
-	public native static int createSrcStr(StringBuilder source, int type,
-	    String host, String port, String name, StringBuilder errbuf);
+	public native static int createSrcStr(StringBuffer source, int type,
+	    String host, String port, String name, StringBuffer errbuf);
+	
+	/**
+	 * Accept a set of strings (host name, port, ...), and it returns the complete
+	 * source string according to the new format (e.g. 'rpcap://1.2.3.4/eth0').
+	 * This function is provided in order to help the user creating the source
+	 * string according to the new format. An unique source string is used in
+	 * order to make easy for old applications to use the remote facilities. Think
+	 * about tcpdump, for example, which has only one way to specify the interface
+	 * on which the capture has to be started. However, GUI-based programs can
+	 * find more useful to specify hostname, port and interface name separately.
+	 * In that case, they can use this function to create the source string before
+	 * passing it to the pcap_open() function.
+	 * 
+	 * @param source
+	 *          will contain the complete source string wen the function returns
+	 * @param type
+	 *          its value tells the type of the source we want to created
+	 * @param host
+	 *          an user-allocated buffer that keeps the host (e.g. "foo.bar.com")
+	 *          we want to connect to. It can be NULL in case we want to open an
+	 *          interface on a local host
+	 * @param port
+	 *          an user-allocated buffer that keeps the network port (e.g. "2002")
+	 *          we want to use for the RPCAP protocol. It can be NULL in case we
+	 *          want to open an interface on a local host.
+	 * @param name
+	 *          an user-allocated buffer that keeps the interface name we want to
+	 *          use (e.g. "eth0"). It can be NULL in case the return string (i.e.
+	 *          'source') has to be used with the pcap_findalldevs_ex(), which
+	 *          does not require the interface name.
+	 * @param errbuf
+	 *          buffer that will contain the error message (in case there is one).
+	 * @return '0' if everything is fine, '-1' if some errors occurred. The string
+	 *         containing the complete source is returned in the 'source'
+	 *         variable.
+	 */
+	public static int createSrcStr(StringBuilder source, int type,
+	    String host, String port, String name, StringBuilder errbuf) {
+		
+		final StringBuffer buf2 = new StringBuffer();
+		
+		final int r =
+			createSrcStr(buf2, type, host, port, name, PcapUtils.getBuf());
+
+		PcapUtils.toStringBuilder(PcapUtils.getBuf(), errbuf);
+		PcapUtils.toStringBuilder(buf2, source);
+
+		return r;
+	}
+
+	/**
+	 * Accept a set of strings (host name, port, ...), and it returns the complete
+	 * source string according to the new format (e.g. 'rpcap://1.2.3.4/eth0').
+	 * This function is provided in order to help the user creating the source
+	 * string according to the new format. An unique source string is used in
+	 * order to make easy for old applications to use the remote facilities. Think
+	 * about tcpdump, for example, which has only one way to specify the interface
+	 * on which the capture has to be started. However, GUI-based programs can
+	 * find more useful to specify hostname, port and interface name separately.
+	 * In that case, they can use this function to create the source string before
+	 * passing it to the pcap_open() function.
+	 * 
+	 * @param source
+	 *          will contain the complete source string wen the function returns
+	 * @param type
+	 *          its value tells the type of the source we want to created
+	 * @param host
+	 *          an user-allocated buffer that keeps the host (e.g. "foo.bar.com")
+	 *          we want to connect to. It can be NULL in case we want to open an
+	 *          interface on a local host
+	 * @param port
+	 *          an user-allocated buffer that keeps the network port (e.g. "2002")
+	 *          we want to use for the RPCAP protocol. It can be NULL in case we
+	 *          want to open an interface on a local host.
+	 * @param name
+	 *          an user-allocated buffer that keeps the interface name we want to
+	 *          use (e.g. "eth0"). It can be NULL in case the return string (i.e.
+	 *          'source') has to be used with the pcap_findalldevs_ex(), which
+	 *          does not require the interface name.
+	 * @param errbuf
+	 *          buffer that will contain the error message (in case there is one).
+	 * @return '0' if everything is fine, '-1' if some errors occurred. The string
+	 *         containing the complete source is returned in the 'source'
+	 *         variable.
+	 */
+	public static int createSrcStr(Appendable source, int type,
+	    String host, String port, String name, Appendable errbuf) throws IOException {
+		
+		final StringBuffer buf2 = new StringBuffer();
+		
+		final int r =
+			createSrcStr(buf2, type, host, port, name, PcapUtils.getBuf());
+
+		PcapUtils.toAppendable(PcapUtils.getBuf(), errbuf);
+		PcapUtils.toAppendable(buf2, source);
+
+		return r;
+	}
 
 	/**
 	 * Create a list of network devices that can be opened with pcap_open().
@@ -361,7 +461,172 @@ public class WinPcap
 	 *         interface to list
 	 */
 	public native static int findAllDevsEx(String source, WinPcapRmtAuth auth,
-	    List<PcapIf> alldevs, StringBuilder errbuf);
+	    List<PcapIf> alldevs, StringBuffer errbuf);
+	
+	/**
+	 * Create a list of network devices that can be opened with pcap_open().
+	 * </p>
+	 * <p>
+	 * This function is a superset of the old 'pcap_findalldevs()', which is
+	 * obsolete, and which allows listing only the devices present on the local
+	 * machine. Vice versa, pcap_findalldevs_ex() allows listing the devices
+	 * present on a remote machine as well. Additionally, it can list all the pcap
+	 * files available into a given folder. Moreover, pcap_findalldevs_ex() is
+	 * platform independent, since it relies on the standard pcap_findalldevs() to
+	 * get addresses on the local machine.
+	 * </p>
+	 * <p>
+	 * In case the function has to list the interfaces on a remote machine, it
+	 * opens a new control connection toward that machine, it retrieves the
+	 * interfaces, and it drops the connection. However, if this function detects
+	 * that the remote machine is in 'active' mode, the connection is not dropped
+	 * and the existing socket is used.
+	 * </p>
+	 * <p>
+	 * The 'source' is a parameter that tells the function where the lookup has to
+	 * be done and it uses the same syntax of the pcap_open().
+	 * </p>
+	 * <p>
+	 * Differently from the pcap_findalldevs(), the interface names (pointed by
+	 * the alldevs->name and the other ones in the linked list) are already ready
+	 * to be used in the pcap_open() call. Vice versa, the output that comes from
+	 * pcap_findalldevs() must be formatted with the new pcap_createsrcstr()
+	 * before passing the source identifier to the pcap_open().
+	 * </p>
+	 * <p>
+	 * The error message is returned in the 'errbuf' variable. An error could be
+	 * due to several reasons:
+	 * <ul>
+	 * <li>libpcap/WinPcap was not installed on the local/remote host
+	 * <li>the user does not have enough privileges to list the devices / files
+	 * <li> a network problem
+	 * <li> the RPCAP version negotiation failed
+	 * <li> other errors (not enough memory and others).
+	 * </ul>
+	 * </p>
+	 * <p>
+	 * Warning:<br>
+	 * There may be network devices that cannot be opened with pcap_open() by the
+	 * process calling pcap_findalldevs(), because, for example, that process
+	 * might not have sufficient privileges to open them for capturing; if so,
+	 * those devices will not appear on the list. The interface list must be
+	 * deallocated manually by using the pcap_freealldevs().
+	 * </p>
+	 * 
+	 * @param source
+	 *          a char* buffer that keeps the 'source localtion', according to the
+	 *          new WinPcap syntax. This source will be examined looking for
+	 *          adapters (local or remote) (e.g. source can be 'rpcap://' for
+	 *          local adapters or 'rpcap://host:port' for adapters on a remote
+	 *          host) or pcap files (e.g. source can be 'file://c:/myfolder/').
+	 *          The strings that must be prepended to the 'source' in order to
+	 *          define if we want local/remote adapters or files is defined in the
+	 *          new Source Specification Syntax
+	 * @param auth
+	 *          a pointer to a pcap_rmtauth structure. This pointer keeps the
+	 *          information required to authenticate the RPCAP connection to the
+	 *          remote host. This parameter is not meaningful in case of a query
+	 *          to the local host: in that case it can be NULL.
+	 * @param alldevs
+	 *          a list of all the network interfaces
+	 * @param errbuf
+	 *          error message (in case there is one)
+	 * @return '0' if everything is fine, '-1' if some errors occurred; this
+	 *         function returns '-1' also in case the system does not have any
+	 *         interface to list
+	 */
+	public static int findAllDevsEx(String source, WinPcapRmtAuth auth,
+	    List<PcapIf> alldevs, StringBuilder errbuf) {
+		final int r =
+			findAllDevsEx(source, auth, alldevs, PcapUtils.getBuf());
+
+		PcapUtils.toStringBuilder(PcapUtils.getBuf(), errbuf);
+
+		return r;
+	}
+
+	/**
+	 * Create a list of network devices that can be opened with pcap_open().
+	 * </p>
+	 * <p>
+	 * This function is a superset of the old 'pcap_findalldevs()', which is
+	 * obsolete, and which allows listing only the devices present on the local
+	 * machine. Vice versa, pcap_findalldevs_ex() allows listing the devices
+	 * present on a remote machine as well. Additionally, it can list all the pcap
+	 * files available into a given folder. Moreover, pcap_findalldevs_ex() is
+	 * platform independent, since it relies on the standard pcap_findalldevs() to
+	 * get addresses on the local machine.
+	 * </p>
+	 * <p>
+	 * In case the function has to list the interfaces on a remote machine, it
+	 * opens a new control connection toward that machine, it retrieves the
+	 * interfaces, and it drops the connection. However, if this function detects
+	 * that the remote machine is in 'active' mode, the connection is not dropped
+	 * and the existing socket is used.
+	 * </p>
+	 * <p>
+	 * The 'source' is a parameter that tells the function where the lookup has to
+	 * be done and it uses the same syntax of the pcap_open().
+	 * </p>
+	 * <p>
+	 * Differently from the pcap_findalldevs(), the interface names (pointed by
+	 * the alldevs->name and the other ones in the linked list) are already ready
+	 * to be used in the pcap_open() call. Vice versa, the output that comes from
+	 * pcap_findalldevs() must be formatted with the new pcap_createsrcstr()
+	 * before passing the source identifier to the pcap_open().
+	 * </p>
+	 * <p>
+	 * The error message is returned in the 'errbuf' variable. An error could be
+	 * due to several reasons:
+	 * <ul>
+	 * <li>libpcap/WinPcap was not installed on the local/remote host
+	 * <li>the user does not have enough privileges to list the devices / files
+	 * <li> a network problem
+	 * <li> the RPCAP version negotiation failed
+	 * <li> other errors (not enough memory and others).
+	 * </ul>
+	 * </p>
+	 * <p>
+	 * Warning:<br>
+	 * There may be network devices that cannot be opened with pcap_open() by the
+	 * process calling pcap_findalldevs(), because, for example, that process
+	 * might not have sufficient privileges to open them for capturing; if so,
+	 * those devices will not appear on the list. The interface list must be
+	 * deallocated manually by using the pcap_freealldevs().
+	 * </p>
+	 * 
+	 * @param source
+	 *          a char* buffer that keeps the 'source localtion', according to the
+	 *          new WinPcap syntax. This source will be examined looking for
+	 *          adapters (local or remote) (e.g. source can be 'rpcap://' for
+	 *          local adapters or 'rpcap://host:port' for adapters on a remote
+	 *          host) or pcap files (e.g. source can be 'file://c:/myfolder/').
+	 *          The strings that must be prepended to the 'source' in order to
+	 *          define if we want local/remote adapters or files is defined in the
+	 *          new Source Specification Syntax
+	 * @param auth
+	 *          a pointer to a pcap_rmtauth structure. This pointer keeps the
+	 *          information required to authenticate the RPCAP connection to the
+	 *          remote host. This parameter is not meaningful in case of a query
+	 *          to the local host: in that case it can be NULL.
+	 * @param alldevs
+	 *          a list of all the network interfaces
+	 * @param errbuf
+	 *          error message (in case there is one)
+	 * @return '0' if everything is fine, '-1' if some errors occurred; this
+	 *         function returns '-1' also in case the system does not have any
+	 *         interface to list
+	 */
+	public static int findAllDevsEx(String source, WinPcapRmtAuth auth,
+	    List<PcapIf> alldevs, Appendable errbuf) throws IOException {
+		final int r =
+			findAllDevsEx(source, auth, alldevs, PcapUtils.getBuf());
+
+		PcapUtils.toAppendable(PcapUtils.getBuf(), errbuf);
+
+		return r;
+	}
+
 
 	/**
 	 * Initialize JNI method, field and class IDs.
@@ -491,7 +756,162 @@ public class WinPcap
 	 *         keeps the error message.
 	 */
 	public native static WinPcap open(String source, int snaplen, int flags,
-	    int timeout, WinPcapRmtAuth auth, StringBuilder errbuf);
+	    int timeout, WinPcapRmtAuth auth, StringBuffer errbuf);
+	
+	/**
+	 * Open a generic source in order to capture/send (WinPcap only) traffic. The
+	 * <code>open</code> replaces all the <code>openXxx()</code> methods with
+	 * a single call. This method hides the differences between the different
+	 * <code>openXxx()</code> methods so that the programmer does not have to
+	 * manage different opening function. In this way, the 'true' open method is
+	 * decided according to the source type, which is included into the source
+	 * string (in the form of source prefix). This function can rely on the
+	 * <code>createSrcStr</code> to create the string that keeps the capture
+	 * device according to the new syntax, and the <code>parseSrcStr</code> for
+	 * the other way round.
+	 * <p>
+	 * <b>Warning:</b> The source cannot be larger than PCAP_BUF_SIZE. The
+	 * following formats are not allowed as 'source' strings:
+	 * <ul>
+	 * <li>rpcap:// [to open the first local adapter]
+	 * <li>rpcap://hostname/ [to open the first remote adapter]
+	 * </ul>
+	 * 
+	 * @param source
+	 *          The source name has to include the format prefix according to the
+	 *          new Source Specification Syntax and it cannot be NULL. <br>
+	 *          On on Linux systems with 2.2 or later kernels, a device argument
+	 *          of "any" (i.e. rpcap://any) can be used to capture packets from
+	 *          all interfaces. In order to makes the source syntax easier, please
+	 *          remember that:
+	 *          <ul>
+	 *          <li>the adapters returned by the pcap_findalldevs_ex() can be
+	 *          used immediately by the pcap_open()
+	 *          <li> in case the user wants to pass its own source string to the
+	 *          pcap_open(), the pcap_createsrcstr() helps in creating the correct
+	 *          source identifier.
+	 *          </ul>
+	 * @param snaplen
+	 *          length of the packet that has to be retained. For each packet
+	 *          received by the filter, only the first 'snaplen' bytes are stored
+	 *          in the buffer and passed to the user application. For instance,
+	 *          snaplen equal to 100 means that only the first 100 bytes of each
+	 *          packet are stored.
+	 * @param flags
+	 *          keeps several flags that can be needed for capturing packet
+	 * @param timeout
+	 *          read timeout in milliseconds. The read timeout is used to arrange
+	 *          that the read not necessarily return immediately when a packet is
+	 *          seen, but that it waits for some amount of time to allow more
+	 *          packets to arrive and to read multiple packets from the OS kernel
+	 *          in one operation. Not all platforms support a read timeout; on
+	 *          platforms that don't, the read timeout is ignored.
+	 * @param auth
+	 *          a pointer to a 'struct pcap_rmtauth' that keeps the information
+	 *          required to authenticate the user on a remote machine. In case
+	 *          this is not a remote capture, this pointer can be set to NULL.
+	 * @param errbuf
+	 *          a pointer to a user-allocated buffer which will contain the error
+	 *          in case this function fails. The pcap_open() and findalldevs() are
+	 *          the only two functions which have this parameter, since they do
+	 *          not have (yet) a pointer to a pcap_t structure, which reserves
+	 *          space for the error string. Since these functions do not have
+	 *          (yet) a pcap_t pointer (the pcap_t pointer is NULL in case of
+	 *          errors), they need an explicit 'errbuf' variable. 'errbuf' may
+	 *          also be set to warning text when pcap_open_live() succeds; to
+	 *          detect this case the caller should store a zero-length string in
+	 *          'errbuf' before calling pcap_open_live() and display the warning
+	 *          to the user if 'errbuf' is no longer a zero-length string.
+	 * @return in case of problems, it returns null and the 'errbuf' variable
+	 *         keeps the error message.
+	 */
+	public static WinPcap open(String source, int snaplen, int flags,
+	    int timeout, WinPcapRmtAuth auth, StringBuilder errbuf) {
+		final WinPcap r =
+			open(source, snaplen, flags, timeout, auth, PcapUtils.getBuf());
+
+		PcapUtils.toStringBuilder(PcapUtils.getBuf(), errbuf);
+
+		return r;
+	}
+
+	/**
+	 * Open a generic source in order to capture/send (WinPcap only) traffic. The
+	 * <code>open</code> replaces all the <code>openXxx()</code> methods with
+	 * a single call. This method hides the differences between the different
+	 * <code>openXxx()</code> methods so that the programmer does not have to
+	 * manage different opening function. In this way, the 'true' open method is
+	 * decided according to the source type, which is included into the source
+	 * string (in the form of source prefix). This function can rely on the
+	 * <code>createSrcStr</code> to create the string that keeps the capture
+	 * device according to the new syntax, and the <code>parseSrcStr</code> for
+	 * the other way round.
+	 * <p>
+	 * <b>Warning:</b> The source cannot be larger than PCAP_BUF_SIZE. The
+	 * following formats are not allowed as 'source' strings:
+	 * <ul>
+	 * <li>rpcap:// [to open the first local adapter]
+	 * <li>rpcap://hostname/ [to open the first remote adapter]
+	 * </ul>
+	 * 
+	 * @param source
+	 *          The source name has to include the format prefix according to the
+	 *          new Source Specification Syntax and it cannot be NULL. <br>
+	 *          On on Linux systems with 2.2 or later kernels, a device argument
+	 *          of "any" (i.e. rpcap://any) can be used to capture packets from
+	 *          all interfaces. In order to makes the source syntax easier, please
+	 *          remember that:
+	 *          <ul>
+	 *          <li>the adapters returned by the pcap_findalldevs_ex() can be
+	 *          used immediately by the pcap_open()
+	 *          <li> in case the user wants to pass its own source string to the
+	 *          pcap_open(), the pcap_createsrcstr() helps in creating the correct
+	 *          source identifier.
+	 *          </ul>
+	 * @param snaplen
+	 *          length of the packet that has to be retained. For each packet
+	 *          received by the filter, only the first 'snaplen' bytes are stored
+	 *          in the buffer and passed to the user application. For instance,
+	 *          snaplen equal to 100 means that only the first 100 bytes of each
+	 *          packet are stored.
+	 * @param flags
+	 *          keeps several flags that can be needed for capturing packet
+	 * @param timeout
+	 *          read timeout in milliseconds. The read timeout is used to arrange
+	 *          that the read not necessarily return immediately when a packet is
+	 *          seen, but that it waits for some amount of time to allow more
+	 *          packets to arrive and to read multiple packets from the OS kernel
+	 *          in one operation. Not all platforms support a read timeout; on
+	 *          platforms that don't, the read timeout is ignored.
+	 * @param auth
+	 *          a pointer to a 'struct pcap_rmtauth' that keeps the information
+	 *          required to authenticate the user on a remote machine. In case
+	 *          this is not a remote capture, this pointer can be set to NULL.
+	 * @param errbuf
+	 *          a pointer to a user-allocated buffer which will contain the error
+	 *          in case this function fails. The pcap_open() and findalldevs() are
+	 *          the only two functions which have this parameter, since they do
+	 *          not have (yet) a pointer to a pcap_t structure, which reserves
+	 *          space for the error string. Since these functions do not have
+	 *          (yet) a pcap_t pointer (the pcap_t pointer is NULL in case of
+	 *          errors), they need an explicit 'errbuf' variable. 'errbuf' may
+	 *          also be set to warning text when pcap_open_live() succeds; to
+	 *          detect this case the caller should store a zero-length string in
+	 *          'errbuf' before calling pcap_open_live() and display the warning
+	 *          to the user if 'errbuf' is no longer a zero-length string.
+	 * @return in case of problems, it returns null and the 'errbuf' variable
+	 *         keeps the error message.
+	 */
+	public static WinPcap open(String source, int snaplen, int flags,
+	    int timeout, WinPcapRmtAuth auth, Appendable errbuf) throws IOException {
+		final WinPcap r =
+			open(source, snaplen, flags, timeout, auth, PcapUtils.getBuf());
+
+		PcapUtils.toAppendable(PcapUtils.getBuf(), errbuf);
+
+		return r;
+	}
+
 
 	/**
 	 * Create a pcap_t structure without starting a capture. pcap_open_dead() is
@@ -559,7 +979,7 @@ public class WinPcap
 	 * and its FAQs.)
 	 * </p>
 	 * 
-	 * @see Pcap#openLive(String, int, int, int, StringBuilder)
+	 * @see Pcap#openLive(String, int, int, int, StringBuffer)
 	 * @param device
 	 *          buffer containing a C, '\0' terminated string with the the name of
 	 *          the device
@@ -577,7 +997,158 @@ public class WinPcap
 	 *         returned by native libpcap call to open
 	 */
 	public native static WinPcap openLive(String device, int snaplen,
-	    int promisc, int timeout, StringBuilder errbuf);
+	    int promisc, int timeout, StringBuffer errbuf);
+	
+	/**
+	 * <p>
+	 * This method, overrides the generic libpcap based <code>openLive</code>
+	 * method, and allocates a peer pcap object that allows WinPcap extensions.
+	 * </p>
+	 * <p>
+	 * Open a live capture associated with the specified network interface device.
+	 * pcap_open_live() is used to obtain a packet capture descriptor to look at
+	 * packets on the network. device is a string that specifies the network
+	 * device to open; on Linux systems with 2.2 or later kernels, a device
+	 * argument of "any" or NULL can be used to capture packets from all
+	 * interfaces. snaplen specifies the maximum number of bytes to capture. If
+	 * this value is less than the size of a packet that is captured, only the
+	 * first snaplen bytes of that packet will be captured and provided as packet
+	 * data. A value of 65535 should be sufficient, on most if not all networks,
+	 * to capture all the data available from the packet. promisc specifies if the
+	 * interface is to be put into promiscuous mode. (Note that even if this
+	 * parameter is false, the interface could well be in promiscuous mode for
+	 * some other reason.)
+	 * </p>
+	 * <p>
+	 * For now, this doesn't work on the "any" device; if an argument of "any" or
+	 * NULL is supplied, the promisc flag is ignored. to_ms specifies the read
+	 * timeout in milliseconds. The read timeout is used to arrange that the read
+	 * not necessarily return immediately when a packet is seen, but that it wait
+	 * for some amount of time to allow more packets to arrive and to read
+	 * multiple packets from the OS kernel in one operation. Not all platforms
+	 * support a read timeout; on platforms that don't, the read timeout is
+	 * ignored. A zero value for to_ms, on platforms that support a read timeout,
+	 * will cause a read to wait forever to allow enough packets to arrive, with
+	 * no timeout. errbuf is used to return error or warning text. It will be set
+	 * to error text when pcap_open_live() fails and returns NULL. errbuf may also
+	 * be set to warning text when pcap_open_live() succeds; to detect this case
+	 * the caller should store a zero-length string in errbuf before calling
+	 * pcap_open_live() and display the warning to the user if errbuf is no longer
+	 * a zero-length string.
+	 * </p>
+	 * <p>
+	 * <b>Special note about <code>snaplen</code> argument.</b> The behaviour
+	 * of this argument may be suprizing to some. The <code>argument</code> is
+	 * only applied when there is a filter set using <code>setFilter</code>
+	 * method after the <code>openLive</code> call. Otherwise snaplen, even non
+	 * zero is ignored. This is the behavior of all BSD systems utilizing BPF and
+	 * WinPcap. This may change in the future, but that is the current behavior.
+	 * (For more detailed explanation and discussion please see jNetPcap website
+	 * and its FAQs.)
+	 * </p>
+	 * 
+	 * @see Pcap#openLive(String, int, int, int, StringBuffer)
+	 * @param device
+	 *          buffer containing a C, '\0' terminated string with the the name of
+	 *          the device
+	 * @param snaplen
+	 *          amount of data to capture per packet; (see special note in doc
+	 *          comments about when this argument is ignored even when non-zero)
+	 * @param promisc
+	 *          1 means open in promiscious mode, a 0 means non-propmiscous
+	 * @param timeout
+	 *          timeout in ms
+	 * @param errbuf
+	 *          a buffer that will contain any error messages if the call to open
+	 *          failed
+	 * @return a raw structure the data of <code>pcap_t</code> C structure as
+	 *         returned by native libpcap call to open
+	 */
+	public static WinPcap openLive(String device, int snaplen, int promisc,
+	    int timeout, StringBuilder errbuf) {
+		final WinPcap r =
+		    openLive(device, snaplen, promisc, timeout, PcapUtils.getBuf());
+
+		PcapUtils.toStringBuilder(PcapUtils.getBuf(), errbuf);
+
+		return r;
+	}
+
+	/**
+	 * <p>
+	 * This method, overrides the generic libpcap based <code>openLive</code>
+	 * method, and allocates a peer pcap object that allows WinPcap extensions.
+	 * </p>
+	 * <p>
+	 * Open a live capture associated with the specified network interface device.
+	 * pcap_open_live() is used to obtain a packet capture descriptor to look at
+	 * packets on the network. device is a string that specifies the network
+	 * device to open; on Linux systems with 2.2 or later kernels, a device
+	 * argument of "any" or NULL can be used to capture packets from all
+	 * interfaces. snaplen specifies the maximum number of bytes to capture. If
+	 * this value is less than the size of a packet that is captured, only the
+	 * first snaplen bytes of that packet will be captured and provided as packet
+	 * data. A value of 65535 should be sufficient, on most if not all networks,
+	 * to capture all the data available from the packet. promisc specifies if the
+	 * interface is to be put into promiscuous mode. (Note that even if this
+	 * parameter is false, the interface could well be in promiscuous mode for
+	 * some other reason.)
+	 * </p>
+	 * <p>
+	 * For now, this doesn't work on the "any" device; if an argument of "any" or
+	 * NULL is supplied, the promisc flag is ignored. to_ms specifies the read
+	 * timeout in milliseconds. The read timeout is used to arrange that the read
+	 * not necessarily return immediately when a packet is seen, but that it wait
+	 * for some amount of time to allow more packets to arrive and to read
+	 * multiple packets from the OS kernel in one operation. Not all platforms
+	 * support a read timeout; on platforms that don't, the read timeout is
+	 * ignored. A zero value for to_ms, on platforms that support a read timeout,
+	 * will cause a read to wait forever to allow enough packets to arrive, with
+	 * no timeout. errbuf is used to return error or warning text. It will be set
+	 * to error text when pcap_open_live() fails and returns NULL. errbuf may also
+	 * be set to warning text when pcap_open_live() succeds; to detect this case
+	 * the caller should store a zero-length string in errbuf before calling
+	 * pcap_open_live() and display the warning to the user if errbuf is no longer
+	 * a zero-length string.
+	 * </p>
+	 * <p>
+	 * <b>Special note about <code>snaplen</code> argument.</b> The behaviour
+	 * of this argument may be suprizing to some. The <code>argument</code> is
+	 * only applied when there is a filter set using <code>setFilter</code>
+	 * method after the <code>openLive</code> call. Otherwise snaplen, even non
+	 * zero is ignored. This is the behavior of all BSD systems utilizing BPF and
+	 * WinPcap. This may change in the future, but that is the current behavior.
+	 * (For more detailed explanation and discussion please see jNetPcap website
+	 * and its FAQs.)
+	 * </p>
+	 * 
+	 * @see Pcap#openLive(String, int, int, int, StringBuffer)
+	 * @param device
+	 *          buffer containing a C, '\0' terminated string with the the name of
+	 *          the device
+	 * @param snaplen
+	 *          amount of data to capture per packet; (see special note in doc
+	 *          comments about when this argument is ignored even when non-zero)
+	 * @param promisc
+	 *          1 means open in promiscious mode, a 0 means non-propmiscous
+	 * @param timeout
+	 *          timeout in ms
+	 * @param errbuf
+	 *          a buffer that will contain any error messages if the call to open
+	 *          failed
+	 * @return a raw structure the data of <code>pcap_t</code> C structure as
+	 *         returned by native libpcap call to open
+	 */
+	public static WinPcap openLive(String device, int snaplen, int promisc,
+	    int timeout, Appendable errbuf) throws IOException {
+		final WinPcap r =
+		    openLive(device, snaplen, promisc, timeout, PcapUtils.getBuf());
+
+		PcapUtils.toAppendable(PcapUtils.getBuf(), errbuf);
+
+		return r;
+	}
+
 
 	/**
 	 * Open a savefile in the tcpdump/libpcap format to read packets.
@@ -590,14 +1161,67 @@ public class WinPcap
 	 * set when pcap_open_offline() or pcap_fopen_offline() fails and returns
 	 * NULL.
 	 * 
-	 * @see Pcap#openOffline(String, StringBuilder)
+	 * @see Pcap#openOffline(String, StringBuffer)
 	 * @param fname
 	 *          filename of the pcap file
 	 * @param errbuf
 	 *          any error messages in UTC8 encoding
 	 * @return WinPcap structure or null if error occured
 	 */
-	public native static WinPcap openOffline(String fname, StringBuilder errbuf);
+	public native static WinPcap openOffline(String fname, StringBuffer errbuf);
+
+	/**
+	 * Open a savefile in the tcpdump/libpcap format to read packets.
+	 * pcap_open_offline() is called to open a "savefile" for reading. fname
+	 * specifies the name of the file to open. The file has the same format as
+	 * those used by tcpdump(1) and tcpslice(1). The name "-" in a synonym for
+	 * stdin. Alternatively, you may call pcap_fopen_offline() to read dumped data
+	 * from an existing open stream fp. Note that on Windows, that stream should
+	 * be opened in binary mode. errbuf is used to return error text and is only
+	 * set when pcap_open_offline() or pcap_fopen_offline() fails and returns
+	 * NULL.
+	 * 
+	 * @see Pcap#openOffline(String, StringBuffer)
+	 * @param fname
+	 *          filename of the pcap file
+	 * @param errbuf
+	 *          any error messages in UTC8 encoding
+	 * @return WinPcap structure or null if error occured
+	 */
+	public static WinPcap openOffline(String fname, StringBuilder errbuf) {
+		final WinPcap r = openOffline(fname, PcapUtils.getBuf());
+
+		PcapUtils.toStringBuilder(PcapUtils.getBuf(), errbuf);
+
+		return r;
+	}
+
+	/**
+	 * Open a savefile in the tcpdump/libpcap format to read packets.
+	 * pcap_open_offline() is called to open a "savefile" for reading. fname
+	 * specifies the name of the file to open. The file has the same format as
+	 * those used by tcpdump(1) and tcpslice(1). The name "-" in a synonym for
+	 * stdin. Alternatively, you may call pcap_fopen_offline() to read dumped data
+	 * from an existing open stream fp. Note that on Windows, that stream should
+	 * be opened in binary mode. errbuf is used to return error text and is only
+	 * set when pcap_open_offline() or pcap_fopen_offline() fails and returns
+	 * NULL.
+	 * 
+	 * @see Pcap#openOffline(String, StringBuffer)
+	 * @param fname
+	 *          filename of the pcap file
+	 * @param errbuf
+	 *          any error messages in UTC8 encoding
+	 * @return WinPcap structure or null if error occured
+	 */
+	public static WinPcap openOffline(String fname, Appendable errbuf)
+	    throws IOException {
+		final WinPcap r = openOffline(fname, PcapUtils.getBuf());
+
+		PcapUtils.toAppendable(PcapUtils.getBuf(), errbuf);
+
+		return r;
+	}
 
 	/**
 	 * Allocate a send queue. This method allocats a send queue, i.e. a buffer
@@ -750,7 +1374,7 @@ public class WinPcap
 	 * deleted and its content is discarded. pcap_open_live() creates a 1 MByte
 	 * buffer by default.
 	 * 
-	 * @see #openLive(String, int, int, int, StringBuilder)
+	 * @see #openLive(String, int, int, int, StringBuffer)
 	 * @see #loop(int, PcapHandler, Object)
 	 * @see #dispatch(int, PcapHandler, Object)
 	 * @param dim
@@ -772,7 +1396,7 @@ public class WinPcap
 	 * is useful for real time applications that need the best responsiveness from
 	 * the kernel.
 	 * 
-	 * @see #openLive(String, int, int, int, StringBuilder)
+	 * @see #openLive(String, int, int, int, StringBuffer)
 	 * @see #loop(int, PcapHandler, Object)
 	 * @see #dispatch(int, PcapHandler, Object)
 	 * @param size
