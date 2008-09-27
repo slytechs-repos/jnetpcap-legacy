@@ -42,7 +42,7 @@ public class PcapPktHdr {
 	 */
 	public PcapPktHdr() {
 		this.seconds = System.currentTimeMillis() / 1000; // In seconds
-		this.useconds = (int) (System.nanoTime() / 1000); // Microseconds
+		this.useconds = (int) (System.currentTimeMillis() * 1000); // Microseconds
 
 		this.caplen = 0;
 		this.len = 0;
@@ -62,7 +62,7 @@ public class PcapPktHdr {
 		this.len = len;
 
 		this.seconds = System.currentTimeMillis() / 1000; // In seconds
-		this.useconds = (int) (System.nanoTime() / 1000); // Microseconds
+		this.useconds = (int) (System.currentTimeMillis() * 1000); // Microseconds
 	}
 
 	/**

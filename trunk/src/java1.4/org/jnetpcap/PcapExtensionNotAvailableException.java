@@ -17,6 +17,7 @@ package org.jnetpcap;
  * while it is not supported on this particular platform. You must use
  * appropriate <code>isSupported</code> method call that is available with the
  * extension (i.e. <code>WinPcap.isSupported()</code>).
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
@@ -29,36 +30,17 @@ public class PcapExtensionNotAvailableException
 	private static final long serialVersionUID = 4206020497547882412L;
 
 	/**
-   * 
-   */
-  public PcapExtensionNotAvailableException() {
-	  super();
-	  // TODO Auto-generated constructor stub
-  }
+	 * 
+	 */
+	public PcapExtensionNotAvailableException() {
+		super();
+	}
 
 	/**
-   * @param message
-   * @param cause
-   */
-  public PcapExtensionNotAvailableException(String message, Throwable cause) {
-	  super(message, cause);
-	  // TODO Auto-generated constructor stub
-  }
-
-	/**
-   * @param s
-   */
-  public PcapExtensionNotAvailableException(String s) {
-	  super(s);
-	  // TODO Auto-generated constructor stub
-  }
-
-	/**
-   * @param cause
-   */
-  public PcapExtensionNotAvailableException(Throwable cause) {
-	  super(cause);
-	  // TODO Auto-generated constructor stub
-  }
+	 * @param s
+	 */
+	public PcapExtensionNotAvailableException(String s) {
+		super(s);
+	}
 
 }

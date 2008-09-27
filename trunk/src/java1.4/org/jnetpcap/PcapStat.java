@@ -32,7 +32,7 @@ public class PcapStat {
 	/**
 	 * For toString() to build its string. Should be made thread local.
 	 */
-	protected final static StringBuilder out = new StringBuilder();
+	protected final static StringBuffer out = new StringBuffer();
 
 	/**
 	 * number of packets received

@@ -324,7 +324,7 @@ public class Pcap {
 			Class.forName("org.jnetpcap.PcapDumper");
 			Class.forName("org.jnetpcap.PcapIf");
 		} catch (Exception e) {
-			throw new IllegalStateException(e);
+			throw new IllegalStateException(e.toString());
 		}
 	}
 
@@ -448,7 +448,7 @@ public class Pcap {
 	 *         an appropriate error message; 0 is returned on success
 	 */
 	public native static int findAllDevs(List alldevs,
-	    StringBuilder errbuf);
+	    StringBuffer errbuf);
 
 	/**
 	 * This method does nothing. jNetPcap implementation frees up the device list
@@ -537,7 +537,7 @@ public class Pcap {
 	 *          if there is an error, errbuf is filled with appropriate message
 	 * @return name of the device or null on error
 	 */
-	public native static String lookupDev(StringBuilder errbuf);
+	public native static String lookupDev(StringBuffer errbuf);
 
 	/**
 	 * Determines the network number and mask associated with the network device.
@@ -560,7 +560,7 @@ public class Pcap {
 	 * @return 0 on success otherwise -1 on error
 	 */
 	public native static int lookupNet(String device, PcapInteger netp,
-	    PcapInteger maskp, StringBuilder errbuf);
+	    PcapInteger maskp, StringBuffer errbuf);
 
 	/**
 	 * Create a pcap_t structure without starting a capture. pcap_open_dead() is
@@ -640,7 +640,7 @@ public class Pcap {
 	 *         returned by native libpcap call to open
 	 */
 	public native static Pcap openLive(String device, int snaplen, int promisc,
-	    int timeout, StringBuilder errbuf);
+	    int timeout, StringBuffer errbuf);
 
 	/**
 	 * Open a savefile in the tcpdump/libpcap format to read packets.
@@ -659,7 +659,7 @@ public class Pcap {
 	 *          any error messages in UTC8 encoding
 	 * @return Pcap structure or null if error occured
 	 */
-	public native static Pcap openOffline(String fname, StringBuilder errbuf);
+	public native static Pcap openOffline(String fname, StringBuffer errbuf);
 
 	/**
 	 * Physical address of the peering <code>pcap_t</code> C structure on native
@@ -885,7 +885,7 @@ public class Pcap {
 	 * @return if there is an error, -1 is returned and errbuf is filled in with
 	 *         an appropriate error message
 	 */
-	public native int getNonBlock(StringBuilder errbuf);
+	public native int getNonBlock(StringBuffer errbuf);
 
 	/**
 	 * This method allows to send a raw packet to the network. The MAC CRC doesn't
@@ -1219,7 +1219,7 @@ public class Pcap {
 	 * @return if there is an error, -1 is returned and errbuf is filled in with
 	 *         an appropriate error message
 	 */
-	public native int setNonBlock(int nonBlock, StringBuilder errbuf);
+	public native int setNonBlock(int nonBlock, StringBuffer errbuf);
 
 	/**
 	 * Return the dimension of the packet portion (in bytes) that is delivered to

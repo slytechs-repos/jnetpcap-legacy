@@ -31,32 +31,6 @@ public class PcapClosedException
 	 */
 	public PcapClosedException() {
 		super();
-		// TODO Auto-generated constructor stub
-	}
-
-	/**
-	 * @param message
-	 * @param cause
-	 */
-	public PcapClosedException(String message, Throwable cause) {
-		super(message, cause);
-		// TODO Auto-generated constructor stub
-	}
-
-	/**
-	 * @param s
-	 */
-	public PcapClosedException(String s) {
-		super(s);
-		// TODO Auto-generated constructor stub
-	}
-
-	/**
-	 * @param cause
-	 */
-	public PcapClosedException(Throwable cause) {
-		super(cause);
-		// TODO Auto-generated constructor stub
 	}
 
 }

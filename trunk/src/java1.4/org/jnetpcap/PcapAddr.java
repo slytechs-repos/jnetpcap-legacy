@@ -32,7 +32,7 @@ public final class PcapAddr {
 		try {
 			Class.forName("org.jnetpcap.PcapSockAddr");
 		} catch (ClassNotFoundException e) {
-			throw new IllegalStateException(e);
+			throw new IllegalStateException(e.toString());
 		}
 
 	}
@@ -115,7 +115,7 @@ public final class PcapAddr {
 	}
 
 	public String toString() {
-		StringBuilder out = new StringBuilder();
+		StringBuffer out = new StringBuffer();
 
 		out.append("[");
 		out.append("addr=").append(String.valueOf(addr));
