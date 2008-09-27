@@ -32,7 +32,7 @@
  ******************************************************************************/
 jclass pcapClass = NULL;
 jclass byteBufferClass = NULL;
-jclass stringBuilderClass = NULL;
+jclass stringBufferClass = NULL;
 jclass pcapIntegerClass = NULL;
 
 jfieldID pcapPhysicalFID = 0;
@@ -70,16 +70,16 @@ JNIEXPORT void JNICALL JNICALL Java_org_jnetpcap_Pcap_initIDs
 		return;
 	}
 
-	if ( (stringBuilderClass = findClass(env, "java/lang/StringBuilder")) == NULL) {
+	if ( (stringBufferClass = findClass(env, "java/lang/StringBuffer")) == NULL) {
 		return;
 	}
 
-	if ( (appendMID = env->GetMethodID(stringBuilderClass, "append",
-							"(Ljava/lang/String;)Ljava/lang/StringBuilder;")) == NULL) {
+	if ( (appendMID = env->GetMethodID(stringBufferClass, "append",
+							"(Ljava/lang/String;)Ljava/lang/StringBuffer;")) == NULL) {
 		return;
 	}
 
-	if ( (setLengthMID = env->GetMethodID(stringBuilderClass, "setLength",
+	if ( (setLengthMID = env->GetMethodID(stringBufferClass, "setLength",
 							"(I)V")) == NULL) {
 		return;
 	}
