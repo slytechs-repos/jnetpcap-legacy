@@ -12,6 +12,7 @@
  */
 package org.jnetpcap;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -57,7 +58,7 @@ import java.util.List;
  * of interfaces on the system:
  * 
  * <pre>
- * StringBuilder errbuf = new StringBuilder();
+ * StringBuffer errbuf = new StringBuffer();
  * List&lt;PcapIf&gt; ifs = new ArrayList&lt;PcapIf&gt;(); // Will hold list of devices
  * int statusCode = Pcap.findAllDevs(ifs, errbuf);
  * if (statusCode != Pcap.OK) {
@@ -92,7 +93,7 @@ import java.util.List;
  * 
  * <h3>Opening a network interface for live capture</h3>
  * Next we open up a live capture from the network interface using
- * {@link #openLive(String, int, int, int, StringBuilder)}:
+ * {@link #openLive(String, int, int, int, StringBuffer)}:
  * 
  * <pre>
  * int snalen = 2048; // Truncate packet at this size
@@ -447,8 +448,112 @@ public class Pcap {
 	 * @return -1 is returned on failure, in which case errbuf is filled in with
 	 *         an appropriate error message; 0 is returned on success
 	 */
-	public native static int findAllDevs(List<PcapIf> alldevs,
-	    StringBuilder errbuf);
+	public native static int findAllDevs(List<PcapIf> alldevs, StringBuffer errbuf);
+
+	/**
+	 * pcap_findalldevs() constructs a list of network devices that can be opened
+	 * with pcap_open_live(). (Note that there may be network devices that cannot
+	 * be opened with pcap_open_live() by the process calling pcap_findalldevs(),
+	 * because, for example, that process might not have sufficient privileges to
+	 * open them for capturing; if so, those devices will not appear on the list.)
+	 * alldevs is set to point to the first element of the list; each element of
+	 * the list is of type pcap_if_t, and has the following members:
+	 * <ul>
+	 * <li>next if not NULL, a pointer to the next element in the list; NULL for
+	 * the last element of the list
+	 * <li>name a pointer to a string giving a name for the device to pass to
+	 * pcap_open_live()
+	 * <li>description if not NULL, a pointer to a string giving a human-readable
+	 * description of the device
+	 * <li>addresses a pointer to the first element of a list of addresses for
+	 * the interface
+	 * <li>flags interface flags: PCAP_IF_LOOPBACK set if the interface is a
+	 * loopback interface
+	 * </ul>
+	 * Each element of the list of addresses is of type pcap_addr_t, and has the
+	 * following members:
+	 * <ul>
+	 * <li>next if not NULL, a pointer to the next element in the list; NULL for
+	 * the last element of the list
+	 * <li>addr a pointer to a struct sockaddr containing an address
+	 * <li>netmask if not NULL, a pointer to a struct sockaddr that contains the
+	 * netmask corresponding to the address pointed to by addr
+	 * <li>broadaddr if not NULL, a pointer to a struct sockaddr that contains
+	 * the broadcast address corresponding to the address pointed to by addr; may
+	 * be null if the interface doesn't support broadcasts
+	 * <li>dstaddr if not NULL, a pointer to a struct sockaddr that contains the
+	 * destination address corresponding to the address pointed to by addr; may be
+	 * null if the interface isn't a point-to-point interface
+	 * </ul>
+	 * 
+	 * @param alldevs
+	 *          the list is filled in with <code>PcapIf</code> interface
+	 *          objects; the list must not be immutable
+	 * @param errbuf
+	 *          error buffer containing error message as a string on failure
+	 * @return -1 is returned on failure, in which case errbuf is filled in with
+	 *         an appropriate error message; 0 is returned on success
+	 */
+	public static int findAllDevs(List<PcapIf> alldevs, StringBuilder errbuf) {
+		final int r = findAllDevs(alldevs, PcapUtils.getBuf());
+
+		PcapUtils.toStringBuilder(PcapUtils.getBuf(), errbuf);
+
+		return r;
+	}
+
+	/**
+	 * pcap_findalldevs() constructs a list of network devices that can be opened
+	 * with pcap_open_live(). (Note that there may be network devices that cannot
+	 * be opened with pcap_open_live() by the process calling pcap_findalldevs(),
+	 * because, for example, that process might not have sufficient privileges to
+	 * open them for capturing; if so, those devices will not appear on the list.)
+	 * alldevs is set to point to the first element of the list; each element of
+	 * the list is of type pcap_if_t, and has the following members:
+	 * <ul>
+	 * <li>next if not NULL, a pointer to the next element in the list; NULL for
+	 * the last element of the list
+	 * <li>name a pointer to a string giving a name for the device to pass to
+	 * pcap_open_live()
+	 * <li>description if not NULL, a pointer to a string giving a human-readable
+	 * description of the device
+	 * <li>addresses a pointer to the first element of a list of addresses for
+	 * the interface
+	 * <li>flags interface flags: PCAP_IF_LOOPBACK set if the interface is a
+	 * loopback interface
+	 * </ul>
+	 * Each element of the list of addresses is of type pcap_addr_t, and has the
+	 * following members:
+	 * <ul>
+	 * <li>next if not NULL, a pointer to the next element in the list; NULL for
+	 * the last element of the list
+	 * <li>addr a pointer to a struct sockaddr containing an address
+	 * <li>netmask if not NULL, a pointer to a struct sockaddr that contains the
+	 * netmask corresponding to the address pointed to by addr
+	 * <li>broadaddr if not NULL, a pointer to a struct sockaddr that contains
+	 * the broadcast address corresponding to the address pointed to by addr; may
+	 * be null if the interface doesn't support broadcasts
+	 * <li>dstaddr if not NULL, a pointer to a struct sockaddr that contains the
+	 * destination address corresponding to the address pointed to by addr; may be
+	 * null if the interface isn't a point-to-point interface
+	 * </ul>
+	 * 
+	 * @param alldevs
+	 *          the list is filled in with <code>PcapIf</code> interface
+	 *          objects; the list must not be immutable
+	 * @param errbuf
+	 *          error buffer containing error message as a string on failure
+	 * @return -1 is returned on failure, in which case errbuf is filled in with
+	 *         an appropriate error message; 0 is returned on success
+	 */
+	public static int findAllDevs(List<PcapIf> alldevs, Appendable errbuf)
+	    throws IOException {
+		final int r = findAllDevs(alldevs, PcapUtils.getBuf());
+
+		PcapUtils.toAppendable(PcapUtils.getBuf(), errbuf);
+
+		return r;
+	}
 
 	/**
 	 * This method does nothing. jNetPcap implementation frees up the device list
@@ -537,7 +642,41 @@ public class Pcap {
 	 *          if there is an error, errbuf is filled with appropriate message
 	 * @return name of the device or null on error
 	 */
-	public native static String lookupDev(StringBuilder errbuf);
+	public native static String lookupDev(StringBuffer errbuf);
+	
+	/**
+	 * Returns a network device suitable for use with <code>openLive</code> and
+	 * <code>lookupNet</code>.
+	 * 
+	 * @param errbuf
+	 *          if there is an error, errbuf is filled with appropriate message
+	 * @return name of the device or null on error
+	 */
+	public static String lookupDev(StringBuilder errbuf) {
+		final String r = lookupDev(PcapUtils.getBuf());
+
+		PcapUtils.toStringBuilder(PcapUtils.getBuf(), errbuf);
+
+		return r;
+	}
+
+	/**
+	 * Returns a network device suitable for use with <code>openLive</code> and
+	 * <code>lookupNet</code>.
+	 * 
+	 * @param errbuf
+	 *          if there is an error, errbuf is filled with appropriate message
+	 * @return name of the device or null on error
+	 */
+	public static String lookupDev(Appendable errbuf)
+	    throws IOException {
+		final String r = lookupDev(PcapUtils.getBuf());
+
+		PcapUtils.toAppendable(PcapUtils.getBuf(), errbuf);
+
+		return r;
+	}
+
 
 	/**
 	 * Determines the network number and mask associated with the network device.
@@ -560,7 +699,65 @@ public class Pcap {
 	 * @return 0 on success otherwise -1 on error
 	 */
 	public native static int lookupNet(String device, PcapInteger netp,
-	    PcapInteger maskp, StringBuilder errbuf);
+	    PcapInteger maskp, StringBuffer errbuf);
+
+	/**
+	 * Determines the network number and mask associated with the network device.
+	 * Both netp and maskp are integer object references whos value is set from
+	 * within the call. This is the way that pcap natively passes back these two
+	 * values.
+	 * <p>
+	 * <b>Note:</b> this method is deprecated in pcap as it can not be used to
+	 * pass back information about IP v6 addresses.
+	 * </p>
+	 * 
+	 * @param device
+	 *          device to do the lookup on
+	 * @param netp
+	 *          object which will contain the value of network address
+	 * @param maskp
+	 *          object which will contain the value of network netmask
+	 * @param errbuf
+	 *          any error messages if return value is -1
+	 * @return 0 on success otherwise -1 on error
+	 */
+	public static int lookupNet(String device, PcapInteger netp,
+	    PcapInteger maskp, StringBuilder errbuf) {
+		final int r = lookupNet(device, netp, maskp, PcapUtils.getBuf());
+
+		PcapUtils.toStringBuilder(PcapUtils.getBuf(), errbuf);
+
+		return r;
+	}
+
+	/**
+	 * Determines the network number and mask associated with the network device.
+	 * Both netp and maskp are integer object references whos value is set from
+	 * within the call. This is the way that pcap natively passes back these two
+	 * values.
+	 * <p>
+	 * <b>Note:</b> this method is deprecated in pcap as it can not be used to
+	 * pass back information about IP v6 addresses.
+	 * </p>
+	 * 
+	 * @param device
+	 *          device to do the lookup on
+	 * @param netp
+	 *          object which will contain the value of network address
+	 * @param maskp
+	 *          object which will contain the value of network netmask
+	 * @param errbuf
+	 *          any error messages if return value is -1
+	 * @return 0 on success otherwise -1 on error
+	 */
+	public static int lookupNet(String device, PcapInteger netp,
+	    PcapInteger maskp, Appendable errbuf) throws IOException {
+		final int r = lookupNet(device, netp, maskp, PcapUtils.getBuf());
+
+		PcapUtils.toAppendable(PcapUtils.getBuf(), errbuf);
+
+		return r;
+	}
 
 	/**
 	 * Create a pcap_t structure without starting a capture. pcap_open_dead() is
@@ -640,7 +837,147 @@ public class Pcap {
 	 *         returned by native libpcap call to open
 	 */
 	public native static Pcap openLive(String device, int snaplen, int promisc,
-	    int timeout, StringBuilder errbuf);
+	    int timeout, StringBuffer errbuf);
+
+	/**
+	 * <p>
+	 * Open a live capture associated with the specified network interface device.
+	 * pcap_open_live() is used to obtain a packet capture descriptor to look at
+	 * packets on the network. device is a string that specifies the network
+	 * device to open; on Linux systems with 2.2 or later kernels, a device
+	 * argument of "any" or NULL can be used to capture packets from all
+	 * interfaces. snaplen specifies the maximum number of bytes to capture. If
+	 * this value is less than the size of a packet that is captured, only the
+	 * first snaplen bytes of that packet will be captured and provided as packet
+	 * data. A value of 65535 should be sufficient, on most if not all networks,
+	 * to capture all the data available from the packet. promisc specifies if the
+	 * interface is to be put into promiscuous mode. (Note that even if this
+	 * parameter is false, the interface could well be in promiscuous mode for
+	 * some other reason.)
+	 * </p>
+	 * <p>
+	 * For now, this doesn't work on the "any" device; if an argument of "any" or
+	 * NULL is supplied, the promisc flag is ignored. to_ms specifies the read
+	 * timeout in milliseconds. The read timeout is used to arrange that the read
+	 * not necessarily return immediately when a packet is seen, but that it wait
+	 * for some amount of time to allow more packets to arrive and to read
+	 * multiple packets from the OS kernel in one operation. Not all platforms
+	 * support a read timeout; on platforms that don't, the read timeout is
+	 * ignored. A zero value for to_ms, on platforms that support a read timeout,
+	 * will cause a read to wait forever to allow enough packets to arrive, with
+	 * no timeout. errbuf is used to return error or warning text. It will be set
+	 * to error text when pcap_open_live() fails and returns NULL. errbuf may also
+	 * be set to warning text when pcap_open_live() succeds; to detect this case
+	 * the caller should store a zero-length string in errbuf before calling
+	 * pcap_open_live() and display the warning to the user if errbuf is no longer
+	 * a zero-length string.
+	 * </p>
+	 * <p>
+	 * <b>Special note about <code>snaplen</code> argument.</b> The behaviour
+	 * of this argument may be suprizing to some. The <code>argument</code> is
+	 * only applied when there is a filter set using <code>setFilter</code>
+	 * method after the <code>openLive</code> call. Otherwise snaplen, even non
+	 * zero is ignored. This is the behavior of all BSD systems utilizing BPF and
+	 * WinPcap. This may change in the future, but that is the current behavior.
+	 * (For more detailed explanation and discussion please see jNetPcap website
+	 * and its FAQs.)
+	 * </p>
+	 * 
+	 * @param device
+	 *          buffer containing a C, '\0' terminated string with the the name of
+	 *          the device
+	 * @param snaplen
+	 *          amount of data to capture per packet; (see special note in doc
+	 *          comments about when this argument is ignored even when non-zero)
+	 * @param promisc
+	 *          1 means open in promiscious mode, a 0 means non-propmiscous
+	 * @param timeout
+	 *          timeout in ms
+	 * @param errbuf
+	 *          a buffer that will contain any error messages if the call to open
+	 *          failed
+	 * @return a raw structure the data of <code>pcap_t</code> C structure as
+	 *         returned by native libpcap call to open
+	 */
+	public static Pcap openLive(String device, int snaplen, int promisc,
+	    int timeout, StringBuilder errbuf) {
+		final Pcap r =
+		    openLive(device, snaplen, promisc, timeout, PcapUtils.getBuf());
+
+		PcapUtils.toStringBuilder(PcapUtils.getBuf(), errbuf);
+
+		return r;
+	}
+
+	/**
+	 * <p>
+	 * Open a live capture associated with the specified network interface device.
+	 * pcap_open_live() is used to obtain a packet capture descriptor to look at
+	 * packets on the network. device is a string that specifies the network
+	 * device to open; on Linux systems with 2.2 or later kernels, a device
+	 * argument of "any" or NULL can be used to capture packets from all
+	 * interfaces. snaplen specifies the maximum number of bytes to capture. If
+	 * this value is less than the size of a packet that is captured, only the
+	 * first snaplen bytes of that packet will be captured and provided as packet
+	 * data. A value of 65535 should be sufficient, on most if not all networks,
+	 * to capture all the data available from the packet. promisc specifies if the
+	 * interface is to be put into promiscuous mode. (Note that even if this
+	 * parameter is false, the interface could well be in promiscuous mode for
+	 * some other reason.)
+	 * </p>
+	 * <p>
+	 * For now, this doesn't work on the "any" device; if an argument of "any" or
+	 * NULL is supplied, the promisc flag is ignored. to_ms specifies the read
+	 * timeout in milliseconds. The read timeout is used to arrange that the read
+	 * not necessarily return immediately when a packet is seen, but that it wait
+	 * for some amount of time to allow more packets to arrive and to read
+	 * multiple packets from the OS kernel in one operation. Not all platforms
+	 * support a read timeout; on platforms that don't, the read timeout is
+	 * ignored. A zero value for to_ms, on platforms that support a read timeout,
+	 * will cause a read to wait forever to allow enough packets to arrive, with
+	 * no timeout. errbuf is used to return error or warning text. It will be set
+	 * to error text when pcap_open_live() fails and returns NULL. errbuf may also
+	 * be set to warning text when pcap_open_live() succeds; to detect this case
+	 * the caller should store a zero-length string in errbuf before calling
+	 * pcap_open_live() and display the warning to the user if errbuf is no longer
+	 * a zero-length string.
+	 * </p>
+	 * <p>
+	 * <b>Special note about <code>snaplen</code> argument.</b> The behaviour
+	 * of this argument may be suprizing to some. The <code>argument</code> is
+	 * only applied when there is a filter set using <code>setFilter</code>
+	 * method after the <code>openLive</code> call. Otherwise snaplen, even non
+	 * zero is ignored. This is the behavior of all BSD systems utilizing BPF and
+	 * WinPcap. This may change in the future, but that is the current behavior.
+	 * (For more detailed explanation and discussion please see jNetPcap website
+	 * and its FAQs.)
+	 * </p>
+	 * 
+	 * @param device
+	 *          buffer containing a C, '\0' terminated string with the the name of
+	 *          the device
+	 * @param snaplen
+	 *          amount of data to capture per packet; (see special note in doc
+	 *          comments about when this argument is ignored even when non-zero)
+	 * @param promisc
+	 *          1 means open in promiscious mode, a 0 means non-propmiscous
+	 * @param timeout
+	 *          timeout in ms
+	 * @param errbuf
+	 *          a buffer that will contain any error messages if the call to open
+	 *          failed
+	 * @return a raw structure the data of <code>pcap_t</code> C structure as
+	 *         returned by native libpcap call to open
+	 */
+	public static Pcap openLive(String device, int snaplen, int promisc,
+	    int timeout, Appendable errbuf) throws IOException {
+		final Pcap r =
+		    openLive(device, snaplen, promisc, timeout, PcapUtils.getBuf());
+
+		PcapUtils.toAppendable(PcapUtils.getBuf(), errbuf);
+
+		return r;
+	}
 
 	/**
 	 * Open a savefile in the tcpdump/libpcap format to read packets.
@@ -659,7 +996,58 @@ public class Pcap {
 	 *          any error messages in UTC8 encoding
 	 * @return Pcap structure or null if error occured
 	 */
-	public native static Pcap openOffline(String fname, StringBuilder errbuf);
+	public native static Pcap openOffline(String fname, StringBuffer errbuf);
+
+	/**
+	 * Open a savefile in the tcpdump/libpcap format to read packets.
+	 * pcap_open_offline() is called to open a "savefile" for reading. fname
+	 * specifies the name of the file to open. The file has the same format as
+	 * those used by tcpdump(1) and tcpslice(1). The name "-" in a synonym for
+	 * stdin. Alternatively, you may call pcap_fopen_offline() to read dumped data
+	 * from an existing open stream fp. Note that on Windows, that stream should
+	 * be opened in binary mode. errbuf is used to return error text and is only
+	 * set when pcap_open_offline() or pcap_fopen_offline() fails and returns
+	 * NULL.
+	 * 
+	 * @param fname
+	 *          filename of the pcap file
+	 * @param errbuf
+	 *          any error messages in UTC8 encoding
+	 * @return Pcap structure or null if error occured
+	 */
+	public static Pcap openOffline(String fname, StringBuilder errbuf) {
+		final Pcap r = openOffline(fname, PcapUtils.getBuf());
+
+		PcapUtils.toStringBuilder(PcapUtils.getBuf(), errbuf);
+
+		return r;
+	}
+
+	/**
+	 * Open a savefile in the tcpdump/libpcap format to read packets.
+	 * pcap_open_offline() is called to open a "savefile" for reading. fname
+	 * specifies the name of the file to open. The file has the same format as
+	 * those used by tcpdump(1) and tcpslice(1). The name "-" in a synonym for
+	 * stdin. Alternatively, you may call pcap_fopen_offline() to read dumped data
+	 * from an existing open stream fp. Note that on Windows, that stream should
+	 * be opened in binary mode. errbuf is used to return error text and is only
+	 * set when pcap_open_offline() or pcap_fopen_offline() fails and returns
+	 * NULL.
+	 * 
+	 * @param fname
+	 *          filename of the pcap file
+	 * @param errbuf
+	 *          any error messages in UTC8 encoding
+	 * @return Pcap structure or null if error occured
+	 */
+	public static Pcap openOffline(String fname, Appendable errbuf)
+	    throws IOException {
+		final Pcap r = openOffline(fname, PcapUtils.getBuf());
+
+		PcapUtils.toAppendable(PcapUtils.getBuf(), errbuf);
+
+		return r;
+	}
 
 	/**
 	 * Physical address of the peering <code>pcap_t</code> C structure on native
@@ -881,11 +1269,28 @@ public class Pcap {
 	 * error, -1 is returned and errbuf is filled in with an appropriate error
 	 * message.
 	 * 
-	 * @see #setNonBlock(int, StringBuilder)
+	 * @see #setNonBlock(int, StringBuffer)
 	 * @return if there is an error, -1 is returned and errbuf is filled in with
 	 *         an appropriate error message
 	 */
-	public native int getNonBlock(StringBuilder errbuf);
+	public native int getNonBlock(StringBuffer errbuf);
+	
+	public int getNonBlock(StringBuilder errbuf) {
+		final int r = getNonBlock(PcapUtils.getBuf());
+
+		PcapUtils.toStringBuilder(PcapUtils.getBuf(), errbuf);
+
+		return r;
+	}
+
+	public int getNonBlock(Appendable errbuf) throws IOException {
+		final int r = getNonBlock(PcapUtils.getBuf());
+
+		PcapUtils.toAppendable(PcapUtils.getBuf(), errbuf);
+
+		return r;
+	}
+
 
 	/**
 	 * This method allows to send a raw packet to the network. The MAC CRC doesn't
@@ -1213,20 +1618,71 @@ public class Pcap {
 	 * return 0 immediately rather than blocking waiting for packets to arrive.
 	 * pcap_loop() and pcap_next() will not work in ``non-blocking'' mode.
 	 * 
-	 * @see #getNonBlock(StringBuilder)
+	 * @see #getNonBlock(StringBuffer)
 	 * @param nonBlock
 	 *          a non negative value means to set in non blocking mode
 	 * @return if there is an error, -1 is returned and errbuf is filled in with
 	 *         an appropriate error message
 	 */
-	public native int setNonBlock(int nonBlock, StringBuilder errbuf);
+	public native int setNonBlock(int nonBlock, StringBuffer errbuf);
+	
+	/**
+	 * pcap_setnonblock() puts a capture descriptor, opened with pcap_open_live(),
+	 * into ``non-blocking'' mode, or takes it out of ``non-blocking'' mode,
+	 * depending on whether the nonblock argument is non-zero or zero. It has no
+	 * effect on ``savefiles''. If there is an error, -1 is returned and errbuf is
+	 * filled in with an appropriate error message; otherwise, 0 is returned. In
+	 * ``non-blocking'' mode, an attempt to read from the capture descriptor with
+	 * pcap_dispatch() will, if no packets are currently available to be read,
+	 * return 0 immediately rather than blocking waiting for packets to arrive.
+	 * pcap_loop() and pcap_next() will not work in ``non-blocking'' mode.
+	 * 
+	 * @see #getNonBlock(StringBuffer)
+	 * @param nonBlock
+	 *          a non negative value means to set in non blocking mode
+	 * @return if there is an error, -1 is returned and errbuf is filled in with
+	 *         an appropriate error message
+	 */
+	public int setNonBlock(int nonBlock, StringBuilder errbuf) {
+		final int r = setNonBlock(nonBlock, PcapUtils.getBuf());
+
+		PcapUtils.toStringBuilder(PcapUtils.getBuf(), errbuf);
+
+		return r;
+	}
+
+	/**
+	 * pcap_setnonblock() puts a capture descriptor, opened with pcap_open_live(),
+	 * into ``non-blocking'' mode, or takes it out of ``non-blocking'' mode,
+	 * depending on whether the nonblock argument is non-zero or zero. It has no
+	 * effect on ``savefiles''. If there is an error, -1 is returned and errbuf is
+	 * filled in with an appropriate error message; otherwise, 0 is returned. In
+	 * ``non-blocking'' mode, an attempt to read from the capture descriptor with
+	 * pcap_dispatch() will, if no packets are currently available to be read,
+	 * return 0 immediately rather than blocking waiting for packets to arrive.
+	 * pcap_loop() and pcap_next() will not work in ``non-blocking'' mode.
+	 * 
+	 * @see #getNonBlock(StringBuffer)
+	 * @param nonBlock
+	 *          a non negative value means to set in non blocking mode
+	 * @return if there is an error, -1 is returned and errbuf is filled in with
+	 *         an appropriate error message
+	 */
+	public int setNonBlock(int nonBlock, Appendable errbuf) throws IOException {
+		final int r = setNonBlock(nonBlock, PcapUtils.getBuf());
+
+		PcapUtils.toAppendable(PcapUtils.getBuf(), errbuf);
+
+		return r;
+	}
+
 
 	/**
 	 * Return the dimension of the packet portion (in bytes) that is delivered to
 	 * the application. pcap_snapshot() returns the snapshot length specified when
 	 * pcap_open_live was called.
 	 * 
-	 * @see #openLive(String, int, int, int, StringBuilder)
+	 * @see #openLive(String, int, int, int, StringBuffer)
 	 * @return the snapshot length specified when pcap_open_live was called
 	 */
 	public native int snapshot();

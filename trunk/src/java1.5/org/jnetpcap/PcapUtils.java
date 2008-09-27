@@ -12,6 +12,8 @@
  */
 package org.jnetpcap;
 
+import java.io.IOException;
+
 /**
  * A Pcap utility class which provides certain additional and convenience
  * methods. 
@@ -79,4 +81,27 @@ public final class PcapUtils {
 		};
 
 	}
+	
+	private final static StringBuffer buf = new StringBuffer();
+	
+	public static StringBuffer getBuf() {
+		return buf;
+	}
+	
+	public static void toAppendable(StringBuffer buf, Appendable appendable) throws IOException {
+		
+		if (buf.length() != 0) {
+			appendable.append(buf);
+		}
+	}
+
+	
+	public static void toStringBuilder(StringBuffer buf, StringBuilder builder) {
+		builder.setLength(0);
+		
+		if (buf.length() != 0) {
+			builder.append(buf);
+		}
+	}
+
 }
