@@ -41,15 +41,45 @@ public final class PcapUtils {
 	 * @return a task object which allows interaction with the underlying capture
 	 *         loop and thread
 	 */
-	public static PcapTask dispatchInBackground(Pcap pcap, int cnt,
-	    PcapHandler handler, final Object data) {
+	public static PcapTask dispatchInBackground(final Pcap pcap, int cnt,
+	    final PcapHandler handler, final Object data) {
 
 		return new PcapTask(pcap, cnt, handler, data) {
 
 			public void run() {
-				this.result = pcap.dispatch(count, handler, data);
-			}
+				int remaining = count;
 
+				while (remaining > 0) {
+
+					/*
+					 * Yield to other threads on every iteration of the loop, another
+					 * words everytime the libpcap buffer has been completely filled.
+					 * Except on the first loop, we don't want to yield but go right into
+					 * the dispatch loop. Also having the yield at the top allows the
+					 * thread to exit when total count packets have been dispatched and
+					 * thus avoid an extra explicit yied, but achive implicit yield
+					 * because this thread will terminate.
+					 */
+					if (remaining != 0) {
+						Thread.yield();
+					}
+
+					this.result = this.pcap.dispatch(count, this.handler, data);
+
+					/*
+					 * Check for errors
+					 */
+					if (result < 0) {
+						break;
+					}
+
+					/*
+					 * If not an error, result contains number of packets dispatched or
+					 * how many packets fit into the libpcap buffer
+					 */
+					remaining -= result;
+				}
+			}
 		};
 	}
 
@@ -74,7 +104,7 @@ public final class PcapUtils {
 		return new PcapTask(pcap, cnt, handler, data) {
 
 			public void run() {
-				this.result = pcap.loop(count, handler, data);
+				this.result = this.pcap.loop(count, this.handler, data);
 			}
 
 		};

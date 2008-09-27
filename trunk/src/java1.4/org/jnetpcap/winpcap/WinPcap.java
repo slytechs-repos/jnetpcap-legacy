@@ -19,7 +19,6 @@ import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapBpfProgram;
 import org.jnetpcap.PcapExtensionNotAvailableException;
 import org.jnetpcap.PcapHandler;
-import org.jnetpcap.PcapIf;
 import org.jnetpcap.PcapPktHdr;
 
 /**
@@ -246,7 +245,7 @@ public class WinPcap
 			Class.forName("org.jnetpcap.winpcap.WinPcapStat");
 			Class.forName("org.jnetpcap.winpcap.WinPcapSamp");
 		} catch (final ClassNotFoundException e) {
-			throw new IllegalStateException("Unable to find class: ", e);
+			throw new IllegalStateException("Unable to find class: " + e.toString());
 		}
 	}
 
@@ -285,8 +284,8 @@ public class WinPcap
 	 *         containing the complete source is returned in the 'source'
 	 *         variable.
 	 */
-	public native static int createSrcStr(StringBuilder source, int type,
-	    String host, String port, String name, StringBuilder errbuf);
+	public native static int createSrcStr(StringBuffer source, int type,
+	    String host, String port, String name, StringBuffer errbuf);
 
 	/**
 	 * Create a list of network devices that can be opened with pcap_open().
@@ -361,7 +360,7 @@ public class WinPcap
 	 *         interface to list
 	 */
 	public native static int findAllDevsEx(String source, WinPcapRmtAuth auth,
-	    List alldevs, StringBuilder errbuf);
+	    List alldevs, StringBuffer errbuf);
 
 	/**
 	 * Initialize JNI method, field and class IDs.
@@ -491,7 +490,7 @@ public class WinPcap
 	 *         keeps the error message.
 	 */
 	public native static WinPcap open(String source, int snaplen, int flags,
-	    int timeout, WinPcapRmtAuth auth, StringBuilder errbuf);
+	    int timeout, WinPcapRmtAuth auth, StringBuffer errbuf);
 
 	/**
 	 * Create a pcap_t structure without starting a capture. pcap_open_dead() is
@@ -577,7 +576,7 @@ public class WinPcap
 	 *         returned by native libpcap call to open
 	 */
 	public native static Pcap openLive(String device, int snaplen,
-	    int promisc, int timeout, StringBuilder errbuf);
+	    int promisc, int timeout, StringBuffer errbuf);
 
 	/**
 	 * Open a savefile in the tcpdump/libpcap format to read packets.
@@ -597,7 +596,7 @@ public class WinPcap
 	 *          any error messages in UTC8 encoding
 	 * @return WinPcap structure or null if error occured
 	 */
-	public native static Pcap openOffline(String fname, StringBuilder errbuf);
+	public native static Pcap openOffline(String fname, StringBuffer errbuf);
 
 	/**
 	 * Allocate a send queue. This method allocats a send queue, i.e. a buffer

@@ -34,7 +34,7 @@ public final class PcapIf {
 		try {
 			Class.forName("org.jnetpcap.PcapAddr");
 		} catch (ClassNotFoundException e) {
-			throw new IllegalStateException(e);
+			throw new IllegalStateException(e.toString());
 		}
 	}
 
@@ -114,7 +114,7 @@ public final class PcapIf {
 	 * Debug string.
 	 */
 	public String toString() {
-		StringBuilder out = new StringBuilder();
+		StringBuffer out = new StringBuffer();
 
 		out.append("<");
 		if (addresses != null && addresses.isEmpty() == false) {
