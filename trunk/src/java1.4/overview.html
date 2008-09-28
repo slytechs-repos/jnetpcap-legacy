@@ -43,6 +43,23 @@
 	wrappers</a>
 </ul>
 
+<b>Note on JRE environments!</b>
+<br>
+Starting with version 1.2,
+<em>jNetPcap</em>
+provides support for both JRE 1.4 and JRE 1.5 in the same distribution
+package. This javadoc document describes the API under JRE 1.4
+environment which differs slightly from the other supplied JAR file for
+JRE 1.5. The differences are in Java syntax, such as no support for
+generics and various methods use
+<code>StringBuffer</code>
+instead of
+<code>StringBuilder</code>
+or
+<code>Appendable</code>
+which are found in the JRE 1.5 jar file. Functionality wise the two APIs
+and supplied jar files are identical in every other respect.
+
 
 <h1><a name="into">Introduction</a></h1>
 
@@ -282,22 +299,23 @@ The wait can be accomplished using <code>java.lang.Thread.join()</code>
 method on Thread #2 object reference. Once Thread #2 exits, it is safe
 to call <code>Pcap.close()</code> on the exchanged <code>Pcap</code>
 object.</p>
-(
-<b>Note:</b>
-it is imperative to wait for Thread #2 to exit, or some other way of
-synchronization, to ensure that Thread #2 has broken out of the
-<code>Pcap.loop()</code>
-otherwise a premature call to
-<code>Pcap.close()</code>
+<p><b>Note #1:</b> it is imperative to wait for Thread #2 to exit, or
+some other way of synchronization, to ensure that Thread #2 has broken
+out of the <code>Pcap.loop()</code> otherwise a premature call to <code>Pcap.close()</code>
 while Thread #2 is still in the loop will cause a coredump and the
 entire Java VM to crash. The coredump or crash stems from the fact that
-<em>libpcap</em>
-is not multithreaded and a single threaded execution is assumed. In a
-single thread, it is impossible to issue a
-<code>Pcap.close()</code>
-at the same time
-<code>Pcap.loop()</code>
-is still executing, since a <code>Pcap.loop()</code> is a blocking call.)
+<em>libpcap</em> is not multithreaded and a single threaded execution is
+assumed. In a single thread, it is impossible to issue a <code>Pcap.close()</code>
+at the same time <code>Pcap.loop()</code> is still executing, since a <code>Pcap.loop()</code>
+is a blocking call.</p>
+<p><b>Note #2:</b>As a convenience, starting with version 1.2, jNetPcap provides 2
+methods to run loops in a background thread. The methods are found in
+the <code>Pcap</code> and <code>PcapUtils</code> classes. The names are
+<code>dispatchInBackground()</code> and <code>loopInBackground()</code>.
+These methods return a <code>PcapTask</code> handle which allows the
+user to interact with the background thread such as aquire error codes
+and issue <code>breakLoop</code> safely to terminate any background
+tasks nicely.</p>
 
 <h2><a name="winpcap_extension"><em>jNetPcap</em>'s <em>WinPcap</em>
 extension</a></h2>
@@ -355,9 +373,12 @@ another <em>libpcap</em> extension.</small>
 
 <h1><a name="requirements">Java requirements</a></h1>
 
+Starting with version 1.2,
 <em>jNetPcap</em>
-requires at minimum Java JRE 1.5 for runtime support and JDK 1.5 for
-development. It also requires the binary
+provides jar files for both Java JRE 1.4 and JRE 1.5 runtimes. There
+distribution package contains 2 jar files one for each JRE. There is
+only 1 native library which works with both jar files under either JRE
+environment. It also requires the binary
 <em>libpcap</em>
 ,
 <em>libpcap-dev</em>
