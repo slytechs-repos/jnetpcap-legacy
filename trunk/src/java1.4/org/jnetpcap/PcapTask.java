@@ -92,14 +92,13 @@ public abstract class PcapTask implements Runnable {
 
 	/**
 	 * <p>
-	 * Terminates the task using a Pcap.breakLoop() call after making sure that
-	 * the pcap session and thread are active.
+	 * Terminates the task after making sure that the pcap session and thread are
+	 * active.
 	 * </p>
-	 * <p>
-	 * Notes on breakLoop() and its behaviour which directly applies to behaviour
-	 * of this method.
 	 * 
 	 * @throws InterruptedException
+	 *           since this method waits for the background thread to terminate,
+	 *           it can be interrupted
 	 */
 	public void stop() throws InterruptedException {
 		if (thread == null || thread.isAlive() == false) {
