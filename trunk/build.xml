@@ -32,7 +32,7 @@
 
 	<!-- Get the enviroment collection from the OS -->
 	<property environment="env" />
-	
+
 	<!-- 
          Add the optional compiler task <cc></cc>, 
          the JAR needs to be in the classpath or ANT_HOME 
@@ -46,54 +46,54 @@
 
 	<!-- load the build properties file -->
 	<property file="build.properties" />
-	
-	<!-- Deployable packages and their structure -->	
+
+	<!-- Deployable packages and their structure -->
 	<property file="package.properties" />
 
 	<!-- Dependency libraries -->
 	<property file="lib.properties" />
-	
-	
-	<!-- Properties for webserver we copy website related documents -->	
+
+
+	<!-- Properties for webserver we copy website related documents -->
 	<property file="web.properties" />
 
 	<!-- Platform dependent properties -->
 	<property file="${os.name}.properties" />
-	
+
 	<!--                        PREPARE PATHS SECTION  -->
 
 	<!-- =================================================================== -->
 	<!-- class path used for compiling                                       -->
 	<!-- =================================================================== -->
 	<path id="compiler.classpath">
-		<pathelement location="${build.classes.dir}" />
+		<pathelement location="${build.classes.dir}${compiler.target}" />
 		<pathelement location="${build.classpath.dir}" />
 	</path>
-	
+
 	<!-- =================================================================== -->
 	<!-- class path used for compiling javah classes into C++ headers -->
 	<!-- =================================================================== -->
 	<path id="javah.classpath">
-		<pathelement location="${build.classes.dir}" />
+		<pathelement location="${build.classes.dir}1.5" />
 	</path>
-		
+
 	<!-- =================================================================== -->
 	<!-- class path used for compiling jUnit test classes                    -->
 	<!-- =================================================================== -->
-	<path id="test.classpath" >
+	<path id="test.classpath">
 		<path refid="compiler.classpath" />
 		<pathelement location="${junit.jar}" />
 		<pathelement location="${build.tests.dir}" />
 	</path>
-	
+
 	<!-- =================================================================== -->
 	<!-- class path used for compiling Java classes using JavaDoc -->
 	<!-- =================================================================== -->
 	<path id="javadoc.classpath">
 		<path refid="compiler.classpath" />
 	</path>
-	
-	
+
+
 	<!--                        PREPARE SECTION  -->
 
 	<!-- =================================================================== -->
@@ -101,21 +101,15 @@
 	<!-- =================================================================== -->
 	<target name="prep-build">
 		<tstamp>
-			<format 
-				property="timestamp.isoformat" 
-				pattern="${format.timestamp.long}" 
-				locale="${format.timestamp.locale}" />
+			<format property="timestamp.isoformat" pattern="${format.timestamp.long}" locale="${format.timestamp.locale}" />
 		</tstamp>
-		
+
 		<tstamp>
-			<format 
-				property="timestamp.short" 
-				pattern="${format.timestamp.short}" 
-				locale="${format.timestamp.locale}" />
+			<format property="timestamp.short" pattern="${format.timestamp.short}" locale="${format.timestamp.locale}" />
 		</tstamp>
-		
+
 		<tstamp />
-		
+
 		<mkdir dir="${build.dir}" />
 	</target>
 
@@ -123,16 +117,16 @@
 	<!-- Creates classes/ directory -->
 	<!-- =================================================================== -->
 	<target name="prep-java" depends="prep-build">
-		<mkdir dir="${build.classes.dir}" />
+		<mkdir dir="${build.classes.dir}${compiler.target}" />
 	</target>
-	
+
 	<!-- =================================================================== -->
 	<!-- Creates meta-inf/ directory -->
 	<!-- =================================================================== -->
 	<target name="prep-meta-inf" depends="prep-build">
 		<mkdir dir="${build.meta-inf.dir}" />
 	</target>
-	
+
 	<!-- =================================================================== -->
 	<!-- Creates jni/ directory -->
 	<!-- =================================================================== -->
@@ -159,57 +153,57 @@
 	<target name="prep-deb" depends="prep-build" if="platform.linux">
 		<mkdir dir="${deb.build.dir}/control" />
 	</target>
-	
+
 	<!-- =================================================================== -->
 	<!-- Creates api/ directory for JavaDoc -->
 	<!-- =================================================================== -->
 	<target name="prep-javadoc" depends="prep-build">
 		<!-- always clean the api directory. We don't want any old mixed up files -->
 		<!-- delete dir="${build.api.dir}" -->
-		<mkdir dir="${build.javadoc.dir}" />
+		<mkdir dir="${build.javadoc.dir}-${jre}" />
 	</target>
-	
+
 	<!-- =================================================================== -->
 	<!-- Creates include/ directory for JavaDoc -->
 	<!-- =================================================================== -->
 	<target name="prep-javah" depends="prep-build">
 		<mkdir dir="${build.include.dir}" />
 	</target>
-	
+
 	<!-- =================================================================== -->
 	<!-- Creates include/ directory for JavaDoc -->
 	<!-- =================================================================== -->
 	<target name="prep-lib" depends="prep-build">
 		<mkdir dir="${build.lib.dir}" />
 	</target>
-	
+
 	<!-- =================================================================== -->
 	<!-- empty -->
 	<!-- =================================================================== -->
 	<target name="prep-test" depends="prep-build">
 		<mkdir dir="${build.tests.dir}" />
 	</target>
-	
+
 	<!--                  PACKAGING SECTION -->
-	
+
 	<!-- =================================================================== -->
 	<!-- Creates top level dist/ directory -->
 	<!-- =================================================================== -->
 	<target name="prep-dist">
 		<mkdir dir="${dist.dir}" />
 	</target>
-	
+
 	<!-- =================================================================== -->
 	<!-- Packages up the 'library' package -->
 	<!-- =================================================================== -->
-	<target name="package-doc" depends="prep-dist,comp-javadoc">
+	<target name="package-doc-jre">
 
 		<mkdir dir="${pkg.doc.dir}" />
 		<mkdir dir="${pkg.doc.javadoc.dir}" />
-		
+
 		<!-- ############################################################### -->
 		<!--       Copy, license, readme, release notes, etc..  -->
-		<!-- ############################################################### -->		
+		<!-- ############################################################### -->
 		<copy file="${doc.LICENSE}" tofile="${pkg.doc.LICENSE}" />
 		<copy file="${doc.CHANGE_LOG}" tofile="${pkg.doc.CHANGE_LOG}" />
 		<copy file="${doc.RELEASE_NOTES}" tofile="${pkg.doc.RELEASE_NOTES}">
@@ -219,60 +213,62 @@
 				<filter token="TIMESTAMP.SHORT" value="${timestamp.short}" />
 			</filterset>
 		</copy>
-		
-		<!-- ############################################################### -->
-		<!--       Copy all API javadoc   -->
-		<!-- ############################################################### -->		
-		<copy todir="${pkg.doc.javadoc.dir}" >
-			<fileset dir="${build.javadoc.dir}" />
-		</copy>
-		
-		<!-- ############################################################### -->
-		<!--       Now ZIP everything up into a distributable bundle  -->
-		<!-- ############################################################### -->
-		<zip destfile="${pkg.doc.zip}" >
-			<zipfileset dir="${pkg.doc.dir}" prefix="${pkg.doc}"/>
-		</zip>
-		
-	</target>
-	
-	<!-- =================================================================== -->
-	<!-- Packages up the javadoc as a simple deployable zip package -->
-	<!-- =================================================================== -->
-	<target name="package-doc-api" depends="prep-dist,comp-javadoc">
 
-		<mkdir dir="${pkg.doc-api.dir}" />
-		
-		
 		<!-- ############################################################### -->
 		<!--       Copy all API javadoc   -->
-		<!-- ############################################################### -->		
-		<copy todir="${pkg.doc-api.dir}" >
+		<!-- ############################################################### -->
+		<copy todir="${pkg.doc.javadoc.dir}">
 			<fileset dir="${build.javadoc.dir}" />
 		</copy>
-		
+
 		<!-- ############################################################### -->
 		<!--       Now ZIP everything up into a distributable bundle  -->
 		<!-- ############################################################### -->
-		<zip destfile="${pkg.doc-api.zip}" >
-			<zipfileset dir="${pkg.doc-api.dir}" prefix="${pkg.doc-api}"/>
+		<zip destfile="${pkg.doc.zip}">
+			<zipfileset dir="${pkg.doc.dir}" prefix="${pkg.doc}" />
 		</zip>
-		
+
 	</target>
 	
 	<!-- =================================================================== -->
 	<!-- Packages up the 'library' package -->
 	<!-- =================================================================== -->
+	<target name="package-doc" depends="prep-dist,comp-javadoc">
+	</target>
+
+
+	<!-- =================================================================== -->
+	<!-- Packages up the javadoc as a simple deployable zip package -->
+	<!-- =================================================================== -->
+	<target name="package-doc-api" depends="prep-dist,comp-javadoc">
+
+		<!-- ############################################################### -->
+		<!--       Now ZIP everything up into a distributable bundle  -->
+		<!-- ############################################################### -->
+		<zip destfile="${pkg.dist.dir}/${pkg.base}-jre1.4-javadoc.zip">
+			<zipfileset dir="${build.javadoc.dir}-jre1.4" prefix="${pkg.base}-jre1.4-javadoc" />
+		</zip>
+		
+		<zip destfile="${pkg.dist.dir}/${pkg.base}-jre1.5-javadoc.zip">
+			<zipfileset dir="${build.javadoc.dir}-jre1.5" prefix="${pkg.base}-jre1.5-javadoc" />
+		</zip>
+
+
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Packages up the 'library' package -->
+	<!-- =================================================================== -->
 	<target name="package-lib" depends="prep-dist,comp-jni,comp-manifest">
-		
+
 		<mkdir dir="${pkg.lib.dir}" />
-		
+
 		<!-- ############################################################### -->
 		<!--                  Distribute sources -->
-		<!-- ############################################################### -->	
+		<!-- ############################################################### -->
 		<mkdir dir="${pkg.lib.src.dir}" />
 		<copy todir="${pkg.lib.src.dir}">
-			<fileset dir="${src.dir}" >
+			<fileset dir="${src.dir}">
 				<include name="**/*.java" />
 				<include name="**/*.properties" />
 				<include name="**/*.html" />
@@ -280,10 +276,10 @@
 				<include name="**/*.h" />
 			</fileset>
 		</copy>
-		
+
 		<!-- ############################################################### -->
 		<!--       Copy, license, readme, release notes, etc..  -->
-		<!-- ############################################################### -->		
+		<!-- ############################################################### -->
 		<copy file="${doc.LICENSE}" tofile="${pkg.lib.LICENSE}" />
 		<copy file="${doc.CHANGE_LOG}" tofile="${pkg.lib.CHANGE_LOG}" />
 		<copy file="${doc.RELEASE_NOTES}" tofile="${pkg.lib.RELEASE_NOTES}">
@@ -293,20 +289,20 @@
 				<filter token="TIMESTAMP.SHORT" value="${timestamp.short}" />
 			</filterset>
 		</copy>
-		
+
 		<!-- ############################################################### -->
 		<!--       Copy tests suite in source only  -->
-		<!-- ############################################################### -->		
-		<copy todir="${pkg.lib.tests.dir}" >
+		<!-- ############################################################### -->
+		<copy todir="${pkg.lib.tests.dir}">
 			<fileset dir="${test.dir}" />
 		</copy>
 
 		<!-- ############################################################### -->
 		<!--       Copy build file and its properties  -->
-		<!-- ############################################################### -->		
+		<!-- ############################################################### -->
 		<copy file="${build.xml}" todir="${pkg.lib.build.dir}" />
 		<copy todir="${pkg.lib.build.dir}">
-			<fileset dir="${build.properties.dir}" >
+			<fileset dir="${build.properties.dir}">
 				<include name="*.properties" />
 			</fileset>
 		</copy>
@@ -315,25 +311,33 @@
 		<!--       Copy native library.  -->
 		<!-- ############################################################### -->
 		<copy file="${jni.build.filepath}" tofile="${pkg.lib.jnetpcap.so}" />
+
+		<!-- ############################################################### -->
+		<!--       Create JAR file containing all the java classes  -->
+		<!-- ############################################################### -->
+		<jar destfile="${pkg.lib.jnetpcap.jar}-jre1.4.jar" manifest="${build.classes.inf}">
+			<fileset dir="${build.classes.dir}1.4" />
+		</jar>
 		
 		<!-- ############################################################### -->
 		<!--       Create JAR file containing all the java classes  -->
 		<!-- ############################################################### -->
-		<jar destfile="${pkg.lib.jnetpcap.jar}" manifest="${build.classes.inf}">
-			<fileset dir="${build.classes.dir}" />
+		<jar destfile="${pkg.lib.jnetpcap.jar}-jre1.5.jar" manifest="${build.classes.inf}">
+			<fileset dir="${build.classes.dir}1.5" />
 		</jar>
-		
+
+
 		<!-- ############################################################### -->
 		<!--       Now ZIP everything up into a distributable bundle  -->
 		<!-- ############################################################### -->
-		<zip destfile="${pkg.lib.zip}" >
-			<zipfileset dir="${pkg.lib.dir}" prefix="${pkg.lib}"/>
+		<zip destfile="${pkg.lib.zip}">
+			<zipfileset dir="${pkg.lib.dir}" prefix="${pkg.lib}" />
 		</zip>
-		
+
 
 	</target>
-	
-	
+
+
 	<!-- =================================================================== -->
 	<!-- Sets certain properties for a "release.build" -->
 	<!-- =================================================================== -->
@@ -344,35 +348,50 @@
 	<!-- =================================================================== -->
 	<!-- Sets flags on certain depency checks for conditional targets -->
 	<!-- =================================================================== -->
-	<target name="prep-checks">	</target>
-	
+	<target name="prep-checks">
+	</target>
+
 	<!--                        COMPILE SECTION  -->
-	
+
 	<!-- =================================================================== -->
 	<!-- Compiles java sources using javac -->
 	<!-- =================================================================== -->
-	<target name="comp-java" depends="prep-java,release-settings">
+	<target name="comp-java-jre" depends="prep-java">
 		<property name="compiler.debuglevel" value="lines,vars,source" />
-		
+
 		<javac 
-			srcdir="${src.java.dir}" 
-			destdir="${build.classes.dir}" 
-			debug="${compiler.debug}"
-			debuglevel ="${compiler.debuglevel}"
+			srcdir="${src.java.dir}${compiler.target}" 
+			destdir="${build.classes.dir}${compiler.target}" 
+			debug="${compiler.debug}" 
+			debuglevel="${compiler.debuglevel}" 
 			deprecation="${compiler.deprecate}" 
-			optimize="${compiler.optimize}"
+			optimize="${compiler.optimize}" 
 			classpathref="compiler.classpath"
-			target="${compiler.target}"
-		/>
+			source="${compiler.target}"
+			target="${compiler.target}" />
 	</target>
-	
+
+	<!-- =================================================================== -->
+	<!-- Compiles java sources using javac -->
+	<!-- =================================================================== -->
+	<target name="comp-java" depends="release-settings">
+		<antcall target="comp-java-jre">
+			<param name="jre" value="jre1.4" />
+			<param name="compiler.target" value="1.4" />
+		</antcall>
+		
+		<antcall target="comp-java-jre">
+			<param name="jre" value="jre1.5" />
+			<param name="compiler.target" value="1.5" />
+		</antcall>
+
+	</target>
+
+
 	<!-- =================================================================== -->
 	<!-- Compiles a manifest file for deployable jar file                    -->
 	<!-- =================================================================== -->
-	<target 
-		name="comp-manifest" 
-		depends="prep-meta-inf,comp-java" 
-		description="Create manifest file">
+	<target name="comp-manifest" depends="prep-meta-inf,comp-java" description="Create manifest file">
 
 		<!-- Create manifest -->
 		<manifest file="${build.classes.inf}">
@@ -380,17 +399,14 @@
 			<attribute name="Built-On" value="${timestamp.isoformat}" />
 			<attribute name="Created-By" value="Apache Ant ${ant.version}" />
 		</manifest>
-		
+
 	</target>
-	
+
 	<!-- =================================================================== -->
 	<!-- Compiles java binary classes, not sources, using javah -->
 	<!-- =================================================================== -->
 	<target name="comp-javah" depends="prep-javah,comp-java">
-		<javah 
-			destdir="${build.include.dir}" 
-			classpathref="javah.classpath" 
-			force="${javah.force}">
+		<javah destdir="${build.include.dir}" classpathref="javah.classpath" force="${javah.force}">
 
 			<class name="org.jnetpcap.Pcap" />
 			<class name="org.jnetpcap.PcapBpfProgram" />
@@ -408,7 +424,7 @@
 			<class name="org.jnetpcap.winpcap.WinPcapRmtAuth" />
 
 		</javah>
-		
+
 		<property name="a" value="Generating: ${build.include.dir}" />
 
 		<echo message="${a}/org_jnetpcap_Pcap.h" />
@@ -438,46 +454,35 @@
     		outfile="${build.library.filename.nosuffix}"
 				<linkerarg value="- -add-stdcall-alias" />
       	-->
-       <echo>arch=${os.arch}</echo>
-       <echo>name=${os.name}</echo>
+		<echo>arch=${os.arch}</echo>
+		<echo>name=${os.name}</echo>
 
 		<echo message="Using WinPcap version ${pcap.version}" />
 		<echo message="compiling JNI C++ files to object code" />
 		<echo message="using ${compiler.cc.cmd} compiler" />
 		<echo message="system include = ${java.sdk.include.dir}" />
-		<cc 
-     			runtime="dynamic"
-			debug="${compiler.debug}" 
-			objdir="${build.obj.dir}" 
-			multithreaded="${compiler.multithreaded}" 
-			exceptions="${compiler.exceptions}">
+		<cc runtime="dynamic" debug="${compiler.debug}" objdir="${build.obj.dir}" multithreaded="${compiler.multithreaded}" exceptions="${compiler.exceptions}">
 
-			<env
-				key="PATH"
-				path="${compiler.cc.bin.dir};${env.PATH}"
-			/>
-			
+			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
+
 			<compiler name="${compiler.cc.cmd}">
 				<compilerarg value="-DHAVE_REMOTE" />
 			</compiler>
-			
+
 			<fileset dir="${src.c.dir}" />
 			<includepath location="${build.include.dir}" />
 			<includepath location="${src.c.dir}" />
 			<sysincludepath location="${pcap.include.dir}" />
 			<sysincludepath location="${java.sdk.include.dir}" />
 			<sysincludepath location="${java.sdk.include.dir}/win32" />
-			
+
 		</cc>
 
 
 		<echo message="linking object files" />
 		<echo message="using ${compiler.ld.cmd} linker found at ${compiler.ld.bin.dir}" />
 		<exec executable="${compiler.ld.cmd}">
-			<env
-				key="PATH"
-				path="${compiler.ld.bin.dir};${env.PATH}"
-			/>
+			<env key="PATH" path="${compiler.ld.bin.dir};${env.PATH}" />
 
 			<arg value="-shared" />
 			<arg value="-Wl,--add-stdcall-alias" />
@@ -495,7 +500,7 @@
 
 
 	</target>
-	
+
 	<!-- =================================================================== -->
 	<!-- Generates shared JNI library file from C++ sources -->
 	<!-- =================================================================== -->
@@ -506,137 +511,138 @@
     		outfile="${build.library.filename.nosuffix}"
 				<linkerarg value="- -add-stdcall-alias" />
       	-->
-       <echo>arch=${os.arch}</echo>
-       <echo>name=${os.name}</echo>
+		<echo>arch=${os.arch}</echo>
+		<echo>name=${os.name}</echo>
 
 		<echo message="Using WinPcap version ${pcap.version}" />
 		<echo message="compiling JNI C++ files to object code" />
 		<echo message="using ${compiler.cc.cmd} compiler" />
 		<echo message="system include = ${java.sdk.include.dir}" />
-		<cc 
-     			runtime="dynamic"
-     			outtype="shared"
-    			outfile="${build.lib.dir}/${lib.pcap.basename}"
-			debug="${compiler.debug}" 
-			objdir="${build.obj.dir}" 
-			multithreaded="compiler.multithreaded" 
-			exceptions="compiler.exceptions">
+		<cc runtime="dynamic" outtype="shared" outfile="${build.lib.dir}/${lib.pcap.basename}" debug="${compiler.debug}" objdir="${build.obj.dir}" multithreaded="compiler.multithreaded" exceptions="compiler.exceptions">
 
-			<env
-				key="PATH"
-				path="${compiler.cc.bin.dir};${env.PATH}"
-			/>
-			
+			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
+
 			<fileset dir="${src.c.dir}" />
 			<includepath location="${build.include.dir}" />
 			<includepath location="${src.c.dir}" />
 			<sysincludepath location="${java.sdk.include.dir}" />
 			<sysincludepath location="${java.sdk.include.dir}/linux" />
-			
+
 
 			<linker name="${compiler.ld.cmd}">
 				<syslibset libs="pcap" />
 
 				<linkerarg value="-Wl,-soname,${lib.pcap.basename}" />
 
-                                <linkerarg value="-lstdc++"/>
+				<linkerarg value="-lstdc++" />
 			</linker>
 		</cc>
 
-		<copy	tofile="${build.lib.dir}/${lib.pcap.fullname}" 
-			file="${build.lib.dir}/${lib.pcap.name}" />
+		<copy tofile="${build.lib.dir}/${lib.pcap.fullname}" file="${build.lib.dir}/${lib.pcap.name}" />
 
 		<echo message="Created shared JNI libary: ${jni.build.filepath}" />
 
 
 	</target>
 
-	
+
 	<!-- =================================================================== -->
 	<!-- Compiles java files using JavaDoc -->
 	<!-- =================================================================== -->
 	<target name="comp-jni" depends="comp-jni-linux,comp-jni-win32">
 	</target>
-	
+
 
 	<!-- =================================================================== -->
 	<!-- Compiles java files using JavaDoc -->
 	<!-- =================================================================== -->
-	<target name="comp-javadoc" depends="prep-javadoc">
-		<javadoc 
-			sourcepath="${src.java.dir}" 
-			destdir="${build.javadoc.dir}"
-			doctitle="${doc.javadoc.title}"
-			overview="${doc.javadoc.overview.html}"
+	<target name="comp-javadoc-jre" depends="prep-javadoc">
+		<javadoc sourcepath="${src.java.dir}${compiler.target}" 
+			source="${compiler.target}"
+			destdir="${build.javadoc.dir}-${jre}" 
+			doctitle="${doc.javadoc.title} (JRE ${compiler.target})" 
+			overview="${src.java.dir}${compiler.target}/${doc.javadoc.overview.html}" 
 			packagenames="org.jnetpcap.*" 
-			classpathref="javadoc.classpath"
-		/>
+			classpathref="javadoc.classpath" />
+	</target>
+	
+	<!-- =================================================================== -->
+	<!-- Compiles java files using JavaDoc -->
+	<!-- =================================================================== -->
+	<target name="comp-javadoc" depends="comp-java">
+		
+		<antcall target="comp-javadoc-jre">
+			<param name="jre" value="jre1.4" />
+			<param name="compiler.target" value="1.4" />
+		</antcall>
+		
+		<antcall target="comp-javadoc-jre">
+			<param name="jre" value="jre1.5" />
+			<param name="compiler.target" value="1.5" />
+		</antcall>
+
 	</target>
 
 	<!-- =================================================================== -->
 	<!-- Compiles java files using JavaDoc -->
 	<!-- =================================================================== -->
 	<target name="comp-test" depends="prep-test,comp-java,comp-jni">
-		<javac 
-			srcdir="${test.dir}" 
+		<javac srcdir="${test.dir}" 
 			destdir="${build.classes.dir}" 
 			debug="${compiler.debug}" 
 			deprecation="${compiler.deprecate}" 
-			optimize="${compiler.optimize}"
-			classpathref="test.classpath" 
-		/>
+			optimize="${compiler.optimize}" 
+			classpathref="test.classpath" />
 	</target>
 
 	<!-- =================================================================== -->
 	<!-- Compiles java example files -->
 	<!-- =================================================================== -->
-	<target name="comp-examples" depends="prep-test,comp-java,comp-jni">
-		<javac 
-			srcdir="${examples.dir}" 
-			destdir="${build.examples.dir}" 
+	<target name="comp-examples" depends="comp-java,comp-jni">
+		<javac srcdir="${examples.dir}" 
+			destdir="${build.examples.dir}${compiler.target}" 
 			debug="${compiler.debug}" 
 			deprecation="${compiler.deprecate}" 
-			optimize="${compiler.optimize}"
-			classpathref="compiler.classpath" 
-		/>
+			optimize="${compiler.optimize}" 
+			classpathref="compiler.classpath" />
 	</target>
-	
-	
+
+
 	<!--                        MAIN CONTROL SECTION  -->
-	
+
 	<!-- =================================================================== -->
 	<!-- Echo certain properties for debugging purposes -->
 	<!-- =================================================================== -->
 	<target name="echo-properties" depends="prep-build">
 		<echo message="timestamp.isoformat=${timestamp.isoformat}" />
 		<echo message="timestamp.short=${timestamp.short}" />
-		<echo message=""/>
-		
+		<echo message="" />
+
 		<echo message="src.dir=${src.dir}" />
 		<echo message="src.java.dir=${src.java.dir}" />
 		<echo message="src.c.dir=${src.c.dir}" />
-		<echo message=""/>
+		<echo message="" />
 
 		<echo message="build.dir=${build.dir}" />
 		<echo message="build.include.dir=${build.include.dir}" />
 		<echo message="build.classes.dir=${build.classes.dir}" />
 		<echo message="build.obj.dir=${build.obj.dir}" />
-		<echo message=""/>
+		<echo message="" />
 
 		<echo message="jni.build.filepath=${jni.build.filepath}" />
 		<echo message="junit.jar=${junit.jar}" />
-		<echo message=""/>
+		<echo message="" />
 
 		<echo message="os.name=${os.name}" />
 		<echo message="os.arch=${os.arch}" />
 		<echo message="os.version=${os.version}" />
-		<echo message=""/>
+		<echo message="" />
 
 		<echo message="java.version=${java.version}" />
 		<echo message="java.vendor=${java.vendor}" />
 		<echo message="java.vendor.url=${java.vendor.url}" />
 		<echo message="java.home=${java.home}" />
-		<echo message=""/>
+		<echo message="" />
 
 		<echo message="java.vm.specification.version=${java.vm.specification.version}" />
 		<echo message="java.vm.specification.vendor=${java.vm.specification.vendor}" />
@@ -644,12 +650,12 @@
 		<echo message="java.vm.version=${java.vm.version}" />
 		<echo message="java.vm.vendor=${java.vm.vendor}" />
 		<echo message="java.vm.name=${java.vm.name}" />
-		<echo message=""/>
+		<echo message="" />
 
 		<echo message="java.specification.version=${java.specification.vendor}" />
 		<echo message="java.specification.vendor=${java.specification.vendor}" />
 		<echo message="java.specification.name=${java.specification.name}" />
-		<echo message=""/>
+		<echo message="" />
 
 		<echo message="user.name=${user.name}" />
 		<echo message="user.home=${user.home}" />
@@ -661,7 +667,7 @@
 	<!-- =================================================================== -->
 	<target name="all" depends="clean,doc,comp-test,test">
 	</target>
-	
+
 	<!-- =================================================================== -->
 	<!-- Cleans the build -->
 	<!-- =================================================================== -->
@@ -669,55 +675,46 @@
 		<delete dir="${build.dir}" />
 		<delete dir="${dist.dir}" />
 	</target>
-	
+
 	<!-- =================================================================== -->
 	<!-- Compiles java and JNI sources -->
 	<!-- =================================================================== -->
-	<target name="compile" depends="comp-jni"></target>
+	<target name="compile" depends="comp-jni">
+	</target>
 
 	<!-- =================================================================== -->
 	<!-- Execute jUnit test cases -->
 	<!-- =================================================================== -->
-	<target name="test" >
-		<junit 
-			printsummary="withOutAndErr" 
-			fork="yes" 
-			failureproperty="test.failed">
+	<target name="test">
+		<junit printsummary="withOutAndErr" fork="yes" failureproperty="test.failed">
 
 			<!-- jvmarg value="-verbose:jni" /-->
 
 			<formatter type="plain" usefile="false" />
 			<sysproperty key="java.library.path" value="${jni.build.dir}" />
-	
-			<test 
-				name="org.jnetpcap.TestPcapJNI" 
-				todir="${report.dir}" />
-			
+
+			<test name="org.jnetpcap.TestPcapJNI" todir="${report.dir}" />
+
 			<!--test 
 				name="org.jnetpcap.winpcap.TestWinPcapExtensions" 
 				todir="${report.dir}" /-->
-	
-			<classpath refid="test.classpath"/>
+
+			<classpath refid="test.classpath" />
 
 		</junit>
 	</target>
-	
-	<target name="test-transmitter" >
-		<junit 
-			printsummary="withOutAndErr" 
-			fork="yes" 
-			failureproperty="test.failed">
+
+	<target name="test-transmitter">
+		<junit printsummary="withOutAndErr" fork="yes" failureproperty="test.failed">
 
 			<!-- jvmarg value="-verbose:jni" /-->
 
 			<formatter type="plain" usefile="false" />
 			<sysproperty key="java.library.path" value="${jni.build.dir}" />
-	
-			<test 
-				name="org.jnetpcap.TestTransmitter" 
-				todir="${report.dir}" />
-	
-			<classpath refid="test.classpath"/>
+
+			<test name="org.jnetpcap.TestTransmitter" todir="${report.dir}" />
+
+			<classpath refid="test.classpath" />
 
 		</junit>
 	</target>
@@ -725,31 +722,25 @@
 	<!-- =================================================================== -->
 	<!-- Displays java doc API in browser -->
 	<!-- =================================================================== -->
-	<target name="doc" depends="comp-javadoc"></target>
+	<target name="doc" depends="comp-javadoc">
+	</target>
 
 	<!-- =================================================================== -->
 	<!-- Help on all the targets -->
 	<!-- =================================================================== -->
-	<target name="help"></target>
-	
+	<target name="help">
+	</target>
+
 	<!-- =================================================================== -->
 	<!-- Uploads packaged zip files to sourceforge.net  -->
 	<!-- =================================================================== -->
 	<target name="ftp-to-sourceforge">
-		
-		<ftp server="upload.sourceforge.net"
-			remotedir="incoming"
-			userid="ftp"
-			password="nobody@"
-			depends="true"
-			binary="true"
-			verbose="true">
-			
-			<fileset 
-				dir="${dist.dir}"
-				includes="${pkg.lib.zip},${pkg.doc.zip}"/>
+
+		<ftp server="upload.sourceforge.net" remotedir="incoming" userid="ftp" password="nobody@" depends="true" binary="true" verbose="true">
+
+			<fileset dir="${dist.dir}" includes="${pkg.lib.zip},${pkg.doc.zip}" />
 		</ftp>
-		
+
 		<echo>go to
 			https://sourceforge.net/projects/jnetpcap
 			and make a new release </echo>
@@ -759,47 +750,40 @@
 	<!-- Uploads packaged javadoc zip file to homepage  -->
 	<!-- =================================================================== -->
 	<target name="deploy-javadoc-web" depends="package-doc-api">
-	
-
-
-
-<!--
-<echo>== copy ==	
-scp trust="yes" 
-	verbose="yes" 
-	todir="${web.uri}"
-	file="${pkg.doc-api.zip}"
-</echo>
-		
-<echo>== sshexec ==
-sshexec trust="yes" 
-	host="${shell.host.name}" 
-	username="${shell.user.name}" 
-	password="${shell.user.pass}"
-	command="rm -rf ${web.unzip.dir}; unzip ${web.zip} -d ${web.doc.dir}; rm  ${web.zip}"		 
-</echo>
--->
-		
-		<scp trust="yes" 
+		<scp 
+			trust="yes" 
 			verbose="yes" 
-			todir="${web.uri}"
-			file="${pkg.doc-api.zip}"
-		/>
-		
+			todir="${web.uri}" 
+			file="${pkg.dist.dir}/${pkg.base}-jre1.4-javadoc.zip" />
 
-		<sshexec trust="yes" 
+
+		<sshexec 
+			trust="yes" 
 			host="${shell.host.name}" 
 			username="${shell.user.name}" 
-			password="${shell.user.pass}"
-			command="rm -rf ${web.unzip.dir}; unzip ${web.zip} -d ${web.doc.dir}; rm  ${web.zip}"
-		/> 
-<!--
-			command="pwd; ls -l ${web.zip}"
--->
+			password="${shell.user.pass}" 
+			command="rm -rf ${web.doc.dir}/${pkg.base}-jre1.4-javadoc; unzip ${web.doc.dir}/${pkg.base}-jre1.4-javadoc.zip -d ${web.doc.dir}; rm  ${web.doc.dir}/${pkg.base}-jre1.4-javadoc.zip" 
+		/>
+		
+		<scp 
+			trust="yes" 
+			verbose="yes" 
+			todir="${web.uri}" 
+			file="${pkg.dist.dir}/${pkg.base}-jre1.5-javadoc.zip" />
+
+
+		<sshexec 
+			trust="yes" 
+			host="${shell.host.name}" 
+			username="${shell.user.name}" 
+			password="${shell.user.pass}" 
+			command="rm -rf ${web.doc.dir}/${pkg.base}-jre1.5-javadoc; unzip ${web.doc.dir}/${pkg.base}-jre1.5-javadoc.zip -d ${web.doc.dir}; rm  ${web.doc.dir}/${pkg.base}-jre1.5-javadoc.zip" 
+		/>
+
 	</target>
 
 
-	
+
 	<!-- =================================================================== -->
 	<!-- Creates a JAR file -->
 	<!-- =================================================================== -->
@@ -823,27 +807,24 @@ sshexec trust="yes"
 	<!-- =================================================================== -->
 	<target name="build-rpm" depends="comp-jni,build-jar,prep-rpm,comp-javadoc" if="platform.linux">
 
-	 <copy todir="${rpm.build.dir}/SPECS" file="${rpm.spec.file}">
-		<filterset>
-			<filter token="pkg.version" value="${pkg.version}" />
-			<filter token="platform.os.name" value="${platform.os.name}" />
-		</filterset>
-	</copy>
+		<copy todir="${rpm.build.dir}/SPECS" file="${rpm.spec.file}">
+			<filterset>
+				<filter token="pkg.version" value="${pkg.version}" />
+				<filter token="platform.os.name" value="${platform.os.name}" />
+			</filterset>
+		</copy>
 
-	<copy todir="${rpm.build.dir}/INSTALL/usr/lib" file="${build.lib.dir}/${lib.pcap.fullname}" />
-	<copy todir="${rpm.build.dir}/INSTALL/usr/share/java" file="${build.jnetpcap.jar}" />
-	<copy todir="${rpm.build.dir}/BUILD" file="${doc.dir}/RELEASE_NOTES.txt" />
-	<copy todir="${rpm.build.dir}/BUILD" file="${doc.dir}/CHANGE_LOG.txt" />
-	<copy todir="${rpm.build.dir}/BUILD" file="${doc.dir}/LICENSE.txt" />
+		<copy todir="${rpm.build.dir}/INSTALL/usr/lib" file="${build.lib.dir}/${lib.pcap.fullname}" />
+		<copy todir="${rpm.build.dir}/INSTALL/usr/share/java" file="${build.jnetpcap.jar}" />
+		<copy todir="${rpm.build.dir}/BUILD" file="${doc.dir}/RELEASE_NOTES.txt" />
+		<copy todir="${rpm.build.dir}/BUILD" file="${doc.dir}/CHANGE_LOG.txt" />
+		<copy todir="${rpm.build.dir}/BUILD" file="${doc.dir}/LICENSE.txt" />
 
-	<copy todir="${rpm.build.dir}/BUILD/javadoc" >
-		<fileset dir="${build.javadoc.dir}" />
-	</copy>
+		<copy todir="${rpm.build.dir}/BUILD/javadoc">
+			<fileset dir="${build.javadoc.dir}" />
+		</copy>
 
-	<rpm 
-		specfile="${rpm.spec.name}" 
-		topdir="${rpm.build.dir}" 
-		command="-bb --buildroot=${rpm.buildroot.dir}" />
+		<rpm specfile="${rpm.spec.name}" topdir="${rpm.build.dir}" command="-bb --buildroot=${rpm.buildroot.dir}" />
 
 	</target>
 
@@ -866,28 +847,28 @@ sshexec trust="yes"
 	<!-- =================================================================== -->
 	<target name="build-deb" depends="comp-jni,build-jar,prep-deb,comp-javadoc" if="platform.linux">
 
-	 <copy tofile="${deb.build.control.dir}/control" file="${deb.spec.file}">
-		<filterset>
-			<filter token="pkg.version" value="${pkg.version}" />
-			<filter token="platform.os.name" value="${platform.os.name}" />
-		</filterset>
-	</copy>
+		<copy tofile="${deb.build.control.dir}/control" file="${deb.spec.file}">
+			<filterset>
+				<filter token="pkg.version" value="${pkg.version}" />
+				<filter token="platform.os.name" value="${platform.os.name}" />
+			</filterset>
+		</copy>
 
-	<copy todir="${deb.build.lib.dir}" file="${build.lib.dir}/${lib.pcap.fullname}" />
-	<copy todir="${deb.build.java.dir}" file="${build.jnetpcap.jar}" />
-	<copy todir="${deb.build.doc.dir}" file="${doc.dir}/RELEASE_NOTES.txt" />
-	<copy todir="${deb.build.doc.dir}" file="${doc.dir}/CHANGE_LOG.txt" />
-	<copy todir="${deb.build.doc.dir}" file="${doc.dir}/LICENSE.txt" />
+		<copy todir="${deb.build.lib.dir}" file="${build.lib.dir}/${lib.pcap.fullname}" />
+		<copy todir="${deb.build.java.dir}" file="${build.jnetpcap.jar}" />
+		<copy todir="${deb.build.doc.dir}" file="${doc.dir}/RELEASE_NOTES.txt" />
+		<copy todir="${deb.build.doc.dir}" file="${doc.dir}/CHANGE_LOG.txt" />
+		<copy todir="${deb.build.doc.dir}" file="${doc.dir}/LICENSE.txt" />
 
-	<copy todir="${deb.build.javadocs.dir}" >
-		<fileset dir="${build.javadoc.dir}" />
-	</copy>
+		<copy todir="${deb.build.javadocs.dir}">
+			<fileset dir="${build.javadoc.dir}" />
+		</copy>
 
-	<echo message="control=${deb.build.control.dir}/${deb.spec.name}" />
-	<echo message="src=${deb.buildroot.dir}" />
-	<deb destfile="${deb.file}" control="${deb.build.control.dir}" >
-		<data src="${deb.build.root.dir}" />
-	</deb>
+		<echo message="control=${deb.build.control.dir}/${deb.spec.name}" />
+		<echo message="src=${deb.buildroot.dir}" />
+		<deb destfile="${deb.file}" control="${deb.build.control.dir}">
+			<data src="${deb.build.root.dir}" />
+		</deb>
 
 	</target>
 
