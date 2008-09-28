@@ -21,8 +21,6 @@ package org.jnetpcap;
  */
 public abstract class PcapTask implements Runnable {
 
-	private static final long DEFAULT_BREAK_LOOP_DELAY = 100; // 100 ms delay
-
 	protected int result = Pcap.OK;
 
 	protected Thread thread;
@@ -34,6 +32,8 @@ public abstract class PcapTask implements Runnable {
 	protected final PcapHandler handler;
 
 	protected final Object user;
+
+	protected boolean isSynched = false;
 
 	/**
 	 * @param pcap
@@ -53,15 +53,41 @@ public abstract class PcapTask implements Runnable {
 		return this.thread;
 	}
 
-	public void start() {
+	public void start() throws InterruptedException {
 		if (thread != null) {
 			stop();
 		}
 
-		thread =
-		    new Thread(this, (user != null) ? user.toString() : pcap.toString());
+		/*
+		 * Use our own Runnable in order to synchronize the start of the thread. We
+		 * delegate to the user overriden run() method after the setup synching is
+		 * done.
+		 */
+		thread = new Thread(new Runnable() {
 
-		thread.start();
+			public void run() {
+				Thread.yield(); // needed for the synch, parent T enters wait state
+				synchronized (PcapTask.this) {
+					PcapTask.this.notifyAll();
+					PcapTask.this.isSynched = true;
+				}
+
+				/*
+				 * Delegate to user overriden Runnable
+				 */
+				PcapTask.this.run();
+			}
+
+		}, (user != null) ? user.toString() : pcap.toString());
+
+		/*
+		 * Now we are sure that thread has started and entered its loop
+		 */
+		synchronized (PcapTask.this) {
+			thread.start();
+			PcapTask.this.wait();
+			Thread.yield(); // allow Runnable to enter delegate run
+		}
 	}
 
 	/**
@@ -72,29 +98,32 @@ public abstract class PcapTask implements Runnable {
 	 * <p>
 	 * Notes on breakLoop() and its behaviour which directly applies to behaviour
 	 * of this method.
+	 * 
+	 * @throws InterruptedException
 	 */
-	public void stop() {
+	public void stop() throws InterruptedException {
 		if (thread == null || thread.isAlive() == false) {
 			/*
 			 * Nothing to do
 			 */
 			return;
 		}
-		/*
-		 * Put the thread to sleep, to prevent multi-threaded timing issues in case
-		 * the loop has been called but not yet entered. Otherwise a coredump will
-		 * result.
-		 */
-		try {
-			Thread.sleep(DEFAULT_BREAK_LOOP_DELAY);
-		} catch (InterruptedException e) {
-			// Empty, no need to report interruptions
+
+		synchronized (this) {
+			if (isSynched == false) {
+				throw new IllegalStateException(
+				    "Unable to synchronize task with parent thread");
+			}
 		}
 
 		/*
 		 * Tell pcap we want to break out of the loop
 		 */
-		pcap.breakloop();
+		thread.interrupt();
+		thread.join(); // Wait for thread to finish and exit
+
+		// pcap.breakloop();
+		// thread.join();
 	}
 
 	public boolean isAlive() {
