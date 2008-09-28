@@ -57,8 +57,8 @@ import java.util.List;
  * of interfaces on the system:
  * 
  * <pre>
- * StringBuilder errbuf = new StringBuilder();
- * List&lt;PcapIf&gt; ifs = new ArrayList&lt;PcapIf&gt;(); // Will hold list of devices
+ * StringBuffer errbuf = new StringBuffer();
+ * List ifs = new ArrayList(); // Will hold list of devices
  * int statusCode = Pcap.findAllDevs(ifs, errbuf);
  * if (statusCode != Pcap.OK) {
  * 	System.out.println(&quot;Error occured: &quot; + errbuf.toString());
@@ -87,12 +87,12 @@ import java.util.List;
  * String l = System.in.readline().trim();
  * Integer i = Integer.valueOf(l);
  * 
- * PcapIf netInterface = ifs.get(i);
+ * PcapIf netInterface = (PcapIf) ifs.get(i);
  * </pre>
  * 
  * <h3>Opening a network interface for live capture</h3>
  * Next we open up a live capture from the network interface using
- * {@link #openLive(String, int, int, int, StringBuilder)}:
+ * {@link #openLive(String, int, int, int, StringBuffer)}:
  * 
  * <pre>
  * int snalen = 2048; // Truncate packet at this size
@@ -141,12 +141,12 @@ import java.util.List;
  * And lastly lets do something with the data.
  * 
  * <pre>
- * PcapHandler&lt;PrintStream&gt; handler = new PcapHandler&lt;PrintStream&gt;() {
+ * PcapHandler handler = new PcapHandler() {
  * 
- * 	public void newPacket(PrintStream out, int caplen, int len, int seconds,
+ * 	public void newPacket(Object out, int caplen, int len, int seconds,
  * 	    int usecs, ByteBuffer buffer) {
  * 
- * 		out.println(&quot;Packet captured on: &quot; + new Date(seconds * 1000).toString());
+ * 		((PrintStream) out).println(&quot;Packet captured on: &quot; + new Date(seconds * 1000).toString());
  * 	}
  * };
  * 
@@ -802,8 +802,6 @@ public class Pcap {
 	 * pcap_dispatch() will return after the timeout expires.
 	 * </p>
 	 * 
-	 * @param <T>
-	 *          handler's user object type
 	 * @param cnt
 	 *          number of packets to read
 	 * @param handler
@@ -881,7 +879,7 @@ public class Pcap {
 	 * error, -1 is returned and errbuf is filled in with an appropriate error
 	 * message.
 	 * 
-	 * @see #setNonBlock(int, StringBuilder)
+	 * @see #setNonBlock(int, StringBuffer)
 	 * @return if there is an error, -1 is returned and errbuf is filled in with
 	 *         an appropriate error message
 	 */
@@ -993,8 +991,6 @@ public class Pcap {
 	 * application uses pcap_breakloop(), make sure that you explicitly check for
 	 * -1 and -2, rather than just checking for a return value < 0.
 	 * 
-	 * @param <T>
-	 *          handler's user object type
 	 * @param cnt
 	 *          number of packets to read
 	 * @param handler
@@ -1213,7 +1209,7 @@ public class Pcap {
 	 * return 0 immediately rather than blocking waiting for packets to arrive.
 	 * pcap_loop() and pcap_next() will not work in ``non-blocking'' mode.
 	 * 
-	 * @see #getNonBlock(StringBuilder)
+	 * @see #getNonBlock(StringBuffer)
 	 * @param nonBlock
 	 *          a non negative value means to set in non blocking mode
 	 * @return if there is an error, -1 is returned and errbuf is filled in with
@@ -1226,7 +1222,7 @@ public class Pcap {
 	 * the application. pcap_snapshot() returns the snapshot length specified when
 	 * pcap_open_live was called.
 	 * 
-	 * @see #openLive(String, int, int, int, StringBuilder)
+	 * @see #openLive(String, int, int, int, StringBuffer)
 	 * @return the snapshot length specified when pcap_open_live was called
 	 */
 	public native int snapshot();

@@ -20,8 +20,6 @@ import java.nio.ByteBuffer;
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
- * @param <T>
- *          user object type
  */
 public interface PcapHandler {
 

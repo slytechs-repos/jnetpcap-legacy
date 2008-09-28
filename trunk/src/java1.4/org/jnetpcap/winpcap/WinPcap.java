@@ -119,7 +119,7 @@ import org.jnetpcap.PcapPktHdr;
  *  int flags = Pcap.MODE_NON_PROMISCUOUS;
  *  int timeout = 1000;
  *  WinPcapRmtAuth auth = null;
- *  StringBuilder errbuf = new StringBuilder();
+ *  StringBuffer errbuf = new StringBuffer();
  * 
  *  WinPcap pcap = WinPcap.open(source, snaplen, flags, timeout, auth, errbuf);
  *  if (pcap == null) {
@@ -558,7 +558,7 @@ public class WinPcap
 	 * and its FAQs.)
 	 * </p>
 	 * 
-	 * @see Pcap#openLive(String, int, int, int, StringBuilder)
+	 * @see Pcap#openLive(String, int, int, int, StringBuffer)
 	 * @param device
 	 *          buffer containing a C, '\0' terminated string with the the name of
 	 *          the device
@@ -589,7 +589,7 @@ public class WinPcap
 	 * set when pcap_open_offline() or pcap_fopen_offline() fails and returns
 	 * NULL.
 	 * 
-	 * @see Pcap#openOffline(String, StringBuilder)
+	 * @see Pcap#openOffline(String, StringBuffer)
 	 * @param fname
 	 *          filename of the pcap file
 	 * @param errbuf
@@ -749,7 +749,7 @@ public class WinPcap
 	 * deleted and its content is discarded. pcap_open_live() creates a 1 MByte
 	 * buffer by default.
 	 * 
-	 * @see #openLive(String, int, int, int, StringBuilder)
+	 * @see #openLive(String, int, int, int, StringBuffer)
 	 * @see #loop(int, PcapHandler, Object)
 	 * @see #dispatch(int, PcapHandler, Object)
 	 * @param dim
@@ -771,7 +771,7 @@ public class WinPcap
 	 * is useful for real time applications that need the best responsiveness from
 	 * the kernel.
 	 * 
-	 * @see #openLive(String, int, int, int, StringBuilder)
+	 * @see #openLive(String, int, int, int, StringBuffer)
 	 * @see #loop(int, PcapHandler, Object)
 	 * @see #dispatch(int, PcapHandler, Object)
 	 * @param size
