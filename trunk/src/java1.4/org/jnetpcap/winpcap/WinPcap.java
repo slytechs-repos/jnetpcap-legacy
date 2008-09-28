@@ -82,7 +82,7 @@ import org.jnetpcap.PcapPktHdr;
  * 
  * <pre>
  * String source = &quot;rpcap://&quot;;
- * List&lt;PcapIf&gt; alldevs = new ArrayList&lt;PcapIf&gt;();
+ * List alldevs = new ArrayList();
  * 
  * int r = WinPcap.findAllDevsEx(source, auth, alldevs, errbuf);
  * if (r != Pcap.OK) {
