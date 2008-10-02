@@ -52,39 +52,38 @@ public class TestUnixOs
 		if (!UnixOs.isSupported()) {
 			return;
 		}
-		
+
 		int d =
-		    UnixOs.socket(UnixOs.SOCK_STREAM, UnixOs.PF_INET,
+		    UnixOs.socket(UnixOs.PF_INET, UnixOs.SOCK_STREAM,
 		        UnixOs.PROTOCOL_DEFAULT);
 		if (d == -1) {
-			fail("d=" + d);
+			fail("socket():" + d);
 		}
-		
+
 		UnixOs.close(d);
 	}
-	
+
 	public void testIoctlGETHWADDR() {
 		if (!UnixOs.isSupported()) {
 			return;
 		}
-		
+
 		int d =
-		    UnixOs.socket(UnixOs.SOCK_STREAM, UnixOs.PF_INET,
-		        UnixOs.PROTOCOL_DEFAULT);
+		    UnixOs.socket(UnixOs.PF_INET, UnixOs.SOCK_STREAM, UnixOs.IPPROTO_TCP);
 		if (d == -1) {
-			fail("d=" + d);
+			fail("socket():=" + d);
 		}
-		
+
 		IfReq ir = new IfReq();
-		assertNotSame(-1, UnixOs.ioctl(d, UnixOs.SIOCGIFHWADDR, ir));
-		
+		assertNotSame("ioctl():-1", -1, UnixOs.ioctl(d, UnixOs.SIOCGIFHWADDR, ir));
+
 		byte[] ha = ir.ifr_hwaddr();
-		for (byte b: ha) {
+		for (byte b : ha) {
 			System.out.printf("%2X:", b);
 		}
-		
+
 		System.out.println();
-		
+
 		UnixOs.close(d);
 
 	}
