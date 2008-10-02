@@ -186,14 +186,14 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_unix_UnixOs_ioctl__IILorg_jnetpcap_Pcap
 #else
 	int request = translateConstant(jrequest);
 
-	int value = (int) env->GetIntField(jnetp, pcapIntegerValueFID);
+	int value = (int) env->GetIntField(jpcapint, pcapIntegerValueFID);
 
 	int r = ioctl((int) jdescriptor, request, &value);
 	if (r < 0) {
 		return r;
 	}
 	
-	env->SetIntField(jnetp, pcapIntegerValueFID, (jint)value);
+	env->SetIntField(jpcapint, pcapIntegerValueFID, (jint)value);
 
 	return r;
 #endif
