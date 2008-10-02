@@ -61,7 +61,7 @@ public class TestUnixOs
 		    UnixOs.socket(UnixOs.PF_INET, UnixOs.SOCK_STREAM,
 		        UnixOs.IPPROTO_TCP);
 		if (d == -1) {
-			fail("socket():" + d + " errno=" + UnixOs.errno());
+			fail("socket():" + d + " msg=" + UnixOs.strerror(d));
 		}
 
 		UnixOs.close(d);
@@ -75,11 +75,15 @@ public class TestUnixOs
 		int d =
 		    UnixOs.socket(UnixOs.PF_INET, UnixOs.SOCK_STREAM, UnixOs.IPPROTO_TCP);
 		if (d == -1) {
-			fail("socket():" + d + " errno=" + UnixOs.errno());
+			fail("socket():=" + d + " msg=" + UnixOs.strerror(d));
 		}
 
 		IfReq ir = new IfReq();
-		assertNotSame("ioctl():-1", -1, UnixOs.ioctl(d, UnixOs.SIOCGIFHWADDR, ir));
+		int r = UnixOs.ioctl(d, UnixOs.SIOCGIFHWADDR, ir);
+		if (r == -1) {
+			fail("ioctl():=" + r + " msg=" + UnixOs.strerror(r));
+		
+		}
 
 		byte[] ha = ir.ifr_hwaddr();
 		for (byte b : ha) {
