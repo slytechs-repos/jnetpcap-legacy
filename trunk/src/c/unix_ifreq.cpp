@@ -25,6 +25,7 @@
 #endif /*WIN32*/
 
 #include "unix_ifreq.h"
+#include "jnetpcap_peered.h"
 #include "jnetpcap_utils.h"
 #include "export.h"
 
@@ -85,13 +86,13 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_unix_IfReq_ifr_1name__
 
 	struct ifreq *mem = (struct ifreq *) getPeeredPhysical(env, obj);
 	if (mem == NULL) {
-		return; // Exception already thrown
+		return NULL; // Exception already thrown
 	}
 
-	jstring jstr = env->NewStringUTF(mem.ifr_name);
-	if (jst == NULL) {
+	jstring jstr = env->NewStringUTF(mem->ifr_name);
+	if (jstr == NULL) {
 		env->DeleteLocalRef(jstr);
-		return;
+		return NULL;
 	}
 	env->DeleteLocalRef(jstr);
 	
@@ -116,10 +117,9 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_unix_IfReq_ifr_1name__Ljava_lang_String
 		return; // Exception already thrown
 	}
 
-	const jbyte* jutf = GetStringUTFChars(JNIEnv *env, jstring string,
-	jboolean *isCopy);
+	const char* jutf = env->GetStringUTFChars(jname, NULL);
 	
-	strcpy(mem.ifr_name, jutf);
+	strcpy(mem->ifr_name, jutf);
 	env->ReleaseStringUTFChars(jname, jutf);
 #endif
 }
@@ -138,11 +138,11 @@ JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_unix_IfReq_ifr_1hwaddr
 #else
 	struct ifreq *mem = (struct ifreq *) getPeeredPhysical(env, obj);
 	if (mem == NULL) {
-		return; // Exception already thrown
+		return NULL; // Exception already thrown
 	}
 	
 	jbyteArray ja = env->NewByteArray(6); // MAC length is always 6 bytes
-	env->SetByteArrayRegion(ja, 0, 6, mem.ifr_hwaddr.sa_data);
+	env->SetByteArrayRegion(ja, 0, 6, (jbyte *)mem->ifr_hwaddr.sa_data);
 	
 	return ja;
 #endif
@@ -161,10 +161,10 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_unix_IfReq_ifr_1flags__
 #else
 	struct ifreq *mem = (struct ifreq *) getPeeredPhysical(env, obj);
 	if (mem == NULL) {
-		return; // Exception already thrown
+		return -1; // Exception already thrown
 	}
 
-	return (jint) mem.ifr_flags;
+	return (jint) mem->ifr_flags;
 #endif
 }
 
@@ -184,7 +184,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_unix_IfReq_ifr_1flags__I
 		return; // Exception already thrown
 	}
 	
-	mem.ifr_flags = (short int) jflags;
+	mem->ifr_flags = (short int) jflags;
 #endif
 }
 
@@ -201,10 +201,10 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_unix_IfReq_ifr_1mtu__
 #else
 	struct ifreq *mem = (struct ifreq *) getPeeredPhysical(env, obj);
 	if (mem == NULL) {
-		return; // Exception already thrown
+		return -1; // Exception already thrown
 	}
 
-	return (jint) mem.ifr_mtu;
+	return (jint) mem->ifr_mtu;
 #endif
 	
 }
@@ -225,7 +225,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_unix_IfReq_ifr_1mtu__I
 		return; // Exception already thrown
 	}
 	
-	mem.ifr_mtu = (int) jflags;
+	mem->ifr_mtu = (int) jmtu;
 #endif
 	
 }
