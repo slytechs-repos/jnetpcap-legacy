@@ -222,5 +222,23 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_unix_UnixOs_close
 	
 }
 
+/*
+ * Class:     org_jnetpcap_unix_UnixOs
+ * Method:    strerror
+ * Signature: (I)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_org_jnetpcap_unix_UnixOs_strerror
+  (JNIEnv *env, jclass clazz, jint jerrnum) {
+#ifdef WIN32
+	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
+	return NULL;
+#else
+	jstring jmsg = env->NewStringUTF(strerror((int) jerrnum));
+	return jmsg;
+#endif
+
+}
+
+
 
 
