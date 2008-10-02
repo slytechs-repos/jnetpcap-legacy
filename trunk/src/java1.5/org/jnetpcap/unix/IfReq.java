@@ -77,10 +77,10 @@ public final class IfReq
     extends Peered {
 
 	static {
-		init_ids();
+		initIDs();
 	}
 
-	private static native void init_ids();
+	private static native void initIDs();
 
 	public IfReq() {
 		super(sizeof());

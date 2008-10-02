@@ -13,6 +13,9 @@
 package org.jnetpcap.unix;
 
 import junit.framework.TestCase;
+import org.jnetpcap.*;
+import java.util.*;
+import java.io.*;
 
 /**
  * @author Mark Bednarczyk
@@ -58,30 +61,39 @@ public class TestUnixOs
 		}
 
 		int d =
-		    UnixOs.socket(UnixOs.PF_INET, UnixOs.SOCK_STREAM,
-		        UnixOs.IPPROTO_TCP);
+		    UnixOs.socket(UnixOs.PF_INET, UnixOs.SOCK_PACKET,
+		        UnixOs.PROTOCOL_DEFAULT);
 		if (d == -1) {
-			fail("socket():" + d + " msg=" + UnixOs.strerror(d));
+			fail("socket():" + UnixOs.errno() + " msg=" + UnixOs.strerror(UnixOs.errno()));
 		}
 
 		UnixOs.close(d);
 	}
 
-	public void testIoctlGETHWADDR() {
+	public void testIoctlGETHWADDR() throws IOException {
 		if (!UnixOs.isSupported() || !UnixOs.isSupported(UnixOs.IPPROTO_TCP) || !UnixOs.isSupported(UnixOs.SIOCGIFHWADDR)) {
 			return;
 		}
 
 		int d =
-		    UnixOs.socket(UnixOs.PF_INET, UnixOs.SOCK_STREAM, UnixOs.IPPROTO_TCP);
+		    UnixOs.socket(UnixOs.PF_INET, UnixOs.SOCK_PACKET, UnixOs.PROTOCOL_DEFAULT);
 		if (d == -1) {
-			fail("socket():=" + d + " msg=" + UnixOs.strerror(d));
+			fail("socket():=" + UnixOs.errno() + " msg=" + UnixOs.strerror(UnixOs.errno()));
 		}
 
+		final int DEVICE = 2;
+		List<PcapIf> ifs = new ArrayList<PcapIf>();
+		Pcap.findAllDevs(ifs, System.out);
+
+		System.out.println("devices=" + ifs);
+		System.out.println("device=" + ifs.get(DEVICE).getName());
+
 		IfReq ir = new IfReq();
+		ir.ifr_name(ifs.get(DEVICE).getName());
+
 		int r = UnixOs.ioctl(d, UnixOs.SIOCGIFHWADDR, ir);
 		if (r == -1) {
-			fail("ioctl():=" + r + " msg=" + UnixOs.strerror(r));
+			fail("ioctl():=" + UnixOs.errno() + " msg=" + UnixOs.strerror(UnixOs.errno()));
 		
 		}
 
