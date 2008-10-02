@@ -28,6 +28,7 @@
 #include "unix_os.h"
 #include "jnetpcap_peered.h"
 #include "jnetpcap_utils.h"
+#include "jnetpcap_ids.h"
 #include "export.h"
 #include "org_jnetpcap_unix_UnixOs.h"
 
@@ -170,6 +171,32 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_unix_UnixOs_ioctl__IILjava_lang_Object_
 	return ioctl((int) jdescriptor, request, mem);
 #endif
 	
+}
+
+/*
+ * Class:     org_jnetpcap_unix_UnixOs
+ * Method:    ioctl
+ * Signature: (IILorg/jnetpcap/PcapInteger;)I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_unix_UnixOs_ioctl__IILorg_jnetpcap_PcapInteger_2
+  (JNIEnv *env, jclass clazz, jint jdescriptor, jint jrequest, jobject jpcapint) {
+#ifdef WIN32
+	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
+	return -1;
+#else
+	int request = translateConstant(jrequest);
+
+	int value = (int) env->GetIntField(jnetp, pcapIntegerValueFID);
+
+	int r = ioctl((int) jdescriptor, request, &value);
+	if (r < 0) {
+		return r;
+	}
+	
+	env->SetIntField(jnetp, pcapIntegerValueFID, (jint)value);
+
+	return r;
+#endif
 }
 
 /*

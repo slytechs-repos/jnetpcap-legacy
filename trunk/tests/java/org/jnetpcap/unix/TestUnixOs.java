@@ -50,9 +50,12 @@ public class TestUnixOs
 
 		assertEquals(35111, UnixOs.translateConstant(UnixOs.SIOCGIFHWADDR));
 
-		System.out.println("UnixOs.PF_INET=" +  UnixOs.translateConstant(UnixOs.PF_INET));
-		System.out.println("UnixOs.SOCK_STREAM=" +  UnixOs.translateConstant(UnixOs.SOCK_STREAM));
-		System.out.println("UnixOs.IPPROTO_TCP=" +  UnixOs.translateConstant(UnixOs.IPPROTO_TCP));
+		System.out.println("UnixOs.PF_INET="
+		    + UnixOs.translateConstant(UnixOs.PF_INET));
+		System.out.println("UnixOs.SOCK_STREAM="
+		    + UnixOs.translateConstant(UnixOs.SOCK_STREAM));
+		System.out.println("UnixOs.IPPROTO_TCP="
+		    + UnixOs.translateConstant(UnixOs.IPPROTO_TCP));
 	}
 
 	public void testSocket() {
@@ -64,28 +67,32 @@ public class TestUnixOs
 		    UnixOs.socket(UnixOs.PF_INET, UnixOs.SOCK_PACKET,
 		        UnixOs.PROTOCOL_DEFAULT);
 		if (d == -1) {
-			fail("socket():" + UnixOs.errno() + " msg=" + UnixOs.strerror(UnixOs.errno()));
+			fail("socket():" + UnixOs.errno() + " msg="
+			    + UnixOs.strerror(UnixOs.errno()));
 		}
 
 		UnixOs.close(d);
 	}
 
 	public void testIoctlGETHWADDR() throws IOException {
-		if (!UnixOs.isSupported() || !UnixOs.isSupported(UnixOs.IPPROTO_TCP) || !UnixOs.isSupported(UnixOs.SIOCGIFHWADDR)) {
+		if (!UnixOs.isSupported() || !UnixOs.isSupported(UnixOs.SOCK_PACKET)
+		    || !UnixOs.isSupported(UnixOs.SIOCGIFHWADDR)) {
 			return;
 		}
 
 		int d =
-		    UnixOs.socket(UnixOs.PF_INET, UnixOs.SOCK_PACKET, UnixOs.PROTOCOL_DEFAULT);
+		    UnixOs.socket(UnixOs.PF_INET, UnixOs.SOCK_PACKET,
+		        UnixOs.PROTOCOL_DEFAULT);
 		if (d == -1) {
-			fail("socket():=" + UnixOs.errno() + " msg=" + UnixOs.strerror(UnixOs.errno()));
+			fail("socket():=" + UnixOs.errno() + " msg="
+			    + UnixOs.strerror(UnixOs.errno()));
 		}
 
 		final int DEVICE = 2;
 		List<PcapIf> ifs = new ArrayList<PcapIf>();
 		Pcap.findAllDevs(ifs, System.out);
 
-		System.out.println("devices=" + ifs);
+//		System.out.println("devices=" + ifs);
 		System.out.println("device=" + ifs.get(DEVICE).getName());
 
 		IfReq ir = new IfReq();
@@ -93,8 +100,9 @@ public class TestUnixOs
 
 		int r = UnixOs.ioctl(d, UnixOs.SIOCGIFHWADDR, ir);
 		if (r == -1) {
-			fail("ioctl():=" + UnixOs.errno() + " msg=" + UnixOs.strerror(UnixOs.errno()));
-		
+			fail("ioctl():=" + UnixOs.errno() + " msg="
+			    + UnixOs.strerror(UnixOs.errno()));
+
 		}
 
 		byte[] ha = ir.ifr_hwaddr();
@@ -107,4 +115,43 @@ public class TestUnixOs
 		UnixOs.close(d);
 
 	}
+	
+	public void testIoctlSIOCGIFMTU() throws IOException {
+		if (!UnixOs.isSupported() || !UnixOs.isSupported(UnixOs.SOCK_PACKET)
+		    || !UnixOs.isSupported(UnixOs.SIOCGIFMTU)) {
+			return;
+		}
+
+		int d =
+		    UnixOs.socket(UnixOs.PF_INET, UnixOs.SOCK_PACKET,
+		        UnixOs.PROTOCOL_DEFAULT);
+		if (d == -1) {
+			fail("socket():=" + UnixOs.errno() + " msg="
+			    + UnixOs.strerror(UnixOs.errno()));
+		}
+
+		final int DEVICE = 2;
+		List<PcapIf> ifs = new ArrayList<PcapIf>();
+		Pcap.findAllDevs(ifs, System.out);
+
+//		System.out.println("devices=" + ifs);
+		System.out.println("device=" + ifs.get(DEVICE).getName());
+
+		IfReq ir = new IfReq();
+		ir.ifr_name(ifs.get(DEVICE).getName());
+
+		int r = UnixOs.ioctl(d, UnixOs.SIOCGIFMTU, ir);
+		if (r == -1) {
+			fail("ioctl():=" + UnixOs.errno() + " msg="
+			    + UnixOs.strerror(UnixOs.errno()));
+
+		}
+
+		
+		System.out.println("mtu=" + ir.ifr_mtu());
+
+		UnixOs.close(d);
+
+	}
+
 }
