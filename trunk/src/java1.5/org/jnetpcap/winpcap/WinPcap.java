@@ -286,6 +286,7 @@ public class WinPcap
 	 * @return '0' if everything is fine, '-1' if some errors occurred. The string
 	 *         containing the complete source is returned in the 'source'
 	 *         variable.
+	 * @since 1.2
 	 */
 	public native static int createSrcStr(StringBuffer source, int type,
 	    String host, String port, String name, StringBuffer errbuf);
@@ -373,6 +374,7 @@ public class WinPcap
 	 * @return '0' if everything is fine, '-1' if some errors occurred. The string
 	 *         containing the complete source is returned in the 'source'
 	 *         variable.
+	 * @since 1.2
 	 */
 	public static int createSrcStr(Appendable source, int type,
 	    String host, String port, String name, Appendable errbuf) throws IOException {
@@ -459,6 +461,7 @@ public class WinPcap
 	 * @return '0' if everything is fine, '-1' if some errors occurred; this
 	 *         function returns '-1' also in case the system does not have any
 	 *         interface to list
+	 * @since 1.2
 	 */
 	public native static int findAllDevsEx(String source, WinPcapRmtAuth auth,
 	    List<PcapIf> alldevs, StringBuffer errbuf);
@@ -616,6 +619,7 @@ public class WinPcap
 	 * @return '0' if everything is fine, '-1' if some errors occurred; this
 	 *         function returns '-1' also in case the system does not have any
 	 *         interface to list
+	 * @since 1.2
 	 */
 	public static int findAllDevsEx(String source, WinPcapRmtAuth auth,
 	    List<PcapIf> alldevs, Appendable errbuf) throws IOException {
@@ -754,6 +758,7 @@ public class WinPcap
 	 *          to the user if 'errbuf' is no longer a zero-length string.
 	 * @return in case of problems, it returns null and the 'errbuf' variable
 	 *         keeps the error message.
+	 * @since 1.2
 	 */
 	public native static WinPcap open(String source, int snaplen, int flags,
 	    int timeout, WinPcapRmtAuth auth, StringBuffer errbuf);
@@ -901,6 +906,7 @@ public class WinPcap
 	 *          to the user if 'errbuf' is no longer a zero-length string.
 	 * @return in case of problems, it returns null and the 'errbuf' variable
 	 *         keeps the error message.
+	 * @since 1.2
 	 */
 	public static WinPcap open(String source, int snaplen, int flags,
 	    int timeout, WinPcapRmtAuth auth, Appendable errbuf) throws IOException {
@@ -995,6 +1001,7 @@ public class WinPcap
 	 *          failed
 	 * @return a raw structure the data of <code>pcap_t</code> C structure as
 	 *         returned by native libpcap call to open
+	 * @since 1.2
 	 */
 	public native static WinPcap openLive(String device, int snaplen,
 	    int promisc, int timeout, StringBuffer errbuf);
@@ -1138,6 +1145,7 @@ public class WinPcap
 	 *          failed
 	 * @return a raw structure the data of <code>pcap_t</code> C structure as
 	 *         returned by native libpcap call to open
+	 * @since 1.2
 	 */
 	public static WinPcap openLive(String device, int snaplen, int promisc,
 	    int timeout, Appendable errbuf) throws IOException {
@@ -1167,6 +1175,7 @@ public class WinPcap
 	 * @param errbuf
 	 *          any error messages in UTC8 encoding
 	 * @return WinPcap structure or null if error occured
+	 * @since 1.2
 	 */
 	public native static WinPcap openOffline(String fname, StringBuffer errbuf);
 
@@ -1213,6 +1222,7 @@ public class WinPcap
 	 * @param errbuf
 	 *          any error messages in UTC8 encoding
 	 * @return WinPcap structure or null if error occured
+	 * @since 1.2
 	 */
 	public static WinPcap openOffline(String fname, Appendable errbuf)
 	    throws IOException {

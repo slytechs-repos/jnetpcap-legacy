@@ -14,29 +14,62 @@ package org.jnetpcap;
 
 /**
  * A pcap background task handle. This provides status and control over the
- * background loop.
+ * background loop. The task provides 2 methods for controlling the thread.
+ * {@link #start()} and {@link #stop()}. These 2 methods perform various
+ * synchronization functions between the worker and the parent threads.
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
+ * @since 1.2
  */
 public abstract class PcapTask<T> implements Runnable {
 
+	/**
+	 * Libpcap result code
+	 */
 	protected int result = Pcap.OK;
 
+	/**
+	 * Controlling thread
+	 */
 	protected Thread thread;
 
+	/**
+	 * Pcap handle
+	 */
 	protected final Pcap pcap;
 
+	/**
+	 * Number of packets to capture or 0 for infinate
+	 */
 	protected final int count;
 
+	/**
+	 * User supplied packet handler where packets are dispatched
+	 */
 	protected final PcapHandler<T> handler;
 
+	/**
+	 * User data
+	 */
 	protected final T user;
 
+	/**
+	 * Flag which indicates that internal Runnable.run method has been reached
+	 */
 	private boolean isSynched = false;
 
 	/**
+	 * Creates a new task handle for controlling background thread.
+	 * 
 	 * @param pcap
+	 *          pcap handle
+	 * @param count
+	 *          number of packets to capture or 0 for infinite
+	 * @param handler
+	 *          user packet handler where packets will be dispatched
+	 * @param user
+	 *          user supplied object
 	 */
 	public PcapTask(Pcap pcap, int count, PcapHandler<T> handler, T user) {
 		this.pcap = pcap;
@@ -45,14 +78,36 @@ public abstract class PcapTask<T> implements Runnable {
 		this.user = user;
 	}
 
+	/**
+	 * Returns the result code that was returned from the user supplied pcap
+	 * function.
+	 * 
+	 * @return libpcap result code
+	 */
 	public final int getResult() {
 		return this.result;
 	}
 
+	/**
+	 * Gets the background thread this task is using. It is highly recommended
+	 * though that the user interact with the thread using {@link #start()} and
+	 * {@link #stop()} methods.
+	 * 
+	 * @return background thread
+	 */
 	public final Thread getThread() {
 		return this.thread;
 	}
 
+	/**
+	 * Creates and starts up the background thread while synchronizing with the
+	 * background thread. The user can be assured that when this method returns,
+	 * the background thread has been started and has entered its Runnable.run
+	 * method.
+	 * 
+	 * @throws InterruptedException
+	 *           if the synchronization between threads was interrupted
+	 */
 	public void start() throws InterruptedException {
 		if (thread != null) {
 			stop();
@@ -63,31 +118,10 @@ public abstract class PcapTask<T> implements Runnable {
 		 * delegate to the user overriden run() method after the setup synching is
 		 * done.
 		 */
-		thread = new Thread(new Runnable() {
+		thread =
+	    new Thread(this, (user != null) ? user.toString() : pcap.toString());
 
-			public void run() {
-				Thread.yield(); // needed for the synch, parent T enters wait state
-				synchronized (PcapTask.this) {
-					PcapTask.this.notifyAll();
-					PcapTask.this.isSynched = true;
-				}
-
-				/*
-				 * Delegate to user overriden Runnable
-				 */
-				PcapTask.this.run();
-			}
-
-		}, (user != null) ? user.toString() : pcap.toString());
-
-		/*
-		 * Now we are sure that thread has started and entered its loop
-		 */
-		synchronized (PcapTask.this) {
-			thread.start();
-			PcapTask.this.wait();
-			Thread.yield(); // allow Runnable to enter delegate run
-		}
+		thread.start();
 	}
 
 	/**
@@ -108,39 +142,65 @@ public abstract class PcapTask<T> implements Runnable {
 			return;
 		}
 
-		synchronized (this) {
-			if (isSynched == false) {
-				throw new IllegalStateException(
-				    "Unable to synchronize task with parent thread");
-			}
-		}
-
 		/*
 		 * Tell pcap we want to break out of the loop
 		 */
-		thread.interrupt();
+		breakLoop();
 		thread.join(); // Wait for thread to finish and exit
-
-		// pcap.breakloop();
-		// thread.join();
+	}
+	
+	/**
+	 * Algorithm for breaking the loop, whatever it is. It can be overriden and a
+	 * different algorithm supplied.
+	 */
+	protected void breakLoop() {
+		pcap.breakloop();
 	}
 
+	/**
+	 * Checks if the background thread is running and is alive
+	 * 
+	 * @return true means thread is alive
+	 */
 	public boolean isAlive() {
 		return thread != null && thread.isAlive();
 	}
 
+	/**
+	 * Returns the underlying Pcap object being used by this task
+	 * 
+	 * @return pcap capture session object
+	 */
 	public final Pcap getPcap() {
 		return this.pcap;
 	}
 
+	/**
+	 * The packet count that was supplied by the user. This is the number of
+	 * packets requested by the user. 0 indicates capture forever until
+	 * {@link #stop()} is called or an error occures.
+	 * 
+	 * @return number of packets to capture or 0 for infinite
+	 */
 	public final int getCount() {
 		return this.count;
 	}
 
+	/**
+	 * Returns the user supplied packet handler. Captured packets are dispatched
+	 * to this handler.
+	 * 
+	 * @return packet handler
+	 */
 	public final PcapHandler<T> getHandler() {
 		return this.handler;
 	}
 
+	/**
+	 * User supplied data object. This is an arbitrary user object.
+	 * 
+	 * @return user object
+	 */
 	public final Object getUser() {
 		return this.user;
 	}

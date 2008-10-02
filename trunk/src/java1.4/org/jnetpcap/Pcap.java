@@ -146,7 +146,8 @@ import java.util.List;
  * 	public void newPacket(Object out, int caplen, int len, int seconds,
  * 	    int usecs, ByteBuffer buffer) {
  * 
- * 		((PrintStream) out).println(&quot;Packet captured on: &quot; + new Date(seconds * 1000).toString());
+ * 		((PrintStream) out).println(&quot;Packet captured on: &quot;
+ * 		    + new Date(seconds * 1000).toString());
  * 	}
  * };
  * 
@@ -190,6 +191,7 @@ import java.util.List;
  * return <code>FILE *</code> since that is not appropriate for java
  * environment.
  * <h3>Multithreading issues</h3>
+ * <p>
  * <code>Pcap</code> class does not provide any multithreading capabilities.
  * As a pure wrapper for native <em>libpcap</em> library, <code>Pcap</code>
  * does not provide any additional locking or multithreaded paradigms. The most
@@ -201,6 +203,22 @@ import java.util.List;
  * {@link #close()} while a loop is still in progress will cause
  * <em>libpcap</em> libpcap to crash or coredump which will also crash the
  * entire Java VM.
+ * </p>
+ * <p>
+ * Since multithreading is an issue with native libpcap, starting with jNetPcap
+ * version 1.2, the API provides 2 methods
+ * {@link #loopInBackground(int, PcapHandler, Object)} and
+ * {@link #dispatchInBackground(int, PcapHandler, Object)} methods, which take
+ * care of all of the details of how to synchronize a control thread with a
+ * capture thread. The implementation of these 2 methods is in class
+ * {@link PcapUtils} but as a convenience is also delegated directly from Pcap
+ * class. These 2 methods will start either {@link #loop} or {@link #dispatch}
+ * in a background thread, and dispatch packets to a user supplied
+ * {@link PcapHandler}, just like from the non-threaded {@link #loop} and
+ * {@link #dispatch} methods. The 2 threaded methods return immediately with a
+ * {@link PcapTask} handle which can be used to access status and control of the
+ * background thread.
+ * </p>
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
@@ -447,8 +465,7 @@ public class Pcap {
 	 * @return -1 is returned on failure, in which case errbuf is filled in with
 	 *         an appropriate error message; 0 is returned on success
 	 */
-	public native static int findAllDevs(List alldevs,
-	    StringBuffer errbuf);
+	public native static int findAllDevs(List alldevs, StringBuffer errbuf);
 
 	/**
 	 * This method does nothing. jNetPcap implementation frees up the device list
@@ -536,6 +553,7 @@ public class Pcap {
 	 * @param errbuf
 	 *          if there is an error, errbuf is filled with appropriate message
 	 * @return name of the device or null on error
+	 * @since 1.2
 	 */
 	public native static String lookupDev(StringBuffer errbuf);
 
@@ -558,6 +576,7 @@ public class Pcap {
 	 * @param errbuf
 	 *          any error messages if return value is -1
 	 * @return 0 on success otherwise -1 on error
+	 * @since 1.2
 	 */
 	public native static int lookupNet(String device, PcapInteger netp,
 	    PcapInteger maskp, StringBuffer errbuf);
@@ -638,6 +657,7 @@ public class Pcap {
 	 *          failed
 	 * @return a raw structure the data of <code>pcap_t</code> C structure as
 	 *         returned by native libpcap call to open
+	 * @since 1.2
 	 */
 	public native static Pcap openLive(String device, int snaplen, int promisc,
 	    int timeout, StringBuffer errbuf);
@@ -658,6 +678,7 @@ public class Pcap {
 	 * @param errbuf
 	 *          any error messages in UTC8 encoding
 	 * @return Pcap structure or null if error occured
+	 * @since 1.2
 	 */
 	public native static Pcap openOffline(String fname, StringBuffer errbuf);
 
@@ -882,6 +903,7 @@ public class Pcap {
 	 * @see #setNonBlock(int, StringBuffer)
 	 * @return if there is an error, -1 is returned and errbuf is filled in with
 	 *         an appropriate error message
+	 * @since 1.2
 	 */
 	public native int getNonBlock(StringBuffer errbuf);
 
@@ -1214,6 +1236,7 @@ public class Pcap {
 	 *          a non negative value means to set in non blocking mode
 	 * @return if there is an error, -1 is returned and errbuf is filled in with
 	 *         an appropriate error message
+	 * @since 1.2
 	 */
 	public native int setNonBlock(int nonBlock, StringBuffer errbuf);
 
