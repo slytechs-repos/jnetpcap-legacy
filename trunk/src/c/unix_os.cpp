@@ -87,6 +87,16 @@ int translations[] = {
 };
 
 
+int translateConstant(jint src) {
+	for (int i = 0; translations[i] != END_OF_TABLE; i += 2) {
+		if (translations[i] == src) {
+			return translations[i + 1];
+		}
+	}
+	
+	return -1;	
+}
+
 
 /*
  * Class:     org_jnetpcap_unix_UnixOs
@@ -95,13 +105,8 @@ int translations[] = {
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_unix_UnixOs_translateConstant
   (JNIEnv *env, jclass clazz, jint jsrc) {
-	for (int i = 0; translations[i] != END_OF_TABLE; i += 2) {
-		if (translations[i] == jsrc) {
-			return translations[i + 1];
-		}
-	}
-	
-	return -1;	
+
+	return translateConstant(jsrc);
 }
 
 
@@ -133,7 +138,11 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_unix_UnixOs_socket
 	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
 	return -1;
 #else
-	return socket((int) jdomain, (int) jtype, (int) jprotocol);
+	int domain = translateConstant(jdomain);
+	int type = translateConstant(jtype);
+	int protocol = translateConstant(jprotocol);
+
+	return socket(domain, type, jprotocol);
 #endif
 }
 
@@ -152,7 +161,10 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_unix_UnixOs_ioctl__IILjava_lang_Object_
 	if (mem == NULL) {
 		return -1;
 	}
-	return ioctl((int) jdescriptor, (int) jrequest, mem);
+
+	int request = translateConstant(jrequest);
+
+	return ioctl((int) jdescriptor, request, mem);
 #endif
 	
 }
@@ -168,7 +180,9 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_unix_UnixOs_ioctl__III
 	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
 	return -1;
 #else
-	return ioctl((int) jdescriptor, (int) jrequest, (int) jdata);
+	int request = translateConstant(jrequest);
+
+	return ioctl((int) jdescriptor, request, (int) jdata);
 #endif
 	
 }
