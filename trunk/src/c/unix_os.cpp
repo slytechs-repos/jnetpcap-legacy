@@ -76,9 +76,11 @@ int translations[] = {
 	org_jnetpcap_unix_UnixOs_SOCK_DGRAM    ,SOCK_DGRAM,
 	org_jnetpcap_unix_UnixOs_SOCK_RAW      ,SOCK_RAW,
 	org_jnetpcap_unix_UnixOs_SOCK_PACKET   ,SOCK_PACKET,
+	
+	org_jnetpcap_unix_UnixOs_IPPROTO_TCP   ,IPPROTO_TCP,
 #endif
 	
-	org_jnetpcap_unix_UnixOs_PROTOCOL_DEFAULT, 0,
+	org_jnetpcap_unix_UnixOs_PROTOCOL_DEFAULT	,0,
 	
 	/*
 	 * Special END OF TABLE MARK

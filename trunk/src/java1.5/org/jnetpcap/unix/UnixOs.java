@@ -106,6 +106,12 @@ public class UnixOs {
 	 * SOCKET protocol constant - default protocol
 	 */
 	public static final int PROTOCOL_DEFAULT = 0x0000001 | SOCKET_PROTOCOL;
+	
+	/**
+	 * SOCKET protocol constant - TCP protocol
+	 */
+	public static final int IPPROTO_TCP = 0x0000002 | SOCKET_PROTOCOL;
+
 
 	static {
 		Pcap.isInjectSupported(); // Force a library load
