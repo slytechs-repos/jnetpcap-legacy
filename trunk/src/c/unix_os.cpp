@@ -91,6 +91,9 @@ int translations[] = {
 };
 
 
+/*
+ * Translate jNetPcap stub constants to actual UNIX contants
+ */
 int translateConstant(jint src) {
 	for (int i = 0; translations[i] != END_OF_TABLE; i += 2) {
 		if (translations[i] == src) {
@@ -146,7 +149,8 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_unix_UnixOs_socket
 	int type = translateConstant(jtype);
 	int protocol = translateConstant(jprotocol);
 
-	return socket(domain, type, jprotocol);
+	return socket((domain == -1)?jdomain:domain, (type == -1)?jtype:type, 
+			(protocol == -1)?jprotocol:protocol);
 #endif
 }
 
@@ -168,7 +172,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_unix_UnixOs_ioctl__IILjava_lang_Object_
 
 	int request = translateConstant(jrequest);
 
-	return ioctl((int) jdescriptor, request, mem);
+	return ioctl((int) jdescriptor, (request == -1)?jrequest:request, mem);
 #endif
 	
 }
@@ -188,7 +192,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_unix_UnixOs_ioctl__IILorg_jnetpcap_Pcap
 
 	int value = (int) env->GetIntField(jpcapint, pcapIntegerValueFID);
 
-	int r = ioctl((int) jdescriptor, request, &value);
+	int r = ioctl((int) jdescriptor, (request == -1)?jrequest:request, &value);
 	if (r < 0) {
 		return r;
 	}
@@ -212,7 +216,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_unix_UnixOs_ioctl__III
 #else
 	int request = translateConstant(jrequest);
 
-	return ioctl((int) jdescriptor, request, (int) jdata);
+	return ioctl((int) jdescriptor, (request == -1)?jrequest:request, (int) jdata);
 #endif
 	
 }
