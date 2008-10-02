@@ -106,12 +106,11 @@ public class UnixOs {
 	 * SOCKET protocol constant - default protocol
 	 */
 	public static final int PROTOCOL_DEFAULT = 0x0000001 | SOCKET_PROTOCOL;
-	
+
 	/**
 	 * SOCKET protocol constant - TCP protocol
 	 */
 	public static final int IPPROTO_TCP = 0x0000002 | SOCKET_PROTOCOL;
-
 
 	static {
 		Pcap.isInjectSupported(); // Force a library load
@@ -189,6 +188,17 @@ public class UnixOs {
 	 * @return
 	 */
 	public static native int errno();
+
+	/**
+	 * The strerror() function returns a string describing the error code passed
+	 * in the argument errnum, possibly using the LC_MESSAGES part of the current
+	 * locale to select the appropriate language.
+	 * 
+	 * @param errnum
+	 *          error number returned from a unix call
+	 * @return error message
+	 */
+	public static native String strerror(int errnum);
 
 	/**
 	 * Closes a socket given a descriptor
