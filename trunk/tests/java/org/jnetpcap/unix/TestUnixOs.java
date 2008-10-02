@@ -40,7 +40,48 @@ public class TestUnixOs
 	}
 
 	public void testTranslateConstant() {
-		System.out.printf("%x\n", UnixOs.translateConstant(UnixOs.PROTOCOL_DEFAULT));
+		if (!UnixOs.isSupported()) {
+			return;
+		}
 		assertEquals(0, UnixOs.translateConstant(UnixOs.PROTOCOL_DEFAULT));
+
+		assertEquals(0, UnixOs.translateConstant(UnixOs.SIOCGIFHWADDR));
+	}
+
+	public void testSocket() {
+		if (!UnixOs.isSupported()) {
+			return;
+		}
+		
+		int d =
+		    UnixOs.socket(UnixOs.SOCK_STREAM, UnixOs.PF_INET,
+		        UnixOs.PROTOCOL_DEFAULT);
+		assertNotSame(-1, d);
+		
+		UnixOs.close(d);
+	}
+	
+	public void testIoctlGETHWADDR() {
+		if (!UnixOs.isSupported()) {
+			return;
+		}
+		
+		int d =
+		    UnixOs.socket(UnixOs.SOCK_STREAM, UnixOs.PF_INET,
+		        UnixOs.PROTOCOL_DEFAULT);
+		assertNotSame(-1, d);
+		
+		IfReq ir = new IfReq();
+		assertNotSame(-1, UnixOs.ioctl(d, UnixOs.SIOCGIFHWADDR, ir));
+		
+		byte[] ha = ir.ifr_hwaddr();
+		for (byte b: ha) {
+			System.out.printf("%2X:", b);
+		}
+		
+		System.out.println();
+		
+		UnixOs.close(d);
+
 	}
 }

@@ -702,6 +702,8 @@
 			<sysproperty key="java.library.path" value="${jni.build.dir}" />
 
 			<test name="org.jnetpcap.TestPcapJNI" todir="${report.dir}" />
+			<test name="org.jnetpcap.unix.TestUnixOs" todir="${report.dir}" />
+
 
 			<!--test 
 				name="org.jnetpcap.winpcap.TestWinPcapExtensions" 
