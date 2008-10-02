@@ -46,32 +46,36 @@ public class TestUnixOs
 		assertEquals(0, UnixOs.translateConstant(UnixOs.PROTOCOL_DEFAULT));
 
 		assertEquals(35111, UnixOs.translateConstant(UnixOs.SIOCGIFHWADDR));
+
+		System.out.println("UnixOs.PF_INET=" +  UnixOs.translateConstant(UnixOs.PF_INET));
+		System.out.println("UnixOs.SOCK_STREAM=" +  UnixOs.translateConstant(UnixOs.SOCK_STREAM));
+		System.out.println("UnixOs.IPPROTO_TCP=" +  UnixOs.translateConstant(UnixOs.IPPROTO_TCP));
 	}
 
 	public void testSocket() {
-		if (!UnixOs.isSupported()) {
+		if (!UnixOs.isSupported() || !UnixOs.isSupported(UnixOs.IPPROTO_TCP)) {
 			return;
 		}
 
 		int d =
 		    UnixOs.socket(UnixOs.PF_INET, UnixOs.SOCK_STREAM,
-		        UnixOs.PROTOCOL_DEFAULT);
+		        UnixOs.IPPROTO_TCP);
 		if (d == -1) {
-			fail("socket():" + d);
+			fail("socket():" + d + " errno=" + UnixOs.errno());
 		}
 
 		UnixOs.close(d);
 	}
 
 	public void testIoctlGETHWADDR() {
-		if (!UnixOs.isSupported()) {
+		if (!UnixOs.isSupported() || !UnixOs.isSupported(UnixOs.IPPROTO_TCP) || !UnixOs.isSupported(UnixOs.SIOCGIFHWADDR)) {
 			return;
 		}
 
 		int d =
 		    UnixOs.socket(UnixOs.PF_INET, UnixOs.SOCK_STREAM, UnixOs.IPPROTO_TCP);
 		if (d == -1) {
-			fail("socket():=" + d);
+			fail("socket():" + d + " errno=" + UnixOs.errno());
 		}
 
 		IfReq ir = new IfReq();
