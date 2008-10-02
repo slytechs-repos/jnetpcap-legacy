@@ -45,7 +45,7 @@ public class TestUnixOs
 		}
 		assertEquals(0, UnixOs.translateConstant(UnixOs.PROTOCOL_DEFAULT));
 
-		assertEquals(0, UnixOs.translateConstant(UnixOs.SIOCGIFHWADDR));
+		assertEquals(35111, UnixOs.translateConstant(UnixOs.SIOCGIFHWADDR));
 	}
 
 	public void testSocket() {
@@ -56,7 +56,9 @@ public class TestUnixOs
 		int d =
 		    UnixOs.socket(UnixOs.SOCK_STREAM, UnixOs.PF_INET,
 		        UnixOs.PROTOCOL_DEFAULT);
-		assertNotSame(-1, d);
+		if (d == -1) {
+			fail("d=" + d);
+		}
 		
 		UnixOs.close(d);
 	}
@@ -69,7 +71,9 @@ public class TestUnixOs
 		int d =
 		    UnixOs.socket(UnixOs.SOCK_STREAM, UnixOs.PF_INET,
 		        UnixOs.PROTOCOL_DEFAULT);
-		assertNotSame(-1, d);
+		if (d == -1) {
+			fail("d=" + d);
+		}
 		
 		IfReq ir = new IfReq();
 		assertNotSame(-1, UnixOs.ioctl(d, UnixOs.SIOCGIFHWADDR, ir));

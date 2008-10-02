@@ -596,7 +596,7 @@
 	<!-- =================================================================== -->
 	<target name="comp-test" depends="prep-test,comp-java,comp-jni">
 		<javac srcdir="${test.dir}" 
-			destdir="${build.classes.dir}" 
+			destdir="${build.classes.dir}1.5" 
 			debug="${compiler.debug}" 
 			deprecation="${compiler.deprecate}" 
 			optimize="${compiler.optimize}" 
@@ -608,7 +608,7 @@
 	<!-- =================================================================== -->
 	<target name="comp-examples" depends="comp-java,comp-jni">
 		<javac srcdir="${examples.dir}" 
-			destdir="${build.examples.dir}${compiler.target}" 
+			destdir="${build.examples.dir}1.5" 
 			debug="${compiler.debug}" 
 			deprecation="${compiler.deprecate}" 
 			optimize="${compiler.optimize}" 
@@ -693,7 +693,7 @@
 	<!-- =================================================================== -->
 	<!-- Execute jUnit test cases -->
 	<!-- =================================================================== -->
-	<target name="test">
+	<target name="test" depends="comp-test">
 		<junit printsummary="withOutAndErr" fork="yes" failureproperty="test.failed">
 
 			<!-- jvmarg value="-verbose:jni" /-->
@@ -701,7 +701,7 @@
 			<formatter type="plain" usefile="false" />
 			<sysproperty key="java.library.path" value="${jni.build.dir}" />
 
-			<test name="org.jnetpcap.TestPcapJNI" todir="${report.dir}" />
+			<!-- test name="org.jnetpcap.TestPcapJNI" todir="${report.dir}" /-->
 			<test name="org.jnetpcap.unix.TestUnixOs" todir="${report.dir}" />
 
 
