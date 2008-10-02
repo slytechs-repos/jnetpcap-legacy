@@ -17,6 +17,18 @@ import org.jnetpcap.PcapInteger;
 
 /**
  * Provides access to various unix operating system related functions.
+ * <p>
+ * The class also provides a number of UNIX style constants that can be passed
+ * into various unix calls. The numerical values of each constant are jNetPcap
+ * stub values that are different from any underlying unix native values. The
+ * stub values are mapped onto the underlying operating system call. Also
+ * passing in numerical integers into the unix calls, values that are valid UNIX
+ * values, will result in errors and/or exceptions as they are not what is
+ * expected by the unix calls. The constants represent the various UNIX
+ * functions that have been tested and are implemented in jNetPcap unix
+ * extension. The stub constants that do not have a mapping are passed through
+ * to the native unix calls untranslated.
+ * </p>
  * 
  * @since 1.2
  * @author Mark Bednarczyk
@@ -182,7 +194,7 @@ public class UnixOs {
 	 * @return
 	 */
 	public static native int ioctl(int d, int request, int data);
-	
+
 	/**
 	 * a unix ioctl call
 	 * 
@@ -192,7 +204,6 @@ public class UnixOs {
 	 * @return
 	 */
 	public static native int ioctl(int d, int request, PcapInteger data);
-
 
 	/**
 	 * Returns the last error code returned by one of the unix functions
