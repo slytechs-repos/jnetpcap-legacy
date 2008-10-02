@@ -140,8 +140,7 @@ public class TestUnixOs
 		IfReq ir = new IfReq();
 		ir.ifr_name(ifs.get(DEVICE).getName());
 
-		int r = UnixOs.ioctl(d, UnixOs.SIOCGIFMTU, ir);
-		if (r == -1) {
+		if(UnixOs.ioctl(d, UnixOs.SIOCGIFMTU, ir) < 0) {
 			fail("ioctl():=" + UnixOs.errno() + " msg="
 			    + UnixOs.strerror(UnixOs.errno()));
 
@@ -149,6 +148,15 @@ public class TestUnixOs
 
 		
 		System.out.println("mtu=" + ir.ifr_mtu());
+
+		if (UnixOs.ioctl(d, UnixOs.SIOCGIFFLAGS, ir) < 0) {
+			fail("ioctl():=" + UnixOs.errno() + " msg="
+			    + UnixOs.strerror(UnixOs.errno()));
+
+		}
+
+		
+		System.out.println("flags=" + ir.ifr_flags());
 
 		UnixOs.close(d);
 
