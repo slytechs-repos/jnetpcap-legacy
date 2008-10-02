@@ -179,9 +179,9 @@ public class PcapBpfProgram {
 	 *          bpf instruction array
 	 */
 	private void initFromArray(byte[] array) {
-		buffer  = ByteBuffer.allocateDirect(array.length);
+		buffer = ByteBuffer.allocateDirect(array.length);
 		buffer.put(array);
-		
+
 		initFromBuffer(buffer);
 	}
 

@@ -128,11 +128,17 @@ void pcap_callback(u_char *user, const pcap_pkthdr *pkt_header,
 
 	jobject buffer = env->NewDirectByteBuffer((void *)pkt_data,
 			pkt_header->caplen);
+	if (buffer == NULL) {
+		env->DeleteLocalRef(buffer);
+		return;
+	}
 
 	env->CallNonvirtualVoidMethod(data->obj, data->clazz, data->mid,
 			(jobject) data->user, (jlong) pkt_header->ts.tv_sec,
 			(jint)pkt_header->ts.tv_usec, (jint)pkt_header->caplen,
 			(jint)pkt_header->len, buffer);
+	
+	env->DeleteLocalRef(buffer);
 }
 
 pcap_t *getPcap(JNIEnv *env, jobject obj) {

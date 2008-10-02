@@ -12,6 +12,8 @@
  */
 package org.jnetpcap;
 
+import java.io.IOException;
+
 /**
  * A Pcap utility class which provides certain additional and convenience
  * methods.
@@ -46,10 +48,20 @@ public final class PcapUtils {
 
 		return new PcapTask(pcap, cnt, handler, data) {
 
+			/**
+			 * For dispatch type loop, we can interrupt the thread to breakout of the
+			 * Pcap.dispatch() loop which is much quicker that calling
+			 * Pcap.breakLoop().
+			 */
+//			@Override
+//			protected void breakLoop() {
+//				super.thread.interrupt();
+//			}
+
 			public void run() {
 				int remaining = count;
 
-				while (remaining > 0) {
+				while (count == -1 || remaining > 0) {
 
 					/*
 					 * Yield to other threads on every iteration of the loop, another
@@ -70,7 +82,7 @@ public final class PcapUtils {
 					 * Check for errors
 					 */
 					if (result < 0) {
-						break;
+						throw new RuntimeException(pcap.getErr());
 					}
 
 					/*
