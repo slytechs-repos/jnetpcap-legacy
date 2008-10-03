@@ -11,7 +11,7 @@ extern "C" {
 	
 #include <jni.h>
 
-extern	jclass ifReqClass;
+extern	jclass UnixIfReqClass;
 
 #ifdef __cplusplus
 }

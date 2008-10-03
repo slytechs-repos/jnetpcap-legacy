@@ -46,7 +46,7 @@ public class UnixOs {
 	/**
 	 * IOCTL constant to get the network adapters HARDWARE address
 	 * 
-	 * @see IfReq
+	 * @see UnixIfReq
 	 */
 	public static final int SIOCGIFHWADDR = 0x0000001 | IOCTL;
 

@@ -95,7 +95,7 @@ public class TestUnixOs
 //		System.out.println("devices=" + ifs);
 		System.out.println("device=" + ifs.get(DEVICE).getName());
 
-		IfReq ir = new IfReq();
+		UnixIfReq ir = new UnixIfReq();
 		ir.ifr_name(ifs.get(DEVICE).getName());
 
 		int r = UnixOs.ioctl(d, UnixOs.SIOCGIFHWADDR, ir);
@@ -137,7 +137,7 @@ public class TestUnixOs
 //		System.out.println("devices=" + ifs);
 		System.out.println("device=" + ifs.get(DEVICE).getName());
 
-		IfReq ir = new IfReq();
+		UnixIfReq ir = new UnixIfReq();
 		ir.ifr_name(ifs.get(DEVICE).getName());
 
 		if(UnixOs.ioctl(d, UnixOs.SIOCGIFMTU, ir) < 0) {

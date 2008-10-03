@@ -73,7 +73,7 @@ import org.jnetpcap.Peered;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public final class IfReq
+public final class UnixIfReq
     extends Peered {
 
 	static {
@@ -82,7 +82,7 @@ public final class IfReq
 
 	private static native void initIDs();
 
-	public IfReq() {
+	public UnixIfReq() {
 		super(sizeof());
 	}
 
