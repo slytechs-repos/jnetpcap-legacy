@@ -24,7 +24,7 @@ import org.jnetpcap.Peered;
  * @author Sly Technologies, Inc.
  *
  */
-public class IpInterfaceInfo
+public class MSIpInterfaceInfo
     extends Peered {
 
 }
