@@ -424,7 +424,7 @@
 			<class name="org.jnetpcap.winpcap.WinPcapSamp" />
 			<class name="org.jnetpcap.winpcap.WinPcapRmtAuth" />
 			
-			<class name="org.jnetpcap.unix.IfReq" />
+			<class name="org.jnetpcap.unix.UnixIfReq" />
 			<class name="org.jnetpcap.unix.UnixOs" />
 
 		</javah>
@@ -448,7 +448,7 @@
 		<echo message="${a}/org_jnetpcap_winpcap_WinPcapSamp.h" />
 		<echo message="${a}/org_jnetpcap_winpcap_WinPcapRmtAuth.h" />
 
-		<echo message="${a}/org_jnetpcap_unix_IfReq.h" />
+		<echo message="${a}/org_jnetpcap_unix_UnixIfReq.h" />
 		<echo message="${a}/org_jnetpcap_unix_UnixOs.h" />
 	</target>
 
