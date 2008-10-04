@@ -27,6 +27,7 @@ public abstract class Peered {
 	 *          number of bytes to pre-allocate allocate
 	 */
 	public Peered(int size) {
+		this.owner = true;
 		allocate(size);
 	}
 
@@ -43,6 +44,21 @@ public abstract class Peered {
 	 * and fields that understand the exact structure.
 	 */
 	private volatile long physical;
+
+	/**
+	 * Specifies if this object owns the allocated memory. Using Peered.allocate()
+	 * automatically makes the object owner of the allocated memory block.
+	 * Otherwise it is assumed that the {@link #physical} memory pointer is
+	 * referencing a memory block not owned by this object, and therefore will not
+	 * try and deallocate that memory upon cleanup.
+	 * <p>
+	 * Remember that physical field is set from within a native call and any
+	 * object subclassing Peered can be made to reference any memory location
+	 * including another Peered object's allocated memory or anywhere for that
+	 * matter.
+	 * </p>
+	 */
+	private volatile boolean owner = false;
 
 	/**
 	 * Method allocates native memory to hold the subclassed C structure if the
@@ -65,7 +81,7 @@ public abstract class Peered {
 	 * Default finalizer which checks if there is any memory to free up.
 	 */
 	protected void finalized() {
-		if (physical != 0L) {
+		if (physical != 0L && owner) {
 			cleanup();
 		}
 	}
