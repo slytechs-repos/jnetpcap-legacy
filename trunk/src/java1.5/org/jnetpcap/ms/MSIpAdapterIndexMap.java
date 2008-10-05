@@ -20,10 +20,7 @@ import org.jnetpcap.Peered;
  * enabled, or under other circumstances, and should not be considered
  * persistent. On Windows Vista and later, the Name member of the
  * IP_ADAPTER_INDEX_MAP structure may be a Unicode string of the GUID for the
- * network interface (the string begins with the '{' character). This structure
- * is defined in the Ipexport.h header file which is automatically included in
- * the Iphlpapi.h header file. The Ipexport.h header file should never be used
- * directly.
+ * network interface (the string begins with the '{' character). 
  * 
  * <pre>
  * typedef struct _IP_ADAPTER_INDEX_MAP {
@@ -32,6 +29,8 @@ import org.jnetpcap.Peered;
  * } IP_ADAPTER_INDEX_MAP,  *PIP_ADAPTER_INDEX_MAP;
  * </pre>
  * 
+ * @see MSIpInterfaceInfo#adapter(int)
+ * @since 1.2
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */

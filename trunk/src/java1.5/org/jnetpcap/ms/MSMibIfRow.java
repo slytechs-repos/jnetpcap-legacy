@@ -55,11 +55,79 @@ public class MSMibIfRow
     extends Peered {
 
 	/**
-	 * Allocates peered struct MibIfRow of default size
+	 * WAN adapter that is connected to a remote peer.
 	 */
-	public MSMibIfRow() {
-		super(sizeof());
-	}
+	public static final int IF_OPER_STATUS_CONNECTED = 1;
+
+	/**
+	 * WAN adapter that is in the process of connecting.
+	 */
+	public static final int IF_OPER_STATUS_CONNECTING = 1;
+
+	/**
+	 * For LAN adapters: network cable disconnected. For WAN adapters: no carrier.
+	 */
+	public static final int IF_OPER_STATUS_DISCONNECTED = 1;
+
+	/**
+	 * LAN adapter has been disabled, for example because of an address conflict.
+	 */
+	public static final int IF_OPER_STATUS_NON_OPERATIONAL = 1;
+
+	/**
+	 * Default status for LAN adapters
+	 */
+	public static final int IF_OPER_STATUS_OPERATIONAL = 1;
+
+	/**
+	 * WAN adapter that is not connected.
+	 */
+	public static final int IF_OPER_STATUS_UNREACHABLE = 1;
+
+	/**
+	 * An ATM network interface.
+	 */
+	public final static int IF_TYPE_ATM = 37;
+
+	/**
+	 * An Ethernet network interface.
+	 */
+	public final static int IF_TYPE_ETHERNET_CSMACD = 6;
+
+	/**
+	 * An IEEE 1394 (Firewire) high performance serial bus network interface.
+	 */
+	public final static int IF_TYPE_IEEE1394 = 144;
+
+	/**
+	 * An IEEE 802.11 wireless network interface.
+	 */
+	public final static int IF_TYPE_IEEE80211 = 71;
+
+	/**
+	 * A token ring network interface.
+	 */
+	public final static int IF_TYPE_IOS88025_TOKENRING = 9;
+
+	/**
+	 * A software loopback network interface.
+	 */
+	public final static int IF_TYPE_LOOPBACK = 24;
+
+	/**
+	 * Some other type of network interface.
+	 */
+	public final static int IF_TYPE_OTHER = 1;
+
+	/**
+	 * A PPP network interface.
+	 */
+	public final static int IF_TYPE_PPP = 23;
+
+	/**
+	 * A tunnel type encapsulation network interface.
+	 */
+	public final static int IF_TYPE_TUNNEL = 131;
 
 	/**
 	 * Checks if this extension is supported on this platform. This method does
@@ -80,105 +148,21 @@ public class MSMibIfRow
 	public native static int sizeof();
 
 	/**
-	 * string that contains the name of the interface.
+	 * Allocates peered struct MibIfRow of default size
+	 */
+	public MSMibIfRow() {
+		super(sizeof());
+	}
+
+	/**
+	 * A description of the interface.
 	 * <p>
 	 * <b>Note:</b> According to Microsoft this field is usually blank
 	 * </p>
 	 * 
-	 * @return name
+	 * @return a description of the interface
 	 */
-	public native String wszName();
-
-	/**
-	 * The index that identifies the interface. This index value may change when a
-	 * network adapter is disabled and then enabled, and should not be considered
-	 * persistent.
-	 * 
-	 * @return index
-	 */
-	public native int dwIndex();
-
-	/**
-	 * @param value
-	 */
-	public native void dwIndex(int value);
-
-	/**
-	 * Some other type of network interface.
-	 */
-	public final static int IF_TYPE_OTHER = 1;
-
-	/**
-	 * An Ethernet network interface.
-	 */
-	public final static int IF_TYPE_ETHERNET_CSMACD = 6;
-
-	/**
-	 * A token ring network interface.
-	 */
-	public final static int IF_TYPE_IOS88025_TOKENRING = 9;
-
-	/**
-	 * A PPP network interface.
-	 */
-	public final static int IF_TYPE_PPP = 23;
-
-	/**
-	 * A software loopback network interface.
-	 */
-	public final static int IF_TYPE_LOOPBACK = 24;
-
-	/**
-	 * An ATM network interface.
-	 */
-	public final static int IF_TYPE_ATM = 37;
-
-	/**
-	 * An IEEE 802.11 wireless network interface.
-	 */
-	public final static int IF_TYPE_IEEE80211 = 71;
-
-	/**
-	 * A tunnel type encapsulation network interface.
-	 */
-	public final static int IF_TYPE_TUNNEL = 131;
-
-	/**
-	 * An IEEE 1394 (Firewire) high performance serial bus network interface.
-	 */
-	public final static int IF_TYPE_IEEE1394 = 144;
-
-	/**
-	 * The interface type as defined by the Internet Assigned Names Authority
-	 * (IANA). For more information, see
-	 * http://www.iana.org/assignments/ianaiftype-mib. Common values for the
-	 * interface type are defined as constants in this class.
-	 * 
-	 * @return interface type
-	 */
-	public native int dwType();
-
-	/**
-	 * The Maximum Transmission Unit (MTU) size in bytes.
-	 * 
-	 * @return mtu size in bytes
-	 */
-	public native int dwMtu();
-
-	/**
-	 * The speed of the interface in bits per second.
-	 * 
-	 * @return speed of interface
-	 */
-	public native int dwSpeed();
-
-	/**
-	 * The length, in bytes, of the physical address specified by the bPhysAddr
-	 * member.
-	 * 
-	 * @return length of hardware address
-	 */
-	public native int dwPhysAddrLen();
+	public native String bDescr();
 
 	/**
 	 * The physical address of the adapter for this interface.
@@ -195,71 +179,28 @@ public class MSMibIfRow
 	public native int dwAdminStatus();
 
 	/**
-	 * LAN adapter has been disabled, for example because of an address conflict.
-	 */
-	public static final int IF_OPER_STATUS_NON_OPERATIONAL = 1;
-
-	/**
-	 * WAN adapter that is not connected.
-	 */
-	public static final int IF_OPER_STATUS_UNREACHABLE = 1;
-
-	/**
-	 * For LAN adapters: network cable disconnected. For WAN adapters: no carrier.
-	 */
-	public static final int IF_OPER_STATUS_DISCONNECTED = 1;
-
-	/**
-	 * WAN adapter that is in the process of connecting.
-	 */
-	public static final int IF_OPER_STATUS_CONNECTING = 1;
-
-	/**
-	 * WAN adapter that is connected to a remote peer.
-	 */
-	public static final int IF_OPER_STATUS_CONNECTED = 1;
-
-	/**
-	 * Default status for LAN adapters
-	 */
-	public static final int IF_OPER_STATUS_OPERATIONAL = 1;
-
-	/**
-	 * The operational status of the interface.
+	 * The length, in bytes, of the bDescr member.
 	 * 
-	 * @return status of interface
+	 * @return length of bDescr member
 	 */
-	public native int dwOperStatus();
+	public native int dwDescrLen();
 
 	/**
-	 * The length of time, in hundredths of seconds (10^-2 sec), starting from the
-	 * last computer restart, when the interface entered its current operational
-	 * state. This value rolls over after 2^32 hundredths of a second. The
-	 * dwLastChange member is not currently supported by NDIS. On Windows Vista
-	 * and later, NDIS returns zero for this member. On earlier versions of
-	 * Windows, an arbitrary value is returned in this member for the interfaces
-	 * supported by NDIS. For interfaces supported by other interface providers,
-	 * they might return an appropriate value. dwInOctets
+	 * The index that identifies the interface. This index value may change when a
+	 * network adapter is disabled and then enabled, and should not be considered
+	 * persistent.
 	 * 
-	 * @return length of time since restart when the interface entered its current
-	 *         OP state
+	 * @return index
 	 */
-	public native int dwLastChange();
+	public native int dwIndex();
 
 	/**
-	 * The number of unicast packets received through this interface.
+	 * Sets the index value in the peered structure
 	 * 
-	 * @return number of packets
+	 * @param value
+	 *          value to set
 	 */
-	public native int dwInUcastPkts();
-
-	/**
-	 * The number of non-unicast packets received through this interface.
-	 * Broadcast and multicast packets are included.
-	 * 
-	 * @return number of packets
-	 */
-	public native int dwInNUcastPkts();
+	public native void dwIndex(int value);
 
 	/**
 	 * The number of incoming packets that were discarded even though they did not
@@ -277,6 +218,21 @@ public class MSMibIfRow
 	public native int dwInErrors();
 
 	/**
+	 * The number of non-unicast packets received through this interface.
+	 * Broadcast and multicast packets are included.
+	 * 
+	 * @return number of packets
+	 */
+	public native int dwInNUcastPkts();
+
+	/**
+	 * The number of unicast packets received through this interface.
+	 * 
+	 * @return number of packets
+	 */
+	public native int dwInUcastPkts();
+
+	/**
 	 * The number of incoming packets that were discarded because the protocol was
 	 * unknown.
 	 * 
@@ -285,26 +241,33 @@ public class MSMibIfRow
 	public native int dwInUnknownProtos();
 
 	/**
-	 * The number of octets of data sent through this interface.
+	 * The length of time, in hundredths of seconds (10^-2 sec), starting from the
+	 * last computer restart, when the interface entered its current operational
+	 * state. This value rolls over after 2^32 hundredths of a second. The
+	 * dwLastChange member is not currently supported by NDIS. On Windows Vista
+	 * and later, NDIS returns zero for this member. On earlier versions of
+	 * Windows, an arbitrary value is returned in this member for the interfaces
+	 * supported by NDIS. For interfaces supported by other interface providers,
+	 * they might return an appropriate value. dwInOctets
 	 * 
-	 * @return number of octets
+	 * @return length of time since restart when the interface entered its current
+	 *         OP state
 	 */
-	public native int dwOutOctets();
+	public native int dwLastChange();
 
 	/**
-	 * The number of unicast packets sent through this interface.
+	 * The Maximum Transmission Unit (MTU) size in bytes.
 	 * 
-	 * @return number of packets
+	 * @return mtu size in bytes
 	 */
-	public native int dwOutUcastPkts();
+	public native int dwMtu();
 
 	/**
-	 * The number of non-unicast packets sent through this interface. Broadcast
-	 * and multicast packets are included.
+	 * The operational status of the interface.
 	 * 
-	 * @return number of packets
+	 * @return status of interface
 	 */
-	public native int dwOutNUcastPkts();
+	public native int dwOperStatus();
 
 	/**
 	 * The number of outgoing packets that were discarded even though they did not
@@ -322,6 +285,21 @@ public class MSMibIfRow
 	public native int dwOutErrors();
 
 	/**
+	 * The number of non-unicast packets sent through this interface. Broadcast
+	 * and multicast packets are included.
+	 * 
+	 * @return number of packets
+	 */
+	public native int dwOutNUcastPkts();
+
+	/**
+	 * The number of octets of data sent through this interface.
+	 * 
+	 * @return number of octets
+	 */
+	public native int dwOutOctets();
+
+	/**
 	 * The transmit queue length. This field is not currently used.
 	 * 
 	 * @return length of queue
@@ -329,19 +307,44 @@ public class MSMibIfRow
 	public native int dwOutQLen();
 
 	/**
-	 * The length, in bytes, of the bDescr member.
+	 * The number of unicast packets sent through this interface.
 	 * 
-	 * @return length of bDescr member
+	 * @return number of packets
 	 */
-	public native int dwDescrLen();
+	public native int dwOutUcastPkts();
 
 	/**
-	 * A description of the interface.
+	 * The length, in bytes, of the physical address specified by the bPhysAddr
+	 * member.
+	 * 
+	 * @return length of hardware address
+	 */
+	public native int dwPhysAddrLen();
+
+	/**
+	 * The speed of the interface in bits per second.
+	 * 
+	 * @return speed of interface
+	 */
+	public native int dwSpeed();
+
+	/**
+	 * The interface type as defined by the Internet Assigned Names Authority
+	 * (IANA). For more information, see
+	 * http://www.iana.org/assignments/ianaiftype-mib. Common values for the
+	 * interface type are defined as constants in this class.
+	 * 
+	 * @return interface type
+	 */
+	public native int dwType();
+
+	/**
+	 * string that contains the name of the interface.
 	 * <p>
 	 * <b>Note:</b> According to Microsoft this field is usually blank
 	 * </p>
 	 * 
-	 * @return a description of the interface
+	 * @return name
 	 */
-	public native String bDescr();
+	public native String wszName();
 }

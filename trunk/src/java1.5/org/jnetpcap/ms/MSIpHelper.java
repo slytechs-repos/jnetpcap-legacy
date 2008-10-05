@@ -21,7 +21,7 @@ import org.jnetpcap.Pcap;
  * Applicable The IP Helper API is applicable in any computing environment where
  * programmatically manipulating TCP/IP configuration is useful. Typical
  * applications include IP routing protocols and Simple Network Management
- * Protocol (SNMP) agents. Developer Audience
+ * Protocol (SNMP) agents.
  * 
  * @since 1.2
  * @author Mark Bednarczyk

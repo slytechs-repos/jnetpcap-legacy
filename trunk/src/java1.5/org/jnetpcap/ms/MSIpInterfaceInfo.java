@@ -40,6 +40,8 @@ import org.jnetpcap.Peered;
  * } IP_INTERFACE_INFO,  *PIP_INTERFACE_INFO;
  * </pre>
  * 
+ * @see MSIpHelper#getInterfaceInfo(MSIpInterfaceInfo, org.jnetpcap.JNumber)
+ * @since 1.2
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */

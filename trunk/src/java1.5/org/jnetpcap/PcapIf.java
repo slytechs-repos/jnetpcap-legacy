@@ -12,6 +12,7 @@
  */
 package org.jnetpcap;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,8 +45,14 @@ public final class PcapIf {
 	 */
 	private volatile PcapIf next;
 
+	/**
+	 * 
+	 */
 	private volatile String name;
 
+	/**
+	 * 
+	 */
 	private volatile String description;
 
 	/**
@@ -109,6 +116,22 @@ public final class PcapIf {
 	 */
 	public final int getFlags() {
 		return this.flags;
+	}
+
+	/**
+	 * Retrieves the hardware address or MAC for the current pcap interface.
+	 * <p>
+	 * Note that this method is not part of the native libpcap API.
+	 * </p>
+	 * 
+	 * @since 1.2
+	 * @return hardware address or null if interface does not support having a
+	 *         hardware address
+	 * @throws IOException
+	 *           any communication errors
+	 */
+	public final byte[] getHardwareAddress() throws IOException {
+		return PcapUtils.getHardwareAddress(this);
 	}
 
 	/**
