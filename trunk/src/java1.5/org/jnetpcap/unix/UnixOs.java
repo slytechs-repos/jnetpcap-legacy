@@ -12,8 +12,8 @@
  */
 package org.jnetpcap.unix;
 
+import org.jnetpcap.JNumber;
 import org.jnetpcap.Pcap;
-import org.jnetpcap.PcapInteger;
 
 /**
  * Provides access to various unix operating system related functions.
@@ -203,7 +203,7 @@ public class UnixOs {
 	 * @param data
 	 * @return result code
 	 */
-	public static native int ioctl(int d, int request, PcapInteger data);
+	public static native int ioctl(int d, int request, JNumber data);
 
 	/**
 	 * Returns the last error code returned by one of the unix functions

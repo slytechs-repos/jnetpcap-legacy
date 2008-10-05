@@ -42,6 +42,9 @@ public class TestUnixOs
 		super.tearDown();
 	}
 
+	/**
+	 * 
+	 */
 	public void testTranslateConstant() {
 		if (!UnixOs.isSupported()) {
 			return;
@@ -58,6 +61,9 @@ public class TestUnixOs
 		    + UnixOs.translateConstant(UnixOs.IPPROTO_TCP));
 	}
 
+	/**
+	 * 
+	 */
 	public void testSocket() {
 		if (!UnixOs.isSupported() || !UnixOs.isSupported(UnixOs.IPPROTO_TCP)) {
 			return;
@@ -74,6 +80,10 @@ public class TestUnixOs
 		UnixOs.close(d);
 	}
 
+	/**
+	 * 
+	 * @throws IOException
+	 */
 	public void testIoctlGETHWADDR() throws IOException {
 		if (!UnixOs.isSupported() || !UnixOs.isSupported(UnixOs.SOCK_PACKET)
 		    || !UnixOs.isSupported(UnixOs.SIOCGIFHWADDR)) {
@@ -116,6 +126,10 @@ public class TestUnixOs
 
 	}
 
+	/**
+	 * 
+	 * @throws IOException
+	 */
 	public void testIoctlSIOCGIFMTU() throws IOException {
 		if (!UnixOs.isSupported() || !UnixOs.isSupported(UnixOs.SOCK_PACKET)
 		    || !UnixOs.isSupported(UnixOs.SIOCGIFMTU)) {

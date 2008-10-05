@@ -69,6 +69,7 @@
 #include "jnetpcap_bpf.h"
 #include "jnetpcap_dumper.h"
 #include "jnetpcap_ids.h"
+#include "jnetpcap_peered.h"
 #include "org_jnetpcap_Pcap.h"
 #include "export.h"
 
@@ -959,9 +960,43 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_Pcap_lookupDev
 /*
  * Class:     org_jnetpcap_Pcap
  * Method:    lookupNet
- * Signature: (Ljava/lang/String;Lorg/jnetpcap/PcapInteger;Lorg/jnetpcap/PcapInteger;Ljava/lang/StringBuilder;)I
+ * Signature: (Ljava/lang/String;Lorg/jnetpcap/JNumber;Lorg/jnetpcap/JNumber;Ljava/lang/StringBuffer;)I
  */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_lookupNet
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_lookupNet__Ljava_lang_String_2Lorg_jnetpcap_JNumber_2Lorg_jnetpcap_JNumber_2Ljava_lang_StringBuffer_2
+  (JNIEnv *env, jclass clzz, jstring jdevice, jobject jnetp, jobject jmaskp, jobject jerrbuf) {
+	if (jdevice == NULL || jnetp == NULL | jmaskp == NULL || jerrbuf == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return -1;
+	}
+	
+	char errbuf[PCAP_ERRBUF_SIZE];
+	errbuf[0] = '\0'; // Reset the buffer;
+
+	const char *device = env->GetStringUTFChars(jdevice, 0);
+
+	//	printf("device=%s snaplen=%d, promisc=%d timeout=%d\n",
+	//			device, jsnaplen, jpromisc, jtimeout);
+
+	bpf_u_int32 *netp  = (bpf_u_int32 *) getPeeredPhysical(env, jnetp);
+	bpf_u_int32 *maskp = (bpf_u_int32 *) getPeeredPhysical(env, jmaskp);
+	int r = pcap_lookupnet(device, netp, maskp, errbuf);
+	setString(env, jerrbuf, errbuf); // Even if no error, could have warning msg
+	env->ReleaseStringUTFChars(jdevice, device);
+	
+	if (r == -1) {
+		return -1;
+	}
+	
+	return r;
+}
+
+
+/*
+ * Class:     org_jnetpcap_Pcap
+ * Method:    lookupNet
+ * Signature: (Ljava/lang/String;Lorg/jnetpcap/PcapInteger;Lorg/jnetpcap/PcapInteger;Ljava/lang/StringBuffer;)I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_lookupNet__Ljava_lang_String_2Lorg_jnetpcap_PcapInteger_2Lorg_jnetpcap_PcapInteger_2Ljava_lang_StringBuffer_2
 (JNIEnv *env, jclass clazz, jstring jdevice, jobject jnetp, jobject jmaskp, jobject jerrbuf) {
 
 	if (jdevice == NULL || jnetp == NULL | jmaskp == NULL || jerrbuf == NULL) {
