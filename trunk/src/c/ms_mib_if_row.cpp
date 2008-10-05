@@ -220,7 +220,7 @@ JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_ms_MSMibIfRow_bPhysAddr
 	return ja;
 #else
 	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
-	return -1;
+	return NULL;
 #endif	
 }
 

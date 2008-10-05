@@ -87,7 +87,7 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_ms_MSIpInterfaceInfo_adapter
 	return jmap;
 #else
 	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
-	return -1;
+	return NULL;
 #endif
 
 }

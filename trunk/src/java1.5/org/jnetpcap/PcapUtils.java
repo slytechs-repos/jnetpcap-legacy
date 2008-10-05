@@ -199,9 +199,12 @@ public final class PcapUtils {
 	 */
 	public static byte[] getHardwareAddress(PcapIf netif) throws IOException {
 		
-		String device = netif.getName().toUpperCase().replaceAll("NPF_", "TCPIP_");
+		String device = netif.getName();
 		
-		byte[] mac = getMSHardwareAddress(device);
+		/*
+ 		 * Translate device name on MS systems from NPF to TCPIP namespace
+ 		 */
+		byte[] mac = getMSHardwareAddress(device.toUpperCase().replaceAll("NPF_", "TCPIP_"));
 		if (mac != null) {
 			return mac;
 		}
@@ -233,12 +236,13 @@ public final class PcapUtils {
 		}
 
 		UnixIfReq ir = new UnixIfReq();
+
 		ir.ifr_name(device);
 
 		int r = UnixOs.ioctl(d, UnixOs.SIOCGIFHWADDR, ir);
 		UnixOs.close(d);
 		if (r == -1) {
-			throw new IOException(UnixOs.strerror(UnixOs.errno()));
+			return null;
 		}
 
 		byte[] ha = ir.ifr_hwaddr();
