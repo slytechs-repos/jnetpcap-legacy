@@ -55,11 +55,6 @@ public abstract class PcapTask<T> implements Runnable {
 	protected final T user;
 
 	/**
-	 * Flag which indicates that internal Runnable.run method has been reached
-	 */
-	private boolean isSynched = false;
-
-	/**
 	 * Creates a new task handle for controlling background thread.
 	 * 
 	 * @param pcap

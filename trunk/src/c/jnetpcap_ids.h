@@ -19,6 +19,8 @@ extern jclass pcapAddrClass;
 extern jclass PcapSockAddrClass;
 extern jclass pcapIntegerClass;
 
+extern jclass msIpAdapterIndexMapClass;
+
 extern jfieldID pcapPhysicalFID;
 extern jfieldID pcapIntegerValueFID;
 
@@ -49,6 +51,8 @@ extern 	jmethodID pcapConstructorMID;
 extern 	jmethodID pcapIfConstructorMID;
 extern 	jmethodID PcapSockAddrConstructorMID;
 extern 	jmethodID pcapAddrConstructorMID;
+extern 	jmethodID msIpAdapterIndexMapMID;
+
 extern 	jmethodID appendMID;
 extern 	jmethodID setLengthMID;
 

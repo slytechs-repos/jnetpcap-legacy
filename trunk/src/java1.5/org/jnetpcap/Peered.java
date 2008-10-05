@@ -14,10 +14,15 @@ package org.jnetpcap;
 public abstract class Peered {
 
 	/**
+	 * Number of byte currently allocated
+	 */
+	private final int size;
+
+	/**
 	 * No memory pre-allocation constructor
 	 */
 	public Peered() {
-		// Empty
+		this.size = 0;
 	}
 
 	/**
@@ -27,8 +32,20 @@ public abstract class Peered {
 	 *          number of bytes to pre-allocate allocate
 	 */
 	public Peered(int size) {
+		this.size = size;
 		this.owner = true;
 		allocate(size);
+	}
+
+	/**
+	 * Returns the size of the memory block that this peered structure is point to.
+	 * This object does not neccessarily have to be the owner of the memory block
+	 * and could simply be a portion of the over all memory block.
+	 * 
+	 * @return number of byte currently allocated
+	 */
+	public int size() {
+		return size;
 	}
 
 	private static native void initIDs();
