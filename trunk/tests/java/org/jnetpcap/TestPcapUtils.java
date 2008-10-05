@@ -53,9 +53,22 @@ public class TestPcapUtils
 				System.out.printf("%s=%s\n", device.getName(), "NOT FOUND");
 
 			} else {
-				System.out.printf("%s=%s\n", device.getName(), PcapUtils.asString(mac));
+				System.out.printf("%s=%s\n", device.getName(), asString(mac));
 			}
 		}
 	}
+	
+	private static String asString(byte[] bs) {
+		StringBuilder buf = new StringBuilder();
+		for (byte b : bs) {
+			if (buf.length() != 0) {
+				buf.append(':');
+			}
+			buf.append(Integer.toHexString((b < 0) ? b + 256 : b).toUpperCase());
+		}
+
+		return buf.toString();
+	}
+
 
 }

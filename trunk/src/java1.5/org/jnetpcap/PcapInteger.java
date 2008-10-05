@@ -17,6 +17,7 @@ package org.jnetpcap;
  * require an integer pointer to be set as a return value. The object is not
  * peered with any native structures, but is set using special JNI priviledges.
  * 
+ * @deprecated This class has been replaced by {@link JNumber}
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */

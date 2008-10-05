@@ -720,7 +720,33 @@ public class Pcap {
 	 * @return 0 on success otherwise -1 on error
 	 * @since 1.2
 	 */
-	public native static int lookupNet(String device, PcapInteger netp,
+	public native static int lookupNet(String device, JNumber netp,
+	    JNumber maskp, StringBuffer errbuf);
+
+	/**
+	 * Determines the network number and mask associated with the network device.
+	 * Both netp and maskp are integer object references whos value is set from
+	 * within the call. This is the way that pcap natively passes back these two
+	 * values.
+	 * <p>
+	 * <b>Note:</b> this method is deprecated in pcap as it can not be used to
+	 * pass back information about IP v6 addresses.
+	 * </p>
+	 * 
+	 * @deprecated use {@link #lookupNet(String, JNumber, JNumber, StringBuffer)}
+	 *             instead
+	 * @param device
+	 *          device to do the lookup on
+	 * @param netp
+	 *          object which will contain the value of network address
+	 * @param maskp
+	 *          object which will contain the value of network netmask
+	 * @param errbuf
+	 *          any error messages if return value is -1
+	 * @return 0 on success otherwise -1 on error
+	 * @since 1.2
+	 */
+	private native static int lookupNet(String device, PcapInteger netp,
 	    PcapInteger maskp, StringBuffer errbuf);
 
 	/**
@@ -733,6 +759,38 @@ public class Pcap {
 	 * pass back information about IP v6 addresses.
 	 * </p>
 	 * 
+	 * @param device
+	 *          device to do the lookup on
+	 * @param netp
+	 *          object which will contain the value of network address
+	 * @param maskp
+	 *          object which will contain the value of network netmask
+	 * @param errbuf
+	 *          any error messages if return value is -1
+	 * @return 0 on success otherwise -1 on error
+	 */
+	public static int lookupNet(String device, JNumber netp, JNumber maskp,
+	    StringBuilder errbuf) {
+		final int r = lookupNet(device, netp, maskp, PcapUtils.getBuf());
+
+		PcapUtils.toStringBuilder(PcapUtils.getBuf(), errbuf);
+
+		return r;
+	}
+
+	/**
+	 * Determines the network number and mask associated with the network device.
+	 * Both netp and maskp are integer object references whos value is set from
+	 * within the call. This is the way that pcap natively passes back these two
+	 * values.
+	 * <p>
+	 * <b>Note:</b> this method is deprecated in pcap as it can not be used to
+	 * pass back information about IP v6 addresses.
+	 * </p>
+	 * 
+	 * @deprecated use
+	 *             {@link #lookupNet(String, JNumber, JNumber, StringBuilder)}
+	 *             instead
 	 * @param device
 	 *          device to do the lookup on
 	 * @param netp
@@ -758,7 +816,7 @@ public class Pcap {
 	 * within the call. This is the way that pcap natively passes back these two
 	 * values.
 	 * <p>
-	 * <b>Note:</b> this method is deprecated in pcap as it can not be used to
+	 * <b>Note:</b> this method is deprecated in libpcap as it can not be used to
 	 * pass back information about IP v6 addresses.
 	 * </p>
 	 * 
@@ -773,8 +831,8 @@ public class Pcap {
 	 * @return 0 on success otherwise -1 on error
 	 * @since 1.2
 	 */
-	public static int lookupNet(String device, PcapInteger netp,
-	    PcapInteger maskp, Appendable errbuf) throws IOException {
+	public static int lookupNet(String device, JNumber netp, JNumber maskp,
+	    Appendable errbuf) throws IOException {
 		final int r = lookupNet(device, netp, maskp, PcapUtils.getBuf());
 
 		PcapUtils.toAppendable(PcapUtils.getBuf(), errbuf);
