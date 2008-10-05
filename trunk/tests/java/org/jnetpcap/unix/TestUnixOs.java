@@ -81,7 +81,7 @@ public class TestUnixOs
 		}
 
 		int d =
-		    UnixOs.socket(UnixOs.PF_INET, UnixOs.SOCK_PACKET,
+		    UnixOs.socket(UnixOs.PF_INET, UnixOs.SOCK_DGRAM,
 		        UnixOs.PROTOCOL_DEFAULT);
 		if (d == -1) {
 			fail("socket():=" + UnixOs.errno() + " msg="
@@ -92,7 +92,7 @@ public class TestUnixOs
 		List<PcapIf> ifs = new ArrayList<PcapIf>();
 		Pcap.findAllDevs(ifs, System.out);
 
-//		System.out.println("devices=" + ifs);
+		// System.out.println("devices=" + ifs);
 		System.out.println("device=" + ifs.get(DEVICE).getName());
 
 		UnixIfReq ir = new UnixIfReq();
@@ -115,7 +115,7 @@ public class TestUnixOs
 		UnixOs.close(d);
 
 	}
-	
+
 	public void testIoctlSIOCGIFMTU() throws IOException {
 		if (!UnixOs.isSupported() || !UnixOs.isSupported(UnixOs.SOCK_PACKET)
 		    || !UnixOs.isSupported(UnixOs.SIOCGIFMTU)) {
@@ -134,19 +134,18 @@ public class TestUnixOs
 		List<PcapIf> ifs = new ArrayList<PcapIf>();
 		Pcap.findAllDevs(ifs, System.out);
 
-//		System.out.println("devices=" + ifs);
+		// System.out.println("devices=" + ifs);
 		System.out.println("device=" + ifs.get(DEVICE).getName());
 
 		UnixIfReq ir = new UnixIfReq();
 		ir.ifr_name(ifs.get(DEVICE).getName());
 
-		if(UnixOs.ioctl(d, UnixOs.SIOCGIFMTU, ir) < 0) {
+		if (UnixOs.ioctl(d, UnixOs.SIOCGIFMTU, ir) < 0) {
 			fail("ioctl():=" + UnixOs.errno() + " msg="
 			    + UnixOs.strerror(UnixOs.errno()));
 
 		}
 
-		
 		System.out.println("mtu=" + ir.ifr_mtu());
 
 		if (UnixOs.ioctl(d, UnixOs.SIOCGIFFLAGS, ir) < 0) {
@@ -155,7 +154,6 @@ public class TestUnixOs
 
 		}
 
-		
 		System.out.println("flags=" + ir.ifr_flags());
 
 		UnixOs.close(d);

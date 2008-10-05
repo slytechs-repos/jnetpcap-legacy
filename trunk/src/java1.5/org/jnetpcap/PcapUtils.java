@@ -13,6 +13,15 @@
 package org.jnetpcap;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.jnetpcap.ms.MSIpAdapterIndexMap;
+import org.jnetpcap.ms.MSIpHelper;
+import org.jnetpcap.ms.MSIpInterfaceInfo;
+import org.jnetpcap.ms.MSMibIfRow;
+import org.jnetpcap.unix.UnixIfReq;
+import org.jnetpcap.unix.UnixOs;
 
 /**
  * A Pcap utility class which provides certain additional and convenience
@@ -167,5 +176,105 @@ public final class PcapUtils {
 			builder.append(buf);
 		}
 	}
+	
+	public static String asString(byte[] bs) {
+		StringBuilder buf = new StringBuilder();
+		for (byte b : bs) {
+			if (buf.length() != 0) {
+				buf.append(':');
+			}
+			buf.append(Integer.toHexString((b < 0) ? b + 256 : b).toUpperCase());
+		}
 
+		return buf.toString();
+	}
+
+
+	/**
+	 * Retrieves a network hardware address or MAC for a network interface
+	 * 
+	 * @param netif
+	 * @return
+	 * @throws IOException 
+	 */
+	public static byte[] getHardwareAddress(PcapIf netif) throws IOException {
+		
+		String device = netif.getName().toUpperCase().replaceAll("NPF_", "TCPIP_");
+		
+		byte[] mac = getMSHardwareAddress(device);
+		if (mac != null) {
+			return mac;
+		}
+		
+		mac = getUnixHardwareAddress(device);
+		if (mac != null) {
+			return mac;
+		}
+		
+		return null;
+	}
+
+	/**
+   * @param device
+   * @return
+	 * @throws IOException 
+   */
+  private static byte[] getUnixHardwareAddress(String device) throws IOException {
+		if (!UnixOs.isSupported() || !UnixOs.isSupported(UnixOs.SOCK_PACKET)
+		    || !UnixOs.isSupported(UnixOs.SIOCGIFHWADDR)) {
+			return null;
+		}
+
+		int d =
+		    UnixOs.socket(UnixOs.PF_INET, UnixOs.SOCK_DGRAM,
+		        UnixOs.PROTOCOL_DEFAULT);
+		if (d == -1) {
+			throw new IOException(UnixOs.strerror(UnixOs.errno()));
+		}
+
+		UnixIfReq ir = new UnixIfReq();
+		ir.ifr_name(device);
+
+		int r = UnixOs.ioctl(d, UnixOs.SIOCGIFHWADDR, ir);
+		UnixOs.close(d);
+		if (r == -1) {
+			throw new IOException(UnixOs.strerror(UnixOs.errno()));
+		}
+
+		byte[] ha = ir.ifr_hwaddr();
+		return ha;
+  }
+
+	private static byte[] getMSHardwareAddress(String device) throws IOException {
+		if (!MSIpHelper.isSupported()) {
+			return null;
+		}
+
+		int r = 0;
+		JNumber size = new JNumber();
+		if ((r = MSIpHelper.getInterfaceInfo(null, size)) != MSIpHelper.ERROR_INSUFFICIENT_BUFFER) {
+			throw new IOException("MSIpHelper.getInterfaceInfo() failed");
+		}
+
+		MSIpInterfaceInfo info = new MSIpInterfaceInfo(size.intValue());
+		if ((r = MSIpHelper.getInterfaceInfo(info, size)) != MSIpHelper.NO_ERROR) {
+			throw new IOException("MSIpHelper.getInterfaceInfo() failed");
+		}
+
+		for (int i = 0; i < info.numAdapters(); i++) {
+			MSIpAdapterIndexMap adapter = info.adapter(i);
+
+			MSMibIfRow row = new MSMibIfRow();
+			row.dwIndex(adapter.index());
+			if ((r = MSIpHelper.getIfEntry(row)) != MSIpHelper.NO_ERROR) {
+				throw new IOException("MSIpHelper.getIfEntry() failed");
+			}
+
+			if (device.toUpperCase().equals(adapter.name().toUpperCase())) {
+				return row.bPhysAddr();
+			}
+		}
+		return null;
+	}
+	
 }

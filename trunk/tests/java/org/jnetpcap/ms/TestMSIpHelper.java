@@ -136,5 +136,5 @@ public class TestMSIpHelper
 
 		return buf.toString();
 	}
-
+//\DEVICE\TCPIP_
 }
