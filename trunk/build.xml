@@ -720,6 +720,8 @@
 			<!-- test name="org.jnetpcap.TestPcapJNI" todir="${report.dir}" /-->
 			<test name="org.jnetpcap.unix.TestUnixOs" todir="${report.dir}" />
 
+			<test name="org.jnetpcap.TestPcapUtils" todir="${report.dir}" />
+
 
 			<!--test 
 				name="org.jnetpcap.winpcap.TestWinPcapExtensions" 
