@@ -14,7 +14,6 @@ package org.jnetpcap;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import junit.framework.TestCase;

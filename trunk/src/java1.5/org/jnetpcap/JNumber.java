@@ -19,10 +19,10 @@ package org.jnetpcap;
  * that these numbers at JNI level can be passed in as pointers and thus allows
  * natives methods to both send and receive values between native and java
  * space. The methods are named similarly like java.lang.Number class, with the
- * exception of setter methods.
+ * exception of existance of setter methods.
  * <p>
- * Typical usage for JNumber is to use it wherever a system request a primitive
- * type pointer.
+ * Typical usage for JNumber is to use it wherever a function requests a
+ * primitive type pointer.
  * </p>
  * 
  * @author Mark Bednarczyk
@@ -31,10 +31,27 @@ package org.jnetpcap;
 public class JNumber
     extends Peered {
 
-	private static final int ALLOC_SIZE = 8; // 8 bytes
+	/**
+	 * Number of bytes to allocate to hold our number. 16 bytes is a bit much,
+	 * typically 8 would be sufficient to hold even a double, but on 64 bit
+	 * machines and even newer ones that this may eventually run on, it is better
+	 * to overallocate than run into a limit.
+	 */
+	private static final int ALLOC_SIZE = 16;
 
 	/**
+	 * Allocates a number of the specified size.
+	 * 
 	 * @param size
+	 *          number of byte to allocate to hold a number
+	 */
+	public JNumber(int size) {
+		super(size);
+	}
+
+	/**
+	 * Allocates a number with default size. The size is large enough to hold the
+	 * biggest number.
 	 */
 	public JNumber() {
 		super(ALLOC_SIZE);

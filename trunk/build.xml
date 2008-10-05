@@ -427,6 +427,12 @@
 			
 			<class name="org.jnetpcap.unix.UnixIfReq" />
 			<class name="org.jnetpcap.unix.UnixOs" />
+			
+			<class name="org.jnetpcap.ms.MSIpHelper" />
+			<class name="org.jnetpcap.ms.MSIpAdapterIndexMap" />
+			<class name="org.jnetpcap.ms.MSIpInterfaceInfo" />
+			<class name="org.jnetpcap.ms.MSMibIfRow" />
+
 
 		</javah>
 
@@ -452,6 +458,11 @@
 
 		<echo message="${a}/org_jnetpcap_unix_UnixIfReq.h" />
 		<echo message="${a}/org_jnetpcap_unix_UnixOs.h" />
+		
+		<echo message="${a}/org_jnetpcap_ms_MSIpHelper.h" />
+		<echo message="${a}/org_jnetpcap_ms_MSIpIpAdapterIndexMap.h" />
+		<echo message="${a}/org_jnetpcap_ms_MSIpInterfaceInfo.h" />
+		<echo message="${a}/org_jnetpcap_ms_MSIpMibIfRow.h" />
 	</target>
 
 	<!-- =================================================================== -->
@@ -504,6 +515,9 @@
 			<arg line="-L ${pcap.lib.dir}" />
 
 			<arg line="-l ${pcap.lib.name}" />
+			
+			<arg line="-l ${ms.lib.name}" />
+
 
 		</exec>
 		<echo message="Created shared JNI libary: ${jni.build.filepath}" />
