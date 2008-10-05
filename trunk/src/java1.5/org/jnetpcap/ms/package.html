@@ -12,7 +12,6 @@ private static byte[] getMSHardwareAddress(String device) throws IOException {
 		return null;
 	}
 
-	@SuppressWarnings("unused")
    int r = 0;
 	JNumber size = new JNumber();
 	if ((r = MSIpHelper.getInterfaceInfo(null, size)) != MSIpHelper.ERROR_INSUFFICIENT_BUFFER) {
@@ -24,7 +23,7 @@ private static byte[] getMSHardwareAddress(String device) throws IOException {
 		throw new IOException("MSIpHelper.getInterfaceInfo() failed");
 	}
 
-	for (int i = 0; i < info.numAdapters(); i++) {
+	for (int i = 0; i &lt; info.numAdapters(); i++) {
 		MSIpAdapterIndexMap adapter = info.adapter(i);
 
 		MSMibIfRow row = new MSMibIfRow();
