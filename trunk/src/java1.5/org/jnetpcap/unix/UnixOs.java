@@ -171,7 +171,7 @@ public class UnixOs {
 	 * @param domain
 	 * @param type
 	 * @param protocol
-	 * @return
+	 * @return result code
 	 */
 	public static native int socket(int domain, int type, int protocol);
 
@@ -181,7 +181,7 @@ public class UnixOs {
 	 * @param d
 	 * @param request
 	 * @param data
-	 * @return
+	 * @return result code
 	 */
 	public static native int ioctl(int d, int request, Object data);
 
@@ -191,7 +191,7 @@ public class UnixOs {
 	 * @param d
 	 * @param request
 	 * @param data
-	 * @return
+	 * @return result code
 	 */
 	public static native int ioctl(int d, int request, int data);
 
@@ -201,14 +201,14 @@ public class UnixOs {
 	 * @param d
 	 * @param request
 	 * @param data
-	 * @return
+	 * @return result code
 	 */
 	public static native int ioctl(int d, int request, PcapInteger data);
 
 	/**
 	 * Returns the last error code returned by one of the unix functions
 	 * 
-	 * @return
+	 * @return result code
 	 */
 	public static native int errno();
 
@@ -227,7 +227,7 @@ public class UnixOs {
 	 * Closes a socket given a descriptor
 	 * 
 	 * @param d
-	 * @return
+	 * @return result code
 	 */
 	public static native int close(int d);
 
