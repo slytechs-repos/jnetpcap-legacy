@@ -54,7 +54,7 @@ char * toString(JNIEnv *env, jbyteArray ja) {
 
 jlong toLong(void *ptr) {
 #ifndef WIN32
-	jlong lp = (jlong) (jint) ptr;
+	jlong lp = (intptr_t) ptr;
 #else
 	jlong lp = (UINT_PTR) ptr;
 #endif
@@ -65,7 +65,7 @@ jlong toLong(void *ptr) {
 void *toPtr(jlong lp) {
 	
 #ifndef WIN32
-	void *ptr = (void *) ((jint) lp);
+	void *ptr = (void *) ((intptr_t) lp);
 #else
 	void *ptr = (void *) ((UINT_PTR) lp);
 #endif
