@@ -16,7 +16,7 @@ public abstract class Peered {
 	/**
 	 * Number of byte currently allocated
 	 */
-	private final int size;
+	private int size;
 
 	/**
 	 * No memory pre-allocation constructor
@@ -38,9 +38,9 @@ public abstract class Peered {
 	}
 
 	/**
-	 * Returns the size of the memory block that this peered structure is point to.
-	 * This object does not neccessarily have to be the owner of the memory block
-	 * and could simply be a portion of the over all memory block.
+	 * Returns the size of the memory block that this peered structure is point
+	 * to. This object does not neccessarily have to be the owner of the memory
+	 * block and could simply be a portion of the over all memory block.
 	 * 
 	 * @return number of byte currently allocated
 	 */
@@ -93,6 +93,36 @@ public abstract class Peered {
 	 * memory block and something more complex.
 	 */
 	protected native void cleanup();
+
+	/**
+	 * Peers the src structure with this instance. The physical memory that the
+	 * src peered object points to is set to this instance. The owner flag is not
+	 * copied and src remains at the same state as it did before. This instance is
+	 * not the owner of the memory
+	 * 
+	 * @param src
+	 */
+	protected void peer(Peered src) {
+		finalized(); // Clean up any memory we own before we give it up
+		
+		this.physical = src.physical;
+		this.size = src.size;
+
+		/*
+		 * For specific reasons, we can never be the owner of the peered structure.
+		 * The owner should remain the object that initially created or was created
+		 * to manage the physical memory. The reasons are as follows:
+		 * <ul>
+		 * <li> Memory could be a revolving buffer
+		 * <li> Memory allocation could have been complex with sub structures that
+		 * need to be deallocated
+		 * <li> The src object may have been passed around and references stored to
+		 * it elsewhere. If we are GCed before src and we free up the memory the
+		 * original src object would become unstable
+		 * </ul>
+		 */
+		this.owner = false;
+	}
 
 	/**
 	 * Default finalizer which checks if there is any memory to free up.

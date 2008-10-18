@@ -19,8 +19,8 @@ import org.jnetpcap.ms.MSIpAdapterIndexMap;
 import org.jnetpcap.ms.MSIpHelper;
 import org.jnetpcap.ms.MSIpInterfaceInfo;
 import org.jnetpcap.ms.MSMibIfRow;
-import org.jnetpcap.unix.UnixIfReq;
 import org.jnetpcap.unix.UnixOs;
+import org.jnetpcap.unix.UnixOs.IfReq;
 
 /**
  * A Pcap utility class which provides certain additional and convenience
@@ -256,7 +256,7 @@ public final class PcapUtils {
 			throw new IOException(UnixOs.strerror(UnixOs.errno()));
 		}
 
-		UnixIfReq ir = new UnixIfReq();
+		IfReq ir = new IfReq();
 
 		ir.ifr_name(device);
 

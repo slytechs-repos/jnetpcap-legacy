@@ -39,7 +39,7 @@ public interface PcapHandler<T> {
 	 * start as determined by libpcap itself. Also the buffer is read-only and the
 	 * data is not mutable. Packet data is not copied into the buffer, but written
 	 * to directly by the kernel. This ensures that data is only written once into
-	 * the buffer and then returned to java envioronment.
+	 * the buffer and then returned to java environment.
 	 * 
 	 * @param user
 	 *          user supplied object to dispatch or loop calls
