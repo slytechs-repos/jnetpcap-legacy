@@ -14,6 +14,7 @@ package org.jnetpcap.unix;
 
 import org.jnetpcap.JNumber;
 import org.jnetpcap.Pcap;
+import org.jnetpcap.Peered;
 
 /**
  * Provides access to various unix operating system related functions.
@@ -35,6 +36,266 @@ import org.jnetpcap.Pcap;
  * @author Sly Technologies, Inc.
  */
 public class UnixOs {
+
+	/**
+	 * Base class for all PEERED IF IOCTL call and their structures. Every ifreq
+	 * begins with an interface name. One important thing to notice about this
+	 * structure and class is that most of the fields are UNIONs. Therefore
+	 * outside of the name() methods, one one getter method will be
+	 * available/correct depending on which ioctl() call was made. No exceptions
+	 * are thrown for incorrect lookup of a value of the peered structure.
+	 * 
+	 * <pre>
+	 * ifreq structure:
+	 * 
+	 * struct ifreq
+	 *  {
+	 *  # define IFHWADDRLEN    6
+	 *  # define IFNAMSIZ   IF_NAMESIZE
+	 *  union
+	 *  {
+	 *  char ifrn_name[IFNAMSIZ];   
+	 *  } ifr_ifrn;
+	 * 
+	 *  union
+	 *  {
+	 *  struct sockaddr ifru_addr;
+	 *  struct sockaddr ifru_dstaddr;
+	 *  struct sockaddr ifru_broadaddr;
+	 *  struct sockaddr ifru_netmask;
+	 *  struct sockaddr ifru_hwaddr;
+	 *  short int ifru_flags;
+	 *  int ifru_ivalue;
+	 *  int ifru_mtu;
+	 *  struct ifmap ifru_map;
+	 *  char ifru_slave[IFNAMSIZ];  
+	 *  char ifru_newname[IFNAMSIZ];
+	 *  __caddr_t ifru_data;
+	 *  } ifr_ifru;
+	 *  };
+	 *  # define ifr_name   ifr_ifrn.ifrn_name  // interface name   
+	 *  # define ifr_hwaddr ifr_ifru.ifru_hwaddr    // MAC address      
+	 *  # define ifr_addr   ifr_ifru.ifru_addr  // address      
+	 *  # define ifr_dstaddr    ifr_ifru.ifru_dstaddr   // other end of p-p lnk 
+	 *  # define ifr_broadaddr  ifr_ifru.ifru_broadaddr // broadcast address    
+	 *  # define ifr_netmask    ifr_ifru.ifru_netmask   // interface net mask   
+	 *  # define ifr_flags  ifr_ifru.ifru_flags // flags        
+	 *  # define ifr_metric ifr_ifru.ifru_ivalue    // metric       
+	 *  # define ifr_mtu    ifr_ifru.ifru_mtu   // mtu          
+	 *  # define ifr_map    ifr_ifru.ifru_map   // device map       
+	 *  # define ifr_slave  ifr_ifru.ifru_slave // slave device     
+	 *  # define ifr_data   ifr_ifru.ifru_data  // for use by interface 
+	 *  # define ifr_ifindex    ifr_ifru.ifru_ivalue    // interface index      
+	 *  # define ifr_bandwidth  ifr_ifru.ifru_ivalue    // link bandwidth   
+	 *  # define ifr_qlen   ifr_ifru.ifru_ivalue    // queue length     
+	 *  # define ifr_newname    ifr_ifru.ifru_newname   // New name    
+	 * 
+	 * </pre>
+	 * 
+	 * @since 1.2
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public static class IfReq
+	    extends Peered {
+
+		static {
+			initIDs();
+		}
+
+		private static native void initIDs();
+
+		public IfReq() {
+			super(sizeof());
+		}
+
+		private native static int sizeof();
+
+		public final native String ifr_name();
+
+		public final native void ifr_name(String name);
+
+		public final native byte[] ifr_hwaddr();
+
+		public final native int ifr_flags();
+
+		public final native void ifr_flags(int flags);
+
+		public final native int ifr_mtu();
+
+		public final native void ifr_mtu(int mtu);
+	}
+
+	/**
+	 * Peered if_data structure.
+	 * 
+	 * <pre>
+	 * typedef struct if_data {
+	 * 				// generic interface information
+	 * 	uchar_t	ifi_type;	// ethernet, tokenring, etc
+	 * 	uchar_t	ifi_addrlen;	// media address length
+	 * 	uchar_t	ifi_hdrlen;	// media header length
+	 * 	uint_t	ifi_mtu;	// maximum transmission unit
+	 * 	uint_t	ifi_metric;	// routing metric (external only)
+	 * 	uint_t	ifi_baudrate;	// linespeed
+	 * 				// volatile statistics
+	 * 	uint_t	ifi_ipackets;	// packets received on interface
+	 * 	uint_t	ifi_ierrors;	// input errors on interface
+	 * 	uint_t	ifi_opackets;	// packets sent on interface
+	 * 	uint_t	ifi_oerrors;	// output errors on interface
+	 * 	uint_t	ifi_collisions;	// collisions on csma interfaces
+	 * 	uint_t	ifi_ibytes;	// total number of octets received
+	 * 	uint_t	ifi_obytes;	// total number of octets sent
+	 * 	uint_t	ifi_imcasts;	// packets received via multicast
+	 * 	uint_t	ifi_omcasts;	// packets sent via multicast
+	 * 	uint_t	ifi_iqdrops;	// dropped on input, this interface
+	 * 	uint_t	ifi_noproto;	// destined for unsupported protocol
+	 * 	#if defined(_LP64)
+	 * 	struct	timeval32 ifi_lastchange; // last updated 
+	 * 	#else
+	 * 	struct	timeval ifi_lastchange; // last updated
+	 * 	#endif
+	 * } if_data_t;
+	 * 
+	 * </pre>
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public static class IfData
+	    extends Peered {
+
+		protected IfData() {
+			// Prevent instantiation
+		}
+
+		/**
+		 * ethernet, tokenring, etc
+		 * 
+		 * @return gets value of the structure field
+		 */
+		public native int ifi_type();
+
+		/**
+		 * media address length
+		 * 
+		 * @return gets value of the structure field
+		 */
+		public native int ifi_addrlen();
+
+		/**
+		 * media header length
+		 * 
+		 * @return gets value of the structure field
+		 */
+		public native int ifi_hdrlen();
+
+		/**
+		 * maximum transmission unit
+		 * 
+		 * @return gets value of the structure field
+		 */
+		public native long ifi_mtu();
+
+		/**
+		 * routing metric (external only)
+		 * 
+		 * @return gets value of the structure field
+		 */
+		public native long ifi_metric();
+
+		/**
+		 * linespeed
+		 * 
+		 * @return gets value of the structure field
+		 */
+		public native long ifi_baudrate();
+
+		/**
+		 * packets received on interface
+		 * 
+		 * @return gets value of the structure field
+		 */
+		public native long ifi_ipackets();
+
+		/**
+		 * input errors on interface
+		 * 
+		 * @return gets value of the structure field
+		 */
+		public native long ifi_ierrors();
+
+		/**
+		 * packets sent on interface
+		 * 
+		 * @return gets value of the structure field
+		 */
+		public native long ifi_opackets();
+
+		/**
+		 * output errors on interface
+		 * 
+		 * @return gets value of the structure field
+		 */
+		public native long ifi_oerrors();
+
+		/**
+		 * collisions on csma interfaces
+		 * 
+		 * @return gets value of the structure field
+		 */
+		public native long ifi_collisions();
+
+		/**
+		 * total number of octets received
+		 * 
+		 * @return gets value of the structure field
+		 */
+		public native long ifi_ibytes();
+
+		/**
+		 * total number of octets sent
+		 * 
+		 * @return gets value of the structure field
+		 */
+		public native long ifi_obytes();
+
+		/**
+		 * packets received via multicast
+		 * 
+		 * @return gets value of the structure field
+		 */
+		public native long ifi_imcasts();
+
+		/**
+		 * packets sent via multicast
+		 * 
+		 * @return gets value of the structure field
+		 */
+		public native long ifi_omcasts();
+
+		/**
+		 * dropped on input, this interface
+		 * 
+		 * @return gets value of the structure field
+		 */
+		public native long ifi_iqdrops();
+
+		/**
+		 * destined for unsupported protocol
+		 * 
+		 * @return gets value of the structure field
+		 */
+		public native long ifi_noproto();
+
+		/**
+		 * last updated
+		 * 
+		 * @return gets value of the structure field
+		 */
+		public native long ifi_lastchange();
+	}
+
 	private static final int IOCTL = 0x01000000;
 
 	private static final int SOCKET_DOMAIN = 0x02000000;
@@ -46,7 +307,7 @@ public class UnixOs {
 	/**
 	 * IOCTL constant to get the network adapters HARDWARE address
 	 * 
-	 * @see UnixIfReq
+	 * @see IfReq
 	 */
 	public static final int SIOCGIFHWADDR = 0x0000001 | IOCTL;
 

@@ -13,7 +13,7 @@
 package org.jnetpcap;
 
 /**
- * <p>Constants that represent the Pcap's Data Link Type assignments. The most
+ * <p>Constants that represent the Pcap's Payload Link Type assignments. The most
  * popular constant is the {@link #EN10MB} (alternatively {@link #CONST_EN10MB})
  *  which represents
  * <em>Ethernet2</em> based physical medium. This includes 10, 100, and 1000
@@ -54,14 +54,14 @@ package org.jnetpcap;
  * <pre>
  * int dlt = pcap.datalink(); // Get DLT value from open Pcap capture
  * PcapDLT enumConst = PcapDLT.valueOf(dlt);
- * System.out.println("The Data Link Type is " + enumConst + " described as " + 
+ * System.out.println("The Payload Link Type is " + enumConst + " described as " + 
  * 		enumConst.description);
  * </pre> 
  * 
  * <h2>Converting string DLT name into a constant</h2>
  * <pre>
  * PcapDLT enumConst = PcapDLT.valueOf("EN10MB");
- * System.out.println("The Data Link Type value is " + enumConst.value);
+ * System.out.println("The Payload Link Type value is " + enumConst.value);
  * </pre>
  * 
  * @author Mark Bednarczyk
