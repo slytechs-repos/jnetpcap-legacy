@@ -53,13 +53,13 @@ char * toString(JNIEnv *env, jbyteArray ja) {
 }
 
 jlong toLong(void *ptr) {
-	jlong lp = (jlong) (jint) ptr;
+	jlong lp = (UINT_PTR) ptr;
 
 	return lp;
 }
 
 void *toPtr(jlong lp) {
-	void *ptr = (void *) ((jint) lp);
+	void *ptr = (void *) ((UINT_PTR) lp);
 
 	return ptr;
 }
