@@ -16,10 +16,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import org.jnetpcap.PcapHandler;
-import org.jnetpcap.PcapTask;
-import org.jnetpcap.PcapUtils;
-
 /**
  * <P>
  * This class is the main class peered with native <code>pcap_t</code>
@@ -517,9 +513,9 @@ public class Pcap {
 	 *         an appropriate error message; 0 is returned on success
 	 */
 	public static int findAllDevs(List<PcapIf> alldevs, StringBuilder errbuf) {
-		final int r = findAllDevs(alldevs, PcapUtils.getBuf());
+		final int r = findAllDevs(alldevs, getBuf());
 
-		PcapUtils.toStringBuilder(PcapUtils.getBuf(), errbuf);
+		toStringBuilder(getBuf(), errbuf);
 
 		return r;
 	}
@@ -571,9 +567,9 @@ public class Pcap {
 	 */
 	public static int findAllDevs(List<PcapIf> alldevs, Appendable errbuf)
 	    throws IOException {
-		final int r = findAllDevs(alldevs, PcapUtils.getBuf());
+		final int r = findAllDevs(alldevs, getBuf());
 
-		PcapUtils.toAppendable(PcapUtils.getBuf(), errbuf);
+		toAppendable(getBuf(), errbuf);
 
 		return r;
 	}
@@ -676,9 +672,9 @@ public class Pcap {
 	 * @return name of the device or null on error
 	 */
 	public static String lookupDev(StringBuilder errbuf) {
-		final String r = lookupDev(PcapUtils.getBuf());
+		final String r = lookupDev(getBuf());
 
-		PcapUtils.toStringBuilder(PcapUtils.getBuf(), errbuf);
+		toStringBuilder(getBuf(), errbuf);
 
 		return r;
 	}
@@ -692,9 +688,9 @@ public class Pcap {
 	 * @return name of the device or null on error
 	 */
 	public static String lookupDev(Appendable errbuf) throws IOException {
-		final String r = lookupDev(PcapUtils.getBuf());
+		final String r = lookupDev(getBuf());
 
-		PcapUtils.toAppendable(PcapUtils.getBuf(), errbuf);
+		toAppendable(getBuf(), errbuf);
 
 		return r;
 	}
@@ -709,32 +705,6 @@ public class Pcap {
 	 * pass back information about IP v6 addresses.
 	 * </p>
 	 * 
-	 * @param device
-	 *          device to do the lookup on
-	 * @param netp
-	 *          object which will contain the value of network address
-	 * @param maskp
-	 *          object which will contain the value of network netmask
-	 * @param errbuf
-	 *          any error messages if return value is -1
-	 * @return 0 on success otherwise -1 on error
-	 * @since 1.2
-	 */
-	public native static int lookupNet(String device, JNumber netp,
-	    JNumber maskp, StringBuffer errbuf);
-
-	/**
-	 * Determines the network number and mask associated with the network device.
-	 * Both netp and maskp are integer object references whos value is set from
-	 * within the call. This is the way that pcap natively passes back these two
-	 * values.
-	 * <p>
-	 * <b>Note:</b> this method is deprecated in pcap as it can not be used to
-	 * pass back information about IP v6 addresses.
-	 * </p>
-	 * 
-	 * @deprecated use {@link #lookupNet(String, JNumber, JNumber, StringBuffer)}
-	 *             instead
 	 * @param device
 	 *          device to do the lookup on
 	 * @param netp
@@ -749,34 +719,6 @@ public class Pcap {
 	private native static int lookupNet(String device, PcapInteger netp,
 	    PcapInteger maskp, StringBuffer errbuf);
 
-	/**
-	 * Determines the network number and mask associated with the network device.
-	 * Both netp and maskp are integer object references whos value is set from
-	 * within the call. This is the way that pcap natively passes back these two
-	 * values.
-	 * <p>
-	 * <b>Note:</b> this method is deprecated in pcap as it can not be used to
-	 * pass back information about IP v6 addresses.
-	 * </p>
-	 * 
-	 * @param device
-	 *          device to do the lookup on
-	 * @param netp
-	 *          object which will contain the value of network address
-	 * @param maskp
-	 *          object which will contain the value of network netmask
-	 * @param errbuf
-	 *          any error messages if return value is -1
-	 * @return 0 on success otherwise -1 on error
-	 */
-	public static int lookupNet(String device, JNumber netp, JNumber maskp,
-	    StringBuilder errbuf) {
-		final int r = lookupNet(device, netp, maskp, PcapUtils.getBuf());
-
-		PcapUtils.toStringBuilder(PcapUtils.getBuf(), errbuf);
-
-		return r;
-	}
 
 	/**
 	 * Determines the network number and mask associated with the network device.
@@ -788,9 +730,6 @@ public class Pcap {
 	 * pass back information about IP v6 addresses.
 	 * </p>
 	 * 
-	 * @deprecated use
-	 *             {@link #lookupNet(String, JNumber, JNumber, StringBuilder)}
-	 *             instead
 	 * @param device
 	 *          device to do the lookup on
 	 * @param netp
@@ -803,39 +742,9 @@ public class Pcap {
 	 */
 	public static int lookupNet(String device, PcapInteger netp,
 	    PcapInteger maskp, StringBuilder errbuf) {
-		final int r = lookupNet(device, netp, maskp, PcapUtils.getBuf());
+		final int r = lookupNet(device, netp, maskp, getBuf());
 
-		PcapUtils.toStringBuilder(PcapUtils.getBuf(), errbuf);
-
-		return r;
-	}
-
-	/**
-	 * Determines the network number and mask associated with the network device.
-	 * Both netp and maskp are integer object references whos value is set from
-	 * within the call. This is the way that pcap natively passes back these two
-	 * values.
-	 * <p>
-	 * <b>Note:</b> this method is deprecated in libpcap as it can not be used to
-	 * pass back information about IP v6 addresses.
-	 * </p>
-	 * 
-	 * @param device
-	 *          device to do the lookup on
-	 * @param netp
-	 *          object which will contain the value of network address
-	 * @param maskp
-	 *          object which will contain the value of network netmask
-	 * @param errbuf
-	 *          any error messages if return value is -1
-	 * @return 0 on success otherwise -1 on error
-	 * @since 1.2
-	 */
-	public static int lookupNet(String device, JNumber netp, JNumber maskp,
-	    Appendable errbuf) throws IOException {
-		final int r = lookupNet(device, netp, maskp, PcapUtils.getBuf());
-
-		PcapUtils.toAppendable(PcapUtils.getBuf(), errbuf);
+		toStringBuilder(getBuf(), errbuf);
 
 		return r;
 	}
@@ -984,9 +893,9 @@ public class Pcap {
 	public static Pcap openLive(String device, int snaplen, int promisc,
 	    int timeout, StringBuilder errbuf) {
 		final Pcap r =
-		    openLive(device, snaplen, promisc, timeout, PcapUtils.getBuf());
+		    openLive(device, snaplen, promisc, timeout, getBuf());
 
-		PcapUtils.toStringBuilder(PcapUtils.getBuf(), errbuf);
+		toStringBuilder(getBuf(), errbuf);
 
 		return r;
 	}
@@ -1055,9 +964,9 @@ public class Pcap {
 	public static Pcap openLive(String device, int snaplen, int promisc,
 	    int timeout, Appendable errbuf) throws IOException {
 		final Pcap r =
-		    openLive(device, snaplen, promisc, timeout, PcapUtils.getBuf());
+		    openLive(device, snaplen, promisc, timeout, getBuf());
 
-		PcapUtils.toAppendable(PcapUtils.getBuf(), errbuf);
+		toAppendable(getBuf(), errbuf);
 
 		return r;
 	}
@@ -1100,9 +1009,9 @@ public class Pcap {
 	 * @return Pcap structure or null if error occured
 	 */
 	public static Pcap openOffline(String fname, StringBuilder errbuf) {
-		final Pcap r = openOffline(fname, PcapUtils.getBuf());
+		final Pcap r = openOffline(fname, getBuf());
 
-		PcapUtils.toStringBuilder(PcapUtils.getBuf(), errbuf);
+		toStringBuilder(getBuf(), errbuf);
 
 		return r;
 	}
@@ -1127,9 +1036,9 @@ public class Pcap {
 	 */
 	public static Pcap openOffline(String fname, Appendable errbuf)
 	    throws IOException {
-		final Pcap r = openOffline(fname, PcapUtils.getBuf());
+		final Pcap r = openOffline(fname, getBuf());
 
-		PcapUtils.toAppendable(PcapUtils.getBuf(), errbuf);
+		toAppendable(getBuf(), errbuf);
 
 		return r;
 	}
@@ -1288,30 +1197,6 @@ public class Pcap {
 	 */
 	public native <T> int dispatch(int cnt, PcapHandler<T> handler, T user);
 
-	/**
-	 * <p>
-	 * Runs the dispatch function in a background thread. The method returns
-	 * immediately and returns a PcapTask from which the user can interact with
-	 * the background task.
-	 * </p>
-	 * <p>
-	 * Note that this method is not part of the native libpcap API specification.
-	 * </p>
-	 * 
-	 * @since 1.2
-	 * @param cnt
-	 *          number of packets to capture and exit, 0 for infinate
-	 * @param handler
-	 *          user supplied callback handler
-	 * @param data
-	 *          opaque, user supplied data object dispatched back to the handler
-	 * @return a task object which allows interaction with the underlying capture
-	 *         loop and thread
-	 */
-	public <T> PcapTask<T> dispatchInBackground(int cnt, PcapHandler<T> handler,
-	    final T data) {
-		return PcapUtils.dispatchInBackground(this, cnt, handler, data);
-	}
 
 	/**
 	 * Open a file to write packets. The <code>dumpOpen</code> method is called
@@ -1372,9 +1257,9 @@ public class Pcap {
 	 *         an appropriate error message
 	 */
 	public int getNonBlock(StringBuilder errbuf) {
-		final int r = getNonBlock(PcapUtils.getBuf());
+		final int r = getNonBlock(getBuf());
 
-		PcapUtils.toStringBuilder(PcapUtils.getBuf(), errbuf);
+		toStringBuilder(getBuf(), errbuf);
 
 		return r;
 	}
@@ -1391,9 +1276,9 @@ public class Pcap {
 	 * @since 1.2
 	 */
 	public int getNonBlock(Appendable errbuf) throws IOException {
-		final int r = getNonBlock(PcapUtils.getBuf());
+		final int r = getNonBlock(getBuf());
 
-		PcapUtils.toAppendable(PcapUtils.getBuf(), errbuf);
+		toAppendable(getBuf(), errbuf);
 
 		return r;
 	}
@@ -1516,31 +1401,6 @@ public class Pcap {
 	 *         the captue
 	 */
 	public native <T> int loop(int cnt, PcapHandler<T> handler, T user);
-
-	/**
-	 * <p>
-	 * Runs the loop function in a background thread. The method returns
-	 * immediately and returns a PcapTask from which the user can interact with
-	 * the background task.
-	 * </p>
-	 * <p>
-	 * Note that this method is not part of the native libpcap API specification.
-	 * </p>
-	 * 
-	 * @since 1.2
-	 * @param cnt
-	 *          number of packets to capture and exit, 0 for infinate
-	 * @param handler
-	 *          user supplied callback handler
-	 * @param data
-	 *          opaque, user supplied data object dispatched back to the handler
-	 * @return a task object which allows interaction with the underlying capture
-	 *         loop and thread
-	 */
-	public <T> PcapTask<T> loopInBackground(int cnt, PcapHandler<T> handler,
-	    final T data) {
-		return PcapUtils.loopInBackground(this, cnt, handler, data);
-	}
 
 	/**
 	 * Return the major version number of the pcap library used to write the
@@ -1751,9 +1611,9 @@ public class Pcap {
 	 *         an appropriate error message
 	 */
 	public int setNonBlock(int nonBlock, StringBuilder errbuf) {
-		final int r = setNonBlock(nonBlock, PcapUtils.getBuf());
+		final int r = setNonBlock(nonBlock, getBuf());
 
-		PcapUtils.toStringBuilder(PcapUtils.getBuf(), errbuf);
+		toStringBuilder(getBuf(), errbuf);
 
 		return r;
 	}
@@ -1777,9 +1637,9 @@ public class Pcap {
 	 * @since 1.2
 	 */
 	public int setNonBlock(int nonBlock, Appendable errbuf) throws IOException {
-		final int r = setNonBlock(nonBlock, PcapUtils.getBuf());
+		final int r = setNonBlock(nonBlock, getBuf());
 
-		PcapUtils.toAppendable(PcapUtils.getBuf(), errbuf);
+		toAppendable(getBuf(), errbuf);
 
 		return r;
 	}
@@ -1815,4 +1675,79 @@ public class Pcap {
 
 		return libVersion();
 	}
+	
+	/**
+	 * Make sure that we are thread safe and don't clober each others messages
+	 */
+	private final static ThreadLocal<StringBuffer> buf =
+	    new ThreadLocal<StringBuffer>() {
+
+		    @Override
+		    protected StringBuffer initialValue() {
+			    return new StringBuffer();
+		    }
+
+	    };
+
+	
+	/**
+	 * Returns a common shared StringBuffer buffer
+	 * 
+	 * @return a buffer
+	 */
+	private static StringBuffer getBuf() {
+		return buf.get();
+	}
+
+	/**
+	 * Copies the contents of the source buf to appendable
+	 * 
+	 * @param buf
+	 *          source
+	 * @param appendable
+	 *          destination
+	 * @throws IOException
+	 *           any IO errors produced by the appendable
+	 */
+	private static void toAppendable(StringBuffer buf, Appendable appendable)
+	    throws IOException {
+
+		if (buf.length() != 0) {
+			appendable.append(buf);
+		}
+	}
+
+	/**
+	 * Copies the contents of the source buf to builder
+	 * 
+	 * @param buf
+	 *          source
+	 * @param builder
+	 *          destination
+	 */
+	private static void toStringBuilder(StringBuffer buf, StringBuilder builder) {
+		builder.setLength(0);
+
+		if (buf.length() != 0) {
+			builder.append(buf);
+		}
+	}
+
+	/**
+	 * @param bs
+	 * @return
+	 */
+	@SuppressWarnings("unused")
+	private static String asString(byte[] bs) {
+		StringBuilder buf = new StringBuilder();
+		for (byte b : bs) {
+			if (buf.length() != 0) {
+				buf.append(':');
+			}
+			buf.append(Integer.toHexString((b < 0) ? b + 256 : b).toUpperCase());
+		}
+
+		return buf.toString();
+	}
+
 }

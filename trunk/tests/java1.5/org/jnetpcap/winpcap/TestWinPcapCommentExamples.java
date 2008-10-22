@@ -19,10 +19,6 @@ import junit.framework.TestCase;
 
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapIf;
-import org.jnetpcap.winpcap.WinPcap;
-import org.jnetpcap.winpcap.WinPcapRmtAuth;
-import org.junit.After;
-import org.junit.Before;
 
 /**
  * All the examples that have been documented within WinPcap extension, go here
@@ -52,14 +48,12 @@ public class TestWinPcapCommentExamples
 	/**
 	 * @throws java.lang.Exception
 	 */
-	@Before
 	public void setUp() throws Exception {
 	}
 
 	/**
 	 * @throws java.lang.Exception
 	 */
-	@After
 	public void tearDown() throws Exception {
 	}
 

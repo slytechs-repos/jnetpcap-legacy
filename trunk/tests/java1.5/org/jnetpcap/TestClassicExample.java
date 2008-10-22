@@ -18,9 +18,6 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.junit.After;
-import org.junit.Before;
-
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
@@ -31,14 +28,14 @@ public class TestClassicExample
 	/**
 	 * @throws java.lang.Exception
 	 */
-	@Before
+
 	public void setUp() throws Exception {
 	}
 
 	/**
 	 * @throws java.lang.Exception
 	 */
-	@After
+
 	public void tearDown() throws Exception {
 	}
 

@@ -928,21 +928,6 @@ public class TestPcapJNI
 		System.out.printf("device=%s netp=%X maskp=%X errbuf=%s\n", device, netp.getValue(),
 		    maskp.getValue(), errbuf.toString());
 	}
-	
-	@SuppressWarnings("deprecation")
-  public void testLookupDevAndLookupNetNewAPI() {
-		String device = Pcap.lookupDev(errbuf);
-		assertNotNull(errbuf.toString(), device);
-
-		JNumber netp = new JNumber();
-		JNumber maskp = new JNumber();
-
-		int r = Pcap.lookupNet(device, netp, maskp, errbuf);
-		assertEquals(errbuf.toString(), 0, r);
-
-		System.out.printf("device=%s netp=%X maskp=%X errbuf=%s\n", device, netp.intValue(),
-		    maskp.intValue(), errbuf.toString());
-	}
 
 	
 	/**
