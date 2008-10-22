@@ -22,7 +22,6 @@ import org.jnetpcap.PcapExtensionNotAvailableException;
 import org.jnetpcap.PcapHandler;
 import org.jnetpcap.PcapIf;
 import org.jnetpcap.PcapPktHdr;
-import org.jnetpcap.PcapUtils;
 
 /**
  * <p>
@@ -332,10 +331,10 @@ public class WinPcap
 		final StringBuffer buf2 = new StringBuffer();
 		
 		final int r =
-			createSrcStr(buf2, type, host, port, name, PcapUtils.getBuf());
+			createSrcStr(buf2, type, host, port, name, getBuf());
 
-		PcapUtils.toStringBuilder(PcapUtils.getBuf(), errbuf);
-		PcapUtils.toStringBuilder(buf2, source);
+		toStringBuilder(getBuf(), errbuf);
+		toStringBuilder(buf2, source);
 
 		return r;
 	}
@@ -382,10 +381,10 @@ public class WinPcap
 		final StringBuffer buf2 = new StringBuffer();
 		
 		final int r =
-			createSrcStr(buf2, type, host, port, name, PcapUtils.getBuf());
+			createSrcStr(buf2, type, host, port, name, getBuf());
 
-		PcapUtils.toAppendable(PcapUtils.getBuf(), errbuf);
-		PcapUtils.toAppendable(buf2, source);
+		toAppendable(getBuf(), errbuf);
+		toAppendable(buf2, source);
 
 		return r;
 	}
@@ -541,9 +540,9 @@ public class WinPcap
 	public static int findAllDevsEx(String source, WinPcapRmtAuth auth,
 	    List<PcapIf> alldevs, StringBuilder errbuf) {
 		final int r =
-			findAllDevsEx(source, auth, alldevs, PcapUtils.getBuf());
+			findAllDevsEx(source, auth, alldevs, getBuf());
 
-		PcapUtils.toStringBuilder(PcapUtils.getBuf(), errbuf);
+		toStringBuilder(getBuf(), errbuf);
 
 		return r;
 	}
@@ -624,9 +623,9 @@ public class WinPcap
 	public static int findAllDevsEx(String source, WinPcapRmtAuth auth,
 	    List<PcapIf> alldevs, Appendable errbuf) throws IOException {
 		final int r =
-			findAllDevsEx(source, auth, alldevs, PcapUtils.getBuf());
+			findAllDevsEx(source, auth, alldevs, getBuf());
 
-		PcapUtils.toAppendable(PcapUtils.getBuf(), errbuf);
+		toAppendable(getBuf(), errbuf);
 
 		return r;
 	}
@@ -833,9 +832,9 @@ public class WinPcap
 	public static WinPcap open(String source, int snaplen, int flags,
 	    int timeout, WinPcapRmtAuth auth, StringBuilder errbuf) {
 		final WinPcap r =
-			open(source, snaplen, flags, timeout, auth, PcapUtils.getBuf());
+			open(source, snaplen, flags, timeout, auth, getBuf());
 
-		PcapUtils.toStringBuilder(PcapUtils.getBuf(), errbuf);
+		toStringBuilder(getBuf(), errbuf);
 
 		return r;
 	}
@@ -911,9 +910,9 @@ public class WinPcap
 	public static WinPcap open(String source, int snaplen, int flags,
 	    int timeout, WinPcapRmtAuth auth, Appendable errbuf) throws IOException {
 		final WinPcap r =
-			open(source, snaplen, flags, timeout, auth, PcapUtils.getBuf());
+			open(source, snaplen, flags, timeout, auth, getBuf());
 
-		PcapUtils.toAppendable(PcapUtils.getBuf(), errbuf);
+		toAppendable(getBuf(), errbuf);
 
 		return r;
 	}
@@ -1074,9 +1073,9 @@ public class WinPcap
 	public static WinPcap openLive(String device, int snaplen, int promisc,
 	    int timeout, StringBuilder errbuf) {
 		final WinPcap r =
-		    openLive(device, snaplen, promisc, timeout, PcapUtils.getBuf());
+		    openLive(device, snaplen, promisc, timeout, getBuf());
 
-		PcapUtils.toStringBuilder(PcapUtils.getBuf(), errbuf);
+		toStringBuilder(getBuf(), errbuf);
 
 		return r;
 	}
@@ -1150,9 +1149,9 @@ public class WinPcap
 	public static WinPcap openLive(String device, int snaplen, int promisc,
 	    int timeout, Appendable errbuf) throws IOException {
 		final WinPcap r =
-		    openLive(device, snaplen, promisc, timeout, PcapUtils.getBuf());
+		    openLive(device, snaplen, promisc, timeout, getBuf());
 
-		PcapUtils.toAppendable(PcapUtils.getBuf(), errbuf);
+		toAppendable(getBuf(), errbuf);
 
 		return r;
 	}
@@ -1198,9 +1197,9 @@ public class WinPcap
 	 * @return WinPcap structure or null if error occured
 	 */
 	public static WinPcap openOffline(String fname, StringBuilder errbuf) {
-		final WinPcap r = openOffline(fname, PcapUtils.getBuf());
+		final WinPcap r = openOffline(fname, getBuf());
 
-		PcapUtils.toStringBuilder(PcapUtils.getBuf(), errbuf);
+		toStringBuilder(getBuf(), errbuf);
 
 		return r;
 	}
@@ -1226,9 +1225,9 @@ public class WinPcap
 	 */
 	public static WinPcap openOffline(String fname, Appendable errbuf)
 	    throws IOException {
-		final WinPcap r = openOffline(fname, PcapUtils.getBuf());
+		final WinPcap r = openOffline(fname, getBuf());
 
-		PcapUtils.toAppendable(PcapUtils.getBuf(), errbuf);
+		toAppendable(getBuf(), errbuf);
 
 		return r;
 	}
@@ -1457,4 +1456,78 @@ public class WinPcap
 	 *      filled with statistics or null on error
 	 */
 	public native WinPcapStat statsEx();
+	
+	/**
+	 * Make sure that we are thread safe and don't clober each others messages
+	 */
+	private final static ThreadLocal<StringBuffer> buf =
+	    new ThreadLocal<StringBuffer>() {
+
+		    @Override
+		    protected StringBuffer initialValue() {
+			    return new StringBuffer();
+		    }
+
+	    };
+
+	
+	/**
+	 * Returns a common shared StringBuffer buffer
+	 * 
+	 * @return a buffer
+	 */
+	private static StringBuffer getBuf() {
+		return buf.get();
+	}
+
+	/**
+	 * Copies the contents of the source buf to appendable
+	 * 
+	 * @param buf
+	 *          source
+	 * @param appendable
+	 *          destination
+	 * @throws IOException
+	 *           any IO errors produced by the appendable
+	 */
+	private static void toAppendable(StringBuffer buf, Appendable appendable)
+	    throws IOException {
+
+		if (buf.length() != 0) {
+			appendable.append(buf);
+		}
+	}
+
+	/**
+	 * Copies the contents of the source buf to builder
+	 * 
+	 * @param buf
+	 *          source
+	 * @param builder
+	 *          destination
+	 */
+	private static void toStringBuilder(StringBuffer buf, StringBuilder builder) {
+		builder.setLength(0);
+
+		if (buf.length() != 0) {
+			builder.append(buf);
+		}
+	}
+
+	/**
+	 * @param bs
+	 * @return
+	 */
+	@SuppressWarnings("unused")
+	private static String asString(byte[] bs) {
+		StringBuilder buf = new StringBuilder();
+		for (byte b : bs) {
+			if (buf.length() != 0) {
+				buf.append(':');
+			}
+			buf.append(Integer.toHexString((b < 0) ? b + 256 : b).toUpperCase());
+		}
+
+		return buf.toString();
+	}
 }

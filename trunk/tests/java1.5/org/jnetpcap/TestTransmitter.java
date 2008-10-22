@@ -20,8 +20,6 @@ import java.util.Arrays;
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
-import org.junit.After;
-
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
@@ -138,7 +136,6 @@ public class TestTransmitter
 	/**
 	 * @throws java.lang.Exception
 	 */
-	@After
 	public void tearDown() throws Exception {
 	}
 

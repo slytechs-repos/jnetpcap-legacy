@@ -25,7 +25,7 @@ import java.util.List;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public final class PcapIf {
+public class PcapIf {
 
 	private native static void initIDs();
 
@@ -116,22 +116,6 @@ public final class PcapIf {
 	 */
 	public final int getFlags() {
 		return this.flags;
-	}
-
-	/**
-	 * Retrieves the hardware address or MAC for the current pcap interface.
-	 * <p>
-	 * Note that this method is not part of the native libpcap API.
-	 * </p>
-	 * 
-	 * @since 1.2
-	 * @return hardware address or null if interface does not support having a
-	 *         hardware address
-	 * @throws IOException
-	 *           any communication errors
-	 */
-	public final byte[] getHardwareAddress() throws IOException {
-		return PcapUtils.getHardwareAddress(this);
 	}
 
 	/**
