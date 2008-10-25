@@ -18,7 +18,7 @@
 #include <iphlpapi.h>
 #endif /*WIN32*/
 
-#include "jnetpcap_peered.h"
+#include "nio_jmemory.h"
 #include "jnetpcap_utils.h"
 #include "org_jnetpcap_ms_MSIpHelper.h"
 #include "export.h"
@@ -35,9 +35,9 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSIpHelper_getInterfaceInfo
 #ifdef WIN32
 	PIP_INTERFACE_INFO info = NULL;
 	if (jinfo != NULL) {
-		info = (PIP_INTERFACE_INFO) getPeeredPhysical(env, jinfo);
+		info = (PIP_INTERFACE_INFO) getJMemoryPhysical(env, jinfo);
 	}
-	DWORD *size = (DWORD *) getPeeredPhysical(env, jsize);
+	DWORD *size = (DWORD *) getJMemoryPhysical(env, jsize);
 	if (size == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -60,7 +60,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSIpHelper_getInterfaceInfo
 JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSIpHelper_getIfEntry
   (JNIEnv *env, jclass clazz, jobject jrow) {
 #ifdef WIN32
-	PMIB_IFROW row = (PMIB_IFROW) getPeeredPhysical(env, jrow);
+	PMIB_IFROW row = (PMIB_IFROW) getJMemoryPhysical(env, jrow);
 	if (row == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;

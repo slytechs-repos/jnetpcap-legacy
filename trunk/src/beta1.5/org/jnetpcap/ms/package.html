@@ -1,0 +1,46 @@
+<body>
+Microsoft operating system API extensions. This package provides low
+level routines available using native Microsoft APIs. Microsoft API's
+are broken up into sub APIs such as network related IpHelper API. The
+API will only work on Mirosoft OS based platforms and will not work on
+Unix platforms.
+
+<h2>Example - retrieve hardware MAC address</h2>
+<pre>
+private static byte[] getMSHardwareAddress(String device) throws IOException {
+	if (!MSIpHelper.isSupported()) {
+		return null;
+	}
+
+   int r = 0;
+	JNumber size = new JNumber();
+	if ((r = MSIpHelper.getInterfaceInfo(null, size)) != MSIpHelper.ERROR_INSUFFICIENT_BUFFER) {
+		throw new IOException("MSIpHelper.getInterfaceInfo() failed");
+	}
+
+	MSIpInterfaceInfo info = new MSIpInterfaceInfo(size.intValue());
+	if ((r = MSIpHelper.getInterfaceInfo(info, size)) != MSIpHelper.NO_ERROR) {
+		throw new IOException("MSIpHelper.getInterfaceInfo() failed");
+	}
+
+	for (int i = 0; i &lt; info.numAdapters(); i++) {
+		MSIpAdapterIndexMap adapter = info.adapter(i);
+
+		MSMibIfRow row = new MSMibIfRow();
+		row.dwIndex(adapter.index());
+		if ((r = MSIpHelper.getIfEntry(row)) != MSIpHelper.NO_ERROR) {
+			throw new IOException("MSIpHelper.getIfEntry() failed");
+		}
+
+		if (device.toUpperCase().equals(adapter.name().toUpperCase())) {
+			return row.bPhysAddr();
+		}
+	}
+	return null;
+}
+It is important to check that the Microsoft extensions are available using
+MSIpHelper.isSupport() method which safely returns a boolean true or false without
+throwing any exceptions.
+
+</pre>
+</body>

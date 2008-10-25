@@ -24,42 +24,17 @@
 #include <unistd.h>
 #endif /*WIN32*/
 
-#include "unix_ifreq.h"
-#include "jnetpcap_peered.h"
+#include "nio_jmemory.h"
 #include "jnetpcap_utils.h"
+#include "org_jnetpcap_unix_UnixOs_IfReq.h"
 #include "export.h"
 
-
-
-/*****************************************************************************
- *  These are static and constant unless class file reloads
- */
-
-jclass unixIfReqClass = 0;
-
 /*
- * Class:     org_jnetpcap_unix_UnixIfReq
- * Method:    init_ids
- * Signature: ()V
- */
-JNIEXPORT void JNICALL Java_org_jnetpcap_unix_UnixIfReq_initIDs
-(JNIEnv *env, jclass clazz) {
-
-	jclass c;
-	// PcapBpfProgram class
-	if ( (unixIfReqClass = c = findClass(env, "org/jnetpcap/unix/UnixIfReq")) == NULL) {
-		throwException(env, CLASS_NOT_FOUND_EXCEPTION,
-				"Unable to initialize class org.jnetpcap.unix.UnixIfReq");
-		return;
-	}
-}
-
-/*
- * Class:     org_jnetpcap_unix_UnixIfReq
+ * Class:     org_jnetpcap_unix_UnixOs_IfReq
  * Method:    sizeof
  * Signature: ()I
  */
-JNIEXPORT jint Java_org_jnetpcap_unix_UnixIfReq_sizeof
+JNIEXPORT jint Java_org_jnetpcap_unix_UnixOs_IfReq_sizeof
 (JNIEnv *env, jclass clazz) {
 	
 #ifdef WIN32
@@ -72,11 +47,11 @@ JNIEXPORT jint Java_org_jnetpcap_unix_UnixIfReq_sizeof
 }
 
 /*
- * Class:     org_jnetpcap_unix_UnixIfReq
+ * Class:     org_jnetpcap_unix_UnixOs_IfReq
  * Method:    ifr_name
  * Signature: ()Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_org_jnetpcap_unix_UnixIfReq_ifr_1name__
+JNIEXPORT jstring JNICALL Java_org_jnetpcap_unix_UnixOs_IfReq_ifr_1name__
 (JNIEnv *env, jobject obj) {
 	
 #ifdef WIN32
@@ -101,11 +76,11 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_unix_UnixIfReq_ifr_1name__
 }
 
 /*
- * Class:     org_jnetpcap_unix_UnixIfReq
+ * Class:     org_jnetpcap_unix_UnixOs_IfReq
  * Method:    ifr_name
  * Signature: (Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_org_jnetpcap_unix_UnixIfReq_ifr_1name__Ljava_lang_String_2
+JNIEXPORT void JNICALL Java_org_jnetpcap_unix_UnixOs_IfReq_ifr_1name__Ljava_lang_String_2
   (JNIEnv *env, jobject obj, jstring jname) {
 	
 #ifdef WIN32
@@ -125,11 +100,11 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_unix_UnixIfReq_ifr_1name__Ljava_lang_St
 }
 
 /*
- * Class:     org_jnetpcap_unix_UnixIfReq
+ * Class:     org_jnetpcap_unix_UnixOs_IfReq
  * Method:    ifr_hwaddr
  * Signature: ()[B
  */
-JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_unix_UnixIfReq_ifr_1hwaddr
+JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_unix_UnixOs_IfReq_ifr_1hwaddr
   (JNIEnv *env, jobject obj) {
 	
 #ifdef WIN32
@@ -149,11 +124,11 @@ JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_unix_UnixIfReq_ifr_1hwaddr
 }
 
 /*
- * Class:     org_jnetpcap_unix_UnixIfReq
+ * Class:     org_jnetpcap_unix_UnixOs_IfReq
  * Method:    ifr_flags
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_unix_UnixIfReq_ifr_1flags__
+JNIEXPORT jint JNICALL Java_org_jnetpcap_unix_UnixOs_IfReq_ifr_1flags__
   (JNIEnv *env, jobject obj) {
 #ifdef WIN32
 	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
@@ -169,11 +144,11 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_unix_UnixIfReq_ifr_1flags__
 }
 
 /*
- * Class:     org_jnetpcap_unix_UnixIfReq
+ * Class:     org_jnetpcap_unix_UnixOs_IfReq
  * Method:    ifr_flags
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_org_jnetpcap_unix_UnixIfReq_ifr_1flags__I
+JNIEXPORT void JNICALL Java_org_jnetpcap_unix_UnixOs_IfReq_ifr_1flags__I
   (JNIEnv *env, jobject obj, jint jflags) {
 #ifdef WIN32
 	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
@@ -189,11 +164,11 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_unix_UnixIfReq_ifr_1flags__I
 }
 
 /*
- * Class:     org_jnetpcap_unix_UnixIfReq
+ * Class:     org_jnetpcap_unix_UnixOs_IfReq
  * Method:    ifr_mtu
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_unix_UnixIfReq_ifr_1mtu__
+JNIEXPORT jint JNICALL Java_org_jnetpcap_unix_UnixOs_IfReq_ifr_1mtu__
   (JNIEnv *env, jobject obj) {
 #ifdef WIN32
 	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
@@ -210,11 +185,11 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_unix_UnixIfReq_ifr_1mtu__
 }
 
 /*
- * Class:     org_jnetpcap_unix_UnixIfReq
+ * Class:     org_jnetpcap_unix_UnixOs_IfReq
  * Method:    ifr_mtu
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_org_jnetpcap_unix_UnixIfReq_ifr_1mtu__I
+JNIEXPORT void JNICALL Java_org_jnetpcap_unix_UnixOs_IfReq_ifr_1mtu__I
   (JNIEnv *env, jobject obj, jint jmtu) {
 #ifdef WIN32
 	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);

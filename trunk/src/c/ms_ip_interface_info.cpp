@@ -18,7 +18,7 @@
 #include <iphlpapi.h>
 #endif /*WIN32*/
 
-#include "jnetpcap_peered.h"
+#include "nio_jmemory.h"
 #include "jnetpcap_utils.h"
 #include "jnetpcap_ids.h"
 #include "org_jnetpcap_ms_MSIpInterfaceInfo.h"
@@ -32,7 +32,7 @@
 JNIEXPORT jlong JNICALL Java_org_jnetpcap_ms_MSIpInterfaceInfo_numAdapters
 (JNIEnv *env, jobject obj) {
 #ifdef WIN32
-	PIP_INTERFACE_INFO info = (PIP_INTERFACE_INFO) getPeeredPhysical(env, obj);
+	PIP_INTERFACE_INFO info = (PIP_INTERFACE_INFO) getJMemoryPhysical(env, obj);
 	if (info == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -54,7 +54,7 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_ms_MSIpInterfaceInfo_numAdapters
 JNIEXPORT jobject JNICALL Java_org_jnetpcap_ms_MSIpInterfaceInfo_adapter
 (JNIEnv *env, jobject obj, jint jindex) {
 #ifdef WIN32
-	PIP_INTERFACE_INFO info = (PIP_INTERFACE_INFO) getPeeredPhysical(env, obj);
+	PIP_INTERFACE_INFO info = (PIP_INTERFACE_INFO) getJMemoryPhysical(env, obj);
 	if (info == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return NULL;
@@ -82,7 +82,7 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_ms_MSIpInterfaceInfo_adapter
 		return NULL; // Out of memory
 	}
 	
-	setPeeredPhysical(env, jmap, toLong((void *) &info->Adapter[(int)jindex]));
+	setJMemoryPhysical(env, jmap, toLong((void *) &info->Adapter[(int)jindex]));
 	
 	return jmap;
 #else

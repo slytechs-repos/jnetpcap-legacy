@@ -18,7 +18,7 @@
 #include <iphlpapi.h>
 #endif /*WIN32*/
 
-#include "jnetpcap_peered.h"
+#include "nio_jmemory.h"
 #include "jnetpcap_utils.h"
 #include "org_jnetpcap_ms_MSMibIfRow.h"
 #include "export.h"
@@ -46,7 +46,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_sizeof
 JNIEXPORT jstring JNICALL Java_org_jnetpcap_ms_MSMibIfRow_wszName
 (JNIEnv *env, jobject obj) {
 #ifdef WIN32
-	PMIB_IFROW row = (PMIB_IFROW) getPeeredPhysical(env, obj);
+	PMIB_IFROW row = (PMIB_IFROW) getJMemoryPhysical(env, obj);
 	if (row == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return NULL;
@@ -76,7 +76,7 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_ms_MSMibIfRow_wszName
 JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwIndex__
 (JNIEnv *env, jobject obj) {
 #ifdef WIN32
-	PMIB_IFROW row = (PMIB_IFROW) getPeeredPhysical(env, obj);
+	PMIB_IFROW row = (PMIB_IFROW) getJMemoryPhysical(env, obj);
 	if (row == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -97,7 +97,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwIndex__
 JNIEXPORT void JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwIndex__I
 (JNIEnv *env, jobject obj, jint jindex) {
 #ifdef WIN32
-	PMIB_IFROW row = (PMIB_IFROW) getPeeredPhysical(env, obj);
+	PMIB_IFROW row = (PMIB_IFROW) getJMemoryPhysical(env, obj);
 	if (row == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return;
@@ -121,7 +121,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwIndex__I
 JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwType
 (JNIEnv *env, jobject obj) {
 #ifdef WIN32
-	PMIB_IFROW row = (PMIB_IFROW) getPeeredPhysical(env, obj);
+	PMIB_IFROW row = (PMIB_IFROW) getJMemoryPhysical(env, obj);
 	if (row == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -143,7 +143,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwType
 JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwMtu
 (JNIEnv *env, jobject obj) {
 #ifdef WIN32
-	PMIB_IFROW row = (PMIB_IFROW) getPeeredPhysical(env, obj);
+	PMIB_IFROW row = (PMIB_IFROW) getJMemoryPhysical(env, obj);
 	if (row == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -165,7 +165,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwMtu
 JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwSpeed
 (JNIEnv *env, jobject obj) {
 #ifdef WIN32
-	PMIB_IFROW row = (PMIB_IFROW) getPeeredPhysical(env, obj);
+	PMIB_IFROW row = (PMIB_IFROW) getJMemoryPhysical(env, obj);
 	if (row == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -187,7 +187,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwSpeed
 JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwPhysAddrLen
 (JNIEnv *env, jobject obj) {
 #ifdef WIN32
-	PMIB_IFROW row = (PMIB_IFROW) getPeeredPhysical(env, obj);
+	PMIB_IFROW row = (PMIB_IFROW) getJMemoryPhysical(env, obj);
 	if (row == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -209,7 +209,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwPhysAddrLen
 JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_ms_MSMibIfRow_bPhysAddr
 (JNIEnv *env, jobject obj) {
 #ifdef WIN32
-	PMIB_IFROW row = (PMIB_IFROW) getPeeredPhysical(env, obj);
+	PMIB_IFROW row = (PMIB_IFROW) getJMemoryPhysical(env, obj);
 	if (row == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return NULL;
@@ -232,7 +232,7 @@ JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_ms_MSMibIfRow_bPhysAddr
 JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwAdminStatus
 (JNIEnv *env, jobject obj) {
 #ifdef WIN32
-	PMIB_IFROW row = (PMIB_IFROW) getPeeredPhysical(env, obj);
+	PMIB_IFROW row = (PMIB_IFROW) getJMemoryPhysical(env, obj);
 	if (row == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -254,7 +254,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwAdminStatus
 JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwOperStatus
 (JNIEnv *env, jobject obj) {
 #ifdef WIN32
-	PMIB_IFROW row = (PMIB_IFROW) getPeeredPhysical(env, obj);
+	PMIB_IFROW row = (PMIB_IFROW) getJMemoryPhysical(env, obj);
 	if (row == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -276,7 +276,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwOperStatus
 JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwLastChange
 (JNIEnv *env, jobject obj) {
 #ifdef WIN32
-	PMIB_IFROW row = (PMIB_IFROW) getPeeredPhysical(env, obj);
+	PMIB_IFROW row = (PMIB_IFROW) getJMemoryPhysical(env, obj);
 	if (row == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -298,7 +298,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwLastChange
 JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwInUcastPkts
 (JNIEnv *env, jobject obj) {
 #ifdef WIN32
-	PMIB_IFROW row = (PMIB_IFROW) getPeeredPhysical(env, obj);
+	PMIB_IFROW row = (PMIB_IFROW) getJMemoryPhysical(env, obj);
 	if (row == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -320,7 +320,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwInUcastPkts
 JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwInNUcastPkts
 (JNIEnv *env, jobject obj) {
 #ifdef WIN32
-	PMIB_IFROW row = (PMIB_IFROW) getPeeredPhysical(env, obj);
+	PMIB_IFROW row = (PMIB_IFROW) getJMemoryPhysical(env, obj);
 	if (row == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -342,7 +342,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwInNUcastPkts
 JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwInDiscards
 (JNIEnv *env, jobject obj) {
 #ifdef WIN32
-	PMIB_IFROW row = (PMIB_IFROW) getPeeredPhysical(env, obj);
+	PMIB_IFROW row = (PMIB_IFROW) getJMemoryPhysical(env, obj);
 	if (row == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -364,7 +364,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwInDiscards
 JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwInErrors
 (JNIEnv *env, jobject obj) {
 #ifdef WIN32
-	PMIB_IFROW row = (PMIB_IFROW) getPeeredPhysical(env, obj);
+	PMIB_IFROW row = (PMIB_IFROW) getJMemoryPhysical(env, obj);
 	if (row == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -386,7 +386,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwInErrors
 JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwInUnknownProtos
 (JNIEnv *env, jobject obj) {
 #ifdef WIN32
-	PMIB_IFROW row = (PMIB_IFROW) getPeeredPhysical(env, obj);
+	PMIB_IFROW row = (PMIB_IFROW) getJMemoryPhysical(env, obj);
 	if (row == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -408,7 +408,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwInUnknownProtos
 JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwOutOctets
 (JNIEnv *env, jobject obj) {
 #ifdef WIN32
-	PMIB_IFROW row = (PMIB_IFROW) getPeeredPhysical(env, obj);
+	PMIB_IFROW row = (PMIB_IFROW) getJMemoryPhysical(env, obj);
 	if (row == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -430,7 +430,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwOutOctets
 JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwOutUcastPkts
 (JNIEnv *env, jobject obj) {
 #ifdef WIN32
-	PMIB_IFROW row = (PMIB_IFROW) getPeeredPhysical(env, obj);
+	PMIB_IFROW row = (PMIB_IFROW) getJMemoryPhysical(env, obj);
 	if (row == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -452,7 +452,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwOutUcastPkts
 JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwOutNUcastPkts
 (JNIEnv *env, jobject obj) {
 #ifdef WIN32
-	PMIB_IFROW row = (PMIB_IFROW) getPeeredPhysical(env, obj);
+	PMIB_IFROW row = (PMIB_IFROW) getJMemoryPhysical(env, obj);
 	if (row == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -474,7 +474,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwOutNUcastPkts
 JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwOutDiscards
 (JNIEnv *env, jobject obj) {
 #ifdef WIN32
-	PMIB_IFROW row = (PMIB_IFROW) getPeeredPhysical(env, obj);
+	PMIB_IFROW row = (PMIB_IFROW) getJMemoryPhysical(env, obj);
 	if (row == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -496,7 +496,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwOutDiscards
 JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwOutErrors
 (JNIEnv *env, jobject obj) {
 #ifdef WIN32
-	PMIB_IFROW row = (PMIB_IFROW) getPeeredPhysical(env, obj);
+	PMIB_IFROW row = (PMIB_IFROW) getJMemoryPhysical(env, obj);
 	if (row == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -518,7 +518,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwOutErrors
 JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwOutQLen
 (JNIEnv *env, jobject obj) {
 #ifdef WIN32
-	PMIB_IFROW row = (PMIB_IFROW) getPeeredPhysical(env, obj);
+	PMIB_IFROW row = (PMIB_IFROW) getJMemoryPhysical(env, obj);
 	if (row == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -540,7 +540,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwOutQLen
 JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwDescrLen
 (JNIEnv *env, jobject obj) {
 #ifdef WIN32
-	PMIB_IFROW row = (PMIB_IFROW) getPeeredPhysical(env, obj);
+	PMIB_IFROW row = (PMIB_IFROW) getJMemoryPhysical(env, obj);
 	if (row == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -562,7 +562,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSMibIfRow_dwDescrLen
 JNIEXPORT jstring JNICALL Java_org_jnetpcap_ms_MSMibIfRow_bDescr
 (JNIEnv *env, jobject obj) {
 #ifdef WIN32
-	PMIB_IFROW row = (PMIB_IFROW) getPeeredPhysical(env, obj);
+	PMIB_IFROW row = (PMIB_IFROW) getJMemoryPhysical(env, obj);
 	if (row == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return NULL;

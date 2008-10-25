@@ -26,7 +26,7 @@
 #endif /*WIN32*/
 
 #include "unix_os.h"
-#include "jnetpcap_peered.h"
+#include "nio_jmemory.h"
 #include "jnetpcap_utils.h"
 #include "jnetpcap_ids.h"
 #include "export.h"

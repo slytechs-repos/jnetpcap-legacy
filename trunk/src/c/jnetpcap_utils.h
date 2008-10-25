@@ -23,6 +23,9 @@ extern "C" {
 #define PCAP_CLOSED_EXCEPTION "org/jnetpcap/PcapClosedException"
 #define PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION "org/jnetpcap/PcapExtensionNotAvailableException"
 #define OUT_OF_MEMORY_ERROR "java/lang/OutOfMemoryError"
+#define BUFFER_OVERFLOW_EXCEPTION "java/nio/BufferOverflowException"
+#define BUFFER_UNDERFLOW_EXCEPTION "java/nio/BufferUnderflowException"
+#define READ_ONLY_BUFFER_EXCETPION "java/nio/ReadOnlyBufferException"
 	
 extern	jclass pcapClass;
 extern	jclass pcapHandlerClass;
@@ -85,6 +88,7 @@ jobject newPcapSockAddr(JNIEnv *env, sockaddr *a);
 void setPcapStat(JNIEnv *env, jobject jstats, pcap_stat *stats);
 
 void throwException(JNIEnv *env, const char *exception, char *message);
+void throwVoidException(JNIEnv *env, const char *exception);
 
 #ifdef __cplusplus
 }

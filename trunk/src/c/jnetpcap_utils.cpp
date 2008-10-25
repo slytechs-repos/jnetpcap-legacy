@@ -229,6 +229,29 @@ void throwException(JNIEnv *env, const char *excClassName, char *message) {
 	}
 }
 
+/*
+ * Throws specified exception with message to java. Any method calling on
+ * this utility class, needs to make sure it returns as this exception does
+ * not transfer control to back to java like it is in Java language, but returns
+ * immediately.
+ */
+void throwVoidException(JNIEnv *env, const char *excClassName) {
+	jclass clazz = env->FindClass(excClassName);
+
+	jmethodID constructorMID;
+	if ( (constructorMID = env->GetMethodID(clazz, "<init>", "()V")) == NULL) {
+		throwException(env, NO_SUCH_FIELD_EXCEPTION,
+				"Unable to initialize exception class ");
+		return;
+	}
+
+	if (clazz != NULL) {
+		jthrowable exception = (jthrowable)env->NewObject(clazz, constructorMID);
+		env->Throw(exception);
+	}
+}
+
+
 /**
  * Calls on StringBuilder.setLength(0) and StringBuilder.append(String)
  */

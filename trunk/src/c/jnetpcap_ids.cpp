@@ -31,6 +31,7 @@
  * Pcap.java IDs
  ******************************************************************************/
 jclass pcapClass = NULL;
+jclass bufferClass = NULL;
 jclass byteBufferClass = NULL;
 jclass stringBufferClass = NULL;
 jclass pcapIntegerClass = NULL;
@@ -41,6 +42,12 @@ jfieldID pcapIntegerValueFID = 0;
 jmethodID pcapConstructorMID = 0;
 jmethodID appendMID = 0;
 jmethodID setLengthMID = 0;
+jmethodID byteBufferIsDirectMID = 0;
+jmethodID bufferGetPositionMID = 0;
+jmethodID bufferGetLimitMID = 0;
+jmethodID bufferSetPositionMID = 0;
+jmethodID bufferSetLimitMID = 0;
+
 
 /*
  * Class:     org_jnetpcap_Pcap
@@ -69,6 +76,37 @@ JNIEXPORT void JNICALL JNICALL Java_org_jnetpcap_Pcap_initIDs
 	if ( (byteBufferClass = findClass(env, "java/nio/ByteBuffer")) == NULL) {
 		return;
 	}
+	
+	if ( (bufferClass = findClass(env, "java/nio/Buffer")) == NULL) {
+		return;
+	}
+	
+	if ( (byteBufferIsDirectMID = env->GetMethodID(byteBufferClass, "isDirect",
+							"()Z")) == NULL) {
+		return;
+	}
+	
+	if ( (bufferGetPositionMID = env->GetMethodID(bufferClass, "position",
+							"()I")) == NULL) {
+		return;
+	}
+
+	if ( (bufferGetLimitMID = env->GetMethodID(bufferClass, "limit",
+							"()I")) == NULL) {
+		return;
+	}
+	
+	if ( (bufferSetPositionMID = env->GetMethodID(bufferClass, "position",
+							"(I)Ljava/nio/Buffer;")) == NULL) {
+		return;
+	}
+
+	if ( (bufferSetLimitMID = env->GetMethodID(bufferClass, "limit",
+							"(I)Ljava/nio/Buffer;")) == NULL) {
+		return;
+	}
+
+
 
 	if ( (stringBufferClass = findClass(env, "java/lang/StringBuffer")) == NULL) {
 		return;
@@ -388,4 +426,16 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_PcapStat_initIDs
 		return;
 	}
 }
+
+//jint JNI_OnLoad(JavaVM *vm, void *reserved) {
+//	void *env;
+//	if (vm->GetEnv(&env, JNI_VERSION_1_4) == JNI_EVERSION || env == NULL) {
+//		printf("OnLoad FAILURE");
+//		return JNI_VERSION_1_4;
+//	}
+//	
+//	printf("OnLoad SUCCESS");
+//	
+//	return JNI_VERSION_1_1;
+//}
 
