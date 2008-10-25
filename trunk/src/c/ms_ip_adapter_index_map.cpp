@@ -18,7 +18,7 @@
 #include <iphlpapi.h>
 #endif /*WIN32*/
 
-#include "jnetpcap_peered.h"
+#include "nio_jmemory.h"
 #include "jnetpcap_utils.h"
 #include "org_jnetpcap_ms_MSIpAdapterIndexMap.h"
 #include "export.h"
@@ -51,7 +51,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_ms_MSIpAdapterIndexMap_initIDs
 JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSIpAdapterIndexMap_index
   (JNIEnv *env, jobject obj) {
 #ifdef WIN32
-	PIP_ADAPTER_INDEX_MAP map = (PIP_ADAPTER_INDEX_MAP) getPeeredPhysical(env, obj);
+	PIP_ADAPTER_INDEX_MAP map = (PIP_ADAPTER_INDEX_MAP) getJMemoryPhysical(env, obj);
 	if (map == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
@@ -72,7 +72,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_ms_MSIpAdapterIndexMap_index
 JNIEXPORT jstring JNICALL Java_org_jnetpcap_ms_MSIpAdapterIndexMap_name
   (JNIEnv *env, jobject obj) {
 #ifdef WIN32
-	PIP_ADAPTER_INDEX_MAP map = (PIP_ADAPTER_INDEX_MAP) getPeeredPhysical(env, obj);
+	PIP_ADAPTER_INDEX_MAP map = (PIP_ADAPTER_INDEX_MAP) getJMemoryPhysical(env, obj);
 	if (map == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return NULL;

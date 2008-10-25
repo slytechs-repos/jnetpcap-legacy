@@ -352,6 +352,25 @@
 	</target>
 
 	<!--                        COMPILE SECTION  -->
+	
+	<!-- =================================================================== -->
+	<!-- Compiles java sources using javac -->
+	<!-- =================================================================== -->
+	<target name="comp-java-beta" depends="prep-java">
+		<property name="compiler.debuglevel" value="lines,vars,source" />
+
+		<javac 
+			srcdir="${src.beta.dir}${compiler.target}" 
+			destdir="${build.classes.dir}${compiler.target}" 
+			debug="${compiler.debug}" 
+			debuglevel="${compiler.debuglevel}" 
+			deprecation="${compiler.deprecate}" 
+			optimize="${compiler.optimize}" 
+			classpathref="compiler.classpath"
+			source="${compiler.target}"
+			target="${compiler.target}" />
+	</target>
+
 
 	<!-- =================================================================== -->
 	<!-- Compiles java sources using javac -->
@@ -384,6 +403,12 @@
 			<param name="jre" value="jre1.5" />
 			<param name="compiler.target" value="1.5" />
 		</antcall>
+		
+		<antcall target="comp-java-beta">
+			<param name="jre" value="jre1.5" />
+			<param name="compiler.target" value="1.5" />
+		</antcall>
+
 
 	</target>
 
@@ -406,8 +431,8 @@
 	<!-- Compiles java binary classes, not sources, using javah -->
 	<!-- =================================================================== -->
 	<target name="comp-javah" depends="prep-javah,comp-java">
-		<javah destdir="${build.include.dir}" classpathref="javah.classpath" force="${javah.force}">
-
+		<javah destdir="${build.include.dir}" classpathref="javah.classpath" force="${javah.force}" verbose="true">
+			
 			<class name="org.jnetpcap.Pcap" />
 			<class name="org.jnetpcap.PcapBpfProgram" />
 			<class name="org.jnetpcap.PcapDumper" />
@@ -417,52 +442,48 @@
 			<class name="org.jnetpcap.PcapIf" />
 			<class name="org.jnetpcap.PcapAddr" />
 			<class name="org.jnetpcap.PcapSockAddr" />
-			<class name="org.jnetpcap.Peered" />
-			<class name="org.jnetpcap.JNumber" />
 
 			<class name="org.jnetpcap.winpcap.WinPcap" />
 			<class name="org.jnetpcap.winpcap.WinPcapStat" />
 			<class name="org.jnetpcap.winpcap.WinPcapSamp" />
 			<class name="org.jnetpcap.winpcap.WinPcapRmtAuth" />
 			
-			<class name="org.jnetpcap.unix.UnixIfReq" />
+			<!--
+			****  BETA FEATURES
+			/-->
+			
+			<class name="org.jnetpcap.nio.JMemory" />
+			<class name="org.jnetpcap.nio.JNumber" />
+			<class name="org.jnetpcap.nio.JBuffer" />
+			
 			<class name="org.jnetpcap.unix.UnixOs" />
+			<class name="org.jnetpcap.unix.UnixOs$IfReq" />
+			<class name="org.jnetpcap.unix.UnixOs$IfData" />
+			
+			<class name="org.jnetpcap.unix.Dlpi" />
+			<class name="org.jnetpcap.unix.Dlpi$DLBase" />
+			<class name="org.jnetpcap.unix.Dlpi$DLOkAck" />
+			<class name="org.jnetpcap.unix.Dlpi$DLErrorAck" />
+			<class name="org.jnetpcap.unix.Dlpi$DLPromisconReq" />
+			<class name="org.jnetpcap.unix.Dlpi$DLPromiscoffReq" />
+			<class name="org.jnetpcap.unix.Dlpi$DLPhysAddrReq" />
+			<class name="org.jnetpcap.unix.Dlpi$DLPhysAddrAck" />
+			<class name="org.jnetpcap.unix.Dlpi$DLStatisticsReq" />
+			<class name="org.jnetpcap.unix.Dlpi$DLStatisticsAck" />
 			
 			<class name="org.jnetpcap.ms.MSIpHelper" />
 			<class name="org.jnetpcap.ms.MSIpAdapterIndexMap" />
 			<class name="org.jnetpcap.ms.MSIpInterfaceInfo" />
 			<class name="org.jnetpcap.ms.MSMibIfRow" />
 
-
+			<class name="org.jnetpcap.PcapBeta" />
+			<class name="org.jnetpcap.PcapHeader" />
+			<class name="org.jnetpcap.packet.JScanner" />
+			<class name="org.jnetpcap.packet.JPacket$State" />
+			<class name="org.jnetpcap.packet.JHeader" />
+			<class name="org.jnetpcap.packet.JHeader$State" />
+			<class name="org.jnetpcap.packet.JProtocol" />
 		</javah>
-
-		<property name="a" value="Generating: ${build.include.dir}" />
-
-		<echo message="${a}/org_jnetpcap_Pcap.h" />
-		<echo message="${a}/org_jnetpcap_PcapBpfProgram.h" />
-		<echo message="${a}/org_jnetpcap_PcapDumper.h" />
-		<echo message="${a}/org_jnetpcap_PcapPktHdr.h" />
-		<echo message="${a}/org_jnetpcap_PcapPktBuffer.h" />
-		<echo message="${a}/org_jnetpcap_PcapStat.h" />
-		<echo message="${a}/org_jnetpcap_PcapIf.h" />
-		<echo message="${a}/org_jnetpcap_PcapAddr.h" />
-		<echo message="${a}/org_jnetpcap_PcapSockAddr.h" />
-		<echo message="${a}/org_jnetpcap_Peered.h" />
-		<echo message="${a}/org_jnetpcap_JNumber.h" />
-
-		<echo message="${a}/org_jnetpcap_winpcap_WinPcap.h" />
-		<echo message="${a}/org_jnetpcap_winpcap_PcapStatEx.h" />
-		<echo message="${a}/org_jnetpcap_winpcap_WinPcapStat.h" />
-		<echo message="${a}/org_jnetpcap_winpcap_WinPcapSamp.h" />
-		<echo message="${a}/org_jnetpcap_winpcap_WinPcapRmtAuth.h" />
-
-		<echo message="${a}/org_jnetpcap_unix_UnixIfReq.h" />
-		<echo message="${a}/org_jnetpcap_unix_UnixOs.h" />
-		
-		<echo message="${a}/org_jnetpcap_ms_MSIpHelper.h" />
-		<echo message="${a}/org_jnetpcap_ms_MSIpIpAdapterIndexMap.h" />
-		<echo message="${a}/org_jnetpcap_ms_MSIpInterfaceInfo.h" />
-		<echo message="${a}/org_jnetpcap_ms_MSIpMibIfRow.h" />
 	</target>
 
 	<!-- =================================================================== -->
@@ -717,15 +738,15 @@
 			<formatter type="plain" usefile="false" />
 			<sysproperty key="java.library.path" value="${jni.build.dir}" />
 
-			<!-- test name="org.jnetpcap.TestPcapJNI" todir="${report.dir}" /-->
+			<test name="org.jnetpcap.TestPcapJNI" todir="${report.dir}" />
 			<test name="org.jnetpcap.unix.TestUnixOs" todir="${report.dir}" />
 
 			<test name="org.jnetpcap.TestPcapUtils" todir="${report.dir}" />
 
 
-			<!--test 
+			<test 
 				name="org.jnetpcap.winpcap.TestWinPcapExtensions" 
-				todir="${report.dir}" /-->
+				todir="${report.dir}" />
 
 			<classpath refid="test.classpath" />
 

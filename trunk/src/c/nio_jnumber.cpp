@@ -24,9 +24,8 @@
 #include <unistd.h>
 #endif /*WIN32*/
 
-#include "jnetpcap_jnumber.h"
-#include "jnetpcap_peered.h"
-#include "org_jnetpcap_JNumber.h"
+#include "nio_jmemory.h"
+#include "org_jnetpcap_nio_JNumber.h"
 #include "export.h"
 
 
@@ -36,146 +35,146 @@
 
 
 /*
- * Class:     org_jnetpcap_JNumber
+ * Class:     org_jnetpcap_nio_JNumber
  * Method:    intValue
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_JNumber_intValue__
+JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JNumber_intValue__
   (JNIEnv *env, jobject obj) {
 	
-	jint *p = (jint *)getPeeredPhysical(env, obj);
+	jint *p = (jint *)getJMemoryPhysical(env, obj);
 	
 	return *p;	
 }
 
 /*
- * Class:     org_jnetpcap_JNumber
+ * Class:     org_jnetpcap_nio_JNumber
  * Method:    intValue
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_org_jnetpcap_JNumber_intValue__I
+JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JNumber_intValue__I
   (JNIEnv *env, jobject obj, jint jvalue) {
 	
-	jint *p = (jint *)getPeeredPhysical(env, obj);
+	jint *p = (jint *)getJMemoryPhysical(env, obj);
 	*p = jvalue;
 }
 
 /*
- * Class:     org_jnetpcap_JNumber
+ * Class:     org_jnetpcap_nio_JNumber
  * Method:    byteValue
  * Signature: ()B
  */
-JNIEXPORT jbyte JNICALL Java_org_jnetpcap_JNumber_byteValue__
+JNIEXPORT jbyte JNICALL Java_org_jnetpcap_nio_JNumber_byteValue__
   (JNIEnv *env, jobject obj) {
 	
-	jbyte *p = (jbyte *)getPeeredPhysical(env, obj);
+	jbyte *p = (jbyte *)getJMemoryPhysical(env, obj);
 	return *p;	
 }
 
 /*
- * Class:     org_jnetpcap_JNumber
+ * Class:     org_jnetpcap_nio_JNumber
  * Method:    byteValue
  * Signature: (B)V
  */
-JNIEXPORT void JNICALL Java_org_jnetpcap_JNumber_byteValue__B
+JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JNumber_byteValue__B
   (JNIEnv *env, jobject obj, jbyte jvalue) {
-	jbyte *p = (jbyte *)getPeeredPhysical(env, obj);
+	jbyte *p = (jbyte *)getJMemoryPhysical(env, obj);
 	*p = jvalue;
 }
 
 /*
- * Class:     org_jnetpcap_JNumber
+ * Class:     org_jnetpcap_nio_JNumber
  * Method:    shortValue
  * Signature: ()S
  */
-JNIEXPORT jshort JNICALL Java_org_jnetpcap_JNumber_shortValue__
+JNIEXPORT jshort JNICALL Java_org_jnetpcap_nio_JNumber_shortValue__
   (JNIEnv *env, jobject obj) {
 	
-	jshort *p = (jshort *)getPeeredPhysical(env, obj);
+	jshort *p = (jshort *)getJMemoryPhysical(env, obj);
 	return *p;	
 }
 
 /*
- * Class:     org_jnetpcap_JNumber
+ * Class:     org_jnetpcap_nio_JNumber
  * Method:    shortValue
  * Signature: (S)V
  */
-JNIEXPORT void JNICALL Java_org_jnetpcap_JNumber_shortValue__S
+JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JNumber_shortValue__S
   (JNIEnv *env, jobject obj, jshort jvalue) {
 	
-	jshort *p = (jshort *)getPeeredPhysical(env, obj);
+	jshort *p = (jshort *)getJMemoryPhysical(env, obj);
 	*p = jvalue;
 }
 
 /*
- * Class:     org_jnetpcap_JNumber
+ * Class:     org_jnetpcap_nio_JNumber
  * Method:    longValue
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_org_jnetpcap_JNumber_longValue__
+JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JNumber_longValue__
   (JNIEnv *env, jobject obj) {
 	
-	jlong *p = (jlong *)getPeeredPhysical(env, obj);
+	jlong *p = (jlong *)getJMemoryPhysical(env, obj);
 	return *p;	
 }
 
 /*
- * Class:     org_jnetpcap_JNumber
+ * Class:     org_jnetpcap_nio_JNumber
  * Method:    longValue
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_org_jnetpcap_JNumber_longValue__J
+JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JNumber_longValue__J
   (JNIEnv *env, jobject obj, jlong jvalue) {
 	
-	jlong *p = (jlong *)getPeeredPhysical(env, obj);
+	jlong *p = (jlong *)getJMemoryPhysical(env, obj);
 	*p = jvalue;
 }
 
 /*
- * Class:     org_jnetpcap_JNumber
+ * Class:     org_jnetpcap_nio_JNumber
  * Method:    floatValue
  * Signature: ()F
  */
-JNIEXPORT jfloat JNICALL Java_org_jnetpcap_JNumber_floatValue__
+JNIEXPORT jfloat JNICALL Java_org_jnetpcap_nio_JNumber_floatValue__
   (JNIEnv *env, jobject obj) {
 	
-	jfloat *p = (jfloat *)getPeeredPhysical(env, obj);
+	jfloat *p = (jfloat *)getJMemoryPhysical(env, obj);
 	return *p;	
 }
 
 /*
- * Class:     org_jnetpcap_JNumber
+ * Class:     org_jnetpcap_nio_JNumber
  * Method:    floatValue
  * Signature: (F)V
  */
-JNIEXPORT void JNICALL Java_org_jnetpcap_JNumber_floatValue__F
+JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JNumber_floatValue__F
   (JNIEnv *env, jobject obj, jfloat jvalue) {
 	
-	jfloat *p = (jfloat *)getPeeredPhysical(env, obj);
+	jfloat *p = (jfloat *)getJMemoryPhysical(env, obj);
 	*p = jvalue;
 }
 
 /*
- * Class:     org_jnetpcap_JNumber
+ * Class:     org_jnetpcap_nio_JNumber
  * Method:    doubleValue
  * Signature: ()D
  */
-JNIEXPORT jdouble JNICALL Java_org_jnetpcap_JNumber_doubleValue__
+JNIEXPORT jdouble JNICALL Java_org_jnetpcap_nio_JNumber_doubleValue__
   (JNIEnv *env, jobject obj) {
 	
-	jdouble *p = (jdouble *)getPeeredPhysical(env, obj);
+	jdouble *p = (jdouble *)getJMemoryPhysical(env, obj);
 	return *p;	
 }
 
 /*
- * Class:     org_jnetpcap_JNumber
+ * Class:     org_jnetpcap_nio_JNumber
  * Method:    doubleValue
  * Signature: (D)V
  */
-JNIEXPORT void JNICALL Java_org_jnetpcap_JNumber_doubleValue__D
+JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JNumber_doubleValue__D
   (JNIEnv *env, jobject obj, jdouble jvalue) {
 	
-	jdouble *p = (jdouble *)getPeeredPhysical(env, obj);
+	jdouble *p = (jdouble *)getJMemoryPhysical(env, obj);
 	*p = jvalue;
 }
 

@@ -69,7 +69,7 @@
 #include "jnetpcap_bpf.h"
 #include "jnetpcap_dumper.h"
 #include "jnetpcap_ids.h"
-#include "jnetpcap_peered.h"
+#include "nio_jmemory.h"
 #include "org_jnetpcap_Pcap.h"
 #include "export.h"
 
@@ -952,7 +952,15 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_Pcap_lookupDev
 		return NULL;
 	}
 	
-	jstring jdevice = env->NewStringUTF(device);
+	/*
+	 * Name is in wide character format. So convert to plain UTF8.
+	 */
+	int size=WideCharToMultiByte(0, 0, (const WCHAR*)device, -1, NULL, 0, NULL, NULL);
+	char utf8[size + 1];
+	WideCharToMultiByte(0, 0, (const WCHAR*)device, -1, utf8, size, NULL, NULL);
+	printf("size=%d, utf8=%s device=%ws\n", size, utf8, device);
+	
+	jstring jdevice = env->NewStringUTF(utf8);
 	
 	return jdevice;
 }
@@ -977,8 +985,8 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_lookupNet__Ljava_lang_String_2Lorg
 	//	printf("device=%s snaplen=%d, promisc=%d timeout=%d\n",
 	//			device, jsnaplen, jpromisc, jtimeout);
 
-	bpf_u_int32 *netp  = (bpf_u_int32 *) getPeeredPhysical(env, jnetp);
-	bpf_u_int32 *maskp = (bpf_u_int32 *) getPeeredPhysical(env, jmaskp);
+	bpf_u_int32 *netp  = (bpf_u_int32 *) getJMemoryPhysical(env, jnetp);
+	bpf_u_int32 *maskp = (bpf_u_int32 *) getJMemoryPhysical(env, jmaskp);
 	int r = pcap_lookupnet(device, netp, maskp, errbuf);
 	setString(env, jerrbuf, errbuf); // Even if no error, could have warning msg
 	env->ReleaseStringUTFChars(jdevice, device);
