@@ -48,19 +48,15 @@ public class JHandlerTest
 	
 	@Override
   protected void setUp() throws Exception {
-	  // TODO Auto-generated method stub
-	  throw new UnsupportedOperationException("Not implemented yet");
   }
 
 	@Override
   protected void tearDown() throws Exception {
-	  // TODO Auto-generated method stub
-	  throw new UnsupportedOperationException("Not implemented yet");
   }
 
 	public void testJScannerHandler() {
 		
-		pcap.dispatch(2, (JPacketHandler<String>) this, "JPacket - testcase");
+		pcap.dispatch(2, (JPacketHandler<String>)this, "JPacket - testcase");
 	}
 	
 	public void testJHandler() {

@@ -150,6 +150,24 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getInstanceCo
 
 /*
  * Class:     org_jnetpcap_packet_JPacket_State
+ * Method:    getHeaderIdByIndex
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getHeaderIdByIndex
+  (JNIEnv *env, jobject obj, jint index) {
+	
+	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	if (packet == NULL) {
+		return -1;
+	}
+
+	return (jint) packet->pkt_headers[index].hdr_id;
+
+}
+
+
+/*
+ * Class:     org_jnetpcap_packet_JPacket_State
  * Method:    peerHeaderById
  * Signature: (IILorg/jnetpcap/packet/JHeader$State;)I
  */

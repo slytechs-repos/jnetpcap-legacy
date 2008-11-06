@@ -27,12 +27,12 @@ public class MyHeader
 	public final static int ID = JRegistry.register(MyHeader.class);
 	
 	public MyHeader() {
-		super(ID);
+		super(ID, "MyHeader");
 	}
 
 	public final static JBinding[] BINDINGS =
 	    { new DefaultJBinding(MyHeader.ID, Ip4.ID) {
-		    private Ip4 ip4 = JRegistry.threadLocal(Ip4.class);
+		    private Ip4 ip4 = new Ip4();
 
 		    public int checkLength(JPacket packet, int offset) {
 			    return (packet.hasHeader(ip4) && ip4.type() == 0x17) ? packet
