@@ -16,6 +16,10 @@ import java.nio.ByteOrder;
 
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
+import org.jnetpcap.packet.format.JBitField;
+import org.jnetpcap.packet.format.JField;
+import org.jnetpcap.packet.format.JStaticField;
+import org.jnetpcap.packet.format.JFormatter.Style;
 
 /**
  * IP version 4 network protocol header.
@@ -30,8 +34,241 @@ public class Ip4
 
 	public static final int ID = JProtocol.IP4_ID;
 
+	public final static JField FLAG_FIELD =
+	    new JField(Style.INT_HEX, "flags", "flags",
+	        new JStaticField<Ip4, Integer>(6, 3) {
+
+		        public Integer value(Ip4 header) {
+			        return header.flags();
+		        }
+	        }) {
+
+		    @Override
+		    public JField[] getCompoundFields() {
+			    return FLAGS_SUB_FIELDS;
+		    }
+	    };
+
+	public final static JField DIFF_FIELD =
+	    new JField(Style.INT_HEX, "diffs", "diffs",
+	        new JStaticField<Ip4, Integer>(1, 8) {
+
+		        public Integer value(Ip4 header) {
+			        return header.tos();
+		        }
+	        }) {
+		    @Override
+		    public JField[] getCompoundFields() {
+			    return DIFF_SUB_FIELDS;
+		    }
+
+	    };
+
+	/**
+	 * Field objects for JFormatter
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public final static JField[] FIELDS =
+	    {
+	        new JField("version", "ver", new JStaticField<Ip4, Integer>(0, 4) {
+
+		        public Integer value(Ip4 header) {
+			        return header.version();
+		        }
+	        }),
+
+	        new JField("hlen", "hlen", new JStaticField<Ip4, Integer>(0, 4) {
+
+		        public Integer value(Ip4 header) {
+			        return header.hlen();
+		        }
+	        }),
+
+	        DIFF_FIELD,
+
+	        new JField("length", "length", new JStaticField<Ip4, Integer>(2, 16) {
+
+		        public Integer value(Ip4 header) {
+			        return header.length();
+		        }
+	        }),
+
+	        FLAG_FIELD,
+
+	        new JField(Style.INT_HEX, "id", "id", new JStaticField<Ip4, Integer>(
+	            4, 16) {
+
+		        public Integer value(Ip4 header) {
+			        return header.id();
+		        }
+	        }),
+
+	        new JField("offset", "offset", new JStaticField<Ip4, Integer>(6, 13) {
+
+		        public Integer value(Ip4 header) {
+			        return header.offset();
+		        }
+	        }),
+
+	        new JField("ttl", "ttl", new JStaticField<Ip4, Integer>(8, 8) {
+
+		        public Integer value(Ip4 header) {
+			        return header.ttl();
+		        }
+	        }),
+
+	        new JField("protocol", "type", new JStaticField<Ip4, Integer>(9, 8) {
+
+		        public Integer value(Ip4 header) {
+			        return header.type();
+		        }
+	        }),
+
+	        new JField(Style.INT_HEX, "checksum", "crc",
+	            new JStaticField<Ip4, Integer>(10, 16) {
+
+		            public Integer value(Ip4 header) {
+			            return header.checksum();
+		            }
+	            }),
+
+	        new JField(Style.BYTE_ARRAY_IP4_ADDRESS, "source", "src",
+	            new JStaticField<Ip4, byte[]>(12, 32) {
+
+		            public byte[] value(Ip4 header) {
+			            return header.source();
+		            }
+	            }),
+
+	        new JField(Style.BYTE_ARRAY_IP4_ADDRESS, "destination", "dst",
+	            new JStaticField<Ip4, byte[]>(16, 32) {
+
+		            public byte[] value(Ip4 header) {
+			            return header.destination();
+		            }
+	            }),
+
+	    };
+
+	public final static int DIFF_CODEPOINT = 0xFC;
+
+	public final static int DIFF_ECT = 0x02;
+
+	public final static int DIFF_ECE = 0x01;
+
+	private final static JField[] DIFF_SUB_FIELDS =
+	    {
+	        new JBitField(DIFF_FIELD, "reserved bit", "R",
+	            new JStaticField<Ip4, Integer>(1, 6, DIFF_CODEPOINT) {
+
+		            public Integer value(Ip4 header) {
+			            return (header.tos() & DIFF_CODEPOINT) >> 2;
+		            }
+
+		            @Override
+		            public String valueDescription(Ip4 header) {
+			            if (value(header) != 0) {
+				            return "code point " + value(header);
+			            } else {
+				            return "not set";
+			            }
+		            }
+	            }),
+	        new JBitField(DIFF_FIELD, "ECN bit", "E",
+	            new JStaticField<Ip4, Integer>(1, 1, DIFF_ECT) {
+
+		            public Integer value(Ip4 header) {
+			            return (header.tos() & DIFF_ECT) >> 1;
+		            }
+
+		            @Override
+		            public String valueDescription(Ip4 header) {
+			            int v = value(header);
+
+			            return "ECN capable transport: " + ((v != 0) ? "yes" : "no");
+		            }
+	            }),
+
+	        new JBitField(DIFF_FIELD, "ECE bit", "C",
+	            new JStaticField<Ip4, Integer>(1, 1, DIFF_ECE) {
+
+		            public Integer value(Ip4 header) {
+			            return (header.tos() & DIFF_ECE);
+		            }
+
+		            @Override
+		            public String valueDescription(Ip4 header) {
+			            int v = value(header);
+
+			            return "ECE-CE: " + ((v != 0) ? "yes" : "no");
+		            }
+	            }), };
+
+	public final static int FLAG_RESERVED = 0x4;
+
+	public final static int FLAG_DONT_FRAGMENT = 0x2;
+
+	public final static int FLAG_MORE_FRAGEMNTS = 0x1;
+
+	private final static JField[] FLAGS_SUB_FIELDS =
+	    {
+	        new JBitField(FLAG_FIELD, "reserved bit", "R",
+	            new JStaticField<Ip4, Integer>(0, 1, FLAG_RESERVED) {
+
+		            public Integer value(Ip4 header) {
+			            return (header.flags() & FLAG_RESERVED) >> 2;
+		            }
+
+		            @Override
+		            public String valueDescription(Ip4 header) {
+			            if (value(header) != 0) {
+				            return "set";
+			            } else {
+				            return "not set";
+			            }
+		            }
+	            }),
+
+	        new JBitField(FLAG_FIELD, "don't fragment", "D",
+	            new JStaticField<Ip4, Integer>(0, 1, FLAG_DONT_FRAGMENT) {
+
+		            public Integer value(Ip4 header) {
+			            return (header.flags() & FLAG_DONT_FRAGMENT) >> 1;
+		            }
+
+		            @Override
+		            public String valueDescription(Ip4 header) {
+			            if (value(header) != 0) {
+				            return "set";
+			            } else {
+				            return "not set";
+			            }
+		            }
+	            }),
+
+	        new JBitField(FLAG_FIELD, "more fragments", "F",
+	            new JStaticField<Ip4, Integer>(0, 1, FLAG_MORE_FRAGEMNTS) {
+
+		            public Integer value(Ip4 header) {
+			            return (header.flags() & FLAG_MORE_FRAGEMNTS) >> 1;
+		            }
+
+		            @Override
+		            public String valueDescription(Ip4 header) {
+			            if (value(header) != 0) {
+				            return "set";
+			            } else {
+				            return "not set";
+			            }
+		            }
+	            }),
+
+	    };
+
 	public Ip4() {
-		super(ID);
+		super(ID, FIELDS, "ip4", "ip");
 		super.order(BYTE_ORDER);
 	}
 

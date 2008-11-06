@@ -16,6 +16,10 @@ import java.nio.ByteOrder;
 
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JStruct;
+import org.jnetpcap.packet.format.JDynamicField;
+import org.jnetpcap.packet.format.JField;
+import org.jnetpcap.packet.format.JFormatter.Priority;
+import org.jnetpcap.packet.format.JFormatter.Style;
 
 public abstract class JHeader
     extends JBuffer {
@@ -71,22 +75,87 @@ public abstract class JHeader
 		}
 	}
 
+	/**
+	 * Returned by default if no fields are defined in subclass
+	 */
+	private final static JField[] EMPTY_FIELDS = new JField[0];
+
+	/**
+	 * Default field object for JFormatter that does a hex dump on the entire
+	 * header
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public final static JField[] DEFAULT_FIELDS =
+	    { new JField(Style.BYTE_ARRAY_HEX_DUMP, Priority.LOW, "data", "data",
+	        new JDynamicField<JHeader, byte[]>(0) {
+
+		        /*
+						 * (non-Javadoc)
+						 * 
+						 * @see org.jnetpcap.packet.format.JDynamicField#hasField(org.jnetpcap.packet.JHeader)
+						 */
+		        @Override
+		        public boolean hasField(JHeader header) {
+		        	setLength(header.getLength());
+		        	setOffset(header.getOffset());
+		        	
+			        return header.getLength() != 0;
+		        }
+
+		        public byte[] value(JHeader header) {
+			        return header.getByteArray(0, header.getLength());
+		        }
+	        }), };
+
 	protected final State state;
 
 	protected JPacket packet;
 
 	private final int id;
 
-	public JHeader(int id) {
-		this.id = id;
-		this.state = new State();
+	private final String name;
+
+	private final String nicname;
+
+	private final JField[] fields;
+
+	public JHeader(int id, String name, String nicname) {
+		this(id, DEFAULT_FIELDS, name, nicname);
+	}
+
+	public JHeader(int id, String name) {
+		this(id, name, name);
+	}
+
+	public JHeader(State state, JField[] fields, String name, String nicname) {
+		this.state = state;
+		this.fields = fields;
+		this.name = name;
+		this.nicname = nicname;
+		this.id = state.getId();
 		super.order(ByteOrder.nativeOrder());
 	}
 
-	public JHeader(State state) {
-		this.state = state;
-		this.id = state.getId();
+	public JHeader(int id, JField[] fields, String name, String nicname) {
+		this.fields = fields;
+
+		this.id = id;
+		this.name = name;
+		this.nicname = nicname;
+		this.state = new State();
 		super.order(ByteOrder.nativeOrder());
+
+	}
+
+	/**
+	 * @param id2
+	 * @param fields2
+	 * @param string
+	 */
+	public JHeader(int id, JField[] fields, String name) {
+		this(id, fields, name, name);
 	}
 
 	public void decode() {
@@ -127,4 +196,23 @@ public abstract class JHeader
 	public final void setPacket(JPacket packet) {
 		this.packet = packet;
 	}
+
+	public JField[] getFields() {
+		return this.fields;
+	}
+
+	/**
+	 * @return the name
+	 */
+	public final String getName() {
+		return this.name;
+	}
+
+	/**
+	 * @return the nicname
+	 */
+	public final String getNicname() {
+		return this.nicname;
+	}
+
 }

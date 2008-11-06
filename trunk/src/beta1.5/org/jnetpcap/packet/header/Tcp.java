@@ -40,7 +40,7 @@ public class Tcp
 	 * @param id
 	 */
 	public Tcp() {
-		super(ID);
+		super(ID, "tcp", "tcp");
 		order(BYTE_ORDER);
 	}
 	

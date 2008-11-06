@@ -16,6 +16,10 @@ import java.nio.ByteOrder;
 
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
+import org.jnetpcap.packet.format.JField;
+import org.jnetpcap.packet.format.JStaticField;
+import org.jnetpcap.packet.format.JFormatter.Priority;
+import org.jnetpcap.packet.format.JFormatter.Style;
 
 public class IEEE802dot1q
     extends JHeader {
@@ -24,24 +28,63 @@ public class IEEE802dot1q
 
 	public static final ByteOrder BYTE_ORDER = ByteOrder.BIG_ENDIAN;
 
+	/**
+	 * Field objects for JFormatter
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public final static JField[] FIELDS =
+	    {
+	        new JField(Style.INT_DEC, Priority.MEDIUM, "priority", "pri",
+	            new JStaticField<IEEE802dot1q, Integer>(0, 3) {
+
+		            public Integer value(IEEE802dot1q header) {
+			            return header.priority();
+		            }
+	            }),
+	        new JField(Style.INT_DEC, Priority.MEDIUM, "cfi", "cfi",
+	            new JStaticField<IEEE802dot1q, Integer>(0, 1) {
+
+		            public Integer value(IEEE802dot1q header) {
+			            return header.cfi();
+		            }
+	            }),
+
+	        new JField(Style.INT_DEC, Priority.MEDIUM, "id", "id",
+	            new JStaticField<IEEE802dot1q, Integer>(0, 12) {
+
+		            public Integer value(IEEE802dot1q header) {
+			            return header.id();
+		            }
+	            }),
+	        new JField(Style.INT_DEC, Priority.MEDIUM, "type", "type",
+	            new JStaticField<IEEE802dot1q, Integer>(2, 16) {
+
+		            public Integer value(IEEE802dot1q header) {
+			            return header.type();
+		            }
+	            }),
+
+	    };
+
 	public IEEE802dot1q() {
-		super(ID);
+		super(ID, FIELDS, "IEEE802dot1q", "vlantag");
 		order(BYTE_ORDER);
 	}
 
 	public int priority() {
-		return (getUByte(0) & 0xE0) >> 5 ;
-	}
-	
-	public int cfi() {
-		return (getUByte(0) & 0x10) >> 4 ;
+		return (getUByte(0) & 0xE0) >> 5;
 	}
 
+	public int cfi() {
+		return (getUByte(0) & 0x10) >> 4;
+	}
 
 	public int id() {
 		return getUShort(0) & 0x0FFF;
 	}
-	
+
 	public int type() {
 		return getUShort(2);
 	}
