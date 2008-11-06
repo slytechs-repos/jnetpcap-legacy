@@ -16,9 +16,18 @@ import java.nio.ByteOrder;
 
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
+import org.jnetpcap.packet.format.JField;
+import org.jnetpcap.packet.format.JStaticField;
+import org.jnetpcap.packet.format.JFormatter.Style;
 
 public class Ethernet
     extends JHeader {
+
+	public static final String NAME = "Ethernet";
+
+	public static final String NICNAME = "Eth";
+
+	public static final String ORG_IEEE = "IEEE Ethernet2";
 
 	public static final int ID = JProtocol.ETHERNET_ID;
 
@@ -26,8 +35,41 @@ public class Ethernet
 
 	public static final int LENGTH = 14; // Ethernet header is 14 bytes long
 
+	/**
+	 * Field objects for JFormatter
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public final static JField[] FIELDS =
+	    {
+	        new JField(Style.BYTE_ARRAY_DASH_ADDRESS, "destination", "dst",
+	            new JStaticField<Ethernet, byte[]>(0, 48) {
+
+		            public byte[] value(Ethernet header) {
+			            return header.destination();
+		            }
+
+	            }),
+	        new JField(Style.BYTE_ARRAY_DASH_ADDRESS, "source", "src",
+	            new JStaticField<Ethernet, byte[]>(6, 48) {
+
+		            public byte[] value(Ethernet header) {
+			            return header.source();
+		            }
+
+	            }),
+	        new JField(Style.INT_HEX, "protocol", "type",
+	            new JStaticField<Ethernet, Integer>(12, 16) {
+
+		            public Integer value(Ethernet header) {
+			            return header.type();
+		            }
+
+	            }) };
+
 	public Ethernet() {
-		super(ID);
+		super(ID, FIELDS, NAME, NICNAME);
 		order(BYTE_ORDER);
 	}
 

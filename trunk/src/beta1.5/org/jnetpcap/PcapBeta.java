@@ -26,33 +26,23 @@ import org.jnetpcap.packet.JScanner;
  */
 public class PcapBeta
     extends Pcap {
-	
+
 	/**
 	 * 
 	 */
 	private PcapBeta() {
 		// Empty
 	}
-	
-	public <T> int dispatch(int cnt, JBufferHandler<T> handler, T user) {
-		return dispatch(cnt, handler, user, new PcapHeader(), new JBuffer());
-	}
-	
-	public native <T> int dispatch(int cnt, JBufferHandler<T> handler, T user,
-	    PcapHeader header, JBuffer buffer);
+
+	public native <T> int dispatch(int cnt, JBufferHandler<T> handler, T user);
 
 	public <T> int dispatch(int cnt, JPacketHandler<T> handler, T user) {
-		return dispatch(cnt, handler, user, new PcapHeader(), new JPacket());
+		return dispatch(cnt, handler, user, JScanner.getDefault());
 	}
 
-	public <T> int dispatch(int cnt, JPacketHandler<T> handler, T user,
-	    PcapHeader header, JPacket buffer) {
-		return dispatch(cnt, handler, user, header, buffer, new JScanner());
-	}
-	
 	public native <T> int dispatch(int cnt, JPacketHandler<T> handler, T user,
-	    PcapHeader header, JPacket buffer, JScanner scanner);
-	
+	    JScanner scanner);
+
 	/**
 	 * <p>
 	 * Runs the dispatch function in a background thread. The method returns
@@ -78,26 +68,15 @@ public class PcapBeta
 		return PcapUtils.dispatchInBackground(this, cnt, handler, data);
 	}
 
-	
-	public <T> int loop(int cnt, JBufferHandler<T> handler, T user) {
-		return loop(cnt, handler, user, new PcapHeader(), new JBuffer());
-	}
-
-	public native <T> int loop(int cnt, JBufferHandler<T> handler, T user,
-	    PcapHeader header, JBuffer buffer);
+	public native <T> int loop(int cnt, JBufferHandler<T> handler, T user);
 
 	public <T> int loop(int cnt, JPacketHandler<T> handler, T user) {
-		return loop(cnt, handler, user, new PcapHeader(), new JPacket());
-	}
-
-	public <T> int loop(int cnt, JPacketHandler<T> handler, T user,
-	    PcapHeader header, JPacket buffer) {
-		return loop(cnt, handler, user, header, buffer, new JScanner());
+		return loop(cnt, handler, user, JScanner.getDefault());
 	}
 
 	public native <T> int loop(int cnt, JPacketHandler<T> handler, T user,
-	    PcapHeader header, JPacket buffer, JScanner scanner);
-	
+	    JScanner scanner);
+
 	/**
 	 * <p>
 	 * Runs the loop function in a background thread. The method returns
@@ -123,7 +102,6 @@ public class PcapBeta
 		return PcapUtils.loopInBackground(this, cnt, handler, data);
 	}
 
-	
 	/**
 	 * Determines the network number and mask associated with the network device.
 	 * Both netp and maskp are integer object references whos value is set from
@@ -147,7 +125,7 @@ public class PcapBeta
 	 */
 	public native static int lookupNet(String device, JNumber netp,
 	    JNumber maskp, StringBuffer errbuf);
-	
+
 	/**
 	 * Determines the network number and mask associated with the network device.
 	 * Both netp and maskp are integer object references whos value is set from
@@ -176,7 +154,7 @@ public class PcapBeta
 
 		return r;
 	}
-	
+
 	/**
 	 * Determines the network number and mask associated with the network device.
 	 * Both netp and maskp are integer object references whos value is set from
@@ -206,9 +184,5 @@ public class PcapBeta
 
 		return r;
 	}
-
-
-
-
 
 }

@@ -16,6 +16,11 @@ import java.nio.ByteOrder;
 
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
+import org.jnetpcap.packet.format.JDynamicField;
+import org.jnetpcap.packet.format.JField;
+import org.jnetpcap.packet.format.JStaticField;
+import org.jnetpcap.packet.format.JFormatter.Priority;
+import org.jnetpcap.packet.format.JFormatter.Style;
 
 public class IEEE802dot2
     extends JHeader {
@@ -24,8 +29,58 @@ public class IEEE802dot2
 
 	public static final ByteOrder BYTE_ORDER = ByteOrder.BIG_ENDIAN;
 
+	/**
+	 * Field objects for JFormatter
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public final static JField[] FIELDS =
+	    {
+	        new JField(Style.INT_DEC, Priority.MEDIUM, "destination", "dsap",
+	            new JStaticField<IEEE802dot2, Integer>(0, 8) {
+
+		            public Integer value(IEEE802dot2 header) {
+			            return header.dsap();
+		            }
+	            }),
+
+	        new JField(Style.INT_DEC, Priority.MEDIUM, "source", "ssap",
+	            new JStaticField<IEEE802dot2, Integer>(1, 8) {
+
+		            public Integer value(IEEE802dot2 header) {
+			            return header.ssap();
+		            }
+	            }),
+
+	        new JField(Style.INT_DEC, Priority.MEDIUM, "destination", "dsap",
+	            new JDynamicField<IEEE802dot2, Integer>(2) {
+
+		            /* (non-Javadoc)
+                 * @see org.jnetpcap.packet.format.JDynamicField#hasField(org.jnetpcap.packet.JHeader)
+                 */
+                @Override
+                public boolean hasField(IEEE802dot2 header) {
+	                int c = header.control();
+	                
+	                if ((c & 0x3) == 0x3) {
+	                	setLength(8);
+	                } else {
+	                	setLength(16);
+	                }
+	                
+	                return true;
+                }
+
+								public Integer value(IEEE802dot2 header) {
+			            return header.control();
+		            }
+	            }),
+
+	    };
+
 	public IEEE802dot2() {
-		super(ID);
+		super(ID, "IEEE802dot2", "llc");
 		order(BYTE_ORDER);
 	}
 

@@ -61,7 +61,9 @@ public class JRegistry {
 	private static Map<Class<? extends JHeader>, Entry> mapByClass =
 	    new HashMap<Class<? extends JHeader>, Entry>();
 
-	static final int MAX_ID_COUNT = 64;
+	public static final int MAX_ID_COUNT = 64;
+	
+	private static Entry[] mapById = new Entry[MAX_ID_COUNT];
 
 	private static final int NULL_ID = -1;
 
@@ -84,7 +86,8 @@ public class JRegistry {
 
 	public static <T extends JHeader> int register(Class<T> c) {
 		int id = LAST_ID++;
-		mapByClass.put(c, new Entry(id, c));
+		Entry e = mapByClass.put(c, new Entry(id, c));
+		mapById[id] = e;
 
 		return id;
 	}
@@ -99,20 +102,11 @@ public class JRegistry {
 	}
 
 	static int register(JProtocol protocol) {
-		mapByClass.put(protocol.clazz, new Entry(protocol.ID, protocol.clazz));
+		Entry e = new Entry(protocol.ID, protocol.clazz);
+		mapByClass.put(protocol.clazz, e);
+		mapById[protocol.ID] = e;
 
 		return protocol.ID;
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <T extends JHeader> T threadLocal(Class<T> c) {
-		Entry e = mapByClass.get(c);
-		if (e == null) {
-			throw new IllegalStateException("Header class not registred: "
-			    + c.getName());
-		}
-
-		return (T) e.threadLocal().get();
 	}
 
 	private List<JBinding>[] bindingsBySource = new ArrayList[MAX_ID_COUNT];
@@ -135,6 +129,41 @@ public class JRegistry {
 
 	public int[] getOverrides(JProtocol protocol) {
 		return this.overrides[protocol.ID];
+	}
+
+	/**
+	 * @param id
+	 * @return
+	 * @throws UnregisteredHeaderException
+	 */
+	public Class<? extends JHeader> lookupClass(int id) throws UnregisteredHeaderException {
+		final Entry entry = mapById[id];
+		if (entry == null) {
+			throw new UnregisteredHeaderException("Header not registered: " + id);
+		}
+
+		return entry.clazz;
+	}
+
+	/**
+	 * @param p
+	 * @return
+	 */
+	public int lookupId(Class<? extends JHeader> c) {
+		Entry e = mapByClass.get(c);
+		if (e == null) {
+			return NULL_ID;
+		}
+
+		return e.id;
+	}
+
+	/**
+	 * @param p
+	 * @return
+	 */
+	public int lookupId(JProtocol p) {
+		return lookupId(p.clazz);
 	}
 
 	/**
@@ -216,26 +245,4 @@ public class JRegistry {
 
 		return r;
 	}
-
-	/**
-	 * @param p
-	 * @return
-	 */
-	public int lookupId(Class<? extends JHeader> c) {
-		Entry e = mapByClass.get(c);
-		if (e == null) {
-			return NULL_ID;
-		}
-
-		return e.id;
-	}
-
-	/**
-	 * @param p
-	 * @return
-	 */
-	public int lookupId(JProtocol p) {
-		return lookupId(p.clazz);
-	}
-
 }

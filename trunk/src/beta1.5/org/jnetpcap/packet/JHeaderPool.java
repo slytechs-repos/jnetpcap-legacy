@@ -10,52 +10,47 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.packet.header;
-
-import java.nio.ByteOrder;
-
-import org.jnetpcap.packet.JHeader;
-import org.jnetpcap.packet.JProtocol;
-import org.jnetpcap.packet.format.JField;
-import org.jnetpcap.packet.format.JStaticField;
+package org.jnetpcap.packet;
 
 /**
+ * A thread local pool of instances of headers.
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class Icmp
-    extends JHeader {
-
-	public static final ByteOrder BYTE_ORDER = ByteOrder.BIG_ENDIAN;
-
-	public static final int ID = JProtocol.UDP_ID;
-
-	public static final int LENGTH = 8;
+@SuppressWarnings("unchecked")
+public class JHeaderPool{
+	
+	private ThreadLocal<JHeader>[] locals =
+	    new ThreadLocal[JRegistry.MAX_ID_COUNT];
 
 	/**
-	 * Field objects for JFormatter
 	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
-	 */
-	public final static JField[] FIELDS =
-	    { new JField("code", "code", new JStaticField<Icmp, Integer>(0, 1) {
-
-		    public Integer value(Icmp header) {
-			    return header.code();
-		    }
-	    }), };
-
-	/**
 	 * @param id
+	 * @return
+	 * @throws UnregisteredHeaderException
 	 */
-	public Icmp() {
-		super(ID, FIELDS, "icmp");
-		order(BYTE_ORDER);
-	}
+	public JHeader get(int id) throws UnregisteredHeaderException {
+		final Class<? extends JHeader> clazz = JRegistry.getGlobal().lookupClass(id);
+		
+		ThreadLocal<JHeader> local = locals[id];
+		if (local == null) {
+			local = new ThreadLocal<JHeader>() {
 
-	public int code() {
-		return super.getUByte(0);
+				@Override
+        protected JHeader initialValue() {
+					try {
+						return clazz.newInstance();
+					} catch (Exception e) {
+						throw new IllegalStateException(e);
+					}
+        }
+			};
+			
+			locals[id] = local;
+		}
+		
+		return local.get();
 	}
 
 }

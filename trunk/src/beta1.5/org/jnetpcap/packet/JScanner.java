@@ -258,4 +258,12 @@ public class JScanner
 	 */
 	private native int scan(JPacket buffer, JPacket.State state, int id);
 
+	/**
+   * @return
+   */
+  public static JScanner getDefault() {
+	  // TODO Auto-generated method stub
+	  throw new UnsupportedOperationException("Not implemented yet");
+  }
+
 }
