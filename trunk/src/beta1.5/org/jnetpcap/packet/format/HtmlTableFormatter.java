@@ -74,9 +74,9 @@ public class HtmlTableFormatter
 	    throws IOException {
 
 		final JFieldRuntime<JHeader, Object> runtime =
-		    (JFieldRuntime<JHeader, Object>) field.runtime;
+		    (JFieldRuntime<JHeader, Object>) field.getRuntime();
 
-		if (field.style == Style.BYTE_ARRAY_HEX_DUMP) {
+		if (field.getStyle() == Style.BYTE_ARRAY_HEX_DUMP) {
 
 			final String[] a =
 			    stylizeMultiLine(header, field, Style.BYTE_ARRAY_HEX_DUMP_ADDRESS,
@@ -94,12 +94,12 @@ public class HtmlTableFormatter
 			
 			pad().format(
 			    LT + "tr class=\"cl_field cl_field_%s\" id=\"id_field_%d_%s\"" + GT,
-			    field.name, frameIndex, field.name);
+			    field.getName(), frameIndex, field.getName());
 			incLevel(PAD);
 			for (int i = 0; i < a.length; i++) {
 				pad().format(
 				    LT + "td class=\"cl_field cl_field_%s\" id=\"id_field_%d_%s\"" + GT,
-				    field.name, frameIndex, field.name);
+				    field.getName(), frameIndex, field.getName());
 				pad().format(a[i].trim());
 				pad().format(LT + "/td" + GT);
 				pad().format(LT + "td" + GT +"%s"+LT+"/td"+GT, d[i].trim());
@@ -110,7 +110,7 @@ public class HtmlTableFormatter
 		} else {
 			pad().format(
 			    LT + "tr class=\"cl_field cl_field_%s\" id=\"id_field_%d_%s\"" + GT,
-			    field.name, frameIndex, field.name);
+			    field.getName(), frameIndex, field.getName());
 			incLevel(PAD);
 
 			final String v = stylizeSingleLine(header, field, runtime.value(header));
@@ -119,8 +119,8 @@ public class HtmlTableFormatter
 			        LT + "td align=right"+GT+LT+"nobr"+GT+LT+"span class=cl_field_name cl_field_name_%s cl_style_%s>%s</span"+GT+LT+"/nobr"+GT+LT+"/td" + GT
 			            + LT+"td"+GT+"="+LT+"/td"+GT
 			            + LT+"td"+GT+LT+"nobr"+GT+LT+"span class=cl_field_value cl_field_value_%s"+GT+"%s"+LT+"/span"+GT+LT+"/nobr"+GT+LT+"/td"+GT,
-			        field.name, field.style.toString().toLowerCase(), field.name,
-			        field.name, v);
+			        field.getName(), field.getStyle().toString().toLowerCase(), field.getName(),
+			        field.getName(), v);
 		}
 
 	}

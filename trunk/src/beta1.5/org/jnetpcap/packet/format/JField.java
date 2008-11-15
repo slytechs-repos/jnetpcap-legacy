@@ -21,29 +21,21 @@ import org.jnetpcap.packet.format.JFormatter.Style;
  * @author Sly Technologies, Inc.
  */
 public class JField {
-	public final String name;
+	private JField[] componentFields;
 
-	public final String nicname;
+	private final String name;
 
-	public final Priority priority;
+	private final String nicname;
 
-	public final JFieldRuntime<? extends JHeader, ?> runtime;
+	private JField parent;
 
-	public final Style style;
+	private final Priority priority;
 
-	public final String units;
+	private final JFieldRuntime<? extends JHeader, ?> runtime;
 
-	/**
-	 * @param priority
-	 * @param name
-	 * @param nicname
-	 * @param runtime
-	 * @param units
-	 */
-	public JField(String name, String nicname,
-	    JFieldRuntime<? extends JHeader, ?> runtime) {
-		this(Style.INT_DEC, Priority.MEDIUM, name, nicname, null, runtime);
-	}
+	private final Style style;
+
+	private final String units;
 
 	/**
 	 * @param priority
@@ -53,8 +45,8 @@ public class JField {
 	 * @param units
 	 */
 	public JField(Priority priority, String name, String nicname,
-	    JFieldRuntime<? extends JHeader, ?> runtime) {
-		this(Style.INT_DEC, priority, name, nicname, null, runtime);
+	    JFieldRuntime<? extends JHeader, ?> runtime, JField... componentFields) {
+		this(Style.INT_DEC, priority, name, nicname, null, runtime, componentFields);
 	}
 
 	/**
@@ -65,19 +57,27 @@ public class JField {
 	 * @param runtime
 	 */
 	public JField(Priority priority, String name, String nicname, String units,
-	    JFieldRuntime<? extends JHeader, ?> runtime) {
-		this(Style.INT_DEC, priority, name, nicname, units, runtime);
+	    JFieldRuntime<? extends JHeader, ?> runtime, JField... componentFields) {
+		this(Style.INT_DEC, priority, name, nicname, units, runtime,
+		    componentFields);
 	}
 
-	public JField(Style style, String name, String nicname,
-	    JFieldRuntime<? extends JHeader, ?> runtime) {
-		this(style, Priority.MEDIUM, name, nicname, null, runtime);
-
+	/**
+	 * @param priority
+	 * @param name
+	 * @param nicname
+	 * @param runtime
+	 * @param units
+	 */
+	public JField(String name, String nicname,
+	    JFieldRuntime<? extends JHeader, ?> runtime, JField... componentFields) {
+		this(Style.INT_DEC, Priority.MEDIUM, name, nicname, null, runtime,
+		    componentFields);
 	}
 
 	public JField(Style style, Priority priority, String name, String nicname,
-	    JFieldRuntime<? extends JHeader, ?> runtime) {
-		this(style, priority, name, nicname, null, runtime);
+	    JFieldRuntime<? extends JHeader, ?> runtime, JField... componentFields) {
+		this(style, priority, name, nicname, null, runtime, componentFields);
 
 	}
 
@@ -90,20 +90,89 @@ public class JField {
 	 * @param runtime
 	 */
 	public JField(Style style, Priority priority, String name, String nicname,
-	    String units, JFieldRuntime<? extends JHeader, ?> runtime) {
+	    String units, JFieldRuntime<? extends JHeader, ?> runtime,
+	    JField... componentFields) {
 		this.name = name;
 		this.nicname = nicname;
 		this.priority = priority;
 		this.units = units;
 		this.style = style;
 		this.runtime = runtime;
+		this.componentFields = componentFields;
+
+		for (JField f : componentFields) {
+			f.setParent(this);
+		}
 	}
 
-	public boolean isCompound() {
-		return getCompoundFields() != null;
+	public JField(Style style, String name, String nicname,
+	    JFieldRuntime<? extends JHeader, ?> runtime, JField... componentFields) {
+		this(style, Priority.MEDIUM, name, nicname, null, runtime, componentFields);
+
 	}
 
 	public JField[] getCompoundFields() {
-		return null;
+		return componentFields;
+	}
+
+	/**
+	 * @return the name
+	 */
+	public final String getName() {
+		return this.name;
+	}
+
+	/**
+	 * @return the nicname
+	 */
+	public String getNicname() {
+		return nicname;
+	}
+
+	/**
+	 * @return the parent
+	 */
+	public final JField getParent() {
+		return this.parent;
+	}
+
+	/**
+	 * @return the priority
+	 */
+	public Priority getPriority() {
+		return priority;
+	}
+
+	/**
+	 * @return the runtime
+	 */
+	public JFieldRuntime<? extends JHeader, ?> getRuntime() {
+		return runtime;
+	}
+
+	/**
+	 * @return the style
+	 */
+	public Style getStyle() {
+		return style;
+	}
+
+	/**
+	 * @return the units
+	 */
+	public String getUnits() {
+		return units;
+	}
+
+	public boolean isCompound() {
+		return componentFields.length != 0 ;
+	}
+
+	/**
+	 * @param parent
+	 *          the parent to set
+	 */
+	public final void setParent(JField parent) {
+		this.parent = parent;
 	}
 }
