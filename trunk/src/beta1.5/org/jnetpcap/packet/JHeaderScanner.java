@@ -12,10 +12,7 @@
  */
 package org.jnetpcap.packet;
 
-import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JFunction;
-
-import sun.security.action.GetLongAction;
 
 /**
  * A header scanner, there is one per header, that is able to scan raw memory

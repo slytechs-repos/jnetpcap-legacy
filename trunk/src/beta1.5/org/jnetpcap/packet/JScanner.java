@@ -92,17 +92,25 @@ import org.jnetpcap.nio.JStruct;
 public class JScanner
     extends JStruct {
 
-	public final static String STRUCT_NAME = "scanner_t";
-
 	/**
 	 * Default allocation for memory block/buffer
 	 */
 	public static final int DEFAULT_BLOCKSIZE = 100 * 1024; // 100K
 
-	/**
-	 * Maximum number of bindings allowed for each ID by the scanner
-	 */
-	public static final int MAX_BINDING_COUNT = 17;
+	private final static ThreadLocal<JScanner> localScanners =
+	    new ThreadLocal<JScanner>() {
+
+		    /*
+				 * (non-Javadoc)
+				 * 
+				 * @see java.lang.ThreadLocal#initialValue()
+				 */
+		    @Override
+		    protected JScanner initialValue() {
+			    return new JScanner();
+		    }
+
+	    };
 
 	/**
 	 * Maximum number of header entries allowed per packet buffer by the scanner
@@ -114,13 +122,22 @@ public class JScanner
 	 */
 	public static final int MAX_ID_COUNT = 64;
 
+	public final static String STRUCT_NAME = "scanner_t";
+
 	static {
 		try {
-		initIds();
-		} catch(Exception e) {
+			initIds();
+		} catch (Exception e) {
 			System.err.println("JScanner.static: error=" + e.toString());
 			throw new ExceptionInInitializerError(e);
 		}
+	}
+
+	/**
+	 * @return
+	 */
+	public static JScanner getThreadLocal() {
+		return localScanners.get();
 	}
 
 	/**
@@ -137,7 +154,6 @@ public class JScanner
 	native static int sizeof();
 
 	/**
-	 * 
 	 * @param ids
 	 * @return
 	 */
@@ -151,10 +167,8 @@ public class JScanner
 		return o;
 	}
 
-	private final JRegistry registry;
-
 	public JScanner() {
-		this(JRegistry.getGlobal(), DEFAULT_BLOCKSIZE);
+		this(DEFAULT_BLOCKSIZE);
 	}
 
 	/**
@@ -163,107 +177,62 @@ public class JScanner
 	 * @param blocksize
 	 */
 	public JScanner(int blocksize) {
-		this(JRegistry.getGlobal(), blocksize);
-	}
-
-	public JScanner(JRegistry registry) {
-		this(registry, DEFAULT_BLOCKSIZE);
-
-	}
-
-	public JScanner(JRegistry registry, int blocksize) {
 		super(STRUCT_NAME, blocksize + sizeof()); // Allocate memory block in
-																							// JMemory
-		// constructor
-		this.registry = registry;
-
-		init();
+		// JMemory
+		init(new JScan());
 	}
+
+	/* (non-Javadoc)
+   * @see java.lang.Object#finalize()
+   */
+  @Override
+  protected void finalize() throws Throwable {
+  	cleanup_jscanner();
+  	
+  	super.finalize();
+  }
+
+	/**
+	 * Clean up the scanner_t structure and release any held resources. For one
+	 * all the JHeaderScanners that are kept as global references need to be
+	 * released.
+	 */
+	public native void cleanup_jscanner();
 
 	/**
 	 * Initializes the scanner_t structure within the allocated block.
+	 * 
+	 * @param scan
+	 *          a uninitialized JScan object to be used internally by JScanner for
+	 *          its interaction with java space.
 	 */
-	private native void init();
+	private native void init(JScan scan);
 
 	/**
-	 * 
 	 * @param id
-	 * @param bindings
+	 * @param scanners
 	 */
-	public native void loadBindings(int id, JBinding[] bindings);
-
-	/**
-	 * 
-	 * @param id
-	 * @param dependencies
-	 */
-	@SuppressWarnings("unused")
-	private native void loadDependencies(int id, int[] dependencies);
-
-	/**
-	 * 
-	 * @param ids
-	 */
-	@SuppressWarnings("unused")
-	private native void loadOverride(int[] ids);
+	public native void loadScanners(JHeaderScanner[] scanners);
 
 	/**
 	 * 
 	 */
 	public void reloadAll() {
-		resetDependencies();
-		resetBindings();
-		resetOverride();
-
-		JBinding[][] bindingsMatrix = registry.getBindingsByTarget();
-
-		for (int id = 0; id < bindingsMatrix.length; id++) {
-			JBinding[] bindings = bindingsMatrix[id];
-			if (bindings == null || bindings.length == 0) {
-				continue;
-			}
-			
-			System.out.printf("reloadAll(): loading %d bindings\n", bindings.length);
-			loadBindings(id, bindings);
-		}
-
+		loadScanners(JRegistry.getHeaderScanners());
 	}
 
-	/**
-	 * 
-	 */
-	private native void resetBindings();
-
-	/**
-	 * 
-	 */
-	private native void resetDependencies();
-
-	/**
-	 * 
-	 */
-	private native void resetOverride();
-	
 	public int scan(JPacket packet, int id) {
 		final JPacket.State state = packet.getState();
 		
+		reloadAll();
+
 		return scan(packet, state, id);
 	}
 
 	/**
-	 * 
 	 * @param buffer
 	 * @param id
 	 * @return
 	 */
 	private native int scan(JPacket buffer, JPacket.State state, int id);
-
-	/**
-   * @return
-   */
-  public static JScanner getDefault() {
-	  // TODO Auto-generated method stub
-	  throw new UnsupportedOperationException("Not implemented yet");
-  }
-
 }

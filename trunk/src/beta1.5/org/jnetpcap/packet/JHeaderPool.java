@@ -19,38 +19,58 @@ package org.jnetpcap.packet;
  * @author Sly Technologies, Inc.
  */
 @SuppressWarnings("unchecked")
-public class JHeaderPool{
-	
-	private ThreadLocal<JHeader>[] locals =
-	    new ThreadLocal[JRegistry.MAX_ID_COUNT];
+public class JHeaderPool {
 
+	private static JHeaderPool local = new JHeaderPool();
+
+	private ThreadLocal<? extends JHeader>[] locals =
+	    new ThreadLocal[JRegistry.MAX_ID_COUNT];
+	
 	/**
-	 * 
 	 * @param id
 	 * @return
 	 * @throws UnregisteredHeaderException
 	 */
-	public JHeader get(int id) throws UnregisteredHeaderException {
-		final Class<? extends JHeader> clazz = JRegistry.getGlobal().lookupClass(id);
-		
-		ThreadLocal<JHeader> local = locals[id];
+	public JHeader getHeader(int id)
+	    throws UnregisteredHeaderException {
+		return getHeader(JRegistry.lookupClass(id), id);
+	}
+	
+	public <T extends JHeader> T getHeader(JProtocol protocol)  {
+		return (T) getHeader(protocol.clazz, protocol.ID);
+	}
+
+	/**
+	 * @param id
+	 * @return
+	 */
+	public <T extends JHeader> T getHeader(final Class<T> clazz, int id) {
+
+		ThreadLocal<T> local = (ThreadLocal<T>) locals[id];
 		if (local == null) {
-			local = new ThreadLocal<JHeader>() {
+			local = new ThreadLocal<T>() {
 
 				@Override
-        protected JHeader initialValue() {
+				protected T initialValue() {
 					try {
-						return clazz.newInstance();
+						return  clazz.newInstance();
 					} catch (Exception e) {
 						throw new IllegalStateException(e);
 					}
-        }
+				}
 			};
-			
+
 			locals[id] = local;
 		}
-		
+
 		return local.get();
+	}
+
+	/**
+	 * 
+	 */
+	public static JHeaderPool getDefault() {
+		return local;
 	}
 
 }

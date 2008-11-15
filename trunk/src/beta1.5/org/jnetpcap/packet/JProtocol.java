@@ -50,9 +50,22 @@ public enum JProtocol {
 	PPP(PPP.class),
 	ICMP(Icmp.class), ;
 
+	/**
+	 * Unique ID of this protocol
+	 */
 	public final int ID;
 
+	/**
+	 * Main class for the network header of this protocol
+	 */
 	public final Class<? extends JHeader> clazz;
+
+	/**
+	 * A header scanner that capable of scanning this protocol. All protocols
+	 * defined in JProtocol are bound to a direct native scanner. While it is
+	 * possible to override this default using JRegistery with a custom scanner.
+	 */
+	public final JHeaderScanner scan;
 
 	public final static int PAYLOAD_ID = 0;
 
@@ -83,6 +96,13 @@ public enum JProtocol {
 	private JProtocol(Class<? extends JHeader> c) {
 		this.clazz = c;
 		this.ID = ordinal();
+
+		try {
+			this.scan = new JHeaderScanner(this);
+		} catch (UnregisteredScannerException e) {
+			e.printStackTrace(System.err);
+			throw new IllegalStateException(e);
+		}
 	}
 
 	public static boolean isCoreProtocol(int id) {

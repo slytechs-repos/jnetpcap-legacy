@@ -76,11 +76,6 @@ public abstract class JHeader
 	}
 
 	/**
-	 * Returned by default if no fields are defined in subclass
-	 */
-	private final static JField[] EMPTY_FIELDS = new JField[0];
-
-	/**
 	 * Default field object for JFormatter that does a hex dump on the entire
 	 * header
 	 * 
