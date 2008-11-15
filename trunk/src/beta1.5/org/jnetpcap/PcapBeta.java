@@ -14,10 +14,7 @@ package org.jnetpcap;
 
 import java.io.IOException;
 
-import org.jnetpcap.nio.JBuffer;
-import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JNumber;
-import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JScanner;
 
 /**
@@ -37,7 +34,7 @@ public class PcapBeta
 	public native <T> int dispatch(int cnt, JBufferHandler<T> handler, T user);
 
 	public <T> int dispatch(int cnt, JPacketHandler<T> handler, T user) {
-		return dispatch(cnt, handler, user, JScanner.getDefault());
+		return dispatch(cnt, handler, user, JScanner.getThreadLocal());
 	}
 
 	public native <T> int dispatch(int cnt, JPacketHandler<T> handler, T user,
@@ -71,7 +68,7 @@ public class PcapBeta
 	public native <T> int loop(int cnt, JBufferHandler<T> handler, T user);
 
 	public <T> int loop(int cnt, JPacketHandler<T> handler, T user) {
-		return loop(cnt, handler, user, JScanner.getDefault());
+		return loop(cnt, handler, user, JScanner.getThreadLocal());
 	}
 
 	public native <T> int loop(int cnt, JPacketHandler<T> handler, T user,

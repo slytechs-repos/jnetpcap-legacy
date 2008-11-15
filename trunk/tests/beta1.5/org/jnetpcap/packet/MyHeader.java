@@ -22,23 +22,36 @@ import org.jnetpcap.packet.header.Ip4;
 public class MyHeader
     extends JHeader {
 
-	public final static int LENGTH = 10;
-
-	public final static int ID = JRegistry.register(MyHeader.class);
-	
-	public MyHeader() {
-		super(ID, "MyHeader");
-	}
-
 	public final static JBinding[] BINDINGS =
 	    { new DefaultJBinding(MyHeader.ID, Ip4.ID) {
-		    private Ip4 ip4 = new Ip4();
+		    private Ip4 ip = JHeaderPool.getDefault().getHeader(JProtocol.IP4);
 
-		    public int checkLength(JPacket packet, int offset) {
-			    return (packet.hasHeader(ip4) && ip4.type() == 0x17) ? packet
-			        .remaining(offset, MyHeader.LENGTH) : HEADER_NOT_FOUND;
+		    public int scanForNextHeader(JPacket packet, int offset) {
+			    if (ip.offset() != 0) {
+				    return JBinding.NULL_ID;
+			    }
+
+			    switch (ip.type()) {
+				    case 17:
+					    return JProtocol.TCP_ID;
+				    case 6:
+					    return JProtocol.UDP_ID;
+				    default:
+					    return JBinding.NULL_ID;
+			    }
 		    }
 	    }
 
 	    };
+
+	public final static int LENGTH = 10;
+
+	private static final JHeaderScanner SCAN = null;
+
+	public final static int ID =
+	    JRegistry.register(MyHeader.class, SCAN, BINDINGS);
+
+	public MyHeader() {
+		super(ID, "MyHeader");
+	}
 }

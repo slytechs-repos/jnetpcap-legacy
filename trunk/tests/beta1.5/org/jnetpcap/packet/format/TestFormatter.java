@@ -49,11 +49,11 @@ public class TestFormatter
 		super.tearDown();
 	}
 
-	public void testHtmlCSSFormatter() throws IOException {
-		dumpToFormatter(new HtmlCSSFormatter());
+	public void _testHtmlCSSFormatter() throws IOException {
+		dumpToFormatter(new HtmlCSSFormatter(), "tests/test-vlan.pcap");
 	}
 
-	public void testHtmlTableFormatter() throws IOException {
+	public void _testHtmlTableFormatter() throws IOException {
 //		File f = new File("tests/write.html");
 //		PrintWriter pw = new PrintWriter(f);
 		
@@ -62,25 +62,25 @@ public class TestFormatter
 		pw.format("#cl_field_data {color:red;}\n");
 		pw.format("</style></head>\n<body>\n\n");
 		
-		dumpToFormatter(new HtmlTableFormatter(pw));
+		dumpToFormatter(new HtmlTableFormatter(pw), "tests/test-vlan.pcap");
 		
 		pw.format("</body>\n</html>\n");
 		pw.close();
 		
-		dumpToFormatter(new HtmlTableFormatter());
+		dumpToFormatter(new HtmlTableFormatter(), "tests/test-vlan.pcap");
 	}
 
-	public void _testTextFormatter() throws IOException {
-		dumpToFormatter(new TextFormatter());
+	public void testTextFormatter() throws IOException {
+		dumpToFormatter(new TextFormatter(), "tests/test-vlan.pcap");
 	}
 
 	public void _testXmlFormatter() throws IOException {
-		dumpToFormatter(new XmlFormatter());
+		dumpToFormatter(new XmlFormatter(), "tests/test-vlan.pcap");
 	}
 
-	public void dumpToFormatter(final JFormatter formatter) throws IOException {
+	public void dumpToFormatter(final JFormatter formatter, String file) throws IOException {
 
-		final Pcap pcap = Pcap.openOffline("tests/test-l2tp.pcap", System.err);
+		final Pcap pcap = Pcap.openOffline(file, System.err);
 
 		final JPacket packet = new JPacket();
 		final JScanner scanner = new JScanner();
@@ -93,7 +93,7 @@ public class TestFormatter
 			public void nextPacket(String user, long seconds, int useconds,
 			    int caplen, int len, ByteBuffer buffer) {
 
-				if (i < 167) {
+				if (i < 157) {
 					i++;
 					return;
 				}

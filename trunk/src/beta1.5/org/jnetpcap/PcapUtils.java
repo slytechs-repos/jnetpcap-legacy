@@ -65,6 +65,11 @@ public final class PcapUtils {
 			if (buf.length() != 0) {
 				buf.append(separator);
 			}
+
+			if (b >= 0 && b < 16) {
+				buf.append('0');
+			}
+
 			buf.append(Integer.toHexString((b < 0) ? b + 256 : b).toUpperCase());
 		}
 
@@ -431,7 +436,8 @@ public final class PcapUtils {
 		return buf.toString();
 	}
 
-	private final static List<String> multiLineStringList = new ArrayList<String>();
+	private final static List<String> multiLineStringList =
+	    new ArrayList<String>();
 
 	/**
 	 * @param a
@@ -447,8 +453,8 @@ public final class PcapUtils {
 		multiLineStringList.clear();
 
 		for (int i = 0; i + dataOffset < a.length; i += 16) {
-			multiLineStringList
-			    .add(hexLine(a, i + addressOffset, i + dataOffset, doAddress, doText, doData));
+			multiLineStringList.add(hexLine(a, i + addressOffset, i + dataOffset,
+			    doAddress, doText, doData));
 		}
 
 		return multiLineStringList.toArray(new String[multiLineStringList.size()]);
@@ -590,6 +596,31 @@ public final class PcapUtils {
 			return ("0" + s);
 
 		return (s);
+	}
+
+	/**
+	 * @param pkt_data
+	 * @return
+	 */
+	public static byte[] toByteArray(String pkt_data) {
+
+		String s = pkt_data.replaceAll(" |\n", "");
+
+		byte[] b = new byte[s.length() / 2];
+
+		if ((s.length() % 2) != 0) {
+			System.err.println(s);
+			throw new IllegalArgumentException(
+			    "need even number of hex double digits [" + s.length() + "]");
+		}
+
+		for (int i = 0; i < s.length(); i += 2) {
+			String q = s.substring(i, i + 2);
+//			System.out.print(q);
+			b[i / 2] = (byte)Integer.parseInt(q, 16);
+		}
+
+		return b;
 	}
 
 }

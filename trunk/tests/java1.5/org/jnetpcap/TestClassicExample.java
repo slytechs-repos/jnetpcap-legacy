@@ -14,6 +14,7 @@ package org.jnetpcap;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -88,22 +89,22 @@ public class TestClassicExample
 
 			public void nextPacket(String user, long seconds, int useconds,
 			    int caplen, int len, ByteBuffer buffer) {
-//				Date timestamp = new Date(seconds * 1000 + useconds / 1000); // In
-//																																			// millis
-//
-//				System.out.printf("Received packet at %s caplen=%-4d len=%-4d %s\n",
-//				    timestamp.toString(), // timestamp to 1 ms accuracy
-//				    caplen, // Length actually captured
-//				    len, // Original length of the packet
-//				    user // User supplied object
-//				    );
+				Date timestamp = new Date(seconds * 1000 + useconds / 1000); // In
+																																			// millis
+
+				System.out.printf("Received packet at %s caplen=%-4d len=%-4d %s\n",
+				    timestamp.toString(), // timestamp to 1 ms accuracy
+				    caplen, // Length actually captured
+				    len, // Original length of the packet
+				    user // User supplied object
+				    );
 			}
 		};
 
 		/***************************************************************************
 		 * Fourth we enter the loop and tell it to capture 10 packets
 		 **************************************************************************/
-		pcap.loop(Pcap.LOOP_INFINATE, printSummaryHandler, "jNetPcap rocks!");
+		pcap.loop(10, printSummaryHandler, "jNetPcap rocks!");
 
 		/*
 		 * Last thing to do is close the pcap handle
