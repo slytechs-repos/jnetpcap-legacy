@@ -13,6 +13,7 @@
 // Proto types
 char *id2str(int id);
 
+#define END_OF_HEADERS   -1
 #define ETHERNET_ID      org_jnetpcap_packet_JProtocol_ETHERNET_ID
 #define TCP_ID           org_jnetpcap_packet_JProtocol_TCP_ID
 #define UDP_ID           org_jnetpcap_packet_JProtocol_UDP_ID
@@ -96,9 +97,12 @@ typedef struct vlan_t {
 /**
  * SNAP IEEE
  */
-typedef struct snap_t {
-	uint32_t oui:24;
-	uint16_t pid;
+typedef union snap_t {
+		uint32_t oui:24;
+		struct {
+			uint8_t reserved[3];
+			uint16_t pid;
+		};
 } snap_t;
 
 /**
@@ -202,6 +206,18 @@ typedef struct ip4
   /*The options start here. */
 } ip4_t;	
 
+/****************************************************************
+ * **************************************************************
+ * 
+ * Scanner's native and java per protocol prototypes
+ * 
+ * **************************************************************
+ ****************************************************************/
+
+int lookup_ethertype(uint16_t type);
+//
+//void scan_ethernet (scan_t *scan);
+//void scan_ip4      (scan_t *scan);
 
 
 #endif

@@ -39,6 +39,193 @@
  * 
  * **************************************************************
  ****************************************************************/
+char str_buf[1024];
+char id_str_buf[256];
+
+/*
+ * Converts our numerical header ID to a string, which is better suited for
+ * debugging.
+ */
+char *id2str(int id) {
+
+	if (id == END_OF_HEADERS) {
+		return "END_OF_HEADERS";
+
+	} else if (native_protocol_names[id] != NULL) {
+		return native_protocol_names[id];
+
+	} else {
+		return itoa(id, id_str_buf, 10);
+	}
+}
+
+/**
+ * Scan packet buffer
+ */
+int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner,
+		packet_state_t *p_packet, int first_id, char *buf, int buf_len) {
+
+	scan_t scan; // Our current in progress scan's state information
+	scan.env = env;
+	scan.jscanner = obj;
+	scan.jpacket = jpacket;
+	scan.scanner = scanner;
+	scan.packet = p_packet;
+	scan.header = &p_packet->pkt_headers[0];
+	scan.buf = buf;
+	scan.buf_len = buf_len;
+	scan.offset = 0;
+	scan.length = 0;
+	scan.id = first_id;
+	scan.next_id = PAYLOAD_ID;
+	
+	// Point jscan 
+	setJMemoryPhysical(env, scanner->sc_jscan, toLong(&scan));
+
+	// Local temp variables
+	register uint64_t mask;
+
+#define DEBUG
+
+#ifdef DEBUG
+	printf("\n\n");
+#endif
+
+	/*
+	 * Main scanner loop, 1st scans for builtin header types then
+	 * reverts to calling on JBinding objects to provide the binding chain
+	 */
+	while (scan.id != END_OF_HEADERS) {
+#ifdef DEBUG
+		printf("scan() loop-top   : id=%-16s offset=%-4d flags=%d\n", 
+				id2str(scan.id),
+				scan.offset,
+				scanner->sc_flags[scan.id]);
+#endif
+		
+
+		/* 
+		 * Scan of each protocol is done through a dispatch function table.
+		 * Each protocol that has a native scanner has a function defined
+		 * in packet_protocol.cpp file. Otherwise NULL is the default.
+		 */
+		if (scanner->sc_scan_table[scan.id] != NULL) {
+			scanner->sc_scan_table[scan.id](&scan); // Dispatch to protocol scanner
+		}
+
+#ifdef DEBUG
+		printf("scan() loop-middle: id=%-16s offset=%-4d nid=%s length=%d\n",
+				id2str(scan.id), scan.offset, 
+				id2str(scan.next_id), scan.length);
+#endif
+		
+		if (scan.length == 0) {
+#ifdef DEBUG
+		printf("scan() loop-length==0\n");
+#endif
+			if (scan.id == PAYLOAD_ID) {
+				scan.next_id = END_OF_HEADERS;
+			} else {
+				scan.next_id = PAYLOAD_ID;
+			}
+			
+		} else { // length != 0
+			
+#ifdef DEBUG
+		printf("scan() loop-length: %d\n", scan.length);
+#endif
+			if (   (scanner->sc_flags[scan.id] & FLAG_OVERRIDE_BINDING) != 0
+				|| (scan.next_id == PAYLOAD_ID)) {
+				
+#ifdef DEBUG
+		printf("scan() loop-bnding: id=%d\n", scan.id);
+#endif
+				/*
+				 * The scanner should already be setup to only check the 
+				 * bindings
+				 */
+				callJavaHeaderScanner(&scan);
+			}
+			
+			/******************************************************
+			 * ****************************************************
+			 * * Now record discovered information in structures
+			 * ****************************************************
+			 ******************************************************/
+			
+#ifdef DEBUG
+		printf("scan() loop-record: id=%-16s offset=%-4d nid=%s length=%d\n",
+				id2str(scan.id), scan.offset, id2str(scan.next_id), scan.length);
+#endif
+			/*
+			 * Initialize the header entry in our packet header array
+			 */
+			mask = (1 << scan.id);
+			scan.packet->pkt_header_map |= mask;
+			scan.header->hdr_id = scan.id;
+			scan.header->hdr_offset = scan.offset;
+
+			if ((scan.packet->pkt_header_map & mask) == 0) {
+				scan.packet->pkt_instance_counts[scan.id] = 1;
+			} else {
+				scan.packet->pkt_instance_counts[scan.id] ++;
+
+			}
+
+			/*
+			 * Adjust for truncated packets
+			 */
+			scan.length= ((scan.length > scan.buf_len - scan.offset) ? scan.buf_len
+					- scan.offset : scan.length);
+
+			scan.header->hdr_length = scan.length;
+			scan.offset += scan.length;
+			scan.header ++; /* point to next header entry *** ptr arithmatic */
+			scan.packet->pkt_header_count ++; /* number of entries */
+		}
+
+#ifdef DEBUG
+		printf("scan() loop-bottom: id=%-16s offset=%-4d nid=%s length=%d\n",
+				id2str(scan.id), scan.offset, id2str(scan.next_id), scan.length);
+#endif
+
+		scan.id = scan.next_id;
+		scan.next_id = PAYLOAD_ID;
+		scan.length = 0;
+	}
+
+	/* record number of header entries found */
+	//	scan.packet->pkt_header_count = count;
+
+#ifdef DEBUG
+	printf("scan() finished   : header_count=%d offset=%d header_map=0x%X\n",
+			scan.packet->pkt_header_count, scan.offset,
+			scan.packet->pkt_header_map);
+
+	fflush(stdout);
+#endif
+
+	return scan.offset;
+}
+
+/**
+ * Scan packet buffer by dispatching to JBinding java objects
+ */
+void callJavaHeaderScanner(scan_t *scan) {
+
+	JNIEnv *env = scan->env;
+	jobject jscanner = scan->scanner->sc_java_header_scanners[scan->id];
+	
+	if (jscanner == NULL) {
+		sprintf(str_buf, "java header scanner not set for ID=%d (%s)", 
+				scan->id, 
+				id2str(scan->id));
+		throwException(scan->env, NULL_PTR_EXCEPTION, str_buf);
+		return;
+	}
+		
+	env->CallVoidMethod(jscanner, scanHeaderMID, scan->scanner->sc_jscan);
+}
 
 /**
  * Prepares a scan of packet buffer
@@ -73,385 +260,6 @@ int scanJPacket(JNIEnv *env, jobject obj, jobject jpacket, jobject jstate,
 			buf, buf_length);
 }
 
-/**
- * Scan packet buffer
- */
-int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner,
-		packet_state_t *packet, int first_id, char *buf, int buf_len) {
-
-	ethernet_t *eth;
-	ip4_t *ip4;
-	tcp_t *tcp;
-	udp_t *udp;
-	llc_t *llc;
-	snap_t *snap;
-	vlan_t *vlan;
-	l2tp_t *l2tp;
-	ppp_t *ppp;
-	icmp_t *icmp;
-
-	header_t *header = packet->pkt_headers;
-
-	register uint64_t binding_map = scanner->sc_binding_map;
-	uint64_t *override_map = scanner->sc_override_map;
-	uint64_t *dependency_map = scanner->sc_dependency_map;
-	register int32_t count = 0; /* number of header_t entries */
-	register uint32_t offset = 0; /* offset into packet data buffer */
-	register int32_t id = first_id;
-	register uint64_t mask;
-	register uint32_t length = 0; /* length of the protocol header */
-	register int32_t next_id = PAYLOAD_ID;
-//#define DEBUG
-	/*
-	 * Main scanner loop, 1st scans for builtin header types then
-	 * reverts to calling on JBinding objects to provide the binding chain
-	 */
-	while (id != -1) {
-
-#ifdef DEBUG
-		printf("scan() loop-top: id=%s offset=%d\n", id2str(id), offset);
-		fflush(stdout);
-#endif
-		/*
-		 * Now check the builtin/hardcoded bindings
-		 */
-		switch (id) {
-		
-		case ICMP_ID:
-			icmp = (icmp_t *)(buf + offset);
-			length = sizeof(icmp_t);
-			break;
-
-		
-		case PPP_ID:
-			ppp = (ppp_t *)(buf + offset);
-			length = sizeof(ppp_t);
-			
-			switch (BIG_ENDIAN16(ppp->protocol)) {
-			case 0x0021:
-				next_id = IP4_ID;
-				break;
-			}
-			break;
-
-			
-		case L2TP_ID:
-			l2tp = (l2tp_t *)(buf + offset);
-			length = 6;
-			if (l2tp->l == 1) {
-				length += 2;
-			}
-			if (l2tp->s == 1) {
-				length += 4;
-			}
-			if (l2tp->o == 1) {
-				length += 4;
-			}
-
-#ifdef DEBUG
-			printf("scan() lL2TP_ID: b[0]=%d t=%d\n", 
-					(int)*(buf + offset), l2tp->t);
-			fflush(stdout);
-#endif
-			
-			if (l2tp->t == 0) {
-				next_id = PPP_ID;
-			}
-			break;
-			
-		case IEEE_802DOT1Q_ID:
-			vlan = (vlan_t *)(buf + offset);
-			
-			ETHERTYPE_SWITCH(vlan->type);
-			break;
-
-
-		case IEEE_802DOT2_ID:
-			llc = (llc_t *) (buf + offset);
-			if (llc->control & 0x3 == 0x3) {
-				length = 3;
-			} else {
-				length = 4;
-			}
-
-			switch (llc->dsap) {
-			case 0xaa:
-				next_id = org_jnetpcap_packet_JProtocol_IEEE_SNAP_ID;
-				break;
-
-			}
-			break;
-
-		case IEEE_SNAP_ID:
-			snap = (snap_t *) (buf + offset);
-			length = sizeof(snap_t);
-
-			switch (snap->oui) {
-			case 0: // Ethernet types
-				ETHERTYPE_SWITCH(snap->pid); // defined inpacket_protocol.h
-				break;
-
-			}
-
-		case IEEE_802DOT3_ID:
-		case ETHERNET_ID:
-			eth = (ethernet_t *) (buf + offset);
-			length = sizeof(ethernet_t);
-		
-			if (BIG_ENDIAN16(eth->type) < 0x600) { // We have an IEEE 802.3 frame
-				id      = IEEE_802DOT3_ID;
-				next_id = IEEE_802DOT2_ID; // LLC v2
-				break;
-			}
-		
-			ETHERTYPE_SWITCH(eth->type);  // defined in packet_protocol.h
-	
-			break;
-		
-	
-		case IP4_ID:
-			ip4 = (ip4_t *) (buf + offset);
-			length = ip4->ihl * 4;
-
-#ifdef DEBUG
-			printf("scan() IP4_ID: type=%d frag_off=%d @ frag_off.pos=%X\n", 
-					ip4->protocol, 
-					BIG_ENDIAN16(ip4->frag_off) & IP4_FRAG_OFF_MASK, 
-					(int)((char *)&ip4->frag_off - buf));
-			fflush(stdout);
-#endif
-
-			if ( (BIG_ENDIAN16(ip4->frag_off) & IP4_FRAG_OFF_MASK) != 0) {
-				next_id = PAYLOAD_ID;
-				break;
-			}
-		
-			switch (ip4->protocol) {
-				case 1: // ICMP
-				next_id = ICMP_ID;
-				break;
-
-				case 4: // IP in IP
-				next_id = IP4_ID;
-				break;
-		
-				case 6: // TCP
-				next_id = TCP_ID;
-				break;
-		
-				case 17: // UDP
-				next_id = UDP_ID;
-				break;
-		
-				//			case 1: // ICMP
-				//			case 2: // IGMP
-				//			case 6: // TCP
-				//			case 8: // EGP
-				//			case 9: // IGRP
-				//			case 17: // UDP
-				//			case 41: // Ip6 over Ip4
-				//			case 46: // RSVP
-				//			case 47: // GRE
-				//			case 58: // ICMPv6
-				//			case 89: // OSPF
-				//			case 90: // MOSPF
-				//			case 97: // EtherIP
-				//			case 115: // L2TP
-				//			case 132: // SCTP, Stream Control Transmission Protocol
-				//			case 137: // MPLS in IP
-		
-		
-			}	
-			break;
-	
-		case TCP_ID:
-			tcp = (tcp_t *) (buf + offset);
-			length = sizeof(tcp_t);
-			break;
-	
-		case UDP_ID:
-			udp = (udp_t *) (buf + offset);
-			length = sizeof(udp_t);	
-			
-			switch (BIG_ENDIAN16(udp->dport)) {
-			case 1701:
-				next_id = L2TP_ID;
-				break;
-			}
-			break;
-			
-		case PAYLOAD_ID:
-//		default:
-			id = PAYLOAD_ID;
-			next_id = -1;
-			length = buf_len - offset;
-			break;
-		}
-
-#ifdef DEBUG
-		printf("scan() loop-bottom: id=%s nid=%s length=%d offset=%d\n", 
-				id2str(id), id2str(next_id), length, offset);
-		fflush(stdout);
-#endif
-		
-		/******************************************************
-		 * ****************************************************
-		 * Now record discovered information in structures
-		 * ****************************************************
-		 ******************************************************/
-		
-		mask = 1 << id;
-		
-		/*
-		 * Initialize the header entry in our packet header array
-		 */
-		header->hdr_id = id;
-		header->hdr_offset = offset;
-		
-		/*
-		 * Initialize the instance count array entry if header is being set
-		 * for the first time. Otherwise just increment. We are overriding
-		 * area of memory that has previously been written into. Therefore there
-		 * is bound to be an invalid value already in the array entry slot. 
-		 */
-		if ((packet->pkt_header_map & mask) == 0) {
-			packet->pkt_instance_counts[id] = 1;
-		} else {
-			packet->pkt_instance_counts[id] ++;
-		
-		}
-		
-		packet->pkt_header_map |= mask;
-		
-		/*
-		 * Adjust for truncated packets
-		 */
-		length = ((length > buf_len - offset)?buf_len - offset:length);
-		
-		/*
-		 * Now process JBindings under the following conditions. Read inline...
-		 */
-		if (
-				/* 
-				 * Check if current header has any JBindings registered at all 
-				 */
-				(binding_map & mask) != 0&&
-		
-				/* 
-				 * check if anything matched or if we have core header override. Core
-				 * headers have a builtin/hardcoded scan algorithms just look above
-				 * in the switch statements. override_map[id] per header ID allows
-				 * overriding of builtin bindings with user supplied JBinding. If the
-				 * resolved next_id through the core routine is overriden for current
-				 * header  and of course, there were some JBindings for current header,
-				 * then we process the binding, overriding what the builtin algorithm
-				 * produced. 
-				 *    
-				 * condition group: (() || ()) 
-				 */
-				((next_id == PAYLOAD_ID) != 0 /* Check if we failed to match */
-		
-						/* or we have an override core with JBinding? */
-						|| (override_map[id]& (1 << next_id))
-		
-				)&&
-				/* 
-				 * Lastly sanity check if we have the required headers already found
-				 * in the packet to even attempt the JBindings. No point in processing
-				 * any JBindings if the necessary header dependencies/prerequisites 
-				 * haven't been found by now in the packet. dependancy_map is 
-				 * cumulative mask of IDs for all required headers. Each dependancy 
-				 * within the array to be scanned has its own individual dependancy 
-				 * map as well.
-				 */
-				(binding_map & dependency_map[next_id]) != 0) {
-		
-			packet->pkt_header_count = count;
-		
-			next_id= scanJavaBinding(env, obj, jpacket, scanner, packet,
-					offset, id, buf, buf_len, header);
-			length = header->hdr_length;
-		
-		} else {
-			header->hdr_length = length;
-		}
-		
-		offset += length;
-		
-		header ++; /* point to next header entry *** ptr arithmatic */
-		count ++; /* number of entries */
-		
-		id = next_id;
-		next_id = PAYLOAD_ID;
-		length = 0;
-	}
-	
-	/* record number of header entries found */
-	packet->pkt_header_count = count;
-	
-#ifdef DEBUG
-		printf("scan(): header_count=%d offset=%d header_map=%x\n", 
-				count, 
-				offset, 
-				packet->pkt_header_map);
-#endif
-		
-	return offset;
-}
-
-char *id2str(int id) {
-	switch (id) {
-	case ETHERNET_ID      :return "ETHERNET";
-	case TCP_ID           :return "TCP";
-	case UDP_ID           :return "UDP";
-	case IEEE_802DOT3_ID  :return "IEEE_802DOT3";
-	case IEEE_802DOT2_ID  :return "IEEE_802DOT2";
-	case IEEE_SNAP_ID     :return "IEEE_SNAP";
-	case IP4_ID           :return "IP4";
-	case IP6_ID           :return "IP6";
-	case IEEE_802DOT1Q_ID :return "IEEE_802DOT1Q";
-	case L2TP_ID	 	  :return "L2TP";
-	case PPP_ID      	  :return "PPP";
-	case ICMP_ID 		  :return "ICMP";
-	default               :return "NO_NAME";
-	}
-}
-
-/**
- * Scan packet buffer by dispatching to JBinding java objects
- */
-int scanJavaBinding(JNIEnv *env, jobject obj, jobject jpacket,
-		scanner_t *scanner, packet_state_t *packet, int offset, int id,
-		char *buf, int buf_len, header_t *header) {
-
-	binding_t *binding = scanner->sc_bindings[id];
-
-	while (binding->bnd_id != -1) {
-		/*
-		 * Check if we have required dependencies already found in the packet
-		 */
-		if ( (packet->pkt_header_map & binding->bnd_dependency_map) != 0) {
-			/*
-			 * Call on JBinding to see if it passes 
-			 */
-			int length = env->CallIntMethod(binding->bnd_jbinding,
-					jbindingCheckLengthMID, jpacket, (jint) offset);
-			if (length != 0) {
-				/*
-				 * Adjust for truncated packets
-				 */
-				length = ((length > buf_len - offset) ? buf_len - offset
-						: length);
-
-				header->hdr_length = length;
-				return binding->bnd_id;
-			}
-		}
-
-		binding ++; /* ptr arithmatic */
-	}
-}
-
 /****************************************************************
  * **************************************************************
  * 
@@ -460,12 +268,9 @@ int scanJavaBinding(JNIEnv *env, jobject obj, jobject jpacket,
  * **************************************************************
  ****************************************************************/
 
-jclass jdependencyClass = NULL;
-jclass jbindingClass = NULL;
+jclass jheaderScannerClass = NULL;
 
-jmethodID getIdMID = 0;
-jmethodID listDependenciesMID = 0;
-jmethodID jbindingCheckLengthMID = 0;
+jmethodID scanHeaderMID = 0;
 
 /*
  * Class:     org_jnetpcap_packet_JScanner
@@ -475,33 +280,24 @@ jmethodID jbindingCheckLengthMID = 0;
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_initIds
 (JNIEnv *env, jclass clazz) {
 
-	if ( (jdependencyClass = findClass(
-							env, "org/jnetpcap/packet/JDependency")) == NULL) {
+	if ( (jheaderScannerClass = findClass(
+				env, 
+				"org/jnetpcap/packet/JHeaderScanner")) == NULL) {
 		return;
 	}
 
-	if ( (jbindingClass = findClass(
-							env, "org/jnetpcap/packet/JBinding")) == NULL) {
+	if ( (scanHeaderMID = env->GetMethodID(
+			jheaderScannerClass, 
+			"scanHeader", 
+			"(Lorg/jnetpcap/packet/JScan;)V")) == NULL) {
 		return;
 	}
 
-	if ( (listDependenciesMID = env->GetMethodID(
-							jdependencyClass, "listDependencies", "()[I")) == NULL) {
-		return;
-	}
-
-	if ( (getIdMID = env->GetMethodID(
-							jdependencyClass, "getId", "()I")) == NULL) {
-		return;
-	}
-
-	if ( (jbindingCheckLengthMID = env->GetMethodID(
-							jbindingClass,
-							"checkLength",
-							"(Lorg/jnetpcap/packet/JPacket;I)I")) == NULL) {
-		return;
-	}
-
+	/*
+	 * Initialize the global native scan function dispatch table.
+	 * i.e. scan_ethernet(), scan_ip4(), etc...
+	 */
+	init_native_protocols();
 }
 
 /*
@@ -516,157 +312,92 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScanner_sizeof
 
 /*
  * Class:     org_jnetpcap_packet_JScanner
- * Method:    init
+ * Method:    cleanup_jscanner
  * Signature: ()V
  */
+JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_cleanup_1jscanner
+  (JNIEnv *env, jobject obj) {
+	
+	scanner_t *scanner = (scanner_t *)getJMemoryPhysical(env, obj);
+	if (scanner == NULL) {
+		return;
+	}
+	
+	env->DeleteGlobalRef(scanner->sc_jscan);
+	scanner->sc_jscan = NULL;
+	
+	for (int i = 0; i < MAX_ID_COUNT; i ++) {
+		if (scanner->sc_java_header_scanners[i] != NULL) {
+			env->DeleteGlobalRef(scanner->sc_java_header_scanners[i]);
+			scanner->sc_java_header_scanners[i] = NULL;
+		}
+	}	
+}
+
+/*
+ * Class:     org_jnetpcap_packet_JScanner
+ * Method:    init
+ * Signature: (Lorg.jnetpcap.packet.JScan;)V
+ */
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_init
-(JNIEnv *env, jobject obj) {
+(JNIEnv *env, jobject obj, jobject jscan) {
+	
+	if (jscan == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, 
+				"JScan parameter can not be null");
+		return;
+	}
+	
 	void *block = (char *)getJMemoryPhysical(env, obj);
 	size_t size = (size_t)env->GetIntField(obj, jmemorySizeFID);
 
 	memset(block, 0, size);
-
+	
 	scanner_t *scanner = (scanner_t *)block;
+	scanner->sc_jscan = env->NewGlobalRef(jscan);
 	scanner->sc_len = size - sizeof(scanner_t);
 	scanner->sc_offset = 0;
 	scanner->sc_packet = (packet_state_t *)((char *)block + sizeof(scanner_t));
+	
+	for (int i = 0; i < MAX_ID_COUNT; i++) {
+		scanner->sc_scan_table[i] = native_protocols[i];
+	}
 }
 
 /*
  * Class:     org_jnetpcap_packet_JScanner
- * Method:    loadBindings
- * Signature: (I[Lorg/jnetpcap/packet/JBinding;)V
+ * Method:    loadScanners
+ * Signature: (I[Lorg/jnetpcap/packet/JHeaderScanner;)V
  */
-JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_loadBindings
-(JNIEnv *env, jobject obj, jint jid, jobjectArray jbindings) {
+JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_loadScanners
+(JNIEnv *env, jobject obj, jobjectArray jascanners) {
 	scanner_t *scanner = (scanner_t *)getJMemoryPhysical(env, obj);
 	if (scanner == NULL) {
 		return;
 	}
 
-	jsize size = env->GetArrayLength(jbindings);
-	printf("loadBindings(): loaded %d bindigns\n", (int)size);
-
-	binding_t *bindings = scanner->sc_bindings[(int) jid];
-
-	for (int i = 0; i < size; i ++) {
-		jobject jbinding = env->GetObjectArrayElement(jbindings, (jsize) i);
-
-		if (jbinding != NULL) {
-
-			int id = (int) env->CallIntMethod(jbinding, getIdMID);
-			bindings[i].bnd_id = id;
-			bindings[i].bnd_jbinding = jbinding;
-
-			scanner->sc_binding_map |= ((uint64_t)1) << id;
-
-			jintArray jdependencies = (jintArray)
-			env->CallObjectMethod(jbinding, listDependenciesMID);
-
-			bindings[i].bnd_dependency_map = toUlong64(env, jdependencies);
-
-			env->DeleteLocalRef(jdependencies);
-		}
-
-		env->DeleteLocalRef(jbinding);
-	}
-}
-
-/**
- * Converts a java array of ints to a unsinged 64 bit long bit map
- */
-uint64_t toUlong64(JNIEnv *env, jintArray ja) {
-	uint64_t r = 0;
-
-	jint * intarray = env->GetIntArrayElements(ja, NULL);
-	jsize length = env->GetArrayLength(ja);
-
-	for (jsize i = 0; i < length; i ++) {
-		r |= ((uint64_t)1) << intarray[i];
-	}
-
-	env->ReleaseIntArrayElements(ja, intarray, JNI_ABORT);
-
-	return r;
-}
-
-/*
- * Class:     org_jnetpcap_packet_JScanner
- * Method:    loadDependencies
- * Signature: (I[I)V
- */
-JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_loadDependencies
-(JNIEnv *env, jobject obj, jint, jintArray jdependencies) {
-	scanner_t *scanner = (scanner_t *)getJMemoryPhysical(env, obj);
-	if (scanner == NULL) {
+	jsize size = env->GetArrayLength(jascanners);
+	
+#ifdef DEBUG
+	printf("loadScanners(): loaded %d scanners\n", (int)size);
+#endif
+	
+	if (size != MAX_ID_COUNT) {
+		throwException(env, 
+				ILLEGAL_ARGUMENT_EXCEPTION, 
+				"size of array must be MAX_ID_COUNT size");
 		return;
 	}
 
-}
-
-/*
- * Class:     org_jnetpcap_packet_JScanner
- * Method:    loadOverride
- * Signature: ([I)V
- */
-JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_loadOverride
-(JNIEnv *env, jobject obj, jintArray joverrides) {
-	scanner_t *scanner = (scanner_t *)getJMemoryPhysical(env, obj);
-	if (scanner == NULL) {
-		return;
+	for (int i = 0; i < MAX_ID_COUNT; i ++) {
+		jobject loc_ref = env->GetObjectArrayElement(jascanners, (jsize) i);
+		
+		scanner->sc_java_header_scanners[i] = env->NewGlobalRef(loc_ref);
+		
+		env->DeleteLocalRef(loc_ref);
 	}
-
 }
 
-/*
- * Class:     org_jnetpcap_packet_JScanner
- * Method:    resetBindings
- * Signature: ()V
- */
-JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_resetBindings
-(JNIEnv *env, jobject obj) {
-	scanner_t *scanner = (scanner_t *)getJMemoryPhysical(env, obj);
-	if (scanner == NULL) {
-		return;
-	}
-
-	scanner->sc_binding_map = 0L;
-	memset((void *)scanner->sc_bindings, 0,
-			sizeof(binding_t) * MAX_ID_COUNT * MAX_BINDING_COUNT);
-
-}
-
-/*
- * Class:     org_jnetpcap_packet_JScanner
- * Method:    resetDependencies
- * Signature: ()V
- */
-JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_resetDependencies
-(JNIEnv *env, jobject obj) {
-	scanner_t *scanner = (scanner_t *)getJMemoryPhysical(env, obj);
-	if (scanner == NULL) {
-		return;
-	}
-
-	memset((void *)scanner->sc_dependency_map, 0,
-			sizeof(uint64_t) * MAX_ID_COUNT);
-}
-
-/*
- * Class:     org_jnetpcap_packet_JScanner
- * Method:    resetOverride
- * Signature: ()V
- */
-JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_resetOverride
-(JNIEnv *env, jobject obj) {
-	scanner_t *scanner = (scanner_t *)getJMemoryPhysical(env, obj);
-	if (scanner == NULL) {
-		return;
-	}
-
-	memset((void *)scanner->sc_override_map, 0,
-			sizeof(uint64_t) * MAX_ID_COUNT);
-}
 
 /*
  * Class:     org_jnetpcap_packet_JScanner
