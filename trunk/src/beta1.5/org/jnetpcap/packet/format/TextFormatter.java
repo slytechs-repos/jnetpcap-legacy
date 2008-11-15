@@ -113,10 +113,6 @@ public class TextFormatter
 
 	}
 
-	private void incLevel(JField field) {
-		super.incLevel(uf.format(FIELD_FORMAT, field.getName()).toString());
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 

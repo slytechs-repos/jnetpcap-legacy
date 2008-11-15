@@ -114,13 +114,7 @@ public abstract class JFormatter {
 
 	private Detail[] detailsPerHeader = new Detail[JRegistry.MAX_ID_COUNT];
 
-	private Formatter formatter = new Formatter();
-
 	protected int frameIndex;
-
-	private String headerName;
-
-	private String headerNicname;
 
 	private JHeaderPool headers = new JHeaderPool();
 
@@ -364,8 +358,6 @@ public abstract class JFormatter {
 	 * @param nicname
 	 */
 	public void setHeaderName(String name, String nicname) {
-		this.headerName = name;
-		this.headerNicname = nicname;
 	}
 
 	/**
@@ -494,10 +486,6 @@ public abstract class JFormatter {
 		}
 
 		return b.toString();
-	}
-
-	private void reset(Formatter out) {
-		((StringBuilder) out.out()).setLength(0);
 	}
 
 }
