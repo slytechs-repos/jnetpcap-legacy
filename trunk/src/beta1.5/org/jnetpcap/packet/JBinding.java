@@ -16,6 +16,7 @@ package org.jnetpcap.packet;
 public interface JBinding extends JDependency {
 
 	public final static int HEADER_NOT_FOUND = 0;
+	public static final int NULL_ID = -2;
 
 	/**
 	 * Checks the length of the header that has not been bound yet. The returned
@@ -31,7 +32,7 @@ public interface JBinding extends JDependency {
 	 * @return either full or truncated length of the header or 0 if header is not
 	 *         bound at all
 	 */
-	public abstract int checkLength(JPacket packet, int offset);
+	public abstract int scanForNextHeader(JPacket packet, int offset);
 
 	public abstract int getTargetId();
 
