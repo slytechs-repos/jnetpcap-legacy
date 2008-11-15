@@ -19,8 +19,6 @@ public abstract class JDynamicField<H extends JHeader, V> implements
 	
 	private int offset;
 	private int length;
-	private int mask = 0;
-	
 	public JDynamicField() {
 		// Empty
 	}
@@ -93,7 +91,6 @@ public abstract class JDynamicField<H extends JHeader, V> implements
    * @param mask the mask to set
    */
   public final void setMask(int mask) {
-  	this.mask = mask;
   }
 
 }

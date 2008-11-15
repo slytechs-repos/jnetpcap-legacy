@@ -69,7 +69,8 @@ public class HtmlTableFormatter
 	 *      org.jnetpcap.packet.format.JField,
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
-	@Override
+	@SuppressWarnings("unchecked")
+  @Override
 	protected void fieldBefore(JHeader header, JField field, Detail detail)
 	    throws IOException {
 
