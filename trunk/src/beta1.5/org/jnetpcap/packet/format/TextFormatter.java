@@ -35,11 +35,11 @@ public class TextFormatter
 	protected void fieldAfter(JHeader header, JField field, Detail detail)
 	    throws IOException {
 
-		if (field.style == Style.INT_BITS) {
+		if (field.getStyle() == Style.INT_BITS) {
 
 		} else if (field.isCompound()) {
 			decLevel();
-		} else if (field.style != Style.BYTE_ARRAY_HEX_DUMP) {
+		} else if (field.getStyle() != Style.BYTE_ARRAY_HEX_DUMP) {
 			decLevel();
 		}
 	}
@@ -49,26 +49,26 @@ public class TextFormatter
 	    throws IOException {
 
 		final JFieldRuntime<JHeader, Object> runtime =
-		    (JFieldRuntime<JHeader, Object>) field.runtime;
+		    (JFieldRuntime<JHeader, Object>) field.getRuntime();
 
 		if (field.isCompound()) {
 			final String v = stylizeSingleLine(header, field, runtime.value(header));
-			pad().format(FIELD_FORMAT + "%s", field.name, v);
+			pad().format(FIELD_FORMAT + "%s", field.getName(), v);
 			incLevel(19);
 
-		} else if (field.style == Style.INT_BITS) {
+		} else if (field.getStyle() == Style.INT_BITS) {
 
 			final JBitField bits = (JBitField) field;
 			final JFieldRuntime<JHeader, Object> bitsRuntime =
-			    (JFieldRuntime<JHeader, Object>) bits.runtime;
+			    (JFieldRuntime<JHeader, Object>) bits.getRuntime();
 
 			final String v = stylizeSingleLine(header, field, runtime.value(header));
 			final String d = bitsRuntime.valueDescription(header);
 			final int i = (Integer) runtime.value(header);
-			pad().format("%s = [%d] %s%s", v, i, field.name,
+			pad().format("%s = [%d] %s%s", v, i, field.getName(),
 			    ((d == null) ? "" : ": " + d));
 
-		} else if (field.style == Style.BYTE_ARRAY_HEX_DUMP) {
+		} else if (field.getStyle() == Style.BYTE_ARRAY_HEX_DUMP) {
 			final String[] v = stylizeMultiLine(header, field, runtime.value(header));
 			for (String i : v) {
 				pad().format("%s", i);
@@ -77,7 +77,18 @@ public class TextFormatter
 		} else {
 
 			final String v = stylizeSingleLine(header, field, runtime.value(header));
-			pad().format(FIELD_FORMAT + "%s", field.name, v);
+			final String description = runtime.valueDescription(header);
+			final String units = field.getUnits();
+						
+			pad().format(FIELD_FORMAT + "%s", field.getName(), v);
+			
+			if (units != null) {
+				out.format(" " + units);
+			}
+			
+			if (description != null) {
+				out.format(" [" + description + "]");
+			} 
 
 			incLevel(19); // Inc for multi line fields
 
@@ -96,14 +107,14 @@ public class TextFormatter
 		final String name = header.getName();
 		incLevel(name + ": ");
 
-		pad().format(" ******* %s offset=%d length=%d", header.getName(),
-		    header.getOffset(), header.getLength());
+		pad().format(" ******* %s (%s) offset=%d length=%d", header.getName(),
+		    header.getNicname(), header.getOffset(), header.getLength());
 		pad();
 
 	}
 
 	private void incLevel(JField field) {
-		super.incLevel(uf.format(FIELD_FORMAT, field.name).toString());
+		super.incLevel(uf.format(FIELD_FORMAT, field.getName()).toString());
 	}
 
 	/*

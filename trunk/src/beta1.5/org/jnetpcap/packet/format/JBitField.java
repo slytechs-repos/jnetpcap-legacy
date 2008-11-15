@@ -23,33 +23,26 @@ import org.jnetpcap.packet.format.JFormatter.Style;
 public class JBitField
     extends JField {
 
-	private final JField parent;
-
-	public JBitField(String name, String nicname, JField parent,
-	    JFieldRuntime<? extends JHeader, ?> runtime) {
-		this(Style.INT_DEC, Priority.MEDIUM, parent, name, nicname, runtime);
-	}
-
 	/**
 	 * @param priority
 	 * @param name
 	 * @param nicname
 	 * @param runtime
 	 */
-	public JBitField(Priority priority, String name, JField parent,
-	    String nicname, JFieldRuntime<? extends JHeader, ?> runtime) {
-		this(Style.INT_DEC, priority, parent, name, nicname, runtime);
+	public JBitField(Priority priority, String name, String nicname,
+	    JFieldRuntime<? extends JHeader, ?> runtime) {
+		this(Style.INT_BITS, priority, name, nicname, runtime);
 	}
 
 	/**
-	 * @param style
 	 * @param name
 	 * @param nicname
 	 * @param runtime
+	 * @param style
 	 */
-	public JBitField(JField parent, String name, String nicname,
+	public JBitField(String name, String nicname,
 	    JFieldRuntime<? extends JHeader, ?> runtime) {
-		this(Style.INT_BITS, Priority.MEDIUM, parent, name, nicname, runtime);
+		this(Style.INT_BITS, Priority.MEDIUM, name, nicname, runtime);
 	}
 
 	/**
@@ -59,18 +52,9 @@ public class JBitField
 	 * @param nicname
 	 * @param runtime
 	 */
-	private JBitField(Style style, Priority priority, JField parent, String name,
+	private JBitField(Style style, Priority priority, String name,
 	    String nicname, JFieldRuntime<? extends JHeader, ?> runtime) {
 		super(style, priority, name, nicname, runtime);
-		this.parent = parent;
-	}
-
-
-	/**
-	 * @return the parent
-	 */
-	public final JField getParent() {
-		return this.parent;
 	}
 
 }

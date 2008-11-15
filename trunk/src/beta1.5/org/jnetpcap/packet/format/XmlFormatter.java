@@ -43,9 +43,9 @@ public class XmlFormatter
 	    throws IOException {
 
 		final JFieldRuntime<JHeader, Object> runtime =
-		    (JFieldRuntime<JHeader, Object>) field.runtime;
+		    (JFieldRuntime<JHeader, Object>) field.getRuntime();
 
-		if (field.style == Style.BYTE_ARRAY_HEX_DUMP) {
+		if (field.getStyle() == Style.BYTE_ARRAY_HEX_DUMP) {
 			decLevel();
 			pad().format(LT + "/hexdump" + GT + "\n");
 		} else if (false && field.isCompound()) {
@@ -53,7 +53,7 @@ public class XmlFormatter
 
 			pad().format(LT + "/field" + GT);
 
-		} else if (field.style == Style.INT_BITS) {
+		} else if (field.getStyle() == Style.INT_BITS) {
 		}
 
 		decLevel();
@@ -72,11 +72,11 @@ public class XmlFormatter
 	    throws IOException {
 
 		final JFieldRuntime<JHeader, Object> runtime =
-		    (JFieldRuntime<JHeader, Object>) field.runtime;
+		    (JFieldRuntime<JHeader, Object>) field.getRuntime();
 
 		incLevel(PAD);
 
-		if (field.style == Style.BYTE_ARRAY_HEX_DUMP) {
+		if (field.getStyle() == Style.BYTE_ARRAY_HEX_DUMP) {
 			pad().format(LT + "hexdump offset=\"%d\" length=\"%d\"" + GT,
 			    runtime.getOffset(), runtime.getLength());
 			incLevel(PAD);
@@ -97,17 +97,17 @@ public class XmlFormatter
 
 			pad().format(
 			    LT + "field name=\"%s\" value=\"%s\" offset=\"%d\" length=\"%d\""
-			        + GT, field.name, v, field.runtime.getOffset(),
-			    field.runtime.getLength());
+			        + GT, field.getName(), v, field.getRuntime().getOffset(),
+			    field.getRuntime().getLength());
 
-		} else if (field.style == Style.INT_BITS) {
+		} else if (field.getStyle() == Style.INT_BITS) {
 		} else {
 			final String v = stylizeSingleLine(header, field, runtime.value(header));
 
 			pad().format(
 			    LT + "field name=\"%s\" value=\"%s\" offset=\"%d\" length=\"%d\"/"
-			        + GT, field.name, v, field.runtime.getOffset(),
-			    field.runtime.getLength());
+			        + GT, field.getName(), v, field.getRuntime().getOffset(),
+			    field.getRuntime().getLength());
 		}
 
 	}

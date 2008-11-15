@@ -60,12 +60,12 @@ public abstract class JFormatter {
 		BYTE_ARRAY_COLON_ADDRESS,
 		BYTE_ARRAY_DASH_ADDRESS,
 		BYTE_ARRAY_DOT_ADDRESS,
-		
+
 		BYTE_ARRAY_HEX_DUMP,
 		BYTE_ARRAY_HEX_DUMP_NO_TEXT,
 		BYTE_ARRAY_HEX_DUMP_NO_TEXT_ADDRESS,
 		BYTE_ARRAY_HEX_DUMP_NO_ADDRESS,
-		
+
 		BYTE_ARRAY_IP4_ADDRESS,
 		BYTE_ARRAY_IP6_ADDRESS,
 
@@ -178,7 +178,7 @@ public abstract class JFormatter {
 		for (final JField field : fields) {
 
 			final JFieldRuntime<JHeader, Object> runtime =
-			    (JFieldRuntime<JHeader, Object>) field.runtime;
+			    (JFieldRuntime<JHeader, Object>) field.getRuntime();
 
 			if (runtime.hasField(header) == false) {
 				continue;
@@ -242,7 +242,7 @@ public abstract class JFormatter {
 
 			final int id = packet.getHeaderIdByIndex(i);
 			try {
-				final JHeader header = headers.get(id);
+				final JHeader header = headers.getHeader(id);
 				final Detail headerDetail =
 				    (detailsPerHeader[id] == null) ? detail : detailsPerHeader[id];
 
@@ -382,7 +382,7 @@ public abstract class JFormatter {
 	 * @return
 	 */
 	protected String[] stylizeMultiLine(JHeader header, JField field, Object value) {
-		return stylizeMultiLine(header, field, field.style, value);
+		return stylizeMultiLine(header, field, field.getStyle(), value);
 	}
 
 	protected String[] stylizeMultiLine(JHeader header, JField field,
@@ -392,11 +392,11 @@ public abstract class JFormatter {
 			case BYTE_ARRAY_HEX_DUMP:
 				return PcapUtils.hexdump((byte[]) value, header.getOffset(), 0, true,
 				    true, true);
-				
+
 			case BYTE_ARRAY_HEX_DUMP_NO_TEXT:
 				return PcapUtils.hexdump((byte[]) value, header.getOffset(), 0, true,
 				    false, true);
-				
+
 			case BYTE_ARRAY_HEX_DUMP_NO_TEXT_ADDRESS:
 				return PcapUtils.hexdump((byte[]) value, header.getOffset(), 0, false,
 				    false, true);
@@ -404,17 +404,14 @@ public abstract class JFormatter {
 			case BYTE_ARRAY_HEX_DUMP_NO_ADDRESS:
 				return PcapUtils.hexdump((byte[]) value, header.getOffset(), 0, false,
 				    true, true);
-				
+
 			case BYTE_ARRAY_HEX_DUMP_ADDRESS:
 				return PcapUtils.hexdump((byte[]) value, header.getOffset(), 0, true,
 				    false, false);
-				
+
 			case BYTE_ARRAY_HEX_DUMP_TEXT:
 				return PcapUtils.hexdump((byte[]) value, header.getOffset(), 0, false,
 				    true, false);
-
-
-
 
 			default:
 				return new String[] { stylizeSingleLine(header, field, value) };
@@ -429,7 +426,7 @@ public abstract class JFormatter {
 	 */
 	protected String stylizeSingleLine(JHeader header, JField field, Object value) {
 
-		final Style style = field.style;
+		final Style style = field.getStyle();
 
 		switch (style) {
 			case BYTE_ARRAY_DASH_ADDRESS:
@@ -458,7 +455,8 @@ public abstract class JFormatter {
 				    + " (" + value.toString() + ")";
 
 			case LONG_HEX:
-				return "0x" + Long.toHexString((long) (Long) value).toUpperCase();
+				return "0x" + Long.toHexString((long) (Long) value).toUpperCase()
+				    + " (" + value.toString() + ")";
 
 			default:
 				return value.toString();
@@ -471,10 +469,10 @@ public abstract class JFormatter {
 		final JBitField bits = (JBitField) field;
 		final JField parent = bits.getParent();
 		final JFieldRuntime<JHeader, Object> pruntime =
-		    (JFieldRuntime<JHeader, Object>) parent.runtime;
+		    (JFieldRuntime<JHeader, Object>) parent.getRuntime();
 		final JFieldRuntime<JHeader, Object> runtime =
-		    (JFieldRuntime<JHeader, Object>) bits.runtime;
-		final int len = parent.runtime.getLength();
+		    (JFieldRuntime<JHeader, Object>) bits.getRuntime();
+		final int len = parent.getRuntime().getLength();
 		final int p = (int) (Integer) pruntime.value(header);
 		final int mask = runtime.getMask();
 
