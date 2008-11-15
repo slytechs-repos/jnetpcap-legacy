@@ -479,10 +479,13 @@
 			<class name="org.jnetpcap.PcapBeta" />
 			<class name="org.jnetpcap.PcapHeader" />
 			<class name="org.jnetpcap.packet.JScanner" />
+			<class name="org.jnetpcap.packet.JRegistry" />
 			<class name="org.jnetpcap.packet.JPacket$State" />
 			<class name="org.jnetpcap.packet.JHeader" />
 			<class name="org.jnetpcap.packet.JHeader$State" />
 			<class name="org.jnetpcap.packet.JProtocol" />
+			<class name="org.jnetpcap.packet.JHeaderScanner" />
+			<class name="org.jnetpcap.packet.JScan" />
 		</javah>
 	</target>
 

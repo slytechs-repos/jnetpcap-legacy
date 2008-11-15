@@ -64,6 +64,9 @@ public class TestPcapUtils
 			if (buf.length() != 0) {
 				buf.append(':');
 			}
+			if(b >= 0 && b < 16) {
+				buf.append('0');
+			}
 			buf.append(Integer.toHexString((b < 0) ? b + 256 : b).toUpperCase());
 		}
 

@@ -51,7 +51,7 @@ public class TestJRegistry
 		 * @see org.jnetpcap.packet.JBinding#checkLength(org.jnetpcap.packet.JPacket,
 		 *      int)
 		 */
-		public int checkLength(JPacket packet, int offset) {
+		public int scanForNextHeader(JPacket packet, int offset) {
 			throw new UnsupportedOperationException("Not implemented yet");
 		}
 
@@ -77,143 +77,25 @@ public class TestJRegistry
 		registry = null;
 	}
 
-	public void testCoreProtocolRegistrationByJProtocol() {
+	public void testCoreProtocolRegistrationByJProtocol() throws UnregisteredHeaderException {
 
 		for (JProtocol p : JProtocol.values()) {
-			assertEquals(p.ID, registry.lookupId(p));
+			assertEquals(p.ID, JRegistry.lookupId(p));
 		}
 	}
 
-	public void testCoreProtocolRegistrationByClass() {
+	public void testCoreProtocolRegistrationByClass() throws UnregisteredHeaderException {
 
 		for (JProtocol p : JProtocol.values()) {
-			assertEquals(p.ID, registry.lookupId(p.clazz));
+			assertEquals(p.ID, JRegistry.lookupId(p.clazz));
 		}
 	}
 
-	public void testCoreProtocolRegistrationByName() {
+	public void testCoreProtocolRegistrationByName() throws UnregisteredHeaderException {
 
-		assertEquals(Ethernet.ID, registry.lookupId(Ethernet.class));
-		assertEquals(Ip4.ID, registry.lookupId(Ip4.class));
-		assertEquals(Ip6.ID, registry.lookupId(Ip6.class));
-	}
-
-	public void testSetOneSourceBinding() {
-
-		registry
-		    .setBindings(new TestBinding(Ip4.ID/* source */, Ethernet.ID/* target */));
-
-		JBinding[][] bindings = registry.getBindingsBySource();
-
-		assertNotNull(bindings[Ip4.ID]);
-		assertNotNull(bindings[Ip4.ID][0]);
-		assertEquals(Ip4.ID, bindings[Ip4.ID][0].getId());
-		assertEquals(Ethernet.ID, bindings[Ip4.ID][0].getTargetId());
-
-	}
-
-	public void testSetOneTargetBinding() {
-
-		registry
-		    .setBindings(new TestBinding(Ip4.ID/* source */, Ethernet.ID/* target */));
-
-		JBinding[][] bindings = registry.getBindingsByTarget();
-
-		assertNotNull(bindings[Ethernet.ID]);
-		assertNotNull(bindings[Ethernet.ID][0]);
-		assertEquals(Ip4.ID, bindings[Ethernet.ID][0].getId());
-		assertEquals(Ethernet.ID, bindings[Ethernet.ID][0].getTargetId());
-
-	}
-
-	public void testSetBindingOutOfBoundHi() {
-
-		try {
-			registry
-			    .setBindings(new TestBinding(10000/* source */, Ethernet.ID/* target */));
-			fail("Expected IndexOutOfBoundsException");
-		} catch (IndexOutOfBoundsException e) {
-			// Success
-		}
-	}
-
-	public void testSetBindingOutOfBoundLow() {
-
-		try {
-			registry
-			    .setBindings(new TestBinding(-1/* source */, Ethernet.ID/* target */));
-			fail("Expected IndexOutOfBoundsException");
-		} catch (IndexOutOfBoundsException e) {
-			// Success
-		}
-	}
-
-	public void testSetBindingAtIndexZero() {
-
-		try {
-			registry
-			    .setBindings(new TestBinding(0/* source */, Ethernet.ID/* target */));
-		} catch (IndexOutOfBoundsException e) {
-			fail("Did not expected IndexOutOfBoundsException");
-		}
-	}
-
-	public void testSetBindingAtMaxIndex() {
-
-		try {
-			registry
-			    .setBindings(new TestBinding(JRegistry.MAX_ID_COUNT, Ethernet.ID));
-			fail("Expected IndexOutOfBoundsException");
-		} catch (IndexOutOfBoundsException e) {
-			// Success
-		}
-	}
-
-	public void testSetBindingAtMaxIndexMinusOne() {
-
-		try {
-			registry.setBindings(new TestBinding(JRegistry.MAX_ID_COUNT - 1,
-			    Ethernet.ID));
-		} catch (IndexOutOfBoundsException e) {
-			fail("Did not expected IndexOutOfBoundsException");
-		}
-	}
-
-	public void testBidningsForAllCoreProtocolsBoundToSingle() {
-
-		for (JProtocol p : JProtocol.values()) {
-			registry.setBindings(new TestBinding(p.ID, Ethernet.ID));
-		}
-	}
-	
-	public void testMultBidningsForAllCoreProtocolsBoundToSingle() {
-
-		final int COUNT = 100;
-		
-		for (JProtocol p : JProtocol.values()) {
-			for (int i = 0; i < COUNT ; i ++) {
-				registry.setBindings(new TestBinding(p.ID, Ethernet.ID));
-			}
-		}
-	}
-
-	
-	public void testBidningsForAllCoreProtocolsBoundToPrevious() {
-
-		for (JProtocol p : JProtocol.values()) {
-			registry.setBindings(new TestBinding(p.ID, ((p.ID == 0)?0:p.ID-1)));
-		}
-	}
-	
-	public void testMultBidningsForAllCoreProtocolsBoundToPrevious() {
-
-		final int COUNT = 100;
-		
-		for (JProtocol p : JProtocol.values()) {
-			for (int i = 0; i < COUNT ; i ++) {
-				registry.setBindings(new TestBinding(p.ID, ((p.ID == 0)?0:p.ID-1)));
-			}
-		}
+		assertEquals(Ethernet.ID, JRegistry.lookupId(Ethernet.class));
+		assertEquals(Ip4.ID, JRegistry.lookupId(Ip4.class));
+		assertEquals(Ip6.ID, JRegistry.lookupId(Ip6.class));
 	}
 
 

@@ -82,49 +82,10 @@ public class JMemoryPool {
 			return allocated;
 		}
 
-		/**
-		 * Allocates requested size of memory out of this block and assigns it to
-		 * dst.
-		 * 
-		 * @param size
-		 * @param dst
-		 */
-		public void allocate(int size, MemoryRequestor dst) {
-			final int offset = this.allocate(size);
-
-			dst.peer(this, offset, size);
-		}
-
 		public void free(int offset, int length) {
 			// Do nothing for now
 		}
 
-	}
-
-	/**
-	 * Interface allows to JMemory objects to be peered together. Peering two
-	 * objects together causes both of those objects to reference the exact same
-	 * native memory block. The effect is comparible to two struct pointers in
-	 * native C being equal.
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
-	 */
-	public interface MemoryRequestor {
-
-		/**
-		 * Peer together 2 JMemory objects. The method does not transfer ownership
-		 * of the memory block if parameter peer is the owner.
-		 * 
-		 * @param peer
-		 *          object that contains the native memory we want to reference
-		 * @param offset
-		 *          offset into the native memory block we want to point at
-		 * @param length
-		 *          length of the memory block we want to reference
-		 */
-		public int peer(JMemoryPool.Block peer, int offset, int length)
-		    throws IndexOutOfBoundsException;
 	}
 
 	/**
@@ -157,23 +118,7 @@ public class JMemoryPool {
 		this.blockSize = defaultBlockSize;
 	}
 
-	/**
-	 * Allocates requested size of memory out of this memory pool and assigns it
-	 * to dst.
-	 * 
-	 * @param size
-	 *          amount of memory to be allocated, resevered
-	 * @param dst
-	 *          object which will be peered with the allocated memory (like a
-	 *          native memory pointer)
-	 */
-	public void allocate(int size, MemoryRequestor dst) {
 
-		final Block memory = getBlock(size);
-		final int offset = memory.allocate(size);
-
-		dst.peer(memory, offset, size);
-	}
 
 	/**
 	 * Gets a block of memory that is big enough to hold at least size number of
