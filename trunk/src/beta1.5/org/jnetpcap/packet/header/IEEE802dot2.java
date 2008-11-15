@@ -19,8 +19,6 @@ import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.format.JDynamicField;
 import org.jnetpcap.packet.format.JField;
 import org.jnetpcap.packet.format.JStaticField;
-import org.jnetpcap.packet.format.JFormatter.Priority;
-import org.jnetpcap.packet.format.JFormatter.Style;
 
 public class IEEE802dot2
     extends JHeader {
@@ -37,7 +35,7 @@ public class IEEE802dot2
 	 */
 	public final static JField[] FIELDS =
 	    {
-	        new JField(Style.INT_DEC, Priority.MEDIUM, "destination", "dsap",
+	        new JField("destination", "dsap",
 	            new JStaticField<IEEE802dot2, Integer>(0, 8) {
 
 		            public Integer value(IEEE802dot2 header) {
@@ -45,34 +43,36 @@ public class IEEE802dot2
 		            }
 	            }),
 
-	        new JField(Style.INT_DEC, Priority.MEDIUM, "source", "ssap",
-	            new JStaticField<IEEE802dot2, Integer>(1, 8) {
+	        new JField("source", "ssap", new JStaticField<IEEE802dot2, Integer>(
+	            1, 8) {
 
-		            public Integer value(IEEE802dot2 header) {
-			            return header.ssap();
-		            }
-	            }),
+		        public Integer value(IEEE802dot2 header) {
+			        return header.ssap();
+		        }
+	        }),
 
-	        new JField(Style.INT_DEC, Priority.MEDIUM, "destination", "dsap",
+	        new JField("destination", "dsap",
 	            new JDynamicField<IEEE802dot2, Integer>(2) {
 
-		            /* (non-Javadoc)
-                 * @see org.jnetpcap.packet.format.JDynamicField#hasField(org.jnetpcap.packet.JHeader)
-                 */
-                @Override
-                public boolean hasField(IEEE802dot2 header) {
-	                int c = header.control();
-	                
-	                if ((c & 0x3) == 0x3) {
-	                	setLength(8);
-	                } else {
-	                	setLength(16);
-	                }
-	                
-	                return true;
-                }
+		            /*
+								 * (non-Javadoc)
+								 * 
+								 * @see org.jnetpcap.packet.format.JDynamicField#hasField(org.jnetpcap.packet.JHeader)
+								 */
+		            @Override
+		            public boolean hasField(IEEE802dot2 header) {
+			            int c = header.control();
 
-								public Integer value(IEEE802dot2 header) {
+			            if ((c & 0x3) == 0x3) {
+				            setLength(8);
+			            } else {
+				            setLength(16);
+			            }
+
+			            return true;
+		            }
+
+		            public Integer value(IEEE802dot2 header) {
 			            return header.control();
 		            }
 	            }),
@@ -80,7 +80,7 @@ public class IEEE802dot2
 	    };
 
 	public IEEE802dot2() {
-		super(ID, "IEEE802dot2", "llc");
+		super(ID, "802.2", "llc");
 		order(BYTE_ORDER);
 	}
 

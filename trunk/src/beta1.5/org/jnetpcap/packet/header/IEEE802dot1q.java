@@ -18,7 +18,6 @@ import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.format.JField;
 import org.jnetpcap.packet.format.JStaticField;
-import org.jnetpcap.packet.format.JFormatter.Priority;
 import org.jnetpcap.packet.format.JFormatter.Style;
 
 public class IEEE802dot1q
@@ -27,7 +26,7 @@ public class IEEE802dot1q
 	public static final int ID = JProtocol.IEEE_802DOT1Q_ID;
 
 	public static final ByteOrder BYTE_ORDER = ByteOrder.BIG_ENDIAN;
-
+	
 	/**
 	 * Field objects for JFormatter
 	 * 
@@ -36,14 +35,14 @@ public class IEEE802dot1q
 	 */
 	public final static JField[] FIELDS =
 	    {
-	        new JField(Style.INT_DEC, Priority.MEDIUM, "priority", "pri",
+	        new JField("priority", "pri",
 	            new JStaticField<IEEE802dot1q, Integer>(0, 3) {
 
 		            public Integer value(IEEE802dot1q header) {
 			            return header.priority();
 		            }
 	            }),
-	        new JField(Style.INT_DEC, Priority.MEDIUM, "cfi", "cfi",
+	        new JField("cfi", "cfi",
 	            new JStaticField<IEEE802dot1q, Integer>(0, 1) {
 
 		            public Integer value(IEEE802dot1q header) {
@@ -51,14 +50,14 @@ public class IEEE802dot1q
 		            }
 	            }),
 
-	        new JField(Style.INT_DEC, Priority.MEDIUM, "id", "id",
+	        new JField("id", "id",
 	            new JStaticField<IEEE802dot1q, Integer>(0, 12) {
 
 		            public Integer value(IEEE802dot1q header) {
 			            return header.id();
 		            }
 	            }),
-	        new JField(Style.INT_DEC, Priority.MEDIUM, "type", "type",
+	        new JField(Style.INT_HEX, "type", "type",
 	            new JStaticField<IEEE802dot1q, Integer>(2, 16) {
 
 		            public Integer value(IEEE802dot1q header) {
@@ -69,7 +68,7 @@ public class IEEE802dot1q
 	    };
 
 	public IEEE802dot1q() {
-		super(ID, FIELDS, "IEEE802dot1q", "vlantag");
+		super(ID, FIELDS, "802.1q", "vlan");
 		order(BYTE_ORDER);
 	}
 

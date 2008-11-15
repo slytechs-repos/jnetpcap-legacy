@@ -18,8 +18,6 @@ import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.format.JField;
 import org.jnetpcap.packet.format.JStaticField;
-import org.jnetpcap.packet.format.JFormatter.Priority;
-import org.jnetpcap.packet.format.JFormatter.Style;
 
 /**
  * @author Mark Bednarczyk
@@ -40,7 +38,7 @@ public class Udp
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
-	public final static JField[] FIELDS = {
+	public final static JField[] X_FIELDS = {
 	    new JField("source", "src", new JStaticField<Udp, Integer>(0, 16) {
 
 		    public Integer value(Udp header) {
@@ -75,7 +73,7 @@ public class Udp
 	 * @param id
 	 */
 	public Udp() {
-		super(ID, FIELDS, "udp");
+		super(ID, X_FIELDS, "udp");
 		order(BYTE_ORDER);
 	}
 

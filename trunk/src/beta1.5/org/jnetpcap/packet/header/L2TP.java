@@ -31,7 +31,7 @@ public class L2TP
     extends JHeader {
 
 	public static final ByteOrder BYTE_ORDER = ByteOrder.BIG_ENDIAN;
-
+	
 	public final static int FLAG_L = 0x4000;
 
 	public final static int FLAG_O = 0x0200;
@@ -42,24 +42,9 @@ public class L2TP
 
 	public final static int FLAG_T = 0x8000;
 
-	public final static int MASK_VERSION = 0x000F;
-
 	public static final int ID = JProtocol.L2TP_ID;
 
-	public static final JField FLAG_FIELD =
-	    new JField(Style.INT_HEX, "flags", "flags",
-	        new JStaticField<L2TP, Integer>(0, 16) {
-
-		        public Integer value(L2TP header) {
-			        return header.flags();
-		        }
-	        }) {
-
-		    @Override
-		    public JField[] getCompoundFields() {
-			    return FLAGS_SUB_FIELDS;
-		    }
-	    };
+	public final static int MASK_VERSION = 0x000F;
 
 	/**
 	 * Field objects for JFormatter
@@ -67,9 +52,113 @@ public class L2TP
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
-	public final static JField[] FIELDS =
+	public final static JField[] X_FIELDS =
 	    {
-	        FLAG_FIELD,
+	        new JField(Style.INT_HEX, "flags", "flags",
+	            new JStaticField<L2TP, Integer>(0, 16) {
+
+		            public Integer value(L2TP header) {
+			            return header.flags();
+		            }
+	            }, new JBitField[] {
+	                new JBitField("type bit", "T",
+	                    new JStaticField<L2TP, Integer>(0, 1, FLAG_T) {
+
+		                    public Integer value(L2TP header) {
+			                    return (header.flags() & FLAG_T) >> 15;
+		                    }
+
+		                    @Override
+		                    public String valueDescription(L2TP header) {
+			                    if (value(header) != 0) {
+				                    return "control message";
+			                    } else {
+				                    return "session message";
+			                    }
+		                    }
+
+	                    }),
+	                new JBitField("length bit", "L",
+	                    new JStaticField<L2TP, Integer>(1, 1, FLAG_L) {
+
+		                    public Integer value(L2TP header) {
+			                    return (header.flags() & FLAG_L) >> 14;
+		                    }
+
+		                    @Override
+		                    public String valueDescription(L2TP header) {
+			                    if (value(header) != 0) {
+				                    return "length field is present";
+			                    } else {
+				                    return "length field is not present";
+			                    }
+		                    }
+
+	                    }),
+	                new JBitField("sequence bit", "S",
+	                    new JStaticField<L2TP, Integer>(0, 1, FLAG_S) {
+
+		                    public Integer value(L2TP header) {
+			                    return (header.flags() & FLAG_S) >> 11;
+		                    }
+
+		                    @Override
+		                    public String valueDescription(L2TP header) {
+			                    if (value(header) != 0) {
+				                    return "Ns and Nr fields are present";
+			                    } else {
+				                    return "Ns and Nr fields are not present";
+			                    }
+		                    }
+
+	                    }),
+	                new JBitField("offset bit", "O",
+	                    new JStaticField<L2TP, Integer>(0, 1, FLAG_O) {
+
+		                    public Integer value(L2TP header) {
+			                    return (header.flags() & FLAG_O) >> 10;
+		                    }
+
+		                    @Override
+		                    public String valueDescription(L2TP header) {
+			                    if (value(header) != 0) {
+				                    return "offset size field is present";
+			                    } else {
+				                    return "offset size field is not present";
+			                    }
+		                    }
+
+	                    }),
+	                new JBitField("priority bit", "P",
+	                    new JStaticField<L2TP, Integer>(0, 1, FLAG_P) {
+
+		                    public Integer value(L2TP header) {
+			                    return (header.flags() & FLAG_P) >> 9;
+		                    }
+
+		                    @Override
+		                    public String valueDescription(L2TP header) {
+			                    if (value(header) != 0) {
+				                    return "has priority";
+			                    } else {
+				                    return "no priority";
+			                    }
+		                    }
+
+	                    }),
+	                new JBitField("version", "V",
+	                    new JStaticField<L2TP, Integer>(0, 1, MASK_VERSION) {
+
+		                    public Integer value(L2TP header) {
+			                    return header.flags() & MASK_VERSION;
+		                    }
+
+		                    @Override
+		                    public String valueDescription(L2TP header) {
+			                    return "version is " + value(header).toString();
+		                    }
+
+	                    }), }),
 
 	        new JField(Style.INT_DEC, Priority.MEDIUM, "version", "ver",
 	            new JStaticField<L2TP, Integer>(1, 4) {
@@ -201,107 +290,6 @@ public class L2TP
 
 	    };
 
-	private static final JField[] FLAGS_SUB_FIELDS =
-	    {
-	        new JBitField(FLAG_FIELD, "type bit", "T",
-	            new JStaticField<L2TP, Integer>(0, 1, FLAG_T) {
-
-		            public Integer value(L2TP header) {
-			            return (header.flags() & FLAG_T) >> 15;
-		            }
-
-		            @Override
-		            public String valueDescription(L2TP header) {
-			            if (value(header) != 0) {
-				            return "control message";
-			            } else {
-				            return "session message";
-			            }
-		            }
-
-	            }),
-	        new JBitField(FLAG_FIELD, "length bit", "L",
-	            new JStaticField<L2TP, Integer>(1, 1, FLAG_L) {
-
-		            public Integer value(L2TP header) {
-			            return (header.flags() & FLAG_L) >> 14;
-		            }
-
-		            @Override
-		            public String valueDescription(L2TP header) {
-			            if (value(header) != 0) {
-				            return "length field is present";
-			            } else {
-				            return "length field is not present";
-			            }
-		            }
-
-	            }),
-	        new JBitField(FLAG_FIELD, "sequence bit", "S",
-	            new JStaticField<L2TP, Integer>(0, 1, FLAG_S) {
-
-		            public Integer value(L2TP header) {
-			            return (header.flags() & FLAG_S) >> 11;
-		            }
-
-		            @Override
-		            public String valueDescription(L2TP header) {
-			            if (value(header) != 0) {
-				            return "Ns and Nr fields are present";
-			            } else {
-				            return "Ns and Nr fields are not present";
-			            }
-		            }
-
-	            }),
-	        new JBitField(FLAG_FIELD, "offset bit", "O",
-	            new JStaticField<L2TP, Integer>(0, 1, FLAG_O) {
-
-		            public Integer value(L2TP header) {
-			            return (header.flags() & FLAG_O) >> 10;
-		            }
-
-		            @Override
-		            public String valueDescription(L2TP header) {
-			            if (value(header) != 0) {
-				            return "offset size field is present";
-			            } else {
-				            return "offset size field is not present";
-			            }
-		            }
-
-	            }),
-	        new JBitField(FLAG_FIELD, "priority bit", "P",
-	            new JStaticField<L2TP, Integer>(0, 1, FLAG_P) {
-
-		            public Integer value(L2TP header) {
-			            return (header.flags() & FLAG_P) >> 9;
-		            }
-
-		            @Override
-		            public String valueDescription(L2TP header) {
-			            if (value(header) != 0) {
-				            return "has priority";
-			            } else {
-				            return "no priority";
-			            }
-		            }
-
-	            }),
-	        new JBitField(FLAG_FIELD, "version", "V",
-	            new JStaticField<L2TP, Integer>(0, 1, MASK_VERSION) {
-
-		            public Integer value(L2TP header) {
-			            return header.flags() & MASK_VERSION;
-		            }
-
-		            @Override
-		            public String valueDescription(L2TP header) {
-			            return "version is " + value(header).toString();
-		            }
-
-	            }), };
-
 	private int offId;
 
 	private int offLength;
@@ -314,7 +302,7 @@ public class L2TP
 	 * @param id
 	 */
 	public L2TP() {
-		super(ID, FIELDS, "l2tp", "l2tp");
+		super(ID, X_FIELDS, "l2tp", "l2tp");
 		order(BYTE_ORDER);
 	}
 
@@ -351,10 +339,6 @@ public class L2TP
 		return getUShort(0);
 	}
 
-	private boolean isSet(int i, int m) {
-		return (i & m) != 0;
-	}
-
 	public boolean hasLength() {
 		return isSet(flags(), FLAG_L);
 	}
@@ -365,6 +349,10 @@ public class L2TP
 
 	public boolean hasOffset() {
 		return isSet(flags(), FLAG_O);
+	}
+
+	private boolean isSet(int i, int m) {
+		return (i & m) != 0;
 	}
 
 	public int length() {

@@ -18,7 +18,6 @@ import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.format.JField;
 import org.jnetpcap.packet.format.JStaticField;
-import org.jnetpcap.packet.format.JFormatter.Priority;
 import org.jnetpcap.packet.format.JFormatter.Style;
 
 public class IEEE802dot3
@@ -29,7 +28,7 @@ public class IEEE802dot3
 	public static final ByteOrder BYTE_ORDER = ByteOrder.BIG_ENDIAN;
 
 	public static final int LENGTH = 14; // 802.3 header is 14 bytes long
-
+	
 	/**
 	 * Field objects for JFormatter
 	 * 
@@ -38,8 +37,7 @@ public class IEEE802dot3
 	 */
 	public final static JField[] FIELDS =
 	    {
-	        new JField(Style.BYTE_ARRAY_DASH_ADDRESS, Priority.MEDIUM,
-	            "destination", "dst",
+	        new JField(Style.BYTE_ARRAY_DASH_ADDRESS, "destination", "dst",
 	            new JStaticField<IEEE802dot3, byte[]>(0, 48) {
 
 		            public byte[] value(IEEE802dot3 header) {
@@ -47,27 +45,26 @@ public class IEEE802dot3
 		            }
 	            }),
 
-	        new JField(Style.BYTE_ARRAY_DASH_ADDRESS, Priority.MEDIUM, "source",
-	            "src", new JStaticField<IEEE802dot3, byte[]>(6, 48) {
+	        new JField(Style.BYTE_ARRAY_DASH_ADDRESS, "source", "src",
+	            new JStaticField<IEEE802dot3, byte[]>(6, 48) {
 
 		            public byte[] value(IEEE802dot3 header) {
 			            return header.source();
 		            }
 	            }),
 
-	        new JField(Style.BYTE_ARRAY_DASH_ADDRESS, Priority.MEDIUM,
-	            "length", "len",
-	            new JStaticField<IEEE802dot3, Integer>(12, 16) {
+	        new JField("length", "len", new JStaticField<IEEE802dot3, Integer>(
+	            12, 16) {
 
-		            public Integer value(IEEE802dot3 header) {
-			            return header.length();
-		            }
-	            }),
+		        public Integer value(IEEE802dot3 header) {
+			        return header.length();
+		        }
+	        }),
 
 	    };
 
 	public IEEE802dot3() {
-		super(ID, FIELDS, "IEEE802dot3", "802d3");
+		super(ID, FIELDS, "802.3", "Eth");
 		order(BYTE_ORDER);
 	}
 
