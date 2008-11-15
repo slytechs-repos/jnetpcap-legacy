@@ -31,7 +31,7 @@ public class PPP
 	public static final ByteOrder BYTE_ORDER = ByteOrder.BIG_ENDIAN;
 
 	public static final int ID = JProtocol.PPP_ID;
-
+	
 	/**
 	 * Field objects for JFormatter
 	 * 

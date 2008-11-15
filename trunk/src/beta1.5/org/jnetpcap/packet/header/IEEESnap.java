@@ -18,7 +18,6 @@ import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.format.JField;
 import org.jnetpcap.packet.format.JStaticField;
-import org.jnetpcap.packet.format.JFormatter.Priority;
 import org.jnetpcap.packet.format.JFormatter.Style;
 
 public class IEEESnap
@@ -27,7 +26,7 @@ public class IEEESnap
 	public static final int ID = JProtocol.IEEE_SNAP_ID;
 
 	public static final ByteOrder BYTE_ORDER = ByteOrder.BIG_ENDIAN;
-
+	
 	/**
 	 * Field objects for JFormatter
 	 * 
@@ -36,7 +35,7 @@ public class IEEESnap
 	 */
 	public final static JField[] FIELDS =
 	    {
-	        new JField(Style.LONG_DEC, Priority.MEDIUM, "oui", "oui",
+	        new JField(Style.LONG_DEC, "oui", "oui",
 	            new JStaticField<IEEESnap, Long>(0, 24) {
 
 		            public Long value(IEEESnap header) {
@@ -44,18 +43,17 @@ public class IEEESnap
 		            }
 	            }),
 
-	        new JField(Style.INT_DEC, Priority.MEDIUM, "pid", "pid",
-	            new JStaticField<IEEESnap, Integer>(0, 16) {
+	        new JField("pid", "pid", new JStaticField<IEEESnap, Integer>(0, 16) {
 
-		            public Integer value(IEEESnap header) {
-			            return header.pid();
-		            }
-	            }),
+		        public Integer value(IEEESnap header) {
+			        return header.pid();
+		        }
+	        }),
 
 	    };
 
 	public IEEESnap() {
-		super(ID, "IEEESnap", "snap");
+		super(ID, "snap", "snap");
 		order(BYTE_ORDER);
 	}
 
