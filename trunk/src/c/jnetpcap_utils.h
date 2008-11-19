@@ -27,6 +27,7 @@ extern "C" {
 #define BUFFER_UNDERFLOW_EXCEPTION "java/nio/BufferUnderflowException"
 #define READ_ONLY_BUFFER_EXCETPION "java/nio/ReadOnlyBufferException"
 #define UNREGISTERED_SCANNER_EXCEPTION "org/jnetpcap/packet/UnregisteredScannerException"
+#define IO_EXCEPTION "java/io/IOException"
 	
 extern	jclass pcapClass;
 extern	jclass pcapHandlerClass;
@@ -41,7 +42,8 @@ extern	jmethodID appendMID;
 extern	jmethodID setLengthMID;
 	
 // GENERIC utilities
-char * toString(JNIEnv *env, jbyteArray ja);
+const char *toCharArray(JNIEnv *env, jstring jstr, char *buf);
+jstring toJavaString(JNIEnv *env, const char *buf);
 jlong toLong(void *ptr);
 void *toPtr(jlong lp);
 

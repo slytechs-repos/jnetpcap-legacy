@@ -12,7 +12,7 @@
  */
 package org.jnetpcap.packet;
 
-import org.jnetpcap.PcapUtils;
+import org.jnetpcap.packet.format.FormatUtils;
 
 /**
  * @author Mark Bednarczyk
@@ -79,7 +79,7 @@ public class VariousInMemoryPackets {
 	 * </pre>
 	 */
 	public final static byte[] PACKET_1 =
-	    PcapUtils.toByteArray("" + "0007e914 78a20010 7b812445 080045c0"
+		FormatUtils.toByteArray("" + "0007e914 78a20010 7b812445 080045c0"
 	        + "00280005 0000ff11 70e7c0a8 62dec0a8"
 	        + "65e906a5 06a50014 e04ac802 000c0002"
 	        + "00000002 00060000 00000000");

@@ -114,7 +114,7 @@ public class TestJScanner
 		out.format(packet);
 	}
 
-	public void _testScanFile() throws IOException {
+	public void testScanFile() throws IOException {
 		final Pcap pcap = Pcap.openOffline("tests/test-l2tp.pcap", System.err);
 
 		final JPacket packet = new JPacket();

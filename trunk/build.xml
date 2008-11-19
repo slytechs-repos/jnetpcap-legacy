@@ -452,6 +452,8 @@
 			****  BETA FEATURES
 			/-->
 			
+			<class name="org.jnetpcap.PcapUtils" />
+			
 			<class name="org.jnetpcap.nio.JMemory" />
 			<class name="org.jnetpcap.nio.JNumber" />
 			<class name="org.jnetpcap.nio.JBuffer" />

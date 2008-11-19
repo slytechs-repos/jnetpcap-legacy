@@ -23,6 +23,14 @@
 #include "org_jnetpcap_ms_MSIpAdapterIndexMap.h"
 #include "export.h"
 
+/****************************************************************
+ * **************************************************************
+ * 
+ * Java declared native functions
+ * 
+ * **************************************************************
+ ****************************************************************/
+
 jclass msIpAdapterIndexMapClass = NULL;
 jmethodID msIpAdapterIndexMapMID = 0;
 

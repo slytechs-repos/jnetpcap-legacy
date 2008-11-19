@@ -24,6 +24,10 @@
 #include <unistd.h>
 #endif /*WIN32*/
 
+#ifdef WIN32
+#include <winsock2.h>
+#include <iphlpapi.h>
+#endif /*WIN32*/
 
 #include "jnetpcap_ids.h"
 
@@ -38,18 +42,20 @@
  * UTILITY METHODS
  */
 
-char * toString(JNIEnv *env, jbyteArray ja) {
-	jbyte *string = env->GetByteArrayElements(ja, NULL);
+const char *toCharArray(JNIEnv *env, jstring jstr, char *buf) {
+	
+	const char *s = env->GetStringUTFChars(jstr, NULL);
+	strcpy(buf, s);
+	
+	env->ReleaseStringUTFChars(jstr, s);
+	
+	return buf;
+}
 
-	jsize as = env->GetArrayLength(ja);
-	printf("array size=%d\n", as);
-
-	for (int i = 0; i < as; i ++) {
-		printf("[#%d %d]", i, string[i]);
-	}
-	printf("\n");
-
-	return (char *)string;
+jstring toJavaString(JNIEnv *env, const char *buf) {
+	jstring s = env->NewString((jchar *)buf, (jsize) strlen(buf));
+	
+	return s;
 }
 
 jlong toLong(void *ptr) {
@@ -486,4 +492,153 @@ void setPcapStat(JNIEnv *env, jobject jstats, pcap_stat *stats) {
 	env->SetLongField(jstats, pcapStatRecvFID, (jlong) stats->ps_recv);
 	env->SetLongField(jstats, pcapStatDropFID, (jlong) stats->ps_drop);
 	env->SetLongField(jstats, pcapStatIfDropFID, (jlong) stats->ps_ifdrop);
+}
+
+/****************************************************************
+ * **************************************************************
+ * 
+ * MS Ip Helper API calls
+ * 
+ * **************************************************************
+ ****************************************************************/
+#ifdef WIN32
+
+/*
+ * Get interface info, which contains Adapter[] that has the MIB index
+ */
+PIP_INTERFACE_INFO getIpInterfaceInfo(void) {
+
+	DWORD size = 0;
+	PIP_INTERFACE_INFO  info = NULL;
+	
+	// Get the require size of the structure
+	if (GetInterfaceInfo(info, &size) == ERROR_INSUFFICIENT_BUFFER) {
+		info = (PIP_INTERFACE_INFO) malloc(size);
+	} else {
+		return NULL;
+	}
+	
+	// Now fill in the structure
+	GetInterfaceInfo(info, &size);
+	
+	return info;
+}
+
+
+/*
+ * MS get mib row
+ */
+PMIB_IFROW getMibIfRow (int index) {
+
+	PMIB_IFROW row = (PMIB_IFROW) malloc(sizeof(MIB_IFROW));
+	
+	row->dwIndex = index;
+	
+	// Get the require size of the structure
+	if (row != NULL && GetIfEntry(row) == NO_ERROR) {
+		return row;
+	} else {
+		return NULL;
+	}	
+}
+
+
+#endif // WIN32
+
+
+/****************************************************************
+ * **************************************************************
+ * 
+ * Java declared native functions
+ * 
+ * **************************************************************
+ ****************************************************************/
+
+/*
+ * Class:     org_jnetpcap_PcapUtils
+ * Method:    getHardwareAddress
+ * Signature: (Ljava/lang/String;)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_PcapUtils_getHardwareAddress
+  (JNIEnv *env, jclass clazz, jstring jdevice) {
+	
+	jbyteArray jba = NULL;
+	char buf[512];
+	
+	// convert from jstring to char *
+	toCharArray(env, jdevice, buf);
+	
+#ifdef WIN32 
+
+	PIP_INTERFACE_INFO info = getIpInterfaceInfo();
+	
+	if (info == NULL) {
+		throwException(env, IO_EXCEPTION, 
+				"unable to retrieve interface info");
+		return NULL;
+	}
+	
+	for (int i = 0; i < info->NumAdapters; i ++) {
+		PIP_ADAPTER_INDEX_MAP map = &info->Adapter[i];
+		
+		
+		/*
+		 * Name is in wide character format. So convert to plain UTF8.
+		 */
+		int size=WideCharToMultiByte(0, 0, map->Name, -1, NULL, 0, NULL, NULL);
+		char utf8[size + 1];
+		WideCharToMultiByte(0, 0, map->Name, -1, utf8, size, NULL, NULL);
+		
+#ifdef DEBUG
+		printf("#%d name=%s buf=%s\n", i, utf8, buf); fflush(stdout);
+#endif
+		
+		char *p1 = strchr(utf8, '{');
+		char *p2 = strchr(buf,  '{');
+		
+		if(p1 == NULL || p2 == NULL) {
+			p1 = utf8;
+			p2 = buf;
+		}
+
+		if (strcmp(p1, p2) == 0) {
+			PMIB_IFROW row = getMibIfRow(map->Index);
+#ifdef DEBUG
+			printf("FOUND index=%d len=%d\n", map->Index, row->dwPhysAddrLen); fflush(stdout);
+#endif
+			
+			jba = env->NewByteArray((jsize) row->dwPhysAddrLen);
+			
+			env->SetByteArrayRegion(jba, (jsize) 0, (jsize) row->dwPhysAddrLen, 
+					(jbyte *)row->bPhysAddr);
+			
+			free(row);
+		}
+	}
+	
+	free(info);
+	
+#else
+	
+   struct ifreq ifr;
+   
+   int sd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (sd < 0) {
+		throwException(env, IO_EXCEPTION, "cannot open socket.");
+        return NULL; // error: can't create socket.
+    }
+
+    /* set interface name (lo, eth0, eth1,..) */
+    memset(&ifr, 0, sizeof(ifr));
+    strncpy(ifr.ifr_ifrn.ifrn_name,d->name, IFNAMSIZ);
+
+    /* get a Get Interface Hardware Address */
+    ioctl(sd, SIOCGIFHWADDR, &ifr);
+
+    close(sd);
+
+    env->SetByteArrayRegion(jba, 0, 6, ifr.ifr_ifru.ifru_hwaddr.sa_data);
+#endif
+	
+	return jba;
 }
