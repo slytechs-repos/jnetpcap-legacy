@@ -14,11 +14,14 @@ package org.jnetpcap.packet;
 
 import junit.framework.TestCase;
 
-import org.jnetpcap.PcapUtils;
+import org.jnetpcap.packet.format.FormatUtils;
+
 
 /**
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
+ *
  */
 public class TestPcapUtils
     extends TestCase {
@@ -63,7 +66,7 @@ public class TestPcapUtils
 
 		};
 		
-		System.out.println(PcapUtils.asStringIp6(a, true));
+		System.out.println(FormatUtils.asStringIp6(a, true));
 
 	}
 	
@@ -89,8 +92,8 @@ public class TestPcapUtils
 
 		};
 		
-		System.out.println(PcapUtils.asStringIp6(a, false));
-		System.out.println(PcapUtils.asStringIp6(a, true));
+		System.out.println(FormatUtils.asStringIp6(a, false));
+		System.out.println(FormatUtils.asStringIp6(a, true));
 
 	}
 
@@ -116,8 +119,8 @@ public class TestPcapUtils
 
 		};
 		
-		System.out.println(PcapUtils.asStringIp6(a, false));
-		System.out.println(PcapUtils.asStringIp6(a, true));
+		System.out.println(FormatUtils.asStringIp6(a, false));
+		System.out.println(FormatUtils.asStringIp6(a, true));
 
 	}
 	
@@ -143,8 +146,8 @@ public class TestPcapUtils
 
 		};
 		
-		System.out.println(PcapUtils.asStringIp6(a, false));
-		System.out.println(PcapUtils.asStringIp6(a, true));
+		System.out.println(FormatUtils.asStringIp6(a, false));
+		System.out.println(FormatUtils.asStringIp6(a, true));
 
 	}
 
@@ -170,8 +173,8 @@ public class TestPcapUtils
 
 		};
 		
-		System.out.println(PcapUtils.asStringIp6(a, false));
-		System.out.println(PcapUtils.asStringIp6(a, true));
+		System.out.println(FormatUtils.asStringIp6(a, false));
+		System.out.println(FormatUtils.asStringIp6(a, true));
 
 	}
 

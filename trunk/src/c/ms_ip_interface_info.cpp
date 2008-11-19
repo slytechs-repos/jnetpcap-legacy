@@ -24,6 +24,15 @@
 #include "org_jnetpcap_ms_MSIpInterfaceInfo.h"
 #include "export.h"
 
+/****************************************************************
+ * **************************************************************
+ * 
+ * Java declared native functions
+ * 
+ * **************************************************************
+ ****************************************************************/
+
+
 /*
  * Class:     org_jnetpcap_ms_MSIpInterfaceInfo
  * Method:    numAdapters
