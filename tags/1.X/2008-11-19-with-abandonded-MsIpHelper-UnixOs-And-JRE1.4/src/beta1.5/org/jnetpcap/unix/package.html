@@ -1,0 +1,46 @@
+<body>
+Unix API low level extensions. This package provides low level routines
+available using native UNIX API. You can make low level IOCTL calls,
+open up native sockets. The API is not portable between different
+platforms and some functionality may selectively be unavailable.
+
+<h2>Example - retrieve hardware MAC address</h2>
+<pre>
+private static byte[] getUnixHardwareAddress(String device)
+    throws IOException {
+
+	if (!UnixOs.isSupported() || !UnixOs.isSupported(UnixOs.SOCK_PACKET)
+	    || !UnixOs.isSupported(UnixOs.SIOCGIFHWADDR)) {
+		return null;
+	}
+
+	int d =
+	    UnixOs.socket(UnixOs.PF_INET, UnixOs.SOCK_DGRAM,
+	        UnixOs.PROTOCOL_DEFAULT);
+	if (d == -1) {
+		throw new IOException(UnixOs.strerror(UnixOs.errno()));
+	}
+
+	UnixIfReq ir = new UnixIfReq();
+
+	ir.ifr_name(device);
+
+	int r = UnixOs.ioctl(d, UnixOs.SIOCGIFHWADDR, ir);
+	UnixOs.close(d);
+	if (r == -1) {
+		return null;
+	}
+
+	byte[] ha = ir.ifr_hwaddr();
+	return ha;
+}
+</pre>
+It is important to check all the various OS calls and even constants to
+be used, since there are API differences between various platforms and
+this low level API is not portable. The methods UnixOs.isSupported() and
+UnixOs.isSupported(int) where the int parameter are the various
+constants used, provide a mechanism with which the user can safely check
+if any given feature is available on the platform the application is
+running on.
+
+</body>
