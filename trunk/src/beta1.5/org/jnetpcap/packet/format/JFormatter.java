@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.util.Formatter;
 import java.util.Stack;
 
-import org.jnetpcap.PcapUtils;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JHeaderPool;
 import org.jnetpcap.packet.JPacket;
@@ -62,14 +61,17 @@ public abstract class JFormatter {
 		BYTE_ARRAY_DOT_ADDRESS,
 
 		BYTE_ARRAY_HEX_DUMP,
-		BYTE_ARRAY_HEX_DUMP_NO_TEXT,
-		BYTE_ARRAY_HEX_DUMP_NO_TEXT_ADDRESS,
+		BYTE_ARRAY_HEX_DUMP_ADDRESS,
 		BYTE_ARRAY_HEX_DUMP_NO_ADDRESS,
+		BYTE_ARRAY_HEX_DUMP_NO_TEXT,
+
+		BYTE_ARRAY_HEX_DUMP_NO_TEXT_ADDRESS,
+		BYTE_ARRAY_HEX_DUMP_TEXT,
 
 		BYTE_ARRAY_IP4_ADDRESS,
 		BYTE_ARRAY_IP6_ADDRESS,
-
 		INT_BIN,
+		INT_BITS,
 		INT_DEC,
 		/**
 		 * Integer is converted to a hex with a preceding 0x in front
@@ -85,9 +87,6 @@ public abstract class JFormatter {
 		INT_RADIX_8,
 		LONG_DEC,
 		LONG_HEX,
-		INT_BITS,
-		BYTE_ARRAY_HEX_DUMP_TEXT,
-		BYTE_ARRAY_HEX_DUMP_ADDRESS,
 	}
 
 	private static final Detail DEFAULT_DETAIL = Detail.MULTI_LINE_FULL_DETAIL;
@@ -215,12 +214,6 @@ public abstract class JFormatter {
 		format(packet, Detail.MULTI_LINE_FULL_DETAIL);
 	}
 
-	public abstract void packetBefore(JPacket packet, Detail detail)
-	    throws IOException;
-
-	public abstract void packetAfter(JPacket packet, Detail detail)
-	    throws IOException;
-
 	/**
 	 * @param out
 	 * @param packet
@@ -315,6 +308,12 @@ public abstract class JFormatter {
 		padStack.push(pad);
 	}
 
+	public abstract void packetAfter(JPacket packet, Detail detail)
+	    throws IOException;
+
+	public abstract void packetBefore(JPacket packet, Detail detail)
+	    throws IOException;
+
 	/**
 	 * @return
 	 */
@@ -367,94 +366,6 @@ public abstract class JFormatter {
 		this.out = new Formatter(out);
 	}
 
-	/**
-	 * @param header
-	 * @param field
-	 * @param value
-	 * @return
-	 */
-	protected String[] stylizeMultiLine(JHeader header, JField field, Object value) {
-		return stylizeMultiLine(header, field, field.getStyle(), value);
-	}
-
-	protected String[] stylizeMultiLine(JHeader header, JField field,
-	    Style style, Object value) {
-
-		switch (style) {
-			case BYTE_ARRAY_HEX_DUMP:
-				return PcapUtils.hexdump((byte[]) value, header.getOffset(), 0, true,
-				    true, true);
-
-			case BYTE_ARRAY_HEX_DUMP_NO_TEXT:
-				return PcapUtils.hexdump((byte[]) value, header.getOffset(), 0, true,
-				    false, true);
-
-			case BYTE_ARRAY_HEX_DUMP_NO_TEXT_ADDRESS:
-				return PcapUtils.hexdump((byte[]) value, header.getOffset(), 0, false,
-				    false, true);
-
-			case BYTE_ARRAY_HEX_DUMP_NO_ADDRESS:
-				return PcapUtils.hexdump((byte[]) value, header.getOffset(), 0, false,
-				    true, true);
-
-			case BYTE_ARRAY_HEX_DUMP_ADDRESS:
-				return PcapUtils.hexdump((byte[]) value, header.getOffset(), 0, true,
-				    false, false);
-
-			case BYTE_ARRAY_HEX_DUMP_TEXT:
-				return PcapUtils.hexdump((byte[]) value, header.getOffset(), 0, false,
-				    true, false);
-
-			default:
-				return new String[] { stylizeSingleLine(header, field, value) };
-		}
-	}
-
-	/**
-	 * @param header
-	 * @param field
-	 * @param value
-	 * @return
-	 */
-	protected String stylizeSingleLine(JHeader header, JField field, Object value) {
-
-		final Style style = field.getStyle();
-
-		switch (style) {
-			case BYTE_ARRAY_DASH_ADDRESS:
-				return PcapUtils.asString((byte[]) value, '-').toUpperCase();
-
-			case BYTE_ARRAY_COLON_ADDRESS:
-				return PcapUtils.asString((byte[]) value, ':').toUpperCase();
-
-			case BYTE_ARRAY_DOT_ADDRESS:
-				return PcapUtils.asString((byte[]) value, '.').toUpperCase();
-
-			case BYTE_ARRAY_IP4_ADDRESS:
-				return PcapUtils.asString((byte[]) value, '.', 10).toUpperCase();
-
-			case BYTE_ARRAY_IP6_ADDRESS:
-				return PcapUtils.asStringIp6((byte[]) value, true).toUpperCase();
-
-			case INT_BITS:
-				return stylizeBitField(header, field, value);
-
-			case INT_RADIX_16:
-				return Integer.toHexString((int) (Integer) value).toUpperCase();
-
-			case INT_HEX:
-				return "0x" + Integer.toHexString((int) (Integer) value).toUpperCase()
-				    + " (" + value.toString() + ")";
-
-			case LONG_HEX:
-				return "0x" + Long.toHexString((long) (Long) value).toUpperCase()
-				    + " (" + value.toString() + ")";
-
-			default:
-				return value.toString();
-		}
-	}
-
 	@SuppressWarnings("unchecked")
 	private String stylizeBitField(JHeader header, JField field, Object value) {
 		StringBuilder b = new StringBuilder();
@@ -486,6 +397,94 @@ public abstract class JFormatter {
 		}
 
 		return b.toString();
+	}
+
+	/**
+	 * @param header
+	 * @param field
+	 * @param value
+	 * @return
+	 */
+	protected String[] stylizeMultiLine(JHeader header, JField field, Object value) {
+		return stylizeMultiLine(header, field, field.getStyle(), value);
+	}
+
+	protected String[] stylizeMultiLine(JHeader header, JField field,
+	    Style style, Object value) {
+
+		switch (style) {
+			case BYTE_ARRAY_HEX_DUMP:
+				return FormatUtils.hexdump((byte[]) value, header.getOffset(), 0, true,
+				    true, true);
+
+			case BYTE_ARRAY_HEX_DUMP_NO_TEXT:
+				return FormatUtils.hexdump((byte[]) value, header.getOffset(), 0, true,
+				    false, true);
+
+			case BYTE_ARRAY_HEX_DUMP_NO_TEXT_ADDRESS:
+				return FormatUtils.hexdump((byte[]) value, header.getOffset(), 0, false,
+				    false, true);
+
+			case BYTE_ARRAY_HEX_DUMP_NO_ADDRESS:
+				return FormatUtils.hexdump((byte[]) value, header.getOffset(), 0, false,
+				    true, true);
+
+			case BYTE_ARRAY_HEX_DUMP_ADDRESS:
+				return FormatUtils.hexdump((byte[]) value, header.getOffset(), 0, true,
+				    false, false);
+
+			case BYTE_ARRAY_HEX_DUMP_TEXT:
+				return FormatUtils.hexdump((byte[]) value, header.getOffset(), 0, false,
+				    true, false);
+
+			default:
+				return new String[] { stylizeSingleLine(header, field, value) };
+		}
+	}
+
+	/**
+	 * @param header
+	 * @param field
+	 * @param value
+	 * @return
+	 */
+	protected String stylizeSingleLine(JHeader header, JField field, Object value) {
+
+		final Style style = field.getStyle();
+
+		switch (style) {
+			case BYTE_ARRAY_DASH_ADDRESS:
+				return FormatUtils.asString((byte[]) value, '-').toUpperCase();
+
+			case BYTE_ARRAY_COLON_ADDRESS:
+				return FormatUtils.asString((byte[]) value, ':').toUpperCase();
+
+			case BYTE_ARRAY_DOT_ADDRESS:
+				return FormatUtils.asString((byte[]) value, '.').toUpperCase();
+
+			case BYTE_ARRAY_IP4_ADDRESS:
+				return FormatUtils.asString((byte[]) value, '.', 10).toUpperCase();
+
+			case BYTE_ARRAY_IP6_ADDRESS:
+				return FormatUtils.asStringIp6((byte[]) value, true).toUpperCase();
+
+			case INT_BITS:
+				return stylizeBitField(header, field, value);
+
+			case INT_RADIX_16:
+				return Integer.toHexString((int) (Integer) value).toUpperCase();
+
+			case INT_HEX:
+				return "0x" + Integer.toHexString((int) (Integer) value).toUpperCase()
+				    + " (" + value.toString() + ")";
+
+			case LONG_HEX:
+				return "0x" + Long.toHexString((long) (Long) value).toUpperCase()
+				    + " (" + value.toString() + ")";
+
+			default:
+				return value.toString();
+		}
 	}
 
 }
