@@ -948,6 +948,62 @@ public class Pcap {
 	public native <T> int dispatch(int cnt, ByteBufferHandler<T> handler, T user);
 
 	/**
+	 * <p>
+	 * Collect a group of packets. pcap_dispatch() is used to collect and process
+	 * packets. cnt specifies the maximum number of packets to process before
+	 * returning. This is not a minimum number; when reading a live capture, only
+	 * one bufferful of packets is read at a time, so fewer than cnt packets may
+	 * be processed. A cnt of -1 processes all the packets received in one buffer
+	 * when reading a live capture, or all the packets in the file when reading a
+	 * ``savefile''. callback specifies a routine to be called with three
+	 * arguments: a u_char pointer which is passed in from pcap_dispatch(), a
+	 * const struct pcap_pkthdr pointer, and a const u_char pointer to the first
+	 * caplen (as given in the struct pcap_pkthdr a pointer to which is passed to
+	 * the callback routine) bytes of data from the packet (which won't
+	 * necessarily be the entire packet; to capture the entire packet, you will
+	 * have to provide a value for snaplen in your call to pcap_open_live() that
+	 * is sufficiently large to get all of the packet's data - a value of 65535
+	 * should be sufficient on most if not all networks).
+	 * </p>
+	 * <p>
+	 * The number of packets read is returned. 0 is returned if no packets were
+	 * read from a live capture (if, for example, they were discarded because they
+	 * didn't pass the packet filter, or if, on platforms that support a read
+	 * timeout that starts before any packets arrive, the timeout expires before
+	 * any packets arrive, or if the file descriptor for the capture device is in
+	 * non-blocking mode and no packets were available to be read) or if no more
+	 * packets are available in a ``savefile.'' A return of -1 indicates an error
+	 * in which case pcap_perror() or pcap_geterr() may be used to display the
+	 * error text. A return of -2 indicates that the loop terminated due to a call
+	 * to pcap_breakloop() before any packets were processed. If your application
+	 * uses pcap_breakloop(), make sure that you explicitly check for -1 and -2,
+	 * rather than just checking for a return value < 0.
+	 * </p>
+	 * <p>
+	 * Note: when reading a live capture, pcap_dispatch() will not necessarily
+	 * return when the read times out; on some platforms, the read timeout isn't
+	 * supported, and, on other platforms, the timer doesn't start until at least
+	 * one packet arrives. This means that the read timeout should NOT be used in,
+	 * for example, an interactive application, to allow the packet capture loop
+	 * to ``poll'' for user input periodically, as there's no guarantee that
+	 * pcap_dispatch() will return after the timeout expires.
+	 * </p>
+	 * 
+	 * @param <T>
+	 *          handler's user object type
+	 * @param cnt
+	 *          number of packets to read
+	 * @param handler
+	 *          called when packet arrives for each packet
+	 * @param user
+	 *          opaque user object
+	 * @return 0 on success, -1 on error and -2 if breakloop was used interrupt
+	 *         the captue
+	 * @since 1.2
+	 */
+	public native <T> int dispatch(int cnt, JBufferHandler<T> handler, T user);
+
+	/**
 	 * Open a file to write packets. The <code>dumpOpen</code> method is called
 	 * to open a "savefile" for writing. The name '-' is a synonym for stdout.
 	 * 
@@ -1160,6 +1216,34 @@ public class Pcap {
 	 * @since 1.2
 	 */
 	public native <T> int loop(int cnt, ByteBufferHandler<T> handler, T user);
+	
+	/**
+	 * Collect a group of packets. pcap_loop() is similar to pcap_dispatch()
+	 * except it keeps reading packets until cnt packets are processed or an error
+	 * occurs. It does not return when live read timeouts occur. Rather,
+	 * specifying a non-zero read timeout to pcap_open_live() and then calling
+	 * pcap_dispatch() allows the reception and processing of any packets that
+	 * arrive when the timeout occurs. A negative cnt causes pcap_loop() to loop
+	 * forever (or at least until an error occurs). -1 is returned on an error; 0
+	 * is returned if cnt is exhausted; -2 is returned if the loop terminated due
+	 * to a call to pcap_breakloop() before any packets were processed. If your
+	 * application uses pcap_breakloop(), make sure that you explicitly check for
+	 * -1 and -2, rather than just checking for a return value < 0.
+	 * 
+	 * @param <T>
+	 *          handler's user object type
+	 * @param cnt
+	 *          number of packets to read
+	 * @param handler
+	 *          called when packet arrives for each packet
+	 * @param user
+	 *          opaque user object
+	 * @return 0 on success, -1 on error and -2 if breakloop was used interrupt
+	 *         the captue
+	 * @since 1.2
+	 */
+	public native <T> int loop(int cnt, JBufferHandler<T> handler, T user);
+
 
 	/**
 	 * Return the major version number of the pcap library used to write the

@@ -45,11 +45,6 @@ public abstract class PcapTask<T> implements Runnable {
 	protected final int count;
 
 	/**
-	 * User supplied packet handler where packets are dispatched
-	 */
-	protected final PcapHandler<T> handler;
-
-	/**
 	 * User data
 	 */
 	protected final T user;
@@ -61,15 +56,12 @@ public abstract class PcapTask<T> implements Runnable {
 	 *          pcap handle
 	 * @param count
 	 *          number of packets to capture or 0 for infinite
-	 * @param handler
-	 *          user packet handler where packets will be dispatched
 	 * @param user
 	 *          user supplied object
 	 */
-	public PcapTask(Pcap pcap, int count, PcapHandler<T> handler, T user) {
+	public PcapTask(Pcap pcap, int count, T user) {
 		this.pcap = pcap;
 		this.count = count;
-		this.handler = handler;
 		this.user = user;
 	}
 
@@ -182,21 +174,11 @@ public abstract class PcapTask<T> implements Runnable {
 	}
 
 	/**
-	 * Returns the user supplied packet handler. Captured packets are dispatched
-	 * to this handler.
-	 * 
-	 * @return packet handler
-	 */
-	public final PcapHandler<T> getHandler() {
-		return this.handler;
-	}
-
-	/**
 	 * User supplied data object. This is an arbitrary user object.
 	 * 
 	 * @return user object
 	 */
-	public final Object getUser() {
+	public final T getUser() {
 		return this.user;
 	}
 
