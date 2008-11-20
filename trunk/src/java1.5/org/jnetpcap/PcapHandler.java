@@ -22,6 +22,8 @@ import java.nio.ByteBuffer;
  * @author Sly Technologies, Inc.
  * @param <T>
  *          user object type
+ * @deprecated replaced by ByteBufferHandler
+ * @see ByteBufferHandler
  */
 public interface PcapHandler<T> {
 

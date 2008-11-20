@@ -1,6 +1,8 @@
 package org.jnetpcap;
 import java.nio.ByteBuffer;
 
+import org.jnetpcap.nio.JBuffer;
+
 /**
  * Copyright (C) 2007 Sly Technologies, Inc. This library is free software; you
  * can redistribute it and/or modify it under the terms of the GNU Lesser
@@ -21,6 +23,9 @@ import java.nio.ByteBuffer;
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
+ * @deprecated replaced by JBuffer
+ * 
+ * @see JBuffer
  */
 public class PcapPktBuffer {
 	private volatile ByteBuffer buffer;

@@ -253,7 +253,7 @@ public class TestPcapBetaJNI
 	public void testDispatchNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
-			pcap.dispatch(1, null, "");
+			pcap.dispatch(1, (ByteBufferHandler<String>)null, "");
 			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
@@ -353,7 +353,7 @@ public class TestPcapBetaJNI
 
 	public void testFindAllDevsNullPtrHandling() {
 		try {
-			Pcap.findAllDevs(null, (StringBuffer) null);
+			Pcap.findAllDevs(null, null);
 			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
@@ -362,7 +362,7 @@ public class TestPcapBetaJNI
 
 	public void testFreeAllDevsNullPtrHandling() {
 		try {
-			Pcap.freeAllDevs(null, null);
+			Pcap.freeAllDevs(null, (StringBuilder) null);
 			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
@@ -381,7 +381,7 @@ public class TestPcapBetaJNI
 	public void testGetNonBlockNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
-			pcap.getNonBlock((StringBuffer) null);
+			pcap.getNonBlock(null);
 			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
@@ -397,7 +397,7 @@ public class TestPcapBetaJNI
 	public void testLoopNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
-			pcap.loop(1, null, null);
+			pcap.loop(1, (ByteBufferHandler<String>)null, null);
 			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
@@ -409,7 +409,7 @@ public class TestPcapBetaJNI
 	public void testNextExNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
-			pcap.nextEx(null, null);
+			pcap.nextEx((PcapHeader) null, null);
 			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
@@ -421,7 +421,7 @@ public class TestPcapBetaJNI
 	public void testNextNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
-			pcap.next(null);
+			pcap.next((PcapHeader) null);
 			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
@@ -613,7 +613,7 @@ public class TestPcapBetaJNI
 
 	public void testPcapOpenLiveNullPtrHandling() {
 		try {
-			Pcap.openLive(null, 1, 1, 1, (StringBuffer) null);
+			Pcap.openLive(null, 1, 1, 1, null);
 			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
@@ -622,7 +622,7 @@ public class TestPcapBetaJNI
 
 	public void testPcapOpenOfflineNullPtrHandling() {
 		try {
-			Pcap.openOffline(null, (StringBuffer) null);
+			Pcap.openOffline(null, null);
 			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
@@ -653,7 +653,7 @@ public class TestPcapBetaJNI
 	public void testSetNonBlockNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
-			pcap.setNonBlock(1, (StringBuffer) null);
+			pcap.setNonBlock(1, null);
 			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK

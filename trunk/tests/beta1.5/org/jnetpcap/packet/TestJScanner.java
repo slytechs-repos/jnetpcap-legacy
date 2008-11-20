@@ -17,8 +17,9 @@ import java.nio.ByteBuffer;
 
 import junit.framework.TestCase;
 
+import org.jnetpcap.ByteBufferHandler;
 import org.jnetpcap.Pcap;
-import org.jnetpcap.PcapHandler;
+import org.jnetpcap.PcapHeader;
 import org.jnetpcap.PcapPacket;
 import org.jnetpcap.packet.JBinding.DefaultJBinding;
 import org.jnetpcap.packet.format.TextFormatter;
@@ -59,7 +60,6 @@ public class TestJScanner
 		assertTrue("sizeof=" + JScanner.sizeof(), JScanner.sizeof() > 0
 		    && JScanner.sizeof() < 100000);
 	}
-
 
 	public void _testScanOnePacket() throws IOException {
 		JPacket packet = new PcapPacket(64);
@@ -115,7 +115,8 @@ public class TestJScanner
 	}
 
 	public void testScanFile() throws IOException {
-		final Pcap pcap = Pcap.openOffline("tests/test-l2tp.pcap", System.err);
+		StringBuilder errbuf = new StringBuilder();
+		final Pcap pcap = Pcap.openOffline("tests/test-l2tp.pcap", errbuf);
 
 		final JPacket packet = new PcapPacket();
 		final JScanner scanner = new JScanner();
@@ -123,11 +124,10 @@ public class TestJScanner
 		long start = System.currentTimeMillis();
 		final TextFormatter out = new TextFormatter();
 
-		pcap.loop(Pcap.LOOP_INFINATE, new PcapHandler<String>() {
+		pcap.loop(Pcap.LOOP_INFINATE, new ByteBufferHandler<String>() {
 			int i = 0;
 
-			public void nextPacket(String user, long seconds, int useconds,
-			    int caplen, int len, ByteBuffer buffer) {
+			public void nextPacket(String user, PcapHeader header, ByteBuffer buffer) {
 
 				if (i == 200) {
 					pcap.breakloop();
@@ -139,14 +139,14 @@ public class TestJScanner
 				packet.peer(buffer);
 
 				scanner.scan(packet, JProtocol.ETHERNET_ID);
-//				try {
-					out.setFrameIndex(i++);
-//					out.format(packet);
-					System.out.println(packet.toString());
-//				} catch (IOException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
+				// try {
+				out.setFrameIndex(i++);
+				// out.format(packet);
+				System.out.println(packet.toString());
+				// } catch (IOException e) {
+				// // TODO Auto-generated catch block
+				// e.printStackTrace();
+				// }
 			}
 
 		}, "");

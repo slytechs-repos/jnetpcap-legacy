@@ -57,15 +57,13 @@ public class TestJRegistry
 
 	};
 
-	private JRegistry registry;
-
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
-		registry = new JRegistry();
+		new JRegistry();
 	}
 
 	/*
@@ -74,7 +72,6 @@ public class TestJRegistry
 	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
-		registry = null;
 	}
 
 	public void testCoreProtocolRegistrationByJProtocol() throws UnregisteredHeaderException {

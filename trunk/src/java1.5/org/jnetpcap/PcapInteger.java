@@ -12,6 +12,8 @@
  */
 package org.jnetpcap;
 
+import org.jnetpcap.nio.JNumber;
+
 /**
  * An 32-bit integer reference that can be used to pass into pcap methods that
  * require an integer pointer to be set as a return value. The object is not
@@ -19,6 +21,8 @@ package org.jnetpcap;
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
+ * @deprecated replaced by JNumber
+ * @see JNumber
  */
 public final class PcapInteger {
 

@@ -45,7 +45,8 @@ public class TestPcapUtils
 
 	public void testGetMacAddresses() throws IOException {
 		List<PcapIf> alldevs = new ArrayList<PcapIf>();
-		Pcap.findAllDevs(alldevs, System.out);
+		StringBuilder errbuf = new StringBuilder();
+		Pcap.findAllDevs(alldevs, errbuf);
 
 		for (PcapIf device : alldevs) {
 			byte[] mac = PcapUtils.getHardwareAddress(device);
