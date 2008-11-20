@@ -15,6 +15,7 @@ package org.jnetpcap.packet;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import org.jnetpcap.JCaptureHeader;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemoryPool;
 import org.jnetpcap.nio.JStruct;

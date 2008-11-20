@@ -12,7 +12,6 @@
  */
 package org.jnetpcap;
 
-import org.jnetpcap.packet.JCaptureHeader;
 
 /**
  * <pre>
