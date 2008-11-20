@@ -15,14 +15,6 @@ package org.jnetpcap;
 import java.io.IOException;
 import java.util.List;
 
-import org.jnetpcap.ms.MSIpAdapterIndexMap;
-import org.jnetpcap.ms.MSIpHelper;
-import org.jnetpcap.ms.MSIpInterfaceInfo;
-import org.jnetpcap.ms.MSMibIfRow;
-import org.jnetpcap.nio.JNumber;
-import org.jnetpcap.unix.UnixOs;
-import org.jnetpcap.unix.UnixOs.IfReq;
-
 /**
  * A Pcap utility class which provides certain additional and convenience
  * methods.
