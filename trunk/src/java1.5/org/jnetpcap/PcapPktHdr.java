@@ -20,6 +20,8 @@ package org.jnetpcap;
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
+ * @deprecated replaced by PcapHeader
+ * @see PcapHeader
  */
 public class PcapPktHdr {
 

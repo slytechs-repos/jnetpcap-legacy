@@ -18,8 +18,9 @@ import java.nio.ByteBuffer;
 
 import junit.framework.TestCase;
 
+import org.jnetpcap.ByteBufferHandler;
 import org.jnetpcap.Pcap;
-import org.jnetpcap.PcapHandler;
+import org.jnetpcap.PcapHeader;
 import org.jnetpcap.PcapPacket;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JProtocol;
@@ -81,18 +82,18 @@ public class TestFormatter
 
 	public void dumpToFormatter(final JFormatter formatter, String file) throws IOException {
 
-		final Pcap pcap = Pcap.openOffline(file, System.err);
+		StringBuilder errbuf = new StringBuilder();
+		final Pcap pcap = Pcap.openOffline(file, errbuf );
 
 		final JPacket packet = new PcapPacket();
 		final JScanner scanner = new JScanner();
 
 		// long start = System.currentTimeMillis();
 
-		pcap.loop(Pcap.LOOP_INFINATE, new PcapHandler<String>() {
+		pcap.loop(Pcap.LOOP_INFINATE, new ByteBufferHandler<String>() {
 			int i = 0;
 
-			public void nextPacket(String user, long seconds, int useconds,
-			    int caplen, int len, ByteBuffer buffer) {
+			public void nextPacket(String user, PcapHeader header, ByteBuffer buffer) {
 
 				if (i < 157) {
 					i++;

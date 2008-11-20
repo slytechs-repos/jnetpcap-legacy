@@ -16,9 +16,9 @@ import java.nio.ByteBuffer;
 
 import junit.framework.TestCase;
 
+import org.jnetpcap.ByteBufferHandler;
 import org.jnetpcap.JBufferHandler;
 import org.jnetpcap.PcapBeta;
-import org.jnetpcap.PcapHandler;
 import org.jnetpcap.PcapHeader;
 import org.jnetpcap.PcapPacket;
 import org.jnetpcap.nio.JBuffer;
@@ -31,8 +31,8 @@ import org.jnetpcap.packet.header.Ip6;
  * @author Sly Technologies, Inc.
  */
 public class JHandlerTest
-    extends TestCase implements PcapHandler<String>, JBufferHandler<String>,
-    JPacketHandler<String> {
+    extends TestCase implements ByteBufferHandler<String>,
+    JBufferHandler<String>, JPacketHandler<String> {
 
 	private Ethernet ethernet = new Ethernet();
 
@@ -41,35 +41,34 @@ public class JHandlerTest
 	private Ip6 ip6 = new Ip6();
 
 	private JPacket packet = new PcapPacket();
-	
+
 	private JScanner scanner = new JScanner();
-	
+
 	private PcapBeta pcap;
-	
-	@Override
-  protected void setUp() throws Exception {
-  }
 
 	@Override
-  protected void tearDown() throws Exception {
-  }
+	protected void setUp() throws Exception {
+	}
+
+	@Override
+	protected void tearDown() throws Exception {
+	}
 
 	public void testJScannerHandler() {
-		
-		pcap.dispatch(2, (JPacketHandler<String>)this, "JPacket - testcase");
+
+		pcap.dispatch(2, (JPacketHandler<String>) this, "JPacket - testcase");
 	}
-	
+
 	public void testJHandler() {
-		
+
 		pcap.dispatch(2, (JBufferHandler<String>) this, "JBuffer - testcase");
 	}
-	
+
 	public void testPcapHandler() {
-		
-		pcap.dispatch(2, (PcapHandler<String>) this, "Pcap handler - testcase");
+
+		pcap.dispatch(2, (ByteBufferHandler<String>) this,
+		    "Pcap handler - testcase");
 	}
-
-
 
 	/**
 	 * 
@@ -119,8 +118,7 @@ public class JHandlerTest
 	 * @see org.jnetpcap.PcapHandler#nextPacket(java.lang.Object, long, int, int,
 	 *      int, java.nio.ByteBuffer)
 	 */
-	public void nextPacket(String user, long seconds, int useconds, int caplen,
-	    int len, ByteBuffer bytebuffer) {
+	public void nextPacket(String user, PcapHeader header, ByteBuffer bytebuffer) {
 
 		packet.peerData(bytebuffer);
 		scanner.scan(packet, Ethernet.ID);
