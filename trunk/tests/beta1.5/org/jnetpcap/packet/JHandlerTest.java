@@ -17,7 +17,6 @@ import java.nio.ByteBuffer;
 import junit.framework.TestCase;
 
 import org.jnetpcap.JBufferHandler;
-import org.jnetpcap.JPacketHandler;
 import org.jnetpcap.PcapBeta;
 import org.jnetpcap.PcapHandler;
 import org.jnetpcap.PcapHeader;
