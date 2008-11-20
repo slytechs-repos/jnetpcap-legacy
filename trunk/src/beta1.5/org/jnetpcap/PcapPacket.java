@@ -22,7 +22,6 @@ import java.nio.ByteBuffer;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemoryPool;
 import org.jnetpcap.nio.JStruct;
-import org.jnetpcap.packet.JCaptureHeader;
 import org.jnetpcap.packet.JPacket;
 
 /**
