@@ -348,4 +348,9 @@ public class FormatUtils {
   	return (s);
   }
 
+	/**
+   * Temp buffer for handling ip6 address compression
+   */
+  private final static byte[] ip6_buf = new byte[16];
+
 }

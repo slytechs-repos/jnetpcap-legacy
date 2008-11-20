@@ -14,6 +14,8 @@ package org.jnetpcap;
 
 import java.nio.ByteBuffer;
 
+import org.jnetpcap.nio.JBuffer;
+
 /**
  * Class peered with native <code>pcap_dumper</code> structure. A dumper that
  * allows a previously opened pcap session to be dumped to a "savefile" which is
@@ -40,12 +42,42 @@ public class PcapDumper {
 	 * loop().
 	 * 
 	 * @param hdr
+	 *          pcap capture header
 	 * @param packet
+	 *          packet buffer
+	 * @deprecated use of PcapPktHdr has been replaced by PcapHeader
+	 * @see PcapHeader
 	 */
 	public void dump(PcapPktHdr hdr, ByteBuffer packet) {
 		dump(hdr.getSeconds(), hdr.getUseconds(), hdr.getCaplen(), hdr.getLen(),
 		    packet);
 	}
+
+	/**
+	 * Outputs a packet to the "savefile" opened with <code>dumpOpen</code>.
+	 * Note that the calling arguments are suitable for use with dipstach() or
+	 * loop().
+	 * 
+	 * @param hdr
+	 *          pcap capture header
+	 * @param packet
+	 *          packet buffer
+	 * @since 1.2
+	 */
+	public native void dump(PcapHeader hdr, ByteBuffer packet);
+
+	/**
+	 * Outputs a packet to the "savefile" opened with <code>dumpOpen</code>.
+	 * Note that the calling arguments are suitable for use with dipstach() or
+	 * loop().
+	 * 
+	 * @param hdr
+	 *          pcap capture header
+	 * @param packet
+	 *          packet buffer
+	 * @since 1.2
+	 */
+	public native void dump(PcapHeader hdr, JBuffer packet);
 
 	/**
 	 * Outputs a packet to the "savefile" opened with <code>dumpOpen</code>.

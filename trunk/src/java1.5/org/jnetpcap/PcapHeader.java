@@ -37,13 +37,13 @@ public class PcapHeader
 		super(STRUCT_NAME);
 	}
 
-	private native long hdr_sec();
+	public native long hdr_sec();
 
-	private native int hdr_usec();
+	public native int hdr_usec();
 
-	private native int hdr_len();
+	public native int hdr_len();
 
-	private native int hdr_wirelen();
+	public native int hdr_wirelen();
 
 	/*
 	 * (non-Javadoc)
