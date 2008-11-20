@@ -113,7 +113,7 @@ public abstract class JFormatter {
 
 	private Detail[] detailsPerHeader = new Detail[JRegistry.MAX_ID_COUNT];
 
-	protected int frameIndex;
+	protected int frameIndex = -1;
 
 	private JHeaderPool headers = new JHeaderPool();
 
@@ -122,6 +122,8 @@ public abstract class JFormatter {
 	protected Formatter out = new Formatter(System.out);
 
 	private Stack<String> padStack = new Stack<String>();
+
+	private StringBuilder outputBuffer;
 
 	/**
 	 * 
@@ -364,6 +366,12 @@ public abstract class JFormatter {
 	 */
 	public void setOutput(Appendable out) {
 		this.out = new Formatter(out);
+		this.outputBuffer = null;
+	}
+	
+	public void setOutput(StringBuilder out) {
+		this.outputBuffer = out;
+		this.out = new Formatter(out);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -486,5 +494,18 @@ public abstract class JFormatter {
 				return value.toString();
 		}
 	}
+	
+	public String toString() {
+		return this.out.toString();
+	}
+
+	/**
+   * 
+   */
+  public void reset() {
+	  if (outputBuffer != null) {
+	  	outputBuffer.setLength(0);
+	  }
+  }
 
 }

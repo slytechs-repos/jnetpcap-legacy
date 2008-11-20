@@ -12,7 +12,6 @@
  */
 package org.jnetpcap;
 
-import org.jnetpcap.nio.JStruct;
 import org.jnetpcap.packet.JCaptureHeader;
 
 /**
@@ -28,34 +27,32 @@ import org.jnetpcap.packet.JCaptureHeader;
  * @author Sly Technologies, Inc.
  */
 public class PcapHeader
-    extends JStruct implements JCaptureHeader {
+    extends JCaptureHeader {
 
-	public static final String STRUCT_NAME = "pkt_header";
+	public static final String STRUCT_NAME = "pcap_pkthdr";
 
 	/**
 	 * 
 	 */
-  public PcapHeader() {
-	  super(STRUCT_NAME);
-  }
+	public PcapHeader() {
+		super(STRUCT_NAME);
+	}
 
+	private native long hdr_sec();
 
-	public native long sec();
+	private native int hdr_usec();
 
-	public native int usec();
+	private native int hdr_len();
 
-	public native int len();
-
-	public native int wirelen();
-
+	private native int hdr_wirelen();
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.jnetpcap.packet.JCaptureHeader#fullLength()
 	 */
-	public int fullLength() {
-		return wirelen();
+	public int wirelen() {
+		return hdr_wirelen();
 	}
 
 	/*
@@ -64,7 +61,7 @@ public class PcapHeader
 	 * @see org.jnetpcap.packet.JCaptureHeader#nanos()
 	 */
 	public long nanos() {
-		return usec() * 1000;
+		return hdr_usec() * 1000;
 	}
 
 	/*
@@ -72,15 +69,31 @@ public class PcapHeader
 	 * 
 	 * @see org.jnetpcap.packet.JCaptureHeader#truncatedLength()
 	 */
-	public int truncatedLength() {
-		return len();
+	public int caplen() {
+		return hdr_len();
 	}
 
-	/* (non-Javadoc)
-   * @see org.jnetpcap.packet.JCaptureHeader#seconds()
-   */
-  public long seconds() {
-	  return sec();
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jnetpcap.packet.JCaptureHeader#seconds()
+	 */
+	public long seconds() {
+		return hdr_sec();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jnetpcap.packet.JCaptureHeader#transferTo(org.jnetpcap.packet.JCaptureHeader)
+	 */
+	@Override
+	public <T extends JCaptureHeader> int transferTo(T hdr) {
+		if (hdr.getStructName() == STRUCT_NAME) {
+			return peer(hdr);
+		} else {
+			throw new IllegalArgumentException("Can not peer non PcapHeader objects");
+		}
+	}
 
 }

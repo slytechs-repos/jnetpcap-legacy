@@ -32,6 +32,19 @@ public class TextFormatter
 	 */
 	final Formatter uf = new Formatter();
 
+	/**
+   * @param out
+   */
+  public TextFormatter(StringBuilder out) {
+  	setOutput(out);
+  }
+
+	/**
+   * 
+   */
+  public TextFormatter() {
+  }
+
 	protected void fieldAfter(JHeader header, JField field, Detail detail)
 	    throws IOException {
 

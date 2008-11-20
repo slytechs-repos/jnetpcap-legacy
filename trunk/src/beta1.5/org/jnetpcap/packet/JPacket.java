@@ -12,6 +12,7 @@
  */
 package org.jnetpcap.packet;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.jnetpcap.nio.JBuffer;
@@ -19,12 +20,13 @@ import org.jnetpcap.nio.JMemoryPool;
 import org.jnetpcap.nio.JStruct;
 import org.jnetpcap.nio.JMemoryPool.Block;
 import org.jnetpcap.packet.format.JFormatter;
+import org.jnetpcap.packet.format.TextFormatter;
 
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class JPacket
+public abstract class JPacket
     extends JBuffer {
 
 	/**
@@ -102,7 +104,7 @@ public class JPacket
 		public State(int size) {
 			super(STRUCT_NAME, size);
 		}
-		
+
 		public void cleanup() {
 			super.cleanup();
 		}
@@ -118,7 +120,7 @@ public class JPacket
 		public native int getHeaderCount();
 
 		public native int getHeaderIdByIndex(int index);
-		
+
 		public native int getInstanceCount(int id);
 
 		public int peer(ByteBuffer peer) {
@@ -178,6 +180,8 @@ public class JPacket
 	}
 
 	private final State state;
+
+	private static JFormatter out = new TextFormatter(new StringBuilder());
 	
 	/**
 	 * A JPacket pointer. This is a pointer type constructor that does not
@@ -358,6 +362,8 @@ public class JPacket
 		offset = block.allocate(size);
 		this.peer(block, offset, size);
 	}
+	
+	public abstract JCaptureHeader getCaptureHeader();
 
 	/**
 	 * @param <T>
@@ -386,7 +392,6 @@ public class JPacket
 	}
 
 	/**
-	 * 
 	 * @param <T>
 	 * @param index
 	 * @param header
@@ -408,7 +413,6 @@ public class JPacket
 	}
 
 	/**
-	 * 
 	 * @return
 	 */
 	public int getHeaderCount() {
@@ -416,18 +420,17 @@ public class JPacket
 	}
 
 	/**
-   * @param index
-   * @return
-   */
-  public int getHeaderIdByIndex(int index) {
-	  return this.state.getHeaderIdByIndex(index);
-  }
+	 * @param index
+	 * @return
+	 */
+	public int getHeaderIdByIndex(int index) {
+		return this.state.getHeaderIdByIndex(index);
+	}
 
-  /**
-   * 
-   * @param id
-   * @return
-   */
+	/**
+	 * @param id
+	 * @return
+	 */
 	public int getHeaderInstanceCount(int id) {
 		return this.state.getInstanceCount(id);
 	}
@@ -438,12 +441,11 @@ public class JPacket
 	public State getState() {
 		return state;
 	}
-	
+
 	public boolean hasHeader(int id) {
 		return hasHeader(id, 0);
 	}
 
-	
 	public boolean hasHeader(int id, int instance) {
 		check();
 
@@ -451,10 +453,9 @@ public class JPacket
 		if (index == -1) {
 			return false;
 		}
-		
+
 		return true;
 	}
-
 
 	/**
 	 * @param <T>
@@ -536,6 +537,8 @@ public class JPacket
 	public void peerStateAndData(JPacket packet) {
 		super.peer(packet);
 		state.peer(packet.state);
+		
+		getCaptureHeader().transferTo(packet.getCaptureHeader());
 	}
 
 	/**
@@ -562,14 +565,6 @@ public class JPacket
 		final int remaining = size() - offset;
 
 		return (remaining >= length) ? length : remaining;
-	}
-
-	public String toString() {
-		final StringBuilder out = new StringBuilder();
-		
-		JFormatter.getDefault().format(out, this);
-		
-		return out.toString();
 	}
 
 	public int transferDataTo(ByteBuffer dst) {
@@ -655,8 +650,19 @@ public class JPacket
 	public int transferStateTo(JBuffer dst, int dstOffset) {
 		return state.transferTo(dst, 0, state.size(), dstOffset);
 	}
-	
+
 	public int transferStateTo(JPacket dst) {
 		return state.transferTo(dst.state);
+	}
+
+	public String toString() {
+		out.reset();
+		try {
+			out.format(this);
+			return out.toString();
+		} catch (IOException e) {
+			throw new IllegalStateException(
+			    "internal error, StringBuilder threw IOException");
+		}
 	}
 }
