@@ -21,6 +21,7 @@ import org.jnetpcap.JPacketHandler;
 import org.jnetpcap.PcapBeta;
 import org.jnetpcap.PcapHandler;
 import org.jnetpcap.PcapHeader;
+import org.jnetpcap.PcapPacket;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.header.Ethernet;
 import org.jnetpcap.packet.header.Ip4;
@@ -40,7 +41,7 @@ public class JHandlerTest
 
 	private Ip6 ip6 = new Ip6();
 
-	private JPacket packet = new JPacket();
+	private JPacket packet = new PcapPacket();
 	
 	private JScanner scanner = new JScanner();
 	

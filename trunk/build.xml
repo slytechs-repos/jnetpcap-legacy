@@ -453,6 +453,7 @@
 			/-->
 			
 			<class name="org.jnetpcap.PcapUtils" />
+			<class name="org.jnetpcap.PcapHeader" />
 			
 			<class name="org.jnetpcap.nio.JMemory" />
 			<class name="org.jnetpcap.nio.JNumber" />

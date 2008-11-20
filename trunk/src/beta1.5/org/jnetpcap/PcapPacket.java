@@ -21,6 +21,8 @@ import java.nio.ByteBuffer;
 
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemoryPool;
+import org.jnetpcap.nio.JStruct;
+import org.jnetpcap.packet.JCaptureHeader;
 import org.jnetpcap.packet.JPacket;
 
 /**
@@ -30,6 +32,8 @@ import org.jnetpcap.packet.JPacket;
  */
 public class PcapPacket
     extends JPacket {
+	
+	private PcapHeader captureHeader;
 
 	/**
 	 * 
@@ -73,4 +77,18 @@ public class PcapPacket
 		super(src, pool);
 	}
 
+	/* (non-Javadoc)
+   * @see org.jnetpcap.packet.JPacket#getCaptureHeader()
+   */
+  @Override
+  public JCaptureHeader getCaptureHeader() {
+	  return captureHeader;
+  }
+
+	/**
+   * @param captureHeader the captureHeader to set
+   */
+  public final void setCaptureHeader(PcapHeader captureHeader) {
+  	this.captureHeader = captureHeader;
+  }
 }

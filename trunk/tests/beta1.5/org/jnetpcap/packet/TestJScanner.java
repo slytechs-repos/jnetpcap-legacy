@@ -19,11 +19,11 @@ import junit.framework.TestCase;
 
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapHandler;
+import org.jnetpcap.PcapPacket;
 import org.jnetpcap.packet.JBinding.DefaultJBinding;
 import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.packet.header.Ethernet;
 import org.jnetpcap.packet.header.Ip4;
-import org.jnetpcap.packet.header.Ip6;
 
 /**
  * @author Mark Bednarczyk
@@ -62,7 +62,7 @@ public class TestJScanner
 
 
 	public void _testScanOnePacket() throws IOException {
-		JPacket packet = new JPacket(64);
+		JPacket packet = new PcapPacket(64);
 		packet.setByteArray(0, new byte[] {
 		    (byte) 0xa0,
 		    (byte) 0xa1,
@@ -89,7 +89,7 @@ public class TestJScanner
 	}
 
 	public void testInstallJBinding() throws IOException {
-		JPacket packet = new JPacket(64);
+		JPacket packet = new PcapPacket(64);
 		packet.setByteArray(0, VariousInMemoryPackets.PACKET_1);
 
 		JBinding bindEthernet =
@@ -117,7 +117,7 @@ public class TestJScanner
 	public void testScanFile() throws IOException {
 		final Pcap pcap = Pcap.openOffline("tests/test-l2tp.pcap", System.err);
 
-		final JPacket packet = new JPacket();
+		final JPacket packet = new PcapPacket();
 		final JScanner scanner = new JScanner();
 
 		long start = System.currentTimeMillis();
@@ -139,13 +139,14 @@ public class TestJScanner
 				packet.peer(buffer);
 
 				scanner.scan(packet, JProtocol.ETHERNET_ID);
-				try {
+//				try {
 					out.setFrameIndex(i++);
-					out.format(packet);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+//					out.format(packet);
+					System.out.println(packet.toString());
+//				} catch (IOException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
 			}
 
 		}, "");

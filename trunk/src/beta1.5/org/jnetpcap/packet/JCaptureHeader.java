@@ -12,6 +12,11 @@
  */
 package org.jnetpcap.packet;
 
+import java.nio.ByteBuffer;
+
+import org.jnetpcap.nio.JMemory;
+import org.jnetpcap.nio.JStruct;
+
 /**
  * Interface to to capture header provided by the capturing library. For example
  * <code>PcapHeader</code>, the capture header provided by libpcap,
@@ -21,7 +26,38 @@ package org.jnetpcap.packet;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public interface JCaptureHeader {
+public abstract class JCaptureHeader extends JStruct {
+
+	/**
+   * @param structName
+   * @param peer
+   */
+  public JCaptureHeader(String structName, ByteBuffer peer) {
+	  super(structName, peer);
+  }
+
+	/**
+   * @param structName
+   * @param size
+   */
+  public JCaptureHeader(String structName, int size) {
+	  super(structName, size);
+  }
+
+	/**
+   * @param structName
+   * @param peer
+   */
+  public JCaptureHeader(String structName, JMemory peer) {
+	  super(structName, peer);
+  }
+
+	/**
+   * @param structName
+   */
+  public JCaptureHeader(String structName) {
+	  super(structName);
+  }
 
 	/**
 	 * Retrieves the length of the packet that was actually captured. This could
@@ -31,7 +67,7 @@ public interface JCaptureHeader {
 	 * 
 	 * @return length in bytes
 	 */
-	public int truncatedLength();
+	public abstract int caplen();
 
 	/**
 	 * Retrieves the length of the packet before any of it was truncated by the
@@ -40,14 +76,14 @@ public interface JCaptureHeader {
 	 * 
 	 * @return length in bytes
 	 */
-	public int fullLength();
+	public abstract int wirelen();
 
 	/**
 	 * Capture timestamp in UNIX seconds
 	 * 
 	 * @return timestamp in seconds since 1970
 	 */
-	public long seconds();
+	public abstract long seconds();
 
 	/**
 	 * Fractional part of the second when the packet was captured. If the
@@ -59,5 +95,7 @@ public interface JCaptureHeader {
 	 * @return Number of nano seconds at the time of the packet capture. The valid
 	 *         value returned by this method is from 0 to 999,999,999.
 	 */
-	public long nanos();
+	public abstract long nanos();
+	
+	public abstract <T extends JCaptureHeader> int transferTo(T hdr);
 }

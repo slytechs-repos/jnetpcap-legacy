@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapHandler;
+import org.jnetpcap.PcapPacket;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.JScanner;
@@ -82,7 +83,7 @@ public class TestFormatter
 
 		final Pcap pcap = Pcap.openOffline(file, System.err);
 
-		final JPacket packet = new JPacket();
+		final JPacket packet = new PcapPacket();
 		final JScanner scanner = new JScanner();
 
 		// long start = System.currentTimeMillis();
