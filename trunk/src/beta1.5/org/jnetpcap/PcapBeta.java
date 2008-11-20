@@ -15,6 +15,7 @@ package org.jnetpcap;
 import java.io.IOException;
 
 import org.jnetpcap.nio.JNumber;
+import org.jnetpcap.packet.JPacketHandler;
 import org.jnetpcap.packet.JScanner;
 
 /**
