@@ -17,10 +17,13 @@ import java.nio.ByteBuffer;
 
 import junit.framework.TestCase;
 
+import org.jnetpcap.BetaFeature;
 import org.jnetpcap.ByteBufferHandler;
+import org.jnetpcap.JBufferHandler;
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapHeader;
 import org.jnetpcap.PcapPacket;
+import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JBinding.DefaultJBinding;
 import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.packet.header.Ethernet;
@@ -114,7 +117,7 @@ public class TestJScanner
 		out.format(packet);
 	}
 
-	public void testScanFile() throws IOException {
+	public void _testScanFileBBHandler() throws IOException {
 		StringBuilder errbuf = new StringBuilder();
 		final Pcap pcap = Pcap.openOffline("tests/test-l2tp.pcap", errbuf);
 
@@ -127,7 +130,7 @@ public class TestJScanner
 		pcap.loop(Pcap.LOOP_INFINATE, new ByteBufferHandler<String>() {
 			int i = 0;
 
-			public void nextPacket(String user, PcapHeader header, ByteBuffer buffer) {
+			public void nextPacket(PcapHeader header, ByteBuffer buffer, String user) {
 
 				if (i == 200) {
 					pcap.breakloop();
@@ -154,6 +157,83 @@ public class TestJScanner
 		long end = System.currentTimeMillis();
 
 		System.out.printf("time=%d ms\n", (end - start));
+
+		pcap.close();
+	}
+
+	public void testScanFileJBHandler() throws IOException {
+		StringBuilder errbuf = new StringBuilder();
+		final Pcap pcap = Pcap.openOffline("tests/test-l2tp.pcap", errbuf);
+
+		final JPacket packet = new PcapPacket();
+		final JScanner scanner = new JScanner();
+
+		long start = System.currentTimeMillis();
+		final TextFormatter out = new TextFormatter();
+
+		pcap.loop(Pcap.LOOP_INFINATE, new JBufferHandler<String>() {
+			int i = 0;
+
+			public void nextPacket(PcapHeader header, JBuffer buffer, String user) {
+
+				if (i == 200) {
+					pcap.breakloop();
+					return;
+				}
+
+				System.out.println("\nPacket #" + i);
+
+				packet.peer(buffer);
+
+				scanner.scan(packet, JProtocol.ETHERNET_ID);
+				// try {
+				out.setFrameIndex(i++);
+				// out.format(packet);
+				System.out.println(packet.toString());
+				// } catch (IOException e) {
+				// // TODO Auto-generated catch block
+				// e.printStackTrace();
+				// }
+			}
+
+		}, "");
+
+		long end = System.currentTimeMillis();
+
+		System.out.printf("time=%d ms\n", (end - start));
+
+		pcap.close();
+	}
+
+	public void testScanFileJPHandler() throws IOException {
+		StringBuilder errbuf = new StringBuilder();
+		final Pcap pcap = Pcap.openOffline("tests/test-vlan.pcap", errbuf);
+
+		// long start = System.currentTimeMillis();
+		final TextFormatter out = new TextFormatter();
+		@SuppressWarnings("unused")
+		final JScanner scanner = new JScanner();
+
+		BetaFeature.loop(pcap, Pcap.LOOP_INFINATE, JProtocol.ETHERNET_ID,
+		    new JPacketHandler<String>() {
+			    int i = 0;
+
+			    public void nextPacket(JPacket packet, String user) {
+
+				    // scanner.scan(packet, JProtocol.ETHERNET_ID);
+				    try {
+					    out.setFrameIndex(i++);
+					    out.format(packet);
+				    } catch (IOException e) {
+					    e.printStackTrace();
+				    }
+			    }
+
+		    }, "");
+
+		// long end = System.currentTimeMillis();
+
+		// System.out.printf("time=%d ms\n", (end - start));
 
 		pcap.close();
 	}

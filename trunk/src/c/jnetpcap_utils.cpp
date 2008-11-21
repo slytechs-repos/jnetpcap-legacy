@@ -33,6 +33,7 @@
 
 #include "jnetpcap_utils.h"
 #include "jnetpcap_bpf.h"
+#include "nio_jmemory.h"
 #include "export.h"
 
 
@@ -128,34 +129,6 @@ jclass findClass(JNIEnv *env, char *name) {
 	return global;
 }
 
-void pcap_callback(u_char *user, const pcap_pkthdr *pkt_header,
-		const u_char *pkt_data) {
-
-	pcap_user_data_t *data = (pcap_user_data_t *)user;
-
-	JNIEnv *env = data->env;
-
-	/**
-	 * Check for pending exceptions
-	 */
-	if (env->ExceptionOccurred()) {
-		return;
-	}
-
-	jobject buffer = env->NewDirectByteBuffer((void *)pkt_data,
-			pkt_header->caplen);
-	if (buffer == NULL) {
-		env->DeleteLocalRef(buffer);
-		return;
-	}
-
-	env->CallNonvirtualVoidMethod(data->obj, data->clazz, data->mid,
-			(jobject) data->user, (jlong) pkt_header->ts.tv_sec,
-			(jint)pkt_header->ts.tv_usec, (jint)pkt_header->caplen,
-			(jint)pkt_header->len, buffer);
-	
-	env->DeleteLocalRef(buffer);
-}
 
 pcap_t *getPcap(JNIEnv *env, jobject obj) {
 	jlong pt = env->GetLongField(obj, pcapPhysicalFID);
@@ -642,3 +615,127 @@ JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_PcapUtils_getHardwareAddress
 	
 	return jba;
 }
+
+/*
+ * Legacy ByteBuffer dispatch function - deprecated.
+ */
+void pcap_callback(u_char *user, const pcap_pkthdr *pkt_header,
+		const u_char *pkt_data) {
+
+	pcap_user_data_t *data = (pcap_user_data_t *)user;
+
+	JNIEnv *env = data->env;
+
+	/**
+	 * Check for pending exceptions
+	 */
+	if (env->ExceptionOccurred()) {
+		return;
+	}
+
+	jobject buffer = env->NewDirectByteBuffer((void *)pkt_data,
+			pkt_header->caplen);
+	if (buffer == NULL) {
+		env->DeleteLocalRef(buffer);
+		return;
+	}
+
+	env->CallNonvirtualVoidMethod(
+			data->obj, 
+			data->clazz, 
+			data->mid,
+			(jobject) data->user, 
+			(jlong) pkt_header->ts.tv_sec,
+			(jint)pkt_header->ts.tv_usec, 
+			(jint)pkt_header->caplen,
+			(jint)pkt_header->len, buffer);
+	
+	env->DeleteLocalRef(buffer);
+}
+
+/**
+ * ByteBuffer dispatcher that allocates a new java.nio.ByteBuffer and dispatches
+ * it to java listener.
+ */
+void cb_byte_buffer_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
+		const u_char *pkt_data) {
+
+	cb_byte_buffer_t *data = (cb_byte_buffer_t *)user;
+
+	JNIEnv *env = data->env;
+	
+	setJMemoryPhysical(env, data->header, toLong((void*)pkt_header));
+
+	jobject buffer = env->NewDirectByteBuffer((void *)pkt_data,
+			pkt_header->caplen);
+	if (buffer == NULL) {
+		return;
+	}
+	
+	env->CallVoidMethod(
+			data->obj, 
+			data->mid, 
+			(jobject) data->header,
+			(jobject) buffer,
+			(jobject) data->user);
+	
+	env->DeleteLocalRef(buffer);
+}
+
+/**
+ * JBuffer dispatcher that dispatches JBuffers, without allocating the buffer
+ */
+void cb_jbuffer_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
+		const u_char *pkt_data) {
+
+	cb_jbuffer_t *data = (cb_jbuffer_t *)user;
+
+	JNIEnv *env = data->env;
+	
+	setJMemoryPhysical(env, data->header, toLong((void*)pkt_header));
+	setJMemoryPhysical(env, data->buffer, toLong((void*)pkt_data));
+
+	env->SetIntField(data->header, jmemorySizeFID, (jsize) sizeof(pcap_pkthdr));
+	env->SetIntField(data->buffer, jmemorySizeFID, (jsize) pkt_header->caplen);
+	
+	env->CallVoidMethod(
+			data->obj, 
+			data->mid, 
+			data->header, 
+			data->buffer,
+			data->user);
+}
+
+/**
+ * JPacket dispatcher that dispatches decoded java packets
+ */
+void cb_jpacket_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
+		const u_char *pkt_data) {
+
+	cb_jpacket_t *data = (cb_jpacket_t *)user;
+
+	JNIEnv *env = data->env;
+	
+	setJMemoryPhysical(env, data->header, toLong((void*)pkt_header));
+	setJMemoryPhysical(env, data->packet, toLong((void*)pkt_data));
+	
+	env->SetIntField(data->header, jmemorySizeFID, (jsize) sizeof(pcap_pkthdr));
+	env->SetIntField(data->packet, jmemorySizeFID, (jsize) pkt_header->caplen);
+
+	if (Java_org_jnetpcap_packet_JScanner_scan(
+			data->env, 
+			data->scanner, 
+			data->packet,
+			data->state,
+			data->id) < 0) {
+		return;
+	}
+
+	env->CallVoidMethod(
+			data->obj,
+			data->mid, 
+			data->packet,
+			data->user);
+}
+
+

@@ -12,6 +12,7 @@
  */
 package org.jnetpcap;
 
+import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JPacketHandler;
 import org.jnetpcap.packet.JScanner;
 
@@ -19,28 +20,32 @@ import org.jnetpcap.packet.JScanner;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class PcapBeta
+public class BetaFeature
     extends Pcap {
 
 	/**
 	 * 
 	 */
-	private PcapBeta() {
+	private BetaFeature() {
 		// Empty
 	}
 
-	public <T> int dispatch(int cnt, JPacketHandler<T> handler, T user) {
-		return dispatch(cnt, handler, user, JScanner.getThreadLocal());
+	public static <T> int dispatch(Pcap pcap, int cnt, int id, JPacketHandler<T> handler, T user) {
+		final PcapPacket packet = new PcapPacket();
+		return dispatch(pcap, cnt, id, handler, user, packet, packet.getState(), packet.getCaptureHeader(),
+		    JScanner.getThreadLocal());
 	}
 
-	public native <T> int dispatch(int cnt, JPacketHandler<T> handler, T user,
-	    JScanner scanner);
+	private static native <T> int dispatch(Pcap pcap, int cnt, int id, JPacketHandler<T> handler, T user,
+	    JPacket packet, JPacket.State state, PcapHeader header, JScanner scanner);
 
-	public <T> int loop(int cnt, JPacketHandler<T> handler, T user) {
-		return loop(cnt, handler, user, JScanner.getThreadLocal());
+	public static <T> int loop(Pcap pcap, int cnt, int id, JPacketHandler<T> handler, T user) {
+		final PcapPacket packet = new PcapPacket();
+		return loop(pcap, cnt, id, handler, user, packet, packet.getState(), packet.getCaptureHeader(), JScanner
+		    .getThreadLocal());
 	}
 
-	public native <T> int loop(int cnt, JPacketHandler<T> handler, T user,
-	    JScanner scanner);
+	private static native <T> int loop(Pcap pcap, int cnt, int id, JPacketHandler<T> handler, T user,
+	    JPacket packet, JPacket.State state, PcapHeader header, JScanner scanner);
 
 }

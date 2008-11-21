@@ -33,7 +33,7 @@
 jclass pcapClass = NULL;
 jclass bufferClass = NULL;
 jclass byteBufferClass = NULL;
-jclass stringBufferClass = NULL;
+jclass stringBuilderClass = NULL;
 jclass pcapIntegerClass = NULL;
 
 jfieldID pcapPhysicalFID = 0;
@@ -65,7 +65,8 @@ JNIEXPORT void JNICALL JNICALL Java_org_jnetpcap_Pcap_initIDs
 
 	pcapClass = (jclass) env->NewGlobalRef(clazz); // This one is easy
 
-	if ( (pcapConstructorMID = env->GetMethodID(clazz, "<init>", "()V")) == NULL) {
+	if ( (pcapConstructorMID = env->GetMethodID(clazz, 
+			"<init>", "()V")) == NULL) {
 		return;
 	}
 
@@ -82,52 +83,54 @@ JNIEXPORT void JNICALL JNICALL Java_org_jnetpcap_Pcap_initIDs
 	}
 	
 	if ( (byteBufferIsDirectMID = env->GetMethodID(byteBufferClass, "isDirect",
-							"()Z")) == NULL) {
+			"()Z")) == NULL) {
 		return;
 	}
 	
 	if ( (bufferGetPositionMID = env->GetMethodID(bufferClass, "position",
-							"()I")) == NULL) {
+			"()I")) == NULL) {
 		return;
 	}
 
 	if ( (bufferGetLimitMID = env->GetMethodID(bufferClass, "limit",
-							"()I")) == NULL) {
+			"()I")) == NULL) {
 		return;
 	}
 	
 	if ( (bufferSetPositionMID = env->GetMethodID(bufferClass, "position",
-							"(I)Ljava/nio/Buffer;")) == NULL) {
+			"(I)Ljava/nio/Buffer;")) == NULL) {
 		return;
 	}
 
 	if ( (bufferSetLimitMID = env->GetMethodID(bufferClass, "limit",
-							"(I)Ljava/nio/Buffer;")) == NULL) {
+			"(I)Ljava/nio/Buffer;")) == NULL) {
 		return;
 	}
 
 
 
-	if ( (stringBufferClass = findClass(env, "java/lang/StringBuffer")) == NULL) {
+	if ( (stringBuilderClass = findClass(env, 
+			"java/lang/StringBuilder")) == NULL) {
 		return;
 	}
 
-	if ( (appendMID = env->GetMethodID(stringBufferClass, "append",
-							"(Ljava/lang/String;)Ljava/lang/StringBuffer;")) == NULL) {
+	if ( (appendMID = env->GetMethodID(stringBuilderClass, "append",
+			"(Ljava/lang/String;)Ljava/lang/StringBuilder;")) == NULL) {
 		return;
 	}
 
-	if ( (setLengthMID = env->GetMethodID(stringBufferClass, "setLength",
-							"(I)V")) == NULL) {
+	if ( (setLengthMID = env->GetMethodID(stringBuilderClass, "setLength",
+			"(I)V")) == NULL) {
 		return;
 	}
 	
-	if ( (pcapIntegerClass = findClass(env, "org/jnetpcap/PcapInteger")) == NULL) {
+	if ( (pcapIntegerClass = findClass(env, 
+			"org/jnetpcap/PcapInteger")) == NULL) {
 		return;
 	}
 	
 	if ( (pcapIntegerValueFID = env->GetFieldID(pcapIntegerClass, "value",
-							"I")) == NULL) {
+			"I")) == NULL) {
 		return;
 	}
 

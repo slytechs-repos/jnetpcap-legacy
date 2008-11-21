@@ -12,7 +12,6 @@
  */
 package org.jnetpcap;
 
-
 /**
  * <pre>
  * struct pkt_header {
@@ -36,6 +35,13 @@ public class PcapHeader
 	public PcapHeader() {
 		super(STRUCT_NAME);
 	}
+
+	/**
+	 * Size of the pcap_pkthdr structure in bytes.
+	 * 
+	 * @return size of structure
+	 */
+	public native static int sizeof();
 
 	public native long hdr_sec();
 
@@ -93,6 +99,10 @@ public class PcapHeader
 		} else {
 			throw new IllegalArgumentException("Can not peer non PcapHeader objects");
 		}
+	}
+	
+	public int peer(PcapHeader header) {
+		return super.peer(header);
 	}
 
 }

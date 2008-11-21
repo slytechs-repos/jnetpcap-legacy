@@ -27,6 +27,6 @@ import org.jnetpcap.PcapHeader;
  */
 public interface JPacketHandler<T> {
 	
-	public void nextPacket(PcapHeader header, JPacket buffer, T user);
+	public void nextPacket(JPacket buffer, T user);
 
 }

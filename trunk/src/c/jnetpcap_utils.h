@@ -10,6 +10,7 @@ extern "C" {
 #include "export.h"
 	
 #include <jni.h>
+#include "packet_jscanner.h"
 
 	
 #define ILLEGAL_STATE_EXCEPTION "java/lang/IllegalStateException"
@@ -69,8 +70,47 @@ typedef struct pcap_user_data_t {
 	
 } pcap_user_data_t;
 
+typedef struct cb_byte_buffer_t {
+	pcap_t *p;
+	jmethodID mid;
+	JNIEnv *env;    // thread
+	jobject obj;    // ByteBufferHandler
+	jobject user;
+	jobject header; // PcapHeader
+};
+
+typedef struct cb_jbuffer_t {
+	pcap_t *p;
+	jmethodID mid;
+	JNIEnv *env;    // thread
+	jobject obj;    // JBufferHandler
+	jobject user;
+	jobject header; // PcapHeader
+	jobject buffer; // JBuffer
+};
+
+typedef struct cb_jpacket_t {
+	pcap_t *p;
+	jmethodID mid;
+	JNIEnv *env;       // thread
+	jobject obj;       // JPacketHandler
+	jobject user;
+	jobject header;    // PcapHeader
+	jobject packet;    // JPacket
+	jobject state;     // JPacket.State
+	jint id;           // Header ID
+	jobject scanner;   // JScanner
+	
+};
+
+
+
 extern "C"
 void pcap_callback(u_char*, const pcap_pkthdr*, const u_char*);
+void cb_byte_buffer_dispatch(u_char*, const pcap_pkthdr*, const u_char*);
+void cb_jbuffer_dispatch(u_char*, const pcap_pkthdr*, const u_char*);
+void cb_jpacket_dispatch(u_char*, const pcap_pkthdr*, const u_char*);
+
 pcap_t *getPcap(JNIEnv *env, jobject obj);
 jmethodID getPcapHandlerMID(JNIEnv *env);
 jfieldID getPcapPhysicalFID(JNIEnv *env, jclass clazz);
