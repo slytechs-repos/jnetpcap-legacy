@@ -393,11 +393,17 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_loadScanners
 				"size of array must be MAX_ID_COUNT size");
 		return;
 	}
+	
+	scanner->sc_bindings = 0;
 
 	for (int i = 0; i < MAX_ID_COUNT; i ++) {
 		jobject loc_ref = env->GetObjectArrayElement(jascanners, (jsize) i);
+		if (loc_ref == NULL) {
+			continue;
+		}
 		
 		scanner->sc_java_header_scanners[i] = env->NewGlobalRef(loc_ref);
+		scanner->sc_bindings |= i;
 		
 		env->DeleteLocalRef(loc_ref);
 	}

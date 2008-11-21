@@ -137,7 +137,10 @@ public class JScanner
 	 * @return
 	 */
 	public static JScanner getThreadLocal() {
-		return localScanners.get();
+		JScanner s = localScanners.get();
+		s.reloadAll();
+		
+		return s;
 	}
 
 	/**
@@ -180,6 +183,7 @@ public class JScanner
 		super(STRUCT_NAME, blocksize + sizeof()); // Allocate memory block in
 		// JMemory
 		init(new JScan());
+		reloadAll();
 	}
 
 	/* (non-Javadoc)
@@ -197,7 +201,7 @@ public class JScanner
 	 * all the JHeaderScanners that are kept as global references need to be
 	 * released.
 	 */
-	public native void cleanup_jscanner();
+	private native void cleanup_jscanner();
 
 	/**
 	 * Initializes the scanner_t structure within the allocated block.
@@ -212,7 +216,7 @@ public class JScanner
 	 * @param id
 	 * @param scanners
 	 */
-	public native void loadScanners(JHeaderScanner[] scanners);
+	private native void loadScanners(JHeaderScanner[] scanners);
 
 	/**
 	 * 
