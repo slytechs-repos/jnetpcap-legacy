@@ -26,7 +26,7 @@
 
 #include "jnetpcap_beta.h"
 #include "jnetpcap_utils.h"
-#include "org_jnetpcap_PcapBeta.h"
+#include "org_jnetpcap_BetaFeature.h"
 #include "export.h"
 
 

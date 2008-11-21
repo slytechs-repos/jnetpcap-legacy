@@ -18,7 +18,7 @@ import junit.framework.TestCase;
 
 import org.jnetpcap.ByteBufferHandler;
 import org.jnetpcap.JBufferHandler;
-import org.jnetpcap.PcapBeta;
+import org.jnetpcap.BetaFeature;
 import org.jnetpcap.PcapHeader;
 import org.jnetpcap.PcapPacket;
 import org.jnetpcap.nio.JBuffer;
@@ -44,7 +44,7 @@ public class JHandlerTest
 
 	private JScanner scanner = new JScanner();
 
-	private PcapBeta pcap;
+	private BetaFeature pcap;
 
 	@Override
 	protected void setUp() throws Exception {
@@ -56,7 +56,8 @@ public class JHandlerTest
 
 	public void testJScannerHandler() {
 
-		pcap.dispatch(2, (JPacketHandler<String>) this, "JPacket - testcase");
+		BetaFeature.dispatch(pcap, 2, JProtocol.ETHERNET_ID,
+		    (JPacketHandler<String>) this, "JPacket - testcase");
 	}
 
 	public void testJHandler() {
@@ -97,7 +98,7 @@ public class JHandlerTest
 	 * @see org.jnetpcap.packet.JScannerHandler#nextPacket(org.jnetpcap.PcapHeader,
 	 *      org.jnetpcap.packet.JPacket, java.lang.Object)
 	 */
-	public void nextPacket(PcapHeader header, JPacket packet, String user) {
+	public void nextPacket(JPacket packet, String user) {
 
 		if (packet.hasHeader(ethernet)) {
 			System.out.println("ethernet.dst=" + ethernet.destination());
@@ -118,7 +119,7 @@ public class JHandlerTest
 	 * @see org.jnetpcap.PcapHandler#nextPacket(java.lang.Object, long, int, int,
 	 *      int, java.nio.ByteBuffer)
 	 */
-	public void nextPacket(String user, PcapHeader header, ByteBuffer bytebuffer) {
+	public void nextPacket(PcapHeader header, ByteBuffer bytebuffer, String user) {
 
 		packet.peerData(bytebuffer);
 		scanner.scan(packet, Ethernet.ID);

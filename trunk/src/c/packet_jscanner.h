@@ -95,6 +95,7 @@ typedef struct scanner_t {
 	int32_t sc_offset; // offset into sc_packets for next packet
 
 	uint32_t sc_flags[MAX_ID_COUNT]; // protocol flags
+	uint64_t sc_bindings;            // java binding map
 	
 	jobject sc_jscan; // Java JScan structure for interacting with java space
 

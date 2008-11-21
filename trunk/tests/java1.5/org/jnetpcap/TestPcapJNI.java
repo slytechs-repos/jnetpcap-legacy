@@ -23,6 +23,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
+import org.jnetpcap.nio.JNumber;
+
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
@@ -251,7 +253,7 @@ public class TestPcapJNI
 	public void testDispatchNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
-			pcap.dispatch(1, (ByteBufferHandler<String>)null, "");
+			pcap.dispatch(1, (ByteBufferHandler<String>) null, "");
 			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
@@ -360,7 +362,7 @@ public class TestPcapJNI
 
 	public void testFreeAllDevsNullPtrHandling() {
 		try {
-			Pcap.freeAllDevs(null, (StringBuilder)null);
+			Pcap.freeAllDevs(null, (StringBuilder) null);
 			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
@@ -395,7 +397,7 @@ public class TestPcapJNI
 	public void testLoopNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
-			pcap.loop(1, (ByteBufferHandler<String>)null, null);
+			pcap.loop(1, (ByteBufferHandler<String>) null, null);
 			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
@@ -419,7 +421,7 @@ public class TestPcapJNI
 	public void testNextNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
-			pcap.next((PcapHeader)null);
+			pcap.next((PcapHeader) null);
 			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
@@ -439,7 +441,7 @@ public class TestPcapJNI
 	public void testOpenLiveAndDatalinkAndClose() throws SocketException,
 	    InterruptedException {
 
-//		System.out.println(System.getProperty("os.name"));
+		// System.out.println(System.getProperty("os.name"));
 		Pcap pcap = Pcap.openLive(device, 101, 1, 60, errbuf);
 		assertNotNull(errbuf.toString(), pcap);
 
@@ -915,23 +917,22 @@ public class TestPcapJNI
 	}
 
 	@SuppressWarnings("deprecation")
-  public void testLookupDevAndLookupNetDeprecatedAPI() {
+	public void testLookupDevAndLookupNetDeprecatedAPI() {
 		String device = Pcap.lookupDev(errbuf);
 		assertNotNull(errbuf.toString(), device);
 
-		PcapInteger netp = new PcapInteger();
-		PcapInteger maskp = new PcapInteger();
+		JNumber netp = new JNumber();
+		JNumber maskp = new JNumber();
 
 		int r = Pcap.lookupNet(device, netp, maskp, errbuf);
 		assertEquals(errbuf.toString(), 0, r);
 
-		System.out.printf("device=%s netp=%X maskp=%X errbuf=%s\n", device, netp.getValue(),
-		    maskp.getValue(), errbuf.toString());
+		System.out.printf("device=%s netp=%X maskp=%X errbuf=%s\n", device, netp
+		    .intValue(), maskp.intValue(), errbuf.toString());
 	}
 
-	
 	/**
-	 * Bug#1855589 
+	 * Bug#1855589
 	 */
 	public void testIsInjectSupportedWin32() {
 		if (System.getProperty("os.name").toLowerCase().contains("win")) {
@@ -940,7 +941,7 @@ public class TestPcapJNI
 			assertTrue(true); // Be explicit
 		}
 	}
-	
+
 	public void testIsSendpacketSupportedWin32() {
 		if (System.getProperty("os.name").toLowerCase().contains("win")) {
 			assertTrue(Pcap.isSendPacketSupported());

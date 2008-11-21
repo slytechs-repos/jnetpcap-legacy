@@ -12,9 +12,6 @@
  */
 package org.jnetpcap;
 
-import java.nio.ByteBuffer;
-
-import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.nio.JStruct;
 
 /**
@@ -26,38 +23,23 @@ import org.jnetpcap.nio.JStruct;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public abstract class JCaptureHeader extends JStruct {
+public abstract class JCaptureHeader
+    extends JStruct {
 
 	/**
-   * @param structName
-   * @param peer
-   */
-  public JCaptureHeader(String structName, ByteBuffer peer) {
-	  super(structName, peer);
-  }
+	 * @param structName
+	 * @param peer
+	 */
+	public JCaptureHeader(String structName, JCaptureHeader peer) {
+		super(structName, peer);
+	}
 
 	/**
-   * @param structName
-   * @param size
-   */
-  public JCaptureHeader(String structName, int size) {
-	  super(structName, size);
-  }
-
-	/**
-   * @param structName
-   * @param peer
-   */
-  public JCaptureHeader(String structName, JMemory peer) {
-	  super(structName, peer);
-  }
-
-	/**
-   * @param structName
-   */
-  public JCaptureHeader(String structName) {
-	  super(structName);
-  }
+	 * @param structName
+	 */
+	public JCaptureHeader(String structName) {
+		super(structName);
+	}
 
 	/**
 	 * Retrieves the length of the packet that was actually captured. This could
@@ -96,6 +78,6 @@ public abstract class JCaptureHeader extends JStruct {
 	 *         value returned by this method is from 0 to 999,999,999.
 	 */
 	public abstract long nanos();
-	
+
 	public abstract <T extends JCaptureHeader> int transferTo(T hdr);
 }

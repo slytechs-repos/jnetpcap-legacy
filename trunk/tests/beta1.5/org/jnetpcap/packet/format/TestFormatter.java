@@ -56,19 +56,19 @@ public class TestFormatter
 	}
 
 	public void _testHtmlTableFormatter() throws IOException {
-//		File f = new File("tests/write.html");
-//		PrintWriter pw = new PrintWriter(f);
-		
+		// File f = new File("tests/write.html");
+		// PrintWriter pw = new PrintWriter(f);
+
 		PrintStream pw = System.out;
 		pw.format("<html>\n<head><style>\n");
 		pw.format("#cl_field_data {color:red;}\n");
 		pw.format("</style></head>\n<body>\n\n");
-		
+
 		dumpToFormatter(new HtmlTableFormatter(pw), "tests/test-vlan.pcap");
-		
+
 		pw.format("</body>\n</html>\n");
 		pw.close();
-		
+
 		dumpToFormatter(new HtmlTableFormatter(), "tests/test-vlan.pcap");
 	}
 
@@ -80,10 +80,11 @@ public class TestFormatter
 		dumpToFormatter(new XmlFormatter(), "tests/test-vlan.pcap");
 	}
 
-	public void dumpToFormatter(final JFormatter formatter, String file) throws IOException {
+	public void dumpToFormatter(final JFormatter formatter, String file)
+	    throws IOException {
 
 		StringBuilder errbuf = new StringBuilder();
-		final Pcap pcap = Pcap.openOffline(file, errbuf );
+		final Pcap pcap = Pcap.openOffline(file, errbuf);
 
 		final JPacket packet = new PcapPacket();
 		final JScanner scanner = new JScanner();
@@ -93,7 +94,7 @@ public class TestFormatter
 		pcap.loop(Pcap.LOOP_INFINATE, new ByteBufferHandler<String>() {
 			int i = 0;
 
-			public void nextPacket(String user, PcapHeader header, ByteBuffer buffer) {
+			public void nextPacket(PcapHeader header, ByteBuffer buffer, String user) {
 
 				if (i < 157) {
 					i++;

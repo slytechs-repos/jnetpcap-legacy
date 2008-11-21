@@ -85,7 +85,7 @@ int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner,
 	// Local temp variables
 	register uint64_t mask;
 
-#define DEBUG
+//#define DEBUG
 
 #ifdef DEBUG
 	printf("\n\n");
@@ -137,14 +137,16 @@ int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner,
 			if (   (scanner->sc_flags[scan.id] & FLAG_OVERRIDE_BINDING) != 0
 				|| (scan.next_id == PAYLOAD_ID)) {
 				
-#ifdef DEBUG
-		printf("scan() loop-bnding: id=%d\n", scan.id);
-#endif
 				/*
 				 * The scanner should already be setup to only check the 
 				 * bindings
 				 */
-				callJavaHeaderScanner(&scan);
+				if ((scanner->sc_bindings & scan.id) != 0) {
+#ifdef DEBUG
+		printf("scan() loop-bnding: id=%d\n", scan.id);
+#endif
+					callJavaHeaderScanner(&scan);
+				}
 			}
 			
 			/******************************************************
@@ -220,6 +222,9 @@ void callJavaHeaderScanner(scan_t *scan) {
 		sprintf(str_buf, "java header scanner not set for ID=%d (%s)", 
 				scan->id, 
 				id2str(scan->id));
+#ifdef DEBUG
+		fprintf(stdout, "scan() jscaner-ERR: %s\n", str_buf); fflush(stdout);
+#endif
 		throwException(scan->env, NULL_PTR_EXCEPTION, str_buf);
 		return;
 	}

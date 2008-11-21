@@ -54,5 +54,5 @@ public interface ByteBufferHandler<T> {
 	 * @param buffer
 	 *          buffer containing the packet data.
 	 */
-	public void nextPacket(T user, PcapHeader pkt_header, ByteBuffer buffer);
+	public void nextPacket(PcapHeader header, ByteBuffer buffer, T user);
 }

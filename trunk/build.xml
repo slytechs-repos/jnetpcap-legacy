@@ -459,27 +459,7 @@
 			<class name="org.jnetpcap.nio.JNumber" />
 			<class name="org.jnetpcap.nio.JBuffer" />
 			
-			<class name="org.jnetpcap.unix.UnixOs" />
-			<class name="org.jnetpcap.unix.UnixOs$IfReq" />
-			<class name="org.jnetpcap.unix.UnixOs$IfData" />
-			
-			<class name="org.jnetpcap.unix.Dlpi" />
-			<class name="org.jnetpcap.unix.Dlpi$DLBase" />
-			<class name="org.jnetpcap.unix.Dlpi$DLOkAck" />
-			<class name="org.jnetpcap.unix.Dlpi$DLErrorAck" />
-			<class name="org.jnetpcap.unix.Dlpi$DLPromisconReq" />
-			<class name="org.jnetpcap.unix.Dlpi$DLPromiscoffReq" />
-			<class name="org.jnetpcap.unix.Dlpi$DLPhysAddrReq" />
-			<class name="org.jnetpcap.unix.Dlpi$DLPhysAddrAck" />
-			<class name="org.jnetpcap.unix.Dlpi$DLStatisticsReq" />
-			<class name="org.jnetpcap.unix.Dlpi$DLStatisticsAck" />
-			
-			<class name="org.jnetpcap.ms.MSIpHelper" />
-			<class name="org.jnetpcap.ms.MSIpAdapterIndexMap" />
-			<class name="org.jnetpcap.ms.MSIpInterfaceInfo" />
-			<class name="org.jnetpcap.ms.MSMibIfRow" />
-
-			<class name="org.jnetpcap.PcapBeta" />
+			<class name="org.jnetpcap.BetaFeature" />
 			<class name="org.jnetpcap.PcapHeader" />
 			<class name="org.jnetpcap.packet.JScanner" />
 			<class name="org.jnetpcap.packet.JRegistry" />

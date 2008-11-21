@@ -13,7 +13,7 @@ extern "C" {
 	
 extern jclass pcapClass;
 extern jclass byteBufferClass;
-extern jclass stringBufferClass;
+extern jclass stringBuilderClass;
 extern jclass pcapIfClass;
 extern jclass pcapAddrClass;
 extern jclass PcapSockAddrClass;
