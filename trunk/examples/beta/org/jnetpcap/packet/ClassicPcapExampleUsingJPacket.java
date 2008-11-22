@@ -91,7 +91,7 @@ public class ClassicPcapExampleUsingJPacket {
 				final JCaptureHeader header = packet.getCaptureHeader();
 
 				System.out.printf("Packet captured on %s\n", new Timestamp(header
-				    .timestampInMillis()));
+				    .timestampInMillis()).toString());
 
 				try {
 					output.format(packet); // Sends formatted output to System.out
