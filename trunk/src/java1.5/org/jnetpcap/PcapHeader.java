@@ -131,4 +131,14 @@ public class PcapHeader
 		return super.peer(header);
 	}
 
+	/* (non-Javadoc)
+   * @see org.jnetpcap.JCaptureHeader#timestampInMillis()
+   */
+  @Override
+  public long timestampInMillis() {
+	  long l = hdr_sec() * 1000 + hdr_usec() / 1000;
+	  
+	  return l;
+  }
+
 }

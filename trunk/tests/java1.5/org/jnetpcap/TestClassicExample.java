@@ -23,6 +23,7 @@ import junit.framework.TestCase;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@SuppressWarnings("deprecation")
 public class TestClassicExample
     extends TestCase {
 

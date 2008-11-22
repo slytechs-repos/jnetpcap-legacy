@@ -86,6 +86,8 @@ public abstract class JCaptureHeader
 	 *         value returned by this method is from 0 to 999,999,999.
 	 */
 	public abstract long nanos();
+	
+	public abstract long timestampInMillis();
 
 	public abstract <T extends JCaptureHeader> int transferTo(T hdr);
 }
