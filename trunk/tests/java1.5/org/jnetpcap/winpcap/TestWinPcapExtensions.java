@@ -32,13 +32,13 @@ import org.jnetpcap.PcapPktHdr;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings("deprecation")
 public class TestWinPcapExtensions
     extends TestCase {
 
 	private final static String device = "\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
 
-	private final static String uri = "rpcap://[192.168.1.100]/\\Device\\NPF_{04BD71F0-BAD6-4C51-96A4-B05562FAD4F9}";
+//	private final static String uri = "rpcap://[192.168.1.100]/\\Device\\NPF_{04BD71F0-BAD6-4C51-96A4-B05562FAD4F9}";
 
 	private final static String rdevice = "\\Device\\NPF_{04BD71F0-BAD6-4C51-96A4-B05562FAD4F9}";
 
@@ -46,7 +46,7 @@ public class TestWinPcapExtensions
 
 	private final static String fname = "tests/test-l2tp.pcap";
 
-	private static final int OK = 0;
+//	private static final int OK = 0;
 
 	private static final int snaplen = 64 * 1024;
 
@@ -155,7 +155,6 @@ public class TestWinPcapExtensions
 		WinPcap pcap = WinPcap
 		    .openLive(device, snaplen, promisc, oneSecond, errbuf);
 
-		PcapPktHdr hdr = new PcapPktHdr(0, 0);
 		pcap.loop(50, doNothingHandler, null);
 
 		WinPcapStat stats = pcap.statsEx();

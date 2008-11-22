@@ -25,6 +25,7 @@ import org.jnetpcap.winpcap.WinPcap;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@SuppressWarnings("deprecation")
 public class TestOpenCloseMultiThreaded
     extends TestCase {
 

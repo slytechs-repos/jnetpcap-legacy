@@ -112,6 +112,7 @@ public class TestTransmitter
 
 	private StringBuilder errbuf = new StringBuilder();
 
+	@SuppressWarnings("deprecation")
 	private final PcapHandler<?> doNothingHandler = new PcapHandler<Object>() {
 
 		public void nextPacket(Object userObject, long seconds, int useconds,

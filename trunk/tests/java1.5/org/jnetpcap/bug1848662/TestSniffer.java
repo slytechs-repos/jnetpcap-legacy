@@ -9,6 +9,7 @@ import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapHandler;
 import org.jnetpcap.PcapIf;
 
+@SuppressWarnings("deprecation")
 public class TestSniffer {
 
    public static void main(String[] args) {

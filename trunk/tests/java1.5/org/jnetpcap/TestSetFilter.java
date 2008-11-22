@@ -3,6 +3,7 @@ package org.jnetpcap;
 import java.nio.ByteBuffer;
 import java.util.Date;
 
+@SuppressWarnings("deprecation")
 public class TestSetFilter {
 
 	private static String fname = "tests/test-l2tp.pcap";
