@@ -12,6 +12,8 @@
  */
 package org.jnetpcap.packet;
 
+import org.jnetpcap.Pcap;
+import org.jnetpcap.PcapDLT;
 import org.jnetpcap.packet.header.Ethernet;
 import org.jnetpcap.packet.header.IEEE802dot1q;
 import org.jnetpcap.packet.header.IEEE802dot2;
@@ -37,17 +39,17 @@ public enum JProtocol {
 	 * 
 	 */
 	PAYLOAD(Payload.class),
-	ETHERNET(Ethernet.class),
+	ETHERNET(Ethernet.class, PcapDLT.EN10MB),
 	IP4(Ip4.class),
 	IP6(Ip6.class),
 	TCP(Tcp.class),
 	UDP(Udp.class),
-	IEEE_802DOT3(IEEE802dot3.class),
+	IEEE_802DOT3(IEEE802dot3.class, PcapDLT.IEEE802),
 	IEEE_802DOT2(IEEE802dot2.class),
 	IEEE_SNAP(IEEESnap.class),
 	IEEE_802DOT1Q(IEEE802dot1q.class),
 	L2TP(L2TP.class),
-	PPP(PPP.class),
+	PPP(PPP.class, PcapDLT.PPP),
 	ICMP(Icmp.class), ;
 
 	/**
@@ -66,6 +68,11 @@ public enum JProtocol {
 	 * possible to override this default using JRegistery with a custom scanner.
 	 */
 	public final JHeaderScanner scan;
+
+	/**
+	 * A mapping to pcap dlt. If no mapping exists for a protocol, it is null.
+	 */
+	public final PcapDLT dlt;
 
 	public final static int PAYLOAD_ID = 0;
 
@@ -94,7 +101,12 @@ public enum JProtocol {
 	public final static int ICMP_ID = 12;
 
 	private JProtocol(Class<? extends JHeader> c) {
+		this(c, null);
+	}
+
+	private JProtocol(Class<? extends JHeader> c, PcapDLT dlt) {
 		this.clazz = c;
+		this.dlt = dlt;
 		this.ID = ordinal();
 
 		try {
@@ -130,4 +142,27 @@ public enum JProtocol {
 
 		return values()[id];
 	}
+	
+	public static int id(Pcap pcap) {
+		return valueOf(pcap).ID;
+	}
+	
+	public static JProtocol valueOf(Pcap pcap) {
+		return valueOf(PcapDLT.valueOf(pcap.datalink()));
+	}
+
+	public static JProtocol valueOf(PcapDLT dlt) {
+		if (dlt == null) {
+			return PAYLOAD;
+		}
+		
+		for (JProtocol p: values()) {
+			if (dlt == p.dlt) {
+				return p;
+			}
+		}
+		
+		return PAYLOAD; // Not found
+	}
+
 }

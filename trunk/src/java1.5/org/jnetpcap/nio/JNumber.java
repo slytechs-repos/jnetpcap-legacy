@@ -30,34 +30,90 @@ import java.nio.ByteBuffer;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@SuppressWarnings("unused")
 public class JNumber
     extends JMemory {
 
 	/**
-	 * Number of bytes to allocate to hold our number. 16 bytes is a bit much,
-	 * typically 8 would be sufficient to hold even a double, but on 64 bit
-	 * machines and even newer ones that this may eventually run on, it is better
-	 * to overallocate than run into a limit.
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
-	private static final int ALLOC_SIZE = 16;
+	public enum Type {
+		BYTE,
+		CHAR,
+		INT,
+		SHORT,
+		LONG,
+		LONGLONG,
+		FLOAT,
+		DOUBLE;
+
+		/**
+		 * Size in bytes for this native type on this machine
+		 */
+		public final int size;
+
+		private static int biggestSize = 0;
+
+		Type() {
+			size = JNumber.sizeof(ordinal());
+		}
+
+		public static int getBiggestSize() {
+			if (biggestSize == 0) {
+				for (Type t : values()) {
+					if (t.size > biggestSize) {
+						biggestSize = t.size;
+					}
+				}
+			}
+
+			return biggestSize;
+		}
+	}
+
+	/*
+	 * Although these are private they are still exported to a JNI header file
+	 * where our private sizeof(int) function can use these constants to lookup
+	 * the correct primitive size
+	 */
+	@SuppressWarnings("unused")
+	private final static int BYTE_ORDINAL = 0;
+
+	private final static int CHAR_ORDINAL = 1;
+
+	private final static int INT_ORDINAL = 2;
+
+	private final static int SHORT_ORDINAL = 3;
+
+	private final static int LONG_ORDINAL = 4;
+
+	private final static int LONG_LONG_ORDINAL = 5;
+
+	private final static int FLOAT_ORDINAL = 6;
+
+	private final static int DOUBLE_ORDINAL = 7;
+
+	private final static int MAX_SIZE_ORDINAL = 8;
 
 	/**
-	 * Allocates a number of the specified size.
+	 * Allocates a number of the specified size and type.
 	 * 
-	 * @param size
-	 *          number of byte to allocate to hold a number
+	 * @param type
+	 *          primitive type for which to allocate memory
 	 */
-	public JNumber(int size) {
-		super(size);
+	public JNumber(Type type) {
+		super(Type.getBiggestSize());
 	}
 
 	/**
-	 * Allocates a number with default size. The size is large enough to hold the
-	 * biggest number.
+	 * Creates a number pointer, which does not allocate any memory on its own,
+	 * but needs to be peered with primitive pointer.
 	 */
 	public JNumber() {
-		super(ALLOC_SIZE);
 	}
+
+	private native static int sizeof(int oridnal);
 
 	public native int intValue();
 
@@ -83,12 +139,19 @@ public class JNumber
 
 	public native void doubleValue(double value);
 	
-	public int peer(ByteBuffer peer) {
-		return super.peer(peer);
+	public int peer(JNumber number) {
+		return super.peer(number);
 	}
 	
-	public int transferFrom(ByteBuffer peer) {
-		return super.peer(peer);
+	public int peer(JBuffer buffer) {
+		return super.peer(buffer, 0, size());
+	}
+	
+	public int peer(JBuffer buffer, int offset) {
+		return super.peer(buffer, offset, size());
 	}
 
+	public int transferFrom(ByteBuffer peer) {
+		return super.transferFrom(peer);
+	}
 }
