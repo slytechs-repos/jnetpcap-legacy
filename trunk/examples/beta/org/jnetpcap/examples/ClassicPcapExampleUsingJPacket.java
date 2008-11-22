@@ -12,8 +12,6 @@
  */
 package org.jnetpcap.examples;
 
-import java.io.IOException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,8 +22,6 @@ import org.jnetpcap.PcapIf;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JPacketHandler;
 import org.jnetpcap.packet.JProtocol;
-import org.jnetpcap.packet.format.JFormatter;
-import org.jnetpcap.packet.format.TextFormatter;
 
 /**
  * This example is the classic libpcap example shown in nearly every tutorial on
@@ -88,19 +84,23 @@ public class ClassicPcapExampleUsingJPacket {
 		 **************************************************************************/
 		JPacketHandler<String> printSummaryHandler = new JPacketHandler<String>() {
 
-			private JFormatter output = new TextFormatter(); // To System.out
-
 			public void nextPacket(JPacket packet, String user) {
 				final JCaptureHeader header = packet.getCaptureHeader();
 
-				System.out.printf("Packet captured on %s\n", new Timestamp(header
-				    .timestampInMillis()).toString());
+				System.out.printf("Packet caplen=%d wirelen=%d\n", header.caplen(),
+				    header.wirelen());
 
-				try {
-					output.format(packet); // Sends formatted output to System.out
-				} catch (IOException e) {// Any IO errors with System.out
-					e.printStackTrace();
-				}
+				/*
+				 * For packet header for output using an internal TextFormatter that
+				 * sends output to a StringBuilder, then calls on its toString() method
+				 * to generate the final string which is send to System.out.
+				 * 
+				 * Alternative would be to do it like this:
+				 * JFormatter out = new TextFormatter(); // output to System.out
+				 * out.format(packet);   // Format and send output to System.out
+				 */
+				System.out.println(packet.toString());
+
 			}
 		};
 
@@ -115,9 +115,9 @@ public class ClassicPcapExampleUsingJPacket {
 		BetaFeature.loop(pcap, 10, JProtocol.ETHERNET_ID, printSummaryHandler,
 		    "jNetPcap rocks!");
 
-		/*
+		/***************************************************************************
 		 * Last thing to do is close the pcap handle
-		 */
+		 **************************************************************************/
 		pcap.close();
 	}
 }
