@@ -109,7 +109,7 @@ public class ClassicPcapExampleUsingJPacket {
 
 	public static void main(String[] args) {
 		List<PcapIf> alldevs = new ArrayList<PcapIf>(); // Will be filled with NICs
-		StringBuilder errbuf = new StringBuilder(); // For any error msgs
+		StringBuilder errbuf = new StringBuilder();     // For any error msgs
 
 		/***************************************************************************
 		 * First get a list of devices on this system
@@ -129,7 +129,7 @@ public class ClassicPcapExampleUsingJPacket {
 			    .getDescription());
 		}
 
-		PcapIf device = alldevs.get(0); // We know we have atleast 1 device
+		PcapIf device = alldevs.get(0); // Pick one
 		System.out.printf("\nChoosing '%s' on your behalf:\n", device
 		    .getDescription());
 
@@ -149,7 +149,7 @@ public class ClassicPcapExampleUsingJPacket {
 		}
 
 		/***************************************************************************
-		 * Third we create a packet hander which will be dispatched to from the
+		 * Third we create a packet hander which will receive packets from the
 		 * libpcap loop.
 		 **************************************************************************/
 		JPacketHandler<String> printSummaryHandler = new JPacketHandler<String>() {
@@ -164,9 +164,16 @@ public class ClassicPcapExampleUsingJPacket {
 				 * For packet header for output using an internal TextFormatter that
 				 * sends output to a StringBuilder, then calls on its toString() method
 				 * to generate the final string which is send to System.out. Alternative
-				 * would be to do it like this: JFormatter out = new TextFormatter(); //
-				 * output to System.out out.format(packet); // Format and send output to
-				 * System.out
+				 * would be to send output directly to System.out, bypassing any 
+				 * intermediate string: 
+				 * 
+				 * JFormatter out = new TextFormatter(); // output to System.out 
+				 * out.format(packet);   // Format and send output to System.out
+				 * 
+				 * Or to generate XML output:
+				 * PrintStream outputstream = // My output stream
+				 * JFormatter out = next XmlFormatter(outputstream);
+				 * out.format(packet); 
 				 */
 				System.out.println(packet.toString());
 
@@ -182,11 +189,11 @@ public class ClassicPcapExampleUsingJPacket {
 		 * and BetaFeature.loop will be deprecated. 
 		 * 
 		 * The loop method does a mapping of pcap.datalink() DLT value to JProtocol
-		 * ID which is needed by the JScanner, which scans the packet buffer and
-		 * decodes the headers. The mapping is done automatically, although a
+		 * ID which is needed by the JScanner. The scanner scans the packet buffer 
+		 * and decodes the headers. The mapping is done automatically, although a
 		 * variation on the loop method exists that allows the programmer to
 		 * sepecify exactly which protocol ID to use as the data link type for this
-		 * interface.
+		 * pcap interface.
 		 **************************************************************************/
 		BetaFeature.loop(pcap, 10, printSummaryHandler, "jNetPcap rocks!");
 
