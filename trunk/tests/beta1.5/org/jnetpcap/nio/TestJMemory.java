@@ -17,6 +17,8 @@ import java.nio.ByteOrder;
 
 import junit.framework.TestCase;
 
+import org.jnetpcap.nio.JNumber.Type;
+
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
@@ -44,7 +46,7 @@ public class TestJMemory
 
 	public void testPeerWithNonDirectByteBuffer() {
 		ByteBuffer b = ByteBuffer.allocate(4);
-		JNumber n = new JNumber();
+		JNumber n = new JNumber(Type.INT);
 
 		try {
 			n.peer(b);
@@ -60,7 +62,7 @@ public class TestJMemory
 		b.putInt(100);
 		b.flip();
 
-		JNumber n = new JNumber();
+		JNumber n = new JNumber(Type.INT);
 		n.peer(b);
 
 		assertEquals(100, n.intValue());
@@ -70,7 +72,7 @@ public class TestJMemory
 		ByteBuffer b = ByteBuffer.allocateDirect(4);
 		b.order(ByteOrder.nativeOrder());
 
-		JNumber n = new JNumber();
+		JNumber n = new JNumber(Type.INT);
 		n.intValue(100);
 
 		n.transferTo(b);
@@ -84,11 +86,25 @@ public class TestJMemory
 		b.putInt(100);
 		b.flip();
 
-		JNumber n = new JNumber();
+		JNumber n = new JNumber(Type.INT);
 		n.transferFrom(b);
 
 		assertEquals(100, n.intValue());
 
 	}
+	
+	public void testReadFromUninitializedPtr() {
+		JNumber n = new JNumber(); // Uninitialized ptr
+
+		try {
+			assertEquals(100, n.intValue());
+			fail("Expected a native NULL ptr exception");
+			
+		} catch (NullPointerException e) {
+			// expected
+		}
+
+	}
+
 
 }

@@ -18,6 +18,7 @@ import java.util.List;
 import org.jnetpcap.BetaFeature;
 import org.jnetpcap.JCaptureHeader;
 import org.jnetpcap.Pcap;
+import org.jnetpcap.PcapDLT;
 import org.jnetpcap.PcapIf;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JPacketHandler;
@@ -98,6 +99,7 @@ import org.jnetpcap.packet.JProtocol;
  *  payload: 
  *  Packet caplen=54 wirelen=54
  * </pre>
+ * 
  * </p>
  * 
  * @author Mark Bednarczyk
@@ -174,13 +176,19 @@ public class ClassicPcapExampleUsingJPacket {
 		/***************************************************************************
 		 * Fourth we enter the loop and tell it to capture 10 packets Notice that
 		 * since this is a beta feature currently, not fully integrated into
-		 * production Pcap class, we have to supply the pcap object as a parameter,
-		 * we also need to specify the data link protocol of the interface which is
-		 * Ethernet in our example. This is needed so that the packet scanner
-		 * (JScanner) knows how to decode the buffer it receives.
+		 * production Pcap class, we use a BetaFeature static method and we have to
+		 * supply the pcap object as a parameter. This loop function will be
+		 * integrated into Pcap class went it becomes elevated to production status
+		 * and BetaFeature.loop will be deprecated. 
+		 * 
+		 * The loop method does a mapping of pcap.datalink() DLT value to JProtocol
+		 * ID which is needed by the JScanner, which scans the packet buffer and
+		 * decodes the headers. The mapping is done automatically, although a
+		 * variation on the loop method exists that allows the programmer to
+		 * sepecify exactly which protocol ID to use as the data link type for this
+		 * interface.
 		 **************************************************************************/
-		BetaFeature.loop(pcap, 10, JProtocol.ETHERNET_ID, printSummaryHandler,
-		    "jNetPcap rocks!");
+		BetaFeature.loop(pcap, 10, printSummaryHandler, "jNetPcap rocks!");
 
 		/***************************************************************************
 		 * Last thing to do is close the pcap handle

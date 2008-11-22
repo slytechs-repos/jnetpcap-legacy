@@ -245,9 +245,6 @@
 		<!-- ############################################################### -->
 		<!--       Now ZIP everything up into a distributable bundle  -->
 		<!-- ############################################################### -->
-		<zip destfile="${pkg.dist.dir}/${pkg.base}-jre1.4-javadoc.zip">
-			<zipfileset dir="${build.javadoc.dir}-jre1.4" prefix="${pkg.base}-jre1.4-javadoc" />
-		</zip>
 		
 		<zip destfile="${pkg.dist.dir}/${pkg.base}-jre1.5-javadoc.zip">
 			<zipfileset dir="${build.javadoc.dir}-jre1.5" prefix="${pkg.base}-jre1.5-javadoc" />
@@ -394,10 +391,6 @@
 	<!-- Compiles java sources using javac -->
 	<!-- =================================================================== -->
 	<target name="comp-java" depends="release-settings">
-		<antcall target="comp-java-jre">
-			<param name="jre" value="jre1.4" />
-			<param name="compiler.target" value="1.4" />
-		</antcall>
 		
 		<antcall target="comp-java-jre">
 			<param name="jre" value="jre1.5" />
@@ -602,12 +595,7 @@
 	<!-- Compiles java files using JavaDoc -->
 	<!-- =================================================================== -->
 	<target name="comp-javadoc" depends="comp-java">
-		
-		<antcall target="comp-javadoc-jre">
-			<param name="jre" value="jre1.4" />
-			<param name="compiler.target" value="1.4" />
-		</antcall>
-		
+				
 		<antcall target="comp-javadoc-jre">
 			<param name="jre" value="jre1.5" />
 			<param name="compiler.target" value="1.5" />
@@ -786,20 +774,6 @@
 	<!-- Uploads packaged javadoc zip file to homepage  -->
 	<!-- =================================================================== -->
 	<target name="deploy-javadoc-web" depends="package-doc-api">
-		<scp 
-			trust="yes" 
-			verbose="yes" 
-			todir="${web.uri}" 
-			file="${pkg.dist.dir}/${pkg.base}-jre1.4-javadoc.zip" />
-
-
-		<sshexec 
-			trust="yes" 
-			host="${shell.host.name}" 
-			username="${shell.user.name}" 
-			password="${shell.user.pass}" 
-			command="rm -rf ${web.doc.dir}/${pkg.base}-jre1.4-javadoc; unzip ${web.doc.dir}/${pkg.base}-jre1.4-javadoc.zip -d ${web.doc.dir}; rm  ${web.doc.dir}/${pkg.base}-jre1.4-javadoc.zip" 
-		/>
 		
 		<scp 
 			trust="yes" 

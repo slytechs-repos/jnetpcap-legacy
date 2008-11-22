@@ -24,6 +24,7 @@ import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
 import org.jnetpcap.nio.JNumber;
+import org.jnetpcap.nio.JNumber.Type;
 
 /**
  * @author Mark Bednarczyk
@@ -936,8 +937,8 @@ public class TestPcapBetaJNI
 		String device = Pcap.lookupDev(errbuf);
 		assertNotNull(errbuf.toString(), device);
 
-		JNumber netp = new JNumber();
-		JNumber maskp = new JNumber();
+		JNumber netp = new JNumber(Type.INT);
+		JNumber maskp = new JNumber(Type.INT);
 
 		int r = BetaFeature.lookupNet(device, netp, maskp, errbuf);
 		assertEquals(errbuf.toString(), 0, r);
