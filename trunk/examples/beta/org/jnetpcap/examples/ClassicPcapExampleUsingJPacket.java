@@ -36,6 +36,14 @@ import org.jnetpcap.packet.JProtocol;
  * packet):
  * 
  * <pre>
+ *  Network devices found:
+ *  #0: \Device\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D} [Intel(R) PRO/100 VE Network Connection (Microsoft's Packet Scheduler) ]
+ *  #1: \Device\NPF_GenericDialupAdapter [Adapter for generic dialup and VPN capture]
+ * 
+ *  Choosing 'Intel(R) PRO/100 VE Network Connection (Microsoft's Packet Scheduler) ' on your behalf:
+ * 
+ *  Packet caplen=60 wirelen=60
+ * 
  *  Ethernet:  ******* Ethernet (Eth) offset=0 length=14
  *  Ethernet: 
  *  Ethernet:      destination = 00-15-F2-78-37-F3
@@ -50,40 +58,45 @@ import org.jnetpcap.packet.JProtocol;
  *  ip4:                    0000 00..  = [0] reserved bit: not set
  *  ip4:                    .... ..0.  = [0] ECN bit: ECN capable transport: no
  *  ip4:                    .... ...0  = [0] ECE bit: ECE-CE: no
- *  ip4:           length = 48
- *  ip4:            flags = 0x0 (0)
+ *  ip4:           length = 40
+ *  ip4:            flags = 0x2 (2)
  *  ip4:                    0..  = [0] reserved bit: not set
- *  ip4:                    .0.  = [0] don't fragment: not set
+ *  ip4:                    .1.  = [1] don't fragment: set
  *  ip4:                    ..0  = [0] more fragments: not set
- *  ip4:               id = 0xC587 (50567)
+ *  ip4:               id = 0xE7FC (59388)
  *  ip4:           offset = 0
- *  ip4:     time to live = 53 router hops
+ *  ip4:     time to live = 241 router hops
  *  ip4:         protocol = 6
- *  ip4:  header checksum = 0x13E3 (5091)
- *  ip4:           source = 64.233.169.104
+ *  ip4:  header checksum = 0x5262 (21090)
+ *  ip4:           source = 216.34.181.65
  *  ip4:      destination = 192.168.1.100
  *  ip4: 
- *  tcp:  ******* tcp (tcp) offset=34 length=28
+ *  tcp:  ******* tcp (tcp) offset=34 length=20
  *  tcp: 
  *  tcp:      source port = 80
- *  tcp: destination port = 4194
- *  tcp:         sequence = 0xAF03177B (2936215419)
- *  tcp:  acknowledgement = 0x6AE50F99 (1793396633)
- *  tcp:    header length = 7 [*4 = 28 bytes]
+ *  tcp: destination port = 4193
+ *  tcp:         sequence = 0xD535911F (3577057567)
+ *  tcp:  acknowledgement = 0x8D944518 (2375304472)
+ *  tcp:    header length = 5 [*4 = 20 bytes]
  *  tcp:         reserved = 0
- *  tcp:            flags = 0x12 (18)
+ *  tcp:            flags = 0x11 (17)
  *  tcp:                    0... ....  = [0] congestion window reduces (CWR): not set
  *  tcp:                    .0.. ....  = [0] ecn-echo: not set
  *  tcp:                    ..0. ....  = [0] urgent pointer: pointer not set
  *  tcp:                    ...1 ....  = [1] acknowledgement: is present
  *  tcp:                    .... 0...  = [0] push: flag is not set
  *  tcp:                    .... .0..  = [0] reset: flag is not set
- *  tcp:                    .... ..1.  = [1] synchronize: flag is set
- *  tcp:                    .... ...0  = [0] finish: flag is not set
- *  tcp:           window = 5720 bytes [5Kb]
- *  tcp:         checksum = 0x6EC8 (28360)
+ *  tcp:                    .... ..0.  = [0] synchronize: flag is not set
+ *  tcp:                    .... ...1  = [1] finish: flag is set
+ *  tcp:           window = 13488 bytes [13Kb]
+ *  tcp:         checksum = 0xE1FF (57855)
  *  tcp:           urgent = 0
  *  tcp: 
+ *  payload:  ******* payload (data) offset=54 length=6
+ *  payload: 
+ *  payload: 0036: 00000000 0000                         \0 \0 \0 \0 \0 \0           
+ *  payload: 
+ *  Packet caplen=54 wirelen=54
  * </pre>
  * </p>
  * 
