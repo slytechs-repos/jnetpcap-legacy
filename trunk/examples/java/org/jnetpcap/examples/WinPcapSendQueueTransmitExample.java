@@ -26,6 +26,7 @@ import org.jnetpcap.winpcap.WinPcapSendQueue;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@SuppressWarnings("deprecation")
 public class WinPcapSendQueueTransmitExample {
 
 	public static void main(String[] args) {

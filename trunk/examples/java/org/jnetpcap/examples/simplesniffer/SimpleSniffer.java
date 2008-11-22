@@ -31,6 +31,7 @@ import org.jnetpcap.PcapIf;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@SuppressWarnings("deprecation")
 public class SimpleSniffer {
 	private static final StringBuilder errbuf = new StringBuilder();
 

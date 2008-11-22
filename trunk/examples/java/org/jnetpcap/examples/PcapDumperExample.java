@@ -34,9 +34,11 @@ import org.jnetpcap.PcapIf;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@SuppressWarnings("deprecation")
 public class PcapDumperExample {
 
-	public static void main(String[] args) {
+	@SuppressWarnings("deprecation")
+  public static void main(String[] args) {
 		List<PcapIf> alldevs = new ArrayList<PcapIf>(); // Will be filled with NICs
 		StringBuilder errbuf = new StringBuilder(); // For any error msgs
 
