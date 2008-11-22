@@ -74,6 +74,14 @@ public class JBuffer
 		super(peer);
 	}
 
+	/**
+   * @param data
+   */
+  public JBuffer(byte[] data) {
+  	super(data.length);
+  	setByteArray(0, data);
+  }
+
 	public native byte getByte(int index);
 
 	public native byte[] getByteArray(int index, byte[] array);
@@ -169,5 +177,11 @@ public class JBuffer
 	private final void setReadonly(boolean readonly) {
   	this.readonly = readonly;
   }
+
+	/**
+   * @param i
+   * @param data
+   */
+  public native void setByteBuffer(int i, ByteBuffer data);
 
 }

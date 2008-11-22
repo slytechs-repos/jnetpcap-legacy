@@ -20,8 +20,10 @@ import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapBpfProgram;
 import org.jnetpcap.PcapExtensionNotAvailableException;
 import org.jnetpcap.PcapHandler;
+import org.jnetpcap.PcapHeader;
 import org.jnetpcap.PcapIf;
 import org.jnetpcap.PcapPktHdr;
+import org.jnetpcap.nio.JBuffer;
 
 /**
  * <p>
@@ -289,7 +291,7 @@ public class WinPcap
 	 */
 	public native static int createSrcStr(StringBuffer source, int type,
 	    String host, String port, String name, StringBuffer errbuf);
-	
+
 	/**
 	 * Accept a set of strings (host name, port, ...), and it returns the complete
 	 * source string according to the new format (e.g. 'rpcap://1.2.3.4/eth0').
@@ -325,13 +327,12 @@ public class WinPcap
 	 *         containing the complete source is returned in the 'source'
 	 *         variable.
 	 */
-	public static int createSrcStr(StringBuilder source, int type,
-	    String host, String port, String name, StringBuilder errbuf) {
-		
+	public static int createSrcStr(StringBuilder source, int type, String host,
+	    String port, String name, StringBuilder errbuf) {
+
 		final StringBuffer buf2 = new StringBuffer();
-		
-		final int r =
-			createSrcStr(buf2, type, host, port, name, getBuf());
+
+		final int r = createSrcStr(buf2, type, host, port, name, getBuf());
 
 		toStringBuilder(getBuf(), errbuf);
 		toStringBuilder(buf2, source);
@@ -375,13 +376,12 @@ public class WinPcap
 	 *         variable.
 	 * @since 1.2
 	 */
-	public static int createSrcStr(Appendable source, int type,
-	    String host, String port, String name, Appendable errbuf) throws IOException {
-		
+	public static int createSrcStr(Appendable source, int type, String host,
+	    String port, String name, Appendable errbuf) throws IOException {
+
 		final StringBuffer buf2 = new StringBuffer();
-		
-		final int r =
-			createSrcStr(buf2, type, host, port, name, getBuf());
+
+		final int r = createSrcStr(buf2, type, host, port, name, getBuf());
 
 		toAppendable(getBuf(), errbuf);
 		toAppendable(buf2, source);
@@ -464,7 +464,7 @@ public class WinPcap
 	 */
 	public native static int findAllDevsEx(String source, WinPcapRmtAuth auth,
 	    List<PcapIf> alldevs, StringBuffer errbuf);
-	
+
 	/**
 	 * Create a list of network devices that can be opened with pcap_open().
 	 * </p>
@@ -539,8 +539,7 @@ public class WinPcap
 	 */
 	public static int findAllDevsEx(String source, WinPcapRmtAuth auth,
 	    List<PcapIf> alldevs, StringBuilder errbuf) {
-		final int r =
-			findAllDevsEx(source, auth, alldevs, getBuf());
+		final int r = findAllDevsEx(source, auth, alldevs, getBuf());
 
 		toStringBuilder(getBuf(), errbuf);
 
@@ -622,14 +621,12 @@ public class WinPcap
 	 */
 	public static int findAllDevsEx(String source, WinPcapRmtAuth auth,
 	    List<PcapIf> alldevs, Appendable errbuf) throws IOException {
-		final int r =
-			findAllDevsEx(source, auth, alldevs, getBuf());
+		final int r = findAllDevsEx(source, auth, alldevs, getBuf());
 
 		toAppendable(getBuf(), errbuf);
 
 		return r;
 	}
-
 
 	/**
 	 * Initialize JNI method, field and class IDs.
@@ -637,11 +634,11 @@ public class WinPcap
 	private static native void initIDs();
 
 	/**
-	 * Checks if <i>WinPcap</i> extensions are available on this platform. WinPcap extensions
-	 * are found in <i>org.jnetpcap.winpcap</i> package.
+	 * Checks if <i>WinPcap</i> extensions are available on this platform.
+	 * WinPcap extensions are found in <i>org.jnetpcap.winpcap</i> package.
 	 * 
-	 * @return <code>true</code> means <i>WinPcap</i> extensions are available and loaded, otherwise
-	 *         <code>false</code>
+	 * @return <code>true</code> means <i>WinPcap</i> extensions are available
+	 *         and loaded, otherwise <code>false</code>
 	 */
 	public static native boolean isSupported();
 
@@ -687,9 +684,59 @@ public class WinPcap
 	 * @param buf
 	 *          buffer containing packet data
 	 * @return snaplen of the packet or 0 if packet should be rejected
+	 * @deprecated replaced by
+	 *             {@link #offlineFilter(PcapBpfProgram, PcapHeader, JBuffer)}
+	 * @see #offlineFilter(PcapBpfProgram, PcapHeader, ByteBuffer)
+	 * @see #offlineFilter(PcapBpfProgram, PcapHeader, JBuffer)
 	 */
 	public static native int offlineFilter(PcapBpfProgram program,
 	    PcapPktHdr header, ByteBuffer buf);
+
+	/**
+	 * Returns if a given filter applies to an offline packet. This function is
+	 * used to apply a filter to a packet that is currently in memory. This
+	 * process does not need to open an adapter; we need just to create the proper
+	 * filter (by settings parameters like the snapshot length, or the link-layer
+	 * type) by means of the pcap_compile_nopcap(). The current API of libpcap
+	 * does not allow to receive a packet and to filter the packet after it has
+	 * been received. However, this can be useful in case you want to filter
+	 * packets in the application, instead of into the receiving process. This
+	 * function allows you to do the job.
+	 * 
+	 * @param program
+	 *          bpf filter
+	 * @param header
+	 *          packets header
+	 * @param buf
+	 *          buffer containing packet data
+	 * @return snaplen of the packet or 0 if packet should be rejected
+	 * @since 1.2
+	 */
+	public static native int offlineFilter(PcapBpfProgram program,
+	    PcapHeader header, JBuffer buffer);
+
+	/**
+	 * Returns if a given filter applies to an offline packet. This function is
+	 * used to apply a filter to a packet that is currently in memory. This
+	 * process does not need to open an adapter; we need just to create the proper
+	 * filter (by settings parameters like the snapshot length, or the link-layer
+	 * type) by means of the pcap_compile_nopcap(). The current API of libpcap
+	 * does not allow to receive a packet and to filter the packet after it has
+	 * been received. However, this can be useful in case you want to filter
+	 * packets in the application, instead of into the receiving process. This
+	 * function allows you to do the job.
+	 * 
+	 * @param program
+	 *          bpf filter
+	 * @param header
+	 *          packets header
+	 * @param buf
+	 *          buffer containing packet data
+	 * @return snaplen of the packet or 0 if packet should be rejected
+	 * @since 1.2
+	 */
+	public static native int offlineFilter(PcapBpfProgram program,
+	    PcapHeader header, ByteBuffer buffer);
 
 	/**
 	 * Open a generic source in order to capture/send (WinPcap only) traffic. The
@@ -761,7 +808,7 @@ public class WinPcap
 	 */
 	public native static WinPcap open(String source, int snaplen, int flags,
 	    int timeout, WinPcapRmtAuth auth, StringBuffer errbuf);
-	
+
 	/**
 	 * Open a generic source in order to capture/send (WinPcap only) traffic. The
 	 * <code>open</code> replaces all the <code>openXxx()</code> methods with
@@ -831,8 +878,7 @@ public class WinPcap
 	 */
 	public static WinPcap open(String source, int snaplen, int flags,
 	    int timeout, WinPcapRmtAuth auth, StringBuilder errbuf) {
-		final WinPcap r =
-			open(source, snaplen, flags, timeout, auth, getBuf());
+		final WinPcap r = open(source, snaplen, flags, timeout, auth, getBuf());
 
 		toStringBuilder(getBuf(), errbuf);
 
@@ -909,14 +955,12 @@ public class WinPcap
 	 */
 	public static WinPcap open(String source, int snaplen, int flags,
 	    int timeout, WinPcapRmtAuth auth, Appendable errbuf) throws IOException {
-		final WinPcap r =
-			open(source, snaplen, flags, timeout, auth, getBuf());
+		final WinPcap r = open(source, snaplen, flags, timeout, auth, getBuf());
 
 		toAppendable(getBuf(), errbuf);
 
 		return r;
 	}
-
 
 	/**
 	 * Create a pcap_t structure without starting a capture. pcap_open_dead() is
@@ -1004,7 +1048,7 @@ public class WinPcap
 	 */
 	public native static WinPcap openLive(String device, int snaplen,
 	    int promisc, int timeout, StringBuffer errbuf);
-	
+
 	/**
 	 * <p>
 	 * This method, overrides the generic libpcap based <code>openLive</code>
@@ -1072,8 +1116,7 @@ public class WinPcap
 	 */
 	public static WinPcap openLive(String device, int snaplen, int promisc,
 	    int timeout, StringBuilder errbuf) {
-		final WinPcap r =
-		    openLive(device, snaplen, promisc, timeout, getBuf());
+		final WinPcap r = openLive(device, snaplen, promisc, timeout, getBuf());
 
 		toStringBuilder(getBuf(), errbuf);
 
@@ -1148,14 +1191,12 @@ public class WinPcap
 	 */
 	public static WinPcap openLive(String device, int snaplen, int promisc,
 	    int timeout, Appendable errbuf) throws IOException {
-		final WinPcap r =
-		    openLive(device, snaplen, promisc, timeout, getBuf());
+		final WinPcap r = openLive(device, snaplen, promisc, timeout, getBuf());
 
 		toAppendable(getBuf(), errbuf);
 
 		return r;
 	}
-
 
 	/**
 	 * Open a savefile in the tcpdump/libpcap format to read packets.
@@ -1264,7 +1305,7 @@ public class WinPcap
 			throw new PcapExtensionNotAvailableException();
 		}
 
-		// Nothing to do, queue java allocated
+		// Memory is recaptured during GC
 	}
 
 	/**
@@ -1349,33 +1390,8 @@ public class WinPcap
 	 * @return amount of bytes actually sent; error if less then queues len
 	 *         parameter
 	 */
-	public int sendQueueTransmit(final WinPcapSendQueue queue, final int synch) {
-		checkIsActive(); // Check if Pcap.close wasn't called
-
-		final ByteBuffer buffer = queue.getBuffer();
-		final int len = queue.getLen();
-		final int maxlen = queue.getMaxLen();
-
-		return sendQueueTransmitPrivate(buffer, len, maxlen, synch);
-	}
-
-	/**
-	 * Do the actual JNI call. It already checks for isSupported, so no need to do
-	 * it again in any wrapper methods.
-	 * 
-	 * @param buffer
-	 *          must be a direct buffer with the data
-	 * @param len
-	 *          how much data is to be sent from the buffer
-	 * @param maxlen
-	 *          buffer capacity
-	 * @param synch
-	 *          if it is non-zero, the packets are sent respecting the timestamps,
-	 *          otherwise they are sent as fast as possible
-	 * @return amount of bytes actually sent; error if less then len parameter
-	 */
-	private native int sendQueueTransmitPrivate(ByteBuffer buffer, int len,
-	    int maxlen, int synch);
+	public native int sendQueueTransmit(final WinPcapSendQueue queue,
+	    final int synch);
 
 	/**
 	 * Set the size of the kernel buffer associated with an adapter. If an old
@@ -1456,7 +1472,7 @@ public class WinPcap
 	 *      filled with statistics or null on error
 	 */
 	public native WinPcapStat statsEx();
-	
+
 	/**
 	 * Make sure that we are thread safe and don't clober each others messages
 	 */
@@ -1470,7 +1486,6 @@ public class WinPcap
 
 	    };
 
-	
 	/**
 	 * Returns a common shared StringBuffer buffer
 	 * 

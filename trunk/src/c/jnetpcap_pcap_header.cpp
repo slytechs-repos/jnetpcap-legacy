@@ -40,10 +40,21 @@
 
 /*
  * Class:     org_jnetpcap_PcapHeader
+ * Method:    sizeof
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_PcapHeader_sizeof
+  (JNIEnv *env, jclass clazz) {
+	
+	return (jint) sizeof(pcap_pkthdr);
+}
+
+/*
+ * Class:     org_jnetpcap_PcapHeader
  * Method:    hdr_sec
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_org_jnetpcap_PcapHeader_hdr_1sec
+JNIEXPORT jlong JNICALL Java_org_jnetpcap_PcapHeader_hdr_1sec__
   (JNIEnv *env, jobject obj) {
 	pcap_pkthdr *hdr = (pcap_pkthdr *)getJMemoryPhysical(env, obj);
 	if (hdr == NULL) {
@@ -55,18 +66,47 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_PcapHeader_hdr_1sec
 
 /*
  * Class:     org_jnetpcap_PcapHeader
+ * Method:    hdr_sec
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_PcapHeader_hdr_1sec__J
+  (JNIEnv *env, jobject obj, jlong jts) {
+	pcap_pkthdr *hdr = (pcap_pkthdr *)getJMemoryPhysical(env, obj);
+	if (hdr == NULL) {
+		return;
+	}
+
+	hdr->ts.tv_sec = (int) jts;
+}
+
+/*
+ * Class:     org_jnetpcap_PcapHeader
  * Method:    hdr_usec
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_PcapHeader_hdr_1usec
-  (JNIEnv *env, jobject obj) {
+JNIEXPORT jint JNICALL Java_org_jnetpcap_PcapHeader_hdr_1usec__
+   (JNIEnv *env, jobject obj) {
 	pcap_pkthdr *hdr = (pcap_pkthdr *)getJMemoryPhysical(env, obj);
 	if (hdr == NULL) {
 		return -1;
 	}
 
 	return (jlong) hdr->ts.tv_usec;
-	
+}
+
+/*
+ * Class:     org_jnetpcap_PcapHeader
+ * Method:    hdr_usec
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_PcapHeader_hdr_1usec__I
+   (JNIEnv *env, jobject obj, jint jts) {
+	pcap_pkthdr *hdr = (pcap_pkthdr *)getJMemoryPhysical(env, obj);
+	if (hdr == NULL) {
+		return;
+	}
+
+	hdr->ts.tv_usec = (int) jts;
 }
 
 /*
@@ -74,7 +114,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_PcapHeader_hdr_1usec
  * Method:    hdr_len
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_PcapHeader_hdr_1len
+JNIEXPORT jint JNICALL Java_org_jnetpcap_PcapHeader_hdr_1len__
   (JNIEnv *env, jobject obj) {
 	pcap_pkthdr *hdr = (pcap_pkthdr *)getJMemoryPhysical(env, obj);
 	if (hdr == NULL) {
@@ -82,7 +122,21 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_PcapHeader_hdr_1len
 	}
 
 	return (jlong) hdr->caplen;
-	
+}
+
+/*
+ * Class:     org_jnetpcap_PcapHeader
+ * Method:    hdr_len
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_PcapHeader_hdr_1len__I
+  (JNIEnv *env, jobject obj, jint jlen) {
+	pcap_pkthdr *hdr = (pcap_pkthdr *)getJMemoryPhysical(env, obj);
+	if (hdr == NULL) {
+		return;
+	}
+
+	hdr->caplen = (int) jlen;
 }
 
 /*
@@ -90,7 +144,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_PcapHeader_hdr_1len
  * Method:    hdr_wirelen
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_PcapHeader_hdr_1wirelen
+JNIEXPORT jint JNICALL Java_org_jnetpcap_PcapHeader_hdr_1wirelen__
   (JNIEnv *env, jobject obj) {
 	pcap_pkthdr *hdr = (pcap_pkthdr *)getJMemoryPhysical(env, obj);
 	if (hdr == NULL) {
@@ -98,7 +152,19 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_PcapHeader_hdr_1wirelen
 	}
 
 	return (jlong) hdr->len;
-
 }
 
+/*
+ * Class:     org_jnetpcap_PcapHeader
+ * Method:    hdr_wirelen
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_PcapHeader_hdr_1wirelen__I
+  (JNIEnv *env, jobject obj, jint jlen) {
+	pcap_pkthdr *hdr = (pcap_pkthdr *)getJMemoryPhysical(env, obj);
+	if (hdr == NULL) {
+		return;
+	}
 
+	hdr->len = (int) jlen;
+}

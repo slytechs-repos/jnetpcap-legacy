@@ -15,7 +15,18 @@ package org.jnetpcap.nio;
 import java.nio.ByteBuffer;
 
 /**
- * Base class for peered pure structure classes
+ * Base class for peered pure structure classes. This class purposely does not
+ * extend JBuffer to allow structure fields to be read out generically as that
+ * is not portable accross platforms and architectures. Most structures are
+ * written specifically for local machine architecture and OS, unlike network
+ * protocols which can be usually read by use of generic <code>JBuffer</code>.
+ * Therefore as a general requirement each JStruct has to implement its own
+ * native methods to read and write fields into the structure.
+ * <p>
+ * As a convention, each subclass of JStruct implements a static method
+ * <code>sizeof()</code> which returns the length of the structure, if the
+ * structure is static in length. If not, then no requirement to implement the
+ * static method <code>sizeof()</code> exists.
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
@@ -60,8 +71,8 @@ public class JStruct
 	}
 
 	public final String getStructName() {
-  	return this.structName;
-  }
+		return this.structName;
+	}
 
 	public String toString() {
 		return "struct " + structName;

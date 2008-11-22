@@ -31,6 +31,7 @@
 #include "winpcap_ext.h"
 #include "jnetpcap_utils.h"
 #include "winpcap_ids.h"
+#include "nio_jmemory.h"
 #include "export.h"
 
 jclass winPcapClass = 0;
@@ -527,6 +528,35 @@ JNICALL Java_org_jnetpcap_winpcap_WinPcap_sendQueueTransmitPrivate
 	return -1;
 #endif
 }
+
+/*
+ * Class:     org_jnetpcap_winpcap_WinPcap
+ * Method:    sendQueueTransmit
+ * Signature: (Lorg/jnetpcap/winpcap/WinPcapSendQueue;I)I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_sendQueueTransmit
+  (JNIEnv *env, jobject obj, jobject jqueue, jint jsync) {
+
+#ifdef WIN32
+	if (jqueue == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return -1;
+	}
+
+	pcap_t *p = getPcap(env, obj);
+	if (p == NULL) {
+		return -1; // Exception already thrown
+	}
+
+	pcap_send_queue *queue = (pcap_send_queue *)getJMemoryPhysical(env, jqueue);
+	
+	return pcap_sendqueue_transmit(p, queue, (int)jsync);
+#else
+	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
+	return -1;
+#endif
+}
+
 
 
 #ifdef WIN32

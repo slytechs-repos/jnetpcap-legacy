@@ -42,6 +42,14 @@ public abstract class JCaptureHeader
 	}
 
 	/**
+   * @param structName
+   * @param size
+   */
+  public JCaptureHeader(String structName, int size) {
+	  super(structName, size);
+  }
+
+	/**
 	 * Retrieves the length of the packet that was actually captured. This could
 	 * be only a portion of the original packet if snaplen filter was set during
 	 * Pcap.openXXX call. If the packet was not trucated, this length should equal
