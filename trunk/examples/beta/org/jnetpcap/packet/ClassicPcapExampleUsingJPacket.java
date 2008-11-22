@@ -84,7 +84,7 @@ public class ClassicPcapExampleUsingJPacket {
 		 * libpcap loop.
 		 **************************************************************************/
 		JPacketHandler<String> printSummaryHandler = new JPacketHandler<String>() {
-			
+
 			private JFormatter output = new TextFormatter(); // To System.out
 
 			public void nextPacket(JPacket packet, String user) {
@@ -92,12 +92,12 @@ public class ClassicPcapExampleUsingJPacket {
 
 				System.out.printf("Packet captured on %s\n", new Timestamp(header
 				    .timestampInMillis()));
-				
+
 				try {
-	        output.format(packet); // Sends formatted output to System.out
-        } catch (IOException e) {// Any IO errors with System.out
-	        e.printStackTrace();
-        }
+					output.format(packet); // Sends formatted output to System.out
+				} catch (IOException e) {// Any IO errors with System.out
+					e.printStackTrace();
+				}
 			}
 		};
 
