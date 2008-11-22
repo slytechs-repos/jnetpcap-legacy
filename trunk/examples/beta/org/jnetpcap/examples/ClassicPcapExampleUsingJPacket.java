@@ -18,11 +18,9 @@ import java.util.List;
 import org.jnetpcap.BetaFeature;
 import org.jnetpcap.JCaptureHeader;
 import org.jnetpcap.Pcap;
-import org.jnetpcap.PcapDLT;
 import org.jnetpcap.PcapIf;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JPacketHandler;
-import org.jnetpcap.packet.JProtocol;
 
 /**
  * This example is the classic libpcap example shown in nearly every tutorial on
@@ -163,14 +161,16 @@ public class ClassicPcapExampleUsingJPacket {
 				/*
 				 * For packet header for output using an internal TextFormatter that
 				 * sends output to a StringBuilder, then calls on its toString() method
-				 * to generate the final string which is send to System.out. Alternative
-				 * would be to send output directly to System.out, bypassing any 
-				 * intermediate string: 
+				 * to generate the final string which is send to System.out. 
+				 * 
+				 * Alternative would be to send output directly to System.out, bypassing 
+				 * any intermediate string: 
 				 * 
 				 * JFormatter out = new TextFormatter(); // output to System.out 
 				 * out.format(packet);   // Format and send output to System.out
 				 * 
 				 * Or to generate XML output:
+				 * 
 				 * PrintStream outputstream = // My output stream
 				 * JFormatter out = next XmlFormatter(outputstream);
 				 * out.format(packet); 
@@ -181,15 +181,15 @@ public class ClassicPcapExampleUsingJPacket {
 		};
 
 		/***************************************************************************
-		 * Fourth we enter the loop and tell it to capture 10 packets Notice that
-		 * since this is a beta feature currently, not fully integrated into
+		 * Fourth we enter the loop and tell it to capture 10 packets. Notice that
+		 * since this is currently a beta feature, not fully integrated into
 		 * production Pcap class, we use a BetaFeature static method and we have to
-		 * supply the pcap object as a parameter. This loop function will be
-		 * integrated into Pcap class went it becomes elevated to production status
-		 * and BetaFeature.loop will be deprecated. 
+		 * supply the pcap object as a parameter. This loop function will eventaully 
+		 * be integrated into Pcap class when it becomes elevated to production 
+		 * status and BetaFeature.loop will be deprecated. 
 		 * 
 		 * The loop method does a mapping of pcap.datalink() DLT value to JProtocol
-		 * ID which is needed by the JScanner. The scanner scans the packet buffer 
+		 * ID, which is needed by JScanner. The scanner scans the packet buffer 
 		 * and decodes the headers. The mapping is done automatically, although a
 		 * variation on the loop method exists that allows the programmer to
 		 * sepecify exactly which protocol ID to use as the data link type for this
