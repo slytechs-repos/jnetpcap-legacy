@@ -23,8 +23,8 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.jnetpcap.Pcap;
-import org.jnetpcap.PcapDumper;
 import org.jnetpcap.PcapHandler;
+import org.jnetpcap.PcapHeader;
 import org.jnetpcap.PcapIf;
 import org.jnetpcap.PcapPktHdr;
 
@@ -166,7 +166,8 @@ public class TestWinPcapExtensions
 
 	}
 
-	public void testSendQueue() {
+	@SuppressWarnings("deprecation")
+  public void testSendQueueDepracated() {
 		WinPcapSendQueue queue = WinPcap.sendQueueAlloc(512);
 
 		WinPcap pcap = WinPcap
@@ -191,6 +192,33 @@ public class TestWinPcapExtensions
 
 		WinPcap.sendQueueDestroy(queue);
 	}
+	
+  public void testSendQueue() {
+		WinPcapSendQueue queue = WinPcap.sendQueueAlloc(512);
+
+		WinPcap pcap = WinPcap
+		    .openLive(device, snaplen, promisc, oneSecond, errbuf);
+
+		byte[] pkt = new byte[128];
+		Arrays.fill(pkt, (byte) 255);
+
+		PcapHeader hdr = new PcapHeader(128, 128);
+		queue.queue(hdr, pkt); // Packet #1
+		queue.queue(hdr, pkt); // Packet #2
+
+		Arrays.fill(pkt, (byte) 0x11);
+		queue.queue(hdr, pkt); // Packet #3
+		int r = pcap.sendQueueTransmit(queue, WinPcap.TRANSMIT_SYNCH_ASAP);
+		if (r != queue.getLen()) {
+
+			assertEquals("transmit() call failed [", queue.getLen(), r);
+		}
+
+		pcap.close();
+
+		WinPcap.sendQueueDestroy(queue);
+	}
+
 
 	public void testSetSamplingLive() {
 

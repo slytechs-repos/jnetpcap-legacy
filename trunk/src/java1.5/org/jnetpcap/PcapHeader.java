@@ -37,6 +37,24 @@ public class PcapHeader
 	}
 
 	/**
+   * @param caplen
+   * @param wirelen
+   */
+  public PcapHeader(int caplen, int wirelen) {
+	  super(STRUCT_NAME, sizeof());
+	  
+	  hdr_len(caplen);
+	  hdr_wirelen(wirelen);
+	  
+	  long t = System.currentTimeMillis();
+	  long s = t / 1000;
+	  long us = (t - s * 1000 ) * 1000; 
+	  
+	  hdr_sec(s);
+	  hdr_usec((int) us);
+  }
+
+	/**
 	 * Size of the pcap_pkthdr structure in bytes.
 	 * 
 	 * @return size of structure
@@ -44,12 +62,20 @@ public class PcapHeader
 	public native static int sizeof();
 
 	public native long hdr_sec();
+	
+	public native void hdr_sec(long ts);
 
 	public native int hdr_usec();
+	
+	public native void hdr_usec(int ts);
 
 	public native int hdr_len();
+	
+	public native void hdr_len(int len);
 
 	public native int hdr_wirelen();
+	
+	public native void hdr_wirelen(int len);
 
 	/*
 	 * (non-Javadoc)

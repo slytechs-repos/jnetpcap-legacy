@@ -447,6 +447,7 @@
 			<class name="org.jnetpcap.winpcap.WinPcapStat" />
 			<class name="org.jnetpcap.winpcap.WinPcapSamp" />
 			<class name="org.jnetpcap.winpcap.WinPcapRmtAuth" />
+			<class name="org.jnetpcap.winpcap.WinPcapSendQueue" />
 			
 			<!--
 			****  BETA FEATURES

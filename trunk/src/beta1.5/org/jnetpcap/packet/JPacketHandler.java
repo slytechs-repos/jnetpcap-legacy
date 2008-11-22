@@ -17,7 +17,6 @@
  */
 package org.jnetpcap.packet;
 
-import org.jnetpcap.PcapHeader;
 
 
 /**

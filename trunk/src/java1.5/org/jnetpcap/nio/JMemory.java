@@ -356,6 +356,10 @@ public abstract class JMemory {
 	 * @return actual number of bytes that was copied
 	 */
 	public native int transferTo(ByteBuffer dst, int srcOffset, int length);
+	
+	public int transferTo(JBuffer dst, int srcOffset, int length, int dstOffset) {
+		return transferTo((JMemory) dst, srcOffset, length, dstOffset);
+	}
 
 	/**
 	 * @param dst

@@ -29,7 +29,6 @@ public class FormatUtils {
 
 	private final static List<String> multiLineStringList =
       new ArrayList<String>();
-	private static final String NEWLINE_CHAR = "\n";
 	private static final String SPACE_CHAR = " ";
 	static String[] table = new String[256];
 
@@ -347,10 +346,5 @@ public class FormatUtils {
   
   	return (s);
   }
-
-	/**
-   * Temp buffer for handling ip6 address compression
-   */
-  private final static byte[] ip6_buf = new byte[16];
 
 }
