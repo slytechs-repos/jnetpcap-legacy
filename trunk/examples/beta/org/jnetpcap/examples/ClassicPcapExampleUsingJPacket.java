@@ -10,7 +10,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.packet;
+package org.jnetpcap.examples;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -21,6 +21,9 @@ import org.jnetpcap.BetaFeature;
 import org.jnetpcap.JCaptureHeader;
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapIf;
+import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.packet.JPacketHandler;
+import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
 
