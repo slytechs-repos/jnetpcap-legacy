@@ -34,6 +34,7 @@ import org.jnetpcap.nio.JStruct;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@SuppressWarnings("deprecation")
 public class WinPcapSendQueue extends JStruct {
 	
 	/**
