@@ -12,6 +12,7 @@
  */
 package org.jnetpcap;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -115,6 +116,20 @@ public class PcapIf {
 	 */
 	public final int getFlags() {
 		return this.flags;
+	}
+
+	/**
+	 * Retrieves the hardware address of this network interface. The native OS is
+	 * queried via the appropriate OS calls to retrive the hardware address of the
+	 * interface (MAC address). This is a direct call, not cached data.
+	 * 
+	 * @return hardware address as an array of bytes; this method does not return
+	 *         null
+	 * @throws IOException
+	 *           if there was a problem retrieving the address
+	 */
+	public byte[] getHardwareAddress() throws IOException {
+		return PcapUtils.getHardwareAddress(this);
 	}
 
 	/**
