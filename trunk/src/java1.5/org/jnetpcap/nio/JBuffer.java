@@ -15,8 +15,6 @@ package org.jnetpcap.nio;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.jnetpcap.nio.JMemory.Type;
-
 /**
  * A direct ByteBuffer stored in native memory
  * 

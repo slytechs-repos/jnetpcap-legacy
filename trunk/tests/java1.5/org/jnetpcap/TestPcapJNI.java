@@ -452,7 +452,7 @@ public class TestPcapJNI
 	public void testNext() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
-			PcapHeader header = new PcapHeader();
+			PcapHeader header = new PcapHeader(); // allocated memory
 			JBuffer buffer = new JBuffer(JMemory.Type.POINTER);
 
 			buffer = pcap.next(header, buffer);
