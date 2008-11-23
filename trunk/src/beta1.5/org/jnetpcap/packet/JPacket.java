@@ -95,8 +95,8 @@ public abstract class JPacket
 		 */
 		public static native int sizeof();
 
-		public State() {
-			super(STRUCT_NAME);
+		public State(Type type) {
+			super(STRUCT_NAME, type);
 		}
 
 		/**
@@ -207,8 +207,10 @@ public abstract class JPacket
 	 * such as a direct ByteBuffer or JBuffer.
 	 * </p>
 	 */
-	public JPacket() {
-		this.state = new State();
+	public JPacket(Type type) {
+		super(type);
+		
+		this.state = new State(Type.POINTER);
 	}
 
 	/**
@@ -255,6 +257,7 @@ public abstract class JPacket
 	 *          is not peered.
 	 */
 	public JPacket(int size) {
+		super(Type.POINTER);
 		if (size < 0) {
 			throw new IllegalArgumentException("size must be positive");
 		}
@@ -304,7 +307,8 @@ public abstract class JPacket
 	 *          source packet to transfer state and data from
 	 */
 	public JPacket(JPacket src, JMemoryPool pool) {
-		this.state = new State();
+		super(Type.POINTER);
+		this.state = new State(Type.POINTER);
 
 		src.transferStateAndDataTo(this, pool);
 	}

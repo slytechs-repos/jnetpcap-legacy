@@ -95,6 +95,10 @@ public class JNumber
 	private final static int DOUBLE_ORDINAL = 7;
 
 	private final static int MAX_SIZE_ORDINAL = 8;
+	
+	public JNumber() {
+		super(Type.getBiggestSize());
+	}
 
 	/**
 	 * Allocates a number of the specified size and type.
@@ -110,7 +114,8 @@ public class JNumber
 	 * Creates a number pointer, which does not allocate any memory on its own,
 	 * but needs to be peered with primitive pointer.
 	 */
-	public JNumber() {
+	public JNumber(JMemory.Type type) {
+		super(type);
 	}
 
 	private native static int sizeof(int oridnal);

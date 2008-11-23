@@ -33,7 +33,11 @@ public class PcapHeader
 	 * 
 	 */
 	public PcapHeader() {
-		super(STRUCT_NAME);
+		super(STRUCT_NAME, sizeof());
+	}
+	
+	public PcapHeader(Type type) {
+		super(STRUCT_NAME, type);
 	}
 
 	/**
@@ -52,6 +56,13 @@ public class PcapHeader
 	  
 	  hdr_sec(s);
 	  hdr_usec((int) us);
+  }
+
+	/**
+   * @param size
+   */
+  public PcapHeader(int size) {
+	  super(STRUCT_NAME, size);
   }
 
 	/**

@@ -28,7 +28,11 @@ public class JScan
 	 * @param structName
 	 */
 	public JScan() {
-		super(STRUCT_NAME);
+		super(STRUCT_NAME, sizeof());
+	}
+	
+	public JScan(Type type) {
+		super(STRUCT_NAME, type);
 	}
 
 	protected native int scan_id();
@@ -42,6 +46,8 @@ public class JScan
 	protected native void scan_next_id(int next_id);
 
 	protected native void scan_length(int length);
+	
+	public native static int sizeof();
 
 	/**
    * @param buffer

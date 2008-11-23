@@ -41,6 +41,17 @@
 
 /*
  * Class:     org_jnetpcap_packet_JScan
+ * Method:    sizeof
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScan_sizeof
+  (JNIEnv *env, jclass clazz) {
+	return (jint) sizeof(scan_t);
+}
+
+
+/*
+ * Class:     org_jnetpcap_packet_JScan
  * Method:    scan_id
  * Signature: ()I
  */

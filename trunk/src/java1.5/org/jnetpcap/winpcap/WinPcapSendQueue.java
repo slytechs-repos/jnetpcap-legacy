@@ -100,7 +100,7 @@ public class WinPcapSendQueue extends JStruct {
 	 */
 	public WinPcapSendQueue(ByteBuffer buffer) {
 		super(STRUCT_NAME, sizeof());
-		this.buffer = new JBuffer();
+		this.buffer = new JBuffer(Type.POINTER);
 		this.buffer.order(ByteOrder.nativeOrder()); // Force byte ordering
 
 		if (buffer.isDirect() == false) {

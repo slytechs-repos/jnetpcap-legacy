@@ -47,8 +47,8 @@ public abstract class JHeader
 		/**
 		 * @param structName
 		 */
-		public State() {
-			super(STRUCT_NAME);
+		public State(Type type) {
+			super(STRUCT_NAME, type);
 		}
 
 		public native int getId();
@@ -125,6 +125,8 @@ public abstract class JHeader
 	}
 
 	public JHeader(State state, JField[] fields, String name, String nicname) {
+		super(Type.POINTER);
+		
 		this.state = state;
 		this.fields = fields;
 		this.name = name;
@@ -134,12 +136,13 @@ public abstract class JHeader
 	}
 
 	public JHeader(int id, JField[] fields, String name, String nicname) {
+		super(Type.POINTER);
 		this.fields = fields;
 
 		this.id = id;
 		this.name = name;
 		this.nicname = nicname;
-		this.state = new State();
+		this.state = new State(Type.POINTER);
 		super.order(ByteOrder.nativeOrder());
 
 	}

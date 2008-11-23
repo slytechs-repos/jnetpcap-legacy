@@ -564,17 +564,19 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_Pcap_next__Lorg_jnetpcap_PcapHeader_
 		return NULL; // Exception already thrown
 	}
 
-	pcap_pkthdr  pkt_header;
-	const u_char *pkt_data = pcap_next(p, &pkt_header);
+	pcap_pkthdr  *pkt_header = (pcap_pkthdr *)getJMemoryPhysical(env, header);
+	if (pkt_header == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "header must allocate memory");
+		return NULL;
+	}
+	
+	const u_char *pkt_data = pcap_next(p, pkt_header);
 	if (pkt_data == NULL) {
 		return NULL;
 	}
 
-	setJMemoryPhysical(env, header, toLong((void *) &pkt_header));
 	setJMemoryPhysical(env, buffer, toLong((void *) pkt_data   ));
-
-	env->SetIntField(header, jmemorySizeFID, sizeof(pcap_pkthdr));
-	env->SetIntField(buffer, jmemorySizeFID, (jint) pkt_header.caplen);
+	env->SetIntField(buffer, jmemorySizeFID, (jint) pkt_header->caplen);
 
 	return buffer;
 }
@@ -582,9 +584,9 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_Pcap_next__Lorg_jnetpcap_PcapHeader_
 /*
  * Class:     org_jnetpcap_Pcap
  * Method:    next
- * Signature: (Lorg/jnetpcap/PcapPkthdr;)Ljava/nio/ByteBuffer;
+ * Signature: (Lorg/jnetpcap/PcapPktHdr;)Ljava/nio/ByteBuffer;
  */
-JNIEXPORT jobject JNICALL Java_org_jnetpcap_Pcap_next
+JNIEXPORT jobject JNICALL Java_org_jnetpcap_Pcap_next__Lorg_jnetpcap_PcapPktHdr_2
 (JNIEnv *env, jobject obj, jobject jpkt_header) {
 
 	if (jpkt_header == NULL) {
@@ -634,7 +636,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_nextEx__Lorg_jnetpcap_PcapHeader_2
 	const u_char *pkt_data = NULL;
 	
 	int r = pcap_next_ex(p, &pkt_header, &pkt_data);
-	if (r == 1) {
+	if (r == 1) {		
 		setJMemoryPhysical(env, header, toLong((void *) pkt_header));
 		setJMemoryPhysical(env, buffer, toLong((void *) pkt_data  ));
 
@@ -649,9 +651,9 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_nextEx__Lorg_jnetpcap_PcapHeader_2
 /*
  * Class:     org_jnetpcap_Pcap
  * Method:    nextEx
- * Signature: (Lorg/jnetpcap/PcapPkthdr;Lorg/jnetpcap/PcapPktbuffer;)I
+ * Signature: (Lorg/jnetpcap/PcapPktHdr;Lorg/jnetpcap/PcapPktBuffer;)I
  */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_nextEx
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_nextEx__Lorg_jnetpcap_PcapPktHdr_2Lorg_jnetpcap_PcapPktBuffer_2
 (JNIEnv *env, jobject obj, jobject jpkt_header, jobject jpkt_buffer) {
 
 	if (jpkt_header == NULL || jpkt_buffer == NULL) {

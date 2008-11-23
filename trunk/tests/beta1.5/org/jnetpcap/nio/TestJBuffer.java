@@ -24,6 +24,8 @@ import java.util.Arrays;
 
 import junit.framework.TestCase;
 
+import org.jnetpcap.nio.JMemory.Type;
+
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
@@ -63,7 +65,7 @@ public class TestJBuffer
   	src.put(sa);
   	src.flip();
   
-  	JBuffer peer = new JBuffer();
+  	JBuffer peer = new JBuffer(Type.POINTER);
   	peer.peer(src);
   	assertEquals(8, peer.size());
   
@@ -90,7 +92,7 @@ public class TestJBuffer
   	src.put(sa);
   	src.flip();
   
-  	JBuffer peer = new JBuffer();
+  	JBuffer peer = new JBuffer(Type.POINTER);
   	peer.peer(src);
   	assertEquals(8, peer.size());
   
@@ -118,7 +120,7 @@ public class TestJBuffer
   	src.flip();
   	src = src.asReadOnlyBuffer();
   
-  	JBuffer peer = new JBuffer();
+  	JBuffer peer = new JBuffer(Type.POINTER);
   	peer.peer(src);
   	assertEquals(8, peer.size());
   	assertTrue(peer.isReadonly());
@@ -133,7 +135,7 @@ public class TestJBuffer
 	 * Test method for {@link org.jnetpcap.nio.JBuffer#order()}.
 	 */
 	public final void testOrder() {
-		JBuffer b = new JBuffer();
+		JBuffer b = new JBuffer(Type.POINTER);
 		
 		assertEquals(ByteOrder.nativeOrder(), b.order());
 	}
@@ -142,7 +144,7 @@ public class TestJBuffer
 	 * Test method for {@link org.jnetpcap.nio.JBuffer#order(java.nio.ByteOrder)}.
 	 */
 	public final void testOrderByteOrder() {
-		JBuffer b = new JBuffer();
+		JBuffer b = new JBuffer(Type.POINTER);
 
 		b.order(ByteOrder.BIG_ENDIAN);
 		assertEquals(ByteOrder.BIG_ENDIAN, b.order());
@@ -157,7 +159,7 @@ public class TestJBuffer
 	public final void testSetByte() {
   	ByteBuffer src = ByteBuffer.allocateDirect(4);
   
-  	JBuffer peer = new JBuffer();
+  	JBuffer peer = new JBuffer(Type.POINTER);
   	peer.peer(src);
   	assertEquals(4, peer.size());
   
@@ -185,7 +187,7 @@ public class TestJBuffer
   	    3,
   	    (byte) 0xbb };
   
-  	JBuffer peer = new JBuffer();
+  	JBuffer peer = new JBuffer(Type.POINTER);
   	peer.peer(src);
   	assertEquals(8, peer.size());
   
@@ -204,7 +206,7 @@ public class TestJBuffer
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
   	src.clear();
   
-  	JBuffer peer = new JBuffer();
+  	JBuffer peer = new JBuffer(Type.POINTER);
   	peer.peer(src);
   	assertEquals(8, peer.size());
   
@@ -227,7 +229,7 @@ public class TestJBuffer
   	ByteBuffer src = ByteBuffer.allocateDirect(4);
   	src.clear();
   
-  	JBuffer peer = new JBuffer();
+  	JBuffer peer = new JBuffer(Type.POINTER);
   	peer.peer(src);
   	assertEquals(4, peer.size());
   
@@ -250,7 +252,7 @@ public class TestJBuffer
   	ByteBuffer src = ByteBuffer.allocateDirect(4);
   	src.clear();
   
-  	JBuffer peer = new JBuffer();
+  	JBuffer peer = new JBuffer(Type.POINTER);
   	peer.peer(src);
   	assertEquals(4, peer.size());
   
@@ -273,7 +275,7 @@ public class TestJBuffer
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
   	src.clear();
   
-  	JBuffer peer = new JBuffer();
+  	JBuffer peer = new JBuffer(Type.POINTER);
   	peer.peer(src);
   	assertEquals(8, peer.size());
   
@@ -296,7 +298,7 @@ public class TestJBuffer
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
   	src.clear();
   
-  	JBuffer peer = new JBuffer();
+  	JBuffer peer = new JBuffer(Type.POINTER);
   	peer.peer(src);
   	assertEquals(8, peer.size());
   
@@ -319,7 +321,7 @@ public class TestJBuffer
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
   	src.clear();
   
-  	JBuffer peer = new JBuffer();
+  	JBuffer peer = new JBuffer(Type.POINTER);
   	peer.peer(src);
   	assertEquals(8, peer.size());
   
@@ -342,7 +344,7 @@ public class TestJBuffer
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
   	src.clear();
   
-  	JBuffer peer = new JBuffer();
+  	JBuffer peer = new JBuffer(Type.POINTER);
   	peer.peer(src);
   	assertEquals(8, peer.size());
   
@@ -365,7 +367,7 @@ public class TestJBuffer
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
   	src.clear();
   
-  	JBuffer peer = new JBuffer();
+  	JBuffer peer = new JBuffer(Type.POINTER);
   	peer.peer(src);
   	assertEquals(8, peer.size());
   
@@ -438,7 +440,7 @@ public class TestJBuffer
   	    4 });
   	src.flip();
   
-  	JBuffer peer = new JBuffer();
+  	JBuffer peer = new JBuffer(Type.POINTER);
   	peer.peer(src);
   	assertEquals(4, peer.size());
   
@@ -462,7 +464,7 @@ public class TestJBuffer
   	    4 });
   	src.flip();
   
-  	JBuffer peer = new JBuffer();
+  	JBuffer peer = new JBuffer(Type.POINTER);
   	peer.peer(src);
   	assertEquals(4, peer.size());
   
@@ -486,7 +488,7 @@ public class TestJBuffer
   	    4 });
   	src.flip();
   
-  	JBuffer peer = new JBuffer();
+  	JBuffer peer = new JBuffer(Type.POINTER);
   	peer.peer(src);
   	assertEquals(4, peer.size());
   
@@ -514,7 +516,7 @@ public class TestJBuffer
   	    8 });
   	src.flip();
   
-  	JBuffer peer = new JBuffer();
+  	JBuffer peer = new JBuffer(Type.POINTER);
   	peer.peer(src);
   	assertEquals(8, peer.size());
   
@@ -536,7 +538,7 @@ public class TestJBuffer
   	    (byte) 0xbb });
   	src.flip();
   
-  	JBuffer peer = new JBuffer();
+  	JBuffer peer = new JBuffer(Type.POINTER);
   	peer.peer(src);
   	assertEquals(2, peer.size());
   
@@ -558,7 +560,7 @@ public class TestJBuffer
   	    (byte) 0xbb });
   	src.flip();
   
-  	JBuffer peer = new JBuffer();
+  	JBuffer peer = new JBuffer(Type.POINTER);
   	peer.peer(src);
   	assertEquals(2, peer.size());
   
@@ -582,7 +584,7 @@ public class TestJBuffer
   	    (byte) 0xbb });
   	src.flip();
   
-  	JBuffer peer = new JBuffer();
+  	JBuffer peer = new JBuffer(Type.POINTER);
   	peer.peer(src);
   	assertEquals(4, peer.size());
   
@@ -610,7 +612,7 @@ public class TestJBuffer
   	    4 });
   	src.flip();
   
-  	JBuffer peer = new JBuffer();
+  	JBuffer peer = new JBuffer(Type.POINTER);
   	peer.peer(src);
   
   	try {
@@ -731,7 +733,7 @@ public class TestJBuffer
   	    (byte) 0xbb });
   	src.flip();
   
-  	JBuffer peer = new JBuffer();
+  	JBuffer peer = new JBuffer(Type.POINTER);
   	peer.peer(src);
   	assertEquals(8, peer.size());
   
@@ -759,7 +761,7 @@ public class TestJBuffer
   	    (byte) 0xbb });
   	src.flip();
   
-  	JBuffer peer = new JBuffer();
+  	JBuffer peer = new JBuffer(Type.POINTER);
   	peer.peer(src);
   	assertEquals(8, peer.size());
   

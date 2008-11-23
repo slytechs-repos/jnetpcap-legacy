@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JNumber;
+import org.jnetpcap.nio.JMemory.Type;
 
 /**
  * <P>
@@ -952,7 +953,7 @@ public class Pcap {
 	 * @since 1.2
 	 */
 	public <T> int dispatch(int cnt, JBufferHandler<T> handler, T user) {
-		return dispatch(cnt, handler, user, new PcapHeader(), new JBuffer());
+		return dispatch(cnt, handler, user, new PcapHeader(), new JBuffer(Type.POINTER));
 	}
 
 	private native <T> int dispatch(int cnt, JBufferHandler<T> handler, T user,
@@ -1230,7 +1231,7 @@ public class Pcap {
 	 * @since 1.2
 	 */
 	public <T> int loop(int cnt, JBufferHandler<T> handler, T user) {
-		return loop(cnt, handler, user, new PcapHeader(), new JBuffer());
+		return loop(cnt, handler, user, new PcapHeader(), new JBuffer(Type.POINTER));
 	}
 
 	private native <T> int loop(int cnt, JBufferHandler<T> handler, T user,
