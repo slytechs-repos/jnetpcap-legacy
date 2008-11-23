@@ -12,6 +12,7 @@
  */
 package org.jnetpcap;
 
+import org.jnetpcap.nio.JMemory.Type;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JPacketHandler;
 import org.jnetpcap.packet.JProtocol;
@@ -32,7 +33,7 @@ public class BetaFeature
 	}
 
 	public static <T> int dispatch(Pcap pcap, int cnt, int id, JPacketHandler<T> handler, T user) {
-		final PcapPacket packet = new PcapPacket();
+		final PcapPacket packet = new PcapPacket(Type.POINTER);
 		return dispatch(pcap, cnt, id, handler, user, packet, packet.getState(), packet.getCaptureHeader(),
 		    JScanner.getThreadLocal());
 	}
@@ -41,13 +42,13 @@ public class BetaFeature
 	    JPacket packet, JPacket.State state, PcapHeader header, JScanner scanner);
 
 	public static <T> int loop(Pcap pcap, int cnt, JPacketHandler<T> handler, T user) {
-		final PcapPacket packet = new PcapPacket();
+		final PcapPacket packet = new PcapPacket(Type.POINTER);
 		return loop(pcap, cnt, JProtocol.id(pcap), handler, user, packet, packet.getState(), packet.getCaptureHeader(), JScanner
 		    .getThreadLocal());
 	}
 
 	public static <T> int loop(Pcap pcap, int cnt, int id, JPacketHandler<T> handler, T user) {
-		final PcapPacket packet = new PcapPacket();
+		final PcapPacket packet = new PcapPacket(Type.POINTER);
 		return loop(pcap, cnt, id, handler, user, packet, packet.getState(), packet.getCaptureHeader(), JScanner
 		    .getThreadLocal());
 	}

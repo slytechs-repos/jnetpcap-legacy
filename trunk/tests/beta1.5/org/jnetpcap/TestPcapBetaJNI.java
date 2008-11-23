@@ -422,7 +422,7 @@ public class TestPcapBetaJNI
 	public void testNextNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
-			pcap.next((PcapHeader) null);
+			pcap.next((PcapHeader) null, null);
 			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK

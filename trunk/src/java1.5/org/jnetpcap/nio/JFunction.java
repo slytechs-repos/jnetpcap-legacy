@@ -33,6 +33,7 @@ public class JFunction
 	 * 
 	 */
 	public JFunction(String name) {
+		super(Type.POINTER);
 		this.name = name;
 	}
 

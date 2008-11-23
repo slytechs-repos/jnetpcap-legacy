@@ -24,6 +24,7 @@ import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapHeader;
 import org.jnetpcap.PcapPacket;
 import org.jnetpcap.nio.JBuffer;
+import org.jnetpcap.nio.JMemory.Type;
 import org.jnetpcap.packet.JBinding.DefaultJBinding;
 import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.packet.header.Ethernet;
@@ -121,7 +122,7 @@ public class TestJScanner
 		StringBuilder errbuf = new StringBuilder();
 		final Pcap pcap = Pcap.openOffline("tests/test-l2tp.pcap", errbuf);
 
-		final JPacket packet = new PcapPacket();
+		final JPacket packet = new PcapPacket(Type.POINTER);
 		final JScanner scanner = new JScanner();
 
 		long start = System.currentTimeMillis();
@@ -165,7 +166,7 @@ public class TestJScanner
 		StringBuilder errbuf = new StringBuilder();
 		final Pcap pcap = Pcap.openOffline("tests/test-l2tp.pcap", errbuf);
 
-		final JPacket packet = new PcapPacket();
+		final JPacket packet = new PcapPacket(Type.POINTER);
 		final JScanner scanner = new JScanner();
 
 		long start = System.currentTimeMillis();

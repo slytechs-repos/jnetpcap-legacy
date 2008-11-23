@@ -14,6 +14,8 @@ package org.jnetpcap.nio;
 
 import java.nio.ByteBuffer;
 
+import org.jnetpcap.nio.JMemory.Type;
+
 /**
  * Base class for peered pure structure classes. This class purposely does not
  * extend JBuffer to allow structure fields to be read out generically as that
@@ -40,9 +42,11 @@ public class JStruct
 	private final String structName;
 
 	/**
+	 * @param type TODO
 	 * 
 	 */
-	public JStruct(String structName) {
+	public JStruct(String structName, Type type) {
+		super(type);
 		this.structName = structName;
 	}
 

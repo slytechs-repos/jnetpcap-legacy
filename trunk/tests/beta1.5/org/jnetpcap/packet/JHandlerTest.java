@@ -16,12 +16,13 @@ import java.nio.ByteBuffer;
 
 import junit.framework.TestCase;
 
+import org.jnetpcap.BetaFeature;
 import org.jnetpcap.ByteBufferHandler;
 import org.jnetpcap.JBufferHandler;
-import org.jnetpcap.BetaFeature;
 import org.jnetpcap.PcapHeader;
 import org.jnetpcap.PcapPacket;
 import org.jnetpcap.nio.JBuffer;
+import org.jnetpcap.nio.JMemory.Type;
 import org.jnetpcap.packet.header.Ethernet;
 import org.jnetpcap.packet.header.Ip4;
 import org.jnetpcap.packet.header.Ip6;
@@ -40,7 +41,7 @@ public class JHandlerTest
 
 	private Ip6 ip6 = new Ip6();
 
-	private JPacket packet = new PcapPacket();
+	private JPacket packet = new PcapPacket(Type.POINTER);
 
 	private JScanner scanner = new JScanner();
 

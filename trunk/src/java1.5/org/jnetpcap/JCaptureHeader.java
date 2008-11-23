@@ -13,6 +13,7 @@
 package org.jnetpcap;
 
 import org.jnetpcap.nio.JStruct;
+import org.jnetpcap.nio.JMemory.Type;
 
 /**
  * Interface to to capture header provided by the capturing library. For example
@@ -36,9 +37,10 @@ public abstract class JCaptureHeader
 
 	/**
 	 * @param structName
+	 * @param type TODO
 	 */
-	public JCaptureHeader(String structName) {
-		super(structName);
+	public JCaptureHeader(String structName, Type type) {
+		super(structName, type);
 	}
 
 	/**

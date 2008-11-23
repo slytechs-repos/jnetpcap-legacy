@@ -34,6 +34,10 @@ import org.jnetpcap.Pcap;
  */
 public abstract class JMemory {
 
+	public enum Type {
+		POINTER
+	}
+
 	/**
 	 * Name of the native library that wraps around libpcap and extensions
 	 */
@@ -97,7 +101,11 @@ public abstract class JMemory {
 	/**
 	 * No memory pre-allocation constructor
 	 */
-	public JMemory() {
+	public JMemory(Type type) {
+		if (type != Type.POINTER) {
+			throw new IllegalArgumentException("Only POINTER types are supported");
+		}
+		
 		this.size = 0;
 	}
 
@@ -128,7 +136,7 @@ public abstract class JMemory {
 	 * @param peer
 	 */
 	public JMemory(JMemory peer) {
-		this(peer.size);
+		allocate(peer.size);
 
 		peer.transferTo(this);
 	}
@@ -155,7 +163,7 @@ public abstract class JMemory {
 	public void check() throws IllegalStateException {
 		if (physical == 0) {
 			throw new IllegalStateException(
-	    "peered object not synchronized with native structure");
+			    "peered object not synchronized with native structure");
 		}
 	}
 
@@ -356,7 +364,7 @@ public abstract class JMemory {
 	 * @return actual number of bytes that was copied
 	 */
 	public native int transferTo(ByteBuffer dst, int srcOffset, int length);
-	
+
 	public int transferTo(JBuffer dst, int srcOffset, int length, int dstOffset) {
 		return transferTo((JMemory) dst, srcOffset, length, dstOffset);
 	}

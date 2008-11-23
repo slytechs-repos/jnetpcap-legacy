@@ -36,7 +36,8 @@ public class PcapPacket
 	/**
 	 * 
 	 */
-	public PcapPacket() {
+	public PcapPacket(Type type) {
+		super(type);
 	}
 
 	/**

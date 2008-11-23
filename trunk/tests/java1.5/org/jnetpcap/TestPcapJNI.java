@@ -23,6 +23,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
+import org.jnetpcap.nio.JBuffer;
+import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.nio.JNumber;
 import org.jnetpcap.nio.JNumber.Type;
 
@@ -422,10 +424,42 @@ public class TestPcapJNI
 	public void testNextNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
-			pcap.next((PcapHeader) null);
+			pcap.next((PcapHeader) null, null);
 			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
+		} finally {
+			pcap.close();
+		}
+	}
+
+	public void testNextEx() {
+		Pcap pcap = Pcap.openOffline(fname, errbuf);
+		try {
+			PcapHeader header = new PcapHeader(JMemory.Type.POINTER);
+			JBuffer buffer = new JBuffer(JMemory.Type.POINTER);
+
+			assertEquals(1, pcap.nextEx(header, buffer));
+
+			assertEquals(114, header.caplen());
+			assertEquals(114, buffer.size());
+
+		} finally {
+			pcap.close();
+		}
+	}
+
+	public void testNext() {
+		Pcap pcap = Pcap.openOffline(fname, errbuf);
+		try {
+			PcapHeader header = new PcapHeader();
+			JBuffer buffer = new JBuffer(JMemory.Type.POINTER);
+
+			buffer = pcap.next(header, buffer);
+			
+			assertNotNull(buffer);
+			assertEquals(114, header.caplen());
+			assertEquals(114, buffer.size());
 		} finally {
 			pcap.close();
 		}
