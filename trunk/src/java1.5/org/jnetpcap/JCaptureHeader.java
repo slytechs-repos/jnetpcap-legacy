@@ -13,7 +13,6 @@
 package org.jnetpcap;
 
 import org.jnetpcap.nio.JStruct;
-import org.jnetpcap.nio.JMemory.Type;
 
 /**
  * Interface to to capture header provided by the capturing library. For example

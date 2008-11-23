@@ -14,8 +14,6 @@ package org.jnetpcap.nio;
 
 import java.nio.ByteBuffer;
 
-import org.jnetpcap.nio.JMemory.Type;
-
 /**
  * Base class for peered pure structure classes. This class purposely does not
  * extend JBuffer to allow structure fields to be read out generically as that
