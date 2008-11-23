@@ -1298,10 +1298,12 @@ public class Pcap {
 	 * @param pkt_header
 	 *          a packet header that will be initialized to corresponding C
 	 *          structure captured values
+	 * @param buffer
+	 *          a buffer that will be peered with returned buffer from libpcap
 	 * @return buffer containing packet data or null if error occured
 	 * @since 1.2
 	 */
-	public native ByteBuffer next(PcapHeader pkt_header);
+	public native JBuffer next(PcapHeader pkt_header, JBuffer buffer);
 
 	/**
 	 * Return the next available packet. pcap_next() reads the next packet (by
