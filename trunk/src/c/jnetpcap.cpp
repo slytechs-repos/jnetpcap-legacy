@@ -546,6 +546,38 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_BetaFeature_loop
 	return pcap_loop(p, jcnt, cb_jpacket_dispatch, (u_char *)&data);
 }
 
+/*
+ * Class:     org_jnetpcap_Pcap
+ * Method:    next
+ * Signature: (Lorg/jnetpcap/PcapHeader;Lorg/jnetpcap/nio/JBuffer;)Lorg/jnetpcap/nio/JBuffer;
+ */
+JNIEXPORT jobject JNICALL Java_org_jnetpcap_Pcap_next__Lorg_jnetpcap_PcapHeader_2Lorg_jnetpcap_nio_JBuffer_2
+  (JNIEnv *env, jobject obj, jobject header, jobject buffer) {
+	
+	if (header == NULL || buffer == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return NULL;
+	}
+	
+	pcap_t *p = getPcap(env, obj);
+	if (p == NULL) {
+		return NULL; // Exception already thrown
+	}
+
+	pcap_pkthdr  pkt_header;
+	const u_char *pkt_data = pcap_next(p, &pkt_header);
+	if (pkt_data == NULL) {
+		return NULL;
+	}
+
+	setJMemoryPhysical(env, header, toLong((void *) &pkt_header));
+	setJMemoryPhysical(env, buffer, toLong((void *) pkt_data   ));
+
+	env->SetIntField(header, jmemorySizeFID, sizeof(pcap_pkthdr));
+	env->SetIntField(buffer, jmemorySizeFID, (jint) pkt_header.caplen);
+
+	return buffer;
+}
 
 /*
  * Class:     org_jnetpcap_Pcap
@@ -580,6 +612,39 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_Pcap_next
 	return jbuffer;
 
 }
+
+/*
+ * Class:     org_jnetpcap_Pcap
+ * Method:    nextEx
+ * Signature: (Lorg/jnetpcap/PcapHeader;Lorg/jnetpcap/nio/JBuffer;)I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_nextEx__Lorg_jnetpcap_PcapHeader_2Lorg_jnetpcap_nio_JBuffer_2
+  (JNIEnv *env, jobject obj, jobject header, jobject buffer) {
+	if (header == NULL || buffer == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return -1;
+	}
+	
+	pcap_t *p = getPcap(env, obj);
+	if (p == NULL) {
+		return -1; // Exception already thrown
+	}
+
+	pcap_pkthdr  *pkt_header = NULL;
+	const u_char *pkt_data = NULL;
+	
+	int r = pcap_next_ex(p, &pkt_header, &pkt_data);
+	if (r == 1) {
+		setJMemoryPhysical(env, header, toLong((void *) pkt_header));
+		setJMemoryPhysical(env, buffer, toLong((void *) pkt_data  ));
+
+		env->SetIntField(header, jmemorySizeFID, sizeof(pcap_pkthdr));
+		env->SetIntField(buffer, jmemorySizeFID, (jint) pkt_header->caplen);
+	}
+	
+	return (jint) r;
+}
+
 
 /*
  * Class:     org_jnetpcap_Pcap
