@@ -123,8 +123,9 @@ public class PcapIf {
 	 * queried via the appropriate OS calls to retrive the hardware address of the
 	 * interface (MAC address). This is a direct call, not cached data.
 	 * 
-	 * @return hardware address as an array of bytes; this method does not return
-	 *         null
+	 * @return hardware address as an array of bytes; this method returns null if
+	 *         interface doesn't have or is incapable of having a hardware address
+	 *         such as loopback interfaces and others
 	 * @throws IOException
 	 *           if there was a problem retrieving the address
 	 */
