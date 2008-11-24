@@ -535,6 +535,10 @@ PMIB_IFROW getMibIfRow (int index) {
 JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_PcapUtils_getHardwareAddress
   (JNIEnv *env, jclass clazz, jstring jdevice) {
 	
+#ifndef IFNAMSIZ
+#define IFNAMSIZ 512
+#endif
+	
 	jbyteArray jba = NULL;
 	char buf[IFNAMSIZ];
 	
