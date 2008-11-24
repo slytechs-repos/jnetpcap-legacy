@@ -24,6 +24,7 @@ import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
 
 /**
+ * Base class 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
