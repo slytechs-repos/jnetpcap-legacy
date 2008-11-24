@@ -64,23 +64,7 @@ header instance is peered with the native structures that describe that
 header.(Peering means that the physical address of the native structure
 is recorded somewhere in the java class beeing peered and afterwards
 that class uses that pointer to access and retrieve data from the
-physical native structure or buffer.) New features and extensions that
-extend capabilities of production jNetPcap API. These features are not
-considered production quality and are released in a separate JAR file,
-separate from the production API. The stability of these features is
-considered to be beta level, that is tested but possibly with bugs.
-These features may be integrated into the main production API at some
-time in the future. Since this is beta, the API may change, be
-deprecated before being integerated with the main production API. The
-intent of this package is to provide and release new significant
-features and improvements early, let the community experiment, use and
-comment on these features before they are integera with the production
-environment.
-<p>Package names correspond and overlap with the production API.
-This will allow minimum transition of the beta feature API into
-production API, as very few things will change or need to be renamed.
-There are some exceptions and some changes to the final API will have to
-be made. These changes will be documented.</p>
+physical native structure or buffer.) 
 <h2><a
 	href="https://sourceforge.net/tracker2/?func=detail&aid=2292402&group_id=164277&atid=831086">Feature
 #2292402:</a> A packet decoding framework</h2>
@@ -204,5 +188,5 @@ purposes when the java parent object is garbage collected. This peering
 mechanism allows previously allocated packets to be reused extrememly
 efficiently, by simply changing a single pointer to a packet_state_t
 structure within it and changing the state of the packet immediately.
-JHeaders also maintain their state</p>
+JHeaders also maintain their state in this way.</p>
 </body>

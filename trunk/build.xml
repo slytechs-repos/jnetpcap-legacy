@@ -308,18 +308,11 @@
 		<!--       Copy native library.  -->
 		<!-- ############################################################### -->
 		<copy file="${jni.build.filepath}" tofile="${pkg.lib.jnetpcap.so}" />
-
-		<!-- ############################################################### -->
-		<!--       Create JAR file containing all the java classes  -->
-		<!-- ############################################################### -->
-		<jar destfile="${pkg.lib.jnetpcap.jar}-jre1.4.jar" manifest="${build.classes.inf}">
-			<fileset dir="${build.classes.dir}1.4" />
-		</jar>
 		
 		<!-- ############################################################### -->
 		<!--       Create JAR file containing all the java classes  -->
 		<!-- ############################################################### -->
-		<jar destfile="${pkg.lib.jnetpcap.jar}-jre1.5.jar" manifest="${build.classes.inf}">
+		<jar destfile="${pkg.lib.jnetpcap.jar}.jar" manifest="${build.classes.inf}">
 			<fileset dir="${build.classes.dir}1.5" />
 		</jar>
 
