@@ -727,33 +727,17 @@
 			<sysproperty key="java.library.path" value="${jni.build.dir}" />
 
 			<test name="org.jnetpcap.TestPcapJNI" todir="${report.dir}" />
-			<test name="org.jnetpcap.unix.TestUnixOs" todir="${report.dir}" />
-
-			<test name="org.jnetpcap.TestPcapUtils" todir="${report.dir}" />
-
-
-			<test 
-				name="org.jnetpcap.winpcap.TestWinPcapExtensions" 
-				todir="${report.dir}" />
-
-			<classpath refid="test.classpath" />
-
-		</junit>
-	</target>
-
-	<target name="test-transmitter">
-		<junit printsummary="withOutAndErr" fork="yes" failureproperty="test.failed">
-
-			<!-- jvmarg value="-verbose:jni" /-->
-
-			<formatter type="plain" usefile="false" />
-			<sysproperty key="java.library.path" value="${jni.build.dir}" />
 
 			<test name="org.jnetpcap.TestTransmitter" todir="${report.dir}" />
 
+			<!-- test 
+				name="org.jnetpcap.winpcap.TestWinPcapExtensions" 
+				todir="${report.dir}" /-->
+
 			<classpath refid="test.classpath" />
 
 		</junit>
+
 	</target>
 
 	<!-- =================================================================== -->
