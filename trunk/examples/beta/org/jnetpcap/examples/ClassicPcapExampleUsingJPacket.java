@@ -147,10 +147,10 @@ public class ClassicPcapExampleUsingJPacket {
 		}
 
 		/***************************************************************************
-		 * Third we create a packet hander which will receive packets from the
+		 * Third we create a packet handler which will receive packets from the
 		 * libpcap loop.
 		 **************************************************************************/
-		JPacketHandler<String> printSummaryHandler = new JPacketHandler<String>() {
+		JPacketHandler<String> jpacketHandler = new JPacketHandler<String>() {
 
 			public void nextPacket(JPacket packet, String user) {
 				final JCaptureHeader header = packet.getCaptureHeader();
@@ -159,9 +159,10 @@ public class ClassicPcapExampleUsingJPacket {
 				    header.wirelen());
 
 				/*
-				 * For packet header for output using an internal TextFormatter that
+				 * For packets, generate output using an internal TextFormatter that
 				 * sends output to a StringBuilder, then calls on its toString() method
-				 * to generate the final string which is send to System.out. 
+				 * to generate the final string which is returned and send to 
+				 * System.out. 
 				 * 
 				 * Alternative would be to send output directly to System.out, bypassing 
 				 * any intermediate string: 
@@ -195,7 +196,7 @@ public class ClassicPcapExampleUsingJPacket {
 		 * sepecify exactly which protocol ID to use as the data link type for this
 		 * pcap interface.
 		 **************************************************************************/
-		BetaFeature.loop(pcap, 10, printSummaryHandler, "jNetPcap rocks!");
+		BetaFeature.loop(pcap, 10, jpacketHandler, "jNetPcap rocks!");
 
 		/***************************************************************************
 		 * Last thing to do is close the pcap handle

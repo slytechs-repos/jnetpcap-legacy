@@ -1,0 +1,68 @@
+<body>
+Packet decoding framework. Packet buffers are scanned and decoded.
+
+<h2>Overview</h2>
+The package adds new
+<code>loop</code>
+and
+<code>dispatch</code>
+methods that deliver decoded packets to the registered handler. The
+class JPacket allows the programmer to check for existance of certain
+protocol headers within the packet's data buffer. The programmer can use
+a header to then access any of the fields and logic for that protocol.
+<p>Here is an example of what a JPacketHandler might look like:
+<pre>
+JPacketHandler<String> handler = new JPacketHandler<String>() {
+  private Ethernet eth = new Ethernet();
+  private Ip4 ip = new Ip4();
+  
+  public void nextPacket(JPacket packet, String user) {
+    if (packet.hasHeader(Ethernet.ID)) {
+      eth = packet.getHeader(eth);
+      byte[] dstMac = eth.destination();
+      byte[] srcMac = eth.source();
+      int type = eth.type();
+      // Do something
+    }
+    
+    /*
+     * For convenience there is a hasHeader method that takes a header instance
+     * and combines hasHeader with getHeader methods if the header exists.
+     */
+    if (packet.hasHeader(ip)) {      
+      int flags = ip.flags();
+      int offset = ip.offset();
+      byte[] srcIp = ip.source();
+      byte[] dstIp = ip.destination();
+      int protocol = ip.protocol();
+    }
+    
+    // Or can simply print out the contents of the packet
+    System.out.println(packet.toString());
+  }
+}
+</pre>
+The example demonstates a
+<code>JPacketHandler</code>
+implementation, which gets passed into
+<code>loop/dispatch</code>
+methods and receives packets. The handler's
+<code>nextPacket</code>
+method receives a fully decoded packet. The information about which
+headers exist, where in the buffer and how long they are is recorded in
+native structures which
+<code>JPacket, JPacket.State, JHeader, JHeader.State</code>
+classes access. The method
+<code>JPacket.hasHeader</code>
+is a simply bitwise operation on an unsigned integer that is very
+efficient and fast.
+</p>
+<p>The typical steps for working with the packet objects is first to
+check if the header the user is insterested in exists in the packet, has
+been found by the packet scanner, and then request that user supplied
+header instance is peered with the native structures that describe that
+header.(Peering means that the physical address of the native structure
+is recorded somewhere in the java class beeing peered and afterwards
+that class uses that pointer to access and retrieve data from the
+physical native structure or buffer.)
+</body>

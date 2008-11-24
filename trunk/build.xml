@@ -161,6 +161,7 @@
 		<!-- always clean the api directory. We don't want any old mixed up files -->
 		<!-- delete dir="${build.api.dir}" -->
 		<mkdir dir="${build.javadoc.dir}-${jre}" />
+		<mkdir dir="${build.javadoc.dir}-beta" />
 	</target>
 
 	<!-- =================================================================== -->
@@ -249,7 +250,10 @@
 		<zip destfile="${pkg.dist.dir}/${pkg.base}-jre1.5-javadoc.zip">
 			<zipfileset dir="${build.javadoc.dir}-jre1.5" prefix="${pkg.base}-jre1.5-javadoc" />
 		</zip>
-
+		
+		<zip destfile="${pkg.dist.dir}/${pkg.base}-beta-javadoc.zip">
+			<zipfileset dir="${build.javadoc.dir}-beta" prefix="${pkg.base}-beta-javadoc" />
+		</zip>
 
 	</target>
 
@@ -594,12 +598,32 @@
 	<!-- =================================================================== -->
 	<!-- Compiles java files using JavaDoc -->
 	<!-- =================================================================== -->
+	<target name="comp-javadoc-betafeatures" depends="prep-javadoc">
+		<javadoc sourcepath="${src.beta.dir}${compiler.target}" 
+			source="${compiler.target}"
+			destdir="${build.javadoc.dir}-beta" 
+			doctitle="${doc.javadoc.title} (BETA Features)" 
+			overview="${src.beta.dir}/${doc.javadoc.overview.html}" 
+			packagenames="org.jnetpcap.*" 
+			classpathref="javadoc.classpath" />
+	</target>
+
+	
+	<!-- =================================================================== -->
+	<!-- Compiles java files using JavaDoc -->
+	<!-- =================================================================== -->
 	<target name="comp-javadoc" depends="comp-java">
 				
 		<antcall target="comp-javadoc-jre">
 			<param name="jre" value="jre1.5" />
 			<param name="compiler.target" value="1.5" />
 		</antcall>
+		
+		<antcall target="comp-javadoc-betafeatures">
+			<param name="jre" value="jre1.5" />
+			<param name="compiler.target" value="1.5" />
+		</antcall>
+
 
 	</target>
 
@@ -619,12 +643,20 @@
 	<!-- Compiles java example files -->
 	<!-- =================================================================== -->
 	<target name="comp-examples" depends="comp-java,comp-jni">
-		<javac srcdir="${examples.dir}" 
+		<javac srcdir="${examples.java.dir}" 
 			destdir="${build.examples.dir}1.5" 
 			debug="${compiler.debug}" 
 			deprecation="${compiler.deprecate}" 
 			optimize="${compiler.optimize}" 
 			classpathref="compiler.classpath" />
+		
+		<javac srcdir="${examples.beta.dir}" 
+			destdir="${build.examples.dir}1.5" 
+			debug="${compiler.debug}" 
+			deprecation="${compiler.deprecate}" 
+			optimize="${compiler.optimize}" 
+			classpathref="compiler.classpath" />
+
 	</target>
 
 
@@ -789,7 +821,20 @@
 			password="${shell.user.pass}" 
 			command="rm -rf ${web.doc.dir}/${pkg.base}-jre1.5-javadoc; unzip ${web.doc.dir}/${pkg.base}-jre1.5-javadoc.zip -d ${web.doc.dir}; rm  ${web.doc.dir}/${pkg.base}-jre1.5-javadoc.zip" 
 		/>
+		
+		<scp 
+			trust="yes" 
+			verbose="yes" 
+			todir="${web.uri}" 
+			file="${pkg.dist.dir}/${pkg.base}-beta-javadoc.zip" />
 
+		<sshexec 
+			trust="yes" 
+			host="${shell.host.name}" 
+			username="${shell.user.name}" 
+			password="${shell.user.pass}" 
+			command="rm -rf ${web.doc.dir}/${pkg.base}-beta-javadoc; unzip ${web.doc.dir}/${pkg.base}-beta-javadoc.zip -d ${web.doc.dir}; rm  ${web.doc.dir}/${pkg.base}-beta-javadoc.zip" 
+		/>
 	</target>
 
 

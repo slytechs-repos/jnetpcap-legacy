@@ -940,7 +940,7 @@ public class TestPcapBetaJNI
 		JNumber netp = new JNumber(Type.INT);
 		JNumber maskp = new JNumber(Type.INT);
 
-		int r = BetaFeature.lookupNet(device, netp, maskp, errbuf);
+		int r = Pcap.lookupNet(device, netp, maskp, errbuf);
 		assertEquals(errbuf.toString(), 0, r);
 
 		System.out.printf("device=%s netp=%X maskp=%X errbuf=%s\n", device, netp.intValue(),
