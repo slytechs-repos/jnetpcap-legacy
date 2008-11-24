@@ -17,7 +17,6 @@ import java.nio.ByteBuffer;
 
 import junit.framework.TestCase;
 
-import org.jnetpcap.BetaFeature;
 import org.jnetpcap.ByteBufferHandler;
 import org.jnetpcap.JBufferHandler;
 import org.jnetpcap.Pcap;
@@ -214,7 +213,7 @@ public class TestJScanner
 		@SuppressWarnings("unused")
 		final JScanner scanner = new JScanner();
 
-		BetaFeature.loop(pcap, Pcap.LOOP_INFINATE, JProtocol.ETHERNET_ID,
+		pcap.loop(Pcap.LOOP_INFINATE, JProtocol.ETHERNET_ID,
 		    new JPacketHandler<String>() {
 			    int i = 0;
 
