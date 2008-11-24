@@ -36,6 +36,7 @@
 		</li>
 	</ul>
 	</li>
+	<li><a href="#packet_framework">Packet Decoding Framework</a></li>
 
 	<li><a href="#other_extensions">Other extensions?</a>
 	<li><a href="#requirements">Java requirements</a>
@@ -50,8 +51,8 @@ Starting with version 1.2,
 provides support for both JRE 1.4 and JRE 1.5 in the same distribution
 package. This javadoc document describes the API under JRE 1.5
 environment which differs slightly from the other supplied JAR file for
-JRE 1.4. The differences with JRE 1.4 version are in Java syntax, such as no support for
-generics and various methods use
+JRE 1.4. The differences with JRE 1.4 version are in Java syntax, such
+as no support for generics and various methods use
 <code>StringBuffer</code>
 instead of
 <code>StringBuilder</code>
@@ -361,6 +362,28 @@ on an unsupported platform, will throw an immediate unchecked
 platform. Therefore, it is very important to always do a check first
 before relying on an extension function (i.e. org.jnetpcap.winpcap.)
 
+<h1><a name="packet_framework">Packet decoding</a></h1>
+Packets can be decoded using the included "packet decoding framework".
+The frame work resides in
+<code>org.jnetpcap.packet</code>
+package and provides limited decoding capabilities. A
+<code>JPacketHandler</code>
+dispatcher handler is used with
+<code>Pcap.loop(), Pcap.dispatch()</code>
+methods which receives JPacket objects. JPackets are fully decoded
+packets and provide a packet API that allows the user to query which
+protocol headers exist in the packet and access those headers. Each
+header then provides a method for each network header field found in the
+header and any logic that goes into decoding that protocol header.
+<p>Various formatters are also provided which allow a packet to be
+reformatted to various textual forms such as a plain text that is human
+readable and less human readable Xml format which is great for computer
+applications.</p>
+<p>jNetPcap is supplied with a core set of protocol headers, but the
+list is not complete. The API provides a mechanism for extending and
+adding additional protocols to the framework. Protocol header
+contributions are welcome.</p>
+
 <h1><a name="other_extensions">Other extensions?</a></h1>
 
 <p>Currently no other extensions are supported, but can easily be
@@ -373,12 +396,7 @@ another <em>libpcap</em> extension.</small>
 
 <h1><a name="requirements">Java requirements</a></h1>
 
-Starting with version 1.2,
-<em>jNetPcap</em>
-provides jar files for both Java JRE 1.4 and JRE 1.5 runtimes. There
-distribution package contains 2 jar files one for each JRE. There is
-only 1 native library which works with both jar files under either JRE
-environment. It also requires the binary
+Requires the binary
 <em>libpcap</em>
 ,
 <em>libpcap-dev</em>
@@ -433,14 +451,12 @@ Both of
 projects provide some kind of packet decoding facility, but are limited
 on the
 <em>libpcap</em>
-features they expose.
+features they expose. Starting with release 1.2,
 <em>jNetPcap</em>
-does not provide any packet decoding facilities, but strives to expose
-all of the native C
-<em>libpcap</em>
-library functionality in java. If you require higher level API that is
-object oriented, follows java programming paradigm, provides full packet
-decoding and capture file manipulation, see
+also provides limited packet decoding capabilities. If you require
+higher level API that is object oriented, follows java programming
+paradigm, provides full packet decoding and capture file manipulation,
+we also recommend
 <a href="http://jnetstream.org"><em>jNetStream</em></a>
 , a sister project, that is built on top of
 <em>jNetPcap</em>

@@ -251,10 +251,6 @@
 			<zipfileset dir="${build.javadoc.dir}-jre1.5" prefix="${pkg.base}-jre1.5-javadoc" />
 		</zip>
 		
-		<zip destfile="${pkg.dist.dir}/${pkg.base}-beta-javadoc.zip">
-			<zipfileset dir="${build.javadoc.dir}-beta" prefix="${pkg.base}-beta-javadoc" />
-		</zip>
-
 	</target>
 
 	<!-- =================================================================== -->
@@ -616,12 +612,6 @@
 			<param name="jre" value="jre1.5" />
 			<param name="compiler.target" value="1.5" />
 		</antcall>
-		
-		<antcall target="comp-javadoc-betafeatures">
-			<param name="jre" value="jre1.5" />
-			<param name="compiler.target" value="1.5" />
-		</antcall>
-
 
 	</target>
 
@@ -820,19 +810,6 @@
 			command="rm -rf ${web.doc.dir}/${pkg.base}-jre1.5-javadoc; unzip ${web.doc.dir}/${pkg.base}-jre1.5-javadoc.zip -d ${web.doc.dir}; rm  ${web.doc.dir}/${pkg.base}-jre1.5-javadoc.zip" 
 		/>
 		
-		<scp 
-			trust="yes" 
-			verbose="yes" 
-			todir="${web.uri}" 
-			file="${pkg.dist.dir}/${pkg.base}-beta-javadoc.zip" />
-
-		<sshexec 
-			trust="yes" 
-			host="${shell.host.name}" 
-			username="${shell.user.name}" 
-			password="${shell.user.pass}" 
-			command="rm -rf ${web.doc.dir}/${pkg.base}-beta-javadoc; unzip ${web.doc.dir}/${pkg.base}-beta-javadoc.zip -d ${web.doc.dir}; rm  ${web.doc.dir}/${pkg.base}-beta-javadoc.zip" 
-		/>
 	</target>
 
 
