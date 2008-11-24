@@ -17,6 +17,7 @@ import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JPacketHandler;
 import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.JScanner;
+import org.jnetpcap.packet.PcapPacket;
 
 /**
  * Adds new features to jNetPcap API. This class is made up of static methods
@@ -30,7 +31,7 @@ import org.jnetpcap.packet.JScanner;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class BetaFeature extends Pcap {
+public class BetaFeature {
 
 	/**
 	 * <p>
@@ -416,14 +417,4 @@ public class BetaFeature extends Pcap {
 	private BetaFeature() {
 		// Empty
 	}
-	
-	
-
-	public <T> int loop(int cnt, int id,
-	    JPacketHandler<T> handler, T user) {
-		final PcapPacket packet = new PcapPacket(Type.POINTER);
-		return loop(this, cnt, id, handler, user, packet, packet.getState(), packet
-		    .getCaptureHeader(), JScanner.getThreadLocal());
-	}
-
 }

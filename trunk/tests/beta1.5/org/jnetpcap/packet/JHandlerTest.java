@@ -21,7 +21,6 @@ import org.jnetpcap.ByteBufferHandler;
 import org.jnetpcap.JBufferHandler;
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapHeader;
-import org.jnetpcap.PcapPacket;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory.Type;
 import org.jnetpcap.packet.header.Ethernet;
