@@ -45,6 +45,7 @@
  */
 
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <pcap.h>
 #include <jni.h>
@@ -1303,6 +1304,7 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_Pcap_lookupDev
 		return NULL;
 	}
 	
+#ifdef WIN32
 	/*
 	 * Name is in wide character format. So convert to plain UTF8.
 	 */
@@ -1312,6 +1314,9 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_Pcap_lookupDev
 	printf("size=%d, utf8=%s device=%ws\n", size, utf8, device);
 	
 	jstring jdevice = env->NewStringUTF(utf8);
+#else 
+	jstring jdevice = env->NewStringUTF(device);
+#endif
 	
 	return jdevice;
 }

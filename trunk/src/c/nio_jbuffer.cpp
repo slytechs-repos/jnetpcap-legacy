@@ -194,10 +194,10 @@ JNIEXPORT jdouble JNICALL Java_org_jnetpcap_nio_JBuffer_getDouble
 	 * For efficiency of the endian byte swapping, convert to an atom and use
 	 * a CPU register if possible during conversion.
 	 */
-	 uint64_t data = *(uint64_t *)(mem + jindex);
+	 u_int64_t data = *(u_int64_t *)(mem + jindex);
 	 
 	/*
-	 * We can't just typecast uint64 to a double. The double has to be read
+	 * We can't just typecast u_int64 to a double. The double has to be read
 	 * out of memory using a double pointer.
 	 */
 	data = ENDIAN64_GET(big, data);
@@ -232,10 +232,10 @@ JNIEXPORT jfloat JNICALL Java_org_jnetpcap_nio_JBuffer_getFloat
 	 * For efficiency of the endian byte swapping, convert to an atom and use
 	 * a CPU register if possible during conversion.
 	 */
-	uint32_t data = *(uint32_t *)(mem + jindex);
+	u_int32_t data = *(u_int32_t *)(mem + jindex);
 
 	/*
-	 * We can't just typecast uint32 to a float. The float has to be read
+	 * We can't just typecast u_int32 to a float. The float has to be read
 	 * out of memory using a float pointer.
 	 */
 	data = ENDIAN32_GET(big, data);
@@ -302,7 +302,7 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JBuffer_getLong
 	 * For efficiency of the endian byte swapping, convert to an atom and use
 	 * a CPU register if possible during conversion.
 	 */
-	register uint64_t data = *(uint64_t *)(mem + jindex);
+	register u_int64_t data = *(u_int64_t *)(mem + jindex);
 	
 	return ENDIAN64_GET(big, data);
 }
@@ -367,7 +367,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JBuffer_getUByte
 	 * For efficiency of the endian byte swapping, convert to an atom and use
 	 * a CPU register if possible during conversion.
 	 */
-	register uint8_t data = (uint8_t)*(mem + jindex);
+	register u_int8_t data = (u_int8_t)*(mem + jindex);
 	
 	return (jint) data;
 
@@ -400,7 +400,7 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JBuffer_getUInt
 	 * For efficiency of the endian byte swapping, convert to an atom and use
 	 * a CPU register if possible during conversion.
 	 */
-	register uint32_t data = *(uint32_t *)(mem + jindex);
+	register u_int32_t data = *(u_int32_t *)(mem + jindex);
 	
 	return (jlong) ENDIAN32_GET(big, data);
 
@@ -434,7 +434,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JBuffer_getUShort
 	 * For efficiency of the endian byte swapping, convert to an atom and use
 	 * a CPU register if possible during conversion.
 	 */
-	register uint16_t data = *(uint16_t *)(mem + jindex);
+	register u_int16_t data = *(u_int16_t *)(mem + jindex);
 	
 	return (jint) ENDIAN16_GET(big, data);
 }
@@ -532,13 +532,13 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setDouble
 	 * For efficiency of the endian byte swapping, convert to an atom and use
 	 * a CPU register if possible during conversion.
 	 */
-	uint64_t data = *(uint64_t *)(&jval);
+	u_int64_t data = *(u_int64_t *)(&jval);
 
 	/*
-	 * We can't just typecast uint32 to a float. The float has to be read
+	 * We can't just typecast u_int32 to a float. The float has to be read
 	 * out of memory using a float pointer.
 	 */
-	*((uint64_t *)(mem + jindex)) = ENDIAN64_GET(big, data);
+	*((u_int64_t *)(mem + jindex)) = ENDIAN64_GET(big, data);
 }
 
 /*
@@ -576,13 +576,13 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setFloat
 	 * For efficiency of the endian byte swapping, convert to an atom and use
 	 * a CPU register if possible during conversion.
 	 */
-	uint32_t data = *(uint32_t *)(&jval);
+	u_int32_t data = *(u_int32_t *)(&jval);
 
 	/*
-	 * We can't just typecast uint32 to a float. The float has to be read
+	 * We can't just typecast u_int32 to a float. The float has to be read
 	 * out of memory using a float pointer.
 	 */
-	*((uint32_t *)(mem + jindex)) = ENDIAN32_GET(big, data);
+	*((u_int32_t *)(mem + jindex)) = ENDIAN32_GET(big, data);
 }
 
 /*
@@ -615,7 +615,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setInt
 	// true = BID_ENDIAN, false = LITTLE_ENDIAN
 	jboolean big = env->GetBooleanField(obj, jbufferOrderFID);
 	
-	*((uint32_t *)(mem + jindex)) = ENDIAN32_GET(big, jval);
+	*((u_int32_t *)(mem + jindex)) = ENDIAN32_GET(big, jval);
 }
 
 /*
@@ -649,7 +649,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setLong
 	// true = BID_ENDIAN, false = LITTLE_ENDIAN
 	jboolean big = env->GetBooleanField(obj, jbufferOrderFID);
 	
-	*((uint64_t *)(mem + jindex)) = ENDIAN64_GET(big, jval);
+	*((u_int64_t *)(mem + jindex)) = ENDIAN64_GET(big, jval);
 }
 
 /*
@@ -683,7 +683,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setShort
 	// true = BID_ENDIAN, false = LITTLE_ENDIAN
 	jboolean big = env->GetBooleanField(obj, jbufferOrderFID);
 	
-	*((uint16_t *)(mem + jindex)) = ENDIAN16_GET(big, jval);
+	*((u_int16_t *)(mem + jindex)) = ENDIAN16_GET(big, jval);
 }
 
 /*
@@ -750,7 +750,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setUInt
 	
 	register jint temp = (jint) jval;
 	
-	*((uint32_t *)(mem + jindex)) = ENDIAN32_GET(big, temp);
+	*((u_int32_t *)(mem + jindex)) = ENDIAN32_GET(big, temp);
 }
 
 /*
@@ -785,6 +785,6 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setUShort
 	
 	register jshort temp = (jshort) jval;
 	
-	*((uint16_t *)(mem + jindex)) = ENDIAN16_GET(big, temp);
+	*((u_int16_t *)(mem + jindex)) = ENDIAN16_GET(big, temp);
 }
 
