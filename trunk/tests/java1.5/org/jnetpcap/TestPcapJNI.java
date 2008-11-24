@@ -984,4 +984,19 @@ public class TestPcapJNI
 			assertTrue(true); // Be explicit
 		}
 	}
+	
+	public void testGetHardwareAddress() throws IOException {
+		List<PcapIf> alldevs = new ArrayList<PcapIf>();
+		
+		Pcap.findAllDevs(alldevs, errbuf);
+	
+		for (PcapIf p: alldevs) {
+			byte[] mac = p.getHardwareAddress();
+			if (mac != null && mac.length == 6) {
+				return; // Found atleast 1 interface with MAC address
+			}
+		}
+		
+		fail("Unable to find any interfaces with MAC address");
+	}
 }
