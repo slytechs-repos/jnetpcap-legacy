@@ -610,10 +610,13 @@ JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_PcapUtils_getHardwareAddress
     strncpy(ifr.ifr_ifrn.ifrn_name,buf, IFNAMSIZ);
 
     /* get a Get Interface Hardware Address */
-    ioctl(sd, SIOCGIFHWADDR, &ifr);
+    if (ioctl(sd, SIOCGIFHWADDR, &ifr) != 0) {
+	return NULL;
+    }
 
     close(sd);
 
+    jba = env->NewByteArray((jsize) 6);
     env->SetByteArrayRegion(jba, 0, 6, (const jbyte *)ifr.ifr_ifru.ifru_hwaddr.sa_data);
 #endif
 	
