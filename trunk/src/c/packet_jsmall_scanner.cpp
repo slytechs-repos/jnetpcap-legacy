@@ -9,6 +9,7 @@
  */
 
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <pcap.h>
 #include <jni.h>
@@ -55,7 +56,9 @@ char *id2str(int id) {
 		return native_protocol_names[id];
 
 	} else {
-		return itoa(id, id_str_buf, 10);
+		sprintf(id_str_buf, "%d", id);
+
+		return id_str_buf;
 	}
 }
 

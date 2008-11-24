@@ -536,7 +536,7 @@ JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_PcapUtils_getHardwareAddress
   (JNIEnv *env, jclass clazz, jstring jdevice) {
 	
 	jbyteArray jba = NULL;
-	char buf[512];
+	char buf[IFNAMSIZ];
 	
 	// convert from jstring to char *
 	toCharArray(env, jdevice, buf);
@@ -595,7 +595,7 @@ JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_PcapUtils_getHardwareAddress
 	
    struct ifreq ifr;
    
-   int sd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+   int sd = socket(PF_INET, SOCK_DGRAM, 0);
     if (sd < 0) {
 		throwException(env, IO_EXCEPTION, "cannot open socket.");
         return NULL; // error: can't create socket.
@@ -603,14 +603,14 @@ JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_PcapUtils_getHardwareAddress
 
     /* set interface name (lo, eth0, eth1,..) */
     memset(&ifr, 0, sizeof(ifr));
-    strncpy(ifr.ifr_ifrn.ifrn_name,d->name, IFNAMSIZ);
+    strncpy(ifr.ifr_ifrn.ifrn_name,buf, IFNAMSIZ);
 
     /* get a Get Interface Hardware Address */
     ioctl(sd, SIOCGIFHWADDR, &ifr);
 
     close(sd);
 
-    env->SetByteArrayRegion(jba, 0, 6, ifr.ifr_ifru.ifru_hwaddr.sa_data);
+    env->SetByteArrayRegion(jba, 0, 6, (const jbyte *)ifr.ifr_ifru.ifru_hwaddr.sa_data);
 #endif
 	
 	return jba;

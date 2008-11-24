@@ -4,6 +4,8 @@
 #define _Included_jnetpcap_packet_jscanner_h
 #ifdef __cplusplus
 
+#include <stdint.h>
+
 #include "export.h"
 #include "org_jnetpcap_packet_JScanner.h"
 #include "org_jnetpcap_packet_JRegistry.h"
@@ -75,17 +77,17 @@ typedef struct scan_t {
 
 typedef struct header_t {
 	int32_t hdr_id; // header ID
-	u_int32_t hdr_offset; // offset into the packet_t->data buffer
+	uint32_t hdr_offset; // offset into the packet_t->data buffer
 	int32_t hdr_length; // length of the header in packet_t->data buffer
 } header_t;
 
 typedef struct packet_state_t {
-	u_int64_t pkt_header_map; // bit map of presence of headers
+	uint64_t pkt_header_map; // bit map of presence of headers
 	char *pkt_data; // packet data buffer
 	int32_t pkt_header_count; // total number of headers found
 
 	// Keep track of how many instances of each header we have
-	u_int8_t pkt_instance_counts[MAX_ID_COUNT];
+	uint8_t pkt_instance_counts[MAX_ID_COUNT];
 	header_t pkt_headers[]; // One per header + 1 more for payload
 } packet_state_t;
 
@@ -94,8 +96,8 @@ typedef struct scanner_t {
 	
 	int32_t sc_offset; // offset into sc_packets for next packet
 
-	u_int32_t sc_flags[MAX_ID_COUNT]; // protocol flags
-	u_int64_t sc_bindings;            // java binding map
+	uint32_t sc_flags[MAX_ID_COUNT]; // protocol flags
+	uint64_t sc_bindings;            // java binding map
 	
 	jobject sc_jscan; // Java JScan structure for interacting with java space
 
@@ -124,7 +126,7 @@ int scanJPacket(JNIEnv *env, jobject obj, jobject jpacket, jobject jstate, scann
 
 int scanJavaBinding(scan_t *scan);
 
-u_int64_t toUlong64(JNIEnv *env, jintArray ja);
+uint64_t toUlong64(JNIEnv *env, jintArray ja);
 
 jint findHeaderById(packet_state_t *packet, jint id, jint instance);
 

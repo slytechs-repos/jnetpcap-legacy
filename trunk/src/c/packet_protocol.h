@@ -4,6 +4,8 @@
 #define _Included_jnetpcap_packet_protocol_h
 #ifdef __cplusplus
 
+#include <stdint.h>
+
 	
 #include "export.h"
 #include <jni.h>
