@@ -16,7 +16,6 @@ import java.nio.ByteBuffer;
 
 import junit.framework.TestCase;
 
-import org.jnetpcap.BetaFeature;
 import org.jnetpcap.ByteBufferHandler;
 import org.jnetpcap.JBufferHandler;
 import org.jnetpcap.Pcap;
@@ -57,7 +56,7 @@ public class JHandlerTest
 
 	public void testJScannerHandler() {
 
-		BetaFeature.dispatch(pcap, 2, JProtocol.ETHERNET_ID,
+		pcap.dispatch(2, JProtocol.ETHERNET_ID,
 		    (JPacketHandler<String>) this, "JPacket - testcase");
 	}
 

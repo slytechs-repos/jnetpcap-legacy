@@ -15,7 +15,6 @@ package org.jnetpcap.examples;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jnetpcap.BetaFeature;
 import org.jnetpcap.JCaptureHeader;
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapIf;
@@ -182,12 +181,7 @@ public class ClassicPcapExampleUsingJPacket {
 		};
 
 		/***************************************************************************
-		 * Fourth we enter the loop and tell it to capture 10 packets. Notice that
-		 * since this is currently a beta feature, not fully integrated into
-		 * production Pcap class, we use a BetaFeature static method and we have to
-		 * supply the pcap object as a parameter. This loop function will eventaully 
-		 * be integrated into Pcap class when it becomes elevated to production 
-		 * status and BetaFeature.loop will be deprecated. 
+		 * Fourth we enter the loop and tell it to capture 10 packets.
 		 * 
 		 * The loop method does a mapping of pcap.datalink() DLT value to JProtocol
 		 * ID, which is needed by JScanner. The scanner scans the packet buffer 
@@ -196,7 +190,7 @@ public class ClassicPcapExampleUsingJPacket {
 		 * sepecify exactly which protocol ID to use as the data link type for this
 		 * pcap interface.
 		 **************************************************************************/
-		BetaFeature.loop(pcap, 10, jpacketHandler, "jNetPcap rocks!");
+		pcap.loop(10, jpacketHandler, "jNetPcap rocks!");
 
 		/***************************************************************************
 		 * Last thing to do is close the pcap handle
