@@ -314,13 +314,12 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__ILorg_jnetpcap_JBufferHa
 }
 
 /*
- * Class:     org_jnetpcap_BetaFeature
+ * Class:     org_jnetpcap_Pcap
  * Method:    dispatch
- * Signature: (Lorg/jnetpcap/Pcap;IILorg/jnetpcap/packet/JPacketHandler;Ljava/lang/Object;Lorg/jnetpcap/packet/JPacket;Lorg/jnetpcap/packet/JPacket$State;Lorg/jnetpcap/PcapHeader;Lorg/jnetpcap/packet/JScanner;)I
+ * Signature: (IILorg/jnetpcap/packet/JPacketHandler;Ljava/lang/Object;Lorg/jnetpcap/packet/JPacket;Lorg/jnetpcap/packet/JPacket$State;Lorg/jnetpcap/PcapHeader;Lorg/jnetpcap/packet/JScanner;)I
  */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_BetaFeature_dispatch
-(JNIEnv *env, jclass betaclass, 
-		jobject pcap,
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__IILorg_jnetpcap_packet_JPacketHandler_2Ljava_lang_Object_2Lorg_jnetpcap_packet_JPacket_2Lorg_jnetpcap_packet_JPacket_00024State_2Lorg_jnetpcap_PcapHeader_2Lorg_jnetpcap_packet_JScanner_2
+(JNIEnv *env, jobject obj,
 		jint jcnt, 
 		jint id,
 		jobject jhandler, 
@@ -335,7 +334,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_BetaFeature_dispatch
 		return -1;
 	}
 
-	pcap_t *p = getPcap(env, pcap);
+	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
 		return -1; // Exception already thrown
 	}
@@ -494,13 +493,12 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__ILorg_jnetpcap_JBufferHandle
 }
 
 /*
- * Class:     org_jnetpcap_BetaFeature
+ * Class:     org_jnetpcap_Pcap
  * Method:    loop
- * Signature: (Lorg/jnetpcap/Pcap;IILorg/jnetpcap/packet/JPacketHandler;Ljava/lang/Object;Lorg/jnetpcap/packet/JPacket;Lorg/jnetpcap/packet/JPacket$State;Lorg/jnetpcap/PcapHeader;Lorg/jnetpcap/packet/JScanner;)I
+ * Signature: (IILorg/jnetpcap/packet/JPacketHandler;Ljava/lang/Object;Lorg/jnetpcap/packet/JPacket;Lorg/jnetpcap/packet/JPacket$State;Lorg/jnetpcap/PcapHeader;Lorg/jnetpcap/packet/JScanner;)I
  */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_BetaFeature_loop
-(JNIEnv *env, jclass jbetaclass, 
-		jobject pcap,
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__IILorg_jnetpcap_packet_JPacketHandler_2Ljava_lang_Object_2Lorg_jnetpcap_packet_JPacket_2Lorg_jnetpcap_packet_JPacket_00024State_2Lorg_jnetpcap_PcapHeader_2Lorg_jnetpcap_packet_JScanner_2
+(JNIEnv *env, jobject obj,
 		jint jcnt, 
 		jint id,
 		jobject jhandler, 
@@ -516,7 +514,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_BetaFeature_loop
 		return -1;
 	}
 
-	pcap_t *p = getPcap(env, pcap);
+	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
 		return -1; // Exception already thrown
 	}

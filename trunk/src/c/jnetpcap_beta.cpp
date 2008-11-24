@@ -24,9 +24,8 @@
 #include <unistd.h>
 #endif /*WIN32*/
 
-#include "jnetpcap_beta.h"
 #include "jnetpcap_utils.h"
-#include "org_jnetpcap_BetaFeature.h"
+#include "org_jnetpcap_Pcap.h"
 #include "export.h"
 
 

@@ -430,124 +430,6 @@ public class Pcap {
 	public native static String datalinkValToName(int dlt);
 
 	/**
-	 * <p>
-	 * Collect a group of packets. pcap_dispatch() is used to collect and process
-	 * packets. cnt specifies the maximum number of packets to process before
-	 * returning. This is not a minimum number; when reading a live capture, only
-	 * one bufferful of packets is read at a time, so fewer than cnt packets may
-	 * be processed. A cnt of -1 processes all the packets received in one buffer
-	 * when reading a live capture, or all the packets in the file when reading a
-	 * ``savefile''. callback specifies a routine to be called with three
-	 * arguments: a u_char pointer which is passed in from pcap_dispatch(), a
-	 * const struct pcap_pkthdr pointer, and a const u_char pointer to the first
-	 * caplen (as given in the struct pcap_pkthdr a pointer to which is passed to
-	 * the callback routine) bytes of data from the packet (which won't
-	 * necessarily be the entire packet; to capture the entire packet, you will
-	 * have to provide a value for snaplen in your call to pcap_open_live() that
-	 * is sufficiently large to get all of the packet's data - a value of 65535
-	 * should be sufficient on most if not all networks).
-	 * </p>
-	 * <p>
-	 * The number of packets read is returned. 0 is returned if no packets were
-	 * read from a live capture (if, for example, they were discarded because they
-	 * didn't pass the packet filter, or if, on platforms that support a read
-	 * timeout that starts before any packets arrive, the timeout expires before
-	 * any packets arrive, or if the file descriptor for the capture device is in
-	 * non-blocking mode and no packets were available to be read) or if no more
-	 * packets are available in a ``savefile.'' A return of -1 indicates an error
-	 * in which case pcap_perror() or pcap_geterr() may be used to display the
-	 * error text. A return of -2 indicates that the loop terminated due to a call
-	 * to pcap_breakloop() before any packets were processed. If your application
-	 * uses pcap_breakloop(), make sure that you explicitly check for -1 and -2,
-	 * rather than just checking for a return value < 0.
-	 * </p>
-	 * <p>
-	 * Note: when reading a live capture, pcap_dispatch() will not necessarily
-	 * return when the read times out; on some platforms, the read timeout isn't
-	 * supported, and, on other platforms, the timer doesn't start until at least
-	 * one packet arrives. This means that the read timeout should NOT be used in,
-	 * for example, an interactive application, to allow the packet capture loop
-	 * to ``poll'' for user input periodically, as there's no guarantee that
-	 * pcap_dispatch() will return after the timeout expires.
-	 * </p>
-	 * <p>
-	 * This implementation of disptach method performs a scan of the packet buffer
-	 * as it is delivered by libpcap. The scanned information is recorded in
-	 * native scanner structures which are then peered with a JPacket object
-	 * instance. The receiver of the dispatched packets
-	 * <code>JPacketHandler.nextPacket</code> receives fully decoded packets.
-	 * </p>
-	 * <p>
-	 * This method provides its own thread-local <code>JScanner</code> and
-	 * default shared <code>JPacket</code> instance. The same packet is
-	 * dispatched to the user with the state of the packet being changed between
-	 * each dispatch. If the user requires the packet state to persist longer than
-	 * a single iteration of the dispatcher, the delivered packets state must
-	 * either be peered with a different packet (only copied by reference) or the
-	 * entire contents and state must be copied to a new packet (a deep copy). The
-	 * shallow copy by reference persists longer, but not indefinately. It persist
-	 * as long as libpcap internal large capture buffer doesn't wrap around. The
-	 * same goes for JScanner's internal scan buffer, it too persists until the
-	 * state information exhausts the buffer and the buffer is wrapped around to
-	 * the begining as well overriding any information in the scan buffer. If
-	 * there are still any packets that reference that scan buffer information,
-	 * once that information is overriden by the latest scan, the original scan
-	 * information is gone forever and will guarrantee that any old packets still
-	 * pointing at the scan buffer will have incorrect infromation.
-	 * </p>
-	 * <p>
-	 * <code>JPacket</code> class provides methods which allow deep copy of the
-	 * packet data and state to be made to a new permanent location. This
-	 * mechanism works in conjuction of <code>JMemoryPool</code> class which
-	 * facilitates native memory management on large scale. Once the packet data
-	 * and state are deep copied to new memory location, that packet can stay
-	 * permanently in memory. The memory will only be released when all the java
-	 * object references to that memory are garbage collected. The memory is
-	 * deallocated automatically.
-	 * </p>
-	 * 
-	 * @param <T>
-	 *          user data type
-	 * @param pcap
-	 *          open pcap handle
-	 * @param cnt
-	 *          number of packets to process
-	 * @param id
-	 *          numerical protocol ID found in JProtocol.ID constant and in
-	 *          JRegistery
-	 * @param handler
-	 *          user supplied packet handler
-	 * @param user
-	 *          a custom opaque user object
-	 * @return number of packet captured
-	 */
-	public <T> int dispatch(int cnt, int id, JPacketHandler<T> handler,
-	    T user) {
-		final PcapPacket packet = new PcapPacket(Type.POINTER);
-		return dispatch(cnt, id, handler, user, packet, packet.getState(), packet
-		    .getCaptureHeader(), JScanner.getThreadLocal());
-	}
-
-	/**
-	 * Private native implemenation.
-	 * 
-	 * @param <T>
-	 * @param pcap
-	 * @param cnt
-	 * @param id
-	 * @param handler
-	 * @param user
-	 * @param packet
-	 * @param state
-	 * @param header
-	 * @param scanner
-	 * @return
-	 */
-	private static native <T> int dispatch(int cnt, int id,
-	    JPacketHandler<T> handler, T user, JPacket packet, JPacket.State state,
-	    PcapHeader header, JScanner scanner);
-
-	/**
 	 * pcap_findalldevs() constructs a list of network devices that can be opened
 	 * with pcap_open_live(). (Note that there may be network devices that cannot
 	 * be opened with pcap_open_live() by the process calling pcap_findalldevs(),
@@ -1020,6 +902,124 @@ public class Pcap {
 
 	private native <T> int dispatch(int cnt, ByteBufferHandler<T> handler,
 	    T user, PcapHeader header);
+
+	/**
+	 * <p>
+	 * Collect a group of packets. pcap_dispatch() is used to collect and process
+	 * packets. cnt specifies the maximum number of packets to process before
+	 * returning. This is not a minimum number; when reading a live capture, only
+	 * one bufferful of packets is read at a time, so fewer than cnt packets may
+	 * be processed. A cnt of -1 processes all the packets received in one buffer
+	 * when reading a live capture, or all the packets in the file when reading a
+	 * ``savefile''. callback specifies a routine to be called with three
+	 * arguments: a u_char pointer which is passed in from pcap_dispatch(), a
+	 * const struct pcap_pkthdr pointer, and a const u_char pointer to the first
+	 * caplen (as given in the struct pcap_pkthdr a pointer to which is passed to
+	 * the callback routine) bytes of data from the packet (which won't
+	 * necessarily be the entire packet; to capture the entire packet, you will
+	 * have to provide a value for snaplen in your call to pcap_open_live() that
+	 * is sufficiently large to get all of the packet's data - a value of 65535
+	 * should be sufficient on most if not all networks).
+	 * </p>
+	 * <p>
+	 * The number of packets read is returned. 0 is returned if no packets were
+	 * read from a live capture (if, for example, they were discarded because they
+	 * didn't pass the packet filter, or if, on platforms that support a read
+	 * timeout that starts before any packets arrive, the timeout expires before
+	 * any packets arrive, or if the file descriptor for the capture device is in
+	 * non-blocking mode and no packets were available to be read) or if no more
+	 * packets are available in a ``savefile.'' A return of -1 indicates an error
+	 * in which case pcap_perror() or pcap_geterr() may be used to display the
+	 * error text. A return of -2 indicates that the loop terminated due to a call
+	 * to pcap_breakloop() before any packets were processed. If your application
+	 * uses pcap_breakloop(), make sure that you explicitly check for -1 and -2,
+	 * rather than just checking for a return value < 0.
+	 * </p>
+	 * <p>
+	 * Note: when reading a live capture, pcap_dispatch() will not necessarily
+	 * return when the read times out; on some platforms, the read timeout isn't
+	 * supported, and, on other platforms, the timer doesn't start until at least
+	 * one packet arrives. This means that the read timeout should NOT be used in,
+	 * for example, an interactive application, to allow the packet capture loop
+	 * to ``poll'' for user input periodically, as there's no guarantee that
+	 * pcap_dispatch() will return after the timeout expires.
+	 * </p>
+	 * <p>
+	 * This implementation of disptach method performs a scan of the packet buffer
+	 * as it is delivered by libpcap. The scanned information is recorded in
+	 * native scanner structures which are then peered with a JPacket object
+	 * instance. The receiver of the dispatched packets
+	 * <code>JPacketHandler.nextPacket</code> receives fully decoded packets.
+	 * </p>
+	 * <p>
+	 * This method provides its own thread-local <code>JScanner</code> and
+	 * default shared <code>JPacket</code> instance. The same packet is
+	 * dispatched to the user with the state of the packet being changed between
+	 * each dispatch. If the user requires the packet state to persist longer than
+	 * a single iteration of the dispatcher, the delivered packets state must
+	 * either be peered with a different packet (only copied by reference) or the
+	 * entire contents and state must be copied to a new packet (a deep copy). The
+	 * shallow copy by reference persists longer, but not indefinately. It persist
+	 * as long as libpcap internal large capture buffer doesn't wrap around. The
+	 * same goes for JScanner's internal scan buffer, it too persists until the
+	 * state information exhausts the buffer and the buffer is wrapped around to
+	 * the begining as well overriding any information in the scan buffer. If
+	 * there are still any packets that reference that scan buffer information,
+	 * once that information is overriden by the latest scan, the original scan
+	 * information is gone forever and will guarrantee that any old packets still
+	 * pointing at the scan buffer will have incorrect infromation.
+	 * </p>
+	 * <p>
+	 * <code>JPacket</code> class provides methods which allow deep copy of the
+	 * packet data and state to be made to a new permanent location. This
+	 * mechanism works in conjuction of <code>JMemoryPool</code> class which
+	 * facilitates native memory management on large scale. Once the packet data
+	 * and state are deep copied to new memory location, that packet can stay
+	 * permanently in memory. The memory will only be released when all the java
+	 * object references to that memory are garbage collected. The memory is
+	 * deallocated automatically.
+	 * </p>
+	 * 
+	 * @param <T>
+	 *          user data type
+	 * @param pcap
+	 *          open pcap handle
+	 * @param cnt
+	 *          number of packets to process
+	 * @param id
+	 *          numerical protocol ID found in JProtocol.ID constant and in
+	 *          JRegistery
+	 * @param handler
+	 *          user supplied packet handler
+	 * @param user
+	 *          a custom opaque user object
+	 * @return number of packet captured
+	 */
+	public <T> int dispatch(int cnt, int id, JPacketHandler<T> handler,
+	    T user) {
+		final PcapPacket packet = new PcapPacket(Type.POINTER);
+		return dispatch(cnt, id, handler, user, packet, packet.getState(), packet
+		    .getCaptureHeader(), JScanner.getThreadLocal());
+	}
+
+	/**
+	 * Private native implemenation.
+	 * 
+	 * @param <T>
+	 * @param pcap
+	 * @param cnt
+	 * @param id
+	 * @param handler
+	 * @param user
+	 * @param packet
+	 * @param state
+	 * @param header
+	 * @param scanner
+	 * @return
+	 */
+	private native <T> int dispatch(int cnt, int id,
+	    JPacketHandler<T> handler, T user, JPacket packet, JPacket.State state,
+	    PcapHeader header, JScanner scanner);
 
 	/**
 	 * <p>
