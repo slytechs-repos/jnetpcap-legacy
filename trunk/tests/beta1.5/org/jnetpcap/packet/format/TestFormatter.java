@@ -21,11 +21,11 @@ import junit.framework.TestCase;
 import org.jnetpcap.ByteBufferHandler;
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapHeader;
-import org.jnetpcap.PcapPacket;
 import org.jnetpcap.nio.JMemory.Type;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.JScanner;
+import org.jnetpcap.packet.PcapPacket;
 
 /**
  * @author Mark Bednarczyk

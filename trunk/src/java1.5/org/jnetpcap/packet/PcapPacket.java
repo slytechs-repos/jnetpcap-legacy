@@ -15,13 +15,13 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.jnetpcap;
+package org.jnetpcap.packet;
 
 import java.nio.ByteBuffer;
 
+import org.jnetpcap.PcapHeader;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemoryPool;
-import org.jnetpcap.packet.JPacket;
 
 /**
  * @author Mark Bednarczyk
