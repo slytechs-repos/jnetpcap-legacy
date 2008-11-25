@@ -20,6 +20,8 @@ import org.jnetpcap.packet.format.JField;
 import org.jnetpcap.packet.format.JStaticField;
 
 /**
+ * Udp/Ip header definition
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */

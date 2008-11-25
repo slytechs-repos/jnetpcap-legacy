@@ -20,6 +20,12 @@ import org.jnetpcap.packet.format.JField;
 import org.jnetpcap.packet.format.JStaticField;
 import org.jnetpcap.packet.format.JFormatter.Style;
 
+/**
+ * DIX Ethernet2 definition
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
+ *
+ */
 public class Ethernet
     extends JHeader {
 

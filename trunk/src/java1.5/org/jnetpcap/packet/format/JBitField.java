@@ -17,6 +17,11 @@ import org.jnetpcap.packet.format.JFormatter.Priority;
 import org.jnetpcap.packet.format.JFormatter.Style;
 
 /**
+ * A declaration of a bit field, a sub field of another field. Bit field is a
+ * convenience class that pre declares this field a sub field of a compound
+ * parent field. For example bit fiels are flags where you declare a bit field
+ * for each bit or set of bits within a parent flag field.
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */

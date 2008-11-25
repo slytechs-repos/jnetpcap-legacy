@@ -18,6 +18,9 @@ import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JPacket;
 
 /**
+ * This formatter products XML output for a packet. A packet content is output
+ * as XML sheet based on field objects read from each header within a packet.
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */

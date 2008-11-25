@@ -20,13 +20,19 @@ import org.jnetpcap.packet.format.JField;
 import org.jnetpcap.packet.format.JStaticField;
 import org.jnetpcap.packet.format.JFormatter.Style;
 
+/**
+ * IEEE SNAP header definition
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
+ */
 public class IEEESnap
     extends JHeader {
 
 	public static final int ID = JProtocol.IEEE_SNAP_ID;
 
 	public static final ByteOrder BYTE_ORDER = ByteOrder.BIG_ENDIAN;
-	
+
 	/**
 	 * Field objects for JFormatter
 	 * 

@@ -34,7 +34,20 @@ import org.jnetpcap.Pcap;
  */
 public abstract class JMemory {
 
+	/**
+	 * Used in special memory allocation. Allows the user to specify the type
+	 * allocation required of this memory object.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
 	public enum Type {
+		/**
+		 * Peered object is being created as a reference pointer and has no memory
+		 * allocated on its own. It is expected that new object will be peered with
+		 * exising memory location. The same concept as a native memory pointer,
+		 * think void * in C.
+		 */
 		POINTER
 	}
 
@@ -105,7 +118,7 @@ public abstract class JMemory {
 		if (type != Type.POINTER) {
 			throw new IllegalArgumentException("Only POINTER types are supported");
 		}
-		
+
 		this.size = 0;
 	}
 

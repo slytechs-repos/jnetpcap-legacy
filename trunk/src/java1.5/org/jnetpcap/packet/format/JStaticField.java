@@ -15,6 +15,11 @@ package org.jnetpcap.packet.format;
 import org.jnetpcap.packet.JHeader;
 
 /**
+ * A header field object used by formatters to describe formatting options that
+ * a formatter should use. Static fields have constant offset and length within
+ * the header unlike JDynamicFields which have to determine both of those
+ * properties at runtime.
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
@@ -76,7 +81,7 @@ public abstract class JStaticField<H extends JHeader, V> implements
 	public final int getMask() {
 		return this.mask;
 	}
-	
+
 	public String valueDescription(H header) {
 		return null;
 	}

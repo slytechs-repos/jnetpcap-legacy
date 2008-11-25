@@ -24,6 +24,8 @@ import org.jnetpcap.packet.format.JFormatter.Priority;
 import org.jnetpcap.packet.format.JFormatter.Style;
 
 /**
+ * Layer 2 Tunneling Protocol header definition
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
@@ -31,7 +33,7 @@ public class L2TP
     extends JHeader {
 
 	public static final ByteOrder BYTE_ORDER = ByteOrder.BIG_ENDIAN;
-	
+
 	public final static int FLAG_L = 0x4000;
 
 	public final static int FLAG_O = 0x0200;

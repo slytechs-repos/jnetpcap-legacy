@@ -16,6 +16,11 @@ import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JStruct;
 
 /**
+ * A inprogress working scan structure. Used by JScanner to pass around
+ * information between various scan routines. This class is peered with scan_t
+ * structure that is used to pass information both between native header
+ * scanners and java scanners.
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
@@ -30,7 +35,7 @@ public class JScan
 	public JScan() {
 		super(STRUCT_NAME, sizeof());
 	}
-	
+
 	public JScan(Type type) {
 		super(STRUCT_NAME, type);
 	}
@@ -46,31 +51,31 @@ public class JScan
 	protected native void scan_next_id(int next_id);
 
 	protected native void scan_length(int length);
-	
+
 	public native static int sizeof();
 
 	/**
-   * @param buffer
-   */
-  public native void scan_buf(JBuffer buffer);
+	 * @param buffer
+	 */
+	public native void scan_buf(JBuffer buffer);
 
 	/**
-   * @param size
-   */
-  public native void scan_buf_len(int size);
+	 * @param size
+	 */
+	public native void scan_buf_len(int size);
 
 	/**
-   * @param offset
-   */
-  public native void scan_offset(int offset);
+	 * @param offset
+	 */
+	public native void scan_offset(int offset);
 
 	/**
-   * @return
-   */
-  public native JPacket scan_packet();
+	 * @return
+	 */
+	public native JPacket scan_packet();
 
 	/**
-   * @return
-   */
-  public native int scan_offset();
+	 * @return
+	 */
+	public native int scan_offset();
 }

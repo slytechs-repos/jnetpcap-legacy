@@ -16,6 +16,9 @@ import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
 
 /**
+ * Builtin header type that is a catch all for all unmatch data within a packet
+ * buffer
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */

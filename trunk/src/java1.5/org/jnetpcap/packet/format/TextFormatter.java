@@ -19,6 +19,9 @@ import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JPacket;
 
 /**
+ * Formatter that formats packet content for human readable output. This class
+ * produces pretty text based output by reading field objects from the header.
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
@@ -33,17 +36,17 @@ public class TextFormatter
 	final Formatter uf = new Formatter();
 
 	/**
-   * @param out
-   */
-  public TextFormatter(StringBuilder out) {
-  	setOutput(out);
-  }
+	 * @param out
+	 */
+	public TextFormatter(StringBuilder out) {
+		setOutput(out);
+	}
 
 	/**
-   * 
-   */
-  public TextFormatter() {
-  }
+	 * 
+	 */
+	public TextFormatter() {
+	}
 
 	protected void fieldAfter(JHeader header, JField field, Detail detail)
 	    throws IOException {
@@ -92,16 +95,16 @@ public class TextFormatter
 			final String v = stylizeSingleLine(header, field, runtime.value(header));
 			final String description = runtime.valueDescription(header);
 			final String units = field.getUnits();
-						
+
 			pad().format(FIELD_FORMAT + "%s", field.getName(), v);
-			
+
 			if (units != null) {
 				out.format(" " + units);
 			}
-			
+
 			if (description != null) {
 				out.format(" [" + description + "]");
-			} 
+			}
 
 			incLevel(19); // Inc for multi line fields
 

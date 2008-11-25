@@ -22,6 +22,8 @@ import org.jnetpcap.packet.format.JFormatter.Priority;
 import org.jnetpcap.packet.format.JFormatter.Style;
 
 /**
+ * Point to Point Protocol header definition
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
@@ -31,7 +33,7 @@ public class PPP
 	public static final ByteOrder BYTE_ORDER = ByteOrder.BIG_ENDIAN;
 
 	public static final int ID = JProtocol.PPP_ID;
-	
+
 	/**
 	 * Field objects for JFormatter
 	 * 
