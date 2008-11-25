@@ -109,12 +109,7 @@ public enum JProtocol {
 		this.dlt = dlt;
 		this.ID = ordinal();
 
-		try {
-			this.scan = new JHeaderScanner(this);
-		} catch (UnregisteredScannerException e) {
-			e.printStackTrace(System.err);
-			throw new IllegalStateException(e);
-		}
+		this.scan = new JHeaderScanner(this);
 	}
 
 	public static boolean isCoreProtocol(int id) {
