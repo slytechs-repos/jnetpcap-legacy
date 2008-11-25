@@ -36,20 +36,69 @@ import org.jnetpcap.packet.header.Udp;
  */
 public enum JProtocol {
 	/**
-	 * 
+	 * Builtin header type that encapsulates the portion of the packet buffer not
+	 * matched by any protocol header
 	 */
 	PAYLOAD(Payload.class),
+
+	/**
+	 * DIX Ethernet2 header
+	 */
 	ETHERNET(Ethernet.class, PcapDLT.EN10MB),
+
+	/**
+	 * Ip version 4 header
+	 */
 	IP4(Ip4.class),
+
+	/**
+	 * Ip version 6 header
+	 */
 	IP6(Ip6.class),
+
+	/**
+	 * TCP/IP header
+	 */
 	TCP(Tcp.class),
+
+	/**
+	 * UDP/IP header
+	 */
 	UDP(Udp.class),
+
+	/**
+	 * IEEE 802.3 header type
+	 */
 	IEEE_802DOT3(IEEE802dot3.class, PcapDLT.IEEE802),
+
+	/**
+	 * IEEE LLC2 header
+	 */
 	IEEE_802DOT2(IEEE802dot2.class),
+
+	/**
+	 * IEEE SNAP header
+	 */
 	IEEE_SNAP(IEEESnap.class),
+
+	/**
+	 * IEEE VLAN tag header
+	 */
 	IEEE_802DOT1Q(IEEE802dot1q.class),
+
+	/**
+	 * Layer 2 tunneling protocol header
+	 */
 	L2TP(L2TP.class),
+
+	/**
+	 * Point to Point Protocol header
+	 */
 	PPP(PPP.class, PcapDLT.PPP),
+
+	/**
+	 * Internet Control Message Protocol header
+	 */
 	ICMP(Icmp.class), ;
 
 	/**
@@ -112,14 +161,37 @@ public enum JProtocol {
 		this.scan = new JHeaderScanner(this);
 	}
 
+	/**
+	 * Checks the supplied ID if its is one of jNetPcap's core protocol set
+	 * 
+	 * @param id
+	 *          numerical ID of the header as assigned by JRegistry
+	 * @return true if header is part of the core protocol set otherwise false
+	 */
 	public static boolean isCoreProtocol(int id) {
 		return id < values().length;
 	}
 
+	/**
+	 * Checks the supplied header by class if its is one of jNetPcap's core
+	 * protocol set
+	 * 
+	 * @param c
+	 *          class name of the header to check
+	 * @return true if header is part of the core protocol set otherwise false
+	 */
 	public static boolean isCoreProtocol(Class<? extends JHeader> c) {
 		return (valueOf(c) == null) ? false : true;
 	}
 
+	/**
+	 * Converts a protocol header to a JPRotocol constant
+	 * 
+	 * @param c
+	 *          header class to convert
+	 * @return an enum constant or null if class is not part of the core protocol
+	 *         set
+	 */
 	public static JProtocol valueOf(Class<? extends JHeader> c) {
 		for (JProtocol p : values()) {
 			if (p.clazz == c) {
@@ -130,6 +202,14 @@ public enum JProtocol {
 		return null;
 	}
 
+	/**
+	 * Converts a protocol header to a JPRotocol constant
+	 * 
+	 * @param id
+	 *          numerical ID of the header assigned by JRegistry
+	 * @return an enum constant or null if class is not part of the core protocol
+	 *         set
+	 */
 	public static JProtocol valueOf(int id) {
 		if (id >= values().length) {
 			return null;
@@ -137,26 +217,56 @@ public enum JProtocol {
 
 		return values()[id];
 	}
-	
+
+	/**
+	 * Gets the numerical ID of the data link header for the open pcap handle. A
+	 * call to Pcap.datalink() is made and the value translated to an appropriate
+	 * jNetPcap protocol header ID.
+	 * 
+	 * @param pcap
+	 *          open Pcap handle
+	 * @return numerical ID of the protocol header or the ID of Payload header as
+	 *         the catch all if no headers are matched
+	 */
 	public static int id(Pcap pcap) {
 		return valueOf(pcap).ID;
 	}
-	
+
+	/**
+	 * Gets the numerical ID of the data link header for the open pcap handle. A
+	 * call to Pcap.datalink() is made and the value translated to an appropriate
+	 * jNetPcap protocol header ID.
+	 * 
+	 * @param pcap
+	 *          open Pcap handle
+	 * @return enum constant or the Payload header as the catch all if no headers
+	 *         are matched
+	 */
 	public static JProtocol valueOf(Pcap pcap) {
 		return valueOf(PcapDLT.valueOf(pcap.datalink()));
 	}
 
+	/**
+	 * Gets the numerical ID of the data link header for supplied pcap dlt
+	 * constant. A call to Pcap.datalink() is made and the value translated to an
+	 * appropriate jNetPcap protocol header ID.
+	 * 
+	 * @param dlt
+	 *          pcap dlt constant
+	 * @return enum constant or the Payload header as the catch all if no headers
+	 *         are matched
+	 */
 	public static JProtocol valueOf(PcapDLT dlt) {
 		if (dlt == null) {
 			return PAYLOAD;
 		}
-		
-		for (JProtocol p: values()) {
+
+		for (JProtocol p : values()) {
 			if (dlt == p.dlt) {
 				return p;
 			}
 		}
-		
+
 		return PAYLOAD; // Not found
 	}
 

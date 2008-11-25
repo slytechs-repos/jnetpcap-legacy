@@ -13,6 +13,8 @@
 package org.jnetpcap.packet;
 
 /**
+ * Thrown when a header scanner for a protocol does exist but is needed
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */

@@ -86,6 +86,16 @@ import org.jnetpcap.nio.JStruct;
  * 
  * </pre>
  * 
+ * <p>
+ * Note that a packet scanner (JScanner) is not a lightweight object but
+ * actually fairely heavy to initialize and run. The scanner typically allocates
+ * on the order of 100Kb of internal native memory for its state structures and
+ * buffer. It is advisable to use its thread local getter methods which maintain
+ * a pool of scanners on a per thread basis. Of course a new instance of a
+ * scanner can be instantiated and configured differently from the default case
+ * which uses the information in the global registry.
+ * </p>
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
@@ -122,6 +132,9 @@ public class JScanner
 	 */
 	public static final int MAX_ID_COUNT = 64;
 
+	/**
+	 * Name of the peered native structure
+	 */
 	public final static String STRUCT_NAME = "scanner_t";
 
 	static {
@@ -134,12 +147,14 @@ public class JScanner
 	}
 
 	/**
+	 * Maintains and allocates a pool of packet scanners.
+	 * 
 	 * @return
 	 */
 	public static JScanner getThreadLocal() {
 		JScanner s = localScanners.get();
 		s.reloadAll();
-		
+
 		return s;
 	}
 
@@ -170,6 +185,9 @@ public class JScanner
 		return o;
 	}
 
+	/**
+	 * Allocates a default scanner using {@literal #DEFAULT_BLOCKSIZE} buffer size
+	 */
 	public JScanner() {
 		this(DEFAULT_BLOCKSIZE);
 	}
@@ -186,15 +204,17 @@ public class JScanner
 		reloadAll();
 	}
 
-	/* (non-Javadoc)
-   * @see java.lang.Object#finalize()
-   */
-  @Override
-  protected void finalize() throws Throwable {
-  	cleanup_jscanner();
-  	
-  	super.finalize();
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#finalize()
+	 */
+	@Override
+	protected void finalize() throws Throwable {
+		cleanup_jscanner();
+
+		super.finalize();
+	}
 
 	/**
 	 * Clean up the scanner_t structure and release any held resources. For one
@@ -219,24 +239,41 @@ public class JScanner
 	private native void loadScanners(JHeaderScanner[] scanners);
 
 	/**
-	 * 
+	 * Reloads the scanner and bindings table from JRegistry down to native
+	 * scanner structures.
 	 */
 	public void reloadAll() {
 		loadScanners(JRegistry.getHeaderScanners());
 	}
 
+	/**
+	 * Performs a scan on a packet that has been peered with a packet data buffer.
+	 * The state structure o the packet is filled in and peered at the time of the
+	 * packet scan.
+	 * 
+	 * @param packet
+	 *          packet to process
+	 * @param id
+	 *          numerical ID of the data link protocol, or first header within the
+	 *          data buffer
+	 * @return number of bytes processed
+	 */
 	public int scan(JPacket packet, int id) {
 		final JPacket.State state = packet.getState();
-		
+
 		reloadAll();
 
 		return scan(packet, state, id);
 	}
 
 	/**
-	 * @param buffer
+	 * Performs the actual scan
+	 * 
+	 * @param packet
+	 *          packet to scan
 	 * @param id
-	 * @return
+	 *          id of dlt protocol
+	 * @return number of bytes processed
 	 */
-	private native int scan(JPacket buffer, JPacket.State state, int id);
+	private native int scan(JPacket packet, JPacket.State state, int id);
 }
