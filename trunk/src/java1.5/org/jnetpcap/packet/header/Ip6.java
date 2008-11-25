@@ -21,6 +21,12 @@ import org.jnetpcap.packet.format.JStaticField;
 import org.jnetpcap.packet.format.JFormatter.Priority;
 import org.jnetpcap.packet.format.JFormatter.Style;
 
+/**
+ * IP version 6 header definition
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
+ */
 public class Ip6
     extends JHeader {
 

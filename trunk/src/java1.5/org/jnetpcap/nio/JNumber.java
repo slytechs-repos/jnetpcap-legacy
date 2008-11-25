@@ -35,6 +35,10 @@ public class JNumber
     extends JMemory {
 
 	/**
+	 * Used to request a specific type of primitive that this number will be
+	 * dealing with possibly allocating memory more efficiently to fit the
+	 * primitive type.
+	 * 
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
@@ -95,7 +99,7 @@ public class JNumber
 	private final static int DOUBLE_ORDINAL = 7;
 
 	private final static int MAX_SIZE_ORDINAL = 8;
-	
+
 	public JNumber() {
 		super(Type.getBiggestSize());
 	}
@@ -143,15 +147,15 @@ public class JNumber
 	public native double doubleValue();
 
 	public native void doubleValue(double value);
-	
+
 	public int peer(JNumber number) {
 		return super.peer(number);
 	}
-	
+
 	public int peer(JBuffer buffer) {
 		return super.peer(buffer, 0, size());
 	}
-	
+
 	public int peer(JBuffer buffer, int offset) {
 		return super.peer(buffer, offset, size());
 	}

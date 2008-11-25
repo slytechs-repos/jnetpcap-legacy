@@ -17,6 +17,11 @@ import org.jnetpcap.packet.format.JFormatter.Priority;
 import org.jnetpcap.packet.format.JFormatter.Style;
 
 /**
+ * A field within a header. Field objects are used to describe the structure of
+ * a header to a formatter. The formatter iterates through all the fields it
+ * receives from a header and using formatting information stored in these
+ * fields, creates formatted output.
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
@@ -165,7 +170,7 @@ public class JField {
 	}
 
 	public boolean isCompound() {
-		return componentFields.length != 0 ;
+		return componentFields.length != 0;
 	}
 
 	/**

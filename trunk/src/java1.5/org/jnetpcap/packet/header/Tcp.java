@@ -23,6 +23,8 @@ import org.jnetpcap.packet.format.JFormatter.Priority;
 import org.jnetpcap.packet.format.JFormatter.Style;
 
 /**
+ * Tcp/Ip header definition
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
@@ -257,11 +259,11 @@ public class Tcp
 		            public Integer value(Tcp header) {
 			            return header.window();
 		            }
-		            
-                @Override
-                public String valueDescription(Tcp header) {
-                	return "" + (header.window() / 1024) + "Kb";
-                }
+
+		            @Override
+		            public String valueDescription(Tcp header) {
+			            return "" + (header.window() / 1024) + "Kb";
+		            }
 
 	            }),
 	        new JField(Style.INT_HEX, "checksum", "crc",
@@ -280,7 +282,6 @@ public class Tcp
 
 	    };
 
-	
 	/**
 	 * @param id
 	 */

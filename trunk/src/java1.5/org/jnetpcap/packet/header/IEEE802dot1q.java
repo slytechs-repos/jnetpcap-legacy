@@ -20,13 +20,19 @@ import org.jnetpcap.packet.format.JField;
 import org.jnetpcap.packet.format.JStaticField;
 import org.jnetpcap.packet.format.JFormatter.Style;
 
+/**
+ * IEEE Vlan header definition
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
+ */
 public class IEEE802dot1q
     extends JHeader {
 
 	public static final int ID = JProtocol.IEEE_802DOT1Q_ID;
 
 	public static final ByteOrder BYTE_ORDER = ByteOrder.BIG_ENDIAN;
-	
+
 	/**
 	 * Field objects for JFormatter
 	 * 

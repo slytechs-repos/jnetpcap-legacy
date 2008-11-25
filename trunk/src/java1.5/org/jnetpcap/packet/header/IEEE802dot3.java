@@ -20,6 +20,12 @@ import org.jnetpcap.packet.format.JField;
 import org.jnetpcap.packet.format.JStaticField;
 import org.jnetpcap.packet.format.JFormatter.Style;
 
+/**
+ * IEEE 802.3 data link header definition
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
+ */
 public class IEEE802dot3
     extends JHeader {
 
@@ -28,7 +34,7 @@ public class IEEE802dot3
 	public static final ByteOrder BYTE_ORDER = ByteOrder.BIG_ENDIAN;
 
 	public static final int LENGTH = 14; // 802.3 header is 14 bytes long
-	
+
 	/**
 	 * Field objects for JFormatter
 	 * 

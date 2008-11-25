@@ -20,6 +20,12 @@ import org.jnetpcap.packet.format.JDynamicField;
 import org.jnetpcap.packet.format.JField;
 import org.jnetpcap.packet.format.JStaticField;
 
+/**
+ * IEEE LLC2 header definition
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
+ */
 public class IEEE802dot2
     extends JHeader {
 

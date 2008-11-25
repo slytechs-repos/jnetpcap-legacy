@@ -13,7 +13,6 @@
 package org.jnetpcap.packet.format;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.ByteBuffer;
 
 import junit.framework.TestCase;
@@ -50,27 +49,6 @@ public class TestFormatter
 	 */
 	protected void tearDown() throws Exception {
 		super.tearDown();
-	}
-
-	public void _testHtmlCSSFormatter() throws IOException {
-		dumpToFormatter(new HtmlCSSFormatter(), "tests/test-vlan.pcap");
-	}
-
-	public void _testHtmlTableFormatter() throws IOException {
-		// File f = new File("tests/write.html");
-		// PrintWriter pw = new PrintWriter(f);
-
-		PrintStream pw = System.out;
-		pw.format("<html>\n<head><style>\n");
-		pw.format("#cl_field_data {color:red;}\n");
-		pw.format("</style></head>\n<body>\n\n");
-
-		dumpToFormatter(new HtmlTableFormatter(pw), "tests/test-vlan.pcap");
-
-		pw.format("</body>\n</html>\n");
-		pw.close();
-
-		dumpToFormatter(new HtmlTableFormatter(), "tests/test-vlan.pcap");
 	}
 
 	public void testTextFormatter() throws IOException {

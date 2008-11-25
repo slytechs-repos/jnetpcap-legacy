@@ -14,11 +14,24 @@ package org.jnetpcap.packet.format;
 
 import org.jnetpcap.packet.JHeader;
 
+/**
+ * A header field that doesn't have constant offset into a header. Dynamic field
+ * specifics have to be determined at runtime after a header is bound to a
+ * packet. Flags and other conditions within the field determine if a field
+ * exists at all in the header and what offset and length it is.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
+ * @param <H>
+ * @param <V>
+ */
 public abstract class JDynamicField<H extends JHeader, V> implements
     JFieldRuntime<H, V> {
-	
+
 	private int offset;
+
 	private int length;
+
 	public JDynamicField() {
 		// Empty
 	}
@@ -26,39 +39,39 @@ public abstract class JDynamicField<H extends JHeader, V> implements
 	/**
 	 * @param i
 	 */
-  public JDynamicField(int offset) {
+	public JDynamicField(int offset) {
 		this.offset = offset;
-  }
+	}
 
 	/**
 	 * @return the offset
 	 */
-  public final int getOffset() {
-  	return this.offset;
-  }
+	public final int getOffset() {
+		return this.offset;
+	}
 
 	/**
 	 * @param offset
 	 *          the offset to set
 	 */
-  public final void setOffset(int offset) {
-  	this.offset = offset;
-  }
+	public final void setOffset(int offset) {
+		this.offset = offset;
+	}
 
 	/**
 	 * @return the length
 	 */
-  public final int getLength() {
-  	return this.length;
-  }
+	public final int getLength() {
+		return this.length;
+	}
 
 	/**
 	 * @param length
 	 *          the length to set
 	 */
-  public final void setLength(int length) {
-  	this.length = length;
-  }
+	public final void setLength(int length) {
+		this.length = length;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -74,23 +87,24 @@ public abstract class JDynamicField<H extends JHeader, V> implements
 	 * 
 	 * @see org.jnetpcap.packet.format.JFieldRuntime#getMask()
 	 */
-  public int getMask() {
-	 return 0;
-  }
+	public int getMask() {
+		return 0;
+	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.jnetpcap.packet.format.JFieldRuntime#valueDescription(org.jnetpcap.packet.JHeader)
 	 */
-  public String valueDescription(H header) {
-	  return null;
-  }
+	public String valueDescription(H header) {
+		return null;
+	}
 
 	/**
-   * @param mask the mask to set
-   */
-  public final void setMask(int mask) {
-  }
+	 * @param mask
+	 *          the mask to set
+	 */
+	public final void setMask(int mask) {
+	}
 
 }
