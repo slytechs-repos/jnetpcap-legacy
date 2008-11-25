@@ -21,19 +21,38 @@
                               jNetPcap Package
                                  Change Log
                                  
-== Release 1.2 (2008-09-20) ==
+== Release 1.2 (2008-11-24) ==
 
 * Feature release
 
 * Added
 
-  - WinPcap.offlineFilter variation which accepts len and caplen parameters 
-    directly
+  - #2292402 - Packet decoding framework
+  
+  - #2292455 - Memory management  
+  
+  - #2292464 - Add a function to acquire network interface MAC address
+  
+  - #2292515 - Simplify capturing packets in multi-threaded environment  
+  
+  - #2321006 - Deprecate: PcapHandler  
+  
+  - #2321014 - Deprecate: PcapPktHdr  
+  
+  - #2321017 - Deprecate: PcapInteger
+  
+  - #2321024 - Deprecate: certain loop, dispatch functions  
 
 * Bugs
 
-  - WinPcapSendQueue(int size) constructor was ignoring size parameter and using
-    a constant
+  - #2219738 - WinPcap.sendQueue ignores its parameter.  
+               WinPcapSendQueue(int size) constructor was ignoring size 
+               parameter and using a constant.
+    
+  - #2219729 - Memory leak in Pcap.loop().
+               Memory leak in Pcap.loop method. Local JNI references were 
+               accumulating causing out of memory errors in Pcap.loop when it 
+               was set to loop forever.
                                  
 == Release 1.1 (2008-06-19) ==
 

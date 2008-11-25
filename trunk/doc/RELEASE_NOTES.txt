@@ -20,14 +20,14 @@
 
 
                               jNetPcap Package
-                                Version 1.2
+                               Version 1.2 RC1
                                Release Notes
-                            Created on 2008-06-19
+                            Created on 2008-11-24
 
 INTRODUCTION:
 ============
 
-This is a production release of jNetPcap library. 
+This is a release candidate #1 release of jNetPcap library. 
 
 The API classes are compiled with Java 1.5.X compiler and require Java 1.5 
 compatibility. The package is platform dependent as there is a native library 
@@ -41,15 +41,21 @@ methods are implemented. Also various low level kernel buffer operations that
 are natively available through WinPcap extension library are implemented as 
 well, but only available on windows based platforms.
 
-This release adds support for additional platforms. Specifically Linux Fedora 
-Core 8 and Linux Debian 4. 
+This release adds support for packet decoding. No additional platforms are
+added to supported list. New function on PcapIf class allows retrieval of 
+hardware MAC addresses from any network interface. New utility methods named
+loopInBackground and dispatchInBackground simplify packet capture in multi
+threaded environment.
 
-This release adds full support for libpcap functions inject_packet and 
-send_packet. The support for both of these methods under Fedora Core 8 (FC8) 
-in libpcap RPM 9.7 or greater.
+This release adds a new feature that allows raw packets as received from libpcap
+to be decoded into more programmer and human friendly forms. The package
+provides several core protocol headers and a mechanism for extensions.
+
+The release also addresses two known bugs as listed in the bugs and changes
+section of these release notes.
 
 The javadoc API documentation and a user guide is available at the project's 
-website at: http://jnetpcap.org/docs/jnetpcap-1.1-javadoc/index.html
+website at: http://jnetpcap.org.
 
 == Installation Instructions ==
 
@@ -222,32 +228,40 @@ you will need to included any version of 'jUnit' in the CLASSPATH.
 
 == General Notes ==
 
-This is maintenance release of jNetPcap. Adds support for Debian platform. 
-The library has been tested with many jUnit test cases for both correct and out 
-of bounds usage. The release's build process does testing on the code before and
-after its packaged to ensure everything is included and built with consistent 
-environment and flags.
-
-Debug information in the libraries has been stripped and optimization during
-compilation has been set at maximum. This should reduce the library size and
-increase performance.
+This is a major feature release. Adds support for packet decoding, PcapUtils 
+class with new utility methods, fixes two bugs and deprecates and replaces
+several classes from the API.
 
 == Bugs Fixed ==
 
-No bugs reported or fixed in this release :)
+  - #2219738 - WinPcap.sendQueue ignores its parameter.  
+               WinPcapSendQueue(int size) constructor was ignoring size 
+               parameter and using a constant.
+    
+  - #2219729 - Memory leak in Pcap.loop().
+               Memory leak in Pcap.loop method. Local JNI references were 
+               accumulating causing out of memory errors in Pcap.loop when it 
+               was set to loop forever.
 
 == Changes ==
 
- * Added Debian platform
+* Added
 
- * Updated javadoc documentation throughly
-
- * Implemented methods on Linux:
-
-   - sendPacket()
- 
-   - inject()
-
+  - #2292402 - Packet decoding framework
+  
+  - #2292455 - Memory management  
+  
+  - #2292464 - Add a function to acquire network interface MAC address
+  
+  - #2292515 - Simplify capturing packets in multi-threaded environment  
+  
 == Deprecations ==
 
-* None
+  - #2321006 - Deprecate: PcapHandler  
+  
+  - #2321014 - Deprecate: PcapPktHdr  
+  
+  - #2321017 - Deprecate: PcapInteger
+  
+  - #2321024 - Deprecate: certain loop, dispatch functions  
+
