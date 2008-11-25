@@ -43,12 +43,11 @@
 	<typedef resource="cpptasks.types" classpath="lib/cpptasks-1.0b4/cpptasks.jar" />
 	<taskdef name="deb" classpath="lib/jdeb-0.6.jar" classname="org.vafer.jdeb.ant.DebAntTask"/>
 
+	<!-- Deployable packages and their structure -->
+	<property file="package.properties" />
 
 	<!-- load the build properties file -->
 	<property file="build.properties" />
-
-	<!-- Deployable packages and their structure -->
-	<property file="package.properties" />
 
 	<!-- Dependency libraries -->
 	<property file="lib.properties" />
@@ -160,8 +159,7 @@
 	<target name="prep-javadoc" depends="prep-build">
 		<!-- always clean the api directory. We don't want any old mixed up files -->
 		<!-- delete dir="${build.api.dir}" -->
-		<mkdir dir="${build.javadoc.dir}-${jre}" />
-		<mkdir dir="${build.javadoc.dir}-beta" />
+		<mkdir dir="${build.javadoc.dir}" />
 	</target>
 
 	<!-- =================================================================== -->
@@ -247,8 +245,8 @@
 		<!--       Now ZIP everything up into a distributable bundle  -->
 		<!-- ############################################################### -->
 		
-		<zip destfile="${pkg.dist.dir}/${pkg.base}-jre1.5-javadoc.zip">
-			<zipfileset dir="${build.javadoc.dir}-jre1.5" prefix="${pkg.base}-jre1.5-javadoc" />
+		<zip destfile="${pkg.dist.dir}/${pkg.base}-javadoc.zip">
+			<zipfileset dir="${build.javadoc.dir}" prefix="${pkg.base}-javadoc" />
 		</zip>
 		
 	</target>
@@ -390,12 +388,6 @@
 			<param name="compiler.target" value="1.5" />
 		</antcall>
 		
-		<antcall target="comp-java-beta">
-			<param name="jre" value="jre1.5" />
-			<param name="compiler.target" value="1.5" />
-		</antcall>
-
-
 	</target>
 
 
@@ -575,7 +567,7 @@
 	<target name="comp-javadoc-jre" depends="prep-javadoc">
 		<javadoc sourcepath="${src.java.dir}${compiler.target}" 
 			source="${compiler.target}"
-			destdir="${build.javadoc.dir}-${jre}" 
+			destdir="${build.javadoc.dir}" 
 			doctitle="${doc.javadoc.title} (JRE ${compiler.target})" 
 			overview="${src.java.dir}${compiler.target}/${doc.javadoc.overview.html}" 
 			packagenames="org.jnetpcap.*" 
@@ -776,7 +768,7 @@
 			trust="yes" 
 			verbose="yes" 
 			todir="${web.uri}" 
-			file="${pkg.dist.dir}/${pkg.base}-jre1.5-javadoc.zip" />
+			file="${pkg.dist.dir}/${pkg.base}-javadoc.zip" />
 
 
 		<sshexec 
@@ -784,7 +776,7 @@
 			host="${shell.host.name}" 
 			username="${shell.user.name}" 
 			password="${shell.user.pass}" 
-			command="rm -rf ${web.doc.dir}/${pkg.base}-jre1.5-javadoc; unzip ${web.doc.dir}/${pkg.base}-jre1.5-javadoc.zip -d ${web.doc.dir}; rm  ${web.doc.dir}/${pkg.base}-jre1.5-javadoc.zip" 
+			command="rm -rf ${web.doc.dir}/${pkg.base}-javadoc; unzip ${web.doc.dir}/${pkg.base}-javadoc.zip -d ${web.doc.dir}; rm  ${web.doc.dir}/${pkg.base}-javadoc.zip" 
 		/>
 		
 	</target>
@@ -802,7 +794,7 @@
 		<!--       Create JAR file containing all the java classes  -->
 		<!-- ############################################################### -->
 		<jar destfile="${build.jnetpcap.jar}" manifest="${build.classes.inf}">
-			<fileset dir="${build.classes.dir}" />
+			<fileset dir="${build.classes.dir}1.5" />
 		</jar>
 	</target>
 
