@@ -62,6 +62,27 @@ public class XmlFormatter
 		decLevel();
 	}
 
+	/**
+   * 
+   */
+  public XmlFormatter() {
+	  super();
+  }
+
+	/**
+   * @param out
+   */
+  public XmlFormatter(Appendable out) {
+	  super(out);
+  }
+
+	/**
+   * @param out
+   */
+  public XmlFormatter(StringBuilder out) {
+	  super(out);
+  }
+
 	/*
 	 * (non-Javadoc)
 	 * 

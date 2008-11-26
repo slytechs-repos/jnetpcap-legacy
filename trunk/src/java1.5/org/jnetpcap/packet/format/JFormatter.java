@@ -119,7 +119,7 @@ public abstract class JFormatter {
 
 	private int level;
 
-	protected Formatter out = new Formatter(System.out);
+	protected Formatter out;
 
 	private Stack<String> padStack = new Stack<String>();
 
@@ -131,6 +131,30 @@ public abstract class JFormatter {
 	public JFormatter() {
 		setDetail(Detail.MULTI_LINE_FULL_DETAIL);
 
+		setOutput(System.out);
+	}
+
+	/**
+	 * Creates a formatter.
+	 * 
+	 * @param out
+	 *          buffer where to send output
+	 */
+	public JFormatter(StringBuilder out) {
+
+		setDetail(Detail.MULTI_LINE_FULL_DETAIL);
+		setOutput(out);
+	}
+
+	/**
+	 * Creates a formatter.
+	 * 
+	 * @param out
+	 *          appendable device where to send output
+	 */
+	public JFormatter(Appendable out) {
+		setDetail(Detail.MULTI_LINE_FULL_DETAIL);
+		setOutput(out);
 	}
 
 	/**
@@ -368,7 +392,7 @@ public abstract class JFormatter {
 		this.out = new Formatter(out);
 		this.outputBuffer = null;
 	}
-	
+
 	public void setOutput(StringBuilder out) {
 		this.outputBuffer = out;
 		this.out = new Formatter(out);
@@ -430,20 +454,20 @@ public abstract class JFormatter {
 				    false, true);
 
 			case BYTE_ARRAY_HEX_DUMP_NO_TEXT_ADDRESS:
-				return FormatUtils.hexdump((byte[]) value, header.getOffset(), 0, false,
-				    false, true);
+				return FormatUtils.hexdump((byte[]) value, header.getOffset(), 0,
+				    false, false, true);
 
 			case BYTE_ARRAY_HEX_DUMP_NO_ADDRESS:
-				return FormatUtils.hexdump((byte[]) value, header.getOffset(), 0, false,
-				    true, true);
+				return FormatUtils.hexdump((byte[]) value, header.getOffset(), 0,
+				    false, true, true);
 
 			case BYTE_ARRAY_HEX_DUMP_ADDRESS:
 				return FormatUtils.hexdump((byte[]) value, header.getOffset(), 0, true,
 				    false, false);
 
 			case BYTE_ARRAY_HEX_DUMP_TEXT:
-				return FormatUtils.hexdump((byte[]) value, header.getOffset(), 0, false,
-				    true, false);
+				return FormatUtils.hexdump((byte[]) value, header.getOffset(), 0,
+				    false, true, false);
 
 			default:
 				return new String[] { stylizeSingleLine(header, field, value) };
@@ -494,18 +518,18 @@ public abstract class JFormatter {
 				return value.toString();
 		}
 	}
-	
+
 	public String toString() {
 		return this.out.toString();
 	}
 
 	/**
-   * 
-   */
-  public void reset() {
-	  if (outputBuffer != null) {
-	  	outputBuffer.setLength(0);
-	  }
-  }
+	 * 
+	 */
+	public void reset() {
+		if (outputBuffer != null) {
+			outputBuffer.setLength(0);
+		}
+	}
 
 }
