@@ -36,10 +36,24 @@ public class TextFormatter
 	final Formatter uf = new Formatter();
 
 	/**
+	 * Creates a text formatter which sends its output to a string buffer
+	 * 
 	 * @param out
+	 *          buffer where to send output
 	 */
 	public TextFormatter(StringBuilder out) {
-		setOutput(out);
+		super(out);
+	}
+
+	/**
+	 * Creates a test formatter which send its output to an appendable output
+	 * device
+	 * 
+	 * @param out
+	 *          where to send output
+	 */
+	public TextFormatter(Appendable out) {
+		super(out);
 	}
 
 	/**
