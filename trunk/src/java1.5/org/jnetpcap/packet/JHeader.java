@@ -110,6 +110,7 @@ public abstract class JHeader
 		        }
 	        }), };
 
+	protected final static JHeader[] EMPTY_HEADER_ARRAY = new JHeader[0];
 	/**
 	 * Reference to header's native state structure
 	 */
@@ -240,7 +241,7 @@ public abstract class JHeader
 	 * 
 	 * @return offset into the buffer in bytes
 	 */
-	public final int getOffset() {
+	public int getOffset() {
 		return state.getOffset();
 	}
 
@@ -249,7 +250,7 @@ public abstract class JHeader
 	 * 
 	 * @return length in bytes
 	 */
-	public final int getLength() {
+	public int getLength() {
 		return this.state.getLength();
 	}
 
@@ -261,6 +262,14 @@ public abstract class JHeader
 	 */
 	public final int getId() {
 		return this.id;
+	}
+
+	public JHeader getParent() {
+		return this;
+	}
+
+	public boolean hasSubHeaders() {
+		return false;
 	}
 
 	/**
@@ -335,5 +344,12 @@ public abstract class JHeader
 	public final String getNicname() {
 		return this.nicname;
 	}
+
+	/**
+   * @return
+   */
+  public JHeader[] getSubHeaders() {
+	  return EMPTY_HEADER_ARRAY;
+  }
 
 }

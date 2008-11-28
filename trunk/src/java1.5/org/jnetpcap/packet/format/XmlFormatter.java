@@ -63,25 +63,25 @@ public class XmlFormatter
 	}
 
 	/**
-   * 
-   */
-  public XmlFormatter() {
-	  super();
-  }
+	 * 
+	 */
+	public XmlFormatter() {
+		super();
+	}
 
 	/**
-   * @param out
-   */
-  public XmlFormatter(Appendable out) {
-	  super(out);
-  }
+	 * @param out
+	 */
+	public XmlFormatter(Appendable out) {
+		super(out);
+	}
 
 	/**
-   * @param out
-   */
-  public XmlFormatter(StringBuilder out) {
-	  super(out);
-  }
+	 * @param out
+	 */
+	public XmlFormatter(StringBuilder out) {
+		super(out);
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -201,6 +201,33 @@ public class XmlFormatter
 		decLevel();
 
 		incLevel(PAD);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jnetpcap.packet.format.JFormatter#subHeaderAfter(org.jnetpcap.packet.JHeader,
+	 *      org.jnetpcap.packet.JHeader,
+	 *      org.jnetpcap.packet.format.JFormatter.Detail)
+	 */
+	@Override
+	protected void subHeaderAfter(JHeader header, JHeader subHeader, Detail detail)
+	    throws IOException {
+
+		headerAfter(subHeader, detail);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jnetpcap.packet.format.JFormatter#subHeaderBefore(org.jnetpcap.packet.JHeader,
+	 *      org.jnetpcap.packet.JHeader,
+	 *      org.jnetpcap.packet.format.JFormatter.Detail)
+	 */
+	@Override
+	protected void subHeaderBefore(JHeader header, JHeader subHeader,
+	    Detail detail) throws IOException {
+		headerBefore(subHeader, detail);
 	}
 
 }
