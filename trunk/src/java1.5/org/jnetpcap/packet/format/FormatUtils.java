@@ -344,5 +344,65 @@ public class FormatUtils {
 
 		return (s);
 	}
+	
+	/*
+	 * Few constants to help with breakdown of millis to various larger units
+	 * of time
+	 */
+	private final static int SECOND_MILLIS = 1000;
+	private final static int MINUTE_MILLIS = SECOND_MILLIS * 60;
+	private final static int HOUR_MILLIS = MINUTE_MILLIS * 60;
+	private final static int DAY_MILLIS = HOUR_MILLIS * 24;
+	private final static int WEEK_MILLIS = DAY_MILLIS * 7;
+	
 
+	/**
+   * @param millis
+   * @return
+   */
+  public static String formatTimeInMillis(long millis) {
+  	
+  	StringBuilder b = new StringBuilder();
+  	
+  	long u = 0;
+  	
+  	while (millis > 0) {
+  		if (b.length() != 0) {
+  			b.append(' ');
+  		}
+  		
+  		if (millis > WEEK_MILLIS) {
+  			u = millis / WEEK_MILLIS; 			
+  			b.append(u).append(' ').append((u > 1)?"weeks":"week");
+  			millis -= u * WEEK_MILLIS;
+  			
+   		} else if (millis > DAY_MILLIS) {
+  			u = millis / DAY_MILLIS;
+  			b.append(u).append(' ').append((u > 1)?"days":"day");
+  			millis -= u * DAY_MILLIS;
+  			
+   		} else if (millis > HOUR_MILLIS) {
+  			u = millis / HOUR_MILLIS; 			
+  			b.append(u).append(' ').append((u > 1)?"days":"day");
+  			millis -= u * HOUR_MILLIS;
+  			
+   		} else if (millis > MINUTE_MILLIS) {
+  			u = millis / MINUTE_MILLIS; 			
+  			b.append(u).append(' ').append((u > 1)?"minutes":"minute");
+  			millis -= u * MINUTE_MILLIS;
+  			
+   		} else if (millis > SECOND_MILLIS) {
+  			u = millis / SECOND_MILLIS;  			
+  			b.append(u).append(' ').append((u > 1)?"seconds":"second");
+  			millis -= u * SECOND_MILLIS;
+  			
+   		} else if (millis > 0) {
+  			u = millis; 			
+  			b.append(u).append(' ').append((u > 1)?"millis":"milli");
+  			millis -= u;
+   		}
+  	}
+  	
+  	return b.toString();
+  }
 }

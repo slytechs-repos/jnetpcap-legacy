@@ -204,12 +204,59 @@ public abstract class JFormatter {
 			}
 
 			format(header, field, detail);
-
+		}
+		
+		for (JHeader subHeader: header.getSubHeaders()) {
+			format(header, subHeader, detail);
 		}
 
 		headerAfter(header, detail);
 
 	}
+
+	@SuppressWarnings("unchecked")
+  public void format(JHeader header, JHeader subHeader, Detail detail)
+	    throws IOException {
+		
+		final JField[] fields = subHeader.getFields();
+		
+		subHeaderBefore(header, subHeader, detail);
+		
+		for (final JField field : fields) {
+			
+			if (field == null) {
+				continue; // DEBUGING skip nulls for now
+			}
+
+			final JFieldRuntime<JHeader, Object> runtime =
+			    (JFieldRuntime<JHeader, Object>) field.getRuntime();
+
+			if (runtime.hasField(header) == false) {
+				continue;
+			}
+
+			format(subHeader, field, detail);
+
+		}
+		
+		subHeaderAfter(header, subHeader, detail);
+	}
+
+	/**
+	 * @param header
+	 * @param subHeader
+	 * @param detail
+	 * @throws IOException
+	 */
+  protected abstract void subHeaderAfter(JHeader header, JHeader subHeader, Detail detail) throws IOException;
+
+	/**
+   * @param header
+   * @param subHeader
+   * @param detail
+	 * @throws IOException 
+   */
+  protected abstract void subHeaderBefore(JHeader header, JHeader subHeader, Detail detail) throws IOException;
 
 	/**
 	 * @param header
@@ -264,12 +311,10 @@ public abstract class JFormatter {
 					continue;
 				}
 
-				format(header, headerDetail);
-
-			} catch (UnregisteredHeaderException e) {
+				format(header, headerDetail);				
+		} catch (UnregisteredHeaderException e) {
 				throw new IllegalStateException(e); // Serious internal error
 			}
-
 		}
 
 		packetAfter(packet, detail);

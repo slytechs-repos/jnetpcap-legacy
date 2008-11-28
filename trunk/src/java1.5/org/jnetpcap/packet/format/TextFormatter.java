@@ -30,6 +30,8 @@ public class TextFormatter
 
 	private final static String FIELD_FORMAT = "%16s = ";
 
+	private static final String SEPARATOR = ": ";
+
 	/*
 	 * Utility Formatter
 	 */
@@ -130,12 +132,14 @@ public class TextFormatter
 		pad();
 
 		decLevel();
+		decLevel();
 	}
 
 	protected void headerBefore(JHeader header, Detail detail) throws IOException {
 
 		final String name = header.getName();
-		incLevel(name + ": ");
+		incLevel(name);
+		incLevel(SEPARATOR);
 
 		pad().format(" ******* %s (%s) offset=%d length=%d", header.getName(),
 		    header.getNicname(), header.getOffset(), header.getLength());
@@ -170,4 +174,41 @@ public class TextFormatter
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jnetpcap.packet.format.JFormatter#subHeaderAfter(org.jnetpcap.packet.JHeader,
+	 *      org.jnetpcap.packet.JHeader,
+	 *      org.jnetpcap.packet.format.JFormatter.Detail)
+	 */
+	@Override
+	protected void subHeaderAfter(JHeader header, JHeader subHeader, Detail detail)
+	    throws IOException {
+
+		// decLevel();
+		// decLevel();
+		//		
+		// incLevel(SEPARATOR);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jnetpcap.packet.format.JFormatter#subHeaderBefore(org.jnetpcap.packet.JHeader,
+	 *      org.jnetpcap.packet.JHeader,
+	 *      org.jnetpcap.packet.format.JFormatter.Detail)
+	 */
+	@Override
+	protected void subHeaderBefore(JHeader header, JHeader subHeader,
+	    Detail detail) throws IOException {
+		pad();
+		// decLevel();
+		//		
+		// incLevel(":" + subHeader.getNicname());
+		// incLevel(SEPARATOR);
+
+		pad().format(" ******* %s optional header (%s) offset=%d length=%d",
+		    header.getName(), subHeader.getName(), subHeader.getOffset(),
+		    subHeader.getLength());
+	}
 }
