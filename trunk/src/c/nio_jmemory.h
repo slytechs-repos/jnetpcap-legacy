@@ -14,6 +14,7 @@ extern "C" {
 extern	jclass jmemoryClass;
 
 extern	jfieldID jmemoryPhysicalFID;
+extern	jfieldID jmemoryPhysicalSizeFID;
 extern	jfieldID jmemorySizeFID;
 extern	jfieldID jmemoryOwnerFID;
 extern	jfieldID jmemoryKeeperFID;

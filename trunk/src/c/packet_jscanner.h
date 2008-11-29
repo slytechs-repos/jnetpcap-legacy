@@ -76,18 +76,15 @@ typedef struct scan_t {
 } scan_t;
 
 typedef struct header_t {
-	int32_t hdr_id; // header ID
-	uint32_t hdr_offset; // offset into the packet_t->data buffer
-	int32_t hdr_length; // length of the header in packet_t->data buffer
+	uint8_t hdr_id; // header ID
+	uint32_t hdr_offset:24; // offset into the packet_t->data buffer
+	uint32_t hdr_length:24; // length of the header in packet_t->data buffer
 } header_t;
 
 typedef struct packet_state_t {
 	uint64_t pkt_header_map; // bit map of presence of headers
-	char *pkt_data; // packet data buffer
-	int32_t pkt_header_count; // total number of headers found
+	int8_t pkt_header_count; // total number of headers found
 
-	// Keep track of how many instances of each header we have
-	uint8_t pkt_instance_counts[MAX_ID_COUNT];
 	header_t pkt_headers[]; // One per header + 1 more for payload
 } packet_state_t;
 

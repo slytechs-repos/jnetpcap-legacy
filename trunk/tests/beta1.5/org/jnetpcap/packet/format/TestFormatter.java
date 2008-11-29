@@ -13,16 +13,13 @@
 package org.jnetpcap.packet.format;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import junit.framework.TestCase;
 
-import org.jnetpcap.ByteBufferHandler;
 import org.jnetpcap.Pcap;
-import org.jnetpcap.PcapHeader;
 import org.jnetpcap.nio.JMemory.Type;
 import org.jnetpcap.packet.JPacket;
-import org.jnetpcap.packet.JProtocol;
+import org.jnetpcap.packet.JPacketHandler;
 import org.jnetpcap.packet.JScanner;
 import org.jnetpcap.packet.PcapPacket;
 
@@ -51,7 +48,7 @@ public class TestFormatter
 		super.tearDown();
 	}
 
-	public void testTextFormatter() throws IOException {
+	public void _testTextFormatter() throws IOException {
 		dumpToFormatter(new TextFormatter(), "tests/test-vlan.pcap");
 	}
 
@@ -65,29 +62,26 @@ public class TestFormatter
 		StringBuilder errbuf = new StringBuilder();
 		final Pcap pcap = Pcap.openOffline(file, errbuf);
 
-		final JPacket packet = new PcapPacket(Type.POINTER);
-		final JScanner scanner = new JScanner();
+//		final JPacket packet = new PcapPacket(Type.POINTER);
+//		final JScanner scanner = new JScanner();
 
 		// long start = System.currentTimeMillis();
 
-		pcap.loop(Pcap.LOOP_INFINATE, new ByteBufferHandler<String>() {
+		pcap.loop(1, new JPacketHandler<String>() {
 			int i = 0;
 
-			public void nextPacket(PcapHeader header, ByteBuffer buffer, String user) {
+			public void nextPacket(JPacket packet, String user) {
 
-				if (i < 157) {
-					i++;
-					return;
-				}
+//				if (i < 157) {
+//					i++;
+//					return;
+//				}
 
-				packet.peer(buffer);
-
-				scanner.scan(packet, JProtocol.ETHERNET_ID);
 				try {
 					formatter.setFrameIndex(i);
 					formatter.format(packet);
+					
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 
@@ -102,6 +96,10 @@ public class TestFormatter
 
 		pcap.close();
 
+	}
+	
+	public void testSubHeader() throws IOException {
+		dumpToFormatter(new TextFormatter(), "tests/test-icmp-recordroute-opt.pcap");
 	}
 
 }

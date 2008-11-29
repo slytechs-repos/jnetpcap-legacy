@@ -110,13 +110,18 @@ public abstract class JPacket
 		public final static String STRUCT_NAME = "packet_state_t";
 
 		/**
-		 * Returns the physical size of the packet_state_t structure. This is the
-		 * amount of memory needed to keep the decoded state of a packet. Packet
-		 * state information may be stored within the same storage buffer.
-		 * 
-		 * @return sizeof(struct packet_state_t)
+		 * @return
 		 */
-		public static native int sizeof();
+		public int sizeofWithHeaders() {
+			return sizeof(getHeaderCount());
+		}
+
+		/**
+		 * @param count
+		 *          header counter, number of headers to calaculate in
+		 * @return size in bytes
+		 */
+		public static native int sizeof(int count);
 
 		public State(Type type) {
 			super(STRUCT_NAME, type);
@@ -199,8 +204,45 @@ public abstract class JPacket
 		}
 
 		public int transferTo(State dst) {
+			dst.setSize(size());
 			return super.transferTo(dst, 0, size(), 0);
 		}
+
+		/**
+		 * Dump packet_state_t structure and its sub structures to textual debug
+		 * output
+		 * <p>
+		 * Explanation:
+		 * 
+		 * <pre>
+		 * sizeof(packet_state_t)=16
+		 * sizeof(header_t)=8 and *4=32
+		 * pkt_header_map=0x1007         // bitmap, each bit represets a header
+		 * pkt_header_count=4            // how many header found
+		 * // per header information (4 header found in this example)
+		 * pkt_headers[0]=&lt;hdr_id=1  ETHERNET ,hdr_offset=0  ,hdr_length=14&gt;
+		 * pkt_headers[1]=&lt;hdr_id=2  IP4      ,hdr_offset=14 ,hdr_length=60&gt;
+		 * pkt_headers[2]=&lt;hdr_id=12 ICMP     ,hdr_offset=74 ,hdr_length=2&gt;
+		 * pkt_headers[3]=&lt;hdr_id=0  PAYLOAD  ,hdr_offset=76 ,hdr_length=62&gt;
+		 * 
+		 * // hdr_id = numerical ID of the header, asssigned by JRegistry
+		 * // hdr_offset = offset in bytes into the packet buffer
+		 * // hdr_length = length in bytes of the entire header
+		 * </pre>
+		 * 
+		 * Packet state is made up of 2 structures: packet_stat_t and an array of
+		 * header_t, one per header. Total size in bytes is all of the header
+		 * structures combined, that is 16 + 32 = 48 bytes. Each bit in the
+		 * header_map represents the presence of that header type. The index of the
+		 * bit is the numerical ID of the header. If 2 headers of the same type are
+		 * present, they are both represented by a single bit in the bitmap. This
+		 * way the implementation JPacket.hasHeader(int id) is a simple bit
+		 * operation to test if the header is present or not.
+		 * </p>
+		 * 
+		 * @return multiline string containing dump of the entire structure
+		 */
+		public native String dumpState();
 	}
 
 	private final State state;
@@ -284,10 +326,10 @@ public abstract class JPacket
 		if (size < 0) {
 			throw new IllegalArgumentException("size must be positive");
 		}
-		this.state = new State(State.sizeof() + size);
+		this.state = new State(size);
 
 		if (size > 0) {
-			peer(state, State.sizeof(), size);
+			peer(state, State.sizeof(0), size - State.sizeof(0));
 		}
 	}
 
@@ -634,7 +676,7 @@ public abstract class JPacket
 	 * @param buffer
 	 */
 	public void peerStateAndData(JBuffer buffer) {
-		state.peer(buffer, 0, State.sizeof());
+		state.peer(buffer, 0, State.sizeof(0)); // TODO unknown header size?
 		peer(buffer, state.size(), buffer.size());
 	}
 
@@ -810,7 +852,15 @@ public abstract class JPacket
 	 * @return number of bytes copied
 	 */
 	public int transferStateAndDataTo(JPacket dst) {
+
 		int count = state.transferTo(dst.state);
+
+		if (isOwner() == false && dst.state.isOwner()) {
+			dst.peer(dst.state, count, size());
+		} else {
+			super.peer(dst, count, size());
+		}
+
 		count += super.transferTo(dst);
 
 		return count;

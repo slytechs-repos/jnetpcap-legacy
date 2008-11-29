@@ -48,8 +48,8 @@ public class JBuffer
 	private boolean readonly = false;
 
 	/**
-	 * @param type TODO
-	 * 
+	 * @param type
+	 *          TODO
 	 */
 	public JBuffer(Type type) {
 		super(type);
@@ -77,12 +77,12 @@ public class JBuffer
 	}
 
 	/**
-   * @param data
-   */
-  public JBuffer(byte[] data) {
-  	super(data.length);
-  	setByteArray(0, data);
-  }
+	 * @param data
+	 */
+	public JBuffer(byte[] data) {
+		super(data.length);
+		setByteArray(0, data);
+	}
 
 	public native byte getByte(int index);
 
@@ -177,13 +177,25 @@ public class JBuffer
 	}
 
 	private final void setReadonly(boolean readonly) {
-  	this.readonly = readonly;
-  }
+		this.readonly = readonly;
+	}
 
 	/**
-   * @param i
-   * @param data
-   */
-  public native void setByteBuffer(int i, ByteBuffer data);
+	 * @param i
+	 * @param data
+	 */
+	public native void setByteBuffer(int i, ByteBuffer data);
 
+	/**
+	 * Peers this object with the supplied object. This object will be pointing at
+	 * the same memory as the supplied object.
+	 * 
+	 * @param src
+	 *          source object that holds the memory location and size this object
+	 *          will point to
+	 * @return size of the src and this object
+	 */
+	public int peer(JMemory src) {
+		return super.peer(src);
+	}
 }

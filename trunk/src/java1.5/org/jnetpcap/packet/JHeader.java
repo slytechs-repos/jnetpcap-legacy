@@ -352,4 +352,8 @@ public abstract class JHeader
 	  return EMPTY_HEADER_ARRAY;
   }
 
+	/**
+   * @return
+   */
+  public native static int sizeof();
 }

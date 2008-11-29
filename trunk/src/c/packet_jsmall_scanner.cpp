@@ -170,13 +170,6 @@ int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner,
 			scan.header->hdr_id = scan.id;
 			scan.header->hdr_offset = scan.offset;
 
-			if ((scan.packet->pkt_header_map & mask) == 0) {
-				scan.packet->pkt_instance_counts[scan.id] = 1;
-			} else {
-				scan.packet->pkt_instance_counts[scan.id] ++;
-
-			}
-
 			/*
 			 * Adjust for truncated packets
 			 */
@@ -261,11 +254,13 @@ int scanJPacket(JNIEnv *env, jobject obj, jobject jpacket, jobject jstate,
 	 * previously stored data.
 	 */
 	packet->pkt_header_map = 0;
-	packet->pkt_data = buf;
 	packet->pkt_header_count = 0;
 
 	scanner->sc_offset +=scan(env, obj, jpacket, scanner, packet, first_id,
 			buf, buf_length);
+	
+	env->SetIntField(jstate, jmemorySizeFID, (jsize) sizeof(packet_state_t) 
+			+ sizeof(header_t) * packet->pkt_header_count);
 }
 
 /****************************************************************
