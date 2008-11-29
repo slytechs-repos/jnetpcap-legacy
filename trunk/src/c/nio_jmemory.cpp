@@ -70,12 +70,13 @@ void jmemoryCleanup(JNIEnv *env, jobject obj) {
 jclass jmemoryClass = 0;
 
 jfieldID jmemoryPhysicalFID = 0;
+jfieldID jmemoryPhysicalSizeFID = 0;
 jfieldID jmemorySizeFID = 0;
 jfieldID jmemoryOwnerFID = 0;
 jfieldID jmemoryKeeperFID = 0;
 
 /*
- * Class:     org_jnetpcap_PcapBpfProgram
+ * Class:     org_jnetpcap_nio_JMemory
  * Method:    initIDs
  * Signature: ()V
  */
@@ -101,6 +102,13 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_initIDs
 				"Unable to initialize field JMemory.size:int");
 		return;
 	}
+	
+	if ( ( jmemoryPhysicalSizeFID = env->GetFieldID(c, "physicalSize", "I")) == NULL) {
+		throwException(env, NO_SUCH_FIELD_EXCEPTION,
+				"Unable to initialize field JMemory.size:int");
+		return;
+	}
+
 
 	if ( ( jmemoryOwnerFID = env->GetFieldID(c, "owner", "Z")) == NULL) {
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
@@ -119,9 +127,9 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_initIDs
 }
 
 /*
- * Class:     org_jnetpcap_PcapBpfProgram
- * Method:    initPeer
- * Signature: ()V
+ * Class:     org_jnetpcap_nio_JMemory
+ * Method:    allocate
+ * Signature: (I)V
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_allocate
 (JNIEnv *env, jobject obj, jint jsize) {
@@ -137,10 +145,11 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_allocate
 	setJMemoryPhysical(env, obj, toLong(mem));
 	env->SetBooleanField(obj, jmemoryOwnerFID, JNI_TRUE);
 	env->SetIntField(obj, jmemorySizeFID, jsize);
+	env->SetIntField(obj, jmemoryPhysicalSizeFID, jsize);
 }
 
 /*
- * Class:     org_jnetpcap_PcapBpfProgram
+ * Class:     org_jnetpcap_nio_JMemory
  * Method:    cleanup
  * Signature: ()V
  */
@@ -154,6 +163,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_cleanup
 		 * Release the main structure
 		 */
 		free(mem);
+		env->SetIntField(obj, jmemoryPhysicalSizeFID, (jint) 0);
 	}
 
 	env->SetLongField(obj, jmemoryPhysicalFID, (jlong) 0);

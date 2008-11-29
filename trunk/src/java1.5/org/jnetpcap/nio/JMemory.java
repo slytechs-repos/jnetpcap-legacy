@@ -15,6 +15,7 @@ package org.jnetpcap.nio;
 import java.nio.ByteBuffer;
 
 import org.jnetpcap.Pcap;
+import org.jnetpcap.packet.format.FormatUtils;
 
 /**
  * A base class for all other PEERED classes to native c structures. The class
@@ -109,7 +110,24 @@ public abstract class JMemory {
 	/**
 	 * Number of byte currently allocated
 	 */
-	private int size;
+	private volatile int size;
+
+	/**
+	 * Only maintained when owner == true This variable is modifiable by JNI code
+	 * even though is set to final. Setting to final prevents any java code from
+	 * modifying this variable. JNI code only modifies this variable under 2
+	 * conditions. When allocating a new native memory block, it sets the size of
+	 * the memory block allocated and when its deallocated, it resets the variable
+	 * back to 0.
+	 * <p>
+	 * The variable is needed prevent anyone from changing the size field, which
+	 * can be changed at any time out of bound of actually allocated memory block.
+	 * </p>
+	 */
+	private final int physicalSize;
+	{
+		physicalSize = 0;
+	} // Prevent compiler optimizing away to 0
 
 	/**
 	 * No memory pre-allocation constructor
@@ -146,12 +164,14 @@ public abstract class JMemory {
 	}
 
 	/**
-	 * @param peer
+	 * Performs a deep copy into a newly allocated memory block
+	 * 
+	 * @param src
 	 */
-	public JMemory(JMemory peer) {
-		allocate(peer.size);
+	public JMemory(JMemory src) {
+		allocate(src.size);
 
-		peer.transferTo(this);
+		src.transferTo(this);
 	}
 
 	/**
@@ -274,7 +294,9 @@ public abstract class JMemory {
 	 */
 	protected int peer(JMemory peer, int offset, int length)
 	    throws IndexOutOfBoundsException {
-		if (offset < 0 || length < 0 || offset + length > peer.size) {
+		if (offset < 0 || length < 0
+		    || (!peer.owner && offset + length > peer.size) || peer.owner
+		    && offset + length > peer.physicalSize) {
 			throw new IllegalArgumentException(
 			    "Invalid [offset,offset + length) range.");
 		}
@@ -400,4 +422,33 @@ public abstract class JMemory {
 	protected native int transferTo(JMemory dst, int srcOffset, int length,
 	    int dstOffset);
 
+	protected void setSize(int size) {
+		if (!owner) {
+			throw new IllegalAccessError(
+			    "object not owner of the memory block. Can not change size,"
+			        + " must use peer() to change rereference properties");
+		}
+
+		if (size < 0 || size > physicalSize) {
+			throw new IllegalArgumentException(
+			    "size is out of bounds (physical size=" + physicalSize
+			        + ", requested size=" + size);
+		}
+
+		this.size = size;
+	}
+
+	/**
+	 * A debug method, similar to toString() which converts the contents of the
+	 * memory to textual hexdump.
+	 * 
+	 * @return multi-line hexdump of the entire memory region
+	 */
+	public String toHexdump() {
+		JBuffer b = new JBuffer(Type.POINTER);
+		b.peer(this);
+
+		return FormatUtils.hexdumpCombined(b.getByteArray(0, size), 0, 0, true,
+		    true, true);
+	}
 }

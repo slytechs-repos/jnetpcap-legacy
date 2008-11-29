@@ -44,9 +44,9 @@ jint findHeaderById(packet_state_t *packet, jint id, jint instance) {
 //	printf("findHeaderIndex(%d, %d)\n", id, instance);
 //	fflush(stdout);
 	
-	if (packet->pkt_instance_counts[id] < instance) {
-		return -1;
-	}
+//	if (packet->pkt_instance_counts[id] < instance) {
+//		return -1;
+//	}
 	
 	for (int i = 0; i < packet->pkt_header_count; i ++ ) {
 		header_t *header = &packet->pkt_headers[i];
@@ -75,12 +75,12 @@ jint findHeaderById(packet_state_t *packet, jint id, jint instance) {
 /*
  * Class:     org_jnetpcap_packet_JPacket_State
  * Method:    sizeof
- * Signature: ()I
+ * Signature: (I)I
  */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_sizeof
-  (JNIEnv *env, jclass clazz) {
+JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_sizeof__I
+(JNIEnv *env, jclass clazz, jint count) {
 	
-	return (jint) sizeof(packet_state_t);
+	return (jint) sizeof(packet_state_t) + sizeof(header_t) * count;
 }
 
 /*
@@ -144,8 +144,15 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getInstanceCo
 	if (packet == NULL) {
 		return -1;
 	}
+	
+	int count = 0;
+	for (int i = 0; i < packet->pkt_header_count; i ++) {
+		if (packet->pkt_headers[i].hdr_id == id) {
+			count ++;
+		}
+	}
 
-	return (jint) packet->pkt_instance_counts[id];
+	return (jint) count;
 }
 
 /*
@@ -160,6 +167,13 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getHeaderIdBy
 	if (packet == NULL) {
 		return -1;
 	}
+	
+//	printf("state=%p, index=%d, value=%d, delta=%d\n", 
+//			packet,
+//			(int) index,
+//			(int) packet->pkt_headers[index].hdr_id,
+//			(int) ((char *)&packet->pkt_headers[index].hdr_id - (char *)packet));
+//	fflush(stdout);
 
 	return (jint) packet->pkt_headers[index].hdr_id;
 
@@ -210,3 +224,61 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_peerHeaderByI
 
 	return sizeof(header_t);
 }
+
+/*
+ * Class:     org_jnetpcap_packet_JHeader
+ * Method:    sizeof
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_sizeof
+  (JNIEnv *env, jclass clazz) {
+	
+	return (jint) sizeof(header_t);
+}
+
+/*
+ * Class:     org_jnetpcap_packet_JPacket_State
+ * Method:    dumpState
+ * Signature: ()Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_org_jnetpcap_packet_JPacket_00024State_dumpState
+  (JNIEnv *env, jobject obj) {
+	
+	char buf[5 * 1024];
+	buf[0] = '\0';
+	
+	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	if (packet == NULL) {
+		return NULL;
+	}
+	
+	sprintf(buf, 
+			"sizeof(packet_state_t)=%d\n"
+			"sizeof(header_t)=%d and *%d=%d\n"
+			"pkt_header_map=0x%X\n"
+			"pkt_header_count=%x\n",
+			sizeof(packet_state_t),
+			sizeof(header_t), 
+			packet->pkt_header_count, 
+			sizeof(header_t) * packet->pkt_header_count,
+			(int) packet->pkt_header_map,
+			packet->pkt_header_count);
+	
+	char *p;
+	
+	for (int i = 0; i < packet->pkt_header_count; i ++) {
+		p = buf + strlen(buf);
+		sprintf(p, 
+				"pkt_headers[%d]=<hdr_id=%-2d %-15s,hdr_offset=%-4d,hdr_length=%d>\n", 
+				i,
+				packet->pkt_headers[i].hdr_id,
+				id2str(packet->pkt_headers[i].hdr_id),
+				packet->pkt_headers[i].hdr_offset,
+				packet->pkt_headers[i].hdr_length
+				);
+		
+	}
+	
+	return env->NewStringUTF(buf);
+}
+
