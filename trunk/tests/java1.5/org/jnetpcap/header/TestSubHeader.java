@@ -75,7 +75,7 @@ public class TestSubHeader
 		System.out.println(packet.toString());
 
 		System.out.println(packet.getState().toHexdump());
-		System.out.println(packet.getState().debugString());
+		System.out.println(packet.getState().toDebugString());
 	}
 
 }
