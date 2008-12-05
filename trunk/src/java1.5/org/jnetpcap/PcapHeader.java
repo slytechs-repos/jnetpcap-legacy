@@ -12,6 +12,10 @@
  */
 package org.jnetpcap;
 
+import org.jnetpcap.nio.JBuffer;
+import org.jnetpcap.nio.JStruct;
+import org.jnetpcap.nio.JMemoryPool.Block.Malloced;
+
 /**
  * <pre>
  * struct pkt_header {
@@ -25,45 +29,9 @@ package org.jnetpcap;
  * @author Sly Technologies, Inc.
  */
 public class PcapHeader
-    extends JCaptureHeader {
+    extends JStruct implements JCaptureHeader {
 
 	public static final String STRUCT_NAME = "pcap_pkthdr";
-
-	/**
-	 * 
-	 */
-	public PcapHeader() {
-		super(STRUCT_NAME, sizeof());
-	}
-	
-	public PcapHeader(Type type) {
-		super(STRUCT_NAME, type);
-	}
-
-	/**
-   * @param caplen
-   * @param wirelen
-   */
-  public PcapHeader(int caplen, int wirelen) {
-	  super(STRUCT_NAME, sizeof());
-	  
-	  hdr_len(caplen);
-	  hdr_wirelen(wirelen);
-	  
-	  long t = System.currentTimeMillis();
-	  long s = t / 1000;
-	  long us = (t - s * 1000 ) * 1000; 
-	  
-	  hdr_sec(s);
-	  hdr_usec((int) us);
-  }
-
-	/**
-   * @param size
-   */
-  public PcapHeader(int size) {
-	  super(STRUCT_NAME, size);
-  }
 
 	/**
 	 * Size of the pcap_pkthdr structure in bytes.
@@ -72,38 +40,40 @@ public class PcapHeader
 	 */
 	public native static int sizeof();
 
-	public native long hdr_sec();
-	
-	public native void hdr_sec(long ts);
-
-	public native int hdr_usec();
-	
-	public native void hdr_usec(int ts);
-
-	public native int hdr_len();
-	
-	public native void hdr_len(int len);
-
-	public native int hdr_wirelen();
-	
-	public native void hdr_wirelen(int len);
-
-	/*
-	 * (non-Javadoc)
+	/**
 	 * 
-	 * @see org.jnetpcap.packet.JCaptureHeader#fullLength()
 	 */
-	public int wirelen() {
-		return hdr_wirelen();
+	public PcapHeader() {
+		super(STRUCT_NAME, sizeof());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.jnetpcap.packet.JCaptureHeader#nanos()
+	/**
+	 * @param size
 	 */
-	public long nanos() {
-		return hdr_usec() * 1000;
+	public PcapHeader(int size) {
+		super(STRUCT_NAME, size);
+	}
+
+	/**
+	 * @param caplen
+	 * @param wirelen
+	 */
+	public PcapHeader(int caplen, int wirelen) {
+		super(STRUCT_NAME, sizeof());
+
+		hdr_len(caplen);
+		hdr_wirelen(wirelen);
+
+		long t = System.currentTimeMillis();
+		long s = t / 1000;
+		long us = (t - s * 1000) * 1000;
+
+		hdr_sec(s);
+		hdr_usec((int) us);
+	}
+
+	public PcapHeader(Type type) {
+		super(STRUCT_NAME, type);
 	}
 
 	/*
@@ -115,6 +85,51 @@ public class PcapHeader
 		return hdr_len();
 	}
 
+	public native int hdr_len();
+
+	public native void hdr_len(int len);
+
+	public native long hdr_sec();
+
+	public native void hdr_sec(long ts);
+
+	public native int hdr_usec();
+
+	public native void hdr_usec(int ts);
+
+	public native int hdr_wirelen();
+
+	public native void hdr_wirelen(int len);
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jnetpcap.packet.JCaptureHeader#nanos()
+	 */
+	public long nanos() {
+		return hdr_usec() * 1000;
+	}
+
+	public int peer(Malloced memory, int offset) {
+		return super.peer(memory, offset, sizeof());
+	}
+
+	public int peerTo(JBuffer buffer, int offset) {
+	  return super.peer(buffer, offset, sizeof());
+  }
+
+	/**
+   * @param memory
+   * @param offset
+   */
+  public int peerTo(Malloced memory, int offset) {
+	  return super.peer(memory, offset, sizeof());
+  }
+	
+	public int peerTo(PcapHeader header, int offset) {
+			return super.peer(header, offset, header.size());
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -124,32 +139,36 @@ public class PcapHeader
 		return hdr_sec();
 	}
 
+	public long timestampInMillis() {
+		long l = hdr_sec() * 1000 + hdr_usec() / 1000;
+
+		return l;
+	}
+
+  public int transferTo(JBuffer m, int offset) {
+		return super.transferTo(m, 0, size(), offset);
+	}
+  
+  public int transferTo(byte[] m, int offset) {
+		return super.transferTo(m, 0, size(), offset);
+	}
+
+	/**
+   * @param memory
+   * @param offset
+   * @return
+   */
+  public int transferTo(Malloced memory, int offset) {
+	  return super.transferTo(memory, 0, size(), offset);
+  }
+
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.packet.JCaptureHeader#transferTo(org.jnetpcap.packet.JCaptureHeader)
+	 * @see org.jnetpcap.packet.JCaptureHeader#fullLength()
 	 */
-	@Override
-	public <T extends JCaptureHeader> int transferTo(T hdr) {
-		if (hdr.getStructName() == STRUCT_NAME) {
-			return peer(hdr);
-		} else {
-			throw new IllegalArgumentException("Can not peer non PcapHeader objects");
-		}
+	public int wirelen() {
+		return hdr_wirelen();
 	}
-	
-	public int peer(PcapHeader header) {
-		return super.peer(header);
-	}
-
-	/* (non-Javadoc)
-   * @see org.jnetpcap.JCaptureHeader#timestampInMillis()
-   */
-  @Override
-  public long timestampInMillis() {
-	  long l = hdr_sec() * 1000 + hdr_usec() / 1000;
-	  
-	  return l;
-  }
 
 }

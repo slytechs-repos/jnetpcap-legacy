@@ -47,6 +47,7 @@ jmethodID bufferGetPositionMID = 0;
 jmethodID bufferGetLimitMID = 0;
 jmethodID bufferSetPositionMID = 0;
 jmethodID bufferSetLimitMID = 0;
+jmethodID bufferGetCapacityMID = 0;
 
 
 /*
@@ -106,6 +107,12 @@ JNIEXPORT void JNICALL JNICALL Java_org_jnetpcap_Pcap_initIDs
 			"(I)Ljava/nio/Buffer;")) == NULL) {
 		return;
 	}
+	
+	if ( (bufferGetCapacityMID = env->GetMethodID(bufferClass, "capacity",
+			"()I")) == NULL) {
+		return;
+	}
+
 
 
 

@@ -12,7 +12,6 @@
  */
 package org.jnetpcap;
 
-import org.jnetpcap.nio.JStruct;
 
 /**
  * Interface to to capture header provided by the capturing library. For example
@@ -23,32 +22,7 @@ import org.jnetpcap.nio.JStruct;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public abstract class JCaptureHeader
-    extends JStruct {
-
-	/**
-	 * @param structName
-	 * @param peer
-	 */
-	public JCaptureHeader(String structName, JCaptureHeader peer) {
-		super(structName, peer);
-	}
-
-	/**
-	 * @param structName
-	 * @param type TODO
-	 */
-	public JCaptureHeader(String structName, Type type) {
-		super(structName, type);
-	}
-
-	/**
-   * @param structName
-   * @param size
-   */
-  public JCaptureHeader(String structName, int size) {
-	  super(structName, size);
-  }
+public interface JCaptureHeader {
 
 	/**
 	 * Retrieves the length of the packet that was actually captured. This could
@@ -87,8 +61,6 @@ public abstract class JCaptureHeader
 	 *         value returned by this method is from 0 to 999,999,999.
 	 */
 	public abstract long nanos();
-	
-	public abstract long timestampInMillis();
 
-	public abstract <T extends JCaptureHeader> int transferTo(T hdr);
+	public abstract long timestampInMillis();
 }

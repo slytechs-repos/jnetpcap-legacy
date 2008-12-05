@@ -108,11 +108,6 @@ public abstract class JMemory {
 	private volatile long physical;
 
 	/**
-	 * Number of byte currently allocated
-	 */
-	private volatile int size;
-
-	/**
 	 * Only maintained when owner == true This variable is modifiable by JNI code
 	 * even though is set to final. Setting to final prevents any java code from
 	 * modifying this variable. JNI code only modifies this variable under 2
@@ -125,20 +120,14 @@ public abstract class JMemory {
 	 * </p>
 	 */
 	private final int physicalSize;
+
+	/**
+	 * Number of byte currently allocated
+	 */
+	private volatile int size;
 	{
 		physicalSize = 0;
 	} // Prevent compiler optimizing away to 0
-
-	/**
-	 * No memory pre-allocation constructor
-	 */
-	public JMemory(Type type) {
-		if (type != Type.POINTER) {
-			throw new IllegalArgumentException("Only POINTER types are supported");
-		}
-
-		this.size = 0;
-	}
 
 	/**
 	 * @param peer
@@ -172,6 +161,17 @@ public abstract class JMemory {
 		allocate(src.size);
 
 		src.transferTo(this);
+	}
+
+	/**
+	 * No memory pre-allocation constructor
+	 */
+	public JMemory(Type type) {
+		if (type != Type.POINTER) {
+			throw new IllegalArgumentException("Only POINTER types are supported");
+		}
+
+		this.size = 0;
 	}
 
 	/**
@@ -326,6 +326,22 @@ public abstract class JMemory {
 
 	}
 
+	protected void setSize(int size) {
+		if (!owner) {
+			throw new IllegalAccessError(
+			    "object not owner of the memory block. Can not change size,"
+			        + " must use peer() to change rereference properties");
+		}
+
+		if (size < 0 || size > physicalSize) {
+			throw new IllegalArgumentException(
+			    "size is out of bounds (physical size=" + physicalSize
+			        + ", requested size=" + size);
+		}
+
+		this.size = size;
+	}
+
 	/**
 	 * Returns the size of the memory block that this peered structure is point
 	 * to. This object does not neccessarily have to be the owner of the memory
@@ -334,24 +350,77 @@ public abstract class JMemory {
 	 * @return number of byte currently allocated
 	 */
 	public int size() {
+		if (isInitialized() == false) {
+			throw new NullPointerException("jmemory not initialized");
+		}
+
 		return size;
+	}
+
+	/**
+	 * A debug method, similar to toString() which converts the contents of the
+	 * memory to textual hexdump.
+	 * 
+	 * @return multi-line hexdump of the entire memory region
+	 */
+	public String toHexdump() {
+		JBuffer b = new JBuffer(Type.POINTER);
+		b.peer(this);
+
+		return FormatUtils.hexdumpCombined(b.getByteArray(0, size), 0, 0, true,
+		    true, true);
+	}
+
+	/**
+	 * Copies contents of byte array to memory
+	 * 
+	 * @param buffer
+	 *          source buffer
+	 * @return number of bytes copied
+	 */
+	protected int transferFrom(byte[] buffer) {
+		return transferFrom(buffer, 0, buffer.length, 0);
+	}
+
+	/**
+	 * Copies contents of byte array to memory
+	 * 
+	 * @param buffer
+	 *          source buffer
+	 * @param srcOffset
+	 *          starting offset into the byte array
+	 * @param length
+	 *          number of bytes to copy
+	 * @param dstOffset
+	 *          starting offset into memory buffer
+	 * @return number of bytes copied
+	 */
+	protected native int transferFrom(byte[] buffer, int srcOffset, int length,
+	    int dstOffset);
+	
+	protected int transferFrom(ByteBuffer src) {
+		return transferFrom(src, 0);
 	}
 
 	/**
 	 * @param src
 	 * @return actual number of bytes that was copied
 	 */
-	protected int transferFrom(ByteBuffer src) {
-		return transferFrom(src, 0, size);
+	protected int transferFrom(ByteBuffer src, int dstOffset) {
+		if (src.isDirect()) {
+			return transferFromDirect(src, 0);
+		} else {
+			return transferFrom(src.array(), src.position(), src.limit()
+			    - src.position(), 0);
+		}
 	}
 
 	/**
 	 * @param src
 	 * @param dstOffset
-	 * @param length
 	 * @return actual number of bytes that was copied
 	 */
-	protected native int transferFrom(ByteBuffer src, int dstOffset, int length);
+	protected native int transferFromDirect(ByteBuffer src, int dstOffset);
 
 	/**
 	 * A special method that allows one object to transfer ownership of a memory
@@ -384,12 +453,43 @@ public abstract class JMemory {
 		return true;
 	}
 
+	protected int transferTo(byte[] buffer) {
+		return transferTo(buffer, 0, buffer.length, 0);
+	}
+
+	/**
+	 * Copies data from memory to byte array
+	 * 
+	 * @param buffer
+	 *          destination buffer
+	 * @param srcOffset
+	 *          starting offset in memory
+	 * @param length
+	 *          number of bytes to copy
+	 * @param dstOffset
+	 *          starting offset in byte array
+	 * @return number of bytes copied
+	 */
+	protected native int transferTo(byte[] buffer, int srcOffset, int length,
+	    int dstOffset);
+
 	/**
 	 * @param dst
 	 * @return actual number of bytes that was copied
 	 */
 	public int transferTo(ByteBuffer dst) {
 		return transferTo(dst, 0, size);
+	}
+	
+	public int transferTo(ByteBuffer dst, int srcOffset, int length) {
+		if (dst.isDirect()) {
+			return transferToDirect(dst, srcOffset, length);
+		} else {
+			int o = transferTo(dst.array(), 0, length, dst.position());
+			dst.position(dst.position() + o);
+			
+			return o;
+		}
 	}
 
 	/**
@@ -398,8 +498,15 @@ public abstract class JMemory {
 	 * @param length
 	 * @return actual number of bytes that was copied
 	 */
-	public native int transferTo(ByteBuffer dst, int srcOffset, int length);
+	private native int transferToDirect(ByteBuffer dst, int srcOffset, int length);
 
+	/**
+	 * @param dst
+	 * @param srcOffset
+	 * @param length
+	 * @param dstOffset
+	 * @return
+	 */
 	public int transferTo(JBuffer dst, int srcOffset, int length, int dstOffset) {
 		return transferTo((JMemory) dst, srcOffset, length, dstOffset);
 	}
@@ -421,34 +528,4 @@ public abstract class JMemory {
 	 */
 	protected native int transferTo(JMemory dst, int srcOffset, int length,
 	    int dstOffset);
-
-	protected void setSize(int size) {
-		if (!owner) {
-			throw new IllegalAccessError(
-			    "object not owner of the memory block. Can not change size,"
-			        + " must use peer() to change rereference properties");
-		}
-
-		if (size < 0 || size > physicalSize) {
-			throw new IllegalArgumentException(
-			    "size is out of bounds (physical size=" + physicalSize
-			        + ", requested size=" + size);
-		}
-
-		this.size = size;
-	}
-
-	/**
-	 * A debug method, similar to toString() which converts the contents of the
-	 * memory to textual hexdump.
-	 * 
-	 * @return multi-line hexdump of the entire memory region
-	 */
-	public String toHexdump() {
-		JBuffer b = new JBuffer(Type.POINTER);
-		b.peer(this);
-
-		return FormatUtils.hexdumpCombined(b.getByteArray(0, size), 0, 0, true,
-		    true, true);
-	}
 }

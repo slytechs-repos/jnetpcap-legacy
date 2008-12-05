@@ -17,9 +17,10 @@ import java.nio.ByteBuffer;
 
 import org.jnetpcap.JCaptureHeader;
 import org.jnetpcap.nio.JBuffer;
+import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.nio.JMemoryPool;
 import org.jnetpcap.nio.JStruct;
-import org.jnetpcap.nio.JMemoryPool.Block;
+import org.jnetpcap.nio.JMemoryPool.Block.Malloced;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
 
@@ -110,22 +111,11 @@ public abstract class JPacket
 		public final static String STRUCT_NAME = "packet_state_t";
 
 		/**
-		 * @return
-		 */
-		public int sizeofWithHeaders() {
-			return sizeof(getHeaderCount());
-		}
-
-		/**
 		 * @param count
 		 *          header counter, number of headers to calaculate in
 		 * @return size in bytes
 		 */
 		public static native int sizeof(int count);
-
-		public State(Type type) {
-			super(STRUCT_NAME, type);
-		}
 
 		/**
 		 * @param size
@@ -134,78 +124,12 @@ public abstract class JPacket
 			super(STRUCT_NAME, size);
 		}
 
+		public State(Type type) {
+			super(STRUCT_NAME, type);
+		}
+
 		public void cleanup() {
 			super.cleanup();
-		}
-
-		public int findHeaderIndex(int id) {
-			return findHeaderIndex(id, 0);
-		}
-
-		public native int findHeaderIndex(int id, int instance);
-
-		public native long get64BitHeaderMap(int index);
-
-		public native int getHeaderCount();
-
-		public native int getHeaderIdByIndex(int index);
-
-		public native int getInstanceCount(int id);
-
-		public int peer(ByteBuffer peer) {
-			return super.peer(peer);
-		}
-
-		public int peer(JBuffer peer) {
-			return super.peer(peer, 0, size());
-		}
-
-		public int peer(JBuffer peer, int offset, int length)
-		    throws IndexOutOfBoundsException {
-			return super.peer(peer, offset, length);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.jnetpcap.nio.JPeerable#peer(org.jnetpcap.nio.JMemoryPool.Block,
-		 *      int, int)
-		 */
-		public int peer(JMemoryPool.Block peer, int offset, int length)
-		    throws IndexOutOfBoundsException {
-			return super.peer(peer, offset, length);
-		}
-
-		public int peer(State peer) {
-			return super.peer(peer, 0, size());
-		}
-
-		public native int peerHeaderById(int id, int instance, JHeader.State dst);
-
-		public native int peerHeaderByIndex(int index, JHeader.State dst)
-		    throws IndexOutOfBoundsException;
-
-		@Override
-		public int transferTo(ByteBuffer dst) {
-			return super.transferTo(dst, 0, size());
-		}
-
-		@Override
-		public int transferTo(ByteBuffer dst, int srcOffset, int length) {
-			return super.transferTo(dst, srcOffset, length);
-		}
-
-		public int transferTo(JBuffer dst) {
-			return super.transferTo(dst, 0, size(), 0);
-		}
-
-		public int transferTo(JBuffer dst, int srcOffset, int length, int dstOffset) {
-			return super.transferTo(dst, srcOffset, length, dstOffset);
-		}
-
-		public int transferTo(State dst) {
-			dst.setSize(size());
-			return super.transferTo(dst, 0, size(), 0);
 		}
 
 		/**
@@ -242,12 +166,184 @@ public abstract class JPacket
 		 * 
 		 * @return multiline string containing dump of the entire structure
 		 */
-		public native String dumpState();
-	}
+		public native String debugString();
 
-	private final State state;
+		public int findHeaderIndex(int id) {
+			return findHeaderIndex(id, 0);
+		}
+
+		public native int findHeaderIndex(int id, int instance);
+
+		public native long get64BitHeaderMap(int index);
+
+		public native int getHeaderCount();
+
+		public native int getHeaderIdByIndex(int index);
+
+		public native int getInstanceCount(int id);
+
+		public int peer(ByteBuffer peer) {
+			return super.peer(peer);
+		}
+
+		public int peer(JBuffer peer) {
+			return super.peer(peer, 0, size());
+		}
+
+		public int peer(JBuffer peer, int offset, int length)
+		    throws IndexOutOfBoundsException {
+			return super.peer(peer, offset, length);
+		}
+
+		/**
+		 * @param memory
+		 * @param offset
+		 */
+		public int peer(JMemory memory, int offset) {
+			return super.peer(memory, offset, size());
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.jnetpcap.nio.JPeerable#peer(org.jnetpcap.nio.JMemoryPool.Block,
+		 *      int, int)
+		 */
+		public int peer(JMemoryPool.Block peer, int offset, int length)
+		    throws IndexOutOfBoundsException {
+			return super.peer(peer, offset, length);
+		}
+
+		public int peer(State peer) {
+			return super.peer(peer, 0, size());
+		}
+
+		public native int peerHeaderById(int id, int instance, JHeader.State dst);
+
+		public native int peerHeaderByIndex(int index, JHeader.State dst)
+		    throws IndexOutOfBoundsException;
+
+		/**
+		 * @param state
+		 * @param offset
+		 */
+		public int peerTo(State state, int offset) {
+			return super.peer(state, offset, state.size());
+		}
+
+		public int transferTo(JBuffer dst, int srcOffset, int length, int dstOffset) {
+			return super.transferTo(dst, srcOffset, size(), dstOffset);
+		}
+	
+		public int transferTo(byte[] dst, int dstOffset) {
+			return super.transferTo(dst, 0, size(), dstOffset);
+		}
+
+		public int transferTo(byte[] dst, int srcOffset, int length, int dstOffset) {
+			return super.transferTo(dst, srcOffset, size(), dstOffset);
+		}
+
+
+		public int transferTo(State dst) {
+			return super.transferTo(dst, 0, size(), 0);
+		}
+
+		/**
+		 * @param buffer
+		 * @param offset
+		 * @return
+		 */
+		public int peerTo(JBuffer buffer, int offset) {
+			return super.peer(buffer, offset, size());
+		}
+
+		/**
+		 * @param buffer
+		 * @param offset
+		 * @param size
+		 */
+		public int peerTo(JBuffer buffer, int offset, int size) {
+			return super.peer(buffer, offset, size);
+		}
+
+		/**
+     * @param memory
+     * @param offset
+     * @param size
+     */
+    public int peerTo(Malloced memory, int offset, int size) {
+    	return super.peer(memory, offset, size);
+    }
+	}
+	
+	/**
+	 * Default number of headers used when calculating memory requirements for an
+	 * empty packet state structure. This value will be multiplied by the
+	 * sizeof(header_t) structure and added to the size of the packet_t strcutre.
+	 */
+	public final static int DEFAULT_STATE_HEADER_COUNT = 20;
 
 	private static JFormatter out = new TextFormatter(new StringBuilder());
+
+	protected final State state = new State(Type.POINTER);
+	
+	protected static JMemoryPool pool = new JMemoryPool();
+
+	protected final Malloced memory = new Malloced();
+	
+	protected int memoryOffset;
+	
+	protected Malloced getMemoryBuffer(byte[] buffer) {
+		pool.allocate(buffer.length, memory);
+		memory.transferFrom(buffer);
+		
+		return memory;
+	}
+	
+	/**
+	 * 
+	 * @param buffer
+	 * @return
+	 */
+	protected Malloced getMemoryBuffer(JBuffer buffer) {
+		memory.peer(buffer);
+		
+		return memory;
+	}
+	
+	/**
+	 * 
+	 * @param buffer
+	 * @return
+	 */
+	protected Malloced getMemoryBuffer(ByteBuffer buffer) {
+		memory.peer(buffer);
+		
+		return memory;
+	}
+
+	/**
+	 * Retrieves a memory buffer, allocated if neccessary, at least minSize in
+	 * bytes. If existing buffer is already big enough, it is returned, otherwise
+	 * a new buffer is allocated and the existing one released.
+	 * 
+	 * @param minSize
+	 *          minimum number of bytes required for the buffer
+	 * @return the buffer
+	 */
+	protected Malloced getMemoryBuffer(int minSize) {
+		if (!memory.isInitialized() || memory.size() < minSize) {
+			allocate(minSize);
+		}
+
+		return memory;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	protected abstract int getTotalSize();
 
 	/**
 	 * A JPacket pointer. This is a pointer type constructor that does not
@@ -274,163 +370,42 @@ public abstract class JPacket
 	 */
 	public JPacket(Type type) {
 		super(type);
-
-		this.state = new State(Type.POINTER);
 	}
 
 	/**
-	 * Allocates a new memory block for packet state and data (data follows
-	 * immediately after state) then copies the supplied buffer into the data
-	 * portion of the memory block. The supplied
-	 * 
-	 * @param buffer
-	 *          buffer to copy data out of where position and limit ByteBuffer
-	 *          properties set the boundaries of the buffer
-	 */
-	public JPacket(ByteBuffer buffer) {
-		this(buffer.limit() - buffer.position());
-
-		transferFrom(buffer);
-	}
-
-	/**
-	 * Allocates a new memory block for packet state and data (data follows
-	 * immediately after state.) Both packet state and data portions of the buffer
-	 * are left in their default state.
-	 * <p>
-	 * Here is what memory block layout looks like. Where <code>x = sizeof(struct
-	 * packet_stat_t)</code>
-	 * and y = size
-	 * 
-	 * <pre>
-	 * 0       x           y
-	 * +-----------------&tilde;-+
-	 * | state | data ...  |
-	 * +-----------------&tilde;-+
-	 * </pre>
-	 * 
-	 * Since Jpacket.State is a separate JMemory object from JPacket, both are
-	 * peered to the same memory block at different offsets but only one remains
-	 * the owner or responsible for deallocation of that memory block.
-	 * </p>
+	 * Allocates a memory block and peers both the state and data buffer with it.
+	 * The size parameter has to be big enough to hold both state and data for the
+	 * packet.
 	 * 
 	 * @param size
-	 *          amount of physical memory to allocate. The actual amount allocated
-	 *          will be bigger than requested to also hold the packet state
-	 *          information. Size can be 0 in which can only enough memory is
-	 *          allocated to hold the packet state while the packet data portion
-	 *          is not peered.
+	 *          amount of memory to allocate for packet data
+	 * @param state
+	 *          size of the state
 	 */
-	public JPacket(int size) {
+	public JPacket(int size, int state) {
 		super(Type.POINTER);
-		if (size < 0) {
-			throw new IllegalArgumentException("size must be positive");
+
+		allocate(size + state);
+	}
+	
+	/**
+	 * 
+	 * @param size
+	 */
+	public void allocate(int size) {		
+		pool.allocate(size, memory);
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public int getAllocatedMemorySize() {
+		if (!memory.isInitialized()) {
+			return 0;
 		}
-		this.state = new State(size);
-
-		if (size > 0) {
-			peer(state, State.sizeof(0), size - State.sizeof(0));
-		}
-	}
-
-	/**
-	 * Allocates a new memory block for packet state and data (data follows
-	 * immediately after state) then copies the supplied buffer into the data
-	 * portion of the memory block. The packet state is left uninitialized
-	 * although it has memory allocated. The packet is suited to be scanned by
-	 * JScanner.
-	 * 
-	 * @param buffer
-	 *          buffer to copy data out of
-	 */
-	public JPacket(JBuffer buffer) {
-		this(buffer.size());
-
-		buffer.transferTo(this);
-	}
-
-	/**
-	 * Allocates a new memory block big enough to just hold the new contents, for
-	 * packet state and data (data follows immediately after state.) Both data and
-	 * state are copied out of the src packet.
-	 * 
-	 * @param src
-	 *          source packet to transfer state and data from
-	 */
-	public JPacket(JPacket src) {
-		this(src.size());
-
-		src.transferStateAndDataTo(this);
-	}
-
-	/**
-	 * Allocates a new memory block for packet state and data (data follows
-	 * immediately after state) out of a memory pool. Both data and state are
-	 * copied out of the src packet.
-	 * 
-	 * @param src
-	 *          source packet to transfer state and data from
-	 */
-	public JPacket(JPacket src, JMemoryPool pool) {
-		super(Type.POINTER);
-		this.state = new State(Type.POINTER);
-
-		src.transferStateAndDataTo(this, pool);
-	}
-
-	/**
-	 * Allocates enough memory to hold the src packet state and data using the
-	 * supplied memory pool. The memory is allocated and peered with the internal
-	 * state and data structures of this packet. Any previously bound or allocated
-	 * memory by this packet object is released. Upon completion of this method,
-	 * this object will be peered with enough memory to facilitate a transferTo
-	 * from the src object to this object.
-	 * <p>
-	 * Typically this method is called to transfer data from a shared packet into
-	 * a efficiently allocated memory block for longer term storage or processing.
-	 * Here is an example of a <code>PcapPacketHandler.nextPacket</code> putting
-	 * received packets into a more permanent storage and queue.
-	 * 
-	 * <pre>
-	 * JMemoryPool pool = new JMemoryPool();
-	 * Queue&lt;JPacket&gt; queue = // Some kind of user queue
-	 * 
-	 * public void nextPacket(PcapHeader header, JPacket shared, Strint msg) {
-	 *   JPacket packet = new JPacket(); // Just a NULL pointer at this point
-	 *   packet.allocate(shared, pool);  // Now pointing at physical mem
-	 *   shared.transferStateAndDataTo(packet); // Native copy
-	 *   
-	 *   queue.put(packet); // The rest of the user logic in the handler
-	 * }
-	 * </pre>
-	 * 
-	 * In the above example shared packets are received. A new packet object is
-	 * created that will reference packet state and data. A memory pool is used
-	 * that allocates memory from the heap and peers (points the native pointers)
-	 * at the new memory for packet object. The memory pool allocates memory in
-	 * chunks which all the permanent packets reference. Once all the packets that
-	 * utilize any particluar memory chunk are garbage collected, the entire chunk
-	 * is freed. Also the same permanent packets, once no longer needed, can be
-	 * reused as well by simply reallocating memory, while previously held memory
-	 * will be released. This saves the user of an actual object creation.
-	 * </p>
-	 * </p>
-	 * 
-	 * @param src
-	 *          source used to calculate the needed size for both state and data
-	 * @param pool
-	 *          memory pool from which to allocate
-	 */
-	public void allocate(JPacket src, JMemoryPool pool) {
-		final int stateSize = src.state.size();
-		final int size = src.size();
-
-		Block block = pool.getBlock(stateSize + size);
-		int offset = block.allocate(stateSize);
-		this.state.peer(block, offset, stateSize);
-
-		offset = block.allocate(size);
-		this.peer(block, offset, size);
+		
+		return memory.size();
 	}
 
 	/**
@@ -550,6 +525,10 @@ public abstract class JPacket
 		return state;
 	}
 
+	public int getStateSize() {
+		return state.size();
+	}
+
 	/**
 	 * Checks if header with specified numerical ID exists within the decoded
 	 * packet
@@ -625,76 +604,7 @@ public abstract class JPacket
 
 		return true;
 	}
-
-	/**
-	 * Peers this packet with specific native memory location allocated out of
-	 * JMemoryPool
-	 * 
-	 * @param block
-	 *          block of memory to which to peer
-	 * @param offset
-	 *          offset into the memory block
-	 * @param length
-	 *          amount of memory to peer starting at offset
-	 * @return number of bytes peered, total
-	 * @throws IndexOutOfBoundsException
-	 *           requested address space is out of bounds
-	 */
-	public int peer(JMemoryPool.Block block, int offset, int length)
-	    throws IndexOutOfBoundsException {
-		return super.peer(block, offset, length);
-	}
-
-	/**
-	 * The backing buffer becomes the physical memory JPacket is pointing to, but
-	 * this instance does not become the owner of the memory. The peered buffer is
-	 * still the owner of the memory and responsible for memory managment.
-	 * 
-	 * @param bytebuffer
-	 */
-	public void peerData(ByteBuffer buffer) {
-		super.peer(buffer);
-	}
-
-	/**
-	 * The backing buffer becomes the physical memory JPacket is pointing to, but
-	 * this instance does not become the owner of the memory. The peered buffer is
-	 * still the owner of the memory and responsible for memory managment.
-	 * 
-	 * @param buffer
-	 */
-	public void peerData(JBuffer buffer) {
-		super.peer(buffer);
-	}
-
-	/**
-	 * Peers packet to a JBuffer that contains both state and packet data within
-	 * the same buffer. Both state and data are peered with the physical memory of
-	 * src. The state header structure in memory is expected to directly precede
-	 * the packet data.
-	 * 
-	 * @param buffer
-	 */
-	public void peerStateAndData(JBuffer buffer) {
-		state.peer(buffer, 0, State.sizeof(0)); // TODO unknown header size?
-		peer(buffer, state.size(), buffer.size());
-	}
-
-	/**
-	 * Peers both packet's native state and data based on information found in the
-	 * supplied packet. This is a shallow copy that does not physically copy any
-	 * data but only references pointers.
-	 * 
-	 * @param src
-	 *          source packet to peer with
-	 */
-	public void peerStateAndData(JPacket src) {
-		super.peer(src);
-		state.peer(src.state);
-
-		getCaptureHeader().transferTo(src.getCaptureHeader());
-	}
-
+	
 	/**
 	 * Calculates the number of bytes remaining within the packet given a specific
 	 * offset
@@ -723,216 +633,6 @@ public abstract class JPacket
 		final int remaining = size() - offset;
 
 		return (remaining >= length) ? length : remaining;
-	}
-
-	/**
-	 * Deep copy of packet data
-	 * 
-	 * @param dst
-	 *          destination buffer to which to copy this packets packet data
-	 *          buffer
-	 * @return number of bytes copied
-	 */
-	public int transferDataTo(ByteBuffer dst) {
-		return transferTo(dst);
-	}
-
-	/**
-	 * Deep copy of packet data
-	 * 
-	 * @param dst
-	 *          destination buffer to which to copy this packets packet data
-	 *          buffer
-	 * @return number of bytes copied
-	 */
-	public int transferDataTo(JBuffer dst) {
-		return transferTo(dst);
-	}
-
-	/**
-	 * Deep copy of packet data
-	 * 
-	 * @param dst
-	 *          destination buffer to which to copy this packets packet data
-	 *          buffer
-	 * @param srcOffset
-	 *          offset into the source packet buffer where to start the copy
-	 * @param length
-	 *          number of bytes to copy
-	 * @param dstOffset
-	 *          offset into the destination buffer where to place the copy of the
-	 *          data
-	 * @return number of bytes copied
-	 */
-	public int transferDataTo(JBuffer dst, int srcOffset, int length,
-	    int dstOffset) {
-		return transferTo(dst, srcOffset, length, dstOffset);
-	}
-
-	/**
-	 * Copies this packet's data buffer to destination packet's data buffer
-	 * 
-	 * @param dst
-	 *          destination packet where to copy data to
-	 * @return number of bytes copied
-	 */
-	public int transferDataTo(JPacket dst) {
-		return super.transferTo(dst);
-	}
-
-	/**
-	 * Copies this packet's data buffer to destination packet's data buffer
-	 * 
-	 * @param dst
-	 *          destination packet where to copy data to
-	 * @return number of bytes copied
-	 */
-	public int transferStateAndDataTo(ByteBuffer dst) {
-		int p = dst.position();
-		int count = state.transferTo(dst);
-
-		dst.position(p + count);
-
-		count += transferTo(dst);
-
-		dst.position(p);
-		return count;
-	}
-
-	/**
-	 * Copies this packet's data buffer and packet stat structure to destination
-	 * buffer. The layout of structure and packet data buffer in memory of the
-	 * destination buffer is that state structure is copied first immediately
-	 * followed by the packet data buffer contents
-	 * 
-	 * @param dst
-	 *          destination packet where to copy data to
-	 * @return number of bytes copied
-	 */
-	public int transferStateAndDataTo(JBuffer dst) {
-		int count = state.transferTo(dst);
-		count += transferTo(dst, 0, size(), count);
-
-		return count;
-	}
-
-	/**
-	 * Copies this packet's data buffer and packet stat structure to destination
-	 * buffer. The layout of structure and packet data buffer in memory of the
-	 * destination buffer is that state structure is copied first immediately
-	 * followed by the packet data buffer contents
-	 * 
-	 * @param dst
-	 *          destination packet where to copy data to
-	 * @param srcDataOffset
-	 *          offset into the source packet buffer where to start the copy
-	 * @param length
-	 *          number of bytes to copy
-	 * @param dstOffset
-	 *          offset into the destination buffer where to place the copy of the
-	 *          data
-	 * @return number of bytes copied
-	 */
-	public int transferStateAndDataTo(JBuffer dst, int srcDataOffset, int length,
-	    int dstOffset) {
-		int count = state.transferTo(dst, 0, state.size(), dstOffset);
-		count += transferTo(dst, srcDataOffset, length, dstOffset + count);
-
-		return count;
-	}
-
-	/**
-	 * Copies this packet's data buffer and packet stat structure to destination
-	 * buffer. The layout of structure and packet data buffer in memory of the
-	 * destination buffer is that state structure is copied first immediately
-	 * followed by the packet data buffer contents
-	 * 
-	 * @param dst
-	 *          destination packet where to copy data to
-	 * @return number of bytes copied
-	 */
-	public int transferStateAndDataTo(JPacket dst) {
-
-		int count = state.transferTo(dst.state);
-
-		if (isOwner() == false && dst.state.isOwner()) {
-			dst.peer(dst.state, count, size());
-		} else {
-			super.peer(dst, count, size());
-		}
-
-		count += super.transferTo(dst);
-
-		return count;
-	}
-
-	/**
-	 * Transfers state and data to dst while allocating memory out of the pool.
-	 * Any previously held memory by dst is released. To transfer to dst without
-	 * new memory allocation use {@link #transferStateAndDataTo(JPacket).
-	 * 
-	 * @param dst
-	 * @param pool
-	 * @return
-	 */
-	public int transferStateAndDataTo(JPacket dst, JMemoryPool pool) {
-
-		final int stateSize = state.size();
-		final int size = super.size();
-
-		final Block block = pool.getBlock(stateSize + size);
-		dst.state.peer(block, block.allocate(stateSize), stateSize);
-		dst.peer(block, block.allocate(size), size);
-
-		return transferStateAndDataTo(dst);
-	}
-
-	/**
-	 * Deep copy of this packet state structure to destination buffer
-	 * 
-	 * @param dst
-	 *          destination buffer where to copy the structure to
-	 * @return number of bytes copied
-	 */
-	public int transferStateTo(ByteBuffer dst) {
-		return state.transferTo(dst);
-	}
-
-	/**
-	 * Deep copy of this packet state structure to destination buffer
-	 * 
-	 * @param dst
-	 *          destination buffer where to copy the structure to
-	 * @return number of bytes copied
-	 */
-	public int transferStateTo(JBuffer dst) {
-		return state.transferTo(dst);
-	}
-
-	/**
-	 * Deep copy of this packet state structure to destination buffer
-	 * 
-	 * @param dst
-	 *          destination buffer where to copy the structure to
-	 * @param dstOffset
-	 *          offset into the destination buffer where to packet the state
-	 *          structure
-	 * @return number of bytes copied
-	 */
-	public int transferStateTo(JBuffer dst, int dstOffset) {
-		return state.transferTo(dst, 0, state.size(), dstOffset);
-	}
-
-	/**
-	 * Copies just the native packet state structure from this packet to
-	 * destination packet
-	 * 
-	 * @param dst
-	 *          destination packet
-	 * @return number of bytes copied
-	 */
-	public int transferStateTo(JPacket dst) {
-		return state.transferTo(dst.state);
 	}
 
 	/**
