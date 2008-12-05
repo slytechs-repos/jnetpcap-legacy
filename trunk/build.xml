@@ -568,7 +568,7 @@
 		<javadoc sourcepath="${src.java.dir}${compiler.target}" 
 			source="${compiler.target}"
 			destdir="${build.javadoc.dir}" 
-			doctitle="${doc.javadoc.title} (JRE ${compiler.target})" 
+			doctitle="${doc.javadoc.title} (${pkg.version})" 
 			overview="${src.java.dir}${compiler.target}/${doc.javadoc.overview.html}" 
 			packagenames="org.jnetpcap.*" 
 			classpathref="javadoc.classpath" />

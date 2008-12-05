@@ -166,7 +166,7 @@ public abstract class JPacket
 		 * 
 		 * @return multiline string containing dump of the entire structure
 		 */
-		public native String debugString();
+		public native String toDebugString();
 
 		public int findHeaderIndex(int id) {
 			return findHeaderIndex(id, 0);
