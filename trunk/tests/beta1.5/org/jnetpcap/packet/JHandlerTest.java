@@ -40,7 +40,7 @@ public class JHandlerTest
 
 	private Ip6 ip6 = new Ip6();
 
-	private JPacket packet = new PcapPacket(Type.POINTER);
+	private PcapPacket packet = new PcapPacket(Type.POINTER);
 
 	private JScanner scanner = new JScanner();
 
@@ -76,7 +76,7 @@ public class JHandlerTest
 	 */
 	public void nextPacket(PcapHeader pcapHdr, JBuffer jbuf, String user) {
 
-		packet.peerData(jbuf);
+		packet.peer(jbuf);
 		scanner.scan(packet, Ethernet.ID);
 
 		if (packet.hasHeader(ethernet)) {
@@ -121,7 +121,7 @@ public class JHandlerTest
 	 */
 	public void nextPacket(PcapHeader header, ByteBuffer bytebuffer, String user) {
 
-		packet.peerData(bytebuffer);
+		packet.peer(bytebuffer);
 		scanner.scan(packet, Ethernet.ID);
 
 		if (packet.hasHeader(ethernet)) {

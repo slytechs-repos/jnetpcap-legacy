@@ -64,8 +64,7 @@ public class TestJScanner
 	}
 
 	public void _testScanOnePacket() throws IOException {
-		JPacket packet = new PcapPacket(64);
-		packet.setByteArray(0, new byte[] {
+		JPacket packet = new JMemoryPacket(new byte[] {
 		    (byte) 0xa0,
 		    (byte) 0xa1,
 		    (byte) 0xa2,
@@ -91,8 +90,7 @@ public class TestJScanner
 	}
 
 	public void testInstallJBinding() throws IOException {
-		JPacket packet = new PcapPacket(64);
-		packet.setByteArray(0, VariousInMemoryPackets.PACKET_1);
+		JPacket packet = new JMemoryPacket(VariousInMemoryPackets.PACKET_1);
 
 		JBinding bindEthernet =
 		    new DefaultJBinding(Ip4.ID, Ethernet.ID, Ethernet.ID) {

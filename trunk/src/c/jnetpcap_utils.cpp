@@ -745,4 +745,36 @@ void cb_jpacket_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 			data->user);
 }
 
+/**
+ * JPacket dispatcher that dispatches decoded java packets
+ */
+void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
+		const u_char *pkt_data) {
+
+	cb_jpacket_t *data = (cb_jpacket_t *)user;
+
+	JNIEnv *env = data->env;
+	
+	setJMemoryPhysical(env, data->header, toLong((void*)pkt_header));
+	setJMemoryPhysical(env, data->packet, toLong((void*)pkt_data));
+	
+	env->SetIntField(data->header, jmemorySizeFID, (jsize) sizeof(pcap_pkthdr));
+	env->SetIntField(data->packet, jmemorySizeFID, (jsize) pkt_header->caplen);
+
+	if (Java_org_jnetpcap_packet_JScanner_scan(
+			data->env, 
+			data->scanner, 
+			data->packet,
+			data->state,
+			data->id) < 0) {
+		return;
+	}
+
+	env->CallVoidMethod(
+			data->obj,
+			data->mid, 
+			data->packet,
+			data->user);
+}
+
 

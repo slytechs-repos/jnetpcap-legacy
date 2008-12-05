@@ -156,9 +156,8 @@ public class JBuffer
 	public native void setUShort(int index, int value);
 
 	@Override
-	public int transferFrom(final ByteBuffer src, final int dstOffset,
-	    final int length) {
-		return super.transferFrom(src, dstOffset, length);
+	public int transferFrom(final ByteBuffer src, final int dstOffset) {
+		return super.transferFrom(src, dstOffset);
 	}
 
 	@Override

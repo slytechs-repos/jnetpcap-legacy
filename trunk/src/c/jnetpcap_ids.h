@@ -22,8 +22,10 @@ extern jclass pcapIntegerClass;
 extern 	jmethodID byteBufferIsDirectMID;
 extern 	jmethodID bufferGetPositionMID;
 extern 	jmethodID bufferGetLimitMID;
+extern 	jmethodID bufferSetLimitMID;
 extern 	jmethodID bufferSetPositionMID;
 extern 	jmethodID bufferGetPositionMID;
+extern 	jmethodID bufferGetCapacityMID;
 
 
 extern jclass msIpAdapterIndexMapClass;

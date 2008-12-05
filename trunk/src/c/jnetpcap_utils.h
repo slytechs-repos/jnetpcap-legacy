@@ -110,6 +110,7 @@ void pcap_callback(u_char*, const pcap_pkthdr*, const u_char*);
 void cb_byte_buffer_dispatch(u_char*, const pcap_pkthdr*, const u_char*);
 void cb_jbuffer_dispatch(u_char*, const pcap_pkthdr*, const u_char*);
 void cb_jpacket_dispatch(u_char*, const pcap_pkthdr*, const u_char*);
+void cb_pcap_packet_dispatch(u_char*, const pcap_pkthdr*, const u_char*);
 
 pcap_t *getPcap(JNIEnv *env, jobject obj);
 jmethodID getPcapHandlerMID(JNIEnv *env);

@@ -210,10 +210,30 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_peer
 /*
  * Class:     org_jnetpcap_nio_JMemory
  * Method:    transferFrom
- * Signature: (Ljava/nio/ByteBuffer;II)I
+ * Signature: ([BIII)I
  */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferFrom
-  (JNIEnv *env, jobject obj, jobject jbytebuffer, jint jdstOffset, jint jlen) {
+JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferFrom___3BIII
+  (JNIEnv *env, jobject obj, jbyteArray sa, jint soffset, jint len, jint doffset) {
+	
+	jbyte *src = (jbyte *)getJMemoryPhysical(env, obj);
+	if (src == NULL || sa == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "");
+		return -1;
+	}
+
+	env->GetByteArrayRegion(sa, soffset, len, (src + doffset));
+	
+	return len;
+}
+
+/*
+ * Class:     org_jnetpcap_nio_JMemory
+ * Method:    transferFromDirect
+ * Signature: (Ljava/nio/ByteBuffer;I)I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferFromDirect
+  (JNIEnv *env, jobject obj, jobject jbytebuffer, jint offset) {
+	
 	char *dst = (char *)getJMemoryPhysical(env, obj);
 	if (dst == NULL || jbytebuffer == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, "");
@@ -222,22 +242,47 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferFrom
 	
 	jint position = env->CallIntMethod(jbytebuffer, bufferGetPositionMID);
 	jint limit = env->CallIntMethod(jbytebuffer, bufferGetLimitMID);
-	jsize srcLen = limit - position;
+	jsize len = limit - position;
 	
-	size_t dstLen = env->GetIntField(obj, jmemorySizeFID);
-	if (jdstOffset < 0 || jlen > dstLen) {
-		throwException(env, INDEX_OUT_OF_BOUNDS_EXCEPTION,"");
+	size_t size = env->GetIntField(obj, jmemorySizeFID);
+	
+	printf("JMemory.transferFrom(ByteBuffer): position=%d limit=%d len=%d\n", 
+			position, limit, len);
+	fflush(stdout);
+	
+	if (size < len) {
+		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+		return -1;
 	}
 
 
 	char *b = (char *)env->GetDirectBufferAddress(jbytebuffer);
-	jlen = (jlen > dstLen)?dstLen:jlen;
 	
-	memcpy((void *)(dst + jdstOffset), b + position, jlen);
+	memcpy((void *)(dst + offset), b + position, len);
 	
-	return jlen;
+	env->CallObjectMethod(jbytebuffer, bufferSetPositionMID, position + len);
+	
+	return len;
 }
 
+/*
+ * Class:     org_jnetpcap_nio_JMemory
+ * Method:    transferTo
+ * Signature: ([BIII)I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferTo___3BIII
+  (JNIEnv *env, jobject obj, jbyteArray da, jint soffset, jint len, jint doffset) {
+	
+	jbyte *src = (jbyte *)getJMemoryPhysical(env, obj);
+	if (src == NULL || da == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "");
+		return -1;
+	}
+	
+	env->SetByteArrayRegion(da, doffset, len, (src + soffset));
+	
+	return len;
+}
 
 
 /*
@@ -281,11 +326,11 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferTo__Lorg_jnetpcap_n
 
 /*
  * Class:     org_jnetpcap_nio_JMemory
- * Method:    transferTo
+ * Method:    transferToDirect
  * Signature: (Ljava/nio/ByteBuffer;II)I
  */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferTo__Ljava_nio_ByteBuffer_2II
-(JNIEnv *env, jobject obj, jobject jbytebuffer, jint jsrcOffset, jint jlen) {
+JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferToDirect__Ljava_nio_ByteBuffer_2II
+(JNIEnv *env, jobject obj, jobject jbytebuffer, jint jsrcOffset, jint len) {
 
 	char *src = (char *)getJMemoryPhysical(env, obj);
 	if (src == NULL || jbytebuffer == NULL) {
@@ -293,21 +338,34 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferTo__Ljava_nio_ByteB
 		return -1;
 	}
 	
-	jint position = env->CallIntMethod(jbytebuffer, bufferGetPositionMID);
+//	jint capacity = env->CallIntMethod(jbytebuffer, bufferGetCapacityMID);
 	jint limit = env->CallIntMethod(jbytebuffer, bufferGetLimitMID);
+	jint position = env->CallIntMethod(jbytebuffer, bufferGetPositionMID);
 	jsize dstLen = limit - position;
 	
 	size_t srcLen = env->GetIntField(obj, jmemorySizeFID);
-	if (jsrcOffset < 0 || jlen > srcLen) {
-		throwException(env, INDEX_OUT_OF_BOUNDS_EXCEPTION,"");
+	if (jsrcOffset < 0 || len > srcLen) {
+		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+		
+		return -1;
+	}
+	
+	if (dstLen < len) {
+		throwVoidException(env, BUFFER_OVERFLOW_EXCEPTION);
+		return -1;
 	}
 
 
 	char *b = (char *)env->GetDirectBufferAddress(jbytebuffer);
-	jlen = (jlen > dstLen)?dstLen:jlen;
 	
-	memcpy(b + position, (void *)(src + jsrcOffset), jlen);
+	memcpy(b + position, (void *)(src + jsrcOffset), len);
 	
-	return jlen;
+//	printf("JMemory.transferTo(ByteBuffer): position=%d limit=%d len=%d\n", 
+//			position, limit, len);
+	
+	env->CallObjectMethod(jbytebuffer, bufferSetPositionMID, position + len);
+	
+	return len;
 }
+
 

@@ -886,7 +886,6 @@ public class Ip4
 
 		for (int i = 20; i < hlen; i++) {
 			final int id = getUByte(i) & 0x1F;
-			System.out.printf("o=%d, code=%d\n", i, id);
 			optionsOffsets[id] = i;
 			optionsBitmap |= (1 << id);
 
