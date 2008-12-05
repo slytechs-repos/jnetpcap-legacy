@@ -99,7 +99,10 @@ public class JMemoryPool {
       public int transferFrom(ByteBuffer buffer) {
       	return super.transferFrom(buffer);
       }
-
+      
+      public int transferFrom(JBuffer buffer) {
+      	return buffer.transferTo(this);
+      }
 		}
 
 		/**
