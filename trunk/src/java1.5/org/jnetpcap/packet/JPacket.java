@@ -182,7 +182,7 @@ public abstract class JPacket
 
 		public native int getInstanceCount(int id);
 
-		public int peer(ByteBuffer peer) {
+		public int peer(ByteBuffer peer) throws PeeringException {
 			return super.peer(peer);
 		}
 
@@ -312,11 +312,11 @@ public abstract class JPacket
 	}
 	
 	/**
-	 * 
 	 * @param buffer
 	 * @return
+	 * @throws PeeringException
 	 */
-	protected Malloced getMemoryBuffer(ByteBuffer buffer) {
+	protected Malloced getMemoryBuffer(ByteBuffer buffer) throws PeeringException {
 		memory.peer(buffer);
 		
 		return memory;

@@ -136,7 +136,11 @@ public class TestJScanner
 
 				System.out.println("\nPacket #" + i);
 
-				packet.peer(buffer);
+				try {
+	        packet.peer(buffer);
+        } catch (PeeringException e) {
+	        e.printStackTrace();
+        }
 
 				scanner.scan(packet, JProtocol.ETHERNET_ID);
 				// try {

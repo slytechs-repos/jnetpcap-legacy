@@ -52,6 +52,7 @@ char *id2str(int id);
 typedef struct icmp_t {
 	uint8_t type;
 	uint8_t code;
+	uint16_t crc;
 	
 } icmp_t;
 

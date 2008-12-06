@@ -25,6 +25,7 @@ import java.util.Arrays;
 import junit.framework.TestCase;
 
 import org.jnetpcap.nio.JMemory.Type;
+import org.jnetpcap.packet.PeeringException;
 
 /**
  * @author Mark Bednarczyk
@@ -50,8 +51,9 @@ public class TestJBuffer
 
 	/**
 	 * Test method for {@link org.jnetpcap.nio.JBuffer#getByteArray(int, byte[])}.
+	 * @throws PeeringException 
 	 */
-	public final void testGetByteArrayIntByteArray() {
+	public final void testGetByteArrayIntByteArray() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
   	byte[] sa = new byte[] {
   	    (byte) 0xaa,
@@ -77,8 +79,9 @@ public class TestJBuffer
 
 	/**
 	 * Test method for {@link org.jnetpcap.nio.JBuffer#getByteArray(int, int)}.
+	 * @throws PeeringException 
 	 */
-	public final void testGetByteArrayIntInt() {
+	public final void testGetByteArrayIntInt() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
   	byte[] sa = new byte[] {
   	    (byte) 0xaa,
@@ -104,8 +107,9 @@ public class TestJBuffer
 
 	/**
 	 * Test method for {@link org.jnetpcap.nio.JBuffer#isReadonly()}.
+	 * @throws PeeringException 
 	 */
-	public final void testIsReadonly() {
+	public final void testIsReadonly() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
   	byte[] sa = new byte[] {
   	    (byte) 0xaa,
@@ -155,8 +159,9 @@ public class TestJBuffer
 
 	/**
 	 * Test method for {@link org.jnetpcap.nio.JBuffer#setByte(int, byte)}.
+	 * @throws PeeringException 
 	 */
-	public final void testSetByte() {
+	public final void testSetByte() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(4);
   
   	JBuffer peer = new JBuffer(Type.POINTER);
@@ -172,8 +177,9 @@ public class TestJBuffer
 
 	/**
 	 * Test method for {@link org.jnetpcap.nio.JBuffer#setByteArray(int, byte[])}.
+	 * @throws PeeringException 
 	 */
-	public final void testSetByteArray() {
+	public final void testSetByteArray() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
   	src.clear();
 
@@ -201,8 +207,9 @@ public class TestJBuffer
 
 	/**
 	 * Test method for {@link org.jnetpcap.nio.JBuffer#setDouble(int, double)}.
+	 * @throws PeeringException 
 	 */
-	public final void testSetDouble() {
+	public final void testSetDouble() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
   	src.clear();
   
@@ -224,8 +231,9 @@ public class TestJBuffer
 
 	/**
 	 * Test method for {@link org.jnetpcap.nio.JBuffer#setFloat(int, float)}.
+	 * @throws PeeringException 
 	 */
-	public final void testSetFloat() {
+	public final void testSetFloat() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(4);
   	src.clear();
   
@@ -247,8 +255,9 @@ public class TestJBuffer
 
 	/**
 	 * Test method for {@link org.jnetpcap.nio.JBuffer#setInt(int, int)}.
+	 * @throws PeeringException 
 	 */
-	public final void testSetInt() {
+	public final void testSetInt() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(4);
   	src.clear();
   
@@ -270,8 +279,9 @@ public class TestJBuffer
 
 	/**
 	 * Test method for {@link org.jnetpcap.nio.JBuffer#setLong(int, long)}.
+	 * @throws PeeringException 
 	 */
-	public final void testSetLong() {
+	public final void testSetLong() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
   	src.clear();
   
@@ -293,8 +303,9 @@ public class TestJBuffer
 
 	/**
 	 * Test method for {@link org.jnetpcap.nio.JBuffer#setShort(int, short)}.
+	 * @throws PeeringException 
 	 */
-	public final void testSetShort() {
+	public final void testSetShort() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
   	src.clear();
   
@@ -316,8 +327,9 @@ public class TestJBuffer
 
 	/**
 	 * Test method for {@link org.jnetpcap.nio.JBuffer#setUByte(int, int)}.
+	 * @throws PeeringException 
 	 */
-	public final void testSetUByte() {
+	public final void testSetUByte() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
   	src.clear();
   
@@ -339,8 +351,9 @@ public class TestJBuffer
 
 	/**
 	 * Test method for {@link org.jnetpcap.nio.JBuffer#setUInt(int, long)}.
+	 * @throws PeeringException 
 	 */
-	public final void testSetUInt() {
+	public final void testSetUInt() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
   	src.clear();
   
@@ -362,8 +375,9 @@ public class TestJBuffer
 
 	/**
 	 * Test method for {@link org.jnetpcap.nio.JBuffer#setUShort(int, int)}.
+	 * @throws PeeringException 
 	 */
-	public final void testSetUShort() {
+	public final void testSetUShort() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
   	src.clear();
   
@@ -431,7 +445,7 @@ public class TestJBuffer
   	assertTrue(Arrays.equals(new byte[] {10,11,12,13}, dst.getByteArray(4, 4)));
 	}
 
-	public void testJBufferByte() {
+	public void testJBufferByte() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(4);
   	src.put(new byte[] {
   	    1,
@@ -455,7 +469,7 @@ public class TestJBuffer
   	assertEquals(src.get(0), peer.getByte(0));
   }
 
-	public void testJBufferShort() {
+	public void testJBufferShort() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(4);
   	src.put(new byte[] {
   	    1,
@@ -479,7 +493,7 @@ public class TestJBuffer
   	assertEquals(src.getShort(0), peer.getShort(0));
   }
 
-	public void testJBufferInt() {
+	public void testJBufferInt() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(4);
   	src.put(new byte[] {
   	    1,
@@ -503,7 +517,7 @@ public class TestJBuffer
   	assertEquals(src.getInt(0), peer.getInt(0));
   }
 
-	public void testJBufferLong() {
+	public void testJBufferLong() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
   	src.put(new byte[] {
   	    1,
@@ -531,7 +545,7 @@ public class TestJBuffer
   	assertEquals(src.getLong(0), peer.getLong(0));
   }
 
-	public void testJBufferUByte() {
+	public void testJBufferUByte() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(4);
   	src.put(new byte[] {
   	    (byte) 0xaa,
@@ -553,7 +567,7 @@ public class TestJBuffer
   	assertEquals(0xaa, peer.getUByte(0));
   }
 
-	public void testJBufferUShort() {
+	public void testJBufferUShort() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(4);
   	src.put(new byte[] {
   	    (byte) 0xaa,
@@ -575,7 +589,7 @@ public class TestJBuffer
   	assertEquals(0xaabb, peer.getUShort(0));
   }
 
-	public void testJBufferUInt() {
+	public void testJBufferUInt() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(4);
   	src.put(new byte[] {
   	    (byte) 0xaa,
@@ -599,7 +613,7 @@ public class TestJBuffer
   	assertEquals(0xaa0203bbL, peer.getUInt(0));
   }
 
-	public void testJBufferGetterBounds() {
+	public void testJBufferGetterBounds() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
   	src.put(new byte[] {
   	    (byte) 0xaa,
@@ -720,7 +734,7 @@ public class TestJBuffer
   	}
   }
 
-	public void testJBufferFloat() {
+	public void testJBufferFloat() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
   	src.put(new byte[] {
   	    (byte) 0xaa,
@@ -748,7 +762,7 @@ public class TestJBuffer
   	assertEquals(src.getFloat(0), peer.getFloat(0));
   }
 
-	public void testJBufferDouble() {
+	public void testJBufferDouble() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
   	src.put(new byte[] {
   	    (byte) 0xaa,
