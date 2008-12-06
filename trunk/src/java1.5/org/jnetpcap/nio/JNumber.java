@@ -111,7 +111,7 @@ public class JNumber
 	 *          primitive type for which to allocate memory
 	 */
 	public JNumber(Type type) {
-		super(Type.getBiggestSize());
+		super(type.size);
 	}
 
 	/**
