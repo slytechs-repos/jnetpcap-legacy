@@ -869,7 +869,7 @@ public class TestPcapBetaJNI
 		    .length(), new File(fname).length());
 	}
 
-	public void testStats() {
+	public void _testStats() {
 		PcapStat stats = new PcapStat();
 
 		Pcap pcap = Pcap.openLive(device, snaplen, promisc, oneSecond, errbuf);
