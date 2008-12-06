@@ -207,8 +207,7 @@ public class TextFormatter
 		// incLevel(":" + subHeader.getNicname());
 		// incLevel(SEPARATOR);
 
-		pad().format(" ******* %s optional header (%s) offset=%d length=%d",
-		    header.getName(), subHeader.getName(), subHeader.getOffset(),
-		    subHeader.getLength());
+		pad().format("+ %s: offset=%d length=%d", subHeader.getName(),
+		    subHeader.getOffset(), subHeader.getLength());
 	}
 }

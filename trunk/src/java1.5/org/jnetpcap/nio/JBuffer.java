@@ -15,6 +15,8 @@ package org.jnetpcap.nio;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import org.jnetpcap.packet.PeeringException;
+
 /**
  * A direct ByteBuffer stored in native memory
  * 
@@ -119,7 +121,7 @@ public class JBuffer
 	}
 
 	@Override
-	public int peer(final ByteBuffer peer) {
+	public int peer(final ByteBuffer peer) throws PeeringException {
 		setReadonly(peer.isReadOnly());
 		return super.peer(peer);
 	}

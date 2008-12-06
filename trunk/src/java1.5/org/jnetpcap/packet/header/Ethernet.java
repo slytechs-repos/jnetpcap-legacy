@@ -28,6 +28,60 @@ import org.jnetpcap.packet.format.JFormatter.Style;
  */
 public class Ethernet
     extends JHeader {
+	
+	public enum EthernetType {
+		IP4(0x800, "ip version 4"),
+		IP6(0x86DD, "ip version 6"),
+		IEEE_802DOT1Q(0x8100, "vlan - IEEE 802.1q"), ;
+		private final int id;
+
+		private final String description;
+
+		private EthernetType(int id) {
+			this.id = id;
+			this.description = name().toLowerCase();
+		}
+
+		private EthernetType(int id, String description) {
+			this.id = id;
+			this.description = description;
+
+		}
+
+		public static String toString(int id) {
+			for (EthernetType t : values()) {
+				if (t.id == id) {
+					return t.description;
+				}
+			}
+
+			return null;
+		}
+
+		public final int getId() {
+			return this.id;
+		}
+
+		public final String getDescription() {
+			return this.description;
+		}
+
+		/**
+     * @param type
+     * @return
+     */
+    public static EthernetType valueOf(int type) {
+	    for (EthernetType t: values()) {
+	    	if (t.id == type) {
+	    		return t;
+	    	}
+	    }
+	    
+	    return null;
+    }
+
+	}
+
 
 	public static final String NAME = "Ethernet";
 
@@ -72,6 +126,16 @@ public class Ethernet
 			            return header.type();
 		            }
 
+								@Override
+                public String valueDescription(Ethernet header) {
+	                final String s = EthernetType.toString(header.type());
+	                if (s == null) {
+	                	return super.valueDescription(header);
+	                } else {
+	                	return s;
+	                }
+                }
+
 	            }) };
 
 	public Ethernet() {
@@ -105,6 +169,10 @@ public class Ethernet
 
 	public int type() {
 		return getUShort(0 + 12);
+	}
+	
+	public EthernetType typeEnum() {
+		return EthernetType.valueOf(type());
 	}
 
 	public void type(int type) {

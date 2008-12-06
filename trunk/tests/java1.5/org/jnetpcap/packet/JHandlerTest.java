@@ -121,7 +121,11 @@ public class JHandlerTest
 	 */
 	public void nextPacket(PcapHeader header, ByteBuffer bytebuffer, String user) {
 
-		packet.peer(bytebuffer);
+		try {
+	    packet.peer(bytebuffer);
+    } catch (PeeringException e) {
+	    e.printStackTrace();
+    }
 		scanner.scan(packet, Ethernet.ID);
 
 		if (packet.hasHeader(ethernet)) {

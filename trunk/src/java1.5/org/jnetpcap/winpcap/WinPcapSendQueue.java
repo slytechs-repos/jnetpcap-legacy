@@ -9,6 +9,7 @@ import org.jnetpcap.PcapHeader;
 import org.jnetpcap.PcapPktHdr;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JStruct;
+import org.jnetpcap.packet.PeeringException;
 
 /**
  * Copyright (C) 2007 Sly Technologies, Inc. This library is free software; you
@@ -97,8 +98,9 @@ public class WinPcapSendQueue extends JStruct {
 	 * 
 	 * @param buffer
 	 *          a direct buffer containing the data to be send
+	 * @throws PeeringException
 	 */
-	public WinPcapSendQueue(ByteBuffer buffer) {
+	public WinPcapSendQueue(ByteBuffer buffer) throws PeeringException {
 		super(STRUCT_NAME, sizeof());
 		this.buffer = new JBuffer(Type.POINTER);
 		this.buffer.order(ByteOrder.nativeOrder()); // Force byte ordering

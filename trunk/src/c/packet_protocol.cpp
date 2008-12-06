@@ -52,7 +52,29 @@ void scan_not_implemented_yet(scan_t *scan) {
  */
 void scan_icmp(scan_t *scan) {
 	icmp_t *icmp = (icmp_t *)(scan->buf + scan->offset);
-	scan->length = sizeof(icmp_t);
+	
+	switch (icmp->type) {
+		
+	case 3: // UNREACHABLE
+	case 12: // PARAM PROBLEM
+		scan->length = sizeof(icmp_t) + 4;
+		scan->next_id = IP4_ID;
+		break;
+		
+	case 0:  // Echo Reply
+	case 8:  // Echo Request
+	case 4: 
+	case 5: 
+	case 11:
+	case 13: 
+	case 14: 
+	case 15: 
+	case 16:
+	default:
+		scan->length = scan->buf_len - scan->offset; 
+		break;
+	}
+
 }
 
 /*

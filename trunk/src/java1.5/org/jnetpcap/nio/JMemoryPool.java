@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jnetpcap.nio.JMemoryPool.Block.Malloced;
+import org.jnetpcap.packet.PeeringException;
 
 /**
  * Provides a mechanism for allocating memory to JMemory objects. This class is
@@ -81,7 +82,7 @@ public class JMemoryPool {
 				return super.peer(block, offset, length);
 			}
 			
-			public int peer(ByteBuffer buffer) {
+			public int peer(ByteBuffer buffer) throws PeeringException {
 				return super.peer(buffer);
 			}
 			

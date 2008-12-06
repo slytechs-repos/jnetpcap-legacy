@@ -87,6 +87,8 @@ public abstract class JFormatter {
 		INT_RADIX_8,
 		LONG_DEC,
 		LONG_HEX,
+		
+		STRING,
 	}
 
 	private static final Detail DEFAULT_DETAIL = Detail.MULTI_LINE_FULL_DETAIL;

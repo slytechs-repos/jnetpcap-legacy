@@ -18,6 +18,7 @@ import java.nio.ByteOrder;
 import junit.framework.TestCase;
 
 import org.jnetpcap.nio.JNumber.Type;
+import org.jnetpcap.packet.PeeringException;
 
 /**
  * @author Mark Bednarczyk
@@ -56,7 +57,7 @@ public class TestJMemory
 		}
 	}
 
-	public void testPeerWithDirectByteBuffer() {
+	public void testPeerWithDirectByteBuffer() throws PeeringException {
 		ByteBuffer b = ByteBuffer.allocateDirect(4);
 		b.order(ByteOrder.nativeOrder());
 		b.putInt(100);

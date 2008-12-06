@@ -97,8 +97,9 @@ public class JMemoryPacket
 
 	/**
 	 * @param buffer
+	 * @throws PeeringException 
 	 */
-	public JMemoryPacket(ByteBuffer buffer) {
+	public JMemoryPacket(ByteBuffer buffer) throws PeeringException {
 		super(Type.POINTER);
 		
 		peer(buffer);

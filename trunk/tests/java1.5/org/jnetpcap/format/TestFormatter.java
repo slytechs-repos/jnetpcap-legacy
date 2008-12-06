@@ -10,7 +10,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.packet.format;
+package org.jnetpcap.format;
 
 import java.io.IOException;
 
@@ -19,6 +19,9 @@ import junit.framework.TestCase;
 import org.jnetpcap.Pcap;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JPacketHandler;
+import org.jnetpcap.packet.format.JFormatter;
+import org.jnetpcap.packet.format.TextFormatter;
+import org.jnetpcap.packet.format.XmlFormatter;
 
 /**
  * @author Mark Bednarczyk
@@ -96,7 +99,7 @@ public class TestFormatter
 	}
 	
 	public void testSubHeader() throws IOException {
-		dumpToFormatter(new TextFormatter(), "tests/test-icmp-recordroute-opt.pcap");
+		dumpToFormatter(new TextFormatter(), "tests/test-afs.pcap");
 	}
 
 }

@@ -36,6 +36,67 @@ import org.jnetpcap.packet.format.JFormatter.Style;
 public class Ip4
     extends JHeaderMap<Ip4> {
 
+	/**
+	 * User friendly definitions for ip types.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public enum Ip4Type {
+		TCP(6, "tcp - transmission control protocol version 6"),
+		UDP(17, "udp - unreliable datagram protocol"),
+		ICMP(1, "icmp - internet message control protocol"), ;
+		private final int id;
+
+		private final String description;
+
+		private Ip4Type(int id) {
+			this.id = id;
+			this.description = name().toLowerCase();
+		}
+
+		private Ip4Type(int id, String description) {
+			this.id = id;
+			this.description = description;
+
+		}
+
+		public static String toString(int id) {
+			for (Ip4Type t : values()) {
+				if (t.id == id) {
+					return t.description;
+				}
+			}
+
+			return null;
+		}
+
+		public final int getId() {
+			return this.id;
+		}
+
+		public final String getDescription() {
+			return this.description;
+		}
+		
+		/**
+     * @param type
+     * @return
+     */
+    public static Ip4Type valueOf(int type) {
+	    for (Ip4Type t: values()) {
+	    	if (t.id == type) {
+	    		return t;
+	    	}
+	    }
+	    
+	    return null;
+    }
+
+
+	}
+
+	
 	public enum Code {
 		/* 0 */
 		END_OF_OPTION_LIST,
@@ -836,6 +897,15 @@ public class Ip4
 		        public Integer value(Ip4 header) {
 			        return header.type();
 		        }
+
+						@Override
+            public String valueDescription(Ip4 header) {
+							final String s = Ip4Type.toString(header.type());
+              if (s == null) {
+              	return super.valueDescription(header);
+              } else {
+              	return s;
+              }            }
 	        }),
 
 	        new JField(Style.INT_HEX, "header checksum", "crc",
@@ -960,6 +1030,10 @@ public class Ip4
 
 	public int type() {
 		return getUByte(9);
+	}
+	
+	public Ip4Type typeEnum() {
+		return Ip4Type.valueOf(type());
 	}
 
 	public int version() {

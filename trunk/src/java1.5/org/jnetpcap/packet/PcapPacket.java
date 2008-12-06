@@ -22,7 +22,7 @@ import org.jnetpcap.nio.JMemoryPool.Block.Malloced;
 
 /**
  * A pcap packet. Fully decoded packet that provides access to protocol headers
- * are determined during the decoding process. A <code>PcapPacket</code> class
+ * as determined during the decoding process. A <code>PcapPacket</code> class
  * is designed to work with pcap library. It can not be used to create a new
  * packet from an external memory buffer that only contains packet data, such as
  * preparing a packet to be sent from a network interface. You can use
@@ -30,28 +30,28 @@ import org.jnetpcap.nio.JMemoryPool.Block.Malloced;
  * need a PcapHeader which is provided by libpcap at the time the packet was
  * captured. Also the PcapPacket contains decoded state information which can be
  * used to query the packet for its contents using friendly java API and
- * compile-time type-safety. </h2>
- * Packet accessors</h2>
+ * compile-time type-safety.
+ * <h2> Packet accessors</h2>
  * Once a decoded packet is received, the user can query the packet for its
  * various properties. The most important of which is the existance of any
  * particular protocol header within the packet data buffer. The data buffer is
- * scanned and decoded. Any discovery of a protocol header within is recorded in
- * packet's state. The following accessors can be used to query if a particular
- * header has been found within a packet:
+ * scanned and decoded. Any discovery of a protocol header within, is recorded
+ * in packet's state. The following accessors can be used to query if a
+ * particular header has been found within a packet:
  * <ul>
- * <li> JPacket.hasHeader(int id):boolean - id is the numerical protocol ID
- * assigned to each header type by JRegistry. The accessor returns a boolean
- * true or false if the header exists within the packet.</li>
- * <li>JPacket.getHeader(<? extends JHeader> header): <? extends JHeader> - an
- * accessor that retrieves a specific instance of a header. A user supplied
+ * <li> <code>JPacket.hasHeader(int id):boolean</code> - id is the numerical
+ * protocol ID assigned to each header type by JRegistry. The accessor returns a
+ * boolean true or false if the header exists within the packet.</li>
+ * <li><code>JPacket.getHeader(&lt;? extends JHeader&gt; header): &lt;? extends JHeader&gt;</code> -
+ * an accessor that retrieves a specific instance of a header. A user supplied
  * instance of a protocol header is used, initialized to point at the
  * appropriate memory location within the data buffer, where the protocol
  * header's state and contents reside.</li>
- * <li>JPacket.hasHeader(<? extends JHeader> header): boolean - a convenience
- * accessor that combines hasHeader and getHeader methods into one. If the
- * header is found within the packet, boolean true is returned and at the same
- * time the user supplied instance of the header is initialized to pointer at
- * the header. Otherwise false is returned.</li>
+ * <li><code>JPacket.hasHeader(<&lt;? extends JHeader&gt; header): boolean</code> -
+ * a convenience accessor that combines hasHeader and getHeader methods into
+ * one. If the header is found within the packet, boolean true is returned and
+ * at the same time the user supplied instance of the header is initialized to
+ * pointer at the header. Otherwise false is returned.</li>
  * </ul>
  * <p>
  * Here is an example of how to use an accessor form a PcapPacketHandler:
@@ -84,11 +84,37 @@ import org.jnetpcap.nio.JMemoryPool.Block.Malloced;
  * }
  * </pre>
  * 
+ * <h3>Accessing a subheader such as ip options</h3>
+ * You can also access sub headers, usually supplied as options by the protocol
+ * during transmission.
+ * 
+ * <pre>
+ * private Ip4 ip = new Ip4(); // Preallocat IP version 4 header
+ * private Ip4.Timestamp timestamp = new Ip4.Timestamp(); // Optional header
+ * 
+ * public void nextPacket(PcapPacket packet, Object user) {
+ *  if (packet.hasHeader(ip) &amp;&amp; ip.hasSubHeader(timestamp)) {
+ *    System.out.println(&quot;ip.version=%d\n&quot;, ip.version);
+ *    System.out.println(&quot;timestamp optional header length=%d\n&quot;, timstamp.length());
+ *  }
+ * </pre>
+ * 
+ * A couple of points about the sub header example. Notice that we preallocated
+ * a Timestamp header, which is defined from within Ip4 class itself, but is a
+ * separate class on its own none the less. Next we first check if Ip4 header is
+ * present at all in the packet, peer it if exists (combined hasHeader and
+ * getHeader accessor method) and as a second step we check with the Ip4 header
+ * if it has an optional header using <code>ip.hasSubHeader(timestamp)</code>.
+ * If the method returns true, it also peers the sub header timestamp with the
+ * appropriate packet data buffer where the optional header resides.
  * <h3>Formatting packet for output</h3>
  * A packet can easily be formatted for textual output. Any supported formatter,
  * such as TextFormatter or XmlFormatter can be used to format a packet for
  * output. Also JPacket.toString() method uses an internal StringBuilder based
  * TextFormatter that formats the packet for textual output in a string buffer.
+ * At this time both ip and timestamp header instances are properly intialized
+ * and can be used to access their respective headers.
+ * 
  * <pre>
  * JPacket packet = // From out handler
  * TextFormatter out = new TextFormatter(System.out);
@@ -98,6 +124,7 @@ import org.jnetpcap.nio.JMemoryPool.Block.Malloced;
  * // Or save time
  * System.out.println(packet.toString()); // Use internal TextFormatter
  * </pre>
+ * 
  * </p>
  * <h2>Packet's lifecycle</h2>
  * A PcapPacket is made up of 3 parts:
@@ -382,11 +409,7 @@ public class PcapPacket
 	public PcapPacket(ByteBuffer buffer) {
 		super(Type.POINTER);
 
-		if (buffer.isDirect()) {
-			peer(buffer);
-		} else {
-			transferFrom(buffer.array());
-		}
+			transferFrom(buffer);
 	}
 
 	/**
@@ -527,8 +550,13 @@ public class PcapPacket
 	 *          specifies that start within the buffer where to peer the first
 	 *          byte.
 	 * @return number of bytes that were peered out of the buffer
+	 * @throws PeeringException
+	 *           thrown if ByteBuffer is not direct byte buffer type
 	 */
-	public int peer(ByteBuffer buffer) {
+	public int peer(ByteBuffer buffer) throws PeeringException {
+		if (buffer.isDirect() == false) {
+			throw new PeeringException("unable to peer a non-direct ByteBuffer");
+		}
 		return peer(getMemoryBuffer(buffer), 0);
 	}
 

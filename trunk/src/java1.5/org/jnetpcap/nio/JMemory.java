@@ -15,6 +15,7 @@ package org.jnetpcap.nio;
 import java.nio.ByteBuffer;
 
 import org.jnetpcap.Pcap;
+import org.jnetpcap.packet.PeeringException;
 import org.jnetpcap.packet.format.FormatUtils;
 
 /**
@@ -256,9 +257,10 @@ public abstract class JMemory {
 	 *          The ByteBuffer whose allocated native memory we want to peer with.
 	 *          The ByteByffer must be if direct buffer type which can be checked
 	 *          using ByteBuffer.isDirect() call.
+	 * @throws PeeringException 
 	 * @see ByteBuffer#isDirect()
 	 */
-	protected native int peer(ByteBuffer peer);
+	protected native int peer(ByteBuffer peer) throws PeeringException;
 
 	/**
 	 * Peers the peer structure with this instance. The physical memory that the

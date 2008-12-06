@@ -85,10 +85,11 @@ public abstract class JHeaderMap<B extends JHeader>
 	public <T extends JSubHeader<B>> T getSubHeader(T header) {
 
 		final int offset = optionsOffsets[header.getId()];
-		final int length = getUByte(offset + 1);
+		final int length = optionsLength[header.getId()];
 		header.peer(this, offset, length);
 		header.setOffset(offset);
 		header.setLength(length);
+		header.setParent(this);
 
 		return header;
 	}
