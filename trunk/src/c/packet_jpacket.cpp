@@ -238,10 +238,10 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_sizeof
 
 /*
  * Class:     org_jnetpcap_packet_JPacket_State
- * Method:    debugString
+ * Method:    toDebugString
  * Signature: ()Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_org_jnetpcap_packet_JPacket_00024State_debugString
+JNIEXPORT jstring JNICALL Java_org_jnetpcap_packet_JPacket_00024State_toDebugString
   (JNIEnv *env, jobject obj) {
 	
 	char buf[5 * 1024];
