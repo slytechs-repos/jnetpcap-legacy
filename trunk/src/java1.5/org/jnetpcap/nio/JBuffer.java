@@ -157,9 +157,17 @@ public class JBuffer
 
 	public native void setUShort(int index, int value);
 
+	public int transferFrom(byte[] buffer) {
+		return super.transferFrom(buffer);
+	}
+
 	@Override
 	public int transferFrom(final ByteBuffer src, final int dstOffset) {
 		return super.transferFrom(src, dstOffset);
+	}
+
+	public int transferFrom(JBuffer buffer) {
+		return buffer.transferTo(this);
 	}
 
 	@Override

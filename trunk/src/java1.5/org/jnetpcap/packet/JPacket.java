@@ -20,7 +20,6 @@ import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.nio.JMemoryPool;
 import org.jnetpcap.nio.JStruct;
-import org.jnetpcap.nio.JMemoryPool.Block.Malloced;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
 
@@ -264,15 +263,6 @@ public abstract class JPacket
 		public int peerTo(JBuffer buffer, int offset, int size) {
 			return super.peer(buffer, offset, size);
 		}
-
-		/**
-		 * @param memory
-		 * @param offset
-		 * @param size
-		 */
-		public int peerTo(Malloced memory, int offset, int size) {
-			return super.peer(memory, offset, size);
-		}
 	}
 
 	/**
@@ -290,11 +280,11 @@ public abstract class JPacket
 
 	protected static JScanner scanner = new JScanner();
 
-	protected final Malloced memory = new Malloced();
+	protected final JBuffer memory = new JBuffer(Type.POINTER);
 
 	protected int memoryOffset;
 
-	protected Malloced getMemoryBuffer(byte[] buffer) {
+	protected JBuffer getMemoryBuffer(byte[] buffer) {
 		pool.allocate(buffer.length, memory);
 		memory.transferFrom(buffer);
 
@@ -305,7 +295,7 @@ public abstract class JPacket
 	 * @param buffer
 	 * @return
 	 */
-	protected Malloced getMemoryBuffer(JBuffer buffer) {
+	protected JBuffer getMemoryBuffer(JBuffer buffer) {
 		memory.peer(buffer);
 
 		return memory;
@@ -316,7 +306,7 @@ public abstract class JPacket
 	 * @return
 	 * @throws PeeringException
 	 */
-	protected Malloced getMemoryBuffer(ByteBuffer buffer) throws PeeringException {
+	protected JBuffer getMemoryBuffer(ByteBuffer buffer) throws PeeringException {
 		memory.peer(buffer);
 
 		return memory;
@@ -331,7 +321,7 @@ public abstract class JPacket
 	 *          minimum number of bytes required for the buffer
 	 * @return the buffer
 	 */
-	protected Malloced getMemoryBuffer(int minSize) {
+	protected JBuffer getMemoryBuffer(int minSize) {
 		if (!memory.isInitialized() || memory.size() < minSize) {
 			allocate(minSize);
 		}

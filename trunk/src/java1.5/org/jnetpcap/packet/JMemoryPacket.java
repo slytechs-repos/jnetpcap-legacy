@@ -16,8 +16,6 @@ import java.nio.ByteBuffer;
 
 import org.jnetpcap.JCaptureHeader;
 import org.jnetpcap.nio.JBuffer;
-import org.jnetpcap.nio.JMemoryPool.Block.Malloced;
-import org.jnetpcap.packet.JPacket.State;
 import org.jnetpcap.packet.format.FormatUtils;
 
 /**
@@ -133,7 +131,7 @@ public class JMemoryPacket
 	public JMemoryPacket(int id, byte[] buffer) {
 		super(Type.POINTER);
 
-		final Malloced mem = getMemoryBuffer(buffer);
+		final JBuffer mem = getMemoryBuffer(buffer);
 
 		super.peer(mem);
 
@@ -190,11 +188,64 @@ public class JMemoryPacket
 	}
 
 	/**
+	 * Peers the contents of the buffer directly with this packet. No copies are
+	 * performed but the packet state and data are expected to be contained within
+	 * the buffer with a certain layout as described below:
+	 * <p>
+	 * Supplied buffer layout expected:
+	 * 
+	 * <pre>
+	 * +-----+----+
+	 * |State|Data|
+	 * +-----+----+
+	 * </pre>
+	 * 
+	 * </p>
+	 * 
+	 * @param buffer
+	 *          Buffer containing packet header, state and data. Position property
+	 *          specifies that start within the buffer where to peer the first
+	 *          byte.
+	 * @return number of bytes that were peered out of the buffer
+	 * @throws PeeringException
+	 *           thrown if ByteBuffer is not direct byte buffer type
+	 */
+	public int peerStateAndData(ByteBuffer buffer) throws PeeringException {
+		if (buffer.isDirect() == false) {
+			throw new PeeringException("unable to peer a non-direct ByteBuffer");
+		}
+		return peerStateAndData(getMemoryBuffer(buffer), 0);
+	}
+
+	/**
+	 * Peers the contents of the buffer directly with this packet. No copies are
+	 * performed but the packet state and data are expected to be contained within
+	 * the buffer with a certain layout as described below:
+	 * <p>
+	 * Supplied buffer layout expected:
+	 * 
+	 * <pre>
+	 * +-----+----+
+	 * |State|Data|
+	 * +-----+----+
+	 * </pre>
+	 * 
+	 * </p>
+	 * 
+	 * @param buffer
+	 *          buffer containing packet header, state and data
+	 * @return number of bytes that were peered out of the buffer
+	 */
+	public int peerStateAndData(JBuffer buffer) {
+		return peerStateAndData(getMemoryBuffer(buffer), 0);
+	}
+
+	/**
 	 * @param memory
 	 * @param offset
 	 * @return
 	 */
-	public int peerStateAndData(Malloced memory, int offset) {
+	private int peerStateAndData(JBuffer memory, int offset) {
 
 		state.peerTo(memory, offset, State.sizeof(0));
 		int o = state.peerTo(memory, offset, State.sizeof(state.getHeaderCount()));
@@ -207,7 +258,7 @@ public class JMemoryPacket
 	 * @param buffer
 	 */
 	public int transferStateAndDataFrom(byte[] buffer) {
-		Malloced b = getMemoryBuffer(buffer);
+		JBuffer b = getMemoryBuffer(buffer);
 
 		return peerStateAndData(b, 0);
 	}
@@ -217,9 +268,9 @@ public class JMemoryPacket
 	 */
 	public int transferStateAndDataFrom(ByteBuffer buffer) {
 		final int len = buffer.limit() - buffer.position();
-		Malloced b = getMemoryBuffer(len);
+		JBuffer b = getMemoryBuffer(len);
 
-		b.transferFrom(buffer);
+		b.transferFrom(buffer, 0);
 
 		return peerStateAndData(b, 0);
 	}
@@ -229,26 +280,65 @@ public class JMemoryPacket
 	 */
 	public int transferStateAndDataFrom(JBuffer buffer) {
 		final int len = buffer.size();
-		Malloced b = getMemoryBuffer(len);
+		JBuffer b = getMemoryBuffer(len);
 
 		b.transferFrom(buffer);
 
 		return peerStateAndData(b, 0);
 	}
 
-	public int transferStateAndDataTo(JPacket packet, int offset) {
-		final Malloced buffer = packet.getMemoryBuffer(this.getTotalSize());
+	public int transferStateAndDataFrom(JMemoryPacket packet) {
+		return packet.transferTo(this);
+	}
 
-		packet.state.peerTo(buffer, offset, state.size());
-		int o = state.transferTo(packet.state);
+	public int transferStateAndDataFrom(JPacket packet) {
+		int len = packet.state.size() + packet.size();
+		JBuffer mem = getMemoryBuffer(len);
 
-		packet.peer(this, offset, size());
-		o += this.transferTo(buffer, 0, size(), offset + o);
-
-		final JCaptureHeader h = packet.getCaptureHeader();
-		header.init(h.caplen(), h.wirelen(), h.seconds(), h.nanos());
+		int o = packet.state.transferTo(mem, 0, packet.state.size(), 0);
+		o += packet.transferTo(mem, 0, packet.size(), o);
 
 		return o;
 	}
 
+	/**
+	 * Copies contents of this packet to buffer. The packets capture state and
+	 * packet data are copied to new buffer. After completion of this operation
+	 * the complete contents and state of the packet will be transfered to the
+	 * buffer. The layout of the buffer data will be as described below. A buffer
+	 * with this type of layout is suitable for any transferStateAndData or peer
+	 * methods for any buffers that are JMemory based. The buffer has to be large
+	 * enough to hold all of the packet content as returned by method
+	 * {@link #getTotalSize()}. If the buffer is too small and a runtime
+	 * exception may be thrown.
+	 * <p>
+	 * The buffer layout will look like the following:
+	 * 
+	 * <pre>
+	 * +-----+----+
+	 * |State|Data|
+	 * +-----+----+
+	 * </pre>
+	 * 
+	 * </p>
+	 * 
+	 * @param buffer
+	 *          buffer containing capture header, packet state and data buffer
+	 *          sequentially in the buffer
+	 * @return number of bytes copied
+	 */
+	public int transferStateAndDataTo(JBuffer buffer, int offset) {
+		int o = state.transferTo(buffer, 0, state.size(), offset);
+		o += super.transferTo(buffer, 0, size(), offset + o);
+
+		return o;
+	}
+
+	public int transferStateAndDataTo(JMemoryPacket packet) {
+		final JBuffer buffer = packet.getMemoryBuffer(this.getTotalSize());
+
+		packet.transferStateAndDataTo(buffer, 0);
+
+		return peerStateAndData(buffer, 0);
+	}
 }

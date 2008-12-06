@@ -18,7 +18,6 @@ import org.jnetpcap.IncompatiblePeer;
 import org.jnetpcap.PcapHeader;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemoryPool;
-import org.jnetpcap.nio.JMemoryPool.Block.Malloced;
 
 /**
  * A pcap packet. Fully decoded packet that provides access to protocol headers
@@ -583,7 +582,7 @@ public class PcapPacket
 		return peerStateAndData(getMemoryBuffer(buffer), 0);
 	}
 
-	private int peerStateAndData(Malloced memory, int offset) {
+	private int peerStateAndData(JBuffer memory, int offset) {
 
 		int o = header.peer(memory, offset);
 		state.peerTo(memory, offset + o, State.sizeof(0));
@@ -619,7 +618,7 @@ public class PcapPacket
 	 */
 	public int transferStateAndDataFrom(byte[] buffer) {
 
-		Malloced b = getMemoryBuffer(buffer);
+		JBuffer b = getMemoryBuffer(buffer);
 
 		return peerStateAndData(b, 0);
 	}
@@ -651,9 +650,9 @@ public class PcapPacket
 	 */
 	public int transferStateAndDataFrom(ByteBuffer buffer) {
 		final int len = buffer.limit() - buffer.position();
-		Malloced b = getMemoryBuffer(len);
+		JBuffer b = getMemoryBuffer(len);
 
-		b.transferFrom(buffer);
+		b.transferFrom(buffer, 0);
 
 		return peerStateAndData(b, 0);
 	}
@@ -684,9 +683,9 @@ public class PcapPacket
 	 */
 	public int transferStateAndDataFrom(JBuffer buffer) {
 		final int len = buffer.size();
-		Malloced b = getMemoryBuffer(len);
+		JBuffer b = getMemoryBuffer(len);
 
-		b.transferFrom(buffer);
+		buffer.transferTo(b);
 
 		return peerStateAndData(b, 0);
 	}
@@ -852,7 +851,7 @@ public class PcapPacket
 	 * @return number of bytes copied
 	 */
 	public int transferStateAndDataTo(PcapPacket packet) {
-		Malloced buffer = packet.getMemoryBuffer(this.getTotalSize());
+		JBuffer buffer = packet.getMemoryBuffer(this.getTotalSize());
 
 		int o = header.transferTo(buffer, 0);
 		packet.header.peerTo(buffer, 0);
