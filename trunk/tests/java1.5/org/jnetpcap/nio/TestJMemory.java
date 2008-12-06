@@ -96,7 +96,7 @@ public class TestJMemory
 	}
 
 	public void testReadFromUninitializedPtr() {
-		JNumber n = new JNumber(); // Uninitialized ptr
+		JNumber n = new JNumber(JMemory.Type.POINTER); // Uninitialized ptr
 
 		try {
 			assertEquals(100, n.intValue());
