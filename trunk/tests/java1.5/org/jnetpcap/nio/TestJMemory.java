@@ -77,6 +77,7 @@ public class TestJMemory
 		n.intValue(100);
 
 		n.transferTo(b);
+		b.flip(); // need to flip ByteBuffer's after writting
 
 		assertEquals(100, b.getInt());
 	}
@@ -93,19 +94,18 @@ public class TestJMemory
 		assertEquals(100, n.intValue());
 
 	}
-	
+
 	public void testReadFromUninitializedPtr() {
 		JNumber n = new JNumber(); // Uninitialized ptr
 
 		try {
 			assertEquals(100, n.intValue());
 			fail("Expected a native NULL ptr exception");
-			
+
 		} catch (NullPointerException e) {
 			// expected
 		}
 
 	}
-
 
 }
