@@ -20,7 +20,33 @@
 
                               jNetPcap Package
                                  Change Log
-                                 
+   
+== Release 1.2.rc2 (2008-12-06) ==
+
+* Update to 1.2.rc1 released on 2008-11-24
+
+* Fixed
+
+  - Fixed PcapPacket and JPacket class APIs
+
+  - Fixed various memory related issues found with JMemory
+
+* Added
+
+  - Added sub-header capabilities to JHeader and formatters
+
+  - Added all Ip options to Ip4 header definition
+
+  - Added all missing ICMP sub-header types
+  
+* Known Issues
+
+  - TCP header definition is missing its optional sub-headers
+  
+  - Java binding overrides are implemented but still not fully tested
+  
+  - Numerous javadoc typos and blank type comments
+                              
 == Release 1.2 (2008-11-24) ==
 
 * Feature release
