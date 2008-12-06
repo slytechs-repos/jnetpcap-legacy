@@ -233,7 +233,7 @@ import org.jnetpcap.nio.JMemoryPool.Block.Malloced;
  * final PcapPacket permanent = new PcapPacket(Type.POINTER);
  * 
  * pulic void nextPacket(PcapPacket packet, Queue&lt;PcapPacket&gt; queue) {
- *   permanent.transferFrom(packet); 
+ *   permanent.transferStateAndData(packet); 
  *   // Or
  *   packet.transferTo(permanent);
  * }
@@ -249,7 +249,7 @@ import org.jnetpcap.nio.JMemoryPool.Block.Malloced;
  * final PcapPacket permanent = new PcapPacket(64 * 1024); // Preallocate 64K
  * 
  * pulic void nextPacket(PcapPacket packet, Queue&lt;PcapPacket&gt; queue) {
- *   permanent.transferFrom(packet); 
+ *   permanent.transferStateAndData(packet); 
  *   // Or
  *   packet.transferTo(permanent);
  * }
@@ -286,7 +286,7 @@ import org.jnetpcap.nio.JMemoryPool.Block.Malloced;
  * </p>
  * <h2>Initializing packet from an external buffer</h2>
  * Packet state and data can be preseved in an external buffer large enough to
- * hold the entire packet with its state. PcapPacket class provides transferFrom
+ * hold the entire packet with its state. PcapPacket class provides transferStateAndData
  * and peer methods that allow the external packet data to be either copied into
  * a packet or the packet be peered directly with the external buffer. Peering
  * does not need to allocate memory to hold the packet state, but its state and
@@ -316,7 +316,7 @@ import org.jnetpcap.nio.JMemoryPool.Block.Malloced;
  *   p2.peer(bbuf); // No copies, peered directly with external buffer
  *   
  *   PcapPacket p3 = new PcapPacket(Type.POINTER); // Uninitialized
- *   p3.transferFrom(babuf); // Deep copy - byte[] buffers can not be peered
+ *   p3.transferStateAndData(babuf); // Deep copy - byte[] buffers can not be peered
  *   
  *   PcapPacket p4 = new PcapPacket(Type.POINTER); // Uninitialized
  *   p4.peer(p3); // both point at same internal memory space
@@ -380,7 +380,7 @@ public class PcapPacket
 	public PcapPacket(byte[] buffer) {
 		super(Type.POINTER);
 
-		transferFrom(buffer);
+		transferStateAndDataFrom(buffer);
 	}
 
 	/**
@@ -409,7 +409,7 @@ public class PcapPacket
 	public PcapPacket(ByteBuffer buffer) {
 		super(Type.POINTER);
 
-			transferFrom(buffer);
+			transferStateAndDataFrom(buffer);
 	}
 
 	/**
@@ -463,7 +463,7 @@ public class PcapPacket
 	public PcapPacket(JBuffer buffer) {
 		super(Type.POINTER);
 
-		transferFrom(buffer);
+		transferStateAndDataFrom(buffer);
 	}
 
 	/**
@@ -494,7 +494,7 @@ public class PcapPacket
 	public PcapPacket(PcapPacket src) {
 		super(Type.POINTER);
 
-		src.transferTo(this);
+		src.transferStateAndDataTo(this);
 	}
 
 	/**
@@ -553,11 +553,11 @@ public class PcapPacket
 	 * @throws PeeringException
 	 *           thrown if ByteBuffer is not direct byte buffer type
 	 */
-	public int peer(ByteBuffer buffer) throws PeeringException {
+	public int peerStateAndData(ByteBuffer buffer) throws PeeringException {
 		if (buffer.isDirect() == false) {
 			throw new PeeringException("unable to peer a non-direct ByteBuffer");
 		}
-		return peer(getMemoryBuffer(buffer), 0);
+		return peerStateAndData(getMemoryBuffer(buffer), 0);
 	}
 
 	/**
@@ -579,11 +579,11 @@ public class PcapPacket
 	 *          buffer containing packet header, state and data
 	 * @return number of bytes that were peered out of the buffer
 	 */
-	public int peer(JBuffer buffer) {
-		return peer(getMemoryBuffer(buffer), 0);
+	public int peerStateAndData(JBuffer buffer) {
+		return peerStateAndData(getMemoryBuffer(buffer), 0);
 	}
 
-	private int peer(Malloced memory, int offset) {
+	private int peerStateAndData(Malloced memory, int offset) {
 
 		int o = header.peer(memory, offset);
 		state.peerTo(memory, offset + o, State.sizeof(0));
@@ -617,11 +617,11 @@ public class PcapPacket
 	 *          sequentially in the buffer
 	 * @return number of bytes copied
 	 */
-	public int transferFrom(byte[] buffer) {
+	public int transferStateAndDataFrom(byte[] buffer) {
 
 		Malloced b = getMemoryBuffer(buffer);
 
-		return peer(b, 0);
+		return peerStateAndData(b, 0);
 	}
 
 	/**
@@ -649,13 +649,13 @@ public class PcapPacket
 	 *          start of pcap header.
 	 * @return number of bytes copied
 	 */
-	public int transferFrom(ByteBuffer buffer) {
+	public int transferStateAndDataFrom(ByteBuffer buffer) {
 		final int len = buffer.limit() - buffer.position();
 		Malloced b = getMemoryBuffer(len);
 
 		b.transferFrom(buffer);
 
-		return peer(b, 0);
+		return peerStateAndData(b, 0);
 	}
 
 	/**
@@ -682,13 +682,13 @@ public class PcapPacket
 	 *          sequentially in the buffer
 	 * @return number of bytes copied
 	 */
-	public int transferFrom(JBuffer buffer) {
+	public int transferStateAndDataFrom(JBuffer buffer) {
 		final int len = buffer.size();
 		Malloced b = getMemoryBuffer(len);
 
 		b.transferFrom(buffer);
 
-		return peer(b, 0);
+		return peerStateAndData(b, 0);
 	}
 
 	/**
@@ -703,8 +703,8 @@ public class PcapPacket
 	 *          source packet from which to copy from
 	 * @return number of bytes copied
 	 */
-	public int transferFrom(PcapPacket packet) {
-		return packet.transferTo(this);
+	public int transferStateAndDataFrom(PcapPacket packet) {
+		return packet.transferStateAndDataTo(this);
 	}
 
 	/**
@@ -712,7 +712,7 @@ public class PcapPacket
 	 * and packet data are copied to new buffer. After completion of this
 	 * operation the complete contents and state of the packet will be transfered
 	 * to the buffer. The layout of the buffer data will be as described below. A
-	 * buffer with this type of layout is suitable for any transferFrom or peer
+	 * buffer with this type of layout is suitable for any transferStateAndData or peer
 	 * methods for any buffers that are JMemory based. The buffer has to be large
 	 * enough to hold all of the packet content as returned by method
 	 * {@link #getTotalSize()}. If the buffer is too small and a runtime
@@ -733,7 +733,7 @@ public class PcapPacket
 	 *          sequentially in the buffer
 	 * @return number of bytes copied
 	 */
-	public int transferTo(byte[] buffer) {
+	public int transferStateAndDataTo(byte[] buffer) {
 		int o = header.transferTo(buffer, 0);
 		o += state.transferTo(buffer, o);
 		o += super.transferTo(buffer, 0, size(), o);
@@ -746,7 +746,7 @@ public class PcapPacket
 	 * and packet data are copied to new buffer. After completion of this
 	 * operation the complete contents and state of the packet will be transfered
 	 * to the buffer. The layout of the buffer data will be as described below. A
-	 * buffer with this type of layout is suitable for any transferFrom or peer
+	 * buffer with this type of layout is suitable for any transferStateAndData or peer
 	 * methods for any buffers that are JMemory based. The buffer has to be large
 	 * enough to hold all of the packet content as returned by method
 	 * {@link #getTotalSize()}. If the buffer is too small and a runtime
@@ -767,7 +767,7 @@ public class PcapPacket
 	 *          sequentially in the buffer
 	 * @return number of bytes copied
 	 */
-	public int transferTo(ByteBuffer buffer) {
+	public int transferStateAndDataTo(ByteBuffer buffer) {
 		int o = header.transferTo(buffer);
 		o += state.transferTo(buffer);
 		o += super.transferTo(buffer);
@@ -780,7 +780,7 @@ public class PcapPacket
 	 * and packet data are copied to new buffer. After completion of this
 	 * operation the complete contents and state of the packet will be transfered
 	 * to the buffer. The layout of the buffer data will be as described below. A
-	 * buffer with this type of layout is suitable for any transferFrom or peer
+	 * buffer with this type of layout is suitable for any transferStateAndData or peer
 	 * methods for any buffers that are JMemory based. The buffer has to be large
 	 * enough to hold all of the packet content as returned by method
 	 * {@link #getTotalSize()}. If the buffer is too small and a runtime
@@ -801,8 +801,8 @@ public class PcapPacket
 	 *          sequentially in the buffer
 	 * @return number of bytes copied
 	 */
-	public int transferTo(JBuffer buffer) {
-		return transferTo(buffer, 0);
+	public int transferStateAndDataTo(JBuffer buffer) {
+		return transferStateAndDataTo(buffer, 0);
 	}
 
 	/**
@@ -810,7 +810,7 @@ public class PcapPacket
 	 * and packet data are copied to new buffer. After completion of this
 	 * operation the complete contents and state of the packet will be transfered
 	 * to the buffer. The layout of the buffer data will be as described below. A
-	 * buffer with this type of layout is suitable for any transferFrom or peer
+	 * buffer with this type of layout is suitable for any transferStateAndData or peer
 	 * methods for any buffers that are JMemory based. The buffer has to be large
 	 * enough to hold all of the packet content as returned by method
 	 * {@link #getTotalSize()}. If the buffer is too small and a runtime
@@ -831,7 +831,7 @@ public class PcapPacket
 	 *          sequentially in the buffer
 	 * @return number of bytes copied
 	 */
-	public int transferTo(JBuffer buffer, int offset) {
+	public int transferStateAndDataTo(JBuffer buffer, int offset) {
 		int o = header.transferTo(buffer, offset);
 		o += state.transferTo(buffer, 0, state.size(), offset + o);
 		o += super.transferTo(buffer, 0, size(), offset + o);
@@ -851,7 +851,7 @@ public class PcapPacket
 	 *          destination packet to which to copy header, state and packet data
 	 * @return number of bytes copied
 	 */
-	public int transferTo(PcapPacket packet) {
+	public int transferStateAndDataTo(PcapPacket packet) {
 		Malloced buffer = packet.getMemoryBuffer(this.getTotalSize());
 
 		int o = header.transferTo(buffer, 0);

@@ -103,7 +103,7 @@ public class TestUtils {
 				 * break out of the Pcap.loop we call Pcap.breakLoop().
 				 **********************************************************************/
 				if (i++ == index) {
-					packet.transferTo(result);
+					packet.transferStateAndDataTo(result);
 
 					pcap.breakloop();
 					return;
@@ -119,5 +119,24 @@ public class TestUtils {
 
 		return result;
 	}
+
+	/**
+	 * Opens up a pcap handle to specific file
+   * @param fname
+   */
+  public static Pcap openOffline(String fname) {
+		/***************************************************************************
+		 * First, open offline file
+		 **************************************************************************/
+		StringBuilder errbuf = new StringBuilder();
+
+		final Pcap pcap = Pcap.openOffline(fname, errbuf);
+		if (pcap == null) {
+			System.err.println(errbuf.toString());
+			return null;
+		}
+		
+	  return pcap;
+  }
 
 }

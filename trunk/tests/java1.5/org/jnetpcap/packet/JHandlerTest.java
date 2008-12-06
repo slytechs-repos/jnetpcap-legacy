@@ -48,10 +48,15 @@ public class JHandlerTest
 
 	@Override
 	protected void setUp() throws Exception {
+		
+		pcap = TestUtils.openOffline("tests/test-afs.pcap");
+		assertNotNull(pcap);
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
+		assertNotNull(pcap);
+		pcap.close();
 	}
 
 	public void testJScannerHandler() {
@@ -60,7 +65,7 @@ public class JHandlerTest
 		    (JPacketHandler<String>) this, "JPacket - testcase");
 	}
 
-	public void testJHandler() {
+	public void testJBufferHandler() {
 
 		pcap.dispatch(2, (JBufferHandler<String>) this, "JBuffer - testcase");
 	}

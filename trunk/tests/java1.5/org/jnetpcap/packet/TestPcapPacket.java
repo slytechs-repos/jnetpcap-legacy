@@ -97,7 +97,7 @@ public class TestPcapPacket
 		packet = TestUtils.getPcapPacket("tests/test-l2tp.pcap", 0);
 
 		packet2 = new PcapPacket(2 * 1024);
-		packet.transferTo(packet2);
+		packet.transferStateAndDataTo(packet2);
 
 		assertEquals(packet.size(), packet2.size());
 		assertEquals(packet.getState().size(), packet2.getState().size());
@@ -109,7 +109,7 @@ public class TestPcapPacket
 		packet = TestUtils.getPcapPacket("tests/test-l2tp.pcap", 0);
 
 		packet2 = new PcapPacket(10);
-		packet.transferTo(packet2);
+		packet.transferStateAndDataTo(packet2);
 
 		assertTrue("memory was not reallocated",
 		    packet2.getAllocatedMemorySize() > 10); // Reallocated
@@ -131,7 +131,7 @@ public class TestPcapPacket
 		packet = TestUtils.getPcapPacket("tests/test-l2tp.pcap", 0);
 
 		packet2 = new PcapPacket(10, 1);
-		packet.transferTo(packet2);
+		packet.transferStateAndDataTo(packet2);
 
 		assertTrue("memory was not reallocated",
 		    packet2.getAllocatedMemorySize() > 10); // Reallocated
@@ -149,7 +149,7 @@ public class TestPcapPacket
 		packet = TestUtils.getPcapPacket("tests/test-l2tp.pcap", 0);
 
 		ByteBuffer b = ByteBuffer.allocateDirect(packet.getTotalSize());
-		packet.transferTo(b);
+		packet.transferStateAndDataTo(b);
 		b.flip();
 
 		packet2 = new PcapPacket(b);
@@ -166,7 +166,7 @@ public class TestPcapPacket
 		packet = TestUtils.getPcapPacket("tests/test-l2tp.pcap", 0);
 		
 		ByteBuffer b = ByteBuffer.allocate(packet.getTotalSize());
-		packet.transferTo(b);
+		packet.transferStateAndDataTo(b);
 		b.flip();
 
 		packet2 = new PcapPacket(b);
@@ -186,7 +186,7 @@ public class TestPcapPacket
 		ByteBuffer b = ByteBuffer.allocateDirect(packet.getTotalSize() - 1);
 
 		try {
-			packet.transferTo(b);
+			packet.transferStateAndDataTo(b);
 			fail("expected undeflow exception");
 		} catch (BufferOverflowException e) {
 			// OK
@@ -203,7 +203,7 @@ public class TestPcapPacket
 		packet = TestUtils.getPcapPacket("tests/test-l2tp.pcap", 0);
 
 		JBuffer b = new JBuffer(packet.getTotalSize());
-		packet.transferTo(b);
+		packet.transferStateAndDataTo(b);
 
 		packet2 = new PcapPacket(b);
 
@@ -249,13 +249,13 @@ public class TestPcapPacket
 
 	/**
 	 * Test method for
-	 * {@link org.jnetpcap.packet.PcapPacket#transferTo(org.jnetpcap.packet.PcapPacket)}.
+	 * {@link org.jnetpcap.packet.PcapPacket#transferStateAndDataTo(org.jnetpcap.packet.PcapPacket)}.
 	 */
 	public final void testTransferToPcapPacket() {
 		packet = TestUtils.getPcapPacket("tests/test-l2tp.pcap", 0);
 
 		packet2 = new PcapPacket(Type.POINTER);
-		packet.transferTo(packet2);
+		packet.transferStateAndDataTo(packet2);
 
 		assertEquals(packet.size(), packet2.size());
 		assertEquals(packet.state.size(), packet2.state.size());
@@ -269,7 +269,7 @@ public class TestPcapPacket
 		packet = TestUtils.getPcapPacket("tests/test-l2tp.pcap", 0);
 		
 		byte[] b = new byte[packet.getTotalSize()];
-		packet.transferTo(b);
+		packet.transferStateAndDataTo(b);
 
 		packet2 = new PcapPacket(b);
 
