@@ -367,21 +367,21 @@ public abstract class JMemory {
 	 *          maximum number of bytes to dump to hex output
 	 * @param address
 	 *          flag if set to true will print out address offset on every line
-	 * @param data
-	 *          flag if set to true will print out raw HEX data on every line
 	 * @param text
 	 *          flag if set to true will print out a text characters at the end of
 	 *          everyline
+	 * @param data
+	 *          flag if set to true will print out raw HEX data on every line
 	 * @return multi-line hexdump of the entire memory region
 	 */
-	public String toHexdump(int length, boolean address, boolean data,
-	    boolean text) {
+	public String toHexdump(int length, boolean address, boolean text,
+	    boolean data) {
 		length = (length < size) ? length : size;
 		JBuffer b = new JBuffer(Type.POINTER);
 		b.peer(this);
 
 		return FormatUtils.hexdumpCombined(b.getByteArray(0, length), 0, 0,
-		    address, data, text);
+		    address, text, data);
 	}
 
 	/**
