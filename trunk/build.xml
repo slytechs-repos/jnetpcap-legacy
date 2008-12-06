@@ -718,9 +718,7 @@
 			<formatter type="plain" usefile="false" />
 			<sysproperty key="java.library.path" value="${jni.build.dir}" />
 
-			<test name="org.jnetpcap.TestPcapJNI" todir="${report.dir}" />
-
-			<test name="org.jnetpcap.TestTransmitter" todir="${report.dir}" />
+			<test name="org.jnetpcap.BuildTests" todir="${report.dir}" />
 
 			<!-- test 
 				name="org.jnetpcap.winpcap.TestWinPcapExtensions" 
