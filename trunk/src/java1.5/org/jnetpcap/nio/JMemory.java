@@ -257,7 +257,7 @@ public abstract class JMemory {
 	 *          The ByteBuffer whose allocated native memory we want to peer with.
 	 *          The ByteByffer must be if direct buffer type which can be checked
 	 *          using ByteBuffer.isDirect() call.
-	 * @throws PeeringException 
+	 * @throws PeeringException
 	 * @see ByteBuffer#isDirect()
 	 */
 	protected native int peer(ByteBuffer peer) throws PeeringException;
@@ -363,6 +363,31 @@ public abstract class JMemory {
 	 * A debug method, similar to toString() which converts the contents of the
 	 * memory to textual hexdump.
 	 * 
+	 * @param length
+	 *          maximum number of bytes to dump to hex output
+	 * @param address
+	 *          flag if set to true will print out address offset on every line
+	 * @param data
+	 *          flag if set to true will print out raw HEX data on every line
+	 * @param text
+	 *          flag if set to true will print out a text characters at the end of
+	 *          everyline
+	 * @return multi-line hexdump of the entire memory region
+	 */
+	public String toHexdump(int length, boolean address, boolean data,
+	    boolean text) {
+		length = (length < size) ? length : size;
+		JBuffer b = new JBuffer(Type.POINTER);
+		b.peer(this);
+
+		return FormatUtils.hexdumpCombined(b.getByteArray(0, length), 0, 0,
+		    address, data, text);
+	}
+
+	/**
+	 * A debug method, similar to toString() which converts the contents of the
+	 * memory to textual hexdump.
+	 * 
 	 * @return multi-line hexdump of the entire memory region
 	 */
 	public String toHexdump() {
@@ -399,7 +424,7 @@ public abstract class JMemory {
 	 */
 	protected native int transferFrom(byte[] buffer, int srcOffset, int length,
 	    int dstOffset);
-	
+
 	protected int transferFrom(ByteBuffer src) {
 		return transferFrom(src, 0);
 	}
@@ -482,14 +507,14 @@ public abstract class JMemory {
 	public int transferTo(ByteBuffer dst) {
 		return transferTo(dst, 0, size);
 	}
-	
+
 	public int transferTo(ByteBuffer dst, int srcOffset, int length) {
 		if (dst.isDirect()) {
 			return transferToDirect(dst, srcOffset, length);
 		} else {
 			int o = transferTo(dst.array(), 0, length, dst.position());
 			dst.position(dst.position() + o);
-			
+
 			return o;
 		}
 	}
