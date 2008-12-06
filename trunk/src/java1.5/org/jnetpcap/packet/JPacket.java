@@ -234,7 +234,7 @@ public abstract class JPacket
 		public int transferTo(JBuffer dst, int srcOffset, int length, int dstOffset) {
 			return super.transferTo(dst, srcOffset, size(), dstOffset);
 		}
-	
+
 		public int transferTo(byte[] dst, int dstOffset) {
 			return super.transferTo(dst, 0, size(), dstOffset);
 		}
@@ -242,7 +242,6 @@ public abstract class JPacket
 		public int transferTo(byte[] dst, int srcOffset, int length, int dstOffset) {
 			return super.transferTo(dst, srcOffset, size(), dstOffset);
 		}
-
 
 		public int transferTo(State dst) {
 			return super.transferTo(dst, 0, size(), 0);
@@ -267,15 +266,15 @@ public abstract class JPacket
 		}
 
 		/**
-     * @param memory
-     * @param offset
-     * @param size
-     */
-    public int peerTo(Malloced memory, int offset, int size) {
-    	return super.peer(memory, offset, size);
-    }
+		 * @param memory
+		 * @param offset
+		 * @param size
+		 */
+		public int peerTo(Malloced memory, int offset, int size) {
+			return super.peer(memory, offset, size);
+		}
 	}
-	
+
 	/**
 	 * Default number of headers used when calculating memory requirements for an
 	 * empty packet state structure. This value will be multiplied by the
@@ -286,31 +285,32 @@ public abstract class JPacket
 	private static JFormatter out = new TextFormatter(new StringBuilder());
 
 	protected final State state = new State(Type.POINTER);
-	
+
 	protected static JMemoryPool pool = new JMemoryPool();
 
+	protected static JScanner scanner = new JScanner();
+
 	protected final Malloced memory = new Malloced();
-	
+
 	protected int memoryOffset;
-	
+
 	protected Malloced getMemoryBuffer(byte[] buffer) {
 		pool.allocate(buffer.length, memory);
 		memory.transferFrom(buffer);
-		
+
 		return memory;
 	}
-	
+
 	/**
-	 * 
 	 * @param buffer
 	 * @return
 	 */
 	protected Malloced getMemoryBuffer(JBuffer buffer) {
 		memory.peer(buffer);
-		
+
 		return memory;
 	}
-	
+
 	/**
 	 * @param buffer
 	 * @return
@@ -318,7 +318,7 @@ public abstract class JPacket
 	 */
 	protected Malloced getMemoryBuffer(ByteBuffer buffer) throws PeeringException {
 		memory.peer(buffer);
-		
+
 		return memory;
 	}
 
@@ -340,7 +340,6 @@ public abstract class JPacket
 	}
 
 	/**
-	 * 
 	 * @return
 	 */
 	protected abstract int getTotalSize();
@@ -387,24 +386,22 @@ public abstract class JPacket
 
 		allocate(size + state);
 	}
-	
+
 	/**
-	 * 
 	 * @param size
 	 */
-	public void allocate(int size) {		
+	public void allocate(int size) {
 		pool.allocate(size, memory);
 	}
-	
+
 	/**
-	 * 
 	 * @return
 	 */
 	public int getAllocatedMemorySize() {
 		if (!memory.isInitialized()) {
 			return 0;
 		}
-		
+
 		return memory.size();
 	}
 
@@ -604,7 +601,7 @@ public abstract class JPacket
 
 		return true;
 	}
-	
+
 	/**
 	 * Calculates the number of bytes remaining within the packet given a specific
 	 * offset
@@ -633,6 +630,18 @@ public abstract class JPacket
 		final int remaining = size() - offset;
 
 		return (remaining >= length) ? length : remaining;
+	}
+
+	/**
+	 * Scan and decode the packet using current scanner. The new packet state
+	 * replaces any existing packet state already asigned to this packet.
+	 * 
+	 * @param id
+	 *          numerical ID as assigned by JRegistry of the first protocol header
+	 *          to be found in the packet, the DLT
+	 */
+	public void scan(int id) {
+		scanner.scan(this, id);
 	}
 
 	/**
