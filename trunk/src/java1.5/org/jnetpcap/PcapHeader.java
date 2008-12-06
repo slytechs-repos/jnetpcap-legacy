@@ -14,7 +14,6 @@ package org.jnetpcap;
 
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JStruct;
-import org.jnetpcap.nio.JMemoryPool.Block.Malloced;
 
 /**
  * <pre>
@@ -110,7 +109,7 @@ public class PcapHeader
 		return hdr_usec() * 1000;
 	}
 
-	public int peer(Malloced memory, int offset) {
+	public int peer(JBuffer memory, int offset) {
 		return super.peer(memory, offset, sizeof());
 	}
 
@@ -118,14 +117,6 @@ public class PcapHeader
 	  return super.peer(buffer, offset, sizeof());
   }
 
-	/**
-   * @param memory
-   * @param offset
-   */
-  public int peerTo(Malloced memory, int offset) {
-	  return super.peer(memory, offset, sizeof());
-  }
-	
 	public int peerTo(PcapHeader header, int offset) {
 			return super.peer(header, offset, header.size());
 	}
@@ -153,14 +144,6 @@ public class PcapHeader
 		return super.transferTo(m, 0, size(), offset);
 	}
 
-	/**
-   * @param memory
-   * @param offset
-   * @return
-   */
-  public int transferTo(Malloced memory, int offset) {
-	  return super.transferTo(memory, 0, size(), offset);
-  }
 
 	/*
 	 * (non-Javadoc)

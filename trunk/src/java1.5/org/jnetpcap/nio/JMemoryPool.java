@@ -14,13 +14,9 @@ package org.jnetpcap.nio;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
-import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.jnetpcap.nio.JMemoryPool.Block.Malloced;
-import org.jnetpcap.packet.PeeringException;
 
 /**
  * Provides a mechanism for allocating memory to JMemory objects. This class is
@@ -59,52 +55,6 @@ public class JMemoryPool {
 		private int available = 0;
 
 		private int current = 0;
-
-		/**
-		 * A pointer into allocated memory
-		 * 
-		 * @author Mark Bednarczyk
-		 * @author Sly Technologies, Inc.
-		 */
-		public static class Malloced extends JMemory {
-
-			public Malloced(Block block, int offset, int length) {
-				super(Type.POINTER);
-				
-				peer(block, offset, length);
-			}
-
-			public Malloced() {
-				super(Type.POINTER);
-			}
-			
-			private int peer(Block block, int offset, int length) {
-				return super.peer(block, offset, length);
-			}
-			
-			public int peer(ByteBuffer buffer) throws PeeringException {
-				return super.peer(buffer);
-			}
-			
-			public int peer(JBuffer buffer) {
-				return super.peer(buffer);
-			}
-
-			/**
-       * @param buffer
-       */
-      public int transferFrom(byte[] buffer) {
-	      return super.transferFrom(buffer);
-      }
-      
-      public int transferFrom(ByteBuffer buffer) {
-      	return super.transferFrom(buffer);
-      }
-      
-      public int transferFrom(JBuffer buffer) {
-      	return buffer.transferTo(this);
-      }
-		}
 
 		/**
 		 * @param size
@@ -232,14 +182,15 @@ public class JMemoryPool {
 	 * 
 	 * @param size
 	 *          number of bytes
-	 * @param memory
+	 * @param buffer
 	 *          memory pointer
 	 */
-	public void allocate(int size, Malloced memory) {
+	public void allocate(int size, JBuffer buffer) {
 		final Block block = getBlock(size);
 		final int offset = block.allocate(size);
 		
-		memory.peer(block, offset, size);
+		buffer.peer(block, offset, size);
 	}
+
 
 }
