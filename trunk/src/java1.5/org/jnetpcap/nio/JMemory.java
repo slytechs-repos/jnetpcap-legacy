@@ -328,6 +328,13 @@ public abstract class JMemory {
 
 	}
 
+	/**
+	 * Changes the size of this memory block. The size can not be changed passed
+	 * the physical size.
+	 * 
+	 * @param size
+	 *          length in bytes for this memory buffer
+	 */
 	protected void setSize(int size) {
 		if (!owner) {
 			throw new IllegalAccessError(
@@ -425,12 +432,24 @@ public abstract class JMemory {
 	protected native int transferFrom(byte[] buffer, int srcOffset, int length,
 	    int dstOffset);
 
+	/**
+	 * Copies data from memory from direct byte buffer to this memory
+	 * 
+	 * @param src
+	 *          source buffer
+	 * @return actual number of bytes that was copied
+	 */
 	protected int transferFrom(ByteBuffer src) {
 		return transferFrom(src, 0);
 	}
 
 	/**
+	 * Copies data from memory from direct byte buffer to this memory
+	 * 
 	 * @param src
+	 *          source buffer
+	 * @param dstOffset
+	 *          offset into our memory location
 	 * @return actual number of bytes that was copied
 	 */
 	protected int transferFrom(ByteBuffer src, int dstOffset) {
@@ -443,8 +462,12 @@ public abstract class JMemory {
 	}
 
 	/**
+	 * Copies data from memory from direct byte buffer to this memory
+	 * 
 	 * @param src
+	 *          source buffer
 	 * @param dstOffset
+	 *          offset into our memory location
 	 * @return actual number of bytes that was copied
 	 */
 	protected native int transferFromDirect(ByteBuffer src, int dstOffset);
@@ -480,6 +503,13 @@ public abstract class JMemory {
 		return true;
 	}
 
+	/**
+	 * Copies data from memory to byte array
+	 * 
+	 * @param buffer
+	 *          destination buffer starting offset in byte array
+	 * @return number of bytes copied
+	 */
 	protected int transferTo(byte[] buffer) {
 		return transferTo(buffer, 0, buffer.length, 0);
 	}
@@ -501,13 +531,27 @@ public abstract class JMemory {
 	    int dstOffset);
 
 	/**
+	 * Copies teh contents of this memory to buffer
+	 * 
 	 * @param dst
+	 *          destination buffer
 	 * @return actual number of bytes that was copied
 	 */
 	public int transferTo(ByteBuffer dst) {
 		return transferTo(dst, 0, size);
 	}
 
+	/**
+	 * Copies teh contents of this memory to buffer
+	 * 
+	 * @param dst
+	 *          destination buffer
+	 * @param srcOffset
+	 *          offset in source
+	 * @param length
+	 *          number of bytes to copy
+	 * @return number of bytes copied
+	 */
 	public int transferTo(ByteBuffer dst, int srcOffset, int length) {
 		if (dst.isDirect()) {
 			return transferToDirect(dst, srcOffset, length);
@@ -528,30 +572,45 @@ public abstract class JMemory {
 	private native int transferToDirect(ByteBuffer dst, int srcOffset, int length);
 
 	/**
+	 * Transfers the contents of this memory to buffer.
+	 * 
 	 * @param dst
+	 *          destination buffer
 	 * @param srcOffset
+	 *          offset in source
 	 * @param length
+	 *          number of bytes to copy
 	 * @param dstOffset
-	 * @return
+	 *          offset in destination buffer
+	 * @return number of bytes copied
 	 */
 	public int transferTo(JBuffer dst, int srcOffset, int length, int dstOffset) {
 		return transferTo((JMemory) dst, srcOffset, length, dstOffset);
 	}
 
 	/**
+	 * Copied the entire contents of this memory to destination memory
+	 * 
 	 * @param dst
-	 * @return
+	 *          destination memory
+	 * @return number of bytes copied
 	 */
 	protected int transferTo(JMemory dst) {
 		return transferTo(dst, 0, size, 0);
 	}
 
 	/**
+	 * Copied the entire contents of this memory to destination memory
+	 * 
 	 * @param dst
+	 *          destination memory
 	 * @param srcOffset
+	 *          offset in source
 	 * @param length
+	 *          number of bytes to copy
 	 * @param dstOffset
-	 * @return actual number of bytes that was copied
+	 *          offset in destination buffer
+	 * @return number of bytes copied
 	 */
 	protected native int transferTo(JMemory dst, int srcOffset, int length,
 	    int dstOffset);

@@ -29,10 +29,16 @@ public class JBitField
     extends JField {
 
 	/**
+	 * Creates a bitfield
+	 * 
 	 * @param priority
+	 *          field's priority
 	 * @param name
+	 *          full name of the field
 	 * @param nicname
+	 *          nicname of the field
 	 * @param runtime
+	 *          runtime environment for the field
 	 */
 	public JBitField(Priority priority, String name, String nicname,
 	    JFieldRuntime<? extends JHeader, ?> runtime) {
@@ -40,10 +46,14 @@ public class JBitField
 	}
 
 	/**
+	 * Creates a bitfield
+	 * 
 	 * @param name
+	 *          full name of the field
 	 * @param nicname
+	 *          nicname of the field
 	 * @param runtime
-	 * @param style
+	 *          runtime environment for the field
 	 */
 	public JBitField(String name, String nicname,
 	    JFieldRuntime<? extends JHeader, ?> runtime) {
@@ -51,11 +61,18 @@ public class JBitField
 	}
 
 	/**
+	 * Creates a bitfield
+	 * 
 	 * @param style
+	 *          formatting style for this field when sent to formatter
 	 * @param priority
+	 *          field's priority
 	 * @param name
+	 *          full name of the field
 	 * @param nicname
+	 *          nicname of the field
 	 * @param runtime
+	 *          runtime environment for the field
 	 */
 	private JBitField(Style style, Priority priority, String name,
 	    String nicname, JFieldRuntime<? extends JHeader, ?> runtime) {

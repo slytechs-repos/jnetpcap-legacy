@@ -170,7 +170,7 @@ public class WinPcapSendQueue extends JStruct {
 	 * 
 	 * @param header
 	 *          all fields need to be initialized as they are all used
-	 * @param buffer
+	 * @param data
 	 *          Buffer containing packet data. The buffer's position and limit
 	 *          properties determine the area of the buffer to be copied into the
 	 *          queue. The length of the data must much what is in the header.
@@ -202,7 +202,7 @@ public class WinPcapSendQueue extends JStruct {
 	 * 
 	 * @param header
 	 *          all fields need to be initialized as they are all used
-	 * @param buffer
+	 * @param data
 	 *          Buffer containing packet data. The buffer's position and limit
 	 *          properties determine the area of the buffer to be copied into the
 	 *          queue. The length of the data must much what is in the header.
@@ -234,7 +234,7 @@ public class WinPcapSendQueue extends JStruct {
 	 * 
 	 * @param header
 	 *          all fields need to be initialized as they are all used
-	 * @param buffer
+	 * @param data
 	 *          Buffer containing packet data. The buffer's position and limit
 	 *          properties determine the area of the buffer to be copied into the
 	 *          queue. The length of the data must much what is in the header.

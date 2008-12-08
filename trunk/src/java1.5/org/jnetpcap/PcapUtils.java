@@ -143,7 +143,7 @@ public final class PcapUtils {
 	/**
 	 * Retrieves a network hardware address or MAC for a network interface
 	 * 
-	 * @see Pcap#findAllDevs(List, Appendable)
+	 * @see Pcap#findAllDevs(List, StringBuilder)
 	 * @param netif
 	 *          network device as retrieved from Pcap.findAllDevs().
 	 * @return network interface hardware address or null if unable to retrieve it

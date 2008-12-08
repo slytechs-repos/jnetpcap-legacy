@@ -33,7 +33,7 @@ import org.jnetpcap.nio.JStruct;
  * application level protocol to TCP port numbers for example.
  * </p>
  * <p>
- * The main scanner method is called {@link #scan(JPacket)}. This is a native
+ * The main scanner method is called <code>scan()</code>. This is a native
  * method that scans the contents of the supplied JBuffer which also contains
  * its data in native memory block typically allocated by libpcap, and records
  * the output of the scan into series of native structures and bitmaps. This
@@ -149,7 +149,7 @@ public class JScanner
 	/**
 	 * Maintains and allocates a pool of packet scanners.
 	 * 
-	 * @return
+	 * @return a thread local global scanner
 	 */
 	public static JScanner getThreadLocal() {
 		JScanner s = localScanners.get();

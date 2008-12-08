@@ -37,20 +37,27 @@ public abstract class JDynamicField<H extends JHeader, V> implements
 	}
 
 	/**
-	 * @param i
+	 * Creates a dynamic field, one that doesn't have a static offset or length
+	 * 
+	 * @param offset
+	 *          offset into the header in bits
 	 */
 	public JDynamicField(int offset) {
 		this.offset = offset;
 	}
 
 	/**
-	 * @return the offset
+	 * Gets the offset of this field
+	 * 
+	 * @return the offset in bits
 	 */
 	public final int getOffset() {
 		return this.offset;
 	}
 
 	/**
+	 * Sets the offset of this field in bits
+	 * 
 	 * @param offset
 	 *          the offset to set
 	 */
@@ -59,6 +66,8 @@ public abstract class JDynamicField<H extends JHeader, V> implements
 	}
 
 	/**
+	 * Length of this field in bits
+	 * 
 	 * @return the length
 	 */
 	public final int getLength() {
@@ -66,6 +75,8 @@ public abstract class JDynamicField<H extends JHeader, V> implements
 	}
 
 	/**
+	 * Sets the length of this field in bits
+	 * 
 	 * @param length
 	 *          the length to set
 	 */
@@ -73,27 +84,32 @@ public abstract class JDynamicField<H extends JHeader, V> implements
 		this.length = length;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Checks if this field exists in the header
 	 * 
-	 * @see org.jnetpcap.packet.format.JField.JFieldRuntime#hasField(org.jnetpcap.packet.JHeader)
+	 * @param header
+	 *          header to check for
 	 */
 	public boolean hasField(H header) {
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * A bitfield mask. The bits that are set in this mask will be the ones marked
+	 * as either 0 or 1, all others will be ignored
 	 * 
+	 * @return bitfield
 	 * @see org.jnetpcap.packet.format.JFieldRuntime#getMask()
 	 */
 	public int getMask() {
 		return 0;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * A custom description of this field. This method is ment to be overriden by
+	 * subclass field
 	 * 
+	 * @return a string describing the field value
 	 * @see org.jnetpcap.packet.format.JFieldRuntime#valueDescription(org.jnetpcap.packet.JHeader)
 	 */
 	public String valueDescription(H header) {
@@ -101,6 +117,8 @@ public abstract class JDynamicField<H extends JHeader, V> implements
 	}
 
 	/**
+	 * Sets the bitfield mask
+	 * 
 	 * @param mask
 	 *          the mask to set
 	 */

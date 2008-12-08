@@ -44,7 +44,7 @@ public class JMemoryPool {
 
 	/**
 	 * A block of native memory allocated with malloc. This block is further sub
-	 * allocated on a per request basis using the method {@link #allocate()}.
+	 * allocated on a per request basis using the method {@link #allocate(int)}.
 	 * 
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.

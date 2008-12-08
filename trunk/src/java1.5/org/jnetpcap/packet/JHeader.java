@@ -51,7 +51,10 @@ public abstract class JHeader
 		public final static String STRUCT_NAME = "header_t";
 
 		/**
-		 * @param structName
+		 * Create an uninitialized type
+		 * 
+		 * @param type
+		 *          type of memory
 		 */
 		public State(Type type) {
 			super(STRUCT_NAME, type);
@@ -84,9 +87,6 @@ public abstract class JHeader
 	/**
 	 * Default field object for JFormatter that does a hex dump on the entire
 	 * header
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
 	 */
 	public final static JField[] DEFAULT_FIELDS =
 	    { new JField(Style.BYTE_ARRAY_HEX_DUMP, Priority.LOW, "data", "data",
@@ -111,6 +111,7 @@ public abstract class JHeader
 	        }), };
 
 	protected final static JHeader[] EMPTY_HEADER_ARRAY = new JHeader[0];
+
 	/**
 	 * Reference to header's native state structure
 	 */
@@ -346,14 +347,18 @@ public abstract class JHeader
 	}
 
 	/**
-   * @return
-   */
-  public JHeader[] getSubHeaders() {
-	  return EMPTY_HEADER_ARRAY;
-  }
+	 * Gets an array of currently defined sub headers
+	 * 
+	 * @return array of sub headers
+	 */
+	public JHeader[] getSubHeaders() {
+		return EMPTY_HEADER_ARRAY;
+	}
 
 	/**
-   * @return
-   */
-  public native static int sizeof();
+	 * Gets the size of the native header_t structure on this particular platform
+	 * 
+	 * @return length in bytes
+	 */
+	public native static int sizeof();
 }

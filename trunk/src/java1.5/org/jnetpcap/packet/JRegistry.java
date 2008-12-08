@@ -152,7 +152,8 @@ public class JRegistry {
 	 * Retrieves all current bindings bound to a protocol
 	 * 
 	 * @param id
-	 * @return
+	 *          protocol id
+	 * @return array of bindings for this protocol
 	 */
 	public static JBinding[] getBindings(int id) {
 		if (bindings[id] == null) {
@@ -166,8 +167,10 @@ public class JRegistry {
 	 * Looks up the class of a header based on its ID.
 	 * 
 	 * @param id
-	 * @return
+	 *          protocol id
+	 * @return class for this protocol
 	 * @throws UnregisteredHeaderException
+	 *           thrown if protocol not found, invalid ID
 	 */
 	public static Class<? extends JHeader> lookupClass(int id)
 	    throws UnregisteredHeaderException {

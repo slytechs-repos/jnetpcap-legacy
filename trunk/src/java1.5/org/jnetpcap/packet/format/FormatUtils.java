@@ -61,22 +61,31 @@ public class FormatUtils {
 	}
 
 	/**
-	 * @param bs
-	 * @return
+	 * Converts the given byte array to a string using a default separator
+	 * character
+	 * 
+	 * @param array
+	 *          array to convert
+	 * @return the converted string
 	 */
 	@SuppressWarnings("unused")
-	public static String asString(byte[] bs) {
-		return asString(bs, ':');
+	public static String asString(byte[] array) {
+		return asString(array, ':');
 	}
 
 	/**
-	 * @param a
+	 * Convers the given byte array to a string using the supplied separator
+	 * character
+	 * 
+	 * @param array
+	 *          array to convert
 	 * @param separator
-	 * @return
+	 *          separator character to use in between array elements
+	 * @return the converted string
 	 */
-	public static String asString(byte[] a, char separator) {
+	public static String asString(byte[] array, char separator) {
 		StringBuilder buf = new StringBuilder();
-		for (byte b : a) {
+		for (byte b : array) {
 			if (buf.length() != 0) {
 				buf.append(separator);
 			}
@@ -92,14 +101,20 @@ public class FormatUtils {
 	}
 
 	/**
-	 * @param a
+	 * Converts the given byte array to a string using the supplied separator
+	 * character and radix for conversion of the numerical component
+	 * 
+	 * @param array
+	 *          array to convert
 	 * @param separator
+	 *          separator character to use in between array elements
 	 * @param radix
-	 * @return
+	 *          numerical radix to use for numbers
+	 * @return the converted string
 	 */
-	public static String asString(byte[] a, char separator, int radix) {
+	public static String asString(byte[] array, char separator, int radix) {
 		StringBuilder buf = new StringBuilder();
-		for (byte b : a) {
+		for (byte b : array) {
 			if (buf.length() != 0) {
 				buf.append(separator);
 			}
@@ -126,11 +141,13 @@ public class FormatUtils {
 	 * 	2001:db8::1428:57ab
 	 * </pre>
 	 * 
-	 * @param value
-	 * @param c
-	 * @return
+	 * @param array
+	 *          address array
+	 * @param holes
+	 *          if true holes are allowed
+	 * @return formatted string
 	 */
-	public static String asStringIp6(byte[] a, boolean holes) {
+	public static String asStringIp6(byte[] array, boolean holes) {
 		StringBuilder buf = new StringBuilder();
 
 		int len = 0;
@@ -138,8 +155,8 @@ public class FormatUtils {
 		/*
 		 * Check for byte compression where sequential zeros are replaced with ::
 		 */
-		for (int i = 0; i < a.length && holes; i++) {
-			if (a[i] == 0) {
+		for (int i = 0; i < array.length && holes; i++) {
+			if (array[i] == 0) {
 				if (len == 0) {
 					start = i;
 				}
@@ -150,7 +167,7 @@ public class FormatUtils {
 			/*
 			 * Only the first sequence of 0s is compressed, so break out
 			 */
-			if (a[i] != 0 && len != 0) {
+			if (array[i] != 0 && len != 0) {
 				break;
 			}
 		}
@@ -167,18 +184,18 @@ public class FormatUtils {
 			len--;
 		}
 
-		for (int i = 0; i < a.length; i++) {
+		for (int i = 0; i < array.length; i++) {
 			if (i == start) {
 				buf.append(':');
 				i += len - 1;
 
-				if (i == a.length - 1) {
+				if (i == array.length - 1) {
 					buf.append(':');
 				}
 				continue;
 			}
 
-			byte b = a[i];
+			byte b = array[i];
 
 			if (buf.length() != 0 && (i % 2) == 0) {
 				buf.append(':');
@@ -192,11 +209,28 @@ public class FormatUtils {
 		return buf.toString();
 	}
 
-	public static String hexdumpCombined(byte[] a, int addressOffset,
+	/**
+	 * Converts the byte arra to hexdump string
+	 * 
+	 * @param array
+	 *          array to convert
+	 * @param addressOffset
+	 *          offset of the address space reported
+	 * @param dataOffset
+	 *          offset of the data space reported
+	 * @param doAddress
+	 *          flag which specifies if address should be printed
+	 * @param doText
+	 *          flag which specifies if text should printed
+	 * @param doData
+	 *          flag which specifies if data should printed
+	 * @return converted string
+	 */
+	public static String hexdumpCombined(byte[] array, int addressOffset,
 	    int dataOffset, boolean doAddress, boolean doText, boolean doData) {
 		StringBuilder b = new StringBuilder();
-		for (String s : hexdump(a, addressOffset, dataOffset, doAddress, doText,
-		    doData)) {
+		for (String s : hexdump(array, addressOffset, dataOffset, doAddress,
+		    doText, doData)) {
 			b.append(s).append('\n');
 		}
 
@@ -204,20 +238,29 @@ public class FormatUtils {
 	}
 
 	/**
-	 * @param a
-	 * @param prefix
-	 * @param indentFirstLine
+	 * Formats a byte array to a hexdump string
+	 * 
+	 * @param array
+	 *          array to convert
 	 * @param addressOffset
+	 *          offset of the address space reported
 	 * @param dataOffset
-	 * @return
+	 *          offset of the data space reported
+	 * @param doAddress
+	 *          flag which specifies if address should be printed
+	 * @param doText
+	 *          flag which specifies if text should printed
+	 * @param doData
+	 *          flag which specifies if data should printed
+	 * @return converted string array, one array element per line of output
 	 */
-	public static String[] hexdump(byte[] a, int addressOffset, int dataOffset,
-	    boolean doAddress, boolean doText, boolean doData) {
+	public static String[] hexdump(byte[] array, int addressOffset,
+	    int dataOffset, boolean doAddress, boolean doText, boolean doData) {
 
 		multiLineStringList.clear();
 
-		for (int i = 0; i + dataOffset < a.length; i += 16) {
-			multiLineStringList.add(hexLine(a, i + addressOffset, i + dataOffset,
+		for (int i = 0; i + dataOffset < array.length; i += 16) {
+			multiLineStringList.add(hexLine(array, i + addressOffset, i + dataOffset,
 			    doAddress, doText, doData));
 		}
 
@@ -225,23 +268,32 @@ public class FormatUtils {
 	}
 
 	/**
-	 * @param a
-	 * @param address
-	 * @param i
+	 * Converts the byte arra to hexdump string
+	 * 
+	 * @param array
+	 *          array to convert
+	 * @param addressOffset
+	 *          offset of the address space reported
+	 * @param dataOffset
+	 *          offset of the data space reported
 	 * @param doAddress
+	 *          flag which specifies if address should be printed
 	 * @param doText
-	 * @return
+	 *          flag which specifies if text should printed
+	 * @param doData
+	 *          flag which specifies if data should printed
+	 * @return converted string array, one array element per line of output
 	 */
-	public static String hexLine(byte[] a, int address, int i, boolean doAddress,
-	    boolean doText, boolean doData) {
+	public static String hexLine(byte[] array, int addressOffset, int dataOffset,
+	    boolean doAddress, boolean doText, boolean doData) {
 		String s = "";
 		if (doAddress) {
-			s += hexLineAddress(address);
+			s += hexLineAddress(addressOffset);
 			s += ":" + SPACE_CHAR;
 		}
 
 		if (doData) {
-			s += hexLineData(a, i);
+			s += hexLineData(array, dataOffset);
 		}
 
 		if (doText) {
@@ -249,12 +301,19 @@ public class FormatUtils {
 			s += SPACE_CHAR;
 			s += SPACE_CHAR;
 
-			s += hexLineText(a, i);
+			s += hexLineText(array, dataOffset);
 		}
 
 		return (s);
 	}
 
+	/**
+	 * Format an address
+	 * 
+	 * @param address
+	 *          integer address
+	 * @return formatted address string
+	 */
 	public static String hexLineAddress(int address) {
 		String s = "";
 
@@ -266,6 +325,15 @@ public class FormatUtils {
 		return (s);
 	}
 
+	/**
+	 * Formats the data array as a hexdump
+	 * 
+	 * @param data
+	 *          data array
+	 * @param offset
+	 *          offset into the array
+	 * @return formatted string
+	 */
 	public static String hexLineData(byte[] data, int offset) {
 		String s = "";
 
@@ -297,6 +365,16 @@ public class FormatUtils {
 		return (s);
 	}
 
+	/**
+	 * Formats the array data to human readable text that appears at the end of a
+	 * hexline of a hexdump
+	 * 
+	 * @param data
+	 *          data array
+	 * @param offset
+	 *          offset into data array
+	 * @return formatted string
+	 */
 	public static String hexLineText(byte[] data, int offset) {
 
 		String s = "";
@@ -323,12 +401,15 @@ public class FormatUtils {
 	}
 
 	/**
-	 * @param pkt_data
-	 * @return
+	 * Parses a string containing hex numbers to a byte array
+	 * 
+	 * @param source
+	 *          source string
+	 * @return byte array from the parsed data
 	 */
-	public static byte[] toByteArray(String pkt_data) {
+	public static byte[] toByteArray(String source) {
 
-		String s = pkt_data.replaceAll(" |\n", "");
+		String s = source.replaceAll(" |\n", "");
 
 		byte[] b = new byte[s.length() / 2];
 
@@ -347,6 +428,13 @@ public class FormatUtils {
 		return b;
 	}
 
+	/**
+	 * Formats a number to hext
+	 * 
+	 * @param b
+	 *          input byte
+	 * @return formatted string
+	 */
 	public static String toHexString(byte b) {
 		String s = Integer.toHexString(((int) b) & 0xFF);
 
@@ -371,8 +459,11 @@ public class FormatUtils {
 	private final static int WEEK_MILLIS = DAY_MILLIS * 7;
 
 	/**
+	 * Formats a delta time
+	 * 
 	 * @param millis
-	 * @return
+	 *          delta timestamp in millis
+	 * @return formatted string
 	 */
 	public static String formatTimeInMillis(long millis) {
 
