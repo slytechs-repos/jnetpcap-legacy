@@ -28,7 +28,7 @@ public interface JCaptureHeader {
 	 * Retrieves the length of the packet that was actually captured. This could
 	 * be only a portion of the original packet if snaplen filter was set during
 	 * Pcap.openXXX call. If the packet was not trucated, this length should equal
-	 * the length returned by {@link #getFullLength()}.
+	 * the length returned by {@link #wirelen()}.
 	 * 
 	 * @return length in bytes
 	 */

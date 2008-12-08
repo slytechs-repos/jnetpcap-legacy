@@ -317,7 +317,7 @@ public class JMemoryPacket
 	 * state structures and packet data
 	 * 
 	 * @return total packet length in bytes
-	 * @see org.jnetpcap.packet.JPacket#getStateAndMemorySize()
+	 * @see org.jnetpcap.packet.JPacket#getTotalSize()
 	 */
 	@Override
 	public int getTotalSize() {
@@ -396,14 +396,13 @@ public class JMemoryPacket
 	 *          buffer containing packet header, state and data
 	 * @param offset
 	 *          starting offset into the buffer
-	 * @return number of bytes that were peered out of the buffer
 	 * @return number of bytes peered
 	 */
-	public int peerStateAndData(JBuffer memory, int offset) {
+	public int peerStateAndData(JBuffer buffer, int offset) {
 
-		state.peerTo(memory, offset, State.sizeof(0));
-		int o = state.peerTo(memory, offset, State.sizeof(state.getHeaderCount()));
-		o += super.peer(memory, offset + o, header.caplen());
+		state.peerTo(buffer, offset, State.sizeof(0));
+		int o = state.peerTo(buffer, offset, State.sizeof(state.getHeaderCount()));
+		o += super.peer(buffer, offset + o, header.caplen());
 
 		return o;
 	}

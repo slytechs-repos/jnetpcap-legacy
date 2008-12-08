@@ -25,11 +25,11 @@ import org.jnetpcap.nio.JMemoryPool;
  * is designed to work with pcap library. It can not be used to create a new
  * packet from an external memory buffer that only contains packet data, such as
  * preparing a packet to be sent from a network interface. You can use
- * {@link JHeapPacket} to create an in memory packet from scratch. PcapPackets
- * need a PcapHeader which is provided by libpcap at the time the packet was
- * captured. Also the PcapPacket contains decoded state information which can be
- * used to query the packet for its contents using friendly java API and
- * compile-time type-safety.
+ * <code>JMemoryPacket</code> to create an in memory packet from scratch.
+ * PcapPackets need a PcapHeader which is provided by libpcap at the time the
+ * packet was captured. Also the PcapPacket contains decoded state information
+ * which can be used to query the packet for its contents using friendly java
+ * API and compile-time type-safety.
  * <h2> Packet accessors</h2>
  * Once a decoded packet is received, the user can query the packet for its
  * various properties. The most important of which is the existance of any
@@ -285,17 +285,17 @@ import org.jnetpcap.nio.JMemoryPool;
  * </p>
  * <h2>Initializing packet from an external buffer</h2>
  * Packet state and data can be preseved in an external buffer large enough to
- * hold the entire packet with its state. PcapPacket class provides transferStateAndData
- * and peer methods that allow the external packet data to be either copied into
- * a packet or the packet be peered directly with the external buffer. Peering
- * does not need to allocate memory to hold the packet state, but its state and
- * data are directly read out of the extern buffer. If you change the contents
- * of the external buffer, the packet's state and data will change as well. Care
- * must be take with a direct reference to an external buffer, as its easy to
- * override sensitive data causing the packet to behave wildly and unexpectidly.
- * <code>JMemory</code> class prevents buffer overrun attacks and any access
- * to memory that has not been allocated. a direct reference. Here is an
- * example:
+ * hold the entire packet with its state. PcapPacket class provides
+ * transferStateAndData and peer methods that allow the external packet data to
+ * be either copied into a packet or the packet be peered directly with the
+ * external buffer. Peering does not need to allocate memory to hold the packet
+ * state, but its state and data are directly read out of the extern buffer. If
+ * you change the contents of the external buffer, the packet's state and data
+ * will change as well. Care must be take with a direct reference to an external
+ * buffer, as its easy to override sensitive data causing the packet to behave
+ * wildly and unexpectidly. <code>JMemory</code> class prevents buffer overrun
+ * attacks and any access to memory that has not been allocated. a direct
+ * reference. Here is an example:
  * 
  * <pre>
  * pulic void nextPacket(PcapPacket packet, Queue&lt;PcapPacket&gt; queue) {
@@ -408,7 +408,7 @@ public class PcapPacket
 	public PcapPacket(ByteBuffer buffer) {
 		super(Type.POINTER);
 
-			transferStateAndDataFrom(buffer);
+		transferStateAndDataFrom(buffer);
 	}
 
 	/**
@@ -711,9 +711,9 @@ public class PcapPacket
 	 * and packet data are copied to new buffer. After completion of this
 	 * operation the complete contents and state of the packet will be transfered
 	 * to the buffer. The layout of the buffer data will be as described below. A
-	 * buffer with this type of layout is suitable for any transferStateAndData or peer
-	 * methods for any buffers that are JMemory based. The buffer has to be large
-	 * enough to hold all of the packet content as returned by method
+	 * buffer with this type of layout is suitable for any transferStateAndData or
+	 * peer methods for any buffers that are JMemory based. The buffer has to be
+	 * large enough to hold all of the packet content as returned by method
 	 * {@link #getTotalSize()}. If the buffer is too small and a runtime
 	 * exception may be thrown.
 	 * <p>
@@ -745,9 +745,9 @@ public class PcapPacket
 	 * and packet data are copied to new buffer. After completion of this
 	 * operation the complete contents and state of the packet will be transfered
 	 * to the buffer. The layout of the buffer data will be as described below. A
-	 * buffer with this type of layout is suitable for any transferStateAndData or peer
-	 * methods for any buffers that are JMemory based. The buffer has to be large
-	 * enough to hold all of the packet content as returned by method
+	 * buffer with this type of layout is suitable for any transferStateAndData or
+	 * peer methods for any buffers that are JMemory based. The buffer has to be
+	 * large enough to hold all of the packet content as returned by method
 	 * {@link #getTotalSize()}. If the buffer is too small and a runtime
 	 * exception may be thrown.
 	 * <p>
@@ -779,9 +779,9 @@ public class PcapPacket
 	 * and packet data are copied to new buffer. After completion of this
 	 * operation the complete contents and state of the packet will be transfered
 	 * to the buffer. The layout of the buffer data will be as described below. A
-	 * buffer with this type of layout is suitable for any transferStateAndData or peer
-	 * methods for any buffers that are JMemory based. The buffer has to be large
-	 * enough to hold all of the packet content as returned by method
+	 * buffer with this type of layout is suitable for any transferStateAndData or
+	 * peer methods for any buffers that are JMemory based. The buffer has to be
+	 * large enough to hold all of the packet content as returned by method
 	 * {@link #getTotalSize()}. If the buffer is too small and a runtime
 	 * exception may be thrown.
 	 * <p>
@@ -809,9 +809,9 @@ public class PcapPacket
 	 * and packet data are copied to new buffer. After completion of this
 	 * operation the complete contents and state of the packet will be transfered
 	 * to the buffer. The layout of the buffer data will be as described below. A
-	 * buffer with this type of layout is suitable for any transferStateAndData or peer
-	 * methods for any buffers that are JMemory based. The buffer has to be large
-	 * enough to hold all of the packet content as returned by method
+	 * buffer with this type of layout is suitable for any transferStateAndData or
+	 * peer methods for any buffers that are JMemory based. The buffer has to be
+	 * large enough to hold all of the packet content as returned by method
 	 * {@link #getTotalSize()}. If the buffer is too small and a runtime
 	 * exception may be thrown.
 	 * <p>

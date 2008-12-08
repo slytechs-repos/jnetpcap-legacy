@@ -216,17 +216,16 @@ import org.jnetpcap.packet.PcapPacketHandler;
  * <p>
  * Since multithreading is an issue with native libpcap, starting with jNetPcap
  * version 1.2, the API provides 2 methods
- * {@link #loopInBackground(int, PcapHandler, Object)} and
- * {@link #dispatchInBackground(int, PcapHandler, Object)} methods, which take
- * care of all of the details of how to synchronize a control thread with a
- * capture thread. The implementation of these 2 methods is in class
- * {@link PcapUtils} but as a convenience is also delegated directly from Pcap
- * class. These 2 methods will start either {@link #loop} or {@link #dispatch}
- * in a background thread, and dispatch packets to a user supplied
- * {@link PcapHandler}, just like from the non-threaded {@link #loop} and
- * {@link #dispatch} methods. The 2 threaded methods return immediately with a
- * {@link PcapTask} handle which can be used to access status and control of the
- * background thread.
+ * {@link #loop(int, int, JPacketHandler, Object, JPacket, org.jnetpcap.packet.JPacket.State, PcapHeader, JScanner)}
+ * and {@link #dispatch} methods, which take care of all of the details of how
+ * to synchronize a control thread with a capture thread. The implementation of
+ * these 2 methods is in class {@link PcapUtils} but as a convenience is also
+ * delegated directly from Pcap class. These 2 methods will start either
+ * {@link #loop} or {@link #dispatch} in a background thread, and dispatch
+ * packets to a user supplied {@link PcapHandler}, just like from the
+ * non-threaded {@link #loop} and {@link #dispatch} methods. The 2 threaded
+ * methods return immediately with a {@link PcapTask} handle which can be used
+ * to access status and control of the background thread.
  * </p>
  * 
  * @author Mark Bednarczyk
@@ -983,8 +982,6 @@ public class Pcap {
 	 * 
 	 * @param <T>
 	 *          user data type
-	 * @param pcap
-	 *          open pcap handle
 	 * @param cnt
 	 *          number of packets to process
 	 * @param id
@@ -1166,8 +1163,6 @@ public class Pcap {
 	 * 
 	 * @param <T>
 	 *          user data type
-	 * @param pcap
-	 *          open pcap handle
 	 * @param cnt
 	 *          number of packets to process
 	 * @param handler
@@ -1482,8 +1477,6 @@ public class Pcap {
 	 * 
 	 * @param <T>
 	 *          user data type
-	 * @param pcap
-	 *          open pcap handle
 	 * @param cnt
 	 *          number of packets to process
 	 * @param id
@@ -1574,8 +1567,6 @@ public class Pcap {
 	 * 
 	 * @param <T>
 	 *          user data type
-	 * @param pcap
-	 *          open pcap handle
 	 * @param cnt
 	 *          number of packets to process
 	 * @param id
@@ -1597,7 +1588,6 @@ public class Pcap {
 	 * Private native implementation
 	 * 
 	 * @param <T>
-	 * @param pcap
 	 * @param cnt
 	 * @param id
 	 * @param handler
@@ -1694,8 +1684,6 @@ public class Pcap {
 	 * 
 	 * @param <T>
 	 *          user data type
-	 * @param pcap
-	 *          open pcap handle
 	 * @param cnt
 	 *          number of packets to process
 	 * @param handler
@@ -1709,7 +1697,7 @@ public class Pcap {
 		return loop(cnt, JProtocol.id(this), handler, user, packet, packet
 		    .getState(), packet.getCaptureHeader(), JScanner.getThreadLocal());
 	}
-	
+
 	/**
 	 * Collect a group of packets. pcap_loop() is similar to pcap_dispatch()
 	 * except it keeps reading packets until cnt packets are processed or an error
@@ -1737,7 +1725,6 @@ public class Pcap {
 	 * @see ByteBufferHandler
 	 */
 	public native <T> int loop(int cnt, PcapHandler<T> handler, T user);
-
 
 	/**
 	 * Collect a group of packets. pcap_loop() is similar to pcap_dispatch()
@@ -1789,8 +1776,6 @@ public class Pcap {
 	 * 
 	 * @param <T>
 	 *          user data type
-	 * @param pcap
-	 *          open pcap handle
 	 * @param cnt
 	 *          number of packets to process
 	 * @param handler

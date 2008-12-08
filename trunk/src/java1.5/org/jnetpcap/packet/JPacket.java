@@ -247,18 +247,28 @@ public abstract class JPacket
 		}
 
 		/**
+		 * Peers this packet's state to buffer
+		 * 
 		 * @param buffer
+		 *          source buffer
 		 * @param offset
-		 * @return
+		 *          offset into the buffer
+		 * @return number of bytes peered
 		 */
 		public int peerTo(JBuffer buffer, int offset) {
 			return super.peer(buffer, offset, size());
 		}
 
 		/**
+		 * Peers this packet's state to buffer
+		 * 
 		 * @param buffer
+		 *          source buffer
 		 * @param offset
+		 *          offset into the buffer
 		 * @param size
+		 *          specifies the number of bytes to peer
+		 * @return number of bytes peered
 		 */
 		public int peerTo(JBuffer buffer, int offset, int size) {
 			return super.peer(buffer, offset, size);
@@ -330,7 +340,10 @@ public abstract class JPacket
 	}
 
 	/**
-	 * @return
+	 * Gets the total size of this packet. The size includes state, header and
+	 * packet data.
+	 * 
+	 * @return size in bytes
 	 */
 	protected abstract int getTotalSize();
 
@@ -352,9 +365,9 @@ public abstract class JPacket
 	 * state can be anywhere, but by default JScanner stores it in a round-robin
 	 * buffer it uses for decoding fast incoming packets. The state can easily be
 	 * copied into another buffer for longer storage using such methods as
-	 * {@link #transferStateTo} and {@link #transferStateAndDataTo} methods which
-	 * will copy the packet state and/or data buffer into another memory area,
-	 * such as a direct ByteBuffer or JBuffer.
+	 * <code>transferStateAndDataTo</code> which will copy the packet state
+	 * and/or data buffer into another memory area, such as a direct ByteBuffer or
+	 * JBuffer.
 	 * </p>
 	 */
 	public JPacket(Type type) {
@@ -378,14 +391,19 @@ public abstract class JPacket
 	}
 
 	/**
+	 * Creates a new memory buffer of given size for internal usage
+	 * 
 	 * @param size
+	 *          size in bytes
 	 */
 	public void allocate(int size) {
 		pool.allocate(size, memory);
 	}
 
 	/**
-	 * @return
+	 * Gets the size of the current internal memory buffer
+	 * 
+	 * @return length in bytes
 	 */
 	public int getAllocatedMemorySize() {
 		if (!memory.isInitialized()) {
@@ -470,9 +488,9 @@ public abstract class JPacket
 
 	/**
 	 * Gets number of headers found within the packet header. The last header may
-	 * or may not be the builtin {@see Payload} header
+	 * or may not be the builtin Payload header
 	 * 
-	 * @return
+	 * @return number of headers present
 	 */
 	public int getHeaderCount() {
 		return this.state.getHeaderCount();

@@ -721,7 +721,7 @@ public class WinPcap
 	 *          bpf filter
 	 * @param header
 	 *          packets header
-	 * @param buf
+	 * @param buffer
 	 *          buffer containing packet data
 	 * @return snaplen of the packet or 0 if packet should be rejected
 	 * @since 1.2
@@ -744,7 +744,7 @@ public class WinPcap
 	 *          bpf filter
 	 * @param header
 	 *          packets header
-	 * @param buf
+	 * @param buffer
 	 *          buffer containing packet data
 	 * @return snaplen of the packet or 0 if packet should be rejected
 	 * @since 1.2
@@ -1068,7 +1068,7 @@ public class WinPcap
 	 * and its FAQs.)
 	 * </p>
 	 * 
-	 * @see Pcap#openLive(String, int, int, int, StringBuffer)
+	 * @see Pcap#openLive(String, int, int, int, StringBuilder)
 	 * @param device
 	 *          buffer containing a C, '\0' terminated string with the the name of
 	 *          the device
@@ -1143,7 +1143,7 @@ public class WinPcap
 	 * and its FAQs.)
 	 * </p>
 	 * 
-	 * @see Pcap#openLive(String, int, int, int, StringBuffer)
+	 * @see Pcap#openLive(String, int, int, int, StringBuilder)
 	 * @param device
 	 *          buffer containing a C, '\0' terminated string with the the name of
 	 *          the device
@@ -1212,7 +1212,7 @@ public class WinPcap
 	 * and its FAQs.)
 	 * </p>
 	 * 
-	 * @see Pcap#openLive(String, int, int, int, StringBuffer)
+	 * @see Pcap#openLive(String, int, int, int, StringBuilder)
 	 * @param device
 	 *          buffer containing a C, '\0' terminated string with the the name of
 	 *          the device
@@ -1249,7 +1249,7 @@ public class WinPcap
 	 * set when pcap_open_offline() or pcap_fopen_offline() fails and returns
 	 * NULL.
 	 * 
-	 * @see Pcap#openOffline(String, StringBuffer)
+	 * @see Pcap#openOffline(String, StringBuilder)
 	 * @param fname
 	 *          filename of the pcap file
 	 * @param errbuf
@@ -1277,7 +1277,7 @@ public class WinPcap
 	 * set when pcap_open_offline() or pcap_fopen_offline() fails and returns
 	 * NULL.
 	 * 
-	 * @see Pcap#openOffline(String, StringBuffer)
+	 * @see Pcap#openOffline(String, StringBuilder)
 	 * @param fname
 	 *          filename of the pcap file
 	 * @param errbuf
@@ -1298,7 +1298,7 @@ public class WinPcap
 	 * set when pcap_open_offline() or pcap_fopen_offline() fails and returns
 	 * NULL.
 	 * 
-	 * @see Pcap#openOffline(String, StringBuffer)
+	 * @see Pcap#openOffline(String, StringBuilder)
 	 * @param fname
 	 *          filename of the pcap file
 	 * @param errbuf

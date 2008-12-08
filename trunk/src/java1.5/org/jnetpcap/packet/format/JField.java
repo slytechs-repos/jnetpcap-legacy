@@ -43,11 +43,18 @@ public class JField {
 	private final String units;
 
 	/**
+	 * Creates a field of a header
+	 * 
 	 * @param priority
+	 *          fields priority when choosing fields by priorities
 	 * @param name
+	 *          full name of the field
 	 * @param nicname
+	 *          nicname of the field
 	 * @param runtime
-	 * @param units
+	 *          runtime environment for this field
+	 * @param componentFields
+	 *          sub-fields
 	 */
 	public JField(Priority priority, String name, String nicname,
 	    JFieldRuntime<? extends JHeader, ?> runtime, JField... componentFields) {
@@ -55,11 +62,20 @@ public class JField {
 	}
 
 	/**
+	 * Creates a field of a header
+	 * 
 	 * @param priority
+	 *          fields priority when choosing fields by priorities
 	 * @param name
+	 *          full name of the field
 	 * @param nicname
+	 *          nicname of the field
 	 * @param units
+	 *          units of the value
 	 * @param runtime
+	 *          runtime environment for this field
+	 * @param componentFields
+	 *          sub-fields
 	 */
 	public JField(Priority priority, String name, String nicname, String units,
 	    JFieldRuntime<? extends JHeader, ?> runtime, JField... componentFields) {
@@ -68,11 +84,16 @@ public class JField {
 	}
 
 	/**
-	 * @param priority
+	 * Creates a field of a header
+	 * 
 	 * @param name
+	 *          full name of the field
 	 * @param nicname
+	 *          nicname of the field
 	 * @param runtime
-	 * @param units
+	 *          runtime environment for this field
+	 * @param componentFields
+	 *          sub-fields
 	 */
 	public JField(String name, String nicname,
 	    JFieldRuntime<? extends JHeader, ?> runtime, JField... componentFields) {
@@ -80,6 +101,22 @@ public class JField {
 		    componentFields);
 	}
 
+	/**
+	 * Creates a field of a header
+	 * 
+	 * @param style
+	 *          formatting style options
+	 * @param priority
+	 *          fields priority when choosing fields by priorities
+	 * @param name
+	 *          full name of the field
+	 * @param nicname
+	 *          nicname of the field
+	 * @param runtime
+	 *          runtime environment for this field
+	 * @param componentFields
+	 *          sub-fields
+	 */
 	public JField(Style style, Priority priority, String name, String nicname,
 	    JFieldRuntime<? extends JHeader, ?> runtime, JField... componentFields) {
 		this(style, priority, name, nicname, null, runtime, componentFields);
@@ -87,12 +124,22 @@ public class JField {
 	}
 
 	/**
+	 * Creates a field of a header
+	 * 
 	 * @param style
+	 *          formatting style options
 	 * @param priority
+	 *          fields priority when choosing fields by priorities
 	 * @param name
+	 *          full name of the field
 	 * @param nicname
+	 *          nicname of the field
 	 * @param units
+	 *          units description for the value
 	 * @param runtime
+	 *          runtime environment for this field
+	 * @param componentFields
+	 *          sub-fields
 	 */
 	public JField(Style style, Priority priority, String name, String nicname,
 	    String units, JFieldRuntime<? extends JHeader, ?> runtime,
@@ -110,17 +157,38 @@ public class JField {
 		}
 	}
 
+	/**
+	 * Creates a field of a header
+	 * 
+	 * @param style
+	 *          formatting style options
+	 * @param name
+	 *          full name of the field
+	 * @param nicname
+	 *          nicname of the field
+	 * @param runtime
+	 *          runtime environment for this field
+	 * @param componentFields
+	 *          sub-fields
+	 */
 	public JField(Style style, String name, String nicname,
 	    JFieldRuntime<? extends JHeader, ?> runtime, JField... componentFields) {
 		this(style, Priority.MEDIUM, name, nicname, null, runtime, componentFields);
 
 	}
 
+	/**
+	 * Gets the sub-fields
+	 * 
+	 * @return array of subfields
+	 */
 	public JField[] getCompoundFields() {
 		return componentFields;
 	}
 
 	/**
+	 * Gets the full name of this field
+	 * 
 	 * @return the name
 	 */
 	public final String getName() {
@@ -128,6 +196,8 @@ public class JField {
 	}
 
 	/**
+	 * Gets the nicname of this field
+	 * 
 	 * @return the nicname
 	 */
 	public String getNicname() {
@@ -135,6 +205,9 @@ public class JField {
 	}
 
 	/**
+	 * If this field is a sub-field, this method returns a reference to the parent
+	 * field
+	 * 
 	 * @return the parent
 	 */
 	public final JField getParent() {
@@ -142,6 +215,9 @@ public class JField {
 	}
 
 	/**
+	 * Gets the current field's priority. Formatters determine if fields should be
+	 * included in the output based on priorities
+	 * 
 	 * @return the priority
 	 */
 	public Priority getPriority() {
@@ -149,6 +225,8 @@ public class JField {
 	}
 
 	/**
+	 * Runtime environment for this field
+	 * 
 	 * @return the runtime
 	 */
 	public JFieldRuntime<? extends JHeader, ?> getRuntime() {
@@ -156,6 +234,8 @@ public class JField {
 	}
 
 	/**
+	 * Formatting style for this field
+	 * 
 	 * @return the style
 	 */
 	public Style getStyle() {
@@ -163,17 +243,26 @@ public class JField {
 	}
 
 	/**
+	 * Units for the value
+	 * 
 	 * @return the units
 	 */
 	public String getUnits() {
 		return units;
 	}
 
+	/**
+	 * Does this field have subfields
+	 * 
+	 * @return true means has sub-fields, otherwise false
+	 */
 	public boolean isCompound() {
 		return componentFields.length != 0;
 	}
 
 	/**
+	 * Sets the parent of this sub-field and only when this field is a sub-field
+	 * 
 	 * @param parent
 	 *          the parent to set
 	 */

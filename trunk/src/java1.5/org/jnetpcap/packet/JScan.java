@@ -30,12 +30,18 @@ public class JScan
 	private static final String STRUCT_NAME = "scan_t";
 
 	/**
-	 * @param structName
+	 * Alocates and creates scan_t structure in native memory
 	 */
 	public JScan() {
 		super(STRUCT_NAME, sizeof());
 	}
 
+	/**
+	 * Creates an uninitialized scan structure
+	 * 
+	 * @param type
+	 *          memory type
+	 */
 	public JScan(Type type) {
 		super(STRUCT_NAME, type);
 	}
@@ -52,30 +58,48 @@ public class JScan
 
 	protected native void scan_length(int length);
 
+	/**
+	 * Size in bytes of the native scan_t structure on this particular platform
+	 * 
+	 * @return size in bytes
+	 */
 	public native static int sizeof();
 
 	/**
+	 * Gets the current packet data buffer
+	 * 
 	 * @param buffer
+	 *          packet data buffer
 	 */
 	public native void scan_buf(JBuffer buffer);
 
 	/**
+	 * Size of packet data
+	 * 
 	 * @param size
+	 *          length in bytes
 	 */
 	public native void scan_buf_len(int size);
 
 	/**
+	 * Sets the current offset by the scanner into the packet buffer
+	 * 
 	 * @param offset
+	 *          offset in bytes
 	 */
 	public native void scan_offset(int offset);
 
 	/**
-	 * @return
+	 * Java packet that is being processed
+	 * 
+	 * @return the packet instance being currently processed
 	 */
 	public native JPacket scan_packet();
 
 	/**
-	 * @return
+	 * Gets teh curren offset by the dscanner into the packet buffer
+	 * 
+	 * @return offset in bytes
 	 */
 	public native int scan_offset();
 }

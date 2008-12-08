@@ -87,7 +87,7 @@ public abstract class JFormatter {
 		INT_RADIX_8,
 		LONG_DEC,
 		LONG_HEX,
-		
+
 		STRING,
 	}
 
@@ -96,7 +96,9 @@ public abstract class JFormatter {
 	private static JFormatter global;
 
 	/**
-	 * @return
+	 * Gets the default formatter
+	 * 
+	 * @return default formatter
 	 */
 	public static JFormatter getDefault() {
 		if (global == null) {
@@ -207,8 +209,8 @@ public abstract class JFormatter {
 
 			format(header, field, detail);
 		}
-		
-		for (JHeader subHeader: header.getSubHeaders()) {
+
+		for (JHeader subHeader : header.getSubHeaders()) {
 			format(header, subHeader, detail);
 		}
 
@@ -217,15 +219,15 @@ public abstract class JFormatter {
 	}
 
 	@SuppressWarnings("unchecked")
-  public void format(JHeader header, JHeader subHeader, Detail detail)
+	public void format(JHeader header, JHeader subHeader, Detail detail)
 	    throws IOException {
-		
+
 		final JField[] fields = subHeader.getFields();
-		
+
 		subHeaderBefore(header, subHeader, detail);
-		
+
 		for (final JField field : fields) {
-			
+
 			if (field == null) {
 				continue; // DEBUGING skip nulls for now
 			}
@@ -240,7 +242,7 @@ public abstract class JFormatter {
 			format(subHeader, field, detail);
 
 		}
-		
+
 		subHeaderAfter(header, subHeader, detail);
 	}
 
@@ -250,15 +252,17 @@ public abstract class JFormatter {
 	 * @param detail
 	 * @throws IOException
 	 */
-  protected abstract void subHeaderAfter(JHeader header, JHeader subHeader, Detail detail) throws IOException;
+	protected abstract void subHeaderAfter(JHeader header, JHeader subHeader,
+	    Detail detail) throws IOException;
 
 	/**
-   * @param header
-   * @param subHeader
-   * @param detail
-	 * @throws IOException 
-   */
-  protected abstract void subHeaderBefore(JHeader header, JHeader subHeader, Detail detail) throws IOException;
+	 * @param header
+	 * @param subHeader
+	 * @param detail
+	 * @throws IOException
+	 */
+	protected abstract void subHeaderBefore(JHeader header, JHeader subHeader,
+	    Detail detail) throws IOException;
 
 	/**
 	 * @param header
@@ -290,10 +294,14 @@ public abstract class JFormatter {
 	}
 
 	/**
-	 * @param out
+	 * Formats a packet for output
+	 * 
 	 * @param packet
-	 * @return
+	 *          packet to format
+	 * @param detail
+	 *          detail level
 	 * @throws IOException
+	 *           any IO errors when sending data to default output device
 	 */
 	public void format(JPacket packet, Detail detail) throws IOException {
 
@@ -313,8 +321,8 @@ public abstract class JFormatter {
 					continue;
 				}
 
-				format(header, headerDetail);				
-		} catch (UnregisteredHeaderException e) {
+				format(header, headerDetail);
+			} catch (UnregisteredHeaderException e) {
 				throw new IllegalStateException(e); // Serious internal error
 			}
 		}
@@ -323,9 +331,12 @@ public abstract class JFormatter {
 	}
 
 	/**
+	 * Formats a packet for output
+	 * 
 	 * @param out
+	 *          string buffer to send output to
 	 * @param packet
-	 * @return
+	 *          packet to format
 	 */
 	public void format(StringBuilder out, JPacket packet) {
 
@@ -337,23 +348,36 @@ public abstract class JFormatter {
 	}
 
 	/**
+	 * Called as the last step after the header has been formatted
+	 * 
 	 * @param header
+	 *          headercurrently being formatted
 	 * @param detail
+	 *          detail level to include
 	 * @throws IOException
+	 *           any IO errors while sending data to output device
 	 */
 	protected abstract void headerAfter(JHeader header, Detail detail)
 	    throws IOException;
 
 	/**
+	 * Called as the first step before the header has been formatted
+	 * 
 	 * @param header
+	 *          headercurrently being formatted
 	 * @param detail
+	 *          detail level to include
 	 * @throws IOException
+	 *           any IO errors while sending data to output device
 	 */
 	protected abstract void headerBefore(JHeader header, Detail detail)
 	    throws IOException;
 
 	/**
+	 * Increment the padding level using default padding string
+	 * 
 	 * @param count
+	 *          numer of pad strings to pad
 	 */
 	protected void incLevel(int count) {
 		incLevel(count, ' ');
