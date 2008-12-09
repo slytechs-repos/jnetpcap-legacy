@@ -490,6 +490,25 @@ public class PcapPacket
 	 *          source packet
 	 * @throws IncompatiblePeer
 	 */
+	public PcapPacket(JPacket src) {
+		super(Type.POINTER);
+
+		if (src instanceof PcapPacket) {
+			((PcapPacket) src).transferStateAndDataTo(this);
+		} else {
+			throw new UnsupportedOperationException(
+			    "Unsupported packet type for this constructor");
+		}
+	}
+
+	/**
+	 * Does a deep copy of the source packet into newly allocated native memory
+	 * location
+	 * 
+	 * @param src
+	 *          source packet
+	 * @throws IncompatiblePeer
+	 */
 	public PcapPacket(PcapPacket src) {
 		super(Type.POINTER);
 
