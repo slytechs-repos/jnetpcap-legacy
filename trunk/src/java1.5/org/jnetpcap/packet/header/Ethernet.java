@@ -22,13 +22,19 @@ import org.jnetpcap.packet.format.JFormatter.Style;
 
 /**
  * DIX Ethernet2 definition
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
- *
  */
 public class Ethernet
     extends JHeader {
-	
+
+	/**
+	 * A table of EtherType values and their names
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
 	public enum EthernetType {
 		IP4(0x800, "ip version 4"),
 		IP6(0x86DD, "ip version 6"),
@@ -67,21 +73,20 @@ public class Ethernet
 		}
 
 		/**
-     * @param type
-     * @return
-     */
-    public static EthernetType valueOf(int type) {
-	    for (EthernetType t: values()) {
-	    	if (t.id == type) {
-	    		return t;
-	    	}
-	    }
-	    
-	    return null;
-    }
+		 * @param type
+		 * @return
+		 */
+		public static EthernetType valueOf(int type) {
+			for (EthernetType t : values()) {
+				if (t.id == type) {
+					return t;
+				}
+			}
+
+			return null;
+		}
 
 	}
-
 
 	public static final String NAME = "Ethernet";
 
@@ -126,15 +131,15 @@ public class Ethernet
 			            return header.type();
 		            }
 
-								@Override
-                public String valueDescription(Ethernet header) {
-	                final String s = EthernetType.toString(header.type());
-	                if (s == null) {
-	                	return super.valueDescription(header);
-	                } else {
-	                	return s;
-	                }
-                }
+		            @Override
+		            public String valueDescription(Ethernet header) {
+			            final String s = EthernetType.toString(header.type());
+			            if (s == null) {
+				            return super.valueDescription(header);
+			            } else {
+				            return s;
+			            }
+		            }
 
 	            }) };
 
@@ -170,7 +175,7 @@ public class Ethernet
 	public int type() {
 		return getUShort(0 + 12);
 	}
-	
+
 	public EthernetType typeEnum() {
 		return EthernetType.valueOf(type());
 	}
