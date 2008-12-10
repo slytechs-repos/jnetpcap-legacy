@@ -37,7 +37,7 @@ public class Ip4
     extends JHeaderMap<Ip4> {
 
 	/**
-	 * User friendly definitions for ip types.
+	 * A table of IpTypes and their names
 	 * 
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
@@ -136,12 +136,12 @@ public class Ip4
 	    extends JSubHeader<Ip4> {
 
 		/**
-		 * Optional header
+		 * A table of IpOption types and their names
 		 * 
 		 * @author Mark Bednarczyk
 		 * @author Sly Technologies, Inc.
 		 */
-		public enum Code {
+		public enum OptionCode {
 			/* 0 */
 			END_OF_OPTION_LIST,
 			/* 1 */
@@ -289,7 +289,7 @@ public class Ip4
 		 * @param value
 		 *          new code value
 		 */
-		public void code(Code value) {
+		public void optionCode(OptionCode value) {
 			code(value.ordinal());
 		}
 
@@ -328,8 +328,8 @@ public class Ip4
 		 * 
 		 * @return code field value
 		 */
-		public Code codeEnum() {
-			return Code.values()[getUByte(0) & 0x1F];
+		public OptionCode codeEnum() {
+			return OptionCode.values()[getUByte(0) & 0x1F];
 		}
 	}
 
@@ -342,7 +342,7 @@ public class Ip4
 	public static class LooseSourceRoute
 	    extends Routing {
 		public LooseSourceRoute() {
-			super(Code.LOOSE_SOURCE_ROUTE.ordinal(), "loose source route", "NP");
+			super(OptionCode.LOOSE_SOURCE_ROUTE.ordinal(), "loose source route", "NP");
 		}
 	};
 
@@ -355,7 +355,7 @@ public class Ip4
 	public static class NoOp
 	    extends IpOption {
 		public NoOp() {
-			super(Code.NO_OP.ordinal(), "NOP", "NOP");
+			super(OptionCode.NO_OP.ordinal(), "NOP", "NOP");
 		}
 
 		/*
@@ -425,7 +425,7 @@ public class Ip4
 		            }), };
 
 		public Security() {
-			super(Code.SECURITY.ordinal(), X_FIELDS, "Security", "sec");
+			super(OptionCode.SECURITY.ordinal(), X_FIELDS, "Security", "sec");
 		}
 
 		public int length() {
@@ -444,21 +444,21 @@ public class Ip4
 			setUShort(2, value);
 		}
 
-		public void security(Type value) {
+		public void security(SecurityType value) {
 			security(value.type);
 		}
 
-		public Type securityEnum() {
-			return Type.valueOf(security());
+		public SecurityType securityEnum() {
+			return SecurityType.valueOf(security());
 		}
 
 		/**
-		 * Table of security type constants
+		 * A table of security algorithm types
 		 * 
 		 * @author Mark Bednarczyk
 		 * @author Sly Technologies, Inc.
 		 */
-		public enum Type {
+		public enum SecurityType {
 			UNCLASSIFIED(0),
 			CONFIDENTIAL(61749),
 			EFTO(30874),
@@ -470,13 +470,13 @@ public class Ip4
 			;
 			private final int type;
 
-			private Type(int type) {
+			private SecurityType(int type) {
 				this.type = type;
 
 			}
 
-			public static Type valueOf(int type) {
-				for (Type t : values()) {
+			public static SecurityType valueOf(int type) {
+				for (SecurityType t : values()) {
 					if (t.getType() == type) {
 						return t;
 					}
@@ -542,7 +542,7 @@ public class Ip4
 		    };
 
 		public StreamId() {
-			super(Code.STREAM_ID.ordinal(), X_FIELDS, "stream id", "np");
+			super(OptionCode.STREAM_ID.ordinal(), X_FIELDS, "stream id", "np");
 		}
 
 		public int length() {
@@ -571,7 +571,8 @@ public class Ip4
 	public static class StrictSourceRoute
 	    extends Routing {
 		public StrictSourceRoute() {
-			super(Code.STRICT_SOURCE_ROUTE.ordinal(), "strct source route", "NP");
+			super(OptionCode.STRICT_SOURCE_ROUTE.ordinal(), "strct source route",
+			    "NP");
 		}
 	}
 
@@ -593,7 +594,7 @@ public class Ip4
 		public final static int FLAG_TIMESTAMPS_PRESPECIFIED = 0x2;
 
 		public Timestamp() {
-			super(Code.TIMESTAMP.ordinal(), "timestamp", "ts");
+			super(OptionCode.TIMESTAMP.ordinal(), "timestamp", "ts");
 		}
 
 		public int length() {
@@ -766,7 +767,7 @@ public class Ip4
 		}
 
 		/**
-		 * Table of Ip4 Timestamp header flag field constants
+		 * A table of Ip4 Timestamp header flags
 		 * 
 		 * @author Mark Bednarczyk
 		 * @author Sly Technologies, Inc.
@@ -891,7 +892,7 @@ public class Ip4
 		 * @param nicname
 		 */
 		public RecordRoute() {
-			super(Code.RECORD_ROUTE.ordinal(), "record routing", "rr");
+			super(OptionCode.RECORD_ROUTE.ordinal(), "record routing", "rr");
 		}
 
 	}
@@ -1294,7 +1295,7 @@ public class Ip4
 			optionsOffsets[id] = i;
 			optionsBitmap |= (1 << id);
 
-			switch (IpOption.Code.values()[id]) {
+			switch (IpOption.OptionCode.values()[id]) {
 				case NO_OP:
 					optionsLength[id] = 1;
 					break;

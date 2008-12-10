@@ -31,6 +31,12 @@ import org.jnetpcap.packet.format.JFormatter.Style;
 public class Icmp
     extends JHeaderMap<Icmp> {
 
+	/**
+	 * ICMP Echo header (ping) baseclass definition
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
 	public static class Echo
 	    extends JSubHeader<Icmp> {
 		public final static JField[] X_FIELDS =
@@ -88,6 +94,12 @@ public class Icmp
 		}
 	};
 
+	/**
+	 * ICMP Echo Reply header definition
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
 	public static class EchoReply
 	    extends Echo {
 		public EchoReply() {
@@ -95,6 +107,12 @@ public class Icmp
 		}
 	}
 
+	/**
+	 * ICMP Echo Request header definition
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
 	public static class EchoRequest
 	    extends Echo {
 		public EchoRequest() {
@@ -102,7 +120,13 @@ public class Icmp
 		}
 	}
 
-	public static class Reserved
+	/**
+	 * Base class for various ICMP Headers that contain a reserved field
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public static abstract class Reserved
 	    extends JSubHeader<Icmp> {
 		public final static JField[] X_FIELDS =
 		    { new JField("reserved", "reserved",
@@ -127,6 +151,12 @@ public class Icmp
 		}
 	}
 
+	/**
+	 * ICMP Destination Unreachable header definition
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
 	public static class DestinationUnreachable
 	    extends Reserved {
 		public DestinationUnreachable() {
@@ -134,6 +164,12 @@ public class Icmp
 		}
 	}
 
+	/**
+	 * ICMP Source Quence header definition
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
 	public static class SourceQuench
 	    extends Reserved {
 		public SourceQuench() {
@@ -141,6 +177,12 @@ public class Icmp
 		}
 	}
 
+	/**
+	 * ICMP Redirect header definition
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
 	public static class Redirect
 	    extends JSubHeader<Icmp> {
 
@@ -162,6 +204,12 @@ public class Icmp
 		}
 	}
 
+	/**
+	 * ICMP Paramater Protoblem header definition
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
 	public static class ParamProblem
 	    extends JSubHeader<Icmp> {
 
@@ -196,7 +244,7 @@ public class Icmp
 	}
 
 	/**
-	 * Icmp code constants per type
+	 * A table of Icmp sub-codes per Icmp type
 	 * 
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
@@ -281,7 +329,7 @@ public class Icmp
 	}
 
 	/**
-	 * Icmp types
+	 * A table of IcmpTypes and their names
 	 * 
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
