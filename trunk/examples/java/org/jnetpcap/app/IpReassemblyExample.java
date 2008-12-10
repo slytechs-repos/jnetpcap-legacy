@@ -97,9 +97,9 @@ public class IpReassemblyExample implements PcapPacketHandler<Object> {
 
 		/**
 		 * Keeps track of how many bytes have been copied into this buffer. When
-		 * bytesCopiedIntoBuffer == ipDatagramLength, where last keeps track of the
-		 * total size of the original datagram in its entirety (including Ip4
-		 * header), then the reassembly is complete.
+		 * bytesCopiedIntoBuffer == ipDatagramLength, where bytesCopiedIntoBuffer
+		 * keeps track of the total size of the original datagram in its entirety
+		 * (including Ip4 header), then the reassembly is complete.
 		 */
 		private int bytesCopiedIntoBuffer = 20;
 
@@ -202,18 +202,19 @@ public class IpReassemblyExample implements PcapPacketHandler<Object> {
 
 			addSegment(packet, offset, length, packetOffset);
 
+			this.ipDatagramLength = start + offset + length;
+
 			/*
 			 * Trucate the size of the JBuffer to match that of ip reassebly buffer
 			 * now that we know that we have received the last fragment and where it
 			 * ends
 			 */
-			super.setSize(start + offset + length);
-			this.ipDatagramLength = start + offset + length;
+			super.setSize(this.ipDatagramLength);
 
 			/*
 			 * Set Ip4 total length field, now that we know what it is
 			 */
-			header.length(start + offset + length); // Set Ip4 total length field
+			header.length(ipDatagramLength); // Set Ip4 total length field
 		}
 
 		/**
@@ -233,8 +234,16 @@ public class IpReassemblyExample implements PcapPacketHandler<Object> {
 		public void addSegment(JBuffer packet, int offset, int length,
 		    int packetOffset) {
 
+			/*
+			 * Keep track of how much data we're copied so far. Needed to determine if
+			 * the reassembly process is complete.
+			 */
 			this.bytesCopiedIntoBuffer += length;
 
+			/*
+			 * Do the actual copy of fragment data into this buffer. The transfer is
+			 * done using a native copy call.
+			 */
 			packet.transferTo(this, packetOffset, length, offset + start);
 		}
 
@@ -306,6 +315,15 @@ public class IpReassemblyExample implements PcapPacketHandler<Object> {
 			return;
 		}
 
+		/**
+		 * Set the capture. We capture 6 packets, use a 5 second timeout on
+		 * reassembly buffers and we supply our reassembly handler (our application)
+		 * as the recipient of packets from libpcap. To it, we supply an anonymous
+		 * handler that receives the reassembly buffers. We simply convert those to
+		 * packets and print them out. If the buffer is incomplete, meaning it was
+		 * timed out before we received the last IP fragment, we simply report the
+		 * event as an warning.
+		 */
 		pcap.loop(6, new IpReassemblyExample(5 * 1000,
 		    new IpReassemblyBufferHandler() {
 
@@ -314,10 +332,27 @@ public class IpReassemblyExample implements PcapPacketHandler<Object> {
 				    if (buffer.isComplete() == false) {
 					    System.err.println("WARNING: missing fragments");
 				    } else {
+
+					    /*
+							 * Create a packet pointer. Uninitialized packet.
+							 */
 					    JPacket packet = new JMemoryPacket(Type.POINTER);
+
+					    /**
+							 * The buffer contains Ip4 header upfront followed by original Ip4
+							 * datagram payload. We peer the packet's data buffer to the
+							 * reassmbly buffer, starting at the Ip4 header.
+							 */
 					    packet.peer(buffer);
+
+					    /*
+							 * Decode the packet. We know the first header is the Ip4 header.
+							 */
 					    packet.scan(Ip4.ID); // decode the packet
 
+					    /*
+							 * Pretty print the packet
+							 */
 					    System.out.println(packet.toString());
 				    }
 
