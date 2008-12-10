@@ -43,8 +43,19 @@ public class Ip4
 	 * @author Sly Technologies, Inc.
 	 */
 	public enum Ip4Type {
+		/**
+		 * Ttransmission control protocol
+		 */
 		TCP(6, "tcp - transmission control protocol version 6"),
+
+		/**
+		 * Unreliable datagram protocol
+		 */
 		UDP(17, "udp - unreliable datagram protocol"),
+
+		/**
+		 * Internet control messaging protocol
+		 */
 		ICMP(1, "icmp - internet message control protocol"), ;
 		private final int id;
 
@@ -61,6 +72,13 @@ public class Ip4
 
 		}
 
+		/**
+		 * Name of the constant
+		 * 
+		 * @param id
+		 *          ip type number
+		 * @return constants name
+		 */
 		public static String toString(int id) {
 			for (Ip4Type t : values()) {
 				if (t.id == id) {
@@ -71,77 +89,256 @@ public class Ip4
 			return null;
 		}
 
+		/**
+		 * Converts contant to numerical ip type
+		 * 
+		 * @return Ip4 type number
+		 */
 		public final int getId() {
 			return this.id;
 		}
 
+		/**
+		 * Description of the type value
+		 * 
+		 * @return description string
+		 */
 		public final String getDescription() {
 			return this.description;
 		}
-		
+
 		/**
-     * @param type
-     * @return
-     */
-    public static Ip4Type valueOf(int type) {
-	    for (Ip4Type t: values()) {
-	    	if (t.id == type) {
-	    		return t;
-	    	}
-	    }
-	    
-	    return null;
-    }
+		 * Converts a numerical type to constant
+		 * 
+		 * @param type
+		 *          Ip4 type number
+		 * @return constant or null if not found
+		 */
+		public static Ip4Type valueOf(int type) {
+			for (Ip4Type t : values()) {
+				if (t.id == type) {
+					return t;
+				}
+			}
 
+			return null;
+		}
 
 	}
 
-	
-	public enum Code {
-		/* 0 */
-		END_OF_OPTION_LIST,
-		/* 1 */
-		NO_OP,
-		/* 2 */
-		SECURITY,
-		/* 3 */
-		LOOSE_SOURCE_ROUTE,
-		/* 4 */
-		TIMESTAMP,
-		/* 5 */
-		UNASSIGNED1,
-		/* 6 */
-		UNASSIGNED2,
-		/* 7 */
-		RECORD_ROUTE,
-		/* 8 */
-		STREAM_ID,
-		/* 9 */
-		STRICT_SOURCE_ROUTE,
-	}
-
-	public static class IpOption
+	/**
+	 * Baseclass for all Ip option headers
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public static abstract class IpOption
 	    extends JSubHeader<Ip4> {
 
-		public IpOption(int id, JField[] fields, String name, String nicname) {
+		/**
+		 * Optional header
+		 * 
+		 * @author Mark Bednarczyk
+		 * @author Sly Technologies, Inc.
+		 */
+		public enum Code {
+			/* 0 */
+			END_OF_OPTION_LIST,
+			/* 1 */
+			NO_OP,
+			/* 2 */
+			SECURITY,
+			/* 3 */
+			LOOSE_SOURCE_ROUTE,
+			/* 4 */
+			TIMESTAMP,
+			/* 5 */
+			UNASSIGNED1,
+			/* 6 */
+			UNASSIGNED2,
+			/* 7 */
+			RECORD_ROUTE,
+			/* 8 */
+			STREAM_ID,
+			/* 9 */
+			STRICT_SOURCE_ROUTE,
+		}
+
+		protected IpOption(int id, JField[] fields, String name, String nicname) {
 			super(id, fields, name, nicname);
 			order(ByteOrder.BIG_ENDIAN);
 		}
 
-		public IpOption(int id, String name, String nicname) {
+		protected IpOption(int id, String name, String nicname) {
 			super(id, name, nicname);
 			order(ByteOrder.BIG_ENDIAN);
 		}
 
+		/**
+		 * Gets the Ip4.code field. Specifies the optional header type.
+		 * <h3>Header Spec</h3>
+		 * <table border=1>
+		 * <tr>
+		 * <td> Protocol Header:</td>
+		 * <td> Ip4</td>
+		 * </tr>
+		 * <tr>
+		 * <td> Protocol Family:</td>
+		 * <td> Networking</td>
+		 * </tr>
+		 * <tr>
+		 * <td> OSI Layer:</td>
+		 * <td> 3</td>
+		 * </tr>
+		 * <tr>
+		 * <td> Field Property:</td>
+		 * <td> constant offset</td>
+		 * </tr>
+		 * <tr>
+		 * <td> Field Offset:</td>
+		 * <td> getUByte(0) & 0x1F</td>
+		 * </tr>
+		 * </table>
+		 * <h3>Header Diagram</h3>
+		 * 
+		 * <pre>
+		 * +------+-----------------+
+		 * | CODE | optional header |
+		 * +------+-----------------+
+		 * </pre>
+		 * 
+		 * @return code field value
+		 */
 		public int code() {
 			return getUByte(0) & 0x1F;
 		}
 
+		/**
+		 * Sets the Ip4.code field. Specifies the optional header type.
+		 * <h3>Header Spec</h3>
+		 * <table border=1>
+		 * <tr>
+		 * <td> Protocol Header:</td>
+		 * <td> Ip4</td>
+		 * </tr>
+		 * <tr>
+		 * <td> Protocol Family:</td>
+		 * <td> Networking</td>
+		 * </tr>
+		 * <tr>
+		 * <td> OSI Layer:</td>
+		 * <td> 3</td>
+		 * </tr>
+		 * <tr>
+		 * <td> Field Property:</td>
+		 * <td> constant offset</td>
+		 * </tr>
+		 * <tr>
+		 * <td> Field Offset:</td>
+		 * <td> getUByte(0) & 0x1F</td>
+		 * </tr>
+		 * </table>
+		 * <h3>Header Diagram</h3>
+		 * 
+		 * <pre>
+		 * +------+-----------------+
+		 * | CODE | optional header |
+		 * +------+-----------------+
+		 * </pre>
+		 * 
+		 * @param value
+		 *          new code value
+		 */
+		public void code(int value) {
+			setUByte(0, code() & 0xE0 | value & 0x1F);
+		}
+
+		/**
+		 * Sets the Ip4.code field. Specifies the optional header type.
+		 * <h3>Header Spec</h3>
+		 * <table border=1>
+		 * <tr>
+		 * <td> Protocol Header:</td>
+		 * <td> Ip4</td>
+		 * </tr>
+		 * <tr>
+		 * <td> Protocol Family:</td>
+		 * <td> Networking</td>
+		 * </tr>
+		 * <tr>
+		 * <td> OSI Layer:</td>
+		 * <td> 3</td>
+		 * </tr>
+		 * <tr>
+		 * <td> Field Property:</td>
+		 * <td> constant offset</td>
+		 * </tr>
+		 * <tr>
+		 * <td> Field Offset:</td>
+		 * <td> getUByte(0) & 0x1F</td>
+		 * </tr>
+		 * </table>
+		 * <h3>Header Diagram</h3>
+		 * 
+		 * <pre>
+		 * +------+-----------------+
+		 * | CODE | optional header |
+		 * +------+-----------------+
+		 * </pre>
+		 * 
+		 * @param value
+		 *          new code value
+		 */
+		public void code(Code value) {
+			code(value.ordinal());
+		}
+
+		/**
+		 * Gets the Ip4.code field. Specifies the optional header type.
+		 * <h3>Header Spec</h3>
+		 * <table border=1>
+		 * <tr>
+		 * <td> Protocol Header:</td>
+		 * <td> Ip4</td>
+		 * </tr>
+		 * <tr>
+		 * <td> Protocol Family:</td>
+		 * <td> Networking</td>
+		 * </tr>
+		 * <tr>
+		 * <td> OSI Layer:</td>
+		 * <td> 3</td>
+		 * </tr>
+		 * <tr>
+		 * <td> Field Property:</td>
+		 * <td> constant offset</td>
+		 * </tr>
+		 * <tr>
+		 * <td> Field Offset:</td>
+		 * <td> getUByte(0) & 0x1F</td>
+		 * </tr>
+		 * </table>
+		 * <h3>Header Diagram</h3>
+		 * 
+		 * <pre>
+		 * +------+-----------------+
+		 * | CODE | optional header |
+		 * +------+-----------------+
+		 * </pre>
+		 * 
+		 * @return code field value
+		 */
 		public Code codeEnum() {
 			return Code.values()[getUByte(0) & 0x1F];
 		}
 	}
 
+	/**
+	 * Ip4 optional Loose Source Route header
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
 	public static class LooseSourceRoute
 	    extends Routing {
 		public LooseSourceRoute() {
@@ -149,6 +346,12 @@ public class Ip4
 		}
 	};
 
+	/**
+	 * Ip4 optional No Operation header. Takes up exactly 1 byte of memory.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
 	public static class NoOp
 	    extends IpOption {
 		public NoOp() {
@@ -167,6 +370,12 @@ public class Ip4
 
 	}
 
+	/**
+	 * Ip4 optional Security header.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
 	public static class Security
 	    extends IpOption {
 
@@ -179,13 +388,13 @@ public class Ip4
 				        return header.code();
 			        }
 		        }),
-		        new JField("length", "len", new JStaticField<Ip4.Security, Integer>(
-		            0, 16) {
+		        new JField("length", "len",
+		            new JStaticField<Ip4.Security, Integer>(0, 16) {
 
-			        public Integer value(Ip4.Security header) {
-				        return header.length();
-			        }
-		        }),
+			            public Integer value(Ip4.Security header) {
+				            return header.length();
+			            }
+		            }),
 		        new JField("security", "sec",
 		            new JStaticField<Ip4.Security, Integer>(0, 16) {
 
@@ -223,14 +432,32 @@ public class Ip4
 			return getUByte(1);
 		}
 
+		public void length(int value) {
+			setUByte(1, value);
+		}
+
 		public int security() {
 			return getUShort(2);
 		}
-		
+
+		public void security(int value) {
+			setUShort(2, value);
+		}
+
+		public void security(Type value) {
+			security(value.type);
+		}
+
 		public Type securityEnum() {
 			return Type.valueOf(security());
 		}
-		
+
+		/**
+		 * Table of security type constants
+		 * 
+		 * @author Mark Bednarczyk
+		 * @author Sly Technologies, Inc.
+		 */
 		public enum Type {
 			UNCLASSIFIED(0),
 			CONFIDENTIAL(61749),
@@ -239,31 +466,31 @@ public class Ip4
 			PROG(24102),
 			RESTRICTED(44819),
 			SECRET(55176)
-			
+
 			;
 			private final int type;
 
 			private Type(int type) {
 				this.type = type;
-				
+
 			}
-			
+
 			public static Type valueOf(int type) {
-				for (Type t: values()) {
+				for (Type t : values()) {
 					if (t.getType() == type) {
 						return t;
 					}
 				}
-				
+
 				return null;
 			}
 
 			/**
-       * @return the type
-       */
-      public final int getType() {
-      	return this.type;
-      }
+			 * @return the type
+			 */
+			public final int getType() {
+				return this.type;
+			}
 		}
 
 		public int compartments() {
@@ -279,6 +506,12 @@ public class Ip4
 		}
 	}
 
+	/**
+	 * Ip4 optional Stream ID header
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
 	public static class StreamId
 	    extends IpOption {
 
@@ -291,13 +524,13 @@ public class Ip4
 				        return header.code();
 			        }
 		        }),
-		        new JField("length", "len", new JStaticField<Ip4.StreamId, Integer>(
-		            0, 16) {
+		        new JField("length", "len",
+		            new JStaticField<Ip4.StreamId, Integer>(0, 16) {
 
-			        public Integer value(Ip4.StreamId header) {
-				        return header.length();
-			        }
-		        }),
+			            public Integer value(Ip4.StreamId header) {
+				            return header.length();
+			            }
+		            }),
 		        new JField("streamId", "id",
 		            new JStaticField<Ip4.StreamId, Integer>(0, 16) {
 
@@ -316,11 +549,25 @@ public class Ip4
 			return getUByte(1);
 		}
 
+		public void length(int value) {
+			setUByte(1, value);
+		}
+
 		public int streamId() {
 			return getUShort(2);
 		}
+
+		public void streamId(int value) {
+			setUShort(2, value);
+		}
 	}
 
+	/**
+	 * Ip4 optional Strict Source Route header
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
 	public static class StrictSourceRoute
 	    extends Routing {
 		public StrictSourceRoute() {
@@ -328,6 +575,12 @@ public class Ip4
 		}
 	}
 
+	/**
+	 * Ip4 optional Timestamp header
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
 	public static class Timestamp
 	    extends IpOption {
 
@@ -347,12 +600,24 @@ public class Ip4
 			return getUByte(1);
 		}
 
+		public void length(int value) {
+			setUByte(1, value);
+		}
+
 		public int offset() {
 			return getUByte(2);
 		}
 
+		public void offset(int value) {
+			setUByte(2, value);
+		}
+
 		public int overflow() {
 			return (getUByte(3) & MASK_OVERFLOW) >> 4;
+		}
+
+		public void overflow(int value) {
+			setUByte(3, value << 4 | flags());
 		}
 
 		public int flags() {
@@ -375,8 +640,8 @@ public class Ip4
 
 			JField[] fields = new JField[size + 4];
 			fields[0] =
-			    new JField("code", "code", new JStaticField<Ip4.Timestamp, Integer>(0,
-			        8) {
+			    new JField("code", "code", new JStaticField<Ip4.Timestamp, Integer>(
+			        0, 8) {
 
 				    public Integer value(Ip4.Timestamp header) {
 					    return header.code();
@@ -500,6 +765,12 @@ public class Ip4
 			return fields;
 		}
 
+		/**
+		 * Table of Ip4 Timestamp header flag field constants
+		 * 
+		 * @author Mark Bednarczyk
+		 * @author Sly Technologies, Inc.
+		 */
 		public enum Flag {
 			TIMESTAMP_WITH_IP,
 			TIMESTAMPS_PRESPECIFIED
@@ -547,6 +818,12 @@ public class Ip4
 			}
 		}
 
+		/**
+		 * Ip4 optional Timestamp header - a timestamp entry
+		 * 
+		 * @author Mark Bednarczyk
+		 * @author Sly Technologies, Inc.
+		 */
 		public static class Entry {
 			public byte[] address;
 
@@ -599,6 +876,12 @@ public class Ip4
 	    new Ip4.Security(),
 	    new Ip4.StreamId(), };
 
+	/**
+	 * Ip4 optional Record Route header
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
 	public static class RecordRoute
 	    extends Routing {
 
@@ -613,7 +896,13 @@ public class Ip4
 
 	}
 
-	public static class Routing
+	/**
+	 * Ip4 optional Routing header
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public static abstract class Routing
 	    extends IpOption {
 
 		public Routing(int id, String name, String nicname) {
@@ -624,8 +913,16 @@ public class Ip4
 			return getUByte(1);
 		}
 
+		public void length(int value) {
+			setUByte(1, value);
+		}
+
 		public int offset() {
 			return getUByte(2);
+		}
+
+		public void offset(int value) {
+			setUByte(2, value);
 		}
 
 		/*
@@ -639,13 +936,13 @@ public class Ip4
 
 			JField[] fields = new JField[size + 3];
 			fields[0] =
-			    new JField("code", "code",
-			        new JStaticField<Ip4.Routing, Integer>(0, 8) {
+			    new JField("code", "code", new JStaticField<Ip4.Routing, Integer>(0,
+			        8) {
 
-				        public Integer value(Ip4.Routing header) {
-					        return header.code();
-				        }
-			        });
+				    public Integer value(Ip4.Routing header) {
+					    return header.code();
+				    }
+			    });
 
 			fields[1] =
 			    new JField("length", "len", new JStaticField<Ip4.Routing, Integer>(8,
@@ -657,8 +954,8 @@ public class Ip4
 			    });
 
 			fields[2] =
-			    new JField("offset", "ptr", new JStaticField<Ip4.Routing, Integer>(16,
-			        4) {
+			    new JField("offset", "ptr", new JStaticField<Ip4.Routing, Integer>(
+			        16, 4) {
 
 				    public Integer value(Ip4.Routing header) {
 					    return header.offset();
@@ -687,6 +984,16 @@ public class Ip4
 
 		public byte[] address(int index) {
 			return getByteArray(index * 4 + 3, 4);
+		}
+
+		public void address(int index, byte[] value) {
+			setByteArray(index * 4 + 3, value);
+		}
+
+		public void address(byte[][] values) {
+			for (int i = 0; i < values.length; i++) {
+				address(i, values[i]);
+			}
 		}
 
 		public byte[][] addressArray() {
@@ -719,9 +1026,6 @@ public class Ip4
 
 	/**
 	 * Field objects for JFormatter
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
 	 */
 	public final static JField[] X_FIELDS =
 	    {
@@ -808,13 +1112,17 @@ public class Ip4
 		        }
 	        }),
 
-	        new JField(Style.INT_HEX, "flags", "flags",
+	        new JField(
+	            Style.INT_HEX,
+	            "flags",
+	            "flags",
 	            new JStaticField<Ip4, Integer>(6, 3) {
 
 		            public Integer value(Ip4 header) {
 			            return header.flags();
 		            }
-	            }, new JBitField[] {
+	            },
+	            new JBitField[] {
 	                new JBitField("reserved bit", "R",
 	                    new JStaticField<Ip4, Integer>(0, 1, FLAG_RESERVED) {
 
@@ -849,7 +1157,9 @@ public class Ip4
 		                    }
 	                    }),
 
-	                new JBitField("more fragments", "F",
+	                new JBitField(
+	                    "more fragments",
+	                    "F",
 	                    new JStaticField<Ip4, Integer>(0, 1, FLAG_MORE_FRAGEMNTS) {
 
 		                    public Integer value(Ip4 header) {
@@ -898,14 +1208,15 @@ public class Ip4
 			        return header.type();
 		        }
 
-						@Override
-            public String valueDescription(Ip4 header) {
-							final String s = Ip4Type.toString(header.type());
-              if (s == null) {
-              	return super.valueDescription(header);
-              } else {
-              	return s;
-              }            }
+		        @Override
+		        public String valueDescription(Ip4 header) {
+			        final String s = Ip4Type.toString(header.type());
+			        if (s == null) {
+				        return super.valueDescription(header);
+			        } else {
+				        return s;
+			        }
+		        }
 	        }),
 
 	        new JField(Style.INT_HEX, "header checksum", "crc",
@@ -934,6 +1245,25 @@ public class Ip4
 
 	    };
 
+	private int hashcode = super.hashCode();
+
+	/**
+	 * Uses an special hashcode, that will be the same for packets that have the
+	 * following fields the same:
+	 * <ul>
+	 * <li> source address
+	 * <li> destination address;
+	 * <li> id
+	 * <li> type
+	 * </ul>
+	 * The hashcode is generated using the following formula:
+	 * <code>int hash = (id() << 16) ^ source() ^ destination() ^ type();</code>
+	 */
+	@Override
+	public int hashCode() {
+		return hashcode;
+	}
+
 	public Ip4() {
 		super(ID, X_FIELDS, "ip4", "ip", X_HEADERS);
 		super.order(BYTE_ORDER);
@@ -941,6 +1271,10 @@ public class Ip4
 
 	public int checksum() {
 		return getUShort(10);
+	}
+
+	public void checksum(int value) {
+		setUShort(10, value);
 	}
 
 	/*
@@ -951,6 +1285,7 @@ public class Ip4
 	@Override
 	public void decodeUniqueSubHeaders() {
 		optionsBitmap = 0;
+		this.hashcode = (id() << 16) ^ sourceToInt() ^ destinationToInt() ^ type();
 
 		final int hlen = hlen() * 4;
 
@@ -959,7 +1294,7 @@ public class Ip4
 			optionsOffsets[id] = i;
 			optionsBitmap |= (1 << id);
 
-			switch (Code.values()[id]) {
+			switch (IpOption.Code.values()[id]) {
 				case NO_OP:
 					optionsLength[id] = 1;
 					break;
@@ -982,6 +1317,14 @@ public class Ip4
 		return getByteArray(16, 4);
 	}
 
+	public void destination(byte[] value) {
+		setByteArray(12, value);
+	}
+
+	public int destinationToInt() {
+		return getInt(16);
+	}
+
 	public byte[] destinationToByteArray(byte[] address) {
 		if (address.length != 4) {
 			throw new IllegalArgumentException("address must be 4 byte long");
@@ -993,24 +1336,64 @@ public class Ip4
 		return getUByte(6) >> 5;
 	}
 
+	public void flags(int flags) {
+		int o = getUByte(6) & 0x1F;
+		o |= flags << 5;
+
+		setUByte(6, o);
+	}
+
+	public void clearFlags(int flags) {
+		int o = getUByte(6);
+		o &= ~(flags << 5);
+
+		setUByte(6, o);
+	}
+
 	public int hlen() {
 		return getUByte(0) & 0x0F;
+	}
+
+	public void hlen(int value) {
+		int o = getUByte(0) & 0xF0;
+		o |= value & 0x0F;
+
+		setUByte(0, o);
 	}
 
 	public int id() {
 		return getUShort(4);
 	}
 
+	public void id(int value) {
+		setUShort(4, value);
+	}
+
 	public int length() {
 		return getUShort(2);
+	}
+
+	public void length(int value) {
+		setUShort(2, value);
 	}
 
 	public int offset() {
 		return getUShort(6) & 0x1FFF;
 	}
 
+	public void offset(int offset) {
+		int o = getUShort(6) & ~0x1FFF;
+		o |= offset & 0x1FFF;
+
+		setUShort(6, o);
+	}
+
 	public byte[] source() {
 		return getByteArray(12, 4);
+	}
+
+	public void source(byte[] value) {
+		setByteArray(12, value);
 	}
 
 	public byte[] sourceToByteArray(byte[] address) {
@@ -1020,23 +1403,47 @@ public class Ip4
 		return getByteArray(12, address);
 	}
 
+	public int sourceToInt() {
+		return getInt(12);
+	}
+
 	public int tos() {
 		return getUByte(1);
+	}
+
+	public void tos(int value) {
+		setUByte(1, value);
 	}
 
 	public int ttl() {
 		return getUByte(8);
 	}
 
+	public void ttl(int value) {
+		setUByte(8, value);
+	}
+
 	public int type() {
 		return getUByte(9);
 	}
-	
+
+	public void type(int value) {
+		setUByte(9, value);
+	}
+
+	public void type(Ip4Type type) {
+		setUByte(9, type.id);
+	}
+
 	public Ip4Type typeEnum() {
 		return Ip4Type.valueOf(type());
 	}
 
 	public int version() {
 		return getUByte(0) >> 4;
+	}
+
+	public void version(int value) {
+		setUByte(0, hlen() | value << 4);
 	}
 }
