@@ -392,7 +392,7 @@ public class MyHeader
 			setByteArray(index * 4 + 3, value);
 		}
 
-		@Field(offset = 24, format = "#ip4[]#", name="route")
+		@Field(offset = 24, format = "#ip4[]#", name = "route")
 		public byte[][] addressArray() {
 
 			byte[][] ba = new byte[addressCount()][];
@@ -413,6 +413,11 @@ public class MyHeader
 			return getUByte(1);
 		}
 
+		@FieldRuntime(FieldFunction.DESCRIPTION)
+		public String lengthDescription() {
+			return "(" + length() + " - 3)/" + 4 + " = " + addressCount() + " routes";
+		}
+
 		@FieldSetter
 		public void length(int value) {
 			setUByte(1, value);
@@ -421,6 +426,11 @@ public class MyHeader
 		@Field(offset = 16, length = 8)
 		public int offset() {
 			return getUByte(2);
+		}
+
+		@FieldRuntime(FieldFunction.DESCRIPTION)
+		public String offsetDescription() {
+			return "offset points at route #" + (offset() / 4 - 1) + "";
 		}
 
 		@FieldSetter
@@ -690,7 +700,7 @@ public class MyHeader
 			return r;
 		}
 
-		@Field(offset = 1, length = 8)
+		@Field(offset = 1 * 8, length = 8)
 		public int length() {
 			return getUByte(1);
 		}
@@ -700,7 +710,7 @@ public class MyHeader
 			setUByte(1, value);
 		}
 
-		@Field(offset = 2, length = 16)
+		@Field(offset = 2 * 8, length = 16)
 		public int offset() {
 			return getUByte(2);
 		}
@@ -893,9 +903,10 @@ public class MyHeader
 
 	@FieldRuntime(FieldFunction.DESCRIPTION)
 	public String hlenDescription() {
-		return (hlen() == 5) ? "header length = " + (hlen() * 4)
-		    + " bytes, No Ip Options" : "header length = " + (hlen() * 4)
-		    + " bytes, Ip Options Present";
+		String pre = "" + hlen() + " * 4 = " + (hlen() * 4) + " bytes";
+		return (hlen() == 5) ? pre
+		    + ", No Ip Options" : pre
+		    + ", Ip Options Present";
 	}
 
 	@Field(offset = 4 * 8, length = 16, format = "%x")
