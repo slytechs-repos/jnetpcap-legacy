@@ -20,6 +20,7 @@ import org.jnetpcap.packet.header.IEEE802dot2;
 import org.jnetpcap.packet.header.IEEE802dot3;
 import org.jnetpcap.packet.header.IEEESnap;
 import org.jnetpcap.packet.header.Icmp;
+import org.jnetpcap.packet.header.Ip4;
 import org.jnetpcap.packet.header.Ip6;
 import org.jnetpcap.packet.header.L2TP;
 import org.jnetpcap.packet.header.PPP;
@@ -48,7 +49,7 @@ public enum JProtocol {
 	/**
 	 * Ip version 4 header
 	 */
-	IP4(MyHeader.class),
+	IP4(Ip4.class),
 
 	/**
 	 * Ip version 6 header
