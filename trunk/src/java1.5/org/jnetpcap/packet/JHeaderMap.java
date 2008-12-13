@@ -33,6 +33,12 @@ public abstract class JHeaderMap<B extends JHeader>
 	protected int[] optionsLength = new int[MAX_HEADERS];
 
 	protected final JHeader[] X_HEADERS = new JHeader[MAX_HEADERS];
+	
+	public JHeaderMap() {
+	  super();
+	  
+	  inspect();
+	}
 
 	/**
 	 * @param id
@@ -67,21 +73,11 @@ public abstract class JHeaderMap<B extends JHeader>
 		reorderAndSave(unordered);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.jnetpcap.packet.JHeader#decode()
-	 */
 	@Override
-	public void decode() {
-		decodeUniqueSubHeaders();
+	public void setSubHeaders(JHeader[] headers) {
+		reorderAndSave(headers);
 	}
-
-	/**
-	 * 
-	 */
-	protected abstract void decodeUniqueSubHeaders();
-
+	
 	public <T extends JSubHeader<B>> T getSubHeader(T header) {
 
 		final int offset = optionsOffsets[header.getId()];

@@ -47,13 +47,6 @@ public class PcapHeader
 	}
 
 	/**
-	 * @param size
-	 */
-	public PcapHeader(int size) {
-		super(STRUCT_NAME, size);
-	}
-
-	/**
 	 * @param caplen
 	 * @param wirelen
 	 */

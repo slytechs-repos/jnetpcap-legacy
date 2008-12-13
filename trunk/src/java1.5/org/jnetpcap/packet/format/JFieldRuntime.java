@@ -16,14 +16,15 @@ public interface JFieldRuntime<H extends JHeader, V> {
 
 	public V value(H header);
 
-	public int getOffset();
+	public int getOffset(H header);
 
-	public int getLength();
+	public int getLength(H header);
 
 	/**
+	 * @param header TODO
 	 * @return the mask
 	 */
-	public int getMask();
+	public int getMask(H header);
 
 	public String valueDescription(H header);
 

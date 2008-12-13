@@ -88,7 +88,7 @@ public abstract class JFormatter {
 		LONG_DEC,
 		LONG_HEX,
 
-		STRING,
+		STRING, BYTE_ARRAY_ARRAY_IP4_ADDRESS,
 	}
 
 	private static final Detail DEFAULT_DETAIL = Detail.MULTI_LINE_FULL_DETAIL;
@@ -472,15 +472,14 @@ public abstract class JFormatter {
 	@SuppressWarnings("unchecked")
 	private String stylizeBitField(JHeader header, JField field, Object value) {
 		StringBuilder b = new StringBuilder();
-		final JBitField bits = (JBitField) field;
-		final JField parent = bits.getParent();
+		final JField parent = field.getParent();
 		final JFieldRuntime<JHeader, Object> pruntime =
 		    (JFieldRuntime<JHeader, Object>) parent.getRuntime();
 		final JFieldRuntime<JHeader, Object> runtime =
-		    (JFieldRuntime<JHeader, Object>) bits.getRuntime();
-		final int len = parent.getRuntime().getLength();
+		    (JFieldRuntime<JHeader, Object>) field.getRuntime();
+		final int len = pruntime.getLength(header);
 		final int p = (int) (Integer) pruntime.value(header);
-		final int mask = runtime.getMask();
+		final int mask = runtime.getMask(header);
 
 		for (int i = len - 1; i >= 0; i--) {
 			int m = (mask >> i) & 0x1;
@@ -565,6 +564,7 @@ public abstract class JFormatter {
 			case BYTE_ARRAY_DOT_ADDRESS:
 				return FormatUtils.asString((byte[]) value, '.').toUpperCase();
 
+			case BYTE_ARRAY_ARRAY_IP4_ADDRESS:
 			case BYTE_ARRAY_IP4_ADDRESS:
 				return FormatUtils.asString((byte[]) value, '.', 10).toUpperCase();
 

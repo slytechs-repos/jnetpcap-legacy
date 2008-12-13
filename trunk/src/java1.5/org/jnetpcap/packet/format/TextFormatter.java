@@ -29,6 +29,7 @@ public class TextFormatter
     extends JFormatter {
 
 	private final static String FIELD_FORMAT = "%16s = ";
+	private final static String FIELD_ARRAY_FORMAT = "%16s[%d] = ";
 
 	private static final String SEPARATOR = ": ";
 
@@ -85,19 +86,18 @@ public class TextFormatter
 
 		if (field.isCompound()) {
 			final String v = stylizeSingleLine(header, field, runtime.value(header));
-			pad().format(FIELD_FORMAT + "%s", field.getName(), v);
+			pad().format(FIELD_FORMAT + "%s", field.getDisplay(), v);
 			incLevel(19);
 
 		} else if (field.getStyle() == Style.INT_BITS) {
 
-			final JBitField bits = (JBitField) field;
 			final JFieldRuntime<JHeader, Object> bitsRuntime =
-			    (JFieldRuntime<JHeader, Object>) bits.getRuntime();
+			    (JFieldRuntime<JHeader, Object>) field.getRuntime();
 
 			final String v = stylizeSingleLine(header, field, runtime.value(header));
 			final String d = bitsRuntime.valueDescription(header);
 			final int i = (Integer) runtime.value(header);
-			pad().format("%s = [%d] %s%s", v, i, field.getName(),
+			pad().format("%s = [%d] %s%s", v, i, field.getDisplay(),
 			    ((d == null) ? "" : ": " + d));
 
 		} else if (field.getStyle() == Style.BYTE_ARRAY_HEX_DUMP) {
@@ -106,13 +106,23 @@ public class TextFormatter
 				pad().format("%s", i);
 			}
 
+		} else if (field.getStyle() == Style.BYTE_ARRAY_ARRAY_IP4_ADDRESS) {
+			byte[][] table = (byte[][]) runtime.value(header);
+
+			int i = 0;
+			for (byte[] b : table) {
+				final String v = stylizeSingleLine(header, field, b);
+				pad().format(FIELD_ARRAY_FORMAT  + "%s", field.getDisplay(), i++, v);
+			}
+
+			incLevel(0); // Inc for multi line fields
 		} else {
 
 			final String v = stylizeSingleLine(header, field, runtime.value(header));
 			final String description = runtime.valueDescription(header);
 			final String units = field.getUnits();
 
-			pad().format(FIELD_FORMAT + "%s", field.getName(), v);
+			pad().format(FIELD_FORMAT + "%s", field.getDisplay(), v);
 
 			if (units != null) {
 				out.format(" " + units);
@@ -199,7 +209,9 @@ public class TextFormatter
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
-	protected void subHeaderBefore(JHeader header, JHeader subHeader,
+	protected void subHeaderBefore(
+	    JHeader header,
+	    JHeader subHeader,
 	    Detail detail) throws IOException {
 		pad();
 		// decLevel();

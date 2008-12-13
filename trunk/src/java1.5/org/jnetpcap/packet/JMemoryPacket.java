@@ -258,6 +258,25 @@ public class JMemoryPacket
 
 		scan(id);
 	}
+	
+	/**
+	 * Creates a new fully decoded packet from data provides in the buffer. The
+	 * buffer contains raw packet data. The packet is peered with the buffer,
+	 * allocating new memory if neccessary, and scanned using internal scanner.
+	 * 
+	 * @param id
+	 *          numerical id of first protocol (DLT)
+	 * @param buffer
+	 *          buffer containing raw packet data
+	 */
+	public JMemoryPacket(int id, JBuffer buffer) {
+		super(Type.POINTER);
+
+		super.peer(buffer);
+
+		scan(id);
+	}
+
 
 	/**
 	 * Creates a new fully decoded packet from the hexdump data provided.

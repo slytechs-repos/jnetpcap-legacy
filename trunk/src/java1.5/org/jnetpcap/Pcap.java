@@ -897,7 +897,7 @@ public class Pcap {
 	 * @since 1.2
 	 */
 	public <T> int dispatch(int cnt, ByteBufferHandler<T> handler, T user) {
-		return dispatch(cnt, handler, user, new PcapHeader());
+		return dispatch(cnt, handler, user, new PcapHeader(Type.POINTER));
 	}
 
 	private native <T> int dispatch(int cnt, ByteBufferHandler<T> handler,
@@ -1073,7 +1073,7 @@ public class Pcap {
 	 * @since 1.2
 	 */
 	public <T> int dispatch(int cnt, JBufferHandler<T> handler, T user) {
-		return dispatch(cnt, handler, user, new PcapHeader(), new JBuffer(
+		return dispatch(cnt, handler, user, new PcapHeader(Type.POINTER), new JBuffer(
 		    Type.POINTER));
 	}
 
@@ -1417,7 +1417,7 @@ public class Pcap {
 	 * @since 1.2
 	 */
 	public <T> int loop(int cnt, ByteBufferHandler<T> handler, T user) {
-		return loop(cnt, handler, user, new PcapHeader());
+		return loop(cnt, handler, user, new PcapHeader(Type.POINTER));
 	}
 
 	private native <T> int loop(int cnt, ByteBufferHandler<T> handler, T user,
@@ -1628,7 +1628,7 @@ public class Pcap {
 	 * @since 1.2
 	 */
 	public <T> int loop(int cnt, JBufferHandler<T> handler, T user) {
-		return loop(cnt, handler, user, new PcapHeader(), new JBuffer(Type.POINTER));
+		return loop(cnt, handler, user, new PcapHeader(Type.POINTER), new JBuffer(Type.POINTER));
 	}
 
 	private native <T> int loop(int cnt, JBufferHandler<T> handler, T user,

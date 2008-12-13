@@ -51,7 +51,7 @@ public abstract class JDynamicField<H extends JHeader, V> implements
 	 * 
 	 * @return the offset in bits
 	 */
-	public final int getOffset() {
+	public final int getOffset(H header) {
 		return this.offset;
 	}
 
@@ -70,7 +70,7 @@ public abstract class JDynamicField<H extends JHeader, V> implements
 	 * 
 	 * @return the length
 	 */
-	public final int getLength() {
+	public final int getLength(H header) {
 		return this.length;
 	}
 
@@ -99,9 +99,9 @@ public abstract class JDynamicField<H extends JHeader, V> implements
 	 * as either 0 or 1, all others will be ignored
 	 * 
 	 * @return bitfield
-	 * @see org.jnetpcap.packet.format.JFieldRuntime#getMask()
+	 * @see org.jnetpcap.packet.format.JFieldRuntime#getMask(JHeader)
 	 */
-	public int getMask() {
+	public int getMask(H header) {
 		return 0;
 	}
 

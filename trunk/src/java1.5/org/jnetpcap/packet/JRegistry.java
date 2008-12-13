@@ -54,12 +54,10 @@ public class JRegistry {
 	public static final int CORE_ID_COUNT = JProtocol.values().length;
 
 	/**
-	 * Header scanners for each header type and protocol. The user can override
-	 * native direct scanners by supplying a java based scanner that will override
-	 * a particular protocols entry.
+	 * A flag that allows tells that a java scanner's process bindings method has
+	 * been overriden
 	 */
-	private final static JHeaderScanner[] headerScanners =
-	    new JHeaderScanner[MAX_ID_COUNT];
+	public final static int FLAG_OVERRIDE_BINDING = 0x00000002;
 
 	/**
 	 * A flag that allows tells that a java scanner's get length method has been
@@ -67,13 +65,15 @@ public class JRegistry {
 	 */
 	public final static int FLAG_OVERRIDE_LENGTH = 0x00000001;
 
-	/**
-	 * A flag that allows tells that a java scanner's process bindings method has
-	 * been overriden
-	 */
-	public final static int FLAG_OVERRIDE_BINDING = 0x00000002;
-
 	private final static int headerFlags[] = new int[MAX_ID_COUNT];
+
+	/**
+	 * Header scanners for each header type and protocol. The user can override
+	 * native direct scanners by supplying a java based scanner that will override
+	 * a particular protocols entry.
+	 */
+	private final static JHeaderScanner[] headerScanners =
+	    new JHeaderScanner[MAX_ID_COUNT];
 
 	private static int LAST_ID = 0;
 
@@ -85,6 +85,7 @@ public class JRegistry {
 	private static Map<Class<? extends JHeader>, Entry> mapByClass =
 	    new HashMap<Class<? extends JHeader>, Entry>();
 
+
 	/**
 	 * Register all the core protocols as soon as the jRegistry class is loaded
 	 */
@@ -92,41 +93,6 @@ public class JRegistry {
 		for (JProtocol p : JProtocol.values()) {
 			register(p);
 		}
-	}
-
-	/**
-	 * Gets the current flags for a specified protocol
-	 * 
-	 * @param id
-	 *          numerical id of the protocol header
-	 * @return current flags as a bit mask
-	 */
-	public static int getFlags(int id) {
-		return headerFlags[id];
-	}
-
-	/**
-	 * Sets the current flag for a specified protocol
-	 * 
-	 * @param id
-	 *          numerical id of the protocol header
-	 * @param flags
-	 *          flags to set (bitwise OR) with the existing flags
-	 */
-	public static void setFlags(int id, int flags) {
-		headerFlags[id] |= flags;
-	}
-
-	/**
-	 * Clears the supplied bits within the flag's bitmap
-	 * 
-	 * @param id
-	 *          protocol ID
-	 * @param flags
-	 *          flags to clear
-	 */
-	public static void clearFlags(int id, int flags) {
-		headerFlags[id] &= ~flags;
 	}
 
 	/**
@@ -148,6 +114,26 @@ public class JRegistry {
 		JRegistry.bindings[id] = lb.toArray(new JBinding[lb.size()]);
 	}
 
+	public static void addBindingsFromAnyObject(Class<?> o) {
+
+	}
+
+	public static <T extends JHeader> void addBindingsFromJHeader(Class<T> c) {
+
+	}
+
+	/**
+	 * Clears the supplied bits within the flag's bitmap
+	 * 
+	 * @param id
+	 *          protocol ID
+	 * @param flags
+	 *          flags to clear
+	 */
+	public static void clearFlags(int id, int flags) {
+		headerFlags[id] &= ~flags;
+	}
+
 	/**
 	 * Retrieves all current bindings bound to a protocol
 	 * 
@@ -161,6 +147,26 @@ public class JRegistry {
 		}
 
 		return bindings[id];
+	}
+
+	/**
+	 * Gets the current flags for a specified protocol
+	 * 
+	 * @param id
+	 *          numerical id of the protocol header
+	 * @return current flags as a bit mask
+	 */
+	public static int getFlags(int id) {
+		return headerFlags[id];
+	}
+
+	/**
+	 * Retrieves the entire list of scanners for all registered protocols
+	 * 
+	 * @return array of header scanners
+	 */
+	public static JHeaderScanner[] getHeaderScanners() {
+		return headerScanners;
 	}
 
 	/**
@@ -191,11 +197,10 @@ public class JRegistry {
 	 * @throws UnregisteredHeaderException
 	 *           if header class is not registered
 	 */
-	public static int lookupId(Class<? extends JHeader> c)
-	    throws UnregisteredHeaderException {
+	public static int lookupId(Class<? extends JHeader> c) {
 		Entry e = mapByClass.get(c);
 		if (e == null) {
-			throw new UnregisteredHeaderException();
+			return register(c, null);
 		}
 
 		return e.id;
@@ -211,11 +216,7 @@ public class JRegistry {
 	 * @return numerical ID of the protocol header
 	 */
 	public static int lookupId(JProtocol p) {
-		try {
-			return lookupId(p.clazz);
-		} catch (UnregisteredHeaderException e) {
-			throw new IllegalStateException(e); // Internal error
-		}
+		return lookupId(p.clazz);
 	}
 
 	/**
@@ -239,6 +240,7 @@ public class JRegistry {
 		MAP_BY_ID[id] = e;
 
 		headerScanners[id] = scan;
+		addBindingsFromJHeader(c);
 		addBinding(id, bindings);
 
 		return id;
@@ -274,11 +276,14 @@ public class JRegistry {
 	}
 
 	/**
-	 * Retrieves the entire list of scanners for all registered protocols
+	 * Sets the current flag for a specified protocol
 	 * 
-	 * @return array of header scanners
+	 * @param id
+	 *          numerical id of the protocol header
+	 * @param flags
+	 *          flags to set (bitwise OR) with the existing flags
 	 */
-	public static JHeaderScanner[] getHeaderScanners() {
-		return headerScanners;
+	public static void setFlags(int id, int flags) {
+		headerFlags[id] |= flags;
 	}
 }

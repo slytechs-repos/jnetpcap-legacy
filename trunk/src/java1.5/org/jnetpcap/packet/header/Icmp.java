@@ -486,7 +486,7 @@ public class Icmp
 	 * @see org.jnetpcap.packet.JHeaderMap#decodeUniqueSubHeaders()
 	 */
 	@Override
-	protected void decodeUniqueSubHeaders() {
+	protected void decodeHeader() {
 		final int id = type();
 		optionsOffsets[id] = 4;
 		optionsBitmap = (1 << id);

@@ -308,7 +308,7 @@ public class L2TP
 		order(BYTE_ORDER);
 	}
 
-	public void decode() {
+	public void decodeHeader() {
 
 		int flags = flags();
 		int o = 2;
