@@ -401,7 +401,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_loadScanners
 		}
 		
 		scanner->sc_java_header_scanners[i] = env->NewGlobalRef(loc_ref);
-		scanner->sc_bindings |= i;
+		scanner->sc_bindings |= (1 < i);
 		
 		env->DeleteLocalRef(loc_ref);
 	}
@@ -422,7 +422,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScanner_scan
 	}
 
 	char *buf = (char *)getJMemoryPhysical(env, jpacket);
-	if (scanner == NULL) {
+	if (buf == NULL) {
 		return -1;
 	}
 
