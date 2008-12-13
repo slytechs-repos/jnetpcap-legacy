@@ -51,7 +51,7 @@ public class JHeaderScanner
 
 	private static final String FUNCT_NAME = "scan_";
 
-	private final int id;
+	private int id;
 
 	private final boolean nativeIsBound;
 
@@ -82,6 +82,12 @@ public class JHeaderScanner
 			throw new IllegalStateException(e); // This is an internal error
 		}
 		nativeIsBound = true;
+	}
+	
+	public JHeaderScanner() {
+		super("java header scanner");
+		
+		this.nativeIsBound = false;
 	}
 
 	private native void bindNativeScanner(int id)
@@ -181,4 +187,8 @@ public class JHeaderScanner
 		}
 
 	}
+
+	public final void setId(int id) {
+  	this.id = id;
+  }
 }

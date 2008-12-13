@@ -26,9 +26,17 @@ import org.jnetpcap.packet.format.JFormatter.Style;
  * @author Sly Technologies, Inc.
  */
 public class JField {
-	private JField[] componentFields;
+	protected JField[] componentFields;
 
+	/**
+	 * Name of the field which is also its ID
+	 */
 	private final String name;
+
+	/**
+	 * Display name, used for displaying to the user
+	 */
+	private final String display;
 
 	private final String nicname;
 
@@ -36,9 +44,9 @@ public class JField {
 
 	private final Priority priority;
 
-	private final JFieldRuntime<? extends JHeader, ?> runtime;
+	private JFieldRuntime<? extends JHeader, ?> runtime;
 
-	private final Style style;
+	protected Style style;
 
 	private final String units;
 
@@ -151,11 +159,30 @@ public class JField {
 		this.style = style;
 		this.runtime = runtime;
 		this.componentFields = componentFields;
+		this.display = name;
 
 		for (JField f : componentFields) {
 			f.setParent(this);
 		}
 	}
+	
+	public JField(Style style, Priority priority, String name, String display, String nicname,
+	    String units, JFieldRuntime<? extends JHeader, ?> runtime,
+	    JField... componentFields) {
+		this.name = name;
+		this.nicname = nicname;
+		this.priority = priority;
+		this.units = units;
+		this.style = style;
+		this.runtime = runtime;
+		this.componentFields = componentFields;
+		this.display = display;
+
+		for (JField f : componentFields) {
+			f.setParent(this);
+		}
+	}
+
 
 	/**
 	 * Creates a field of a header
@@ -175,6 +202,10 @@ public class JField {
 	    JFieldRuntime<? extends JHeader, ?> runtime, JField... componentFields) {
 		this(style, Priority.MEDIUM, name, nicname, null, runtime, componentFields);
 
+	}
+
+	public void setRuntime(JFieldRuntime<? extends JHeader, ?> runtime) {
+		this.runtime = runtime;
 	}
 
 	/**
@@ -269,4 +300,16 @@ public class JField {
 	public final void setParent(JField parent) {
 		this.parent = parent;
 	}
+
+	/**
+	 * @param style
+	 */
+	public void setStyle(Style style) {
+		this.style = style;
+	}
+
+	public final String getDisplay() {
+  	return this.display;
+  }
+
 }

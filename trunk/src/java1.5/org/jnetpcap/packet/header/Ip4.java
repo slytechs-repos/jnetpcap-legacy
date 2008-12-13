@@ -1284,7 +1284,7 @@ public class Ip4
 	 * @see org.jnetpcap.packet.JHeader#decode()
 	 */
 	@Override
-	public void decodeUniqueSubHeaders() {
+	public void decodeHeader() {
 		optionsBitmap = 0;
 		this.hashcode = (id() << 16) ^ sourceToInt() ^ destinationToInt() ^ type();
 

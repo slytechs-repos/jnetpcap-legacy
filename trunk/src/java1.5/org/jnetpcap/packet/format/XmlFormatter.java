@@ -102,7 +102,7 @@ public class XmlFormatter
 
 		if (field.getStyle() == Style.BYTE_ARRAY_HEX_DUMP) {
 			pad().format(LT + "hexdump offset=\"%d\" length=\"%d\"" + GT,
-			    runtime.getOffset(), runtime.getLength());
+			    runtime.getOffset(header), runtime.getLength(header));
 			incLevel(PAD);
 
 			final String[] v =
@@ -121,8 +121,8 @@ public class XmlFormatter
 
 			pad().format(
 			    LT + "field name=\"%s\" value=\"%s\" offset=\"%d\" length=\"%d\""
-			        + GT, field.getName(), v, field.getRuntime().getOffset(),
-			    field.getRuntime().getLength());
+			        + GT, field.getName(), v, runtime.getOffset(header),
+			    runtime.getLength(header));
 
 		} else if (field.getStyle() == Style.INT_BITS) {
 		} else {
@@ -130,8 +130,8 @@ public class XmlFormatter
 
 			pad().format(
 			    LT + "field name=\"%s\" value=\"%s\" offset=\"%d\" length=\"%d\"/"
-			        + GT, field.getName(), v, field.getRuntime().getOffset(),
-			    field.getRuntime().getLength());
+			        + GT, field.getName(), v, runtime.getOffset(header),
+			    runtime.getLength(header));
 		}
 
 	}

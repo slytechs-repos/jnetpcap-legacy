@@ -62,7 +62,7 @@ public abstract class JStaticField<H extends JHeader, V> implements
 	 * 
 	 * @return the offset in bytes
 	 */
-	public final int getOffset() {
+	public final int getOffset(H header) {
 		return this.offset;
 	}
 
@@ -71,14 +71,14 @@ public abstract class JStaticField<H extends JHeader, V> implements
 	 * 
 	 * @return the length in bits
 	 */
-	public final int getLength() {
+	public final int getLength(H header) {
 		return this.length;
 	}
 
 	/**
 	 * @return the mask
 	 */
-	public final int getMask() {
+	public final int getMask(H header) {
 		return this.mask;
 	}
 

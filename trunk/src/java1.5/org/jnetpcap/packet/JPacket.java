@@ -284,16 +284,36 @@ public abstract class JPacket
 
 	private static JFormatter out = new TextFormatter(new StringBuilder());
 
+	/**
+	 * Packet's state structure
+	 */
 	protected final State state = new State(Type.POINTER);
 
+	/**
+	 * Packet's default memory pool out of which allocates memory for deep copies
+	 */
 	protected static JMemoryPool pool = new JMemoryPool();
 
+	/**
+	 * Default scanner used to scan a packet per user request
+	 */
 	protected static JScanner scanner = new JScanner();
 
+	/**
+	 * The allocated memory buffer. Initialy this buffer is empty, but may be
+	 * peered with allocated memory for internal usage such as copying header,
+	 * state and data into a single buffer
+	 */
 	protected final JBuffer memory = new JBuffer(Type.POINTER);
 
-	protected int memoryOffset;
-
+	/**
+	 * Gets the memory buffer with the supplied byte array data copied into it.
+	 * The internal memory buffer is allocated if neccessary.
+	 * 
+	 * @param buffer
+	 *          source array buffer to copy data out of
+	 * @return the memory buffer
+	 */
 	protected JBuffer getMemoryBuffer(byte[] buffer) {
 		pool.allocate(buffer.length, memory);
 		memory.transferFrom(buffer);
@@ -302,8 +322,12 @@ public abstract class JPacket
 	}
 
 	/**
+	 * Gets the memory buffer with the supplied JBuffer data copied into it. The
+	 * internal memory buffer is allocated if neccessary.
+	 * 
 	 * @param buffer
-	 * @return
+	 *          source array buffer to copy data out of
+	 * @return the memory buffer
 	 */
 	protected JBuffer getMemoryBuffer(JBuffer buffer) {
 		memory.peer(buffer);
@@ -312,9 +336,12 @@ public abstract class JPacket
 	}
 
 	/**
+	 * Gets the memory buffer with the supplied ByteBuffer data copied into it.
+	 * The internal memory buffer is allocated if neccessary.
+	 * 
 	 * @param buffer
-	 * @return
-	 * @throws PeeringException
+	 *          source array buffer to copy data out of
+	 * @return the memory buffer
 	 */
 	protected JBuffer getMemoryBuffer(ByteBuffer buffer) throws PeeringException {
 		memory.peer(buffer);
@@ -528,10 +555,6 @@ public abstract class JPacket
 	 */
 	public State getState() {
 		return state;
-	}
-
-	public int getStateSize() {
-		return state.size();
 	}
 
 	/**

@@ -16,6 +16,7 @@ import java.nio.ByteOrder;
 
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
+import org.jnetpcap.packet.annotate.BindingVariable;
 import org.jnetpcap.packet.format.JBitField;
 import org.jnetpcap.packet.format.JField;
 import org.jnetpcap.packet.format.JStaticField;
@@ -290,10 +291,12 @@ public class Tcp
 		order(BYTE_ORDER);
 	}
 
+	@BindingVariable
 	public int source() {
 		return getUShort(0);
 	}
 
+	@BindingVariable
 	public int destination() {
 		return getUShort(2);
 	}
