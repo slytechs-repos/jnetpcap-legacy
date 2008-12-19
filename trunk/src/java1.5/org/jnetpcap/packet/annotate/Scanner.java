@@ -18,6 +18,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jnetpcap.packet.JHeader;
+
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
@@ -26,5 +28,5 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Scanner {
-
+	Class<? extends JHeader> value() default JHeader.class;
 }

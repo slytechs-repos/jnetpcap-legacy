@@ -18,6 +18,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jnetpcap.packet.JHeader;
+
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
@@ -27,10 +29,14 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Header {
 
-	int value() default -1;
+	int id() default -1;
 
 	String name() default "";
 
 	String nicname() default "";
+	
+	Class<? extends JHeader> parent() default JHeader.class;
+	
+	int length() default -1;
 
 }

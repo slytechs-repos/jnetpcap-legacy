@@ -81,14 +81,14 @@ int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner,
 	scan.length = 0;
 	scan.id = first_id;
 	scan.next_id = PAYLOAD_ID;
-	
+
 	// Point jscan 
 	setJMemoryPhysical(env, scanner->sc_jscan, toLong(&scan));
 
 	// Local temp variables
 	register uint64_t mask;
 
-//#define DEBUG
+	//#define DEBUG
 
 #ifdef DEBUG
 	printf("\n\n");
@@ -100,67 +100,67 @@ int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner,
 	 */
 	while (scan.id != END_OF_HEADERS) {
 #ifdef DEBUG
-		printf("scan() loop-top   : id=%-16s offset=%-4d flags=%d\n", 
+		printf("scan() loop-top   : id=%-16s offset=%-4d flags=%d\n",
 				id2str(scan.id),
 				scan.offset,
 				scanner->sc_flags[scan.id]);
 #endif
-		
 
 		/* 
 		 * Scan of each protocol is done through a dispatch function table.
-		 * Each protocol that has a native scanner has a function defined
-		 * in packet_protocol.cpp file. Otherwise NULL is the default.
+		 * Each protocol that has a protocol header scanner attached, a scanner
+		 * designed specifically for that protocol. The protocol id is also the
+		 * index into the table. There are 2 types of scanners both have exactly
+		 * the same signature and thus both are set in this table. The first is
+		 * the native scanner that only performs a direct scan of the header.
+		 * The second scanner is a java header scanner. It is based on 
+		 * JHeaderScanner class. A single dispatch method callJavaHeaderScanner
+		 * uses the protocol ID to to dispatch to the appropriate java scanner.
+		 * Uses a separate java specific table: sc_java_header_scanners[]. The
+		 * java scanner is capable of calling the native scan method from java
+		 * but also adds the ability to check all the attached JBinding[] for
+		 * any additional registered bindings. Interesting fact is that if the
+		 * java scanner doesn't have any bindings nor does it override the 
+		 * default scan method to perform a scan in java and is also setup to 
+		 * dispatch to native scanner, it is exactly same thing as if the 
+		 * native scanner was dispatched directly from here, but round 
+		 * about way through java land.
 		 */
 		if (scanner->sc_scan_table[scan.id] != NULL) {
-			scanner->sc_scan_table[scan.id](&scan); // Dispatch to protocol scanner
+			scanner->sc_scan_table[scan.id](&scan); // Dispatch to scanner
 		}
 
 #ifdef DEBUG
 		printf("scan() loop-middle: id=%-16s offset=%-4d nid=%s length=%d\n",
-				id2str(scan.id), scan.offset, 
+				id2str(scan.id), scan.offset,
 				id2str(scan.next_id), scan.length);
 #endif
-		
+
 		if (scan.length == 0) {
 #ifdef DEBUG
-		printf("scan() loop-length==0\n");
+			printf("scan() loop-length==0\n");
 #endif
 			if (scan.id == PAYLOAD_ID) {
 				scan.next_id = END_OF_HEADERS;
 			} else {
 				scan.next_id = PAYLOAD_ID;
 			}
-			
+
 		} else { // length != 0
-			
+
 #ifdef DEBUG
-		printf("scan() loop-length: %d\n", scan.length);
+			printf("scan() loop-length: %d\n", scan.length);
 #endif
-			if (   (scanner->sc_flags[scan.id] & FLAG_OVERRIDE_BINDING) != 0
-				|| (scan.next_id == PAYLOAD_ID)) {
-				
-				/*
-				 * The scanner should already be setup to only check the 
-				 * bindings
-				 */
-				if ((scanner->sc_bindings & scan.id) != 0) {
-#ifdef DEBUG
-		printf("scan() loop-bnding: id=%d\n", scan.id);
-#endif
-					callJavaHeaderScanner(&scan);
-				}
-			}
-			
+
 			/******************************************************
 			 * ****************************************************
 			 * * Now record discovered information in structures
 			 * ****************************************************
 			 ******************************************************/
-			
+
 #ifdef DEBUG
-		printf("scan() loop-record: id=%-16s offset=%-4d nid=%s length=%d\n",
-				id2str(scan.id), scan.offset, id2str(scan.next_id), scan.length);
+			printf("scan() loop-record: id=%-16s offset=%-4d nid=%s length=%d\n",
+					id2str(scan.id), scan.offset, id2str(scan.next_id), scan.length);
 #endif
 			/*
 			 * Initialize the header entry in our packet header array
@@ -173,14 +173,16 @@ int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner,
 			/*
 			 * Adjust for truncated packets
 			 */
-			scan.length= ((scan.length > scan.buf_len - scan.offset) ? scan.buf_len
-					- scan.offset : scan.length);
+			scan.length
+					= ((scan.length > scan.buf_len - scan.offset) ? scan.buf_len
+							- scan.offset
+							: scan.length);
 
 			scan.header->hdr_length = scan.length;
 			scan.offset += scan.length;
 			scan.header ++; /* point to next header entry *** ptr arithmatic */
 			scan.packet->pkt_header_count ++; /* number of entries */
-		}
+		} // End if len != 0
 
 #ifdef DEBUG
 		printf("scan() loop-bottom: id=%-16s offset=%-4d nid=%s length=%d\n",
@@ -190,7 +192,7 @@ int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner,
 		scan.id = scan.next_id;
 		scan.next_id = PAYLOAD_ID;
 		scan.length = 0;
-	}
+	} // End for loop
 
 	/* record number of header entries found */
 	//	scan.packet->pkt_header_count = count;
@@ -204,7 +206,7 @@ int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner,
 #endif
 
 	return scan.offset;
-}
+} // End scan()
 
 /**
  * Scan packet buffer by dispatching to JBinding java objects
@@ -213,18 +215,17 @@ void callJavaHeaderScanner(scan_t *scan) {
 
 	JNIEnv *env = scan->env;
 	jobject jscanner = scan->scanner->sc_java_header_scanners[scan->id];
-	
+
 	if (jscanner == NULL) {
-		sprintf(str_buf, "java header scanner not set for ID=%d (%s)", 
-				scan->id, 
-				id2str(scan->id));
+		sprintf(str_buf, "java header scanner not set for ID=%d (%s)",
+				scan->id, id2str(scan->id));
 #ifdef DEBUG
 		fprintf(stdout, "scan() jscaner-ERR: %s\n", str_buf); fflush(stdout);
 #endif
 		throwException(scan->env, NULL_PTR_EXCEPTION, str_buf);
 		return;
 	}
-		
+
 	env->CallVoidMethod(jscanner, scanHeaderMID, scan->scanner->sc_jscan);
 }
 
@@ -258,8 +259,8 @@ int scanJPacket(JNIEnv *env, jobject obj, jobject jpacket, jobject jstate,
 
 	scanner->sc_offset +=scan(env, obj, jpacket, scanner, packet, first_id,
 			buf, buf_length);
-	
-	env->SetIntField(jstate, jmemorySizeFID, (jsize) sizeof(packet_state_t) 
+
+	env->SetIntField(jstate, jmemorySizeFID, (jsize) sizeof(packet_state_t)
 			+ sizeof(header_t) * packet->pkt_header_count);
 }
 
@@ -284,15 +285,15 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_initIds
 (JNIEnv *env, jclass clazz) {
 
 	if ( (jheaderScannerClass = findClass(
-				env, 
-				"org/jnetpcap/packet/JHeaderScanner")) == NULL) {
+							env,
+							"org/jnetpcap/packet/JHeaderScanner")) == NULL) {
 		return;
 	}
 
 	if ( (scanHeaderMID = env->GetMethodID(
-			jheaderScannerClass, 
-			"scanHeader", 
-			"(Lorg/jnetpcap/packet/JScan;)V")) == NULL) {
+							jheaderScannerClass,
+							"scanHeader",
+							"(Lorg/jnetpcap/packet/JScan;)V")) == NULL) {
 		return;
 	}
 
@@ -319,22 +320,22 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScanner_sizeof
  * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_cleanup_1jscanner
-  (JNIEnv *env, jobject obj) {
-	
+(JNIEnv *env, jobject obj) {
+
 	scanner_t *scanner = (scanner_t *)getJMemoryPhysical(env, obj);
 	if (scanner == NULL) {
 		return;
 	}
-	
+
 	env->DeleteGlobalRef(scanner->sc_jscan);
 	scanner->sc_jscan = NULL;
-	
+
 	for (int i = 0; i < MAX_ID_COUNT; i ++) {
 		if (scanner->sc_java_header_scanners[i] != NULL) {
 			env->DeleteGlobalRef(scanner->sc_java_header_scanners[i]);
 			scanner->sc_java_header_scanners[i] = NULL;
 		}
-	}	
+	}
 }
 
 /*
@@ -344,24 +345,24 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_cleanup_1jscanner
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_init
 (JNIEnv *env, jobject obj, jobject jscan) {
-	
+
 	if (jscan == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, 
+		throwException(env, NULL_PTR_EXCEPTION,
 				"JScan parameter can not be null");
 		return;
 	}
-	
+
 	void *block = (char *)getJMemoryPhysical(env, obj);
 	size_t size = (size_t)env->GetIntField(obj, jmemorySizeFID);
 
 	memset(block, 0, size);
-	
+
 	scanner_t *scanner = (scanner_t *)block;
 	scanner->sc_jscan = env->NewGlobalRef(jscan);
 	scanner->sc_len = size - sizeof(scanner_t);
 	scanner->sc_offset = 0;
 	scanner->sc_packet = (packet_state_t *)((char *)block + sizeof(scanner_t));
-	
+
 	for (int i = 0; i < MAX_ID_COUNT; i++) {
 		scanner->sc_scan_table[i] = native_protocols[i];
 	}
@@ -380,33 +381,41 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_loadScanners
 	}
 
 	jsize size = env->GetArrayLength(jascanners);
-	
+
 #ifdef DEBUG
 	printf("loadScanners(): loaded %d scanners\n", (int)size);
 #endif
-	
+
 	if (size != MAX_ID_COUNT) {
-		throwException(env, 
-				ILLEGAL_ARGUMENT_EXCEPTION, 
+		throwException(env,
+				ILLEGAL_ARGUMENT_EXCEPTION,
 				"size of array must be MAX_ID_COUNT size");
 		return;
 	}
-	
-	scanner->sc_bindings = 0;
 
 	for (int i = 0; i < MAX_ID_COUNT; i ++) {
 		jobject loc_ref = env->GetObjectArrayElement(jascanners, (jsize) i);
 		if (loc_ref == NULL) {
-			continue;
+
+			/*
+			 * If we don't have a java header scanner, then setup the native
+			 * scanner in its place. Any unused java scanner slot will be filled
+			 * with native scanner.
+			 */
+			scanner->sc_scan_table[i] = native_protocols[i];
+		} else {
+
+			/*
+			 * Record the java header scanner and replace the native scanner with
+			 * our java scanner in dispatch table.
+			 */
+			scanner->sc_java_header_scanners[i] = env->NewGlobalRef(loc_ref);
+			scanner->sc_scan_table[i] = callJavaHeaderScanner;
+
+			env->DeleteLocalRef(loc_ref);
 		}
-		
-		scanner->sc_java_header_scanners[i] = env->NewGlobalRef(loc_ref);
-		scanner->sc_bindings |= (1 < i);
-		
-		env->DeleteLocalRef(loc_ref);
 	}
 }
-
 
 /*
  * Class:     org_jnetpcap_packet_JScanner

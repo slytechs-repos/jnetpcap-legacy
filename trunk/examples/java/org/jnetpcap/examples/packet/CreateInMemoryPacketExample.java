@@ -14,7 +14,7 @@ package org.jnetpcap.examples.packet;
 
 import org.jnetpcap.packet.JMemoryPacket;
 import org.jnetpcap.packet.JPacket;
-import org.jnetpcap.packet.header.Ethernet;
+import org.jnetpcap.packet.JProtocol;
 
 /**
  * @author Mark Bednarczyk
@@ -28,7 +28,7 @@ public class CreateInMemoryPacketExample {
 	public static void main(String[] args) {
 
 		JPacket packet =
-		    new JMemoryPacket(Ethernet.ID,
+		    new JMemoryPacket(JProtocol.ETHERNET_ID,
 		    /* Data acquired using JMemory.toHexdump on a different packet */
 		    "      16037801 16030060 089fb1f3 080045c0"
 		        + "01d4e253 0000ff01 ae968397 20158397"

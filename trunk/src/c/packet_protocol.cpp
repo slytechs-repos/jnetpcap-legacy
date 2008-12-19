@@ -71,7 +71,8 @@ void scan_icmp(scan_t *scan) {
 	case 15: 
 	case 16:
 	default:
-		scan->length = scan->buf_len - scan->offset; 
+//		scan->length = scan->buf_len - scan->offset; 
+		scan->length = 8; 
 		break;
 	}
 

@@ -187,7 +187,7 @@ public class IpReassemblyExample
        * reassembled datagram
        */
       header.hlen(5); // Clear IP optional headers
-      header.clearFlags(Ip4.FLAG_MORE_FRAGEMNTS); // FRAG flag
+      header.clearFlags(Ip4.FLAG_MORE_FRAGMENTS); // FRAG flag
       header.offset(0); // Offset is now 0
       header.checksum(0); // Reset header CRC, unless we calculate it
       // again
@@ -568,7 +568,7 @@ public class IpReassemblyExample
       /*
        * Check if we have an IP fragment
        */
-      if ((ip.flags() & Ip4.FLAG_MORE_FRAGEMNTS) != 0) {
+      if ((ip.flags() & Ip4.FLAG_MORE_FRAGMENTS) != 0) {
         bufferFragment(packet, ip);
 
         /*

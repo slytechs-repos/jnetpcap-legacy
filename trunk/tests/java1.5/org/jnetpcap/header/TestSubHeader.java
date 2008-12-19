@@ -18,8 +18,11 @@ import junit.framework.TestCase;
 
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.TestUtils;
+import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.packet.header.Ip4;
+
+
 
 /**
  * @author Mark Bednarczyk
@@ -46,7 +49,7 @@ public class TestSubHeader
 		super.tearDown();
 	}
 	
-	public void testSubHeaderAccess() {
+	public void testSubHeaderAccess() throws IOException {
 		Ip4 ip = new Ip4();
 		Ip4.Timestamp ts = new Ip4.Timestamp();
 		Ip4.LooseSourceRoute lsroute = new Ip4.LooseSourceRoute();
@@ -56,6 +59,9 @@ public class TestSubHeader
 		JPacket packet =
 		    TestUtils.getPcapPacket("tests/test-icmp-recordroute-opt.pcap", 0);
 
+		JFormatter out = new TextFormatter();
+		out.format(packet);
+		
 		assertNotNull(packet);
 		assertTrue(packet.hasHeader(ip));
 		assertTrue(ip.hasSubHeaders());

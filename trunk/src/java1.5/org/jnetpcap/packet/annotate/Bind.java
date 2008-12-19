@@ -71,4 +71,6 @@ public @interface Bind {
 	 * @return header class that is the source of the binding
 	 */
 	Class<? extends JHeader> from() default JHeader.class;
+	
+	Class<? extends JHeader>[] dependencies() default {};
 }

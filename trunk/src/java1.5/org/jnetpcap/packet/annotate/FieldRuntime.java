@@ -34,7 +34,9 @@ public @interface FieldRuntime {
 		LENGTH,
 		VALUE,
 		DESCRIPTION,
+		DISPLAY,
 		MASK,
+		UNITS,
 	}
 
 	String field() default "";

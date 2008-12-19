@@ -46,17 +46,17 @@ public class JScan
 		super(STRUCT_NAME, type);
 	}
 
-	protected native int scan_id();
+	public native int scan_id();
 
-	protected native int scan_next_id();
+	public native int scan_next_id();
 
-	protected native int scan_length();
+	public native int scan_length();
 
-	protected native void scan_id(int id);
+	public native void scan_id(int id);
 
-	protected native void scan_next_id(int next_id);
+	public native void scan_next_id(int next_id);
 
-	protected native void scan_length(int length);
+	public native void scan_length(int length);
 
 	/**
 	 * Size in bytes of the native scan_t structure on this particular platform

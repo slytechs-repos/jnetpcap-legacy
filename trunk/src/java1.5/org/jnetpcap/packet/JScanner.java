@@ -191,6 +191,8 @@ public class JScanner
 	public JScanner() {
 		this(DEFAULT_BLOCKSIZE);
 	}
+	
+	private static int count = 0;
 
 	/**
 	 * Allocates the requested blocksize of memory + the sizeof(scanner_t)
@@ -198,7 +200,7 @@ public class JScanner
 	 * @param blocksize
 	 */
 	public JScanner(int blocksize) {
-		super(STRUCT_NAME, blocksize + sizeof()); // Allocate memory block in
+		super(STRUCT_NAME + "#"+ count ++, blocksize + sizeof()); // Allocate memory block in
 		// JMemory
 		init(new JScan());
 		reloadAll();
@@ -243,7 +245,21 @@ public class JScanner
 	 * scanner structures.
 	 */
 	public void reloadAll() {
-		loadScanners(JRegistry.getHeaderScanners());
+		JHeaderScanner[] scanners = JRegistry.getHeaderScanners();
+
+		for (int i = 0; i < scanners.length; i++) {
+			if (scanners[i] == null) {
+				continue;
+			}
+
+			if (scanners[i].hasBindings() || scanners[i].hasScanMethod()) {
+				System.out.printf("%s, Downloading scanner [%s]\n", this, scanners[i]);
+			} else {
+				scanners[i] = null;
+			}
+		}
+
+//		loadScanners(scanners);
 	}
 
 	/**

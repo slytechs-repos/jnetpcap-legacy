@@ -26,5 +26,5 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 public @interface HeaderLength {
-
+	int value() default -1;
 }

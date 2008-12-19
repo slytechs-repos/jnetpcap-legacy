@@ -12,26 +12,13 @@
  */
 package org.jnetpcap.packet;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JStruct;
-import org.jnetpcap.packet.annotate.Field;
-import org.jnetpcap.packet.annotate.FieldRuntime;
-import org.jnetpcap.packet.annotate.Header;
-import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
+import org.jnetpcap.packet.annotate.AnnotatedHeader;
 import org.jnetpcap.packet.format.JDynamicField;
 import org.jnetpcap.packet.format.JField;
-import org.jnetpcap.packet.format.JFieldRuntime;
 import org.jnetpcap.packet.format.JFormatter.Priority;
 import org.jnetpcap.packet.format.JFormatter.Style;
 
@@ -133,18 +120,13 @@ public abstract class JHeader
 	 */
 	public native static int sizeof();
 
+	protected AnnotatedHeader annotatedHeader;
+
 	private JField[] fields;
 
 	private int id;
 
-	private Map<String, AnnotatedFieldRuntime> inspectedFieldRuntimes =
-	    new HashMap<String, AnnotatedFieldRuntime>();
-
-	private Map<String, AnnotatedField> inspectedFields =
-	    new HashMap<String, AnnotatedField>();
-
-	private Map<String, List<AnnotatedField>> inspectedSubFields =
-	    new HashMap<String, List<AnnotatedField>>();
+	protected boolean isSubHeader = false;
 
 	private String name;
 
@@ -160,78 +142,50 @@ public abstract class JHeader
 	 */
 	protected final State state;
 
-	protected boolean isSubHeader = false;
-
+	/**
+	 * Calls on the header defintion's static annotated \@HeaderLength method to
+	 * get header's length. The method is given a buffer and offset as the start
+	 * of the header. The method invoked must be defined in the header definition
+	 * otherwise an exception will be thrown.
+	 */
 	public JHeader() {
 		super(Type.POINTER);
+		order(ByteOrder.BIG_ENDIAN); // network byte order by default
 		state = new State(Type.POINTER);
-		
-		if(!(this instanceof JHeaderMap)) {
-			inspect();
+
+		final JProtocol protocol = JProtocol.valueOf(getClass());
+
+		AnnotatedHeader header;
+		if (protocol != null) {
+			this.id = protocol.ID;
+			header = JRegistry.lookupAnnotatedHeader(protocol);
+
+		} else {
+			this.id = JRegistry.lookupId(getClass());
+			header = JRegistry.lookupAnnotatedHeader(getClass());
 		}
 
-	}
-	
-	protected void inspect() {
-		Class<? extends JHeader> c = getClass();
-
-		inspectHeader(c);
-
-		fields = inspectHeaderFields(c);
-		setSubHeaders(inspectSubHeaders(c));
-
-		if (!isSubHeader) {
-			this.id = JRegistry.lookupId(c);
-		}
-
+		initFromAnnotatedHeader(header);
 	}
 
-	public void setSubHeaders(JHeader[] headers) {
+	public JHeader(JProtocol protocol) {
+		super(Type.POINTER);
+		order(ByteOrder.BIG_ENDIAN); // network byte order by default
+		state = new State(Type.POINTER);
+
+		this.id = protocol.ID;
+		AnnotatedHeader header = JRegistry.lookupAnnotatedHeader(protocol);
+
+		initFromAnnotatedHeader(header);
 	}
 
-	/**
-	 * @param c
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	protected JHeader[] inspectSubHeaders(Class<? extends JHeader> c) {
+	private void initFromAnnotatedHeader(AnnotatedHeader header) {
+		this.annotatedHeader = header;
 
-		List<JHeader> list = new ArrayList<JHeader>();
-		for (Class<?> s : c.getDeclaredClasses()) {
-			Header header = s.getAnnotation(Header.class);
-			if (header == null) {
-				continue; // Doesn't @Header tag, not a real sub-header
-			}
+		this.name = header.getName();
+		this.nicname = header.getNicname();
 
-			try {
-				Constructor<JHeader> constructor =
-				    (Constructor<JHeader>) s.getConstructor();
-				JHeader jheader = constructor.newInstance();
-				jheader.id = header.value(); // Set sub-header's ID directly
-				list.add(jheader);
-
-			} catch (SecurityException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InstantiationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoSuchMethodException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-	      // TODO Auto-generated catch block
-	      e.printStackTrace();
-      } catch (InvocationTargetException e) {
-	      // TODO Auto-generated catch block
-	      e.printStackTrace();
-      }
-		}
-
-		return list.toArray(new JHeader[list.size()]);
+		this.fields = DefaultField.fromAnnotatedFields(header.getFields());
 	}
 
 	/**
@@ -349,21 +303,7 @@ public abstract class JHeader
 	 */
 	public JField[] getFields() {
 
-		final JHeader header = this;
-
-		Arrays.sort(fields, new Comparator<JField>() {
-
-			@SuppressWarnings("unchecked")
-			public int compare(JField o1, JField o2) {
-				final JFieldRuntime<JHeader, Object> r1 =
-				    (JFieldRuntime<JHeader, Object>) o1.getRuntime();
-				final JFieldRuntime<JHeader, Object> r2 =
-				    (JFieldRuntime<JHeader, Object>) o2.getRuntime();
-
-				return r1.getOffset(header) - r2.getOffset(header);
-			}
-
-		});
+		JField.sortFieldByOffset(fields, this, true);
 
 		return this.fields;
 	}
@@ -445,228 +385,16 @@ public abstract class JHeader
 		return EMPTY_HEADER_ARRAY;
 	}
 
-	/**
-	 * @param name
-	 * @return
-	 */
-	private String guessFieldName(String name) {
-		if (name.endsWith("Description")) {
-			return name.replace("Description", "");
-		} else if (name.endsWith("Offset")) {
-			return name.replace("Offset", "");
-		} else if (name.endsWith("Length")) {
-			return name.replace("Length", "");
-		} else if (name.endsWith("Mask")) {
-			return name.replace("Mask", "");
-		} else if (name.endsWith("Value")) {
-			return name.replace("Value", "");
-		} else if (name.startsWith("has")) {
-			String cap = name.replace("Value", "");
-			char u = cap.charAt(0);
-			char l = Character.toLowerCase(u);
-			return cap.replace(u, l);
-		} else {
-			return name;
-		}
-	}
-
 	public boolean hasSubHeaders() {
 		return false;
 	}
 
-	/**
-	 * @param c
-	 * @param method
-	 * @return
-	 */
-	private AnnotatedFieldRuntime inspectDynamicFieldMethod(
-	    Class<? extends JHeader> c,
-	    Method method) {
-		FieldRuntime annotation = method.getAnnotation(FieldRuntime.class);
+	public int peer(JBuffer buffer, int offset) {
+		// int length = this.lengthMethod.getHeaderLength(buffer, offset);
+		//
+		// return peer(buffer, offset, length);
 
-		String name = method.getName();
-		String fieldName =
-		    (annotation.field().isEmpty()) ? guessFieldName(name) : annotation
-		        .field();
-
-		AnnotatedFieldRuntime runtime = inspectedFieldRuntimes.get(name);
-		if (runtime == null) {
-			runtime = new AnnotatedFieldRuntime();
-			inspectedFieldRuntimes.put(fieldName, runtime);
-		}
-
-		FieldFunction type = annotation.value();
-
-//		System.out.printf("name=%s field=%s function=%s\n", name, fieldName, type);
-		runtime.setFunction(type, method);
-
-		return runtime;
-	}
-
-	/**
-	 * @param c
-	 */
-	private void inspectHeader(Class<? extends JHeader> c) {
-		Header annotation = c.getAnnotation(Header.class);
-		if (annotation == null) {
-			this.name = c.getSimpleName();
-			this.nicname = this.name;
-
-			return;
-		}
-
-		/*
-		 * Check if we are a sub-header and set a flag so we don't try and register
-		 * with JRegistry. Sub-header's are maintained by their parents, not
-		 * JRegistry
-		 */
-		isSubHeader = c.getEnclosingClass() != null;
-
-		this.name =
-		    (annotation.name().isEmpty()) ? c.getSimpleName() : annotation.name();
-
-		this.nicname =
-		    (annotation.nicname().isEmpty()) ? this.name : annotation.nicname();
-	}
-
-	private JField[] inspectHeaderFields(Class<? extends JHeader> c) {
-
-		for (Method m : c.getMethods()) {
-			if (m.isAnnotationPresent(Field.class)) {
-				inspectStaticFieldMethod(c, m);
-			}
-
-			if (m.isAnnotationPresent(FieldRuntime.class)) {
-				inspectDynamicFieldMethod(c, m);
-			}
-		}
-
-		for (AnnotatedField field : inspectedFields.values()) {
-			AnnotatedFieldRuntime runtime =
-			    inspectedFieldRuntimes.get(field.getName());
-			if (runtime == null) {
-				runtime = new AnnotatedFieldRuntime(field);
-				inspectedFieldRuntimes.put(field.getName(), runtime);
-			} else {
-				runtime.setField(field);
-			}
-
-			runtime.configFrom(field);
-
-			field.setRuntime(runtime);
-		}
-
-		/*
-		 * Now merge subfields with their parents
-		 */
-		for (String k : inspectedSubFields.keySet()) {
-			AnnotatedField field = inspectedFields.get(k);
-			List<AnnotatedField> list = inspectedSubFields.get(k);
-
-			if (field == null) {
-				System.err.printf("Parent %s\n", k);
-				continue;
-			}
-
-			field.addSubFields(list.toArray(new AnnotatedField[list.size()]));
-
-			/*
-			 * Now config sub-field's parent references and their runtimes
-			 */
-			for (AnnotatedField s : list) {
-				AnnotatedFieldRuntime runtime = inspectedFieldRuntimes.get(s.getName());
-				if (runtime == null) {
-					runtime = new AnnotatedFieldRuntime(s);
-					inspectedFieldRuntimes.put(s.getName(), runtime);
-				} else {
-					runtime.setField(field);
-				}
-
-				s.setParent(field);
-				runtime.configFrom(s);
-
-				s.setRuntime(runtime);
-
-			}
-
-		}
-
-		return inspectedFields.values().toArray(new JField[inspectedFields.size()]);
-
-	}
-
-	/**
-	 * @param c
-	 * @param m
-	 * @return
-	 */
-	private JField inspectStaticFieldMethod(Class<? extends JHeader> c, Method m) {
-		Field a = m.getAnnotation(Field.class);
-
-		String name = (a.name().isEmpty()) ? m.getName() : a.name();
-		String nicname = (a.nicname().isEmpty()) ? name : a.nicname();
-		String display = (a.display().isEmpty()) ? name : a.display();
-		String format = a.format();
-		String parent = a.parent();
-
-		if (!parent.isEmpty() && format.isEmpty()) {
-			format = "#bit#";
-		}
-
-		Style style = mapFormatToStyle(format);
-
-//		System.out.printf(
-//		    "field=%s, nic=%s, format=%s offset=%d length=%d parent=%s\n", name,
-//		    nicname, format, a.offset(), a.length(), parent);
-
-		AnnotatedField field = inspectedFields.get(name);
-		if (field == null) {
-			field =
-			    new AnnotatedField(style, a.priority(), name, display, nicname, a
-			        .units(), m);
-
-			if (parent.isEmpty() == false) {
-				field.setStyle(Style.INT_BITS);
-				List<AnnotatedField> list = inspectedSubFields.get(parent);
-				if (list == null) {
-					list = new ArrayList<AnnotatedField>();
-					inspectedSubFields.put(parent, list);
-				}
-				list.add(field);
-			} else {
-				inspectedFields.put(name, field);
-			}
-		}
-
-		return field;
-	}
-
-	/**
-	 * @param format
-	 * @return
-	 */
-	private Style mapFormatToStyle(String format) {
-		if (format.contains("%s")) {
-			return Style.STRING;
-		} else if (format.contains("%d")) {
-			return Style.INT_DEC;
-		} else if (format.contains("%x")) {
-			return Style.INT_HEX;
-		} else if (format.contains("#ip4#")) {
-			return Style.BYTE_ARRAY_IP4_ADDRESS;
-		} else if (format.contains("#ip4[]#")) {
-			return Style.BYTE_ARRAY_ARRAY_IP4_ADDRESS;
-		} else if (format.contains("#ip6#")) {
-			return Style.BYTE_ARRAY_IP6_ADDRESS;
-		} else if (format.contains("#mac#")) {
-			return Style.BYTE_ARRAY_COLON_ADDRESS;
-		} else if (format.contains("#hexdump#")) {
-			return Style.BYTE_ARRAY_HEX_DUMP;
-		} else if (format.contains("#bit#")) {
-			return Style.INT_BITS;
-		} else {
-			return Style.STRING;
-		}
+		return 0;
 	}
 
 	/**
@@ -692,6 +420,9 @@ public abstract class JHeader
 	 */
 	public final void setPacket(JPacket packet) {
 		this.packet = packet;
+	}
+
+	public void setSubHeaders(JHeader[] headers) {
 	}
 
 	/**
