@@ -21,6 +21,8 @@ import org.jnetpcap.packet.JHeaderPool;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.UnregisteredHeaderException;
+import org.jnetpcap.packet.structure.JField;
+import org.jnetpcap.packet.structure.JFieldRuntime;
 
 /**
  * Formats decoded contents of a JPacket for output.

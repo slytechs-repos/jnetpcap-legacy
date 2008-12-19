@@ -12,8 +12,8 @@
  */
 package org.jnetpcap.packet.annotate;
 
-import org.jnetpcap.packet.HeaderDefinitionError;
-import org.jnetpcap.packet.format.AnnotatedField;
+import org.jnetpcap.packet.structure.AnnotatedField;
+import org.jnetpcap.packet.structure.HeaderDefinitionError;
 
 /**
  * @author Mark Bednarczyk

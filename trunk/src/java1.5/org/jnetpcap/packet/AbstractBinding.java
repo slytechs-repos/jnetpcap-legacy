@@ -12,6 +12,9 @@
  */
 package org.jnetpcap.packet;
 
+import org.jnetpcap.packet.structure.AnnotatedHeaderLengthMethod;
+import org.jnetpcap.packet.structure.HeaderDefinitionError;
+
 
 /**
  * @author Mark Bednarczyk

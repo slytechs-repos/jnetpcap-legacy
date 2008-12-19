@@ -7,7 +7,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jnetpcap.packet.format.AnnotatedScannerMethod;
+import org.jnetpcap.packet.structure.AnnotatedBinding;
+import org.jnetpcap.packet.structure.AnnotatedHeader;
+import org.jnetpcap.packet.structure.AnnotatedScannerMethod;
+import org.jnetpcap.packet.structure.HeaderDefinitionError;
 
 /**
  * A registry of protocols, their classes, runtime IDs and bindings. This is a

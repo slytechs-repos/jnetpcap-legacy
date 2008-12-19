@@ -16,6 +16,9 @@ import java.util.Map;
 
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
+import org.jnetpcap.packet.structure.AnnotatedFieldMethod;
+import org.jnetpcap.packet.structure.AnnotatedFieldRuntime;
+import org.jnetpcap.packet.structure.JFieldRuntime;
 
 /**
  * @author Mark Bednarczyk

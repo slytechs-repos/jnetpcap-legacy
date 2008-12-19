@@ -25,10 +25,13 @@ import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FieldRuntime;
 import org.jnetpcap.packet.annotate.Scanner;
 import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
-import org.jnetpcap.packet.format.AnnotatedBindMethod;
 import org.jnetpcap.packet.header.Ethernet;
 import org.jnetpcap.packet.header.Ip4;
 import org.jnetpcap.packet.header.Ip6;
+import org.jnetpcap.packet.structure.AnnotatedBindMethod;
+import org.jnetpcap.packet.structure.AnnotatedBinding;
+import org.jnetpcap.packet.structure.AnnotatedHeaderLengthMethod;
+import org.jnetpcap.packet.structure.HeaderDefinitionError;
 
 
 /**

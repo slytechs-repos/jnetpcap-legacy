@@ -20,11 +20,11 @@ import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.annotate.BindingVariable;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
-import org.jnetpcap.packet.format.JBitField;
-import org.jnetpcap.packet.format.JField;
 import org.jnetpcap.packet.format.JStaticField;
 import org.jnetpcap.packet.format.JFormatter.Priority;
 import org.jnetpcap.packet.format.JFormatter.Style;
+import org.jnetpcap.packet.structure.JBitField;
+import org.jnetpcap.packet.structure.JField;
 
 /**
  * Tcp/Ip header definition

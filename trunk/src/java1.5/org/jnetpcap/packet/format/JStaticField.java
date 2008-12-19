@@ -13,6 +13,7 @@
 package org.jnetpcap.packet.format;
 
 import org.jnetpcap.packet.JHeader;
+import org.jnetpcap.packet.structure.JFieldRuntime;
 
 /**
  * A header field object used by formatters to describe formatting options that

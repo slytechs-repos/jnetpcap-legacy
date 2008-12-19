@@ -12,7 +12,7 @@
  */
 package org.jnetpcap.packet;
 
-import org.jnetpcap.packet.format.JField;
+import org.jnetpcap.packet.structure.JField;
 
 /**
  * @author Mark Bednarczyk
