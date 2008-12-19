@@ -1,0 +1,152 @@
+################################################################################
+#
+#    Copyright (C) 2007-2008 Sly Technologies, Inc.
+#
+#    This program is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU General Public License
+#    as published by the Free Software Foundation; either version 2
+#    of the License, or (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+#
+################################################################################
+
+                              jNetPcap Package
+                                 Change Log
+   
+== Release 1.2.rc2 (2008-12-06) ==
+
+* Update to 1.2.rc1 released on 2008-11-24
+
+* Fixed
+
+  - Fixed PcapPacket and JPacket class APIs
+
+  - Fixed various memory related issues found with JMemory
+
+* Added
+
+  - Added sub-header capabilities to JHeader and formatters
+
+  - Added all Ip options to Ip4 header definition
+
+  - Added all missing ICMP sub-header types
+  
+* Known Issues
+
+  - TCP header definition is missing its optional sub-headers
+  
+  - Java binding overrides are implemented but still not fully tested
+  
+  - Numerous javadoc typos and blank type comments
+                              
+== Release 1.2 (2008-11-24) ==
+
+* Feature release
+
+* Added
+
+  - #2292402 - Packet decoding framework
+  
+  - #2292455 - Memory management  
+  
+  - #2292464 - Add a function to acquire network interface MAC address
+  
+  - #2292515 - Simplify capturing packets in multi-threaded environment  
+  
+  - #2321006 - Deprecate: PcapHandler  
+  
+  - #2321014 - Deprecate: PcapPktHdr  
+  
+  - #2321017 - Deprecate: PcapInteger
+  
+  - #2321024 - Deprecate: certain loop, dispatch functions  
+
+* Bugs
+
+  - #2219738 - WinPcap.sendQueue ignores its parameter.  
+               WinPcapSendQueue(int size) constructor was ignoring size 
+               parameter and using a constant.
+    
+  - #2219729 - Memory leak in Pcap.loop().
+               Memory leak in Pcap.loop method. Local JNI references were 
+               accumulating causing out of memory errors in Pcap.loop when it 
+               was set to loop forever.
+                                 
+== Release 1.1 (2008-06-19) ==
+
+* Maintenance release
+
+* Provides packages for: Fedora Core 8 (Linux), Debian 4 (Linux), Win32 (WinXP/Vista)
+
+* NO BUG FIXES - no bugs reported from the time of previous release
+                                 
+== Release 1.0 (2007-12-21) ==
+
+* First production release
+
+* Bug #1855589 - Win32 isInjectSupported returned incorrect value 
+
+== Release 1.0b4 (2007-08-21) ==
+
+* Linux support
+
+* Bug #1776380 - PcapBpfProgram exceptions on linux platform
+
+* Added
+
+  - Pcap.inject, Pcap.isSendPacketSupported, Pcap.isInjectPacketSupported,
+    Pcap.lookupDev, Pcap.lookupNet
+                                 
+== Release 1.0b3 ==
+
+* No bugs found or reported since previous release
+
+* Additions to org.jnetpcap package
+  
+  - All core 'libpcap' functions
+    
+  - PcapClosedException, PcapExtensionNotAvailableException exceptions
+
+* Addtions of and to jnetpcap.org.winpcap package - WinPcap extensions
+  
+    + Nearly all WinPcap based functions, very few exceptions
+
+* Removed "commons-logging" dependency. Static initializers throw appropriate 
+  exceptions directly during initialization failure.
+
+== Release 1.0b2 ==
+
+* Bug #1767744  - PcapHandler object ptr error in loop() and dispatch()
+                  This is a critical bug, where PcapHandler objects clobers the
+                  parent Pcap object data after invocation through loop() or
+                  dispatch() method.
+                 
+* Add a number of int constants to Pcap.java class to represent various return
+  codes, flags, and mode settings. Each constant has detailed explanation of
+  its usage and where it is be applicable.
+  
+* openLive() method will now also return "warning" messages in errbuf, even if
+  result code from the OK was 0, meaning no error had occured, as per pcap 
+  specification.
+  
+* Possible issue uncovered, but not fixed in this release.
+
+  - setting the snaplen value on openLinve() call does not seem to cause a 
+    return of a truncated packet buffer from next(), nextEx(), dispatch() or 
+    loop(). The buffer always contains the entire packet. Significant
+    debugging effort does not point to a bug in jNetPcap software but in
+    underlying WinPcap library. This could be in issue with particular Network
+    Interface Card in use. The issue is still under investigation, but the fix 
+    to critical bug #1767744 can not be delayed.
+    
+== Release 1.0b1 ==
+
+* Initial release
