@@ -20,14 +20,12 @@ import junit.framework.TestCase;
 import org.jnetpcap.header.BindNetworkFamily;
 import org.jnetpcap.header.MyHeader;
 import org.jnetpcap.packet.JBinding.DefaultJBinding;
-import org.jnetpcap.packet.annotate.AbstractBinding;
-import org.jnetpcap.packet.annotate.AnnotatedBindMethod;
-import org.jnetpcap.packet.annotate.AnnotatedHeaderLengthMethod;
 import org.jnetpcap.packet.annotate.Bind;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FieldRuntime;
 import org.jnetpcap.packet.annotate.Scanner;
 import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
+import org.jnetpcap.packet.format.AnnotatedBindMethod;
 import org.jnetpcap.packet.header.Ethernet;
 import org.jnetpcap.packet.header.Ip4;
 import org.jnetpcap.packet.header.Ip6;
@@ -108,7 +106,7 @@ public class TestJRegistry
 		 * their annotation inspection instead of doing it once and caching it.
 		 */
 		errors.clear();
-		DefaultBinding.clearCache();
+		AnnotatedBinding.clearCache();
 		AnnotatedBindMethod.clearCache();
 		AnnotatedHeaderLengthMethod.clearCache();
 	}
@@ -157,12 +155,12 @@ public class TestJRegistry
 	}
 
 	public void testExtractBindingFromJHeader() {
-		DefaultBinding.inspectJHeaderClass(MyHeader.class, errors);
+		AnnotatedBinding.inspectJHeaderClass(MyHeader.class, errors);
 	}
 
 	public void testJHeaderAnnotatedBindingWithPacket() {
 		JBinding[] bindings =
-		    DefaultBinding.inspectJHeaderClass(MyHeader.class, errors);
+		    AnnotatedBinding.inspectJHeaderClass(MyHeader.class, errors);
 		JBinding bindEthernet = bindings[0];
 		System.out.println(bindEthernet.toString());
 
@@ -173,7 +171,7 @@ public class TestJRegistry
 
 	public void testAllClassAnnotatedBindingWithPacket() {
 		JBinding[] bindings =
-		    DefaultBinding.inspectClass(BindNetworkFamily.class, errors);
+		    AnnotatedBinding.inspectClass(BindNetworkFamily.class, errors);
 
 		assertTrue("no bindings found", bindings.length > 0);
 		JBinding bindEthernet = bindings[0];
@@ -233,7 +231,7 @@ public class TestJRegistry
 				return ethernet.type() == 0x800;
 			}
 		};
-		DefaultBinding.inspectObject(o, errors);
+		AnnotatedBinding.inspectObject(o, errors);
 	}
 
 	public void testRegistryDump() throws RegistryHeaderErrors {

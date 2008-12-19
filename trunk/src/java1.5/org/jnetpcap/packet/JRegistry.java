@@ -7,8 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jnetpcap.packet.annotate.AnnotatedHeader;
-import org.jnetpcap.packet.annotate.AnnotatedScannerMethod;
+import org.jnetpcap.packet.format.AnnotatedScannerMethod;
 
 /**
  * A registry of protocols, their classes, runtime IDs and bindings. This is a
@@ -140,11 +139,11 @@ public final class JRegistry {
 		clearErrors();
 
 		if (JHeader.class.isAssignableFrom(c)) {
-			addBindings(DefaultBinding.inspectJHeaderClass(
+			addBindings(AnnotatedBinding.inspectJHeaderClass(
 			    (Class<? extends JHeader>) c, errors));
 
 		} else {
-			addBindings(DefaultBinding.inspectClass(c, errors));
+			addBindings(AnnotatedBinding.inspectClass(c, errors));
 		}
 	}
 
@@ -164,7 +163,7 @@ public final class JRegistry {
 
 	public static void addBindings(Object bindingContainer) {
 		clearErrors();
-		addBindings(DefaultBinding.inspectObject(bindingContainer, errors));
+		addBindings(AnnotatedBinding.inspectObject(bindingContainer, errors));
 	}
 
 	public static void clearErrors() {
@@ -422,7 +421,7 @@ public final class JRegistry {
 	    List<HeaderDefinitionError> errors) {
 
 		AnnotatedHeader annotatedHeader = inspect(c, errors);
-		JBinding[] bindings = DefaultBinding.inspectJHeaderClass(c, errors);
+		JBinding[] bindings = AnnotatedBinding.inspectJHeaderClass(c, errors);
 		if (errors.isEmpty() == false) {
 			return -1;
 		}

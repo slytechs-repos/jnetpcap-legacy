@@ -15,7 +15,6 @@ package org.jnetpcap.packet;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jnetpcap.packet.annotate.AnnotatedHeader;
 import org.jnetpcap.packet.format.JField;
 
 /**

@@ -16,7 +16,7 @@ import java.nio.ByteOrder;
 
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JStruct;
-import org.jnetpcap.packet.annotate.AnnotatedHeader;
+import org.jnetpcap.packet.format.DefaultField;
 import org.jnetpcap.packet.format.JDynamicField;
 import org.jnetpcap.packet.format.JField;
 import org.jnetpcap.packet.format.JFormatter.Priority;

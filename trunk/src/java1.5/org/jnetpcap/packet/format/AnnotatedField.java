@@ -10,14 +10,16 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.packet.annotate;
+package org.jnetpcap.packet.format;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jnetpcap.packet.AnnotatedMethodException;
 import org.jnetpcap.packet.HeaderDefinitionError;
 import org.jnetpcap.packet.JHeader;
+import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.format.JFormatter.Priority;
 import org.jnetpcap.packet.format.JFormatter.Style;
 

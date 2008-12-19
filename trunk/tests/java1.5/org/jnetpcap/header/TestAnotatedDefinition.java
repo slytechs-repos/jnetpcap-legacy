@@ -19,23 +19,23 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.jnetpcap.nio.JBuffer;
-import org.jnetpcap.packet.DefaultBinding;
-import org.jnetpcap.packet.DefaultField;
+import org.jnetpcap.packet.AnnotatedHeader;
+import org.jnetpcap.packet.AnnotatedHeaderLengthMethod;
+import org.jnetpcap.packet.AnnotatedBinding;
 import org.jnetpcap.packet.HeaderDefinitionError;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.JSubHeader;
 import org.jnetpcap.packet.TestUtils;
-import org.jnetpcap.packet.annotate.AnnotatedBindMethod;
-import org.jnetpcap.packet.annotate.AnnotatedField;
-import org.jnetpcap.packet.annotate.AnnotatedHeader;
-import org.jnetpcap.packet.annotate.AnnotatedHeaderLengthMethod;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FieldRuntime;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
+import org.jnetpcap.packet.format.AnnotatedBindMethod;
+import org.jnetpcap.packet.format.AnnotatedField;
+import org.jnetpcap.packet.format.DefaultField;
 import org.jnetpcap.packet.format.JField;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
@@ -66,7 +66,7 @@ public class TestAnotatedDefinition
 		 * their annotation inspection instead of doing it once and caching it.
 		 */
 		errors.clear();
-		DefaultBinding.clearCache();
+		AnnotatedBinding.clearCache();
 		AnnotatedBindMethod.clearCache();
 		AnnotatedHeaderLengthMethod.clearCache();
 	}

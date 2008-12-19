@@ -17,16 +17,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jnetpcap.packet.annotate.AnnotatedBindMethod;
-import org.jnetpcap.packet.annotate.AnnotatedHeaderLengthMethod;
-import org.jnetpcap.packet.annotate.AnnotatedMethodException;
 import org.jnetpcap.packet.annotate.Bind;
+import org.jnetpcap.packet.format.AnnotatedBindMethod;
 
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class DefaultBinding implements JBinding {
+public class AnnotatedBinding implements JBinding {
 
 	private final static Map<Class<?>, JBinding[]> cache =
 	    new HashMap<Class<?>, JBinding[]>();
@@ -81,7 +79,7 @@ public class DefaultBinding implements JBinding {
 				AnnotatedHeaderLengthMethod getLengthMethod =
 				    AnnotatedHeaderLengthMethod.inspectClass(target);
 
-				list.add(new DefaultBinding(c, source, target, boundMethod,
+				list.add(new AnnotatedBinding(c, source, target, boundMethod,
 				    getLengthMethod, dependencies));
 
 			} catch (AnnotatedMethodException e) {
@@ -122,7 +120,7 @@ public class DefaultBinding implements JBinding {
 				AnnotatedHeaderLengthMethod getLengthMethod =
 				    AnnotatedHeaderLengthMethod.inspectClass(target);
 
-				list.add(new DefaultBinding(c, source, target, boundMethod,
+				list.add(new AnnotatedBinding(c, source, target, boundMethod,
 				    getLengthMethod, dependencies));
 
 			} catch (AnnotatedMethodException e) {
@@ -154,7 +152,7 @@ public class DefaultBinding implements JBinding {
 
 	private final int targetId;
 
-	private DefaultBinding(Class<?> definitionClass,
+	private AnnotatedBinding(Class<?> definitionClass,
 	    Class<? extends JHeader> source, Class<? extends JHeader> target,
 	    AnnotatedBindMethod bindingMethod,
 	    AnnotatedHeaderLengthMethod lengthMethod,
