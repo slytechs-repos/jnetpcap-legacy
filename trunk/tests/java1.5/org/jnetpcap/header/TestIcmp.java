@@ -12,10 +12,14 @@
  */
 package org.jnetpcap.header;
 
+import java.io.IOException;
+
 import junit.framework.TestCase;
 
+import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.TestUtils;
+import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.packet.header.Ethernet;
 import org.jnetpcap.packet.header.IEEE802dot1q;
 import org.jnetpcap.packet.header.Icmp;
@@ -49,114 +53,114 @@ public class TestIcmp
 		super.tearDown();
 	}
 
-/**
- * Packet dump:
- * 
- * <pre>
- * Ethernet:  ******* Ethernet (Eth) offset=0 length=14
- * 	Ethernet: 
- * 	Ethernet:      destination = 16-03-78-01-16-03
- * 	Ethernet:           source = 00-60-08-9F-B1-F3
- * 	Ethernet:         protocol = 0x800 (2048) [ip version 4]
- * 	Ethernet: 
- * 	ip4:  ******* ip4 (ip) offset=14 length=20
- * 	ip4: 
- * 	ip4:          version = 4
- * 	ip4:             hlen = 5 [*4 = 20 bytes]
- * 	ip4:            diffs = 0xC0 (192)
- * 	ip4:                    1100 00..  = [48] reserved bit: code point 48
- * 	ip4:                    .... ..0.  = [0] ECN bit: ECN capable transport: no
- * 	ip4:                    .... ...0  = [0] ECE bit: ECE-CE: no
- * 	ip4:           length = 468
- * 	ip4:            flags = 0x0 (0)
- * 	ip4:                    0..  = [0] reserved bit: not set
- * 	ip4:                    .0.  = [0] don't fragment: not set
- * 	ip4:                    ..0  = [0] more fragments: not set
- * 	ip4:               id = 0xE253 (57939)
- * 	ip4:           offset = 0
- * 	ip4:     time to live = 255 router hops
- * 	ip4:         protocol = 1 [icmp - internet message control protocol]
- * 	ip4:  header checksum = 0xAE96 (44694)
- * 	ip4:           source = 131.151.32.21
- * 	ip4:      destination = 131.151.1.59
- * 	ip4: 
- * 	icmp:  ******* icmp (icmp) offset=34 length=8
- * 	icmp: 
- * 	icmp:             type = 3 [destination unreachable]
- * 	icmp:             code = 3 [destination port unreachable]
- * 	icmp:         checksum = 0x2731 (10033)
- * 	icmp: 
- * 	icmp: + DestUnreachable: offset=4 length=4
- * 	icmp:         reserved = 0
- * 	icmp: 
- * 	ip4:  ******* ip4 (ip) offset=42 length=20
- * 	ip4: 
- * 	ip4:          version = 4
- * 	ip4:             hlen = 5 [*4 = 20 bytes]
- * 	ip4:            diffs = 0x0 (0)
- * 	ip4:                    0000 00..  = [0] reserved bit: not set
- * 	ip4:                    .... ..0.  = [0] ECN bit: ECN capable transport: no
- * 	ip4:                    .... ...0  = [0] ECE bit: ECE-CE: no
- * 	ip4:           length = 440
- * 	ip4:            flags = 0x2 (2)
- * 	ip4:                    0..  = [0] reserved bit: not set
- * 	ip4:                    .1.  = [1] don't fragment: set
- * 	ip4:                    ..0  = [0] more fragments: not set
- * 	ip4:               id = 0xCB91 (52113)
- * 	ip4:           offset = 0
- * 	ip4:     time to live = 254 router hops
- * 	ip4:         protocol = 17 [udp - unreliable datagram protocol]
- * 	ip4:  header checksum = 0x8724 (34596)
- * 	ip4:           source = 131.151.1.59
- * 	ip4:      destination = 131.151.32.21
- * 	ip4: 
- * 	udp:  ******* udp (udp) offset=62 length=8
- * 	udp: 
- * 	udp:           source = 7003
- * 	udp:      destination = 1792
- * 	udp:           length = 420
- * 	udp:         checksum = 44574
- * 	udp: 
- * 	payload:  ******* payload (data) offset=70 length=412
- * 	payload: 
- * 	payload: 0046: 382b3948 e09dbee8 00000001 00000001   8  +  9  H  \e0\9d\be\e8\0 \0 \0 \1 \0 \0 \0 \1 
- * 	payload: 0056: 00000002 01060000 00000034 00000072   \0 \0 \0 \2 \1 \6 \0 \0 \0 \0 \0 4  \0 \0 \0 r  
- * 	[truncated...]
- * </pre>
- */
-public void testIcmpDestUnreachable() {
-	// Wireshark packet # 29 (1-based)
-	PcapPacket packet = TestUtils.getPcapPacket("tests/test-afs.pcap", 29 - 1);
-	
-	System.out.println(packet.toHexdump(128, false, false, true));
+	/**
+	 * Packet dump:
+	 * 
+	 * <pre>
+	 * Ethernet:  ******* Ethernet (Eth) offset=0 length=14
+	 * 	Ethernet: 
+	 * 	Ethernet:      destination = 16-03-78-01-16-03
+	 * 	Ethernet:           source = 00-60-08-9F-B1-F3
+	 * 	Ethernet:         protocol = 0x800 (2048) [ip version 4]
+	 * 	Ethernet: 
+	 * 	ip4:  ******* ip4 (ip) offset=14 length=20
+	 * 	ip4: 
+	 * 	ip4:          version = 4
+	 * 	ip4:             hlen = 5 [*4 = 20 bytes]
+	 * 	ip4:            diffs = 0xC0 (192)
+	 * 	ip4:                    1100 00..  = [48] reserved bit: code point 48
+	 * 	ip4:                    .... ..0.  = [0] ECN bit: ECN capable transport: no
+	 * 	ip4:                    .... ...0  = [0] ECE bit: ECE-CE: no
+	 * 	ip4:           length = 468
+	 * 	ip4:            flags = 0x0 (0)
+	 * 	ip4:                    0..  = [0] reserved bit: not set
+	 * 	ip4:                    .0.  = [0] don't fragment: not set
+	 * 	ip4:                    ..0  = [0] more fragments: not set
+	 * 	ip4:               id = 0xE253 (57939)
+	 * 	ip4:           offset = 0
+	 * 	ip4:     time to live = 255 router hops
+	 * 	ip4:         protocol = 1 [icmp - internet message control protocol]
+	 * 	ip4:  header checksum = 0xAE96 (44694)
+	 * 	ip4:           source = 131.151.32.21
+	 * 	ip4:      destination = 131.151.1.59
+	 * 	ip4: 
+	 * 	icmp:  ******* icmp (icmp) offset=34 length=8
+	 * 	icmp: 
+	 * 	icmp:             type = 3 [destination unreachable]
+	 * 	icmp:             code = 3 [destination port unreachable]
+	 * 	icmp:         checksum = 0x2731 (10033)
+	 * 	icmp: 
+	 * 	icmp: + DestUnreachable: offset=4 length=4
+	 * 	icmp:         reserved = 0
+	 * 	icmp: 
+	 * 	ip4:  ******* ip4 (ip) offset=42 length=20
+	 * 	ip4: 
+	 * 	ip4:          version = 4
+	 * 	ip4:             hlen = 5 [*4 = 20 bytes]
+	 * 	ip4:            diffs = 0x0 (0)
+	 * 	ip4:                    0000 00..  = [0] reserved bit: not set
+	 * 	ip4:                    .... ..0.  = [0] ECN bit: ECN capable transport: no
+	 * 	ip4:                    .... ...0  = [0] ECE bit: ECE-CE: no
+	 * 	ip4:           length = 440
+	 * 	ip4:            flags = 0x2 (2)
+	 * 	ip4:                    0..  = [0] reserved bit: not set
+	 * 	ip4:                    .1.  = [1] don't fragment: set
+	 * 	ip4:                    ..0  = [0] more fragments: not set
+	 * 	ip4:               id = 0xCB91 (52113)
+	 * 	ip4:           offset = 0
+	 * 	ip4:     time to live = 254 router hops
+	 * 	ip4:         protocol = 17 [udp - unreliable datagram protocol]
+	 * 	ip4:  header checksum = 0x8724 (34596)
+	 * 	ip4:           source = 131.151.1.59
+	 * 	ip4:      destination = 131.151.32.21
+	 * 	ip4: 
+	 * 	udp:  ******* udp (udp) offset=62 length=8
+	 * 	udp: 
+	 * 	udp:           source = 7003
+	 * 	udp:      destination = 1792
+	 * 	udp:           length = 420
+	 * 	udp:         checksum = 44574
+	 * 	udp: 
+	 * 	payload:  ******* payload (data) offset=70 length=412
+	 * 	payload: 
+	 * 	payload: 0046: 382b3948 e09dbee8 00000001 00000001   8  +  9  H  \e0\9d\be\e8\0 \0 \0 \1 \0 \0 \0 \1 
+	 * 	payload: 0056: 00000002 01060000 00000034 00000072   \0 \0 \0 \2 \1 \6 \0 \0 \0 \0 \0 4  \0 \0 \0 r  
+	 * 	[truncated...]
+	 * </pre>
+	 */
+	public void testIcmpDestUnreachable() {
+		// Wireshark packet # 29 (1-based)
+		PcapPacket packet = TestUtils.getPcapPacket("tests/test-afs.pcap", 29 - 1);
 
-	Ip4 ip = new Ip4();
-	Icmp icmp = new Icmp(); // Need an instance so we can check on sub header
-	Icmp.DestinationUnreachable unreach = new Icmp.DestinationUnreachable();
+		System.out.println(packet.toHexdump(128, false, false, true));
 
-	assertTrue(packet.hasHeader(Ethernet.ID));
-	assertTrue(packet.hasHeader(Ip4.ID, 0));
-	assertTrue(packet.hasHeader(icmp));
-	assertTrue(icmp.hasSubHeader(IcmpType.DESTINATION_UNREACHABLE.getId()));
-	assertTrue(icmp.hasSubHeader(unreach));
-	assertTrue(packet.hasHeader(ip, 1));
-	assertTrue(packet.hasHeader(Udp.ID));
-	assertTrue(packet.hasHeader(Payload.ID));
+		Ip4 ip = new Ip4();
+		Icmp icmp = new Icmp(); // Need an instance so we can check on sub header
+		Icmp.DestinationUnreachable unreach = new Icmp.DestinationUnreachable();
 
-	// Check specific values
-	assertEquals(3, icmp.type());
-	assertEquals(3, icmp.code());
-	assertEquals(0x2731, icmp.checksum());
-	assertEquals(0, unreach.reserved());
+		assertTrue(packet.hasHeader(Ethernet.ID));
+		assertTrue(packet.hasHeader(JProtocol.IP4_ID, 0));
+		assertTrue(packet.hasHeader(icmp));
+		assertTrue(icmp.hasSubHeader(IcmpType.DESTINATION_UNREACHABLE.getId()));
+		assertTrue(icmp.hasSubHeader(unreach));
+		assertTrue(packet.hasHeader(ip, 1));
+		assertTrue(packet.hasHeader(Udp.ID));
+		assertTrue(packet.hasHeader(Payload.ID));
 
-	assertEquals(0x8724, ip.checksum());
-	assertEquals(440, ip.length());
+		// Check specific values
+		assertEquals(3, icmp.type());
+		assertEquals(3, icmp.code());
+		assertEquals(0x2731, icmp.checksum());
+		assertEquals(0, unreach.reserved());
 
-	// Devil's advocate
-	assertFalse(icmp.hasSubHeader(IcmpType.ECHO_REPLY.getId()));
-	assertFalse(icmp.hasSubHeader(IcmpType.PARAM_PROBLEM.getId()));
+		assertEquals(0x8724, ip.checksum());
+		assertEquals(440, ip.length());
 
-}
+		// Devil's advocate
+		assertFalse(icmp.hasSubHeader(IcmpType.ECHO_REPLY.getId()));
+		assertFalse(icmp.hasSubHeader(IcmpType.PARAM_PROBLEM.getId()));
+
+	}
 
 	/**
 	 * Packet dump:
@@ -215,7 +219,7 @@ public void testIcmpDestUnreachable() {
 		// Wireshark packet # 58 (1-based)
 		PcapPacket packet = TestUtils.getPcapPacket("tests/test-vlan.pcap", 58 - 1);
 
-		// System.out.println(packet.toString());
+		System.out.println(packet.toString());
 
 		Icmp icmp = new Icmp(); // Need an instance so we can check on sub header
 		Icmp.EchoRequest echo = new Icmp.EchoRequest();
@@ -230,8 +234,8 @@ public void testIcmpDestUnreachable() {
 		assertEquals(0, icmp.code());
 		assertEquals(0x10FD, icmp.checksum());
 
-		assertEquals(464, echo.id());
-		assertEquals(7809, echo.sequence());
+		assertEquals(0xd001, echo.id());
+		assertEquals(0x811e, echo.sequence());
 
 		// Devil's advocate
 		assertFalse(icmp.hasSubHeader(IcmpType.ECHO_REPLY.id));
@@ -243,7 +247,7 @@ public void testIcmpDestUnreachable() {
 	 * Packet dump:
 	 * 
 	 * <pre>
-	 *	Ethernet:  ******* Ethernet (Eth) offset=0 length=14
+	 * Ethernet:  ******* Ethernet (Eth) offset=0 length=14
 	 * 	Ethernet: 
 	 * 	Ethernet:      destination = 16-03-78-01-16-03
 	 * 	Ethernet:           source = 00-40-05-40-EF-24
@@ -291,12 +295,13 @@ public void testIcmpDestUnreachable() {
 	 * 	icmp: 0014: 10111213 14151617 18191a1b 1c1d1e1f   \10\11\12\13\14\15\16\17\18\19\1a\1b\1c\1d\1e  
 	 * 
 	 * </pre>
+	 * @throws IOException 
 	 */
-	public void testIcmpEchoReply() {
+	public void testIcmpEchoReply() throws IOException {
 		// Wireshark packet # 59 (1-based)
 		PcapPacket packet = TestUtils.getPcapPacket("tests/test-vlan.pcap", 59 - 1);
 
-		System.out.println(packet.toString());
+//		System.out.println(packet.toString());
 
 		Icmp icmp = new Icmp(); // Need an instance so we can check on sub header
 		Icmp.EchoReply echo = new Icmp.EchoReply();
@@ -307,12 +312,15 @@ public void testIcmpDestUnreachable() {
 		assertTrue(packet.hasHeader(icmp));
 		assertTrue(icmp.hasSubHeader(echo));
 
+		TextFormatter out = new TextFormatter();
+//		out.format(echo, Detail.MULTI_LINE_FULL_DETAIL);
+
 		assertEquals(0, icmp.type());
 		assertEquals(0, icmp.code());
 		assertEquals(0x18FD, icmp.checksum());
 
-		assertEquals(464, echo.id());
-		assertEquals(7809, echo.sequence());
+		assertEquals(0xd001, echo.id());
+		assertEquals(0x811e, echo.sequence());
 
 		// Devil's advocate
 		assertTrue(icmp.hasSubHeader(IcmpType.ECHO_REPLY.id));

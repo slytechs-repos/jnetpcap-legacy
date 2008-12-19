@@ -20,17 +20,4 @@ package org.jnetpcap.packet;
  */
 public interface JDependency {
 
-	/**
-	 * A list of dependencies that a binding has.
-	 * 
-	 * @return list of depdencies
-	 */
-	public int[] listDependencies();
-
-	/**
-	 * Protocol header ID for this binding.
-	 * 
-	 * @return numerical ID of the header as assigned by JRegistry
-	 */
-	public int getId();
 }

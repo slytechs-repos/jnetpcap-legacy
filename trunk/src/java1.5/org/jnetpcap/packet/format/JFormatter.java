@@ -419,7 +419,7 @@ public abstract class JFormatter {
 		this.out.format("\n");
 
 		for (String s : padStack) {
-			this.out.format(s);
+			this.out.format(String.valueOf(s));
 		}
 
 		return this.out;

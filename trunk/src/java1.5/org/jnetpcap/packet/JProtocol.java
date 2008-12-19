@@ -27,7 +27,6 @@ import org.jnetpcap.packet.header.PPP;
 import org.jnetpcap.packet.header.Payload;
 import org.jnetpcap.packet.header.Tcp;
 import org.jnetpcap.packet.header.Udp;
-
 /**
  * Enum table of core protocols supported by the scanner.
  * 
@@ -109,14 +108,15 @@ public enum JProtocol {
 	/**
 	 * Main class for the network header of this protocol
 	 */
-	public final Class<? extends JHeader> clazz;
+	private Class<? extends JHeader> clazz;
+	
+	private final String className;
 
 	/**
 	 * A header scanner that capable of scanning this protocol. All protocols
 	 * defined in JProtocol are bound to a direct native scanner. While it is
 	 * possible to override this default using JRegistery with a custom scanner.
 	 */
-	public final JHeaderScanner scan;
 
 	/**
 	 * A mapping to pcap dlt. If no mapping exists for a protocol, it is null.
@@ -148,6 +148,11 @@ public enum JProtocol {
 	public final static int PPP_ID = 11;
 
 	public final static int ICMP_ID = 12;
+	
+	private JProtocol(String className) {
+		this(className, null);
+	}
+
 
 	private JProtocol(Class<? extends JHeader> c) {
 		this(c, null);
@@ -155,12 +160,38 @@ public enum JProtocol {
 
 	private JProtocol(Class<? extends JHeader> c, PcapDLT dlt) {
 		this.clazz = c;
+		this.className = c.getCanonicalName();
 		this.dlt = dlt;
 		this.ID = ordinal();
-
-		this.scan = new JHeaderScanner(this);
+	}
+	
+	private JProtocol(String className, PcapDLT dlt) {
+		this.className = className;
+		this.dlt = dlt;
+		this.ID = ordinal();
+		
+		if (getClass().getResource(className) == null) {
+			throw new IllegalStateException("unable to find class " + className);
+		}
 	}
 
+	@SuppressWarnings("unchecked")
+  public Class<? extends JHeader> getHeaderClass() {
+		if (this.clazz == null) {
+			try {
+	      this.clazz = (Class<? extends JHeader>) Class.forName(className);
+      } catch (ClassNotFoundException e) {
+	      throw new IllegalStateException(e);
+      }
+		}
+		
+		return this.clazz;
+	}
+	
+	public String getHeaderClassName() {
+		return this.className;
+	}
+	
 	/**
 	 * Checks the supplied ID if its is one of jNetPcap's core protocol set
 	 * 

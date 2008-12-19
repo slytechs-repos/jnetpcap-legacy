@@ -15,6 +15,7 @@ package org.jnetpcap.packet;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jnetpcap.packet.annotate.AnnotatedHeader;
 import org.jnetpcap.packet.format.JField;
 
 /**
@@ -29,15 +30,38 @@ public abstract class JHeaderMap<B extends JHeader>
 	protected long optionsBitmap = -1;
 
 	protected int[] optionsOffsets = new int[MAX_HEADERS];
-	
+
 	protected int[] optionsLength = new int[MAX_HEADERS];
 
 	protected final JHeader[] X_HEADERS = new JHeader[MAX_HEADERS];
-	
+
 	public JHeaderMap() {
-	  super();
-	  
-	  inspect();
+		super();
+
+		/*
+		 * Create sub-header instances using default constructor from annotation
+		 */
+		reorderAndSave(createHeaderInstances(annotatedHeader.getHeaders()));
+	}
+
+	private static JHeader[] createHeaderInstances(AnnotatedHeader... headers) {
+		JHeader[] h = new JHeader[headers.length];
+
+		for (int i = 0; i < h.length; i++) {
+			h[i] = createHeaderInstance(headers[i]);
+		}
+
+		return h;
+	}
+
+	private static JHeader createHeaderInstance(AnnotatedHeader header) {
+		try {
+	    return header.getHeaderClass().newInstance();
+    } catch (InstantiationException e) {
+	    throw new IllegalStateException(e);
+    } catch (IllegalAccessException e) {
+	    throw new IllegalStateException(e);
+    }
 	}
 
 	/**
@@ -77,7 +101,7 @@ public abstract class JHeaderMap<B extends JHeader>
 	public void setSubHeaders(JHeader[] headers) {
 		reorderAndSave(headers);
 	}
-	
+
 	public <T extends JSubHeader<B>> T getSubHeader(T header) {
 
 		final int offset = optionsOffsets[header.getId()];
@@ -86,14 +110,15 @@ public abstract class JHeaderMap<B extends JHeader>
 		header.setOffset(offset);
 		header.setLength(length);
 		header.setParent(this);
+		header.packet = this.packet;
 
 		return header;
 	}
-	
+
 	@SuppressWarnings("unchecked")
-  private  JHeader getSubHeader(JHeader header) {
-		
-		JSubHeader<B> sub = (JSubHeader<B>)header;
+	private JHeader getSubHeader(JHeader header) {
+
+		JSubHeader<B> sub = (JSubHeader<B>) header;
 
 		final int id = sub.getId();
 		final int offset = optionsOffsets[id];
@@ -105,7 +130,6 @@ public abstract class JHeaderMap<B extends JHeader>
 
 		return header;
 	}
-
 
 	public JHeader[] getSubHeaders() {
 		List<JHeader> headers = new ArrayList<JHeader>();
@@ -139,7 +163,7 @@ public abstract class JHeaderMap<B extends JHeader>
 			X_HEADERS[u.getId()] = u;
 		}
 	}
-	
+
 	public boolean hasSubHeaders() {
 		return this.optionsBitmap != 0;
 	}

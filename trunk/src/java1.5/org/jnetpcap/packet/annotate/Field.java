@@ -42,7 +42,7 @@ public @interface Field {
   
   public final static String DEFAULT_FORMAT = "%s";
   
-  public final static int DEFAULT_LENGTH = 32;
+  public final static int DEFAULT_LENGTH = -1;
   
   int offset() default -1;
 

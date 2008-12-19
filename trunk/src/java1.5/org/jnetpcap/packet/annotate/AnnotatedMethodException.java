@@ -10,48 +10,86 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.packet;
+package org.jnetpcap.packet.annotate;
+
+import org.jnetpcap.packet.HeaderDefinitionError;
 
 /**
- * Thrown when a lookup on a header in JRegistry fails
- * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class UnregisteredHeaderException
-    extends RegistryRuntimeException {
+public class AnnotatedMethodException
+    extends HeaderDefinitionError {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 8734105996858455745L;
+	private static final long serialVersionUID = 1165114276807013103L;
+
+	private final Class<?> c;
 
 	/**
 	 * 
 	 */
-	public UnregisteredHeaderException() {
+	public AnnotatedMethodException(Class<?> c) {
+		super(c);
+		this.c = c;
 	}
 
 	/**
 	 * @param message
 	 */
-	public UnregisteredHeaderException(String message) {
+	public AnnotatedMethodException(String message) {
 		super(message);
+		this.c = null;
+	}
+
+	/**
+	 * @param message
+	 */
+	public AnnotatedMethodException(Class<?> c, String message) {
+		super(c, message);
+		this.c = c;
 	}
 
 	/**
 	 * @param cause
 	 */
-	public UnregisteredHeaderException(Throwable cause) {
+	public AnnotatedMethodException(Throwable cause) {
 		super(cause);
+		this.c = null;
+
+	}
+
+	/**
+	 * @param cause
+	 */
+	public AnnotatedMethodException(Class<?> c, Throwable cause) {
+		super(c, cause);
+		this.c = c;
+
 	}
 
 	/**
 	 * @param message
 	 * @param cause
 	 */
-	public UnregisteredHeaderException(String message, Throwable cause) {
+	public AnnotatedMethodException(String message, Throwable cause) {
 		super(message, cause);
+
+		this.c = null;
 	}
 
+	/**
+	 * @param message
+	 * @param cause
+	 */
+	public AnnotatedMethodException(Class<?> c, String message, Throwable cause) {
+		super(c, message, cause);
+		this.c = c;
+	}
+
+	public Class<?> getHeader() {
+		return c;
+	}
 }

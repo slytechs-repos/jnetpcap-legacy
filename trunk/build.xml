@@ -67,6 +67,7 @@
 	<path id="compiler.classpath">
 		<pathelement location="${build.classes.dir}${compiler.target}" />
 		<pathelement location="${build.classpath.dir}" />
+		<pathelement location="${build.tests.dir}" />
 	</path>
 
 	<!-- =================================================================== -->
@@ -82,7 +83,6 @@
 	<path id="test.classpath">
 		<path refid="compiler.classpath" />
 		<pathelement location="${junit.jar}" />
-		<pathelement location="${build.tests.dir}" />
 	</path>
 
 	<!-- =================================================================== -->

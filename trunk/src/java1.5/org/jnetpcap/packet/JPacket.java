@@ -173,6 +173,11 @@ public abstract class JPacket
 
 		public native int findHeaderIndex(int id, int instance);
 
+		/**
+		 * 
+		 * @param index TODO: remove index, its no longer used natively
+		 * @return
+		 */
 		public native long get64BitHeaderMap(int index);
 
 		public native int getHeaderCount();
@@ -603,7 +608,8 @@ public abstract class JPacket
 	 * @return true header exists, otherwise false
 	 */
 	public <T extends JHeader> boolean hasHeader(T header) {
-		return hasHeader(header, 0);
+		return (state.get64BitHeaderMap(0) & (1L << header.getId())) != 0
+		    && hasHeader(header, 0);
 	}
 
 	/**

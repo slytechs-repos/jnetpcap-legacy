@@ -12,6 +12,9 @@
  */
 package org.jnetpcap.packet.format;
 
+import java.util.Arrays;
+import java.util.Comparator;
+
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.format.JFormatter.Priority;
 import org.jnetpcap.packet.format.JFormatter.Style;
@@ -26,6 +29,56 @@ import org.jnetpcap.packet.format.JFormatter.Style;
  * @author Sly Technologies, Inc.
  */
 public class JField {
+
+	private static class JFieldComp implements Comparator<JField> {
+
+		private JHeader header;
+		
+		private boolean ascending = true;
+
+		private JFieldRuntime<JHeader, Object> r1;
+
+		private JFieldRuntime<JHeader, Object> r2;
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+		 */
+		@SuppressWarnings("unchecked")
+		public int compare(JField o1, JField o2) {
+			r1 = (JFieldRuntime<JHeader, Object>) o1.getRuntime();
+			r2 = (JFieldRuntime<JHeader, Object>) o2.getRuntime();
+			
+			if (ascending) {
+				return r1.getOffset(header) - r2.getOffset(header);
+			} else {
+				return r2.getOffset(header) - r1.getOffset(header);				
+			}
+		}
+
+		public void setHeader(JHeader header) {
+			this.header = header;
+		}
+		
+		public void setAscending(boolean ascending) {
+			this.ascending = ascending;
+		}
+
+	}
+
+	public static void sortFieldByOffset(
+	    JField[] fields,
+	    JHeader header,
+	    boolean ascending) {
+
+		SORT_BY_OFFSET.setAscending(ascending);
+		SORT_BY_OFFSET.setHeader(header);
+		Arrays.sort(fields, SORT_BY_OFFSET);
+	}
+
+	private final static JFieldComp SORT_BY_OFFSET = new JFieldComp();
+
 	protected JField[] componentFields;
 
 	/**
@@ -49,6 +102,18 @@ public class JField {
 	protected Style style;
 
 	private final String units;
+
+	public String toString() {
+		StringBuilder b = new StringBuilder();
+
+		b.append("name=").append(name);
+		b.append(", nicname=").append(nicname);
+		b.append(", parent=").append(parent);
+		b.append(", priority=").append(priority);
+		b.append(", style=").append(style);
+
+		return b.toString();
+	}
 
 	/**
 	 * Creates a field of a header
@@ -165,10 +230,10 @@ public class JField {
 			f.setParent(this);
 		}
 	}
-	
-	public JField(Style style, Priority priority, String name, String display, String nicname,
-	    String units, JFieldRuntime<? extends JHeader, ?> runtime,
-	    JField... componentFields) {
+
+	public JField(Style style, Priority priority, String name, String display,
+	    String nicname, String units,
+	    JFieldRuntime<? extends JHeader, ?> runtime, JField... componentFields) {
 		this.name = name;
 		this.nicname = nicname;
 		this.priority = priority;
@@ -182,7 +247,6 @@ public class JField {
 			f.setParent(this);
 		}
 	}
-
 
 	/**
 	 * Creates a field of a header
@@ -309,7 +373,7 @@ public class JField {
 	}
 
 	public final String getDisplay() {
-  	return this.display;
-  }
+		return this.display;
+	}
 
 }

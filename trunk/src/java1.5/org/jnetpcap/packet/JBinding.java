@@ -114,5 +114,20 @@ public interface JBinding extends JDependency {
 	 * @return either full or truncated length of the header or 0 if header is not
 	 *         bound at all
 	 */
-	public abstract int scanForNextHeader(JPacket packet, int offset);
+	public abstract boolean isBound(JPacket packet, int offset);
+	
+
+	/**
+	 * A list of dependencies that a binding has.
+	 * 
+	 * @return list of depdencies
+	 */
+	public int[] listDependencies();
+
+	/**
+	 * Protocol header ID for this binding.
+	 * 
+	 * @return numerical ID of the header as assigned by JRegistry
+	 */
+	public int getSourceId();
 }

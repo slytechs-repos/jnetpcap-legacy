@@ -12,7 +12,14 @@
  */
 package org.jnetpcap.packet;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Formatter;
+import java.util.List;
+
 import org.jnetpcap.nio.JFunction;
+import org.jnetpcap.packet.annotate.AnnotatedHeaderLengthMethod;
+import org.jnetpcap.packet.annotate.AnnotatedScannerMethod;
 
 /**
  * A header scanner, there is one per header, that is able to scan raw memory
@@ -51,12 +58,38 @@ public class JHeaderScanner
 
 	private static final String FUNCT_NAME = "scan_";
 
-	private int id;
-
-	private final boolean nativeIsBound;
-
 	static {
 		JScanner.sizeof(); // Make sure JScanner initializes first
+	}
+
+	private JBinding[] bindings = null;
+
+	private List<JBinding> bindingsList = new ArrayList<JBinding>();
+
+	private final int id;
+
+	private AnnotatedHeaderLengthMethod lengthMethod;
+
+	private AnnotatedScannerMethod scannerMethod;
+
+	private final JProtocol protocol;
+
+	private boolean needJProtocolInitialization;
+
+	public JHeaderScanner(Class<? extends JHeader> c) {
+		super("java header scanner");
+
+		this.protocol = null;
+		this.needJProtocolInitialization = false;
+		this.id = JRegistry.lookupId(c);
+
+		lengthMethod = AnnotatedHeaderLengthMethod.inspectClass(c);
+
+		if (AnnotatedScannerMethod.inspectClass(c).length != 0) {
+			scannerMethod = AnnotatedScannerMethod.inspectClass(c)[0];
+		} else {
+			scannerMethod = null;
+		}
 	}
 
 	/**
@@ -74,44 +107,70 @@ public class JHeaderScanner
 	 */
 	public JHeaderScanner(JProtocol protocol) {
 		super(FUNCT_NAME + protocol.toString().toLowerCase());
+		this.protocol = protocol;
 		this.id = protocol.ID;
+		this.needJProtocolInitialization = true;
 
-		try {
-			bindNativeScanner(id);
-		} catch (UnregisteredScannerException e) {
-			throw new IllegalStateException(e); // This is an internal error
+		bindNativeScanner(id);
+	}
+
+	private void initFromJProtocol(JProtocol protocol) {
+
+		lengthMethod =
+		    AnnotatedHeaderLengthMethod.inspectClass(protocol.getHeaderClass());
+
+		if (AnnotatedScannerMethod.inspectClass(protocol.getHeaderClass()).length != 0) {
+			scannerMethod =
+			    AnnotatedScannerMethod.inspectClass(protocol.getClass())[0];
+		} else {
+			scannerMethod = null;
 		}
-		nativeIsBound = true;
-	}
-	
-	public JHeaderScanner() {
-		super("java header scanner");
-		
-		this.nativeIsBound = false;
+
+		needJProtocolInitialization = false;
 	}
 
-	private native void bindNativeScanner(int id)
-	    throws UnregisteredScannerException;
+	private AnnotatedHeaderLengthMethod getLengthMethod() {
+		if (needJProtocolInitialization) {
+			initFromJProtocol(protocol);
+		}
+		return lengthMethod;
+	}
+
+	private AnnotatedScannerMethod getScannerMethod() {
+		if (needJProtocolInitialization) {
+			initFromJProtocol(protocol);
+		}
+		return scannerMethod;
+
+	}
+
+	public boolean addBindings(JBinding... bindings) {
+		this.bindings = null;
+
+		return bindingsList.addAll(Arrays.asList(bindings));
+	}
+
+	private native void bindNativeScanner(int id);
+
+	public void clearBindings() {
+		this.bindings = null;
+		this.bindingsList.clear();
+	}
+
+	public boolean hasBindings() {
+		return this.bindingsList.isEmpty() == false;
+	}
 
 	/**
-	 * Checks if the scanner at the given ID is a direct or java scanner.
-	 * 
-	 * @return true there is a native scanner for this id, otherwise false
+	 * @return
 	 */
-	public boolean isDirect() {
-		return nativeIsBound;
-	}
+	public JBinding[] getBindings() {
+		if (this.bindings == null) {
+			this.bindings = bindingsList.toArray(new JBinding[bindingsList.size()]);
+		}
 
-	/**
-	 * Gets the protocol header's numerical ID as assigned by JRegistry
-	 * 
-	 * @return the id numerical ID of the header
-	 */
-	public final int getId() {
-		return this.id;
+		return this.bindings;
 	}
-
-	private native void nativeScan(JScan scan);
 
 	/**
 	 * Returns the length of the header this scanner is registered for
@@ -124,7 +183,40 @@ public class JHeaderScanner
 	 *         buffer
 	 */
 	public int getHeaderLength(JPacket packet, int offset) {
-		return 0;
+		return getLengthMethod().getHeaderLength(packet, offset);
+	}
+
+	/**
+	 * Gets the protocol header's numerical ID as assigned by JRegistry
+	 * 
+	 * @return the id numerical ID of the header
+	 */
+	public final int getId() {
+		return this.id;
+	}
+
+	/**
+	 * Checks if the scanner at the given ID is a direct or java scanner.
+	 * 
+	 * @return true there is a native scanner for this id, otherwise false
+	 */
+	public boolean isDirect() {
+		return super.isInitialized() && getScannerMethod() == null;
+	}
+
+	/**
+	 * The native scanner must be initialized before this method can be called
+	 * using bindNativeScanner.
+	 * 
+	 * @param scan
+	 *          a work structure
+	 */
+	private native void nativeScan(JScan scan);
+
+	public boolean removeBindings(JBinding... bindings) {
+		this.bindings = null;
+
+		return bindingsList.removeAll(Arrays.asList(bindings));
 	}
 
 	/**
@@ -136,17 +228,14 @@ public class JHeaderScanner
 	 *          offset into the packet buffer in bytes of the start of this header
 	 * @return numerical ID of the next header as assigned by JRegistry
 	 */
-	public int getNextHeader(JPacket packet, int offset) {
-		final JBinding[] bindings = JRegistry.getBindings(getId());
-
-		for (final JBinding b : bindings) {
+	public int scanAllBindings(JPacket packet, int offset) {
+		for (final JBinding b : getBindings()) {
 			if (b == null) {
 				continue;
 			}
 
-			final int id = b.scanForNextHeader(packet, offset);
-			if (id != JProtocol.PAYLOAD_ID) {
-				return id;
+			if (b.isBound(packet, offset)) {
+				return b.getSourceId();
 			}
 		}
 
@@ -162,33 +251,40 @@ public class JHeaderScanner
 	 *          java and native user space
 	 */
 	protected void scanHeader(final JScan scan) {
-		final JPacket packet = scan.scan_packet();
-		final int offset = scan.scan_offset();
-		final boolean lengthOverride =
-		    (JRegistry.getFlags(id) & JRegistry.FLAG_OVERRIDE_LENGTH) != 0;
-		final boolean bindOverride =
-		    (JRegistry.getFlags(id) & JRegistry.FLAG_OVERRIDE_BINDING) != 0;
 
-		if (!lengthOverride || !bindOverride) {
+		if (getScannerMethod() != null) {
+			getScannerMethod().scan(scan);
+
+		} else if (isDirect()) {
 			nativeScan(scan);
 		}
 
-		if (lengthOverride) {
-			int l = getHeaderLength(packet, offset);
-			if (l > 0) {
-				scan.scan_length(l);
-			}
-		}
+		if (scan.scan_next_id() == JProtocol.PAYLOAD_ID) {
+			final JPacket packet = scan.scan_packet();
+			final int offset = scan.scan_offset();
 
-		if (bindOverride || scan.scan_next_id() == JProtocol.PAYLOAD_ID) {
-			scan.scan_next_id(getNextHeader(packet, offset));
-		} else {
-			return;
+			scanAllBindings(packet, offset);
 		}
-
 	}
 
-	public final void setId(int id) {
-  	this.id = id;
-  }
+	public void setScannerMethod(AnnotatedScannerMethod method) {
+		this.scannerMethod = method;
+	}
+
+	public String toString() {
+		Formatter out = new Formatter();
+
+		out.format("id=%2d, wasClassLoaded=%s isDirect=%s, bindings=%d method=%s ",
+		    id, lengthMethod != null, isDirect(), bindingsList.size(),
+		    hasScanMethod());
+
+		return out.toString();
+	}
+
+	/**
+	 * @return
+	 */
+	public boolean hasScanMethod() {
+		return getScannerMethod() != null;
+	}
 }

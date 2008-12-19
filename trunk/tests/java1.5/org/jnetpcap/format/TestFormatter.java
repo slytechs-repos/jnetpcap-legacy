@@ -22,6 +22,8 @@ import org.jnetpcap.packet.JPacketHandler;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.packet.format.XmlFormatter;
+import org.jnetpcap.packet.format.JFormatter.Detail;
+import org.jnetpcap.packet.header.Ip4;
 
 /**
  * @author Mark Bednarczyk
@@ -64,12 +66,14 @@ public class TestFormatter
 
 //		final JPacket packet = new PcapPacket(Type.POINTER);
 //		final JScanner scanner = new JScanner();
+		
 
 		// long start = System.currentTimeMillis();
 
 		pcap.loop(1, new JPacketHandler<String>() {
 			int i = 0;
 
+			Ip4 ip = new Ip4();
 			public void nextPacket(JPacket packet, String user) {
 
 //				if (i < 157) {
@@ -78,8 +82,12 @@ public class TestFormatter
 //				}
 
 				try {
+					if (packet.hasHeader(ip)) {
+						formatter.format(ip, Detail.MULTI_LINE_FULL_DETAIL);
+					}
+					
 					formatter.setFrameIndex(i);
-					formatter.format(packet);
+//					formatter.format(packet);
 					
 				} catch (IOException e) {
 					e.printStackTrace();

@@ -23,10 +23,9 @@ import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapHeader;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory.Type;
-import org.jnetpcap.packet.JBinding.DefaultJBinding;
+import org.jnetpcap.packet.annotate.MyHeader;
 import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.packet.header.Ethernet;
-import org.jnetpcap.packet.header.Ip4;
 
 /**
  * @author Mark Bednarczyk
@@ -89,31 +88,6 @@ public class TestJScanner
 		out.format(packet);
 	}
 
-	public void testInstallJBinding() throws IOException {
-		JPacket packet = new JMemoryPacket(VariousInMemoryPackets.PACKET_1);
-
-		JBinding bindEthernet =
-		    new DefaultJBinding(Ip4.ID, Ethernet.ID, Ethernet.ID) {
-			    private Ethernet eth =
-			        JHeaderPool.getDefault().getHeader(JProtocol.ETHERNET);
-
-			    public int scanForNextHeader(JPacket packet, int offset) {
-				    return (eth.type() == 0x800) ? Ethernet.ID : JBinding.NULL_ID;
-			    }
-
-		    };
-
-		JRegistry.addBinding(Ethernet.ID, bindEthernet);
-
-		JScanner scanner = new JScanner();
-		scanner.reloadAll();
-
-		scanner.scan(packet, Ethernet.ID);
-
-		TextFormatter out = new TextFormatter();
-		out.format(packet);
-	}
-
 	public void _testScanFileBBHandler() throws IOException {
 		StringBuilder errbuf = new StringBuilder();
 		final Pcap pcap = Pcap.openOffline("tests/test-l2tp.pcap", errbuf);
@@ -137,16 +111,16 @@ public class TestJScanner
 				System.out.println("\nPacket #" + i);
 
 				try {
-	        packet.peer(buffer);
-        } catch (PeeringException e) {
-	        e.printStackTrace();
-        }
+					packet.peer(buffer);
+				} catch (PeeringException e) {
+					e.printStackTrace();
+				}
 
 				scanner.scan(packet, JProtocol.ETHERNET_ID);
 				// try {
 				out.setFrameIndex(i++);
 				// out.format(packet);
-				System.out.println(packet.toString());
+//				System.out.println(packet.toString());
 				// } catch (IOException e) {
 				// // TODO Auto-generated catch block
 				// e.printStackTrace();
@@ -190,7 +164,7 @@ public class TestJScanner
 				// try {
 				out.setFrameIndex(i++);
 				// out.format(packet);
-				System.out.println(packet.toString());
+//				System.out.println(packet.toString());
 				// } catch (IOException e) {
 				// // TODO Auto-generated catch block
 				// e.printStackTrace();
@@ -222,12 +196,12 @@ public class TestJScanner
 			    public void nextPacket(JPacket packet, String user) {
 
 				    // scanner.scan(packet, JProtocol.ETHERNET_ID);
-				    try {
-					    out.setFrameIndex(i++);
-					    out.format(packet);
-				    } catch (IOException e) {
-					    e.printStackTrace();
-				    }
+//				    try {
+//					    out.setFrameIndex(i++);
+//					    out.format(packet);
+//				    } catch (IOException e) {
+//					    e.printStackTrace();
+//				    }
 			    }
 
 		    }, "");
@@ -237,6 +211,27 @@ public class TestJScanner
 		// System.out.printf("time=%d ms\n", (end - start));
 
 		pcap.close();
+	}
+
+	/**
+	 * Test if annotated MyHeader.class will throw any errors. It contains
+	 * annotated bindings and header length getter
+	 */
+	public void testScannerConstructorAnnotatedMyHeaderClass() {
+
+		new JHeaderScanner(MyHeader.class);
+	}
+
+	public void testInvokeGetHeaderLengthAnnotated() {
+
+		JPacket packet = TestUtils.getPcapPacket("tests/test-afs.pcap", 0);
+
+		JHeaderScanner scanner = new JHeaderScanner(MyHeader.class);
+
+		assertEquals(20, scanner.getHeaderLength(packet, Ethernet.LENGTH));
+
+		System.out.printf("length=%d %d\n", scanner.getHeaderLength(packet,
+		    Ethernet.LENGTH), packet.getUByte(Ethernet.LENGTH) & 0x0F);
 	}
 
 }

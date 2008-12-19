@@ -22,6 +22,7 @@ import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapHeader;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory.Type;
+import org.jnetpcap.packet.format.FormatUtils;
 import org.jnetpcap.packet.header.Ethernet;
 import org.jnetpcap.packet.header.Ip4;
 import org.jnetpcap.packet.header.Ip6;
@@ -48,7 +49,7 @@ public class JHandlerTest
 
 	@Override
 	protected void setUp() throws Exception {
-		
+
 		pcap = TestUtils.openOffline("tests/test-afs.pcap");
 		assertNotNull(pcap);
 	}
@@ -61,8 +62,8 @@ public class JHandlerTest
 
 	public void testJScannerHandler() {
 
-		pcap.dispatch(2, JProtocol.ETHERNET_ID,
-		    (JPacketHandler<String>) this, "JPacket - testcase");
+		pcap.dispatch(2, JProtocol.ETHERNET_ID, (JPacketHandler<String>) this,
+		    "JPacket - testcase");
 	}
 
 	public void testJBufferHandler() {
@@ -104,9 +105,12 @@ public class JHandlerTest
 	 *      org.jnetpcap.packet.JPacket, java.lang.Object)
 	 */
 	public void nextPacket(JPacket packet, String user) {
+		
+		System.out.printf("state=%s", packet.getState().toDebugString());
 
 		if (packet.hasHeader(ethernet)) {
-			System.out.println("ethernet.dst=" + ethernet.destination());
+			System.out.println("ethernet.dst="
+			    + FormatUtils.asString(ethernet.destination(), ':'));
 		}
 
 		if (packet.hasHeader(ip4)) {
@@ -127,10 +131,10 @@ public class JHandlerTest
 	public void nextPacket(PcapHeader header, ByteBuffer bytebuffer, String user) {
 
 		try {
-	    packet.peer(bytebuffer);
-    } catch (PeeringException e) {
-	    e.printStackTrace();
-    }
+			packet.peer(bytebuffer);
+		} catch (PeeringException e) {
+			e.printStackTrace();
+		}
 		scanner.scan(packet, Ethernet.ID);
 
 		if (packet.hasHeader(ethernet)) {
