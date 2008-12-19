@@ -10,12 +10,12 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.packet;
+package org.jnetpcap.packet.format;
 
-import org.jnetpcap.packet.annotate.AnnotatedField;
-import org.jnetpcap.packet.format.JField;
-import org.jnetpcap.packet.format.JFieldRuntime;
+import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.format.JFormatter.Priority;
+
+
 
 /**
  * @author Mark Bednarczyk

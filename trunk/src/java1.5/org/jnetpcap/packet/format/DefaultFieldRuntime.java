@@ -10,14 +10,12 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.packet;
+package org.jnetpcap.packet.format;
 
 import java.util.Map;
 
-import org.jnetpcap.packet.annotate.AnnotatedFieldMethod;
-import org.jnetpcap.packet.annotate.AnnotatedFieldRuntime;
+import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
-import org.jnetpcap.packet.format.JFieldRuntime;
 
 /**
  * @author Mark Bednarczyk
