@@ -18,6 +18,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.jnetpcap.header.BindNetworkFamily;
+import org.jnetpcap.header.MyHeader;
 import org.jnetpcap.packet.JBinding.DefaultJBinding;
 import org.jnetpcap.packet.annotate.AbstractBinding;
 import org.jnetpcap.packet.annotate.AnnotatedBindMethod;
@@ -25,7 +26,6 @@ import org.jnetpcap.packet.annotate.AnnotatedHeaderLengthMethod;
 import org.jnetpcap.packet.annotate.Bind;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FieldRuntime;
-import org.jnetpcap.packet.annotate.MyHeader;
 import org.jnetpcap.packet.annotate.Scanner;
 import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
 import org.jnetpcap.packet.header.Ethernet;

@@ -10,7 +10,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.packet.annotate;
+package org.jnetpcap.header;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -21,6 +21,13 @@ import org.jnetpcap.packet.JHeaderType;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.JSubHeader;
+import org.jnetpcap.packet.annotate.Bind;
+import org.jnetpcap.packet.annotate.BindingVariable;
+import org.jnetpcap.packet.annotate.Field;
+import org.jnetpcap.packet.annotate.FieldRuntime;
+import org.jnetpcap.packet.annotate.FieldSetter;
+import org.jnetpcap.packet.annotate.Header;
+import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.packet.annotate.BindingVariable.MatchType;
 import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
 import org.jnetpcap.packet.header.Ethernet;
