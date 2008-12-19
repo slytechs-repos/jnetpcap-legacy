@@ -253,7 +253,10 @@ public final class JRegistry {
 	 * @return array of header scanners
 	 */
 	public static JHeaderScanner[] getHeaderScanners() {
-		return Arrays.copyOf(scanners, scanners.length);
+		JHeaderScanner[] s = new JHeaderScanner[MAX_ID_COUNT];
+		System.arraycopy(scanners, 0, s, 0, MAX_ID_COUNT);
+		
+		return s;
 	}
 
 	public static boolean hasErrors() {

@@ -302,14 +302,14 @@ public abstract class AnnotatedFieldMethod
 
 			switch (function) {
 				case UNITS:
-					if (field.getUnits().isEmpty() == false) {
+					if (field.getUnits().length() != 0) {
 						setValue(field.getUnits());
 					} else if (method == null) {
 						setValue(null);
 					}
 					break;
 				case DISPLAY:
-					if (field.getDisplay().isEmpty() == false) {
+					if (field.getDisplay().length() != 0) {
 						setValue(field.getDisplay());
 					} else if (method == null) {
 						setValue(null);
@@ -317,7 +317,7 @@ public abstract class AnnotatedFieldMethod
 					break;
 
 				case DESCRIPTION:
-					if (field.getDescription().isEmpty() == false) {
+					if (field.getDescription().length() != 0) {
 						setValue(field.getDescription());
 					} else if (method == null) {
 						setValue(null);
@@ -380,7 +380,7 @@ public abstract class AnnotatedFieldMethod
 
 		FieldRuntime runtime = method.getAnnotation(FieldRuntime.class);
 
-		if (runtime.field().isEmpty() == false) {
+		if (runtime.field().length() != 0) {
 
 			boolean found = false;
 			final String name = runtime.field();
@@ -610,7 +610,7 @@ public abstract class AnnotatedFieldMethod
 			    "unable get field's annotated runtime");
 		}
 
-		if (runtime.field().isEmpty() == false) {
+		if (runtime.field().length() != 0) {
 			this.field = runtime.field();
 		} else {
 			this.field = guessFieldName(method.getName());

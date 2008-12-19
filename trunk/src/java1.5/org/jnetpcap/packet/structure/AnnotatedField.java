@@ -97,14 +97,14 @@ public class AnnotatedField {
 	}
 
 	public final String getDisplay() {
-		return (annotation.display().isEmpty()) ? getName() : annotation.display();
+		return (annotation.display().length() == 0) ? getName() : annotation.display();
 	}
 
 	public final String getFormat() {
-		if (isSubField() && annotation.format().isEmpty()) {
+		if (isSubField() && annotation.format().length() == 0) {
 			return "#bitfield#";
 		}
-		return (annotation.format().isEmpty()) ? "%s" : annotation.format();
+		return (annotation.format().length() == 0) ? "%s" : annotation.format();
 	}
 
 	public int getLength() {
@@ -119,11 +119,11 @@ public class AnnotatedField {
 	}
 
 	public final String getName() {
-		return (annotation.name().isEmpty()) ? method.getName() : annotation.name();
+		return (annotation.name().length() == 0) ? method.getName() : annotation.name();
 	}
 
 	public final String getNicname() {
-		return (annotation.nicname().isEmpty()) ? getName() : annotation.nicname();
+		return (annotation.nicname().length() == 0) ? getName() : annotation.nicname();
 	}
 
 	public int getOffset() {
@@ -149,7 +149,7 @@ public class AnnotatedField {
 	 * @return
 	 */
 	public boolean isSubField() {
-		return annotation.parent().isEmpty() == false;
+		return annotation.parent().length() != 0;
 	}
 
 	/**
