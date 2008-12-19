@@ -14,7 +14,6 @@ package org.jnetpcap.header;
 
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.annotate.Bind;
-import org.jnetpcap.packet.annotate.MyHeader;
 import org.jnetpcap.packet.header.Ethernet;
 
 /**

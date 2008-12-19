@@ -35,7 +35,6 @@ import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FieldRuntime;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
-import org.jnetpcap.packet.annotate.MyHeader;
 import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
 import org.jnetpcap.packet.format.JField;
 import org.jnetpcap.packet.format.JFormatter;
