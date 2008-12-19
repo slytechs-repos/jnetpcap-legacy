@@ -18,11 +18,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jnetpcap.header.MyHeader;
 import org.jnetpcap.packet.JHeader;
-import org.jnetpcap.packet.JPacket;
-import org.jnetpcap.packet.header.Ethernet;
-import org.jnetpcap.packet.header.Ip4;
 
 /**
  * Defines a binding method. Any method annotated with <code>Bind</code> must

@@ -88,13 +88,13 @@ public class AnnotatedHeader {
 				    "header must subclass 'JHeader'"));
 			}
 
-			if (a.name().isEmpty() == false) {
+			if (a.name().length() != 0) {
 				header.name = a.name();
 			} else {
 				header.name = c.getSimpleName();
 			}
 
-			if (a.nicname().isEmpty() == false) {
+			if (a.nicname().length() != 0) {
 				header.nicname = a.nicname();
 			} else {
 				header.nicname = header.name;
