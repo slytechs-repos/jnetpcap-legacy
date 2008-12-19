@@ -10,15 +10,18 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.packet;
+package org.jnetpcap.packet.structure;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jnetpcap.packet.JBinding;
+import org.jnetpcap.packet.JHeader;
+import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.annotate.Bind;
-import org.jnetpcap.packet.format.AnnotatedBindMethod;
 
 /**
  * @author Mark Bednarczyk

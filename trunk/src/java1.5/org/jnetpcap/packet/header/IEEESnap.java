@@ -17,9 +17,9 @@ import java.nio.ByteOrder;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.annotate.Header;
-import org.jnetpcap.packet.format.JField;
 import org.jnetpcap.packet.format.JStaticField;
 import org.jnetpcap.packet.format.JFormatter.Style;
+import org.jnetpcap.packet.structure.JField;
 
 /**
  * IEEE SNAP header definition

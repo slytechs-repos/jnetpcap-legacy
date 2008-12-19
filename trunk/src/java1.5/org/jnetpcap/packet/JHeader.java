@@ -17,10 +17,11 @@ import java.nio.ByteOrder;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JStruct;
 import org.jnetpcap.packet.format.DefaultField;
-import org.jnetpcap.packet.format.JDynamicField;
-import org.jnetpcap.packet.format.JField;
 import org.jnetpcap.packet.format.JFormatter.Priority;
 import org.jnetpcap.packet.format.JFormatter.Style;
+import org.jnetpcap.packet.structure.AnnotatedHeader;
+import org.jnetpcap.packet.structure.JDynamicField;
+import org.jnetpcap.packet.structure.JField;
 
 /**
  * A base class for all protocol header definitions.

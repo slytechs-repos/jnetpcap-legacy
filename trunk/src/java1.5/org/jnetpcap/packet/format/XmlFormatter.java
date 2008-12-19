@@ -16,6 +16,8 @@ import java.io.IOException;
 
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.packet.structure.JField;
+import org.jnetpcap.packet.structure.JFieldRuntime;
 
 /**
  * This formatter products XML output for a packet. A packet content is output

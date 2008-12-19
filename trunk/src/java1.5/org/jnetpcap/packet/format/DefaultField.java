@@ -14,6 +14,9 @@ package org.jnetpcap.packet.format;
 
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.format.JFormatter.Priority;
+import org.jnetpcap.packet.structure.AnnotatedField;
+import org.jnetpcap.packet.structure.JField;
+import org.jnetpcap.packet.structure.JFieldRuntime;
 
 
 

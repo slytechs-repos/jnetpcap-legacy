@@ -19,10 +19,6 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.jnetpcap.nio.JBuffer;
-import org.jnetpcap.packet.AnnotatedHeader;
-import org.jnetpcap.packet.AnnotatedHeaderLengthMethod;
-import org.jnetpcap.packet.AnnotatedBinding;
-import org.jnetpcap.packet.HeaderDefinitionError;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JProtocol;
@@ -33,15 +29,19 @@ import org.jnetpcap.packet.annotate.FieldRuntime;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
-import org.jnetpcap.packet.format.AnnotatedBindMethod;
-import org.jnetpcap.packet.format.AnnotatedField;
 import org.jnetpcap.packet.format.DefaultField;
-import org.jnetpcap.packet.format.JField;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.packet.format.JFormatter.Detail;
 import org.jnetpcap.packet.header.Ethernet;
 import org.jnetpcap.packet.header.Ip4;
+import org.jnetpcap.packet.structure.AnnotatedBindMethod;
+import org.jnetpcap.packet.structure.AnnotatedBinding;
+import org.jnetpcap.packet.structure.AnnotatedField;
+import org.jnetpcap.packet.structure.AnnotatedHeader;
+import org.jnetpcap.packet.structure.AnnotatedHeaderLengthMethod;
+import org.jnetpcap.packet.structure.HeaderDefinitionError;
+import org.jnetpcap.packet.structure.JField;
 
 /**
  * @author Mark Bednarczyk

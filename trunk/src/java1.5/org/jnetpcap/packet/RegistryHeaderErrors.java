@@ -15,6 +15,8 @@ package org.jnetpcap.packet;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jnetpcap.packet.structure.HeaderDefinitionError;
+
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.

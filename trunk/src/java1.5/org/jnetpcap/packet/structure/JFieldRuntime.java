@@ -1,4 +1,4 @@
-package org.jnetpcap.packet.format;
+package org.jnetpcap.packet.structure;
 
 import org.jnetpcap.packet.JHeader;
 

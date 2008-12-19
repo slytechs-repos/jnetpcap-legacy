@@ -17,6 +17,8 @@ import java.util.Formatter;
 
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.packet.structure.JField;
+import org.jnetpcap.packet.structure.JFieldRuntime;
 
 /**
  * Formatter that formats packet content for human readable output. This class

@@ -10,7 +10,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.packet.format;
+package org.jnetpcap.packet.structure;
 
 import org.jnetpcap.packet.JHeader;
 
@@ -99,7 +99,7 @@ public abstract class JDynamicField<H extends JHeader, V> implements
 	 * as either 0 or 1, all others will be ignored
 	 * 
 	 * @return bitfield
-	 * @see org.jnetpcap.packet.format.JFieldRuntime#getMask(JHeader)
+	 * @see org.jnetpcap.packet.structure.JFieldRuntime#getMask(JHeader)
 	 */
 	public int getMask(H header) {
 		return 0;
@@ -110,7 +110,7 @@ public abstract class JDynamicField<H extends JHeader, V> implements
 	 * subclass field
 	 * 
 	 * @return a string describing the field value
-	 * @see org.jnetpcap.packet.format.JFieldRuntime#valueDescription(org.jnetpcap.packet.JHeader)
+	 * @see org.jnetpcap.packet.structure.JFieldRuntime#valueDescription(org.jnetpcap.packet.JHeader)
 	 */
 	public String valueDescription(H header) {
 		return null;
