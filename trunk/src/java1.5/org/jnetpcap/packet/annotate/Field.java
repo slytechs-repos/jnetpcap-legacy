@@ -22,10 +22,44 @@ import org.jnetpcap.packet.format.JFormatter.Priority;
 
 /**
  * Defines a header field's getter method. Any method annotated with
- * <code>@Field</code> annotation will be included in <code>JFormatter</code>
- *        output. The field annotation allows a number of constant properties
- *        about the field to be declared. By default, the method's name becomes
- *        the field name as well. 
+ * <code>Field</code> annotation will be included in <code>JFormatter</code>
+ * output. The field annotation allows a number of constant properties about the
+ * field to be declared. By default, the method's name becomes the field name as
+ * well.
+ * <p>
+ * The <code>Field</code> annotation provides a way to set any of the field's
+ * properties statically. The value set using this annotation will be set
+ * permanently as a constant for that property. If the property is ommited, its
+ * default value will be used or if a instance method is defined that is marked
+ * with <code>FieldRuntime</code> annotation, then than method will be used at
+ * runtime to obtain the value for the property it generating values for. For
+ * example, the <code>display</code> field property which is used as text to
+ * display whenever a textual name for the field is needed, can be set
+ * statically using this annotation:
+ * 
+ * <pre>
+ * &#064;Field(display = &quot;more descriptive name of the field&quot;)
+ * public int fieldA() {
+ * 	return 0;
+ * }
+ * </pre>
+ * 
+ * or the same property can be generated dynamically at runtime by ommiting the
+ * the annotation parameter "display" in this annotation and supplying a
+ * separate instance method which generates the value:
+ * 
+ * <pre>
+ * &#064;FieldRuntime(FieldFunction.DISPLAY)
+ * public String fieldADisplay() {
+ * 	return (fieldA() == 0) ? &quot;FIELD_A&quot; : &quot;fieldA&quot;;
+ * }
+ * </pre>
+ * 
+ * Both Field.display and the runtime method can not be set at the same time.
+ * Again by default the name of the field is used as display of the field's
+ * name.
+ * </p>
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
@@ -96,7 +130,7 @@ public @interface Field {
 	String nicname() default EMPTY;
 
 	/**
-	 * A formatting string for the value of the field.
+	 * A formatting string for the value of the field. Default is "%s".
 	 * 
 	 * @return field's formatting string
 	 */
@@ -127,7 +161,7 @@ public @interface Field {
 	/**
 	 * A priority this field is assigned which is used in determining which field
 	 * to include in output depending on what JFormat.Detail level the user has
-	 * selected.
+	 * selected. Default is <code>Priority.MEDIUM</code>.
 	 * 
 	 * @return display priority of the field.
 	 */
