@@ -12,14 +12,10 @@
  */
 package org.jnetpcap.packet.header;
 
-import java.nio.ByteOrder;
-
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
+import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
-import org.jnetpcap.packet.format.JStaticField;
-import org.jnetpcap.packet.format.JFormatter.Style;
-import org.jnetpcap.packet.structure.JField;
 
 /**
  * IEEE 802.3 data link header definition
@@ -33,49 +29,7 @@ public class IEEE802dot3
 
 	public static final int ID = JProtocol.IEEE_802DOT3_ID;
 
-	public static final ByteOrder BYTE_ORDER = ByteOrder.BIG_ENDIAN;
-
-	public static final int LENGTH = 14; // 802.3 header is 14 bytes long
-
-	/**
-	 * Field objects for JFormatter
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
-	 */
-	public final static JField[] FIELDS =
-	    {
-	        new JField(Style.BYTE_ARRAY_DASH_ADDRESS, "destination", "dst",
-	            new JStaticField<IEEE802dot3, byte[]>(0, 48) {
-
-		            public byte[] value(IEEE802dot3 header) {
-			            return header.destination();
-		            }
-	            }),
-
-	        new JField(Style.BYTE_ARRAY_DASH_ADDRESS, "source", "src",
-	            new JStaticField<IEEE802dot3, byte[]>(6, 48) {
-
-		            public byte[] value(IEEE802dot3 header) {
-			            return header.source();
-		            }
-	            }),
-
-	        new JField("length", "len", new JStaticField<IEEE802dot3, Integer>(
-	            12, 16) {
-
-		        public Integer value(IEEE802dot3 header) {
-			        return header.length();
-		        }
-	        }),
-
-	    };
-
-	public IEEE802dot3() {
-		super(ID, FIELDS, "802.3", "Eth");
-		order(BYTE_ORDER);
-	}
-
+	@Field(offset = 0, length = 48, format = "#mac#")
 	public byte[] destination() {
 		return getByteArray(0, 6);
 	}
@@ -88,6 +42,7 @@ public class IEEE802dot3
 		setByteArray(0, array);
 	}
 
+	@Field(offset = 48, length = 48, format = "#mac#")
 	public byte[] source() {
 		return getByteArray(0 + 6, 6);
 	}
@@ -100,6 +55,7 @@ public class IEEE802dot3
 		return getByteArray(0 + 6, array);
 	}
 
+	@Field(offset = 96, length = 16, format = "%d")
 	public int length() {
 		return getUShort(0 + 12);
 	}

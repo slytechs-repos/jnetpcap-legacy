@@ -12,16 +12,14 @@
  */
 package org.jnetpcap.packet.header;
 
-import java.nio.ByteOrder;
-
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
+import org.jnetpcap.packet.annotate.Field;
+import org.jnetpcap.packet.annotate.FieldRuntime;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
-import org.jnetpcap.packet.format.JStaticField;
-import org.jnetpcap.packet.structure.JDynamicField;
-import org.jnetpcap.packet.structure.JField;
+import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
 
 /**
  * IEEE LLC2 header definition
@@ -29,84 +27,33 @@ import org.jnetpcap.packet.structure.JField;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@Header
+@Header(nicname = "llc")
 public class IEEE802dot2
     extends JHeader {
 
 	public static final int ID = JProtocol.IEEE_802DOT2_ID;
 
-	public static final ByteOrder BYTE_ORDER = ByteOrder.BIG_ENDIAN;
-	
 	@HeaderLength
 	public static int headerLength(JBuffer buffer, int offset) {
-		return ((buffer.getUShort(offset + 2) & 0x3) == 0x3)?4:5;
+		return ((buffer.getUShort(offset + 2) & 0x3) == 0x3) ? 4 : 5;
 	}
 
-	/**
-	 * Field objects for JFormatter
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
-	 */
-	public final static JField[] FIELDS =
-	    {
-	        new JField("destination", "dsap",
-	            new JStaticField<IEEE802dot2, Integer>(0, 8) {
-
-		            public Integer value(IEEE802dot2 header) {
-			            return header.dsap();
-		            }
-	            }),
-
-	        new JField("source", "ssap", new JStaticField<IEEE802dot2, Integer>(
-	            1, 8) {
-
-		        public Integer value(IEEE802dot2 header) {
-			        return header.ssap();
-		        }
-	        }),
-
-	        new JField("destination", "dsap",
-	            new JDynamicField<IEEE802dot2, Integer>(2) {
-
-		            /*
-								 * (non-Javadoc)
-								 * 
-								 * @see org.jnetpcap.packet.format.JDynamicField#hasField(org.jnetpcap.packet.JHeader)
-								 */
-		            @Override
-		            public boolean hasField(IEEE802dot2 header) {
-			            int c = header.control();
-
-			            if ((c & 0x3) == 0x3) {
-				            setLength(8);
-			            } else {
-				            setLength(16);
-			            }
-
-			            return true;
-		            }
-
-		            public Integer value(IEEE802dot2 header) {
-			            return header.control();
-		            }
-	            }),
-
-	    };
-
-	public IEEE802dot2() {
-		super(ID, "802.2", "llc");
-		order(BYTE_ORDER);
-	}
-
+	@Field(offset = 0, length = 8, format = "%x")
 	public int dsap() {
 		return getUByte(0);
 	}
 
+	@Field(offset = 8, length = 8, format = "%x")
 	public int ssap() {
 		return getUByte(1);
 	}
 
+	@FieldRuntime(FieldFunction.LENGTH)
+	public int controlLength() {
+		return ((super.getUShort(2) & 0x3) == 0x3) ? 2 * 8 : 3 * 8;
+	}
+
+	@Field(offset = 0, format = "%x")
 	public int control() {
 		/*
 		 * This field is either 1 or 2 bytes in length depending on the control bit.

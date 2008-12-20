@@ -12,14 +12,12 @@
  */
 package org.jnetpcap.packet.header;
 
-import java.nio.ByteOrder;
-
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
+import org.jnetpcap.packet.annotate.Field;
+import org.jnetpcap.packet.annotate.FieldRuntime;
 import org.jnetpcap.packet.annotate.Header;
-import org.jnetpcap.packet.format.JStaticField;
-import org.jnetpcap.packet.format.JFormatter.Style;
-import org.jnetpcap.packet.structure.JField;
+import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
 
 /**
  * IEEE SNAP header definition
@@ -27,50 +25,23 @@ import org.jnetpcap.packet.structure.JField;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@Header(length = 5)
+@Header(length = 5, nicname = "snap")
 public class IEEESnap
     extends JHeader {
 
 	public static final int ID = JProtocol.IEEE_SNAP_ID;
 	
-	public static final int LENGTH = 5;
-
-	public static final ByteOrder BYTE_ORDER = ByteOrder.BIG_ENDIAN;
-
-	/**
-	 * Field objects for JFormatter
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
-	 */
-	public final static JField[] FIELDS =
-	    {
-	        new JField(Style.LONG_DEC, "oui", "oui",
-	            new JStaticField<IEEESnap, Long>(0, 24) {
-
-		            public Long value(IEEESnap header) {
-			            return header.oui();
-		            }
-	            }),
-
-	        new JField("pid", "pid", new JStaticField<IEEESnap, Integer>(0, 16) {
-
-		        public Integer value(IEEESnap header) {
-			        return header.pid();
-		        }
-	        }),
-
-	    };
-
-	public IEEESnap() {
-		super(ID, "snap", "snap");
-		order(BYTE_ORDER);
-	}
-
+	@Field(offset = 0, length = 24, format = "%x")
 	public long oui() {
 		return getUInt(0) & 0x00FFFFFF;
 	}
 
+	@FieldRuntime(FieldFunction.DESCRIPTION)
+	public String pidDescription() {
+		return Ethernet.EthernetType.toString(pid());
+	}
+	
+	@Field(offset = 24, length = 16, format = "%x")
 	public int pid() {
 		return getUShort(3);
 	}

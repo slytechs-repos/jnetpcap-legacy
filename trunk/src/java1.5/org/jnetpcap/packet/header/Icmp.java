@@ -21,8 +21,6 @@ import org.jnetpcap.packet.annotate.FieldRuntime;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
-import org.jnetpcap.packet.format.JStaticField;
-import org.jnetpcap.packet.structure.JField;
 
 /**
  * ICMP header definition
@@ -272,34 +270,16 @@ public class Icmp
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
+	@Header(length = 4, id = IcmpType.PARAM_PROBLEM_ID)
 	public static class ParamProblem
 	    extends JSubHeader<Icmp> {
 
-		public final static JField[] X_FIELDS =
-		    {
-		        new JField("pointer", "ptr",
-		            new JStaticField<Icmp.ParamProblem, Integer>(0, 4) {
-
-			            public Integer value(Icmp.ParamProblem header) {
-				            return header.pointer();
-			            }
-		            }),
-		        new JField("reserved", "reserved",
-		            new JStaticField<Icmp.ParamProblem, Integer>(0, 4) {
-
-			            public Integer value(Icmp.ParamProblem header) {
-				            return header.reserved();
-			            }
-		            }), };
-
-		public ParamProblem() {
-			super(IcmpType.REDIRECT.id, X_FIELDS, "redirect");
-		}
-
+		@Field(offset = 0, length = 8)
 		public int pointer() {
 			return getUByte(0);
 		}
 
+		@Field(offset = 8, length = 24)
 		public int reserved() {
 			return (int) (getUInt(0) & 0x00FFFFFFL);
 		}

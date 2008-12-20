@@ -12,15 +12,10 @@
  */
 package org.jnetpcap.packet.header;
 
-import java.nio.ByteOrder;
-
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
+import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
-import org.jnetpcap.packet.format.JStaticField;
-import org.jnetpcap.packet.format.JFormatter.Priority;
-import org.jnetpcap.packet.format.JFormatter.Style;
-import org.jnetpcap.packet.structure.JField;
 
 /**
  * Point to Point Protocol header definition
@@ -32,62 +27,26 @@ import org.jnetpcap.packet.structure.JField;
 public class PPP
     extends JHeader {
 
-	public static final ByteOrder BYTE_ORDER = ByteOrder.BIG_ENDIAN;
-
 	public static final int ID = JProtocol.PPP_ID;
-
-	/**
-	 * Field objects for JFormatter
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
-	 */
-	public final static JField[] FIELDS =
-	    {
-	        new JField(Style.INT_DEC, Priority.MEDIUM, "address", "addr",
-	            new JStaticField<PPP, Integer>(0, 8) {
-
-		            public Integer value(PPP header) {
-			            return header.address();
-		            }
-	            }),
-
-	        new JField(Style.INT_DEC, Priority.MEDIUM, "control", "control",
-	            new JStaticField<PPP, Integer>(1, 8) {
-
-		            public Integer value(PPP header) {
-			            return header.control();
-		            }
-	            }),
-
-	        new JField(Style.INT_HEX, Priority.MEDIUM, "protocol", "type",
-	            new JStaticField<PPP, Integer>(2, 16) {
-
-		            public Integer value(PPP header) {
-			            return header.protocol();
-		            }
-	            }),
-
-	    };
-
-	/**
-	 * @param id
-	 */
-	public PPP() {
-		super(ID, FIELDS, "ppp", "ppp");
-		order(BYTE_ORDER);
-	}
-
-	public int address() {
+	
+	@Field(offset = 0, length = 8) 
+	public int flags() {
 		return getUByte(0);
 	}
 
-	public int control() {
+	@Field(offset = 8, length = 8)
+	public int address() {
 		return getUByte(1);
 	}
 
+	@Field(offset = 16, length = 8)
+	public int control() {
+		return getUByte(2);
+	}
+
+	@Field(offset = 24, length = 16)
 	public int protocol() {
-		return getUShort(2);
+		return getUShort(3);
 	}
 
 }
