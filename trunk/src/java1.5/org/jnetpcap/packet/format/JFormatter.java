@@ -33,27 +33,62 @@ import org.jnetpcap.packet.structure.JFieldRuntime;
 public abstract class JFormatter {
 
 	/**
+	 * Detail level to include in formatted output
+	 * 
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
 	public enum Detail {
+		/**
+		 * Full detail using multi line output if neccessary
+		 */
 		MULTI_LINE_FULL_DETAIL,
+
+		/**
+		 * Summary of one major component per line
+		 */
 		MULTI_LINE_SUMMARY,
+
+		/**
+		 * Supress output
+		 */
 		NONE,
+
+		/**
+		 * Compress output to a single line of output for the entire component
+		 */
 		ONE_LINE_SUMMARY,
 	}
 
 	/**
+	 * Priority assigned to JFields. The priority of a field is used to determine
+	 * which fields to include as part of format Detail.
+	 * 
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
 	public enum Priority {
+
+		/**
+		 * High priority fields are included in every type of output
+		 */
 		HIGH,
+
+		/**
+		 * Low priority fields are only included in MULTI_LINE_FULL_DETAIL output
+		 * type
+		 */
 		LOW,
+
+		/**
+		 * Medium fields are included in multi line summary type output
+		 */
 		MEDIUM
 	}
 
 	/**
+	 * Various output formatting styles for JField values
+	 * 
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
@@ -90,7 +125,8 @@ public abstract class JFormatter {
 		INT_RADIX_8,
 		LONG_DEC,
 
-		LONG_HEX, STRING,
+		LONG_HEX,
+		STRING,
 	}
 
 	private static final Detail DEFAULT_DETAIL = Detail.MULTI_LINE_FULL_DETAIL;
@@ -135,7 +171,7 @@ public abstract class JFormatter {
 	 * 
 	 */
 	public JFormatter() {
-		setDetail(Detail.MULTI_LINE_FULL_DETAIL);
+		setDetail(DEFAULT_DETAIL);
 
 		setOutput(System.out);
 	}
@@ -147,7 +183,7 @@ public abstract class JFormatter {
 	 *          appendable device where to send output
 	 */
 	public JFormatter(Appendable out) {
-		setDetail(Detail.MULTI_LINE_FULL_DETAIL);
+		setDetail(DEFAULT_DETAIL);
 		setOutput(out);
 	}
 
@@ -159,7 +195,7 @@ public abstract class JFormatter {
 	 */
 	public JFormatter(StringBuilder out) {
 
-		setDetail(Detail.MULTI_LINE_FULL_DETAIL);
+		setDetail(DEFAULT_DETAIL);
 		setOutput(out);
 	}
 
@@ -186,7 +222,9 @@ public abstract class JFormatter {
 	 * @param detail
 	 * @throws IOException
 	 */
-	protected abstract void fieldBefore(JHeader header, JField field,
+	protected abstract void fieldBefore(
+	    JHeader header,
+	    JField field,
 	    Detail detail) throws IOException;
 
 	public void format(JHeader header) throws IOException {
@@ -276,7 +314,7 @@ public abstract class JFormatter {
 
 		subHeaderAfter(header, subHeader, detail);
 	}
-	
+
 	/**
 	 * @param packet
 	 * @throws IOException
@@ -284,7 +322,7 @@ public abstract class JFormatter {
 	public void format(JPacket packet) throws IOException {
 		format(packet, DEFAULT_DETAIL);
 	}
-	
+
 	/**
 	 * Formats a packet for output
 	 * 
@@ -512,8 +550,11 @@ public abstract class JFormatter {
 		return stylizeMultiLine(header, field, field.getStyle(), value);
 	}
 
-	protected String[] stylizeMultiLine(JHeader header, JField field,
-	    Style style, Object value) {
+	protected String[] stylizeMultiLine(
+	    JHeader header,
+	    JField field,
+	    Style style,
+	    Object value) {
 
 		switch (style) {
 			case BYTE_ARRAY_HEX_DUMP:
@@ -597,7 +638,9 @@ public abstract class JFormatter {
 	 * @param detail
 	 * @throws IOException
 	 */
-	protected abstract void subHeaderAfter(JHeader header, JHeader subHeader,
+	protected abstract void subHeaderAfter(
+	    JHeader header,
+	    JHeader subHeader,
 	    Detail detail) throws IOException;
 
 	/**
@@ -606,7 +649,9 @@ public abstract class JFormatter {
 	 * @param detail
 	 * @throws IOException
 	 */
-	protected abstract void subHeaderBefore(JHeader header, JHeader subHeader,
+	protected abstract void subHeaderBefore(
+	    JHeader header,
+	    JHeader subHeader,
 	    Detail detail) throws IOException;
 
 	public String toString() {
