@@ -253,13 +253,13 @@ public class JScanner
 			}
 
 			if (scanners[i].hasBindings() || scanners[i].hasScanMethod()) {
-				System.out.printf("%s, Downloading scanner [%s]\n", this, scanners[i]);
+//				System.out.printf("%s, Downloading scanner [%s]\n", this, scanners[i]);
 			} else {
 				scanners[i] = null;
 			}
 		}
 
-//		loadScanners(scanners);
+		loadScanners(scanners);
 	}
 
 	/**

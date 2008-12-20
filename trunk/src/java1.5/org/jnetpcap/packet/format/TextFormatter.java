@@ -87,7 +87,7 @@ public class TextFormatter
 		    (JFieldRuntime<JHeader, Object>) field.getRuntime();
 
 		if (field.hasSubFields()) {
-			final String v = stylizeSingleLine(header, field, runtime.value(header));
+			final String v = stylizeSingleLine(header, field, field.getValue(header));
 			pad().format(FIELD_FORMAT + "%s", field.getDisplay(), v);
 			incLevel(19);
 
@@ -96,20 +96,20 @@ public class TextFormatter
 			final JFieldRuntime<JHeader, Object> bitsRuntime =
 			    (JFieldRuntime<JHeader, Object>) field.getRuntime();
 
-			final String v = stylizeSingleLine(header, field, runtime.value(header));
+			final String v = stylizeSingleLine(header, field, field.getValue(header));
 			final String d = bitsRuntime.valueDescription(header);
-			final int i = (Integer) runtime.value(header);
+			final int i = (Integer) field.getValue(header);
 			pad().format("%s = [%d] %s%s", v, i, field.getDisplay(),
 			    ((d == null) ? "" : ": " + d));
 
 		} else if (field.getStyle() == Style.BYTE_ARRAY_HEX_DUMP) {
-			final String[] v = stylizeMultiLine(header, field, runtime.value(header));
+			final String[] v = stylizeMultiLine(header, field, field.getValue(header));
 			for (String i : v) {
 				pad().format("%s", i);
 			}
 
 		} else if (field.getStyle() == Style.BYTE_ARRAY_ARRAY_IP4_ADDRESS) {
-			byte[][] table = (byte[][]) runtime.value(header);
+			byte[][] table = (byte[][]) field.getValue(header);
 
 			int i = 0;
 			for (byte[] b : table) {
@@ -120,7 +120,7 @@ public class TextFormatter
 			incLevel(0); // Inc for multi line fields
 		} else {
 
-			final String v = stylizeSingleLine(header, field, runtime.value(header));
+			final String v = stylizeSingleLine(header, field, field.getValue(header));
 			final String description = runtime.valueDescription(header);
 			final String units = field.getUnits();
 

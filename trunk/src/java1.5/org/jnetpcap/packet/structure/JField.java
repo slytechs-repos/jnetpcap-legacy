@@ -16,7 +16,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import org.jnetpcap.packet.JHeader;
-import org.jnetpcap.packet.format.JFormatter;
+import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
+import org.jnetpcap.packet.format.DefaultFieldRuntime;
 import org.jnetpcap.packet.format.JFormatter.Priority;
 import org.jnetpcap.packet.format.JFormatter.Style;
 
@@ -34,7 +35,7 @@ public class JField {
 	private static class JFieldComp implements Comparator<JField> {
 
 		private JHeader header;
-		
+
 		private boolean ascending = true;
 
 		private JFieldRuntime<JHeader, Object> r1;
@@ -50,18 +51,18 @@ public class JField {
 		public int compare(JField o1, JField o2) {
 			r1 = (JFieldRuntime<JHeader, Object>) o1.getRuntime();
 			r2 = (JFieldRuntime<JHeader, Object>) o2.getRuntime();
-			
+
 			if (ascending) {
 				return r1.getOffset(header) - r2.getOffset(header);
 			} else {
-				return r2.getOffset(header) - r1.getOffset(header);				
+				return r2.getOffset(header) - r1.getOffset(header);
 			}
 		}
 
 		public void setHeader(JHeader header) {
 			this.header = header;
 		}
-		
+
 		public void setAscending(boolean ascending) {
 			this.ascending = ascending;
 		}
@@ -104,6 +105,8 @@ public class JField {
 
 	private final String units;
 
+	private AnnotatedField afield;
+
 	public String toString() {
 		StringBuilder b = new StringBuilder();
 
@@ -114,6 +117,22 @@ public class JField {
 		b.append(", style=").append(style);
 
 		return b.toString();
+	}
+
+	public JField(AnnotatedField afield, JField[] children) {
+		this.afield = afield;
+		this.subFields = children;
+		this.priority = afield.getPriority();
+		this.name = afield.getName();
+		this.nicname = afield.getNicname();
+		this.display = afield.getDisplay();
+		this.units = afield.getUnits();
+		this.style = afield.getStyle();
+		this.runtime = new DefaultFieldRuntime(afield.getRuntime());
+		
+		for (JField f : subFields) {
+			f.setParent(this);
+		}
 	}
 
 	/**
@@ -217,17 +236,17 @@ public class JField {
 	 */
 	public JField(Style style, Priority priority, String name, String nicname,
 	    String units, JFieldRuntime<? extends JHeader, ?> runtime,
-	    JField... componentFields) {
+	    JField... subFields) {
 		this.name = name;
 		this.nicname = nicname;
 		this.priority = priority;
 		this.units = units;
 		this.style = style;
 		this.runtime = runtime;
-		this.subFields = componentFields;
+		this.subFields = subFields;
 		this.display = name;
 
-		for (JField f : componentFields) {
+		for (JField f : subFields) {
 			f.setParent(this);
 		}
 	}
@@ -375,6 +394,21 @@ public class JField {
 
 	public final String getDisplay() {
 		return this.display;
+	}
+
+	public int getOffset(JHeader header) {
+
+		AnnotatedFieldMethod method =
+		    afield.getRuntime().getFunctionMap().get(FieldFunction.OFFSET);
+		
+		return method.intMethod(header);
+	}
+	
+	public Object getValue(JHeader header) {
+		AnnotatedFieldMethod method =
+		    afield.getRuntime().getFunctionMap().get(FieldFunction.VALUE);
+		
+		return method.objectMethod(header);
 	}
 
 }

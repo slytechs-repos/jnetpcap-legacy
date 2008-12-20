@@ -35,7 +35,7 @@ public class Tcp
 	public static int headerLength(JBuffer buffer, int offset) {
 		return ((buffer.getUByte(12) & 0xF0) >> 4) * 4;
 	}
-	
+
 	public static final int ID = JProtocol.TCP_ID;
 
 	private static final int FLAG_CONG = 0x80;
