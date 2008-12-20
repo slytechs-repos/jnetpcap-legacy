@@ -72,7 +72,7 @@ public class TextFormatter
 
 		if (field.getStyle() == Style.INT_BITS) {
 
-		} else if (field.isCompound()) {
+		} else if (field.hasSubFields()) {
 			decLevel();
 		} else if (field.getStyle() != Style.BYTE_ARRAY_HEX_DUMP) {
 			decLevel();
@@ -86,7 +86,7 @@ public class TextFormatter
 		final JFieldRuntime<JHeader, Object> runtime =
 		    (JFieldRuntime<JHeader, Object>) field.getRuntime();
 
-		if (field.isCompound()) {
+		if (field.hasSubFields()) {
 			final String v = stylizeSingleLine(header, field, runtime.value(header));
 			pad().format(FIELD_FORMAT + "%s", field.getDisplay(), v);
 			incLevel(19);

@@ -32,7 +32,7 @@ public class DefaultField
 	 * @param name
 	 * @param nicname
 	 * @param runtime
-	 * @param componentFields
+	 * @param subFields
 	 */
 	public DefaultField(Priority priority, String name, String nicname,
 	    JFieldRuntime<? extends JHeader, ?> runtime, JField[] componentFields) {

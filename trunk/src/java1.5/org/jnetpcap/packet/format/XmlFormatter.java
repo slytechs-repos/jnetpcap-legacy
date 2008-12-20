@@ -53,7 +53,7 @@ public class XmlFormatter
 		if (field.getStyle() == Style.BYTE_ARRAY_HEX_DUMP) {
 			decLevel();
 			pad().format(LT + "/hexdump" + GT + "\n");
-		} else if (false && field.isCompound()) {
+		} else if (false && field.hasSubFields()) {
 			final String v = stylizeSingleLine(header, field, runtime.value(header));
 
 			pad().format(LT + "/field" + GT);
@@ -118,7 +118,7 @@ public class XmlFormatter
 
 			decLevel();
 
-		} else if (false && field.isCompound()) {
+		} else if (false && field.hasSubFields()) {
 			final String v = stylizeSingleLine(header, field, runtime.value(header));
 
 			pad().format(
