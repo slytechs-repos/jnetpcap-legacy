@@ -12,13 +12,8 @@
  */
 package org.jnetpcap.packet.format;
 
-import org.jnetpcap.packet.JHeader;
-import org.jnetpcap.packet.format.JFormatter.Priority;
 import org.jnetpcap.packet.structure.AnnotatedField;
 import org.jnetpcap.packet.structure.JField;
-import org.jnetpcap.packet.structure.JFieldRuntime;
-
-
 
 /**
  * @author Mark Bednarczyk
@@ -27,22 +22,8 @@ import org.jnetpcap.packet.structure.JFieldRuntime;
 public class DefaultField
     extends JField {
 
-	/**
-	 * @param priority
-	 * @param name
-	 * @param nicname
-	 * @param runtime
-	 * @param subFields
-	 */
-	public DefaultField(Priority priority, String name, String nicname,
-	    JFieldRuntime<? extends JHeader, ?> runtime, JField[] componentFields) {
-		super(priority, name, nicname, runtime, componentFields);
-	}
-
 	private DefaultField(AnnotatedField field, DefaultField[] children) {
-		super(field.getStyle(), field.getPriority(), field.getName(), field
-		    .getDisplay(), field.getNicname(), field.getUnits(),
-		    new DefaultFieldRuntime(field.getRuntime()), children);
+		super(field, children);
 	}
 
 	public static DefaultField fromAnnotatedField(AnnotatedField field) {
@@ -52,23 +33,23 @@ public class DefaultField
 		for (AnnotatedField f : field.getSubFields()) {
 			children[i++] = fromAnnotatedField(f);
 		}
-		
+
 		JField.sortFieldByOffset(children, null, false);
 
 		return new DefaultField(field, children);
 	}
 
 	/**
-   * @param fields
-   * @return
-   */
-  public static JField[] fromAnnotatedFields(AnnotatedField[] fields) {
-	  JField[] f = new JField[fields.length];
-	  
-	  for (int i = 0; i < fields.length; i ++) {
-	  	f[i] = fromAnnotatedField(fields[i]);
-	  }
-	  
-	  return f;
-  }
+	 * @param fields
+	 * @return
+	 */
+	public static JField[] fromAnnotatedFields(AnnotatedField[] fields) {
+		JField[] f = new JField[fields.length];
+
+		for (int i = 0; i < fields.length; i++) {
+			f[i] = fromAnnotatedField(fields[i]);
+		}
+
+		return f;
+	}
 }

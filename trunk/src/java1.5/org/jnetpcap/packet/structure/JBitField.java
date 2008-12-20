@@ -13,7 +13,6 @@
 package org.jnetpcap.packet.structure;
 
 import org.jnetpcap.packet.JHeader;
-import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.JFormatter.Priority;
 import org.jnetpcap.packet.format.JFormatter.Style;
 

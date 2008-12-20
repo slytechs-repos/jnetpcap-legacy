@@ -17,10 +17,7 @@ import java.nio.ByteOrder;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JStruct;
 import org.jnetpcap.packet.format.DefaultField;
-import org.jnetpcap.packet.format.JFormatter.Priority;
-import org.jnetpcap.packet.format.JFormatter.Style;
 import org.jnetpcap.packet.structure.AnnotatedHeader;
-import org.jnetpcap.packet.structure.JDynamicField;
 import org.jnetpcap.packet.structure.JField;
 
 /**
@@ -86,31 +83,11 @@ public abstract class JHeader
 		}
 	}
 
+	
 	/**
-	 * Default field object for JFormatter that does a hex dump on the entire
-	 * header
+	 * No fields
 	 */
-	public final static JField[] DEFAULT_FIELDS =
-	    { new JField(Style.BYTE_ARRAY_HEX_DUMP, Priority.LOW, "data", "data",
-	        new JDynamicField<JHeader, byte[]>(0) {
-
-		        /*
-						 * (non-Javadoc)
-						 * 
-						 * @see org.jnetpcap.packet.format.JDynamicField#hasField(org.jnetpcap.packet.JHeader)
-						 */
-		        @Override
-		        public boolean hasField(JHeader header) {
-			        setLength(header.getLength());
-			        setOffset(header.getOffset());
-
-			        return header.getLength() != 0;
-		        }
-
-		        public byte[] value(JHeader header) {
-			        return header.getByteArray(0, header.getLength());
-		        }
-	        }), };
+	private final static JField[] DEFAULT_FIELDS = new JField[0];
 
 	protected final static JHeader[] EMPTY_HEADER_ARRAY = new JHeader[0];
 
