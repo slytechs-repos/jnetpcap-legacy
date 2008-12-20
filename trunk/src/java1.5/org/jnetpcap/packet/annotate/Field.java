@@ -1,16 +1,14 @@
 /**
- * Copyright (C) 2008 Sly Technologies, Inc. This library is free
- * software; you can redistribute it and/or modify it under the terms
- * of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your
- * option) any later version. This library is distributed in the hope
- * that it will be useful, but WITHOUT ANY WARRANTY; without even the
- * implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- * PURPOSE. See the GNU Lesser General Public License for more
- * details. You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301 USA
+ * Copyright (C) 2008 Sly Technologies, Inc. This library is free software; you
+ * can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version. This
+ * library is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details. You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 package org.jnetpcap.packet.annotate;
 
@@ -23,13 +21,11 @@ import java.lang.annotation.Target;
 import org.jnetpcap.packet.format.JFormatter.Priority;
 
 /**
- * Marks a method as header field that should be included in
- * <code>JFormatter</code> output. For accessing values out of the
- * protocol header, none of the accessor methods need to be marked in
- * anyway, but if you want the field to be included in output by the
- * formatter such as <code>TextFormatter</code> field has to be
- * marked.
- * 
+ * Defines a header field's getter method. Any method annotated with
+ * <code>@Field</code> annotation will be included in <code>JFormatter</code>
+ *        output. The field annotation allows a number of constant properties
+ *        about the field to be declared. By default, the method's name becomes
+ *        the field name as well. 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
@@ -37,31 +33,104 @@ import org.jnetpcap.packet.format.JFormatter.Priority;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Field {
-  
-  public final static String EMPTY = "";
-  
-  public final static String DEFAULT_FORMAT = "%s";
-  
-  public final static int DEFAULT_LENGTH = -1;
-  
-  int offset() default -1;
 
-  int length() default DEFAULT_LENGTH;
+	/**
+	 * An empty string
+	 */
+	public final static String EMPTY = "";
 
-  String name() default EMPTY;
-  
-  String display() default EMPTY;
+	/**
+	 * Default formatting string for field's value
+	 */
+	public final static String DEFAULT_FORMAT = "%s";
 
-  String nicname() default EMPTY;
+	/**
+	 * Static offset of this field into the header in bits. This parameter
+	 * specifies in bits, the exact offset of the annotated field within the
+	 * current header. The value is constant. If offset of the field is not
+	 * constant but varies and can only be determined at runtime, then this
+	 * parameter should not be used. Instead use a method and mark it with
+	 * <code>@FieldRuntime(FieldFunction.OFFSET)</code> annotation.
+	 * @return offset into the header in bits
+	 */
+	int offset() default -1;
 
-  String format() default DEFAULT_FORMAT;
-  
-  String units() default EMPTY;
-  
-  String description() default EMPTY;
-  
-  String parent() default EMPTY;
+	/**
+	 * Static length of this field within the header in bits. This parameter
+	 * specifies in bits, the exact length of the annotated field within the
+	 * current header. The value is constant. If length of the field is not
+	 * constant but varies and can only be determined at runtime, then this
+	 * parameter should not be used. Instead use a method and mark it with
+	 * <code>@FieldRuntime(FieldFunction.LENGTH)</code> annotation.
+	 * @return length of the field in bits
+	 */
+	int length() default -1;
 
-  Priority priority() default Priority.MEDIUM;
+	/**
+	 * Name of the field. By default, the name of the field is determined
+	 * implicitely by using the name of the method. This parameter allows the name
+	 * of the field to be explicitely specified. The name of the field, must be
+	 * unique within the same header and acts as a unique ID of the field.
+	 * 
+	 * @return name of the field
+	 */
+	String name() default EMPTY;
+
+	/**
+	 * Name of the field that will be displayed. The name is used by defaul if
+	 * display parameter is not set. Display is only a text string that gets
+	 * displayed as the name of the field. The actual content of this parameter
+	 * have no baring on the name of the field.
+	 * 
+	 * @return display string to use as a display for field name
+	 */
+	String display() default EMPTY;
+
+	/**
+	 * A short name of the field to display. Nicname is similar to display
+	 * parameter. It does not affect the name of the field and is only used for
+	 * display purposes where appropriate.
+	 * 
+	 * @return short name of the filed
+	 */
+	String nicname() default EMPTY;
+
+	/**
+	 * A formatting string for the value of the field.
+	 * 
+	 * @return field's formatting string
+	 */
+	String format() default DEFAULT_FORMAT;
+
+	/**
+	 * Units associated with the value of the field.
+	 * 
+	 * @return string with the name of the units
+	 */
+	String units() default EMPTY;
+
+	/**
+	 * A short description of the field's value.
+	 * 
+	 * @return a string with value description
+	 */
+	String description() default EMPTY;
+
+	/**
+	 * Sets the parent field's name and implicitely declares this field to be a
+	 * subfield of the parent.
+	 * 
+	 * @return name of the parent field this sub field is appart of
+	 */
+	String parent() default EMPTY;
+
+	/**
+	 * A priority this field is assigned which is used in determining which field
+	 * to include in output depending on what JFormat.Detail level the user has
+	 * selected.
+	 * 
+	 * @return display priority of the field.
+	 */
+	Priority priority() default Priority.MEDIUM;
 
 }
