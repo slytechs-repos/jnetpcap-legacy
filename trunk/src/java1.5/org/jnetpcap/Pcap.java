@@ -153,8 +153,13 @@ import org.jnetpcap.packet.PcapPacketHandler;
  * <pre>
  * PcapHandler&lt;PrintStream&gt; handler = new PcapHandler&lt;PrintStream&gt;() {
  * 
- * 	public void newPacket(PrintStream out, int caplen, int len, int seconds,
- * 	    int usecs, ByteBuffer buffer) {
+ * 	public void newPacket(
+ * 	    PrintStream out,
+ * 	    int caplen,
+ * 	    int len,
+ * 	    int seconds,
+ * 	    int usecs,
+ * 	    ByteBuffer buffer) {
  * 
  * 		out.println(&quot;Packet captured on: &quot; + new Date(seconds * 1000).toString());
  * 	}
@@ -393,8 +398,13 @@ public class Pcap {
 	 *         lastly, the compiled program is stored and therefore returned in
 	 *         the formal parameter <code>program</code>
 	 */
-	public native static int compileNoPcap(int snaplen, int dlt,
-	    PcapBpfProgram program, String str, int optimize, int netmask);
+	public native static int compileNoPcap(
+	    int snaplen,
+	    int dlt,
+	    PcapBpfProgram program,
+	    String str,
+	    int optimize,
+	    int netmask);
 
 	/**
 	 * Translates a data link type name, which is a DLT_ name with the DLT_
@@ -474,7 +484,8 @@ public class Pcap {
 	 *         an appropriate error message; 0 is returned on success
 	 * @since 1.2
 	 */
-	public native static int findAllDevs(List<PcapIf> alldevs,
+	public native static int findAllDevs(
+	    List<PcapIf> alldevs,
 	    StringBuilder errbuf);
 
 	/**
@@ -614,8 +625,11 @@ public class Pcap {
 	 *          any error messages if return value is -1
 	 * @return 0 on success otherwise -1 on error
 	 */
-	public native static int lookupNet(String device, JNumber netp,
-	    JNumber maskp, StringBuilder errbuf);
+	public native static int lookupNet(
+	    String device,
+	    JNumber netp,
+	    JNumber maskp,
+	    StringBuilder errbuf);
 
 	/**
 	 * Determines the network number and mask associated with the network device.
@@ -639,8 +653,11 @@ public class Pcap {
 	 * @deprecated use of PcapInteger has been deprecated
 	 * @see #lookupNet(String, JNumber, JNumber, StringBuilder)
 	 */
-	public native static int lookupNet(String device, PcapInteger netp,
-	    PcapInteger maskp, StringBuilder errbuf);
+	public native static int lookupNet(
+	    String device,
+	    PcapInteger netp,
+	    PcapInteger maskp,
+	    StringBuilder errbuf);
 
 	/**
 	 * Create a pcap_t structure without starting a capture. pcap_open_dead() is
@@ -720,8 +737,12 @@ public class Pcap {
 	 *         returned by native libpcap call to open
 	 * @since 1.2
 	 */
-	public native static Pcap openLive(String device, int snaplen, int promisc,
-	    int timeout, StringBuilder errbuf);
+	public native static Pcap openLive(
+	    String device,
+	    int snaplen,
+	    int promisc,
+	    int timeout,
+	    StringBuilder errbuf);
 
 	/**
 	 * Open a savefile in the tcpdump/libpcap format to read packets.
@@ -832,7 +853,10 @@ public class Pcap {
 	 * @return A return of -1 indicates an error in which case {@link #getErr()}
 	 *         may be used to display the error text.
 	 */
-	public native int compile(PcapBpfProgram program, String str, int optimize,
+	public native int compile(
+	    PcapBpfProgram program,
+	    String str,
+	    int optimize,
 	    int netmask);
 
 	/**
@@ -900,8 +924,11 @@ public class Pcap {
 		return dispatch(cnt, handler, user, new PcapHeader(Type.POINTER));
 	}
 
-	private native <T> int dispatch(int cnt, ByteBufferHandler<T> handler,
-	    T user, PcapHeader header);
+	private native <T> int dispatch(
+	    int cnt,
+	    ByteBufferHandler<T> handler,
+	    T user,
+	    PcapHeader header);
 
 	/**
 	 * <p>
@@ -1014,8 +1041,109 @@ public class Pcap {
 	 * @param scanner
 	 * @return
 	 */
-	private native <T> int dispatch(int cnt, int id, JPacketHandler<T> handler,
-	    T user, JPacket packet, JPacket.State state, PcapHeader header,
+	private native <T> int dispatch(
+	    int cnt,
+	    int id,
+	    JPacketHandler<T> handler,
+	    T user,
+	    JPacket packet,
+	    JPacket.State state,
+	    PcapHeader header,
+	    JScanner scanner);
+
+	/**
+	 * Collect a group of packets. pcap_loop() is similar to pcap_dispatch()
+	 * except it keeps reading packets until cnt packets are processed or an error
+	 * occurs. It does not return when live read timeouts occur. Rather,
+	 * specifying a non-zero read timeout to pcap_open_live() and then calling
+	 * pcap_dispatch() allows the reception and processing of any packets that
+	 * arrive when the timeout occurs. A negative cnt causes pcap_loop() to loop
+	 * forever (or at least until an error occurs). -1 is returned on an error; 0
+	 * is returned if cnt is exhausted; -2 is returned if the loop terminated due
+	 * to a call to pcap_breakloop() before any packets were processed. If your
+	 * application uses pcap_breakloop(), make sure that you explicitly check for
+	 * -1 and -2, rather than just checking for a return value < 0.
+	 * <p>
+	 * This implementation of disptach method performs a scan of the packet buffer
+	 * as it is delivered by libpcap. The scanned information is recorded in
+	 * native scanner structures which are then peered with a JPacket object
+	 * instance. The receiver of the dispatched packets
+	 * <code>JPacketHandler.nextPacket</code> receives fully decoded packets.
+	 * </p>
+	 * <p>
+	 * This method provides its own thread-local <code>JScanner</code> and
+	 * default shared <code>JPacket</code> instance. The same packet is
+	 * dispatched to the user with the state of the packet being changed between
+	 * each dispatch. If the user requires the packet state to persist longer than
+	 * a single iteration of the dispatcher, the delivered packets state must
+	 * either be peered with a different packet (only copied by reference) or the
+	 * entire contents and state must be copied to a new packet (a deep copy). The
+	 * shallow copy by reference persists longer, but not indefinately. It persist
+	 * as long as libpcap internal large capture buffer doesn't wrap around. The
+	 * same goes for JScanner's internal scan buffer, it too persists until the
+	 * state information exhausts the buffer and the buffer is wrapped around to
+	 * the begining as well overriding any information in the scan buffer. If
+	 * there are still any packets that reference that scan buffer information,
+	 * once that information is overriden by the latest scan, the original scan
+	 * information is gone forever and will guarrantee that any old packets still
+	 * pointing at the scan buffer will have incorrect infromation.
+	 * </p>
+	 * <p>
+	 * <code>JPacket</code> class provides methods which allow deep copy of the
+	 * packet data and state to be made to a new permanent location. This
+	 * mechanism works in conjuction of <code>JMemoryPool</code> class which
+	 * facilitates native memory management on large scale. Once the packet data
+	 * and state are deep copied to new memory location, that packet can stay
+	 * permanently in memory. The memory will only be released when all the java
+	 * object references to that memory are garbage collected. The memory is
+	 * deallocated automatically.
+	 * </p>
+	 * <p>
+	 * This method derrives the numerical protocol ID for the data link header
+	 * automatically using <code>Pcap.datalink()</code> value returned.
+	 * </p>
+	 * 
+	 * @param <T>
+	 *          user data type
+	 * @param cnt
+	 *          number of packets to process
+	 * @param id
+	 *          numerical protocol ID found in JProtocol.ID constant and in
+	 *          JRegistery
+	 * @param handler
+	 *          user supplied packet handler
+	 * @param user
+	 *          a custom opaque user object
+	 * @return number of packet captured
+	 */
+	public <T> int dispatch(int cnt, int id, PcapPacketHandler<T> handler, T user) {
+		final PcapPacket packet = new PcapPacket(Type.POINTER);
+		return dispatch(cnt, id, handler, user, packet, packet.getState(), packet
+		    .getCaptureHeader(), JScanner.getThreadLocal());
+	}
+
+	/**
+	 * Private native implementation
+	 * 
+	 * @param <T>
+	 * @param cnt
+	 * @param id
+	 * @param handler
+	 * @param user
+	 * @param packet
+	 * @param state
+	 * @param header
+	 * @param scanner
+	 * @return
+	 */
+	private native <T> int dispatch(
+	    int cnt,
+	    int id,
+	    PcapPacketHandler<T> handler,
+	    T user,
+	    JPacket packet,
+	    JPacket.State state,
+	    PcapHeader header,
 	    JScanner scanner);
 
 	/**
@@ -1073,12 +1201,16 @@ public class Pcap {
 	 * @since 1.2
 	 */
 	public <T> int dispatch(int cnt, JBufferHandler<T> handler, T user) {
-		return dispatch(cnt, handler, user, new PcapHeader(Type.POINTER), new JBuffer(
-		    Type.POINTER));
+		return dispatch(cnt, handler, user, new PcapHeader(Type.POINTER),
+		    new JBuffer(Type.POINTER));
 	}
 
-	private native <T> int dispatch(int cnt, JBufferHandler<T> handler, T user,
-	    PcapHeader header, JBuffer buffer);
+	private native <T> int dispatch(
+	    int cnt,
+	    JBufferHandler<T> handler,
+	    T user,
+	    PcapHeader header,
+	    JBuffer buffer);
 
 	/**
 	 * <p>
@@ -1173,7 +1305,7 @@ public class Pcap {
 	 */
 	public <T> int dispatch(int cnt, JPacketHandler<T> handler, T user) {
 		final PcapPacket packet = new PcapPacket(Type.POINTER);
-		return loop(cnt, JProtocol.id(this), handler, user, packet, packet
+		return dispatch(cnt, JProtocol.id(this), handler, user, packet, packet
 		    .getState(), packet.getCaptureHeader(), JScanner.getThreadLocal());
 	}
 
@@ -1231,6 +1363,12 @@ public class Pcap {
 	 * @see ByteBufferHandler
 	 */
 	public native <T> int dispatch(int cnt, PcapHandler<T> handler, T user);
+
+	public <T> int dispatch(int cnt, PcapPacketHandler<T> handler, T user) {
+		final PcapPacket packet = new PcapPacket(Type.POINTER);
+		return dispatch(cnt, JProtocol.id(this), handler, user, packet, packet
+		    .getState(), packet.getCaptureHeader(), JScanner.getThreadLocal());
+	}
 
 	/**
 	 * Open a file to write packets. The <code>dumpOpen</code> method is called
@@ -1420,7 +1558,10 @@ public class Pcap {
 		return loop(cnt, handler, user, new PcapHeader(Type.POINTER));
 	}
 
-	private native <T> int loop(int cnt, ByteBufferHandler<T> handler, T user,
+	private native <T> int loop(
+	    int cnt,
+	    ByteBufferHandler<T> handler,
+	    T user,
 	    PcapHeader header);
 
 	/**
@@ -1509,8 +1650,14 @@ public class Pcap {
 	 * @param scanner
 	 * @return
 	 */
-	private native <T> int loop(int cnt, int id, JPacketHandler<T> handler,
-	    T user, JPacket packet, JPacket.State state, PcapHeader header,
+	private native <T> int loop(
+	    int cnt,
+	    int id,
+	    JPacketHandler<T> handler,
+	    T user,
+	    JPacket packet,
+	    JPacket.State state,
+	    PcapHeader header,
 	    JScanner scanner);
 
 	/**
@@ -1598,8 +1745,14 @@ public class Pcap {
 	 * @param scanner
 	 * @return
 	 */
-	private native <T> int loop(int cnt, int id, PcapPacketHandler<T> handler,
-	    T user, JPacket packet, JPacket.State state, PcapHeader header,
+	private native <T> int loop(
+	    int cnt,
+	    int id,
+	    PcapPacketHandler<T> handler,
+	    T user,
+	    JPacket packet,
+	    JPacket.State state,
+	    PcapHeader header,
 	    JScanner scanner);
 
 	/**
@@ -1628,11 +1781,16 @@ public class Pcap {
 	 * @since 1.2
 	 */
 	public <T> int loop(int cnt, JBufferHandler<T> handler, T user) {
-		return loop(cnt, handler, user, new PcapHeader(Type.POINTER), new JBuffer(Type.POINTER));
+		return loop(cnt, handler, user, new PcapHeader(Type.POINTER), new JBuffer(
+		    Type.POINTER));
 	}
 
-	private native <T> int loop(int cnt, JBufferHandler<T> handler, T user,
-	    PcapHeader header, JBuffer buffer);
+	private native <T> int loop(
+	    int cnt,
+	    JBufferHandler<T> handler,
+	    T user,
+	    PcapHeader header,
+	    JBuffer buffer);
 
 	/**
 	 * Collect a group of packets. pcap_loop() is similar to pcap_dispatch()
