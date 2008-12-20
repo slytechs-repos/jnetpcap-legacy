@@ -58,18 +58,19 @@ public abstract class JFormatter {
 	 * @author Sly Technologies, Inc.
 	 */
 	public enum Style {
+		BYTE_ARRAY_ARRAY_IP4_ADDRESS,
 		BYTE_ARRAY_COLON_ADDRESS,
 		BYTE_ARRAY_DASH_ADDRESS,
-		BYTE_ARRAY_DOT_ADDRESS,
 
+		BYTE_ARRAY_DOT_ADDRESS,
 		BYTE_ARRAY_HEX_DUMP,
 		BYTE_ARRAY_HEX_DUMP_ADDRESS,
 		BYTE_ARRAY_HEX_DUMP_NO_ADDRESS,
+
 		BYTE_ARRAY_HEX_DUMP_NO_TEXT,
-
 		BYTE_ARRAY_HEX_DUMP_NO_TEXT_ADDRESS,
-		BYTE_ARRAY_HEX_DUMP_TEXT,
 
+		BYTE_ARRAY_HEX_DUMP_TEXT,
 		BYTE_ARRAY_IP4_ADDRESS,
 		BYTE_ARRAY_IP6_ADDRESS,
 		INT_BIN,
@@ -88,9 +89,8 @@ public abstract class JFormatter {
 		INT_RADIX_2,
 		INT_RADIX_8,
 		LONG_DEC,
-		LONG_HEX,
 
-		STRING, BYTE_ARRAY_ARRAY_IP4_ADDRESS,
+		LONG_HEX, STRING,
 	}
 
 	private static final Detail DEFAULT_DETAIL = Detail.MULTI_LINE_FULL_DETAIL;
@@ -127,9 +127,9 @@ public abstract class JFormatter {
 
 	protected Formatter out;
 
-	private Stack<String> padStack = new Stack<String>();
-
 	private StringBuilder outputBuffer;
+
+	private Stack<String> padStack = new Stack<String>();
 
 	/**
 	 * 
@@ -144,10 +144,9 @@ public abstract class JFormatter {
 	 * Creates a formatter.
 	 * 
 	 * @param out
-	 *          buffer where to send output
+	 *          appendable device where to send output
 	 */
-	public JFormatter(StringBuilder out) {
-
+	public JFormatter(Appendable out) {
 		setDetail(Detail.MULTI_LINE_FULL_DETAIL);
 		setOutput(out);
 	}
@@ -156,9 +155,10 @@ public abstract class JFormatter {
 	 * Creates a formatter.
 	 * 
 	 * @param out
-	 *          appendable device where to send output
+	 *          buffer where to send output
 	 */
-	public JFormatter(Appendable out) {
+	public JFormatter(StringBuilder out) {
+
 		setDetail(Detail.MULTI_LINE_FULL_DETAIL);
 		setOutput(out);
 	}
@@ -188,6 +188,10 @@ public abstract class JFormatter {
 	 */
 	protected abstract void fieldBefore(JHeader header, JField field,
 	    Detail detail) throws IOException;
+
+	public void format(JHeader header) throws IOException {
+		format(header, DEFAULT_DETAIL);
+	}
 
 	/**
 	 * @param header
@@ -220,6 +224,31 @@ public abstract class JFormatter {
 
 	}
 
+	public void format(JHeader header, JField field) throws IOException {
+		format(header, field, DEFAULT_DETAIL);
+	}
+
+	/**
+	 * @param header
+	 * @param field
+	 * @param detail
+	 * @throws IOException
+	 */
+	public void format(JHeader header, JField field, Detail detail)
+	    throws IOException {
+
+		fieldBefore(header, field, detail);
+
+		if (field.isCompound()) {
+			for (JField sub : field.getCompoundFields()) {
+				format(header, sub, detail);
+			}
+		}
+
+		fieldAfter(header, field, detail);
+
+	}
+
 	@SuppressWarnings("unchecked")
 	public void format(JHeader header, JHeader subHeader, Detail detail)
 	    throws IOException {
@@ -247,54 +276,15 @@ public abstract class JFormatter {
 
 		subHeaderAfter(header, subHeader, detail);
 	}
-
-	/**
-	 * @param header
-	 * @param subHeader
-	 * @param detail
-	 * @throws IOException
-	 */
-	protected abstract void subHeaderAfter(JHeader header, JHeader subHeader,
-	    Detail detail) throws IOException;
-
-	/**
-	 * @param header
-	 * @param subHeader
-	 * @param detail
-	 * @throws IOException
-	 */
-	protected abstract void subHeaderBefore(JHeader header, JHeader subHeader,
-	    Detail detail) throws IOException;
-
-	/**
-	 * @param header
-	 * @param field
-	 * @param detail
-	 * @throws IOException
-	 */
-	public void format(JHeader header, JField field, Detail detail)
-	    throws IOException {
-
-		fieldBefore(header, field, detail);
-
-		if (field.isCompound()) {
-			for (JField sub : field.getCompoundFields()) {
-				format(header, sub, detail);
-			}
-		}
-
-		fieldAfter(header, field, detail);
-
-	}
-
+	
 	/**
 	 * @param packet
 	 * @throws IOException
 	 */
 	public void format(JPacket packet) throws IOException {
-		format(packet, Detail.MULTI_LINE_FULL_DETAIL);
+		format(packet, DEFAULT_DETAIL);
 	}
-
+	
 	/**
 	 * Formats a packet for output
 	 * 
@@ -425,6 +415,15 @@ public abstract class JFormatter {
 		}
 
 		return this.out;
+	}
+
+	/**
+	 * 
+	 */
+	public void reset() {
+		if (outputBuffer != null) {
+			outputBuffer.setLength(0);
+		}
 	}
 
 	/**
@@ -592,17 +591,26 @@ public abstract class JFormatter {
 		}
 	}
 
-	public String toString() {
-		return this.out.toString();
-	}
+	/**
+	 * @param header
+	 * @param subHeader
+	 * @param detail
+	 * @throws IOException
+	 */
+	protected abstract void subHeaderAfter(JHeader header, JHeader subHeader,
+	    Detail detail) throws IOException;
 
 	/**
-	 * 
+	 * @param header
+	 * @param subHeader
+	 * @param detail
+	 * @throws IOException
 	 */
-	public void reset() {
-		if (outputBuffer != null) {
-			outputBuffer.setLength(0);
-		}
+	protected abstract void subHeaderBefore(JHeader header, JHeader subHeader,
+	    Detail detail) throws IOException;
+
+	public String toString() {
+		return this.out.toString();
 	}
 
 }
