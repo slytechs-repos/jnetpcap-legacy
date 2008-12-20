@@ -20,7 +20,7 @@ extern "C" {
 #define NO_SUCH_FIELD_EXCEPTION "java/lang/NoSuchFieldException"
 #define INDEX_OUT_OF_BOUNDS_EXCEPTION "java/lang/IndexOutOfBoundsException"
 #define NULL_PTR_EXCEPTION "java/lang/NullPointerException"
-#define UNSUPPORTED_OPERATION_EXCEPTION "java/lang/UnsuportOperationException"
+#define UNSUPPORTED_OPERATION_EXCEPTION "java/lang/UnsupportedOperationException"
 #define PCAP_CLOSED_EXCEPTION "org/jnetpcap/PcapClosedException"
 #define PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION "org/jnetpcap/PcapExtensionNotAvailableException"
 #define OUT_OF_MEMORY_ERROR "java/lang/OutOfMemoryError"
