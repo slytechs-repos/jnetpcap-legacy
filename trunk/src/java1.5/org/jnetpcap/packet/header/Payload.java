@@ -15,8 +15,11 @@ package org.jnetpcap.packet.header;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
+import org.jnetpcap.packet.annotate.Field;
+import org.jnetpcap.packet.annotate.FieldRuntime;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
+import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
 
 /**
  * Builtin header type that is a catch all for all unmatch data within a packet
@@ -35,9 +38,15 @@ public class Payload
 	}
 
 	public final static int ID = JProtocol.PAYLOAD.ID;
-
-	public Payload() {
-		super(ID, "payload", "data");
+	
+	@FieldRuntime(FieldFunction.LENGTH) 
+	public int dataLength() {
+		return size() * 8;
+	}
+	
+	@Field(offset = 0, format="#hexdump#")
+	public byte[] data() {
+		return super.getByteArray(0, size());
 	}
 
 }
