@@ -80,7 +80,7 @@ public class JField {
 
 	private final static JFieldComp SORT_BY_OFFSET = new JFieldComp();
 
-	protected JField[] componentFields;
+	protected JField[] subFields;
 
 	/**
 	 * Name of the field which is also its ID
@@ -127,7 +127,7 @@ public class JField {
 	 *          nicname of the field
 	 * @param runtime
 	 *          runtime environment for this field
-	 * @param componentFields
+	 * @param subFields
 	 *          sub-fields
 	 */
 	public JField(Priority priority, String name, String nicname,
@@ -148,7 +148,7 @@ public class JField {
 	 *          units of the value
 	 * @param runtime
 	 *          runtime environment for this field
-	 * @param componentFields
+	 * @param subFields
 	 *          sub-fields
 	 */
 	public JField(Priority priority, String name, String nicname, String units,
@@ -166,7 +166,7 @@ public class JField {
 	 *          nicname of the field
 	 * @param runtime
 	 *          runtime environment for this field
-	 * @param componentFields
+	 * @param subFields
 	 *          sub-fields
 	 */
 	public JField(String name, String nicname,
@@ -188,7 +188,7 @@ public class JField {
 	 *          nicname of the field
 	 * @param runtime
 	 *          runtime environment for this field
-	 * @param componentFields
+	 * @param subFields
 	 *          sub-fields
 	 */
 	public JField(Style style, Priority priority, String name, String nicname,
@@ -212,7 +212,7 @@ public class JField {
 	 *          units description for the value
 	 * @param runtime
 	 *          runtime environment for this field
-	 * @param componentFields
+	 * @param subFields
 	 *          sub-fields
 	 */
 	public JField(Style style, Priority priority, String name, String nicname,
@@ -224,7 +224,7 @@ public class JField {
 		this.units = units;
 		this.style = style;
 		this.runtime = runtime;
-		this.componentFields = componentFields;
+		this.subFields = componentFields;
 		this.display = name;
 
 		for (JField f : componentFields) {
@@ -241,7 +241,7 @@ public class JField {
 		this.units = units;
 		this.style = style;
 		this.runtime = runtime;
-		this.componentFields = componentFields;
+		this.subFields = componentFields;
 		this.display = display;
 
 		for (JField f : componentFields) {
@@ -260,7 +260,7 @@ public class JField {
 	 *          nicname of the field
 	 * @param runtime
 	 *          runtime environment for this field
-	 * @param componentFields
+	 * @param subFields
 	 *          sub-fields
 	 */
 	public JField(Style style, String name, String nicname,
@@ -278,8 +278,8 @@ public class JField {
 	 * 
 	 * @return array of subfields
 	 */
-	public JField[] getCompoundFields() {
-		return componentFields;
+	public JField[] getSubFields() {
+		return subFields;
 	}
 
 	/**
@@ -352,8 +352,8 @@ public class JField {
 	 * 
 	 * @return true means has sub-fields, otherwise false
 	 */
-	public boolean isCompound() {
-		return componentFields.length != 0;
+	public boolean hasSubFields() {
+		return subFields.length != 0;
 	}
 
 	/**

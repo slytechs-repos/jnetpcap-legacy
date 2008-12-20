@@ -277,8 +277,8 @@ public abstract class JFormatter {
 
 		fieldBefore(header, field, detail);
 
-		if (field.isCompound()) {
-			for (JField sub : field.getCompoundFields()) {
+		if (field.hasSubFields()) {
+			for (JField sub : field.getSubFields()) {
 				format(header, sub, detail);
 			}
 		}
