@@ -12,14 +12,12 @@
  */
 package org.jnetpcap.packet.header;
 
-import java.nio.ByteOrder;
-
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
+import org.jnetpcap.packet.annotate.Field;
+import org.jnetpcap.packet.annotate.FieldRuntime;
 import org.jnetpcap.packet.annotate.Header;
-import org.jnetpcap.packet.format.JStaticField;
-import org.jnetpcap.packet.format.JFormatter.Style;
-import org.jnetpcap.packet.structure.JField;
+import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
 
 /**
  * IEEE Vlan header definition
@@ -27,71 +25,34 @@ import org.jnetpcap.packet.structure.JField;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@Header(length = 4)
+@Header(length = 4, nicname = "vlan")
 public class IEEE802dot1q
     extends JHeader {
 
 	public static final int ID = JProtocol.IEEE_802DOT1Q_ID;
 
-	public static final ByteOrder BYTE_ORDER = ByteOrder.BIG_ENDIAN;
 
-	/**
-	 * Field objects for JFormatter
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
-	 */
-	public final static JField[] FIELDS =
-	    {
-	        new JField("priority", "pri",
-	            new JStaticField<IEEE802dot1q, Integer>(0, 3) {
-
-		            public Integer value(IEEE802dot1q header) {
-			            return header.priority();
-		            }
-	            }),
-	        new JField("cfi", "cfi",
-	            new JStaticField<IEEE802dot1q, Integer>(0, 1) {
-
-		            public Integer value(IEEE802dot1q header) {
-			            return header.cfi();
-		            }
-	            }),
-
-	        new JField("id", "id",
-	            new JStaticField<IEEE802dot1q, Integer>(0, 12) {
-
-		            public Integer value(IEEE802dot1q header) {
-			            return header.id();
-		            }
-	            }),
-	        new JField(Style.INT_HEX, "type", "type",
-	            new JStaticField<IEEE802dot1q, Integer>(2, 16) {
-
-		            public Integer value(IEEE802dot1q header) {
-			            return header.type();
-		            }
-	            }),
-
-	    };
-
-	public IEEE802dot1q() {
-		super(ID, FIELDS, "802.1q", "vlan");
-		order(BYTE_ORDER);
-	}
-
+	@Field(offset = 0, length = 3, format = "%d")
 	public int priority() {
 		return (getUByte(0) & 0xE0) >> 5;
 	}
 
+	@Field(offset = 3, length = 1, format = "%x")
 	public int cfi() {
 		return (getUByte(0) & 0x10) >> 4;
 	}
 
+	@Field(offset = 4, length = 12, format = "%x")
 	public int id() {
 		return getUShort(0) & 0x0FFF;
 	}
+	
+	@FieldRuntime(FieldFunction.DESCRIPTION)
+	public String typeDescription() {
+		return Ethernet.EthernetType.toString(type());
+	}
 
+	@Field(offset = 16, length = 16, format = "%x")
 	public int type() {
 		return getUShort(2);
 	}
