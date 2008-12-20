@@ -12,15 +12,10 @@
  */
 package org.jnetpcap.packet.header;
 
-import java.nio.ByteOrder;
-
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
+import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
-import org.jnetpcap.packet.format.JStaticField;
-import org.jnetpcap.packet.format.JFormatter.Priority;
-import org.jnetpcap.packet.format.JFormatter.Style;
-import org.jnetpcap.packet.structure.JField;
 
 /**
  * IP version 6 header definition
@@ -32,108 +27,39 @@ import org.jnetpcap.packet.structure.JField;
 public class Ip6
     extends JHeader {
 
-	public static final ByteOrder BYTE_ORDER = ByteOrder.BIG_ENDIAN;
-
 	public static final int ID = JProtocol.IP6_ID;
 
-	public static final int LENGTH = 40;
-
-	/**
-	 * Field objects for JFormatter
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
-	 */
-	public final static JField[] FIELDS =
-	    {
-
-	        new JField(Style.INT_DEC, Priority.MEDIUM, "version", "ver",
-	            new JStaticField<Ip6, Integer>(0, 4) {
-
-		            public Integer value(Ip6 header) {
-			            return header.version();
-		            }
-	            }),
-
-	        new JField(Style.INT_DEC, Priority.MEDIUM, "class", "class",
-	            new JStaticField<Ip6, Integer>(0, 12) {
-
-		            public Integer value(Ip6 header) {
-			            return header.trafficClass();
-		            }
-	            }),
-
-	        new JField(Style.INT_DEC, Priority.MEDIUM, "flow", "flow",
-	            new JStaticField<Ip6, Integer>(1, 24) {
-
-		            public Integer value(Ip6 header) {
-			            return header.flowLabel();
-		            }
-	            }),
-
-	        new JField(Style.INT_DEC, Priority.MEDIUM, "length", "len",
-	            new JStaticField<Ip6, Integer>(4, 16) {
-
-		            public Integer value(Ip6 header) {
-			            return header.length();
-		            }
-	            }),
-
-	        new JField(Style.INT_DEC, Priority.MEDIUM, "next", "type",
-	            new JStaticField<Ip6, Integer>(6, 8) {
-
-		            public Integer value(Ip6 header) {
-			            return header.next();
-		            }
-	            }),
-
-	        new JField(Style.INT_DEC, Priority.MEDIUM, "source", "src",
-	            new JStaticField<Ip6, byte[]>(8, 128) {
-
-		            public byte[] value(Ip6 header) {
-			            return header.source();
-		            }
-	            }),
-
-	        new JField(Style.INT_DEC, Priority.MEDIUM, "destination", "dst",
-	            new JStaticField<Ip6, byte[]>(24, 128) {
-
-		            public byte[] value(Ip6 header) {
-			            return header.destination();
-		            }
-	            }),
-
-	    };
-
-	public Ip6() {
-		super(ID, FIELDS, "ip6", "ip6");
-		super.order(BYTE_ORDER);
-	}
-
+	@Field(offset = 0, length = 4)
 	public int version() {
 		return getUByte(0) >> 4;
 	}
 
+	@Field(offset = 4, length = 8)
 	public int trafficClass() {
 		return getUShort(0) & 0x0FFF;
 	}
 
+	@Field(offset = 12, length = 20)
 	public int flowLabel() {
 		return getInt(0) & 0x000FFFFF; // We drop the sign bits anyway
 	}
 
+	@Field(offset = 32, length = 16)
 	public int length() {
 		return getUShort(4);
 	}
 
+	@Field(offset = 6 * 8, length = 8)
 	public int next() {
 		return getUByte(6);
 	}
 
+	@Field(offset = 7 * 8, length = 8)
 	public int hopLimit() {
 		return getUByte(7);
 	}
 
+	@Field(offset = 8 * 8, length = 128, format = "#ip6#")
 	public byte[] source() {
 		return getByteArray(8, 16);
 	}
@@ -145,6 +71,7 @@ public class Ip6
 		return getByteArray(8, address);
 	}
 
+	@Field(offset = 8 * 8, length = 128, format = "#ip6#")
 	public byte[] destination() {
 		return getByteArray(24, 16);
 	}
