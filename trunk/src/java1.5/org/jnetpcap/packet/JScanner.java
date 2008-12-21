@@ -212,7 +212,7 @@ public class JScanner
 	 * @see java.lang.Object#finalize()
 	 */
 	@Override
-	protected void finalize() throws Throwable {
+	protected void finalize() {
 		cleanup_jscanner();
 
 		super.finalize();

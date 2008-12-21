@@ -215,7 +215,8 @@ public abstract class JMemory {
 	/**
 	 * Default finalizer which checks if there is any memory to free up.
 	 */
-	protected void finalized() {
+	@Override
+	protected void finalize() {
 		cleanup();
 	}
 
