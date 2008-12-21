@@ -76,12 +76,19 @@ jfieldID jmemoryOwnerFID = 0;
 jfieldID jmemoryKeeperFID = 0;
 
 /*
+ * Global memory usage statistics for jmemory class
+ */
+memory_usage_t memory_usage;
+
+/*
  * Class:     org_jnetpcap_nio_JMemory
  * Method:    initIDs
  * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_initIDs
 (JNIEnv *env, jclass clazz) {
+	
+	memset(&memory_usage, 0, sizeof(memory_usage_t));
 
 	jclass c;
 	
@@ -128,6 +135,66 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_initIDs
 
 /*
  * Class:     org_jnetpcap_nio_JMemory
+ * Method:    totalAllocateCalls
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JMemory_totalAllocateCalls
+  (JNIEnv *obj, jclass clazz) {
+	return (jlong) memory_usage.total_allocate_calls;
+}
+
+/*
+ * Class:     org_jnetpcap_nio_JMemory
+ * Method:    totalAllocated
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JMemory_totalAllocated
+(JNIEnv *obj, jclass clazz) {
+	return (jlong) memory_usage.total_allocated;
+}
+
+/*
+ * Class:     org_jnetpcap_nio_JMemory
+ * Method:    totalAllocatedSegments0To255Bytes
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JMemory_totalAllocatedSegments0To255Bytes
+(JNIEnv *obj, jclass clazz) {
+	return (jlong) memory_usage.seg_0_255_bytes;
+}
+
+/*
+ * Class:     org_jnetpcap_nio_JMemory
+ * Method:    totalAllocatedSegments256OrAbove
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JMemory_totalAllocatedSegments256OrAbove
+(JNIEnv *obj, jclass clazz) {
+	return (jlong) memory_usage.seg_256_or_above_bytes;
+}
+
+/*
+ * Class:     org_jnetpcap_nio_JMemory
+ * Method:    totalDeAllocateCalls
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JMemory_totalDeAllocateCalls
+(JNIEnv *obj, jclass clazz) {
+	return (jlong) memory_usage.total_deallocate_calls;
+}
+
+/*
+ * Class:     org_jnetpcap_nio_JMemory
+ * Method:    totalDeAllocated
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JMemory_totalDeAllocated
+(JNIEnv *obj, jclass clazz) {
+	return (jlong) memory_usage.total_deallocated;
+}
+
+/*
+ * Class:     org_jnetpcap_nio_JMemory
  * Method:    allocate
  * Signature: (I)V
  */
@@ -140,12 +207,24 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_allocate
 		return;
 	}
 
+	/*
+	 * Initialize allocated memory
+	 */
 	memset(mem, 0, (int) jsize);
 
 	setJMemoryPhysical(env, obj, toLong(mem));
 	env->SetBooleanField(obj, jmemoryOwnerFID, JNI_TRUE);
 	env->SetIntField(obj, jmemorySizeFID, jsize);
 	env->SetIntField(obj, jmemoryPhysicalSizeFID, jsize);
+	
+	memory_usage.total_allocated += jsize;
+	memory_usage.total_allocate_calls ++;
+		
+	if (jsize <= 255) {
+		memory_usage.seg_0_255_bytes ++;
+	} else {
+		memory_usage.seg_256_or_above_bytes ++;
+	}
 }
 
 /*
@@ -159,6 +238,13 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_cleanup
 	jboolean jowner = env->GetBooleanField(obj, jmemoryOwnerFID);
 	void *mem = getJMemoryPhysical(env, obj);
 	if (mem != NULL && jowner) {
+		/*
+		 * Record statistics
+		 */
+		memory_usage.total_deallocated += 
+			env->GetIntField(obj, jmemoryPhysicalSizeFID);
+		memory_usage.total_deallocate_calls ++;
+		
 		/*
 		 * Release the main structure
 		 */

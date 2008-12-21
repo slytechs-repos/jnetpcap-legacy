@@ -81,6 +81,79 @@ public abstract class JMemory {
 	private static native void initIDs();
 
 	/**
+	 * Returns the total number of active native memory bytes currently allocated
+	 * that have not been deallocated as of yet. This number can be calculated by
+	 * the following formula:
+	 * 
+	 * <pre>
+	 * totalAllocated() - totalDeAllocated()
+	 * </pre>
+	 * 
+	 * @return number of native memory bytes still allocated
+	 */
+	public static long totalActiveAllocated() {
+		return totalAllocated() - totalDeAllocated();
+	}
+
+	/**
+	 * Returns total number of allocate calls through JMemory class. The memory is
+	 * allocated by JMemory class using native "malloc" calls and is not normally
+	 * reported by JRE memory usage.
+	 * 
+	 * @return total number of function calls made to malloc since JMemory class
+	 *         was loaded into memory
+	 */
+	public native static long totalAllocateCalls();
+
+	/**
+	 * Returns total number of bytes allocated through JMemory class. The memory
+	 * is allocated by JMemory class using native "malloc" calls and is not
+	 * normally reported by JRE memory usage.
+	 * 
+	 * @return total number of bytes allocated since JMemory class was loaded into
+	 *         memory
+	 */
+	public native static long totalAllocated();
+
+	/**
+	 * Returns the number of memory segments that were allocated by JMemory class
+	 * in the range of 0 to 255 bytes in size. This is number of segments, not
+	 * amount of memory allocated.
+	 * 
+	 * @return the total number of memory segments in this size
+	 */
+	public native static long totalAllocatedSegments0To255Bytes();
+
+	/**
+	 * Returns the number of memory segments that were allocated by JMemory class
+	 * in the range of 256 bytes or above in size. This is number of segments, not
+	 * amount of memory allocated.
+	 * 
+	 * @return the total number of memory segments in this size
+	 */
+	public native static long totalAllocatedSegments256OrAbove();
+
+	/**
+	 * Returns total number of deallocate calls through JMemory class. The memory
+	 * is allocated by JMemory class using native "free" calls and is not normally
+	 * reported by JRE memory usage.
+	 * 
+	 * @return total number of function calls made to free since JMemory class was
+	 *         loaded into memory
+	 */
+	public native static long totalDeAllocateCalls();
+
+	/**
+	 * Returns total number of bytes deallocated through JMemory class. The memory
+	 * is deallocated by JMemory class using native "free" calls and is not
+	 * normally reported by JRE memory usage.
+	 * 
+	 * @return total number of bytes deallocated since JMemory class was loaded
+	 *         into memory
+	 */
+	public native static long totalDeAllocated();
+
+	/**
 	 * Used to keep a reference tied with this memory object.
 	 */
 	@SuppressWarnings("unused")
@@ -371,6 +444,20 @@ public abstract class JMemory {
 	 * A debug method, similar to toString() which converts the contents of the
 	 * memory to textual hexdump.
 	 * 
+	 * @return multi-line hexdump of the entire memory region
+	 */
+	public String toHexdump() {
+		JBuffer b = new JBuffer(Type.POINTER);
+		b.peer(this);
+
+		return FormatUtils.hexdumpCombined(b.getByteArray(0, size), 0, 0, true,
+		    true, true);
+	}
+
+	/**
+	 * A debug method, similar to toString() which converts the contents of the
+	 * memory to textual hexdump.
+	 * 
 	 * @param length
 	 *          maximum number of bytes to dump to hex output
 	 * @param address
@@ -382,7 +469,10 @@ public abstract class JMemory {
 	 *          flag if set to true will print out raw HEX data on every line
 	 * @return multi-line hexdump of the entire memory region
 	 */
-	public String toHexdump(int length, boolean address, boolean text,
+	public String toHexdump(
+	    int length,
+	    boolean address,
+	    boolean text,
 	    boolean data) {
 		length = (length < size) ? length : size;
 		JBuffer b = new JBuffer(Type.POINTER);
@@ -390,20 +480,6 @@ public abstract class JMemory {
 
 		return FormatUtils.hexdumpCombined(b.getByteArray(0, length), 0, 0,
 		    address, text, data);
-	}
-
-	/**
-	 * A debug method, similar to toString() which converts the contents of the
-	 * memory to textual hexdump.
-	 * 
-	 * @return multi-line hexdump of the entire memory region
-	 */
-	public String toHexdump() {
-		JBuffer b = new JBuffer(Type.POINTER);
-		b.peer(this);
-
-		return FormatUtils.hexdumpCombined(b.getByteArray(0, size), 0, 0, true,
-		    true, true);
 	}
 
 	/**
@@ -430,7 +506,10 @@ public abstract class JMemory {
 	 *          starting offset into memory buffer
 	 * @return number of bytes copied
 	 */
-	protected native int transferFrom(byte[] buffer, int srcOffset, int length,
+	protected native int transferFrom(
+	    byte[] buffer,
+	    int srcOffset,
+	    int length,
 	    int dstOffset);
 
 	/**
@@ -528,7 +607,10 @@ public abstract class JMemory {
 	 *          starting offset in byte array
 	 * @return number of bytes copied
 	 */
-	protected native int transferTo(byte[] buffer, int srcOffset, int length,
+	protected native int transferTo(
+	    byte[] buffer,
+	    int srcOffset,
+	    int length,
 	    int dstOffset);
 
 	/**
@@ -563,14 +645,6 @@ public abstract class JMemory {
 			return o;
 		}
 	}
-
-	/**
-	 * @param dst
-	 * @param srcOffset
-	 * @param length
-	 * @return actual number of bytes that was copied
-	 */
-	private native int transferToDirect(ByteBuffer dst, int srcOffset, int length);
 
 	/**
 	 * Transfers the contents of this memory to buffer.
@@ -613,6 +687,17 @@ public abstract class JMemory {
 	 *          offset in destination buffer
 	 * @return number of bytes copied
 	 */
-	protected native int transferTo(JMemory dst, int srcOffset, int length,
+	protected native int transferTo(
+	    JMemory dst,
+	    int srcOffset,
+	    int length,
 	    int dstOffset);
+
+	/**
+	 * @param dst
+	 * @param srcOffset
+	 * @param length
+	 * @return actual number of bytes that was copied
+	 */
+	private native int transferToDirect(ByteBuffer dst, int srcOffset, int length);
 }
