@@ -52,6 +52,7 @@ public class BuildTests {
 		suite.addTestSuite(TestJBuffer.class);
 		suite.addTestSuite(TestJMemory.class);
 		suite.addTestSuite(TestFormatter.class);
+		suite.addTestSuite(TestPcapDispatchers.class);
 		//$JUnit-END$
 		return suite;
 	}
