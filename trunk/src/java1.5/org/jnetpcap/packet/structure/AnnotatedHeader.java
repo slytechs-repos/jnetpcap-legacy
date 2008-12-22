@@ -22,7 +22,7 @@ import java.util.Map;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JSubHeader;
 import org.jnetpcap.packet.annotate.Field;
-import org.jnetpcap.packet.annotate.FieldRuntime;
+import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.FieldSetter;
 import org.jnetpcap.packet.annotate.Header;
 
@@ -160,7 +160,7 @@ public class AnnotatedHeader {
 				fieldMethods.add(m);
 			}
 
-			if (m.isAnnotationPresent(FieldRuntime.class)) {
+			if (m.isAnnotationPresent(Dynamic.class)) {
 				runtimeMethods.add(m);
 			}
 
@@ -190,7 +190,7 @@ public class AnnotatedHeader {
 		}
 
 		/*
-		 * Second process @FieldRuntime marked methods
+		 * Second process @Dynamic marked methods
 		 */
 		for (Method m : runtimeMethods) {
 			try {

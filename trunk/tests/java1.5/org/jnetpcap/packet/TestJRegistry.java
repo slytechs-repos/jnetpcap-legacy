@@ -21,10 +21,9 @@ import org.jnetpcap.header.BindNetworkFamily;
 import org.jnetpcap.header.MyHeader;
 import org.jnetpcap.packet.JBinding.DefaultJBinding;
 import org.jnetpcap.packet.annotate.Bind;
+import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
-import org.jnetpcap.packet.annotate.FieldRuntime;
 import org.jnetpcap.packet.annotate.Scanner;
-import org.jnetpcap.packet.annotate.Field.Property;
 import org.jnetpcap.packet.header.Ethernet;
 import org.jnetpcap.packet.header.Ip4;
 import org.jnetpcap.packet.header.Ip6;
@@ -209,7 +208,7 @@ public class TestJRegistry
 			return super.getUByte(0);
 		}
 
-		@FieldRuntime(Field.Property.LENGTH)
+		@Dynamic(Field.Property.LENGTH)
 		public int field2Length() {
 			return field1() * 8;
 		}

@@ -18,10 +18,9 @@ import java.lang.reflect.Modifier;
 import java.util.List;
 
 import org.jnetpcap.packet.JHeader;
+import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FieldDefinitionException;
-import org.jnetpcap.packet.annotate.FieldRuntime;
-import org.jnetpcap.packet.annotate.Field.Property;
 
 /**
  * @author Mark Bednarczyk
@@ -70,14 +69,14 @@ public abstract class AnnotatedFieldMethod
 
 				default:
 					throw new HeaderDefinitionError(
-					    "Invalid FieldRuntime function type " + function.toString());
+					    "Invalid Dynamic function type " + function.toString());
 
 			}
 			
 			if (hasStaticValue == false && method == null) {
 				throw new FieldDefinitionException(field, "Missing '"
 				    + function.name().toLowerCase()
-				    + "' property. [@FieldRuntime(Property." + function.name()
+				    + "' property. [@Dynamic(Property." + function.name()
 				    + ")]");
 			}
 		}
@@ -169,7 +168,7 @@ public abstract class AnnotatedFieldMethod
 
 				default:
 					throw new HeaderDefinitionError(
-					    "Invalid FieldRuntime function type " + function.toString());
+					    "Invalid Dynamic function type " + function.toString());
 
 			}
 
@@ -177,7 +176,7 @@ public abstract class AnnotatedFieldMethod
 				throw new FieldDefinitionException(field, "Missing '"
 				    + function.name().toLowerCase() + "' property. [@Field("
 				    + function.name().toLowerCase()
-				    + "=<int>) or @FieldRuntime(Property." + function.name()
+				    + "=<int>) or @Dynamic(Property." + function.name()
 				    + ")]");
 			}
 
@@ -241,14 +240,14 @@ public abstract class AnnotatedFieldMethod
 
 				default:
 					throw new HeaderDefinitionError(field.getDeclaringClass(),
-					    "Invalid FieldRuntime function type " + function.toString());
+					    "Invalid Dynamic function type " + function.toString());
 
 			}
 
 			if (method == null) {
 				throw new FieldDefinitionException(field, "Missing field accessor '"
 				    + function.name().toLowerCase()
-				    + "' property. [@FieldRuntime(Property." + function.name()
+				    + "' property. [@Dynamic(Property." + function.name()
 				    + ")]");
 			}
 		}
@@ -327,7 +326,7 @@ public abstract class AnnotatedFieldMethod
 
 				default:
 					throw new HeaderDefinitionError(
-					    "Invalid FieldRuntime function type " + function.toString());
+					    "Invalid Dynamic function type " + function.toString());
 
 			}
 			
@@ -336,7 +335,7 @@ public abstract class AnnotatedFieldMethod
 				    + function.name().toLowerCase()
 				    + "' property. [@Field("
 				    + function.name().toLowerCase()
-				    + "=<string>) or @FieldRuntime(Property." + function.name()
+				    + "=<string>) or @Dynamic(Property." + function.name()
 				    + ")]");
 			}
 		}
@@ -379,7 +378,7 @@ public abstract class AnnotatedFieldMethod
 	 */
 	public static void checkAnnotation(Method method, List<AnnotatedField> fields) {
 
-		FieldRuntime runtime = method.getAnnotation(FieldRuntime.class);
+		Dynamic runtime = method.getAnnotation(Dynamic.class);
 
 		if (runtime.field().length() != 0) {
 
@@ -518,7 +517,7 @@ public abstract class AnnotatedFieldMethod
 
 			default:
 				throw new HeaderDefinitionError(
-				    "Unsupported FieldRuntime function type " + function.toString());
+				    "Unsupported Dynamic function type " + function.toString());
 		}
 
 	}
@@ -550,7 +549,7 @@ public abstract class AnnotatedFieldMethod
 	 */
 	public static AnnotatedFieldMethod inspectMethod(Method method) {
 
-		FieldRuntime runtime = method.getAnnotation(FieldRuntime.class);
+		Dynamic runtime = method.getAnnotation(Dynamic.class);
 
 		Field.Property function = runtime.value();
 		switch (function) {
@@ -575,7 +574,7 @@ public abstract class AnnotatedFieldMethod
 
 			default:
 				throw new HeaderDefinitionError(
-				    "Unsupported FieldRuntime function type " + function.toString());
+				    "Unsupported Dynamic function type " + function.toString());
 		}
 	}
 
@@ -605,7 +604,7 @@ public abstract class AnnotatedFieldMethod
 		super(method);
 		this.function = function;
 
-		FieldRuntime runtime = method.getAnnotation(FieldRuntime.class);
+		Dynamic runtime = method.getAnnotation(Dynamic.class);
 		if (runtime == null) {
 			throw new HeaderDefinitionError(method.getDeclaringClass(),
 			    "unable get field's annotated runtime");

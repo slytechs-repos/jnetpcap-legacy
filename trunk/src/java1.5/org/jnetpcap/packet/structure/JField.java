@@ -17,7 +17,6 @@ import java.util.Comparator;
 
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.annotate.Field;
-import org.jnetpcap.packet.annotate.Field.Property;
 import org.jnetpcap.packet.format.JFormatter.Priority;
 import org.jnetpcap.packet.format.JFormatter.Style;
 

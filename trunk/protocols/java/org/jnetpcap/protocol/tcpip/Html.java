@@ -16,11 +16,10 @@ import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.annotate.Bind;
+import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
-import org.jnetpcap.packet.annotate.FieldRuntime;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
-import org.jnetpcap.packet.annotate.Field.Property;
 
 /**
  * @author Mark Bednarczyk
@@ -44,7 +43,7 @@ public class Html
 
 	private String page;
 
-	@FieldRuntime(Field.Property.LENGTH)
+	@Dynamic(Field.Property.LENGTH)
 	public int pageLength() {
 		return size() * 8;
 	}

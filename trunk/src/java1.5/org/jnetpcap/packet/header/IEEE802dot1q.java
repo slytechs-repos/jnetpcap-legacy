@@ -14,10 +14,9 @@ package org.jnetpcap.packet.header;
 
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
+import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
-import org.jnetpcap.packet.annotate.FieldRuntime;
 import org.jnetpcap.packet.annotate.Header;
-import org.jnetpcap.packet.annotate.Field.Property;
 
 /**
  * IEEE Vlan header definition
@@ -47,7 +46,7 @@ public class IEEE802dot1q
 		return getUShort(0) & 0x0FFF;
 	}
 	
-	@FieldRuntime(Field.Property.DESCRIPTION)
+	@Dynamic(Field.Property.DESCRIPTION)
 	public String typeDescription() {
 		return Ethernet.EthernetType.toString(type());
 	}

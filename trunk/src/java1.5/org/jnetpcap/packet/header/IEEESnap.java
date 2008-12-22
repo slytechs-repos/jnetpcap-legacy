@@ -14,10 +14,9 @@ package org.jnetpcap.packet.header;
 
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
+import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
-import org.jnetpcap.packet.annotate.FieldRuntime;
 import org.jnetpcap.packet.annotate.Header;
-import org.jnetpcap.packet.annotate.Field.Property;
 
 /**
  * IEEE SNAP header definition
@@ -36,7 +35,7 @@ public class IEEESnap
 		return getUInt(0) & 0x00FFFFFF;
 	}
 
-	@FieldRuntime(Field.Property.DESCRIPTION)
+	@Dynamic(Field.Property.DESCRIPTION)
 	public String pidDescription() {
 		return Ethernet.EthernetType.toString(pid());
 	}
