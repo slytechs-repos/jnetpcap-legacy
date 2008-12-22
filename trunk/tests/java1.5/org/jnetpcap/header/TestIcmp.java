@@ -312,7 +312,8 @@ public class TestIcmp
 		assertTrue(packet.hasHeader(icmp));
 		assertTrue(icmp.hasSubHeader(echo));
 
-		TextFormatter out = new TextFormatter();
+		@SuppressWarnings("unused")
+    TextFormatter out = new TextFormatter();
 //		out.format(echo, Detail.MULTI_LINE_FULL_DETAIL);
 
 		assertEquals(0, icmp.type());
