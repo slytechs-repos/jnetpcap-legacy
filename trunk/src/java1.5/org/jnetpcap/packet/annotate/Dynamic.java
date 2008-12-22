@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
     ElementType.FIELD })
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-public @interface FieldRuntime {
+public @interface Dynamic {
 	String field() default "";
 
 	Field.Property value();

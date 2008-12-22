@@ -31,7 +31,7 @@ import org.jnetpcap.packet.format.JFormatter.Priority;
  * properties statically. The value set using this annotation will be set
  * permanently as a constant for that property. If the property is ommited, its
  * default value will be used or if a instance method is defined that is marked
- * with <code>FieldRuntime</code> annotation, then than method will be used at
+ * with <code>Dynamic</code> annotation, then than method will be used at
  * runtime to obtain the value for the property it generating values for. For
  * example, the <code>display</code> field property which is used as text to
  * display whenever a textual name for the field is needed, can be set
@@ -49,7 +49,7 @@ import org.jnetpcap.packet.format.JFormatter.Priority;
  * separate instance method which generates the value:
  * 
  * <pre>
- * &#064;FieldRuntime(Property.DISPLAY)
+ * &#064;Dynamic(Property.DISPLAY)
  * public String fieldADisplay() {
  * 	return (fieldA() == 0) ? &quot;FIELD_A&quot; : &quot;fieldA&quot;;
  * }
@@ -95,7 +95,7 @@ public @interface Field {
 	 * current header. The value is constant. If offset of the field is not
 	 * constant but varies and can only be determined at runtime, then this
 	 * parameter should not be used. Instead use a method and mark it with
-	 * <code>@FieldRuntime(Property.OFFSET)</code> annotation.
+	 * <code>@Dynamic(Property.OFFSET)</code> annotation.
 	 * @return offset into the header in bits
 	 */
 	int offset() default -1;
@@ -106,7 +106,7 @@ public @interface Field {
 	 * current header. The value is constant. If length of the field is not
 	 * constant but varies and can only be determined at runtime, then this
 	 * parameter should not be used. Instead use a method and mark it with
-	 * <code>@FieldRuntime(Property.LENGTH)</code> annotation.
+	 * <code>@Dynamic(Property.LENGTH)</code> annotation.
 	 * @return length of the field in bits
 	 */
 	int length() default -1;

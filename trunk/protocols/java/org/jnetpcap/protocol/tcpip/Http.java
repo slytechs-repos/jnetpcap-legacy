@@ -19,11 +19,10 @@ import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.annotate.Bind;
+import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
-import org.jnetpcap.packet.annotate.FieldRuntime;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
-import org.jnetpcap.packet.annotate.Field.Property;
 import org.jnetpcap.packet.header.Tcp;
 
 /**
@@ -128,7 +127,7 @@ public class Http
 
 	private String responseCodeMessage;
 
-	@FieldRuntime(Field.Property.CHECK)
+	@Dynamic(Field.Property.CHECK)
 	public boolean hasAccept() {
 		return mapByName.containsKey("Accept");
 	}
@@ -138,7 +137,7 @@ public class Http
 		return mapByName.get("Accept").getValue();
 	}
 
-	@FieldRuntime(Field.Property.CHECK)
+	@Dynamic(Field.Property.CHECK)
 	public boolean hasAcceptCharset() {
 		return mapByName.containsKey("Accept-Charset");
 	}
@@ -148,7 +147,7 @@ public class Http
 		return mapByName.get("Accept-Charset").getValue();
 	}
 
-	@FieldRuntime(Field.Property.CHECK)
+	@Dynamic(Field.Property.CHECK)
 	public boolean hasAcceptEncoding() {
 		return mapByName.containsKey("Accept-Encoding");
 	}
@@ -158,7 +157,7 @@ public class Http
 		return mapByName.get("Accept-Encoding").getValue();
 	}
 
-	@FieldRuntime(Field.Property.CHECK)
+	@Dynamic(Field.Property.CHECK)
 	public boolean hasAcceptLanguage() {
 		return mapByName.containsKey("Accept-Language");
 	}
@@ -168,7 +167,7 @@ public class Http
 		return mapByName.get("Accept-Language").getValue();
 	}
 
-	@FieldRuntime(Field.Property.CHECK)
+	@Dynamic(Field.Property.CHECK)
 	public boolean hasConnection() {
 		return mapByName.containsKey("Connection");
 	}
@@ -243,7 +242,7 @@ public class Http
 		// setSize(buf.length());
 	}
 
-	@FieldRuntime(Field.Property.CHECK)
+	@Dynamic(Field.Property.CHECK)
 	public boolean hasHost() {
 		return mapByName.containsKey("Host");
 	}
@@ -253,7 +252,7 @@ public class Http
 		return mapByName.get("Host").getValue();
 	}
 
-	@FieldRuntime(Field.Property.CHECK)
+	@Dynamic(Field.Property.CHECK)
 	public boolean hasRequestMethod() {
 		return this.requestMethod != null;
 	}
@@ -263,7 +262,7 @@ public class Http
 		return this.requestMethod;
 	}
 
-	@FieldRuntime(Field.Property.CHECK)
+	@Dynamic(Field.Property.CHECK)
 	public boolean hasRequestUrl() {
 		return this.requestUrl != null;
 	}
@@ -273,7 +272,7 @@ public class Http
 		return this.requestUrl;
 	}
 
-	@FieldRuntime(Field.Property.CHECK)
+	@Dynamic(Field.Property.CHECK)
 	public boolean hasRequestVersion() {
 		return this.requestVersion != null;
 	}
@@ -283,13 +282,13 @@ public class Http
 		return this.requestVersion;
 	}
 	
-	@FieldRuntime(field = "responseCode", value = Field.Property.DESCRIPTION)
+	@Dynamic(field = "responseCode", value = Field.Property.DESCRIPTION)
 	public String hasResponseCodeDesc() {
 		return responseCodeMessage();
 	}
 
 
-	@FieldRuntime(Field.Property.CHECK)
+	@Dynamic(Field.Property.CHECK)
 	public boolean hasResponseCode() {
 		return this.responseCode != -1;
 	}
@@ -307,7 +306,7 @@ public class Http
 		return this.responseCodeMessage;
 	}
 
-	@FieldRuntime(Field.Property.CHECK)
+	@Dynamic(Field.Property.CHECK)
 	public boolean hasUserAgent() {
 		return mapByName.containsKey("User-Agent");
 	}
@@ -317,7 +316,7 @@ public class Http
 		return mapByName.get("User-Agent").getValue();
 	}
 	
-	@FieldRuntime(Field.Property.CHECK)
+	@Dynamic(Field.Property.CHECK)
 	public boolean hasContentType() {
 		return mapByName.containsKey("Content-Type");
 	}
@@ -328,7 +327,7 @@ public class Http
 		return mapByName.get("Content-Type").getValue();
 	}
 
-	@FieldRuntime(Field.Property.CHECK)
+	@Dynamic(Field.Property.CHECK)
 	public boolean hasContentLength() {
 		return mapByName.containsKey("Content-Length");
 	}

@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.jnetpcap.packet.annotate.Field;
-import org.jnetpcap.packet.annotate.Field.Property;
 
 
 /**

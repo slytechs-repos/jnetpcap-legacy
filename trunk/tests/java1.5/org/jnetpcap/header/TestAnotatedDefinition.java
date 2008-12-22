@@ -24,11 +24,10 @@ import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.JSubHeader;
 import org.jnetpcap.packet.TestUtils;
+import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
-import org.jnetpcap.packet.annotate.FieldRuntime;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
-import org.jnetpcap.packet.annotate.Field.Property;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.packet.format.JFormatter.Detail;
@@ -122,12 +121,12 @@ public class TestAnotatedDefinition
 			return getUShort(12);
 		}
 
-		@FieldRuntime(field = "fieldB_Sub1", value = Field.Property.CHECK)
+		@Dynamic(field = "fieldB_Sub1", value = Field.Property.CHECK)
 		public boolean hasFieldB_Sub1() {
 			return true;
 		}
 
-		@FieldRuntime(field = "fieldB_Sub1", value = Field.Property.LENGTH)
+		@Dynamic(field = "fieldB_Sub1", value = Field.Property.LENGTH)
 		public int fieldB_Sub1Length() {
 			return 1;
 		}

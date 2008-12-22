@@ -16,11 +16,10 @@ import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JHeaderMap;
 import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.JSubHeader;
+import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
-import org.jnetpcap.packet.annotate.FieldRuntime;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
-import org.jnetpcap.packet.annotate.Field.Property;
 
 /**
  * ICMP header definition
@@ -376,7 +375,7 @@ public class Icmp
 		return super.getUByte(0);
 	}
 
-	@FieldRuntime(Field.Property.DESCRIPTION)
+	@Dynamic(Field.Property.DESCRIPTION)
 	public String typeDescription() {
 		return IcmpType.valueOf(type()).getDescription();
 	}

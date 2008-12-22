@@ -15,11 +15,10 @@ package org.jnetpcap.packet.header;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
+import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
-import org.jnetpcap.packet.annotate.FieldRuntime;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
-import org.jnetpcap.packet.annotate.Field.Property;
 
 /**
  * IEEE LLC2 header definition
@@ -48,7 +47,7 @@ public class IEEE802dot2
 		return getUByte(1);
 	}
 
-	@FieldRuntime(Field.Property.LENGTH)
+	@Dynamic(Field.Property.LENGTH)
 	public int controlLength() {
 		return ((super.getUShort(2) & 0x3) == 0x3) ? 2 * 8 : 3 * 8;
 	}
