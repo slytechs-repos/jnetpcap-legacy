@@ -35,7 +35,7 @@ import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@Header(name = "ip4", nicname = "ip")
+@Header(name = "Ip4", nicname = "Ip")
 public class Ip4
     extends JHeaderMap<Ip4> {
 
@@ -840,7 +840,7 @@ public class Ip4
 		optionsBitmap = 0;
 		this.hashcode = (id() << 16) ^ sourceToInt() ^ destinationToInt() ^ type();
 
-		System.out.printf("offset=%d, %s", getOffset(), toHexdump());
+//		System.out.printf("offset=%d, %s", getOffset(), toHexdump());
 		final int hlen = hlen() * 4;
 
 		for (int i = 20; i < hlen; i++) {

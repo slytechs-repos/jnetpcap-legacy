@@ -126,7 +126,7 @@ public abstract class JFormatter {
 		LONG_DEC,
 
 		LONG_HEX,
-		STRING,
+		STRING, STRING_TEXT_DUMP,
 	}
 
 	private static final Detail DEFAULT_DETAIL = Detail.MULTI_LINE_FULL_DETAIL;
@@ -580,6 +580,9 @@ public abstract class JFormatter {
 			case BYTE_ARRAY_HEX_DUMP_TEXT:
 				return FormatUtils.hexdump((byte[]) value, header.getOffset(), 0,
 				    false, true, false);
+				
+			case STRING_TEXT_DUMP:
+				return ((String) value).split("\r\n");
 
 			default:
 				return new String[] { stylizeSingleLine(header, field, value) };
@@ -617,10 +620,11 @@ public abstract class JFormatter {
 				return stylizeBitField(header, field, value);
 
 			case INT_RADIX_16:
-				return Integer.toHexString((int) (Integer) value).toUpperCase();
+				return Long.toHexString(((Number) value).longValue()).toUpperCase();
 
 			case INT_HEX:
-				return "0x" + Integer.toHexString((int) (Integer) value).toUpperCase()
+				return "0x"
+				    + Long.toHexString(((Number) value).longValue()).toUpperCase()
 				    + " (" + value.toString() + ")";
 
 			case LONG_HEX:

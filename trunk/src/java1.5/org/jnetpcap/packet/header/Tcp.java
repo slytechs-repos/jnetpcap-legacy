@@ -33,7 +33,8 @@ public class Tcp
 
 	@HeaderLength
 	public static int headerLength(JBuffer buffer, int offset) {
-		return ((buffer.getUByte(12) & 0xF0) >> 4) * 4;
+		final int hlen = (buffer.getUByte(offset + 12) & 0xF0) >> 4;
+		return hlen * 4;
 	}
 
 	public static final int ID = JProtocol.TCP_ID;
@@ -66,12 +67,12 @@ public class Tcp
 		return getUShort(2);
 	}
 
-	@Field(offset = 4 * 8, length = 16)
+	@Field(offset = 4 * 8, length = 16, format="%x")
 	public long seq() {
 		return getUInt(4);
 	}
 
-	@Field(offset = 8 * 8, length = 16)
+	@Field(offset = 8 * 8, length = 16, format="%x")
 	public long ack() {
 		return getUInt(8);
 	}
@@ -86,7 +87,7 @@ public class Tcp
 		return getUByte(12) & 0x0F;
 	}
 
-	@Field(offset = 13 * 8, length = 8)
+	@Field(offset = 13 * 8, length = 8, format="%x")
 	public int flags() {
 		return getUByte(13);
 	}
@@ -96,7 +97,7 @@ public class Tcp
 		return getUShort(14);
 	}
 
-	@Field(offset = 16 * 8, length = 16)
+	@Field(offset = 16 * 8, length = 16, format="%x")
 	public int checksum() {
 		return getUShort(16);
 	}

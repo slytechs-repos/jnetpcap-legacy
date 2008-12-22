@@ -88,7 +88,7 @@ int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner,
 	// Local temp variables
 	register uint64_t mask;
 
-	//#define DEBUG
+//#define DEBUG
 
 #ifdef DEBUG
 	printf("\n\n");
@@ -101,9 +101,7 @@ int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner,
 	while (scan.id != END_OF_HEADERS) {
 #ifdef DEBUG
 		printf("scan() loop-top   : id=%-16s offset=%-4d flags=%d\n",
-				id2str(scan.id),
-				scan.offset,
-				scanner->sc_flags[scan.id]);
+				id2str(scan.id), scan.offset, scanner->sc_flags[scan.id]);
 #endif
 
 		/* 
@@ -132,8 +130,7 @@ int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner,
 
 #ifdef DEBUG
 		printf("scan() loop-middle: id=%-16s offset=%-4d nid=%s length=%d\n",
-				id2str(scan.id), scan.offset,
-				id2str(scan.next_id), scan.length);
+				id2str(scan.id), scan.offset, id2str(scan.next_id), scan.length);
 #endif
 
 		if (scan.length == 0) {
@@ -159,8 +156,10 @@ int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner,
 			 ******************************************************/
 
 #ifdef DEBUG
-			printf("scan() loop-record: id=%-16s offset=%-4d nid=%s length=%d\n",
-					id2str(scan.id), scan.offset, id2str(scan.next_id), scan.length);
+			printf(
+					"scan() loop-record: id=%-16s offset=%-4d nid=%s length=%d\n",
+					id2str(scan.id), scan.offset, id2str(scan.next_id),
+					scan.length);
 #endif
 			/*
 			 * Initialize the header entry in our packet header array
@@ -220,7 +219,8 @@ void callJavaHeaderScanner(scan_t *scan) {
 		sprintf(str_buf, "java header scanner not set for ID=%d (%s)",
 				scan->id, id2str(scan->id));
 #ifdef DEBUG
-		fprintf(stdout, "scan() jscaner-ERR: %s\n", str_buf); fflush(stdout);
+		fprintf(stdout, "scan() jscaner-ERR: %s\n", str_buf);
+		fflush(stdout);
 #endif
 		throwException(scan->env, NULL_PTR_EXCEPTION, str_buf);
 		return;

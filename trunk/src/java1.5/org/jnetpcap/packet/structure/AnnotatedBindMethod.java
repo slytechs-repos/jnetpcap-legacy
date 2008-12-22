@@ -259,6 +259,8 @@ public class AnnotatedBindMethod
 
 		try {
 			header.peer(packet, offset, lengthMethod.getHeaderLength(packet, offset));
+			header.decode();
+			
 			return (Boolean) method.invoke(object, packet, header);
 		} catch (final IllegalArgumentException e) {
 			throw new IllegalStateException(e);

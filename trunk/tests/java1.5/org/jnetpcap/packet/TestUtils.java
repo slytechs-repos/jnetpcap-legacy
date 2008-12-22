@@ -12,7 +12,10 @@
  */
 package org.jnetpcap.packet;
 
+import org.jnetpcap.JBufferHandler;
 import org.jnetpcap.Pcap;
+import org.jnetpcap.PcapHeader;
+import org.jnetpcap.nio.JBuffer;
 
 /**
  * Various jUnit support utilities
@@ -84,10 +87,10 @@ public class TestUtils {
 		 * Third, Enter our loop and count packets until we reach the index of the
 		 * packet we are looking for.
 		 **************************************************************************/
-		pcap.loop(Pcap.LOOP_INFINATE, new PcapPacketHandler<Pcap>() {
+		pcap.loop(Pcap.LOOP_INFINATE, new JBufferHandler<Pcap>() {
 			int i = 0;
 
-			public void nextPacket(PcapPacket packet, Pcap pcap) {
+			public void nextPacket(PcapHeader header, JBuffer buffer, Pcap pcap) {
 
 				/***********************************************************************
 				 * Forth, once we reach our packet transfer the capture data from our
@@ -103,6 +106,9 @@ public class TestUtils {
 				 * break out of the Pcap.loop we call Pcap.breakLoop().
 				 **********************************************************************/
 				if (i++ == index) {
+					PcapPacket packet = new PcapPacket(header, buffer);
+					packet.scan(JProtocol.ETHERNET_ID);
+					
 					packet.transferStateAndDataTo(result);
 
 					pcap.breakloop();

@@ -200,6 +200,8 @@ public class AnnotatedField {
 			return Style.BYTE_ARRAY_COLON_ADDRESS;
 		} else if (format.contains("#hexdump#")) {
 			return Style.BYTE_ARRAY_HEX_DUMP;
+		} else if (format.contains("#textdump#")) {
+			return Style.STRING_TEXT_DUMP;
 		} else if (format.contains("#bitfield#")) {
 			return Style.INT_BITS;
 		} else {

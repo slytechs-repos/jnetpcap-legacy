@@ -1,7 +1,6 @@
 package org.jnetpcap.packet;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
@@ -213,10 +212,12 @@ public final class JRegistry {
 	}
 
 	private static Entry createNewEntry(Class<? extends JHeader> c) {
-		int id = LAST_ID++;
+		int id = LAST_ID;
 		Entry e;
-		mapByClassName.put(c.getName(), e = new Entry(id, c));
+		mapByClassName.put(c.getCanonicalName(), e = new Entry(id, c));
 		MAP_BY_ID[id] = e;
+
+		LAST_ID++;
 
 		return e;
 	}
@@ -255,7 +256,7 @@ public final class JRegistry {
 	public static JHeaderScanner[] getHeaderScanners() {
 		JHeaderScanner[] s = new JHeaderScanner[MAX_ID_COUNT];
 		System.arraycopy(scanners, 0, s, 0, MAX_ID_COUNT);
-		
+
 		return s;
 	}
 
@@ -432,7 +433,7 @@ public final class JRegistry {
 			return -1;
 		}
 
-		Entry e = mapByClassName.get(c);
+		Entry e = mapByClassName.get(c.getCanonicalName());
 		if (e == null) {
 			e = createNewEntry(c);
 		}
@@ -545,6 +546,17 @@ public final class JRegistry {
 
 	private JRegistry() {
 		// Can't instantiate
+	}
+
+	/**
+	 * Looks up a header scanner.
+	 * 
+	 * @param id
+	 *          id of the scanner to lookup
+	 * @return header scanner for this ID
+	 */
+	public static JHeaderScanner lookupScanner(int id) {
+		return scanners[id];
 	}
 
 }
