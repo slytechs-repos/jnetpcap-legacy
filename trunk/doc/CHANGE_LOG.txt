@@ -20,6 +20,50 @@
 
                               jNetPcap Package
                                  Change Log
+== Release 1.2.rc3 (2008-12-22) ==
+
+* Update to 1.2.rc2
+
+* Fixes
+
+  - #2458371 - Serious memory leak in JMemory
+  
+  - #2458376 - Invalid class name for an exception being thrown from JNI code
+  
+* Added
+
+  - Protocol to protocol binding and registration
+  
+  - Protocol header annotations; makes protocol definitions much cleaner and 
+    easier to write
+    
+  - Protocols/java directory with some - new non core protocols being released;
+    Http and Html headers are included
+    
+  - Added several static methods to JMemory class which report on native memory
+    usage for jNetPcap library; since native memory is not reported in any JRE
+    statictics, the user can rely on these JMemory methods for monitoring
+    native memory usage
+    
+  - Added several getter methods to JBuffer class that retrieve UTF8 strings in
+    raw buffers
+    
+* Changes
+
+  - Main JNI scanner LOOP has been slightly rewritten to take advantage of
+    JHeaderScanner java objects, their bidnings and user written scanners
+    
+* TODO
+    
+  - JField class still needs more cleanup; JFieldRuntime needs to be removed
+    completely
+    
+  - Formatting styles for field values need to be redone; currently too limited
+    in functionality
+    
+  - Add exception hooks; exception hooks rewrite exceptions being thrown to
+    include a lot more debug information that is useful when debugging a 
+    protocol
    
 == Release 1.2.rc2 (2008-12-06) ==
 
