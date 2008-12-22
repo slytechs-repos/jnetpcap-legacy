@@ -19,7 +19,7 @@ import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FieldRuntime;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
-import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
+import org.jnetpcap.packet.annotate.Field.Property;
 
 /**
  * Layer 2 Tunneling Protocol header definition
@@ -108,17 +108,17 @@ public class L2TP
 		return getUShort(0) & MASK_FLAGS;
 	}
 
-	@FieldRuntime(FieldFunction.CHECK)
+	@FieldRuntime(Field.Property.CHECK)
 	public boolean hasLength() {
 		return isSet(flags(), FLAG_L);
 	}
 
-	@FieldRuntime(FieldFunction.CHECK)
+	@FieldRuntime(Field.Property.CHECK)
 	public boolean hasN() {
 		return isSet(flags(), FLAG_S);
 	}
 
-	@FieldRuntime(FieldFunction.CHECK)
+	@FieldRuntime(Field.Property.CHECK)
 	public boolean hasOffset() {
 		return isSet(flags(), FLAG_O);
 	}
@@ -128,7 +128,7 @@ public class L2TP
 	}
 	
 	
-	@FieldRuntime(FieldFunction.OFFSET)
+	@FieldRuntime(Field.Property.OFFSET)
 	public int lengthOffset() {
 		return offLength * 8;
 	}
@@ -138,7 +138,7 @@ public class L2TP
 		return getUShort(offLength);
 	}
 	
-	@FieldRuntime(FieldFunction.OFFSET)
+	@FieldRuntime(Field.Property.OFFSET)
 	public int nrOffset() {
 		return (offSequence + 2) * 8;
 	}
@@ -148,7 +148,7 @@ public class L2TP
 		return getUShort(offSequence + 2);
 	}
 
-	@FieldRuntime(FieldFunction.OFFSET)
+	@FieldRuntime(Field.Property.OFFSET)
 	public int nsOffset() {
 		return offSequence * 8;
 	}
@@ -158,7 +158,7 @@ public class L2TP
 		return getUShort(offSequence);
 	}
 
-	@FieldRuntime(FieldFunction.OFFSET)
+	@FieldRuntime(Field.Property.OFFSET)
 	public int offsetOffset() {
 		return offOffset * 8;
 	}
@@ -168,7 +168,7 @@ public class L2TP
 		return getUShort(offOffset);
 	}
 
-	@FieldRuntime(FieldFunction.OFFSET)
+	@FieldRuntime(Field.Property.OFFSET)
 	public int padOffset() {
 		return (offLength + 2) * 8;
 	}
@@ -178,7 +178,7 @@ public class L2TP
 		return getUShort(offOffset + 2);
 	}
 
-	@FieldRuntime(FieldFunction.OFFSET)
+	@FieldRuntime(Field.Property.OFFSET)
 	public int sessionIdOffset() {
 		return (offId * 2) * 8;
 	}
@@ -188,7 +188,7 @@ public class L2TP
 		return getUShort(offId + 2);
 	}
 
-	@FieldRuntime(FieldFunction.OFFSET)
+	@FieldRuntime(Field.Property.OFFSET)
 	public int tunnelIdOffset() {
 		return offId * 8;
 	}

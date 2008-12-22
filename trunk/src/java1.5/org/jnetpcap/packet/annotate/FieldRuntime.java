@@ -28,18 +28,7 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 public @interface FieldRuntime {
-	public enum FieldFunction {
-		CHECK,
-		OFFSET,
-		LENGTH,
-		VALUE,
-		DESCRIPTION,
-		DISPLAY,
-		MASK,
-		UNITS,
-	}
-
 	String field() default "";
 
-	FieldFunction value();
+	Field.Property value();
 }

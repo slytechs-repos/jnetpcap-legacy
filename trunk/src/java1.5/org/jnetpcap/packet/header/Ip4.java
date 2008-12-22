@@ -29,7 +29,7 @@ import org.jnetpcap.packet.annotate.FieldSetter;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.packet.annotate.BindingVariable.MatchType;
-import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
+import org.jnetpcap.packet.annotate.Field.Property;
 
 /**
  * @author Mark Bednarczyk
@@ -436,7 +436,7 @@ public class Ip4
 			setUByte(1, value);
 		}
 
-		@FieldRuntime(FieldFunction.DESCRIPTION)
+		@FieldRuntime(Field.Property.DESCRIPTION)
 		public String lengthDescription() {
 			return "(" + length() + " - 3)/" + 4 + " = " + addressCount() + " routes";
 		}
@@ -451,7 +451,7 @@ public class Ip4
 			setUByte(2, value);
 		}
 
-		@FieldRuntime(FieldFunction.DESCRIPTION)
+		@FieldRuntime(Field.Property.DESCRIPTION)
 		public String offsetDescription() {
 			return "offset points at route #" + (offset() / 4 - 1) + "";
 		}
@@ -661,7 +661,7 @@ public class Ip4
 			}
 		}
 		
-		@FieldRuntime(FieldFunction.LENGTH)
+		@FieldRuntime(Field.Property.LENGTH)
 		public int entriesLength() {
 			return (length() -4) * 8;
 		}
@@ -909,7 +909,7 @@ public class Ip4
 		return (flags() & FLAG_DONT_FRAGMENT) >> 1;
 	}
 
-	@FieldRuntime(FieldFunction.DESCRIPTION)
+	@FieldRuntime(Field.Property.DESCRIPTION)
 	public String flags_DFDescription() {
 		return (flags_DF() > 0) ? "set" : "not set";
 	}
@@ -919,7 +919,7 @@ public class Ip4
 		return (flags() & FLAG_MORE_FRAGMENTS) >> 2;
 	}
 
-	@FieldRuntime(FieldFunction.DESCRIPTION)
+	@FieldRuntime(Field.Property.DESCRIPTION)
 	public String flags_MFDescription() {
 		return (flags_MF() > 0) ? "set" : "not set";
 	}
@@ -942,7 +942,7 @@ public class Ip4
 		setUByte(0, o);
 	}
 
-	@FieldRuntime(FieldFunction.DESCRIPTION)
+	@FieldRuntime(Field.Property.DESCRIPTION)
 	public String hlenDescription() {
 		String pre = "" + hlen() + " * 4 = " + (hlen() * 4) + " bytes";
 		return (hlen() == 5) ? pre + ", No Ip Options" : pre
@@ -1018,7 +1018,7 @@ public class Ip4
 		return (tos() & DIFF_CODEPOINT) >> 2;
 	}
 
-	@FieldRuntime(FieldFunction.DESCRIPTION)
+	@FieldRuntime(Field.Property.DESCRIPTION)
 	public String tos_CodepointDescription() {
 		return (tos_Codepoint() > 0) ? "code point " + tos_Codepoint() : "not set";
 	}
@@ -1028,7 +1028,7 @@ public class Ip4
 		return (tos() & DIFF_ECE) >> 0;
 	}
 
-	@FieldRuntime(FieldFunction.DESCRIPTION)
+	@FieldRuntime(Field.Property.DESCRIPTION)
 	public String tos_ECEDescription() {
 		return (tos_ECE() > 0) ? "set" : "not set";
 	}
@@ -1038,7 +1038,7 @@ public class Ip4
 		return (tos() & DIFF_ECT) >> 1;
 	}
 
-	@FieldRuntime(FieldFunction.DESCRIPTION)
+	@FieldRuntime(Field.Property.DESCRIPTION)
 	public String tos_ECNDescription() {
 		return (tos_ECN() > 0) ? "set" : "not set";
 	}
@@ -1067,7 +1067,7 @@ public class Ip4
 		setUByte(9, type.typeValues[0]);
 	}
 
-	@FieldRuntime(FieldFunction.DESCRIPTION)
+	@FieldRuntime(Field.Property.DESCRIPTION)
 	public String typeDescription() {
 		return "next: " + Ip4Type.toString(type());
 	}

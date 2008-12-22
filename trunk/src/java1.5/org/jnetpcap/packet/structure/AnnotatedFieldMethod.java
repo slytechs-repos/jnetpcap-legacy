@@ -18,9 +18,10 @@ import java.lang.reflect.Modifier;
 import java.util.List;
 
 import org.jnetpcap.packet.JHeader;
+import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FieldDefinitionException;
 import org.jnetpcap.packet.annotate.FieldRuntime;
-import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
+import org.jnetpcap.packet.annotate.Field.Property;
 
 /**
  * @author Mark Bednarczyk
@@ -41,13 +42,13 @@ public abstract class AnnotatedFieldMethod
 		 * @param function
 		 * @param staticValue
 		 */
-		public BooleanFunction(AnnotatedField field, FieldFunction function) {
+		public BooleanFunction(AnnotatedField field, Field.Property function) {
 			super(field, function);
 
 			setValue(true); // Static fields are always available
 		}
 
-		public BooleanFunction(Method method, FieldFunction function) {
+		public BooleanFunction(Method method, Field.Property function) {
 			super(method, function);
 		}
 
@@ -76,7 +77,7 @@ public abstract class AnnotatedFieldMethod
 			if (hasStaticValue == false && method == null) {
 				throw new FieldDefinitionException(field, "Missing '"
 				    + function.name().toLowerCase()
-				    + "' property. [@FieldRuntime(FieldFunction." + function.name()
+				    + "' property. [@FieldRuntime(Property." + function.name()
 				    + ")]");
 			}
 		}
@@ -112,21 +113,21 @@ public abstract class AnnotatedFieldMethod
 
 		private int value;
 
-		public IntFunction(AnnotatedField field, FieldFunction function) {
+		public IntFunction(AnnotatedField field, Field.Property function) {
 			super(field, function);
 
 			configFromField(field);
 
 		}
 
-		public IntFunction(AnnotatedField field, FieldFunction function,
+		public IntFunction(AnnotatedField field, Field.Property function,
 		    int staticValue) {
 			super(field, function);
 
 			setValue(staticValue);
 		}
 
-		public IntFunction(Method method, FieldFunction function) {
+		public IntFunction(Method method, Field.Property function) {
 			super(method, function);
 		}
 
@@ -176,7 +177,7 @@ public abstract class AnnotatedFieldMethod
 				throw new FieldDefinitionException(field, "Missing '"
 				    + function.name().toLowerCase() + "' property. [@Field("
 				    + function.name().toLowerCase()
-				    + "=<int>) or @FieldRuntime(FieldFunction." + function.name()
+				    + "=<int>) or @FieldRuntime(Property." + function.name()
 				    + ")]");
 			}
 
@@ -218,12 +219,12 @@ public abstract class AnnotatedFieldMethod
 	private static class ObjectFunction
 	    extends AnnotatedFieldMethod {
 
-		public ObjectFunction(AnnotatedField field, FieldFunction fuction) {
+		public ObjectFunction(AnnotatedField field, Field.Property fuction) {
 			super(field, fuction, field.getMethod());
 
 		}
 
-		public ObjectFunction(Method method, FieldFunction function) {
+		public ObjectFunction(Method method, Field.Property function) {
 			super(method, function);
 		}
 
@@ -247,7 +248,7 @@ public abstract class AnnotatedFieldMethod
 			if (method == null) {
 				throw new FieldDefinitionException(field, "Missing field accessor '"
 				    + function.name().toLowerCase()
-				    + "' property. [@FieldRuntime(FieldFunction." + function.name()
+				    + "' property. [@FieldRuntime(Property." + function.name()
 				    + ")]");
 			}
 		}
@@ -288,13 +289,13 @@ public abstract class AnnotatedFieldMethod
 		 * @param field
 		 * @param function
 		 */
-		public StringFunction(AnnotatedField field, FieldFunction function) {
+		public StringFunction(AnnotatedField field, Field.Property function) {
 			super(field, function);
 
 			configFromField(field);
 		}
 
-		public StringFunction(Method method, FieldFunction function) {
+		public StringFunction(Method method, Field.Property function) {
 			super(method, function);
 		}
 
@@ -335,7 +336,7 @@ public abstract class AnnotatedFieldMethod
 				    + function.name().toLowerCase()
 				    + "' property. [@Field("
 				    + function.name().toLowerCase()
-				    + "=<string>) or @FieldRuntime(FieldFunction." + function.name()
+				    + "=<string>) or @FieldRuntime(Property." + function.name()
 				    + ")]");
 			}
 		}
@@ -483,7 +484,7 @@ public abstract class AnnotatedFieldMethod
 	}
 
 	public static AnnotatedFieldMethod generateFunction(
-	    FieldFunction function,
+	    Field.Property function,
 	    AnnotatedField field) {
 
 		switch (function) {
@@ -551,7 +552,7 @@ public abstract class AnnotatedFieldMethod
 
 		FieldRuntime runtime = method.getAnnotation(FieldRuntime.class);
 
-		FieldFunction function = runtime.value();
+		Field.Property function = runtime.value();
 		switch (function) {
 			case LENGTH:
 			case MASK:
@@ -580,16 +581,16 @@ public abstract class AnnotatedFieldMethod
 
 	protected final String field;
 
-	protected final FieldFunction function;
+	protected final Field.Property function;
 
-	public AnnotatedFieldMethod(AnnotatedField field, FieldFunction function) {
+	public AnnotatedFieldMethod(AnnotatedField field, Field.Property function) {
 		super();
 		this.function = function;
 
 		this.field = field.getName();
 	}
 
-	public AnnotatedFieldMethod(AnnotatedField field, FieldFunction function,
+	public AnnotatedFieldMethod(AnnotatedField field, Field.Property function,
 	    Method method) {
 		super(method);
 		this.function = function;
@@ -600,7 +601,7 @@ public abstract class AnnotatedFieldMethod
 	/**
 	 * @param method
 	 */
-	public AnnotatedFieldMethod(Method method, FieldFunction function) {
+	public AnnotatedFieldMethod(Method method, Field.Property function) {
 		super(method);
 		this.function = function;
 
@@ -628,7 +629,7 @@ public abstract class AnnotatedFieldMethod
 		return field;
 	}
 
-	public final FieldFunction getFunction() {
+	public final Field.Property getFunction() {
 		return this.function;
 	}
 

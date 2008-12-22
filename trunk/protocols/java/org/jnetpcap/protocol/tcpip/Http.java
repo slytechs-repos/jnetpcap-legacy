@@ -23,7 +23,7 @@ import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FieldRuntime;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
-import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
+import org.jnetpcap.packet.annotate.Field.Property;
 import org.jnetpcap.packet.header.Tcp;
 
 /**
@@ -128,7 +128,7 @@ public class Http
 
 	private String responseCodeMessage;
 
-	@FieldRuntime(FieldFunction.CHECK)
+	@FieldRuntime(Field.Property.CHECK)
 	public boolean hasAccept() {
 		return mapByName.containsKey("Accept");
 	}
@@ -138,7 +138,7 @@ public class Http
 		return mapByName.get("Accept").getValue();
 	}
 
-	@FieldRuntime(FieldFunction.CHECK)
+	@FieldRuntime(Field.Property.CHECK)
 	public boolean hasAcceptCharset() {
 		return mapByName.containsKey("Accept-Charset");
 	}
@@ -148,7 +148,7 @@ public class Http
 		return mapByName.get("Accept-Charset").getValue();
 	}
 
-	@FieldRuntime(FieldFunction.CHECK)
+	@FieldRuntime(Field.Property.CHECK)
 	public boolean hasAcceptEncoding() {
 		return mapByName.containsKey("Accept-Encoding");
 	}
@@ -158,7 +158,7 @@ public class Http
 		return mapByName.get("Accept-Encoding").getValue();
 	}
 
-	@FieldRuntime(FieldFunction.CHECK)
+	@FieldRuntime(Field.Property.CHECK)
 	public boolean hasAcceptLanguage() {
 		return mapByName.containsKey("Accept-Language");
 	}
@@ -168,7 +168,7 @@ public class Http
 		return mapByName.get("Accept-Language").getValue();
 	}
 
-	@FieldRuntime(FieldFunction.CHECK)
+	@FieldRuntime(Field.Property.CHECK)
 	public boolean hasConnection() {
 		return mapByName.containsKey("Connection");
 	}
@@ -243,7 +243,7 @@ public class Http
 		// setSize(buf.length());
 	}
 
-	@FieldRuntime(FieldFunction.CHECK)
+	@FieldRuntime(Field.Property.CHECK)
 	public boolean hasHost() {
 		return mapByName.containsKey("Host");
 	}
@@ -253,7 +253,7 @@ public class Http
 		return mapByName.get("Host").getValue();
 	}
 
-	@FieldRuntime(FieldFunction.CHECK)
+	@FieldRuntime(Field.Property.CHECK)
 	public boolean hasRequestMethod() {
 		return this.requestMethod != null;
 	}
@@ -263,7 +263,7 @@ public class Http
 		return this.requestMethod;
 	}
 
-	@FieldRuntime(FieldFunction.CHECK)
+	@FieldRuntime(Field.Property.CHECK)
 	public boolean hasRequestUrl() {
 		return this.requestUrl != null;
 	}
@@ -273,7 +273,7 @@ public class Http
 		return this.requestUrl;
 	}
 
-	@FieldRuntime(FieldFunction.CHECK)
+	@FieldRuntime(Field.Property.CHECK)
 	public boolean hasRequestVersion() {
 		return this.requestVersion != null;
 	}
@@ -283,13 +283,13 @@ public class Http
 		return this.requestVersion;
 	}
 	
-	@FieldRuntime(field = "responseCode", value = FieldFunction.DESCRIPTION)
+	@FieldRuntime(field = "responseCode", value = Field.Property.DESCRIPTION)
 	public String hasResponseCodeDesc() {
 		return responseCodeMessage();
 	}
 
 
-	@FieldRuntime(FieldFunction.CHECK)
+	@FieldRuntime(Field.Property.CHECK)
 	public boolean hasResponseCode() {
 		return this.responseCode != -1;
 	}
@@ -307,7 +307,7 @@ public class Http
 		return this.responseCodeMessage;
 	}
 
-	@FieldRuntime(FieldFunction.CHECK)
+	@FieldRuntime(Field.Property.CHECK)
 	public boolean hasUserAgent() {
 		return mapByName.containsKey("User-Agent");
 	}
@@ -317,7 +317,7 @@ public class Http
 		return mapByName.get("User-Agent").getValue();
 	}
 	
-	@FieldRuntime(FieldFunction.CHECK)
+	@FieldRuntime(Field.Property.CHECK)
 	public boolean hasContentType() {
 		return mapByName.containsKey("Content-Type");
 	}
@@ -328,7 +328,7 @@ public class Http
 		return mapByName.get("Content-Type").getValue();
 	}
 
-	@FieldRuntime(FieldFunction.CHECK)
+	@FieldRuntime(Field.Property.CHECK)
 	public boolean hasContentLength() {
 		return mapByName.containsKey("Content-Length");
 	}

@@ -24,7 +24,7 @@ import org.jnetpcap.packet.annotate.Bind;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FieldRuntime;
 import org.jnetpcap.packet.annotate.Scanner;
-import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
+import org.jnetpcap.packet.annotate.Field.Property;
 import org.jnetpcap.packet.header.Ethernet;
 import org.jnetpcap.packet.header.Ip4;
 import org.jnetpcap.packet.header.Ip6;
@@ -209,7 +209,7 @@ public class TestJRegistry
 			return super.getUByte(0);
 		}
 
-		@FieldRuntime(FieldFunction.LENGTH)
+		@FieldRuntime(Field.Property.LENGTH)
 		public int field2Length() {
 			return field1() * 8;
 		}

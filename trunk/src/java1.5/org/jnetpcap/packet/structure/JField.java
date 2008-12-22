@@ -16,7 +16,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import org.jnetpcap.packet.JHeader;
-import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
+import org.jnetpcap.packet.annotate.Field;
+import org.jnetpcap.packet.annotate.Field.Property;
 import org.jnetpcap.packet.format.JFormatter.Priority;
 import org.jnetpcap.packet.format.JFormatter.Style;
 
@@ -125,14 +126,14 @@ public class JField {
 		afield.getUnits();
 		this.style = afield.getStyle();
 		
-		value = afield.getRuntime().getFunctionMap().get(FieldFunction.VALUE);
-		offset = afield.getRuntime().getFunctionMap().get(FieldFunction.OFFSET);
-		length = afield.getRuntime().getFunctionMap().get(FieldFunction.LENGTH);
-		display = afield.getRuntime().getFunctionMap().get(FieldFunction.DISPLAY);
-		description = afield.getRuntime().getFunctionMap().get(FieldFunction.DESCRIPTION);
-		mask = afield.getRuntime().getFunctionMap().get(FieldFunction.MASK);
-		check = afield.getRuntime().getFunctionMap().get(FieldFunction.CHECK);
-		units = afield.getRuntime().getFunctionMap().get(FieldFunction.UNITS);
+		value = afield.getRuntime().getFunctionMap().get(Field.Property.VALUE);
+		offset = afield.getRuntime().getFunctionMap().get(Field.Property.OFFSET);
+		length = afield.getRuntime().getFunctionMap().get(Field.Property.LENGTH);
+		display = afield.getRuntime().getFunctionMap().get(Field.Property.DISPLAY);
+		description = afield.getRuntime().getFunctionMap().get(Field.Property.DESCRIPTION);
+		mask = afield.getRuntime().getFunctionMap().get(Field.Property.MASK);
+		check = afield.getRuntime().getFunctionMap().get(Field.Property.CHECK);
+		units = afield.getRuntime().getFunctionMap().get(Field.Property.UNITS);
 
 		for (JField f : subFields) {
 			f.setParent(this);
