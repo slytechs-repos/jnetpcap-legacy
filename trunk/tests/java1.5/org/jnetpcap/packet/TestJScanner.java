@@ -185,13 +185,15 @@ public class TestJScanner
 		final Pcap pcap = Pcap.openOffline("tests/test-vlan.pcap", errbuf);
 
 		// long start = System.currentTimeMillis();
-		final TextFormatter out = new TextFormatter();
+		@SuppressWarnings("unused")
+    final TextFormatter out = new TextFormatter();
 		@SuppressWarnings("unused")
 		final JScanner scanner = new JScanner();
 
 		pcap.loop(Pcap.LOOP_INFINATE, JProtocol.ETHERNET_ID,
 		    new JPacketHandler<String>() {
-			    int i = 0;
+			    @SuppressWarnings("unused")
+          int i = 0;
 
 			    public void nextPacket(JPacket packet, String user) {
 

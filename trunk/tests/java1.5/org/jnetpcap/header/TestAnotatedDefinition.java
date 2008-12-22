@@ -177,7 +177,8 @@ public class TestAnotatedDefinition
 	}
 
 	public void testWithMyHeader() {
-		AnnotatedHeader ah1 =
+		@SuppressWarnings("unused")
+    AnnotatedHeader ah1 =
 		    AnnotatedHeader.inspectJHeaderClass(MyHeader.class, errors);
 
 	}
