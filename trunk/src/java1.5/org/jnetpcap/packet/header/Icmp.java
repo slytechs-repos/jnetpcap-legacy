@@ -20,7 +20,7 @@ import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FieldRuntime;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
-import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
+import org.jnetpcap.packet.annotate.Field.Property;
 
 /**
  * ICMP header definition
@@ -376,7 +376,7 @@ public class Icmp
 		return super.getUByte(0);
 	}
 
-	@FieldRuntime(FieldFunction.DESCRIPTION)
+	@FieldRuntime(Field.Property.DESCRIPTION)
 	public String typeDescription() {
 		return IcmpType.valueOf(type()).getDescription();
 	}

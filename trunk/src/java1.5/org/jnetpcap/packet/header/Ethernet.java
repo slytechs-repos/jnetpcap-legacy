@@ -17,7 +17,7 @@ import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FieldRuntime;
 import org.jnetpcap.packet.annotate.Header;
-import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
+import org.jnetpcap.packet.annotate.Field.Property;
 
 /**
  * DIX Ethernet2 definition
@@ -129,7 +129,7 @@ public class Ethernet
 		setUShort(0 + 12, type);
 	}
 
-	@FieldRuntime(FieldFunction.DESCRIPTION)
+	@FieldRuntime(Field.Property.DESCRIPTION)
 	public String typeDescription() {
 		return EthernetType.toString(type());
 	}

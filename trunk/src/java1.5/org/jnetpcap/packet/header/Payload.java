@@ -19,7 +19,7 @@ import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FieldRuntime;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
-import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
+import org.jnetpcap.packet.annotate.Field.Property;
 
 /**
  * Builtin header type that is a catch all for all unmatch data within a packet
@@ -39,7 +39,7 @@ public class Payload
 
 	public final static int ID = JProtocol.PAYLOAD.ID;
 	
-	@FieldRuntime(FieldFunction.LENGTH) 
+	@FieldRuntime(Field.Property.LENGTH) 
 	public int dataLength() {
 		return size() * 8;
 	}

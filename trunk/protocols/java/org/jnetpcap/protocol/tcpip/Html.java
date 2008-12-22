@@ -20,7 +20,7 @@ import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FieldRuntime;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
-import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
+import org.jnetpcap.packet.annotate.Field.Property;
 
 /**
  * @author Mark Bednarczyk
@@ -44,7 +44,7 @@ public class Html
 
 	private String page;
 
-	@FieldRuntime(FieldFunction.LENGTH)
+	@FieldRuntime(Field.Property.LENGTH)
 	public int pageLength() {
 		return size() * 8;
 	}

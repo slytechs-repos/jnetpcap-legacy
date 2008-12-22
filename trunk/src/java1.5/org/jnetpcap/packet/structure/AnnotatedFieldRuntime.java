@@ -16,7 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
+import org.jnetpcap.packet.annotate.Field;
+import org.jnetpcap.packet.annotate.Field.Property;
 
 
 /**
@@ -27,8 +28,8 @@ public class AnnotatedFieldRuntime {
 
 	private final AnnotatedField parent;
 
-	private final Map<FieldFunction, AnnotatedFieldMethod> map =
-	    new HashMap<FieldFunction, AnnotatedFieldMethod>();
+	private final Map<Field.Property, AnnotatedFieldMethod> map =
+	    new HashMap<Field.Property, AnnotatedFieldMethod>();
 
 	public AnnotatedFieldRuntime(AnnotatedField parent) {
 		this.parent = parent;
@@ -36,7 +37,7 @@ public class AnnotatedFieldRuntime {
 	}
 
 	public void setFunction(AnnotatedFieldMethod method) {
-		final FieldFunction function = method.getFunction();
+		final Field.Property function = method.getFunction();
 
 		if (map.containsKey(function)) {
 			throw new HeaderDefinitionError(method.getMethod()
@@ -60,7 +61,7 @@ public class AnnotatedFieldRuntime {
 		/*
 		 * Time to optimize and fill in the blanks if there are any
 		 */
-		for (FieldFunction f: FieldFunction.values()) {
+		for (Field.Property f: Field.Property.values()) {
 			
 			try {
 			if (map.containsKey(f) == false) {
@@ -75,7 +76,7 @@ public class AnnotatedFieldRuntime {
 	/**
    * @return
    */
-  public Map<FieldFunction, AnnotatedFieldMethod> getFunctionMap() {
+  public Map<Field.Property, AnnotatedFieldMethod> getFunctionMap() {
 	  return map;
   }
 

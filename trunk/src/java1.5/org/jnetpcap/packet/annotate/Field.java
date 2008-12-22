@@ -49,7 +49,7 @@ import org.jnetpcap.packet.format.JFormatter.Priority;
  * separate instance method which generates the value:
  * 
  * <pre>
- * &#064;FieldRuntime(FieldFunction.DISPLAY)
+ * &#064;FieldRuntime(Property.DISPLAY)
  * public String fieldADisplay() {
  * 	return (fieldA() == 0) ? &quot;FIELD_A&quot; : &quot;fieldA&quot;;
  * }
@@ -68,6 +68,17 @@ import org.jnetpcap.packet.format.JFormatter.Priority;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Field {
 
+	public enum Property {
+  	CHECK,
+  	OFFSET,
+  	LENGTH,
+  	VALUE,
+  	DESCRIPTION,
+  	DISPLAY,
+  	MASK,
+  	UNITS,
+  }
+
 	/**
 	 * An empty string
 	 */
@@ -84,7 +95,7 @@ public @interface Field {
 	 * current header. The value is constant. If offset of the field is not
 	 * constant but varies and can only be determined at runtime, then this
 	 * parameter should not be used. Instead use a method and mark it with
-	 * <code>@FieldRuntime(FieldFunction.OFFSET)</code> annotation.
+	 * <code>@FieldRuntime(Property.OFFSET)</code> annotation.
 	 * @return offset into the header in bits
 	 */
 	int offset() default -1;
@@ -95,7 +106,7 @@ public @interface Field {
 	 * current header. The value is constant. If length of the field is not
 	 * constant but varies and can only be determined at runtime, then this
 	 * parameter should not be used. Instead use a method and mark it with
-	 * <code>@FieldRuntime(FieldFunction.LENGTH)</code> annotation.
+	 * <code>@FieldRuntime(Property.LENGTH)</code> annotation.
 	 * @return length of the field in bits
 	 */
 	int length() default -1;
