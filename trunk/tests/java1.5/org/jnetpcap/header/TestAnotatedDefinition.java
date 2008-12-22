@@ -29,7 +29,6 @@ import org.jnetpcap.packet.annotate.FieldRuntime;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
-import org.jnetpcap.packet.format.DefaultField;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.packet.format.JFormatter.Detail;
@@ -40,6 +39,7 @@ import org.jnetpcap.packet.structure.AnnotatedBinding;
 import org.jnetpcap.packet.structure.AnnotatedField;
 import org.jnetpcap.packet.structure.AnnotatedHeader;
 import org.jnetpcap.packet.structure.AnnotatedHeaderLengthMethod;
+import org.jnetpcap.packet.structure.DefaultField;
 import org.jnetpcap.packet.structure.HeaderDefinitionError;
 import org.jnetpcap.packet.structure.JField;
 

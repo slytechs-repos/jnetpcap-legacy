@@ -257,13 +257,25 @@ public class JHeaderScanner
 
 		} else if (isDirect()) {
 			nativeScan(scan);
-		}
+			
+		} else {
+			/*
+			 * Record this header's length
+			 */
+			final JPacket packet = scan.scan_packet();
+			final int offset = scan.scan_offset();
+
+			int len = getHeaderLength(packet, offset);
+
+			scan.scan_length(len);
+		}		
 
 		if (scan.scan_next_id() == JProtocol.PAYLOAD_ID) {
 			final JPacket packet = scan.scan_packet();
 			final int offset = scan.scan_offset();
 
-			scanAllBindings(packet, offset);
+			int next = scanAllBindings(packet, offset);
+			scan.scan_next_id(next);			
 		}
 	}
 

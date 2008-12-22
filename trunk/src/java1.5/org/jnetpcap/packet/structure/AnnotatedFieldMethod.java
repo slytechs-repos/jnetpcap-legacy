@@ -523,7 +523,12 @@ public abstract class AnnotatedFieldMethod
 	}
 
 	private static String guessFieldName(String name) {
-		if (name.endsWith("Description")) {
+		if (name.startsWith("has")) {
+			String cap = name.replace("has", "");
+			char u = cap.charAt(0);
+			char l = Character.toLowerCase(u);
+			return cap.replace(u, l);
+		} else if (name.endsWith("Description")) {
 			return name.replace("Description", "");
 		} else if (name.endsWith("Offset")) {
 			return name.replace("Offset", "");
@@ -533,12 +538,7 @@ public abstract class AnnotatedFieldMethod
 			return name.replace("Mask", "");
 		} else if (name.endsWith("Value")) {
 			return name.replace("Value", "");
-		} else if (name.startsWith("has")) {
-			String cap = name.replace("has", "");
-			char u = cap.charAt(0);
-			char l = Character.toLowerCase(u);
-			return cap.replace(u, l);
-		} else {
+		}  else {
 			return name;
 		}
 	}

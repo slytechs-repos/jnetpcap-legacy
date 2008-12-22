@@ -31,6 +31,7 @@ public class TextFormatter
     extends JFormatter {
 
 	private final static String FIELD_FORMAT = "%16s = ";
+
 	private final static String FIELD_ARRAY_FORMAT = "%16s[%d] = ";
 
 	private static final String SEPARATOR = ": ";
@@ -74,7 +75,8 @@ public class TextFormatter
 
 		} else if (field.hasSubFields()) {
 			decLevel();
-		} else if (field.getStyle() != Style.BYTE_ARRAY_HEX_DUMP) {
+		} else if (field.getStyle() != Style.BYTE_ARRAY_HEX_DUMP
+		    && field.getStyle() != Style.STRING_TEXT_DUMP) {
 			decLevel();
 		}
 	}
@@ -102,8 +104,10 @@ public class TextFormatter
 			pad().format("%s = [%d] %s%s", v, i, field.getDisplay(),
 			    ((d == null) ? "" : ": " + d));
 
-		} else if (field.getStyle() == Style.BYTE_ARRAY_HEX_DUMP) {
-			final String[] v = stylizeMultiLine(header, field, field.getValue(header));
+		} else if (field.getStyle() == Style.BYTE_ARRAY_HEX_DUMP
+		    || field.getStyle() == Style.STRING_TEXT_DUMP) {
+			final String[] v =
+			    stylizeMultiLine(header, field, field.getValue(header));
 			for (String i : v) {
 				pad().format("%s", i);
 			}
@@ -114,7 +118,7 @@ public class TextFormatter
 			int i = 0;
 			for (byte[] b : table) {
 				final String v = stylizeSingleLine(header, field, b);
-				pad().format(FIELD_ARRAY_FORMAT  + "%s", field.getDisplay(), i++, v);
+				pad().format(FIELD_ARRAY_FORMAT + "%s", field.getDisplay(), i++, v);
 			}
 
 			incLevel(0); // Inc for multi line fields
@@ -149,12 +153,12 @@ public class TextFormatter
 
 	protected void headerBefore(JHeader header, Detail detail) throws IOException {
 
-		final String name = header.getName();
+		final String name = header.getNicname();
 		incLevel(name);
 		incLevel(SEPARATOR);
 
-		pad().format(" ******* %s (%s) offset=%d length=%d", header.getName(),
-		    header.getNicname(), header.getOffset(), header.getLength());
+		pad().format(" ******* %s offset=%d (0x%X) length=%d", header.getName(),
+		    header.getOffset(), header.getOffset(), header.getLength());
 		pad();
 
 	}

@@ -35,6 +35,8 @@ public @interface Header {
 
 	String nicname() default "";
 	
+	String format() default "";
+	
 	Class<? extends JHeader> parent() default JHeader.class;
 	
 	int length() default -1;

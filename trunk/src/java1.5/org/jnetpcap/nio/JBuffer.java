@@ -108,6 +108,111 @@ public class JBuffer
 
 	public native int getUShort(int index);
 
+	public int findUTF8String(int index, char... delimeter) {
+
+		final int len = index + size();
+
+		int searchedLength = len - index;
+		int match = 0;
+		for (int i = index; i < len; i++) {
+			if (match == delimeter.length) {
+				searchedLength = i - index;
+				break;
+			}
+
+			char c = getUTF8Char(i);
+			char d = delimeter[match];
+
+			if (d == c) {
+				match++;
+			} else {
+				match = 0;
+			}
+		}
+
+		return searchedLength;
+	}
+
+	public StringBuilder getUTF8String(
+	    int index,
+	    StringBuilder buf,
+	    char... delimeter) {
+
+		final int len = index + size();
+
+		int match = 0;
+		for (int i = index; i < len; i++) {
+			if (match == delimeter.length) {
+				break;
+			}
+
+			char c = getUTF8Char(i);
+			buf.append(c);
+
+			if (delimeter[match] == c) {
+				match++;
+			} else {
+				match = 0;
+			}
+		}
+
+		return buf;
+	}
+
+	/**
+	 * Converts raw bytes to a java string. The delimeter is used to end the
+	 * string or the end of the buffer is used. The delimiter is included in the
+	 * returned string.
+	 * 
+	 * @param index
+	 *          byte index into the buffer to start
+	 * @param delimiter
+	 *          delimiter series of chars to search for
+	 * @return string which includes the delimiter
+	 */
+	public String getUTF8String(int index, char... delimeter) {
+		final StringBuilder buf =
+		    getUTF8String(index, new StringBuilder(), delimeter);
+
+		return buf.toString();
+	}
+
+	/**
+	 * Converts raw bytes to a java string. The length is the maximum length of
+	 * the string to return.
+	 * 
+	 * @param index
+	 *          byte index into the buffer to start
+	 * @param length
+	 *          number of bytes to convert
+	 * @return string of at most length bytes
+	 */
+	public StringBuilder getUTF8String(int index, StringBuilder buf, int length) {
+		final int len = index + ((size() < length) ? size() : length);
+
+		for (int i = index; i < len; i++) {
+			char c = getUTF8Char(i);
+			buf.append(c);
+		}
+
+		return buf;
+	}
+
+	public String getUTF8String(int index, int length) {
+		return getUTF8String(index, new StringBuilder(), length).toString();
+	}
+
+	/**
+	 * Converts a single byte to a java char.
+	 * 
+	 * @param index
+	 *          index into the buffer
+	 * @return converted UTF8 char
+	 */
+	public char getUTF8Char(int index) {
+		return (char) getUByte(index);
+	}
+
 	public boolean isReadonly() {
 		return readonly;
 	}
@@ -171,7 +276,9 @@ public class JBuffer
 	}
 
 	@Override
-	public int transferTo(final ByteBuffer dst, final int srcOffset,
+	public int transferTo(
+	    final ByteBuffer dst,
+	    final int srcOffset,
 	    final int length) {
 		return super.transferTo(dst, srcOffset, length);
 	}
@@ -180,8 +287,11 @@ public class JBuffer
 		return super.transferTo(dst);
 	}
 
-	public int transferTo(final JBuffer dst, final int srcOffset,
-	    final int length, final int dstOffset) {
+	public int transferTo(
+	    final JBuffer dst,
+	    final int srcOffset,
+	    final int length,
+	    final int dstOffset) {
 		return super.transferTo(dst, srcOffset, length, dstOffset);
 	}
 

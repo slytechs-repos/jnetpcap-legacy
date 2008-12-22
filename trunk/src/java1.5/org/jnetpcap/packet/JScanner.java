@@ -191,7 +191,7 @@ public class JScanner
 	public JScanner() {
 		this(DEFAULT_BLOCKSIZE);
 	}
-	
+
 	private static int count = 0;
 
 	/**
@@ -200,7 +200,8 @@ public class JScanner
 	 * @param blocksize
 	 */
 	public JScanner(int blocksize) {
-		super(STRUCT_NAME + "#"+ count ++, blocksize + sizeof()); // Allocate memory block in
+		super(STRUCT_NAME + "#" + count++, blocksize + sizeof()); // Allocate memory
+																															// block in
 		// JMemory
 		init(new JScan());
 		reloadAll();
@@ -252,7 +253,8 @@ public class JScanner
 				continue;
 			}
 
-			if (scanners[i].hasBindings() || scanners[i].hasScanMethod()) {
+			if (scanners[i].hasBindings() || scanners[i].hasScanMethod()
+			    || scanners[i].isDirect() == false) {
 //				System.out.printf("%s, Downloading scanner [%s]\n", this, scanners[i]);
 			} else {
 				scanners[i] = null;

@@ -25,7 +25,7 @@ import org.jnetpcap.packet.annotate.FieldRuntime.FieldFunction;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@Header(length=14)
+@Header(length=14, nicname = "Eth")
 public class Ethernet
     extends JHeader {
 
