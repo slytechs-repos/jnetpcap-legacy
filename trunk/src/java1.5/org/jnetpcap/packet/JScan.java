@@ -30,6 +30,13 @@ public class JScan
 	private static final String STRUCT_NAME = "scan_t";
 
 	/**
+	 * Special header ID that when used with a scanner's next_id variable,
+	 * indicates that this is the last header and scanner should exit its loop.
+	 * The constant can be used both in java and in JNI code.
+	 */
+	public final static int END_OF_HEADERS_ID = -1;
+
+	/**
 	 * Alocates and creates scan_t structure in native memory
 	 */
 	public JScan() {
