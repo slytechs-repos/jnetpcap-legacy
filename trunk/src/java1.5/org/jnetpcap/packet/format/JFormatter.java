@@ -22,7 +22,6 @@ import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.UnregisteredHeaderException;
 import org.jnetpcap.packet.structure.JField;
-import org.jnetpcap.packet.structure.JFieldRuntime;
 
 /**
  * Formats decoded contents of a JPacket for output.
@@ -244,10 +243,7 @@ public abstract class JFormatter {
 
 		for (final JField field : fields) {
 
-			final JFieldRuntime<JHeader, Object> runtime =
-			    (JFieldRuntime<JHeader, Object>) field.getRuntime();
-
-			if (runtime.hasField(header) == false) {
+			if (field.hasField(header) == false) {
 				continue;
 			}
 
@@ -301,10 +297,7 @@ public abstract class JFormatter {
 				continue; // DEBUGING skip nulls for now
 			}
 
-			final JFieldRuntime<JHeader, Object> runtime =
-			    (JFieldRuntime<JHeader, Object>) field.getRuntime();
-
-			if (runtime.hasField(header) == false) {
+			if (field.hasField(header) == false) {
 				continue;
 			}
 
@@ -512,13 +505,9 @@ public abstract class JFormatter {
 	private String stylizeBitField(JHeader header, JField field, Object value) {
 		StringBuilder b = new StringBuilder();
 		final JField parent = field.getParent();
-		final JFieldRuntime<JHeader, Object> pruntime =
-		    (JFieldRuntime<JHeader, Object>) parent.getRuntime();
-		final JFieldRuntime<JHeader, Object> runtime =
-		    (JFieldRuntime<JHeader, Object>) field.getRuntime();
-		final int len = pruntime.getLength(header);
-		final int p = (int) (Integer) pruntime.value(header);
-		final int mask = runtime.getMask(header);
+		final int len = parent.getLength(header);
+		final int p = parent.getValue(int.class, header);
+		final int mask = field.getMask(header);
 
 		for (int i = len - 1; i >= 0; i--) {
 			int m = (mask >> i) & 0x1;

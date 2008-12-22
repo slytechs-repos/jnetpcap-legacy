@@ -37,10 +37,6 @@ public class JField {
 
 		private boolean ascending = true;
 
-		private JFieldRuntime<JHeader, Object> r1;
-
-		private JFieldRuntime<JHeader, Object> r2;
-
 		/*
 		 * (non-Javadoc)
 		 * 
@@ -48,13 +44,10 @@ public class JField {
 		 */
 		@SuppressWarnings("unchecked")
 		public int compare(JField o1, JField o2) {
-			r1 = (JFieldRuntime<JHeader, Object>) o1.getRuntime();
-			r2 = (JFieldRuntime<JHeader, Object>) o2.getRuntime();
-
 			if (ascending) {
-				return r1.getOffset(header) - r2.getOffset(header);
+				return o1.getOffset(header) - o2.getOffset(header);
 			} else {
-				return r2.getOffset(header) - r1.getOffset(header);
+				return o2.getOffset(header) - o1.getOffset(header);
 			}
 		}
 
@@ -87,24 +80,29 @@ public class JField {
 	 */
 	private final String name;
 
-	/**
-	 * Display name, used for displaying to the user
-	 */
-	private final String display;
-
 	private final String nicname;
 
 	private JField parent;
 
 	private final Priority priority;
 
-	private JFieldRuntime<? extends JHeader, ?> runtime;
-
 	protected Style style;
 
-	private final String units;
+	private final AnnotatedFieldMethod value;
 
-	private AnnotatedField afield;
+	private final AnnotatedFieldMethod offset;
+
+	private final AnnotatedFieldMethod length;
+
+	private final AnnotatedFieldMethod display;
+
+	private final AnnotatedFieldMethod description;
+
+	private final AnnotatedFieldMethod mask;
+
+	private final AnnotatedFieldMethod check;
+
+	private AnnotatedFieldMethod units;
 
 	public String toString() {
 		StringBuilder b = new StringBuilder();
@@ -119,23 +117,26 @@ public class JField {
 	}
 
 	public JField(AnnotatedField afield, JField[] children) {
-		this.afield = afield;
 		this.subFields = children;
 		this.priority = afield.getPriority();
 		this.name = afield.getName();
 		this.nicname = afield.getNicname();
-		this.display = afield.getDisplay();
-		this.units = afield.getUnits();
+		afield.getDisplay();
+		afield.getUnits();
 		this.style = afield.getStyle();
-		this.runtime = new DefaultFieldRuntime(afield.getRuntime());
 		
+		value = afield.getRuntime().getFunctionMap().get(FieldFunction.VALUE);
+		offset = afield.getRuntime().getFunctionMap().get(FieldFunction.OFFSET);
+		length = afield.getRuntime().getFunctionMap().get(FieldFunction.LENGTH);
+		display = afield.getRuntime().getFunctionMap().get(FieldFunction.DISPLAY);
+		description = afield.getRuntime().getFunctionMap().get(FieldFunction.DESCRIPTION);
+		mask = afield.getRuntime().getFunctionMap().get(FieldFunction.MASK);
+		check = afield.getRuntime().getFunctionMap().get(FieldFunction.CHECK);
+		units = afield.getRuntime().getFunctionMap().get(FieldFunction.UNITS);
+
 		for (JField f : subFields) {
 			f.setParent(this);
 		}
-	}
-
-	public void setRuntime(JFieldRuntime<? extends JHeader, ?> runtime) {
-		this.runtime = runtime;
 	}
 
 	/**
@@ -186,30 +187,12 @@ public class JField {
 	}
 
 	/**
-	 * Runtime environment for this field
-	 * 
-	 * @return the runtime
-	 */
-	public JFieldRuntime<? extends JHeader, ?> getRuntime() {
-		return runtime;
-	}
-
-	/**
 	 * Formatting style for this field
 	 * 
 	 * @return the style
 	 */
 	public Style getStyle() {
 		return style;
-	}
-
-	/**
-	 * Units for the value
-	 * 
-	 * @return the units
-	 */
-	public String getUnits() {
-		return units;
 	}
 
 	/**
@@ -238,23 +221,43 @@ public class JField {
 		this.style = style;
 	}
 
-	public final String getDisplay() {
-		return this.display;
-	}
-
-	public int getOffset(JHeader header) {
-
-		AnnotatedFieldMethod method =
-		    afield.getRuntime().getFunctionMap().get(FieldFunction.OFFSET);
-		
-		return method.intMethod(header);
+	public String getUnits(JHeader header) {
+		return units.stringMethod(header);
 	}
 	
+	public boolean hasField(JHeader header) {
+		return check.booleanMethod(header);
+	}
+
+
+	public String getDisplay(JHeader header) {
+		return display.stringMethod(header);
+	}
+
+	public int getLength(JHeader header) {
+		return length.intMethod(header);
+	}
+	
+	public int getMask(JHeader header) {
+		return mask.intMethod(header);
+	}
+
+
+	public int getOffset(JHeader header) {
+		return offset.intMethod(header);
+	}
+
+	public String getValueDescription(JHeader header) {
+		return description.stringMethod(header);
+	}
+	
+	@SuppressWarnings("unchecked")
+  public <T> T getValue(Class<T> c, JHeader header) {
+		return (T) value.objectMethod(header);
+	}
+
 	public Object getValue(JHeader header) {
-		AnnotatedFieldMethod method =
-		    afield.getRuntime().getFunctionMap().get(FieldFunction.VALUE);
-		
-		return method.objectMethod(header);
+		return value.objectMethod(header);
 	}
 
 }

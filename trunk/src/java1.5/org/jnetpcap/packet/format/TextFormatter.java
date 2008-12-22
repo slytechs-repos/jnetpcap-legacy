@@ -18,7 +18,6 @@ import java.util.Formatter;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.structure.JField;
-import org.jnetpcap.packet.structure.JFieldRuntime;
 
 /**
  * Formatter that formats packet content for human readable output. This class
@@ -85,23 +84,17 @@ public class TextFormatter
 	protected void fieldBefore(JHeader header, JField field, Detail detail)
 	    throws IOException {
 
-		final JFieldRuntime<JHeader, Object> runtime =
-		    (JFieldRuntime<JHeader, Object>) field.getRuntime();
-
 		if (field.hasSubFields()) {
 			final String v = stylizeSingleLine(header, field, field.getValue(header));
-			pad().format(FIELD_FORMAT + "%s", field.getDisplay(), v);
+			pad().format(FIELD_FORMAT + "%s", field.getDisplay(header), v);
 			incLevel(19);
 
 		} else if (field.getStyle() == Style.INT_BITS) {
 
-			final JFieldRuntime<JHeader, Object> bitsRuntime =
-			    (JFieldRuntime<JHeader, Object>) field.getRuntime();
-
 			final String v = stylizeSingleLine(header, field, field.getValue(header));
-			final String d = bitsRuntime.valueDescription(header);
+			final String d = field.getValueDescription(header);
 			final int i = (Integer) field.getValue(header);
-			pad().format("%s = [%d] %s%s", v, i, field.getDisplay(),
+			pad().format("%s = [%d] %s%s", v, i, field.getDisplay(header),
 			    ((d == null) ? "" : ": " + d));
 
 		} else if (field.getStyle() == Style.BYTE_ARRAY_HEX_DUMP
@@ -118,17 +111,17 @@ public class TextFormatter
 			int i = 0;
 			for (byte[] b : table) {
 				final String v = stylizeSingleLine(header, field, b);
-				pad().format(FIELD_ARRAY_FORMAT + "%s", field.getDisplay(), i++, v);
+				pad().format(FIELD_ARRAY_FORMAT + "%s", field.getDisplay(header), i++, v);
 			}
 
 			incLevel(0); // Inc for multi line fields
 		} else {
 
 			final String v = stylizeSingleLine(header, field, field.getValue(header));
-			final String description = runtime.valueDescription(header);
-			final String units = field.getUnits();
+			final String description = field.getValueDescription(header);
+			final String units = field.getUnits(header);
 
-			pad().format(FIELD_FORMAT + "%s", field.getDisplay(), v);
+			pad().format(FIELD_FORMAT + "%s", field.getDisplay(header), v);
 
 			if (units != null) {
 				out.format(" " + units);

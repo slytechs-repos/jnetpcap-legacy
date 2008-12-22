@@ -17,7 +17,6 @@ import java.io.IOException;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.structure.JField;
-import org.jnetpcap.packet.structure.JFieldRuntime;
 
 /**
  * This formatter products XML output for a packet. A packet content is output
@@ -47,14 +46,11 @@ public class XmlFormatter
 	protected void fieldAfter(JHeader header, JField field, Detail detail)
 	    throws IOException {
 
-		final JFieldRuntime<JHeader, Object> runtime =
-		    (JFieldRuntime<JHeader, Object>) field.getRuntime();
-
 		if (field.getStyle() == Style.BYTE_ARRAY_HEX_DUMP) {
 			decLevel();
 			pad().format(LT + "/hexdump" + GT + "\n");
 		} else if (false && field.hasSubFields()) {
-			final String v = stylizeSingleLine(header, field, runtime.value(header));
+			final String v = stylizeSingleLine(header, field, field.getValue(header));
 
 			pad().format(LT + "/field" + GT);
 
@@ -97,19 +93,16 @@ public class XmlFormatter
 	protected void fieldBefore(JHeader header, JField field, Detail detail)
 	    throws IOException {
 
-		final JFieldRuntime<JHeader, Object> runtime =
-		    (JFieldRuntime<JHeader, Object>) field.getRuntime();
-
 		incLevel(PAD);
 
 		if (field.getStyle() == Style.BYTE_ARRAY_HEX_DUMP) {
 			pad().format(LT + "hexdump offset=\"%d\" length=\"%d\"" + GT,
-			    runtime.getOffset(header), runtime.getLength(header));
+			    field.getOffset(header), field.getLength(header));
 			incLevel(PAD);
 
 			final String[] v =
 			    stylizeMultiLine(header, field, Style.BYTE_ARRAY_HEX_DUMP_NO_TEXT,
-			        runtime.value(header));
+			        field.getValue(header));
 
 			incLevel(PAD);
 			for (String i : v) {
@@ -119,21 +112,21 @@ public class XmlFormatter
 			decLevel();
 
 		} else if (false && field.hasSubFields()) {
-			final String v = stylizeSingleLine(header, field, runtime.value(header));
+			final String v = stylizeSingleLine(header, field, field.getValue(header));
 
 			pad().format(
 			    LT + "field name=\"%s\" value=\"%s\" offset=\"%d\" length=\"%d\""
-			        + GT, field.getName(), v, runtime.getOffset(header),
-			    runtime.getLength(header));
+			        + GT, field.getName(), v, field.getOffset(header),
+			    field.getLength(header));
 
 		} else if (field.getStyle() == Style.INT_BITS) {
 		} else {
-			final String v = stylizeSingleLine(header, field, runtime.value(header));
+			final String v = stylizeSingleLine(header, field, field.getValue(header));
 
 			pad().format(
 			    LT + "field name=\"%s\" value=\"%s\" offset=\"%d\" length=\"%d\"/"
-			        + GT, field.getName(), v, runtime.getOffset(header),
-			    runtime.getLength(header));
+			        + GT, field.getName(), v, field.getOffset(header),
+			    field.getLength(header));
 		}
 
 	}
