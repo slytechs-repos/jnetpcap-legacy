@@ -308,7 +308,7 @@ public final class JRegistry {
 	 */
 	public static AnnotatedHeader lookupAnnotatedHeader(JProtocol protocol) {
 		Class<? extends JHeader> c = protocol.getHeaderClass();
-		Entry e = MAP_BY_ID[protocol.ID];
+		Entry e = MAP_BY_ID[protocol.getId()];
 
 		if (e.annotatedHeader == null) {
 			errors.clear();
@@ -391,7 +391,7 @@ public final class JRegistry {
 	 * @return numerical ID of the protocol header
 	 */
 	public static int lookupId(JProtocol p) {
-		return p.ID;
+		return p.getId();
 	}
 
 	private static int lookupIdNoCreate(Class<? extends JHeader> c)
@@ -476,17 +476,17 @@ public final class JRegistry {
 	 */
 	static int register(JProtocol protocol) {
 
-		Entry e = new Entry(protocol.ID, protocol.getHeaderClassName());
+		Entry e = new Entry(protocol.getId(), protocol.getHeaderClassName());
 		mapByClassName.put(protocol.getHeaderClassName(), e);
-		MAP_BY_ID[protocol.ID] = e;
+		MAP_BY_ID[protocol.getId()] = e;
 
-		scanners[protocol.ID] = new JHeaderScanner(protocol);
+		scanners[protocol.getId()] = new JHeaderScanner(protocol);
 
-		if (protocol.dlt != null) {
-			registerDLT(protocol.dlt, protocol.ID);
+		if (protocol.getDlt() != null) {
+			registerDLT(protocol.getDlt(), protocol.getId());
 		}
 
-		return protocol.ID;
+		return protocol.getId();
 	}
 
 	private static void registerAnnotatedSubHeaders(AnnotatedHeader[] subs) {

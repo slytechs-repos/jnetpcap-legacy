@@ -135,7 +135,7 @@ public abstract class JHeader
 
 		AnnotatedHeader header;
 		if (protocol != null) {
-			this.id = protocol.ID;
+			this.id = protocol.getId();
 			header = JRegistry.lookupAnnotatedHeader(protocol);
 
 		} else {
@@ -151,7 +151,7 @@ public abstract class JHeader
 		order(ByteOrder.BIG_ENDIAN); // network byte order by default
 		state = new State(Type.POINTER);
 
-		this.id = protocol.ID;
+		this.id = protocol.getId();
 		AnnotatedHeader header = JRegistry.lookupAnnotatedHeader(protocol);
 
 		initFromAnnotatedHeader(header);
