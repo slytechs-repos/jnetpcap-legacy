@@ -36,6 +36,8 @@ public @interface Header {
 
 	String nicname() default "";
 	
+	String description() default "";
+	
 	String format() default "";
 	
 	PcapDLT dlt() default PcapDLT.NULL;

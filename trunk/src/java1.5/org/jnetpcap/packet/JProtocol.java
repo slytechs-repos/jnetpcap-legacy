@@ -256,20 +256,6 @@ public enum JProtocol {
 	 * 
 	 * @param pcap
 	 *          open Pcap handle
-	 * @return numerical ID of the protocol header or the ID of Payload header as
-	 *         the catch all if no headers are matched
-	 */
-	public static int id(Pcap pcap) {
-		return valueOf(pcap).ID;
-	}
-
-	/**
-	 * Gets the numerical ID of the data link header for the open pcap handle. A
-	 * call to Pcap.datalink() is made and the value translated to an appropriate
-	 * jNetPcap protocol header ID.
-	 * 
-	 * @param pcap
-	 *          open Pcap handle
 	 * @return enum constant or the Payload header as the catch all if no headers
 	 *         are matched
 	 */

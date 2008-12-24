@@ -65,6 +65,8 @@ public class AnnotatedHeader {
 		return list;
 	}
 
+	private String description;
+
 	/**
 	 * @Header is optional on top level header. It defaults to class name as
 	 *         header name
@@ -99,6 +101,18 @@ public class AnnotatedHeader {
 				header.nicname = a.nicname();
 			} else {
 				header.nicname = header.name;
+			}
+			
+			if (a.description().length() != 0) {
+				header.description = a.description();
+			} else if (a.dlt() != PcapDLT.NULL) {
+				/*
+				 * Description comes from libpcap itself :)
+				 */
+				header.description = a.dlt().getDescription();
+				
+			} else {
+				header.description = null;
 			}
 
 			if (a.id() != -1) {

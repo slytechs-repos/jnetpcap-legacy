@@ -20,7 +20,7 @@ import org.jnetpcap.nio.JNumber;
 import org.jnetpcap.nio.JMemory.Type;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JPacketHandler;
-import org.jnetpcap.packet.JProtocol;
+import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.JScanner;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.PcapPacketHandler;
@@ -1305,8 +1305,9 @@ public class Pcap {
 	 */
 	public <T> int dispatch(int cnt, JPacketHandler<T> handler, T user) {
 		final PcapPacket packet = new PcapPacket(Type.POINTER);
-		return dispatch(cnt, JProtocol.id(this), handler, user, packet, packet
-		    .getState(), packet.getCaptureHeader(), JScanner.getThreadLocal());
+		return dispatch(cnt, JRegistry.mapDLTToId(datalink()), handler, user,
+		    packet, packet.getState(), packet.getCaptureHeader(), JScanner
+		        .getThreadLocal());
 	}
 
 	/**
@@ -1366,8 +1367,9 @@ public class Pcap {
 
 	public <T> int dispatch(int cnt, PcapPacketHandler<T> handler, T user) {
 		final PcapPacket packet = new PcapPacket(Type.POINTER);
-		return dispatch(cnt, JProtocol.id(this), handler, user, packet, packet
-		    .getState(), packet.getCaptureHeader(), JScanner.getThreadLocal());
+		return dispatch(cnt, JRegistry.mapDLTToId(datalink()), handler, user,
+		    packet, packet.getState(), packet.getCaptureHeader(), JScanner
+		        .getThreadLocal());
 	}
 
 	/**
@@ -1852,8 +1854,8 @@ public class Pcap {
 	 */
 	public <T> int loop(int cnt, JPacketHandler<T> handler, T user) {
 		final PcapPacket packet = new PcapPacket(Type.POINTER);
-		return loop(cnt, JProtocol.id(this), handler, user, packet, packet
-		    .getState(), packet.getCaptureHeader(), JScanner.getThreadLocal());
+		return loop(cnt, JRegistry.mapDLTToId(datalink()), handler, user, packet,
+		    packet.getState(), packet.getCaptureHeader(), JScanner.getThreadLocal());
 	}
 
 	/**
@@ -1944,8 +1946,8 @@ public class Pcap {
 	 */
 	public <T> int loop(int cnt, PcapPacketHandler<T> handler, T user) {
 		final PcapPacket packet = new PcapPacket(Type.POINTER);
-		return loop(cnt, JProtocol.id(this), handler, user, packet, packet
-		    .getState(), packet.getCaptureHeader(), JScanner.getThreadLocal());
+		return loop(cnt, JRegistry.mapDLTToId(datalink()), handler, user, packet,
+		    packet.getState(), packet.getCaptureHeader(), JScanner.getThreadLocal());
 	}
 
 	/**
