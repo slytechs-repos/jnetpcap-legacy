@@ -18,6 +18,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jnetpcap.PcapDLT;
 import org.jnetpcap.packet.JHeader;
 
 /**
@@ -36,6 +37,8 @@ public @interface Header {
 	String nicname() default "";
 	
 	String format() default "";
+	
+	PcapDLT dlt() default PcapDLT.NULL;
 	
 	Class<? extends JHeader> parent() default JHeader.class;
 	
