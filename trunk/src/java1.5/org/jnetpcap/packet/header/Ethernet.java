@@ -29,7 +29,7 @@ import org.jnetpcap.packet.annotate.Header.Layer;
  */
 @Header(
 		length = 14, 
-		dlt = PcapDLT.EN10MB, 
+		dlt = {PcapDLT.EN10MB, PcapDLT.FDDI}, 
 		osi = Layer.DATALINK, 
 		characteristics = Characteristic.CSMA_CD,
 		nicname = "Eth", 
