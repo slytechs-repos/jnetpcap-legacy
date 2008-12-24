@@ -105,11 +105,11 @@ public class AnnotatedHeader {
 			
 			if (a.description().length() != 0) {
 				header.description = a.description();
-			} else if (a.dlt() != PcapDLT.NULL) {
+			} else if (a.dlt().length != 0) {
 				/*
 				 * Description comes from libpcap itself :)
 				 */
-				header.description = a.dlt().getDescription();
+				header.description = a.dlt()[0].getDescription();
 				
 			} else {
 				header.description = null;
@@ -361,8 +361,8 @@ public class AnnotatedHeader {
 		return this.name;
 	}
 	
-	public PcapDLT getDlt() {
-		return (annotation.dlt() == PcapDLT.NULL)?null:annotation.dlt();
+	public PcapDLT[] getDlt() {
+		return annotation.dlt();
 	}
 
 	public final String getNicname() {

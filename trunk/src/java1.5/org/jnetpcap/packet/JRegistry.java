@@ -458,8 +458,8 @@ public final class JRegistry {
 
 		addBindings(bindings);
 
-		if (annotatedHeader.getDlt() != null) {
-			registerDLT(annotatedHeader.getDlt(), id);
+		for (PcapDLT d : annotatedHeader.getDlt()) {
+			registerDLT(d, id);
 		}
 
 		return id;
@@ -605,7 +605,8 @@ public final class JRegistry {
 					int id = mapDLTToId(i);
 					Class<?> c = lookupClass(id);
 
-					out.format("libpcap::%-24s => header::%s.class(%d)\n", PcapDLT.valueOf(i).toString()
+					out.format("libpcap::%-24s => header::%s.class(%d)\n", PcapDLT
+					    .valueOf(i).toString()
 					    + "(" + i + ")", c.getSimpleName(), id);
 				}
 			}

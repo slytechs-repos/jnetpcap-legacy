@@ -47,11 +47,11 @@ public @interface Header {
 
 	}
 	
-	Characteristic[] characteristics() default Characteristic.NULL;
+	Characteristic[] characteristics() default {};
 
 	String description() default "";
 	
-	PcapDLT dlt() default PcapDLT.NULL;
+	PcapDLT[] dlt() default {};
 	
 	String format() default "";
 	
@@ -67,7 +67,7 @@ public @interface Header {
 	
 	Class<? extends JHeader> parent() default JHeader.class;
 	
-	String[] spec() default "";
+	String[] spec() default {};
 
 	String url() default "";
 }
