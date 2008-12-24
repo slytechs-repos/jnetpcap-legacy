@@ -338,7 +338,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferFromDirect
 	printf("JMemory.transferFrom(ByteBuffer): position=%d limit=%d len=%d\n", 
 			position, limit, len);
 	fflush(stdout);
-#ifdef DEBUG
+#endif
 	
 	if (size < len) {
 		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
