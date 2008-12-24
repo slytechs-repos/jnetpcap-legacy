@@ -129,7 +129,9 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_initIDs
 		return;
 	}
 	
-//	printf("initIds() - SUCCESS");
+#ifdef DEBUG
+	printf("initIds() - SUCCESS");
+#endif
 
 }
 
@@ -332,9 +334,11 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferFromDirect
 	
 	size_t size = env->GetIntField(obj, jmemorySizeFID);
 	
+#ifdef DEBUG
 	printf("JMemory.transferFrom(ByteBuffer): position=%d limit=%d len=%d\n", 
 			position, limit, len);
 	fflush(stdout);
+#ifdef DEBUG
 	
 	if (size < len) {
 		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
@@ -445,9 +449,10 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferToDirect__Ljava_nio
 	char *b = (char *)env->GetDirectBufferAddress(jbytebuffer);
 	
 	memcpy(b + position, (void *)(src + jsrcOffset), len);
-	
-//	printf("JMemory.transferTo(ByteBuffer): position=%d limit=%d len=%d\n", 
-//			position, limit, len);
+#ifdef DEBUG
+	printf("JMemory.transferTo(ByteBuffer): position=%d limit=%d len=%d\n", 
+			position, limit, len);
+#endif
 	
 	env->CallObjectMethod(jbytebuffer, bufferSetPositionMID, position + len);
 	
