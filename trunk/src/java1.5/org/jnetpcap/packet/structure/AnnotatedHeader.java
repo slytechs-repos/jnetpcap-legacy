@@ -19,10 +19,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.jnetpcap.PcapDLT;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JSubHeader;
-import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Dynamic;
+import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FieldSetter;
 import org.jnetpcap.packet.annotate.Header;
 
@@ -300,7 +301,7 @@ public class AnnotatedHeader {
 
 	private AnnotatedField[] fields;
 
-	private final Header headerAnnotation;
+	private final Header annotation;
 
 	private AnnotatedHeader[] headers;
 
@@ -313,7 +314,7 @@ public class AnnotatedHeader {
 	private AnnotatedHeader parent;
 
 	private AnnotatedHeader(Class<? extends JHeader> c) {
-		this.headerAnnotation = c.getAnnotation(Header.class);
+		this.annotation = c.getAnnotation(Header.class);
 		this.clazz = c;
 	}
 
@@ -336,7 +337,7 @@ public class AnnotatedHeader {
 	 * @return
 	 */
 	public int getId() {
-		return this.headerAnnotation.id();
+		return this.annotation.id();
 	}
 
 	/**
@@ -344,6 +345,10 @@ public class AnnotatedHeader {
 	 */
 	public String getName() {
 		return this.name;
+	}
+	
+	public PcapDLT getDlt() {
+		return (annotation.dlt() == PcapDLT.NULL)?null:annotation.dlt();
 	}
 
 	public final String getNicname() {

@@ -67,7 +67,7 @@ package org.jnetpcap;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public enum PcapDLT {
+public enum PcapDLT implements DataLinkType {
   NULL(0),
   EN10MB(1),
   EN3MB(2),
@@ -393,4 +393,17 @@ public enum PcapDLT {
 
 	public final static int CONST_LINUX_LAPD = 177;
 
+	/* (non-Javadoc)
+   * @see org.jnetpcap.DataLinkType#getDescription()
+   */
+  public String getDescription() {
+	  return this.description;
+  }
+
+	/* (non-Javadoc)
+   * @see org.jnetpcap.DataLinkType#getValue()
+   */
+  public int getValue() {
+	  return this.value;
+  }
 }

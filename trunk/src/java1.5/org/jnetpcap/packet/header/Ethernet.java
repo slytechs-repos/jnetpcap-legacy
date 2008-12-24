@@ -12,6 +12,7 @@
  */
 package org.jnetpcap.packet.header;
 
+import org.jnetpcap.PcapDLT;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.annotate.Dynamic;
@@ -24,7 +25,7 @@ import org.jnetpcap.packet.annotate.Header;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@Header(length=14, nicname = "Eth")
+@Header(length=14, nicname = "Eth", dlt = PcapDLT.EN10MB)
 public class Ethernet
     extends JHeader {
 
