@@ -16,13 +16,11 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
+import org.jnetpcap.header.Http.Entry;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.RegistryHeaderErrors;
 import org.jnetpcap.packet.TestUtils;
-import org.jnetpcap.protocol.tcpip.Html;
-import org.jnetpcap.protocol.tcpip.Http;
-import org.jnetpcap.protocol.tcpip.Http.Entry;
 
 /**
  * @author Mark Bednarczyk

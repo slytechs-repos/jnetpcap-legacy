@@ -341,7 +341,7 @@ public final class JRegistry {
 			throw new UnregisteredHeaderException("invalid id " + id);
 		}
 
-		return (entry == null) ? null : entry.getHeaderClass();
+		return entry.getHeaderClass();
 	}
 
 	/**
@@ -513,7 +513,8 @@ public final class JRegistry {
 			setScanners(AnnotatedScannerMethod
 			    .inspectJHeaderClass((Class<? extends JHeader>) c));
 		} else {
-			setScanners(AnnotatedScannerMethod.inspectClass(c));
+			setScanners(AnnotatedScannerMethod
+			    .inspectClass((Class<? extends JHeader>) c));
 		}
 	}
 

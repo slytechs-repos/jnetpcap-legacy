@@ -116,12 +116,12 @@ public class JHeaderScanner
 
 	private void initFromJProtocol(JProtocol protocol) {
 
-		lengthMethod =
-		    AnnotatedHeaderLengthMethod.inspectClass(protocol.getHeaderClass());
+		Class<? extends JHeader> clazz = protocol.getHeaderClass();
 
-		if (AnnotatedScannerMethod.inspectClass(protocol.getHeaderClass()).length != 0) {
-			scannerMethod =
-			    AnnotatedScannerMethod.inspectClass(protocol.getClass())[0];
+		lengthMethod = AnnotatedHeaderLengthMethod.inspectClass(clazz);
+
+		if (AnnotatedScannerMethod.inspectClass(clazz).length != 0) {
+			scannerMethod = AnnotatedScannerMethod.inspectClass(clazz)[0];
 		} else {
 			scannerMethod = null;
 		}
@@ -257,7 +257,7 @@ public class JHeaderScanner
 
 		} else if (isDirect()) {
 			nativeScan(scan);
-			
+
 		} else {
 			/*
 			 * Record this header's length
@@ -268,14 +268,14 @@ public class JHeaderScanner
 			int len = getHeaderLength(packet, offset);
 
 			scan.scan_length(len);
-		}		
+		}
 
 		if (scan.scan_next_id() == JProtocol.PAYLOAD_ID) {
 			final JPacket packet = scan.scan_packet();
 			final int offset = scan.scan_offset();
 
 			int next = scanAllBindings(packet, offset);
-			scan.scan_next_id(next);			
+			scan.scan_next_id(next);
 		}
 	}
 
