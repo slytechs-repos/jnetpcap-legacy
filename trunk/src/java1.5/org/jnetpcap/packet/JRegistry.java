@@ -482,8 +482,8 @@ public final class JRegistry {
 
 		scanners[protocol.getId()] = new JHeaderScanner(protocol);
 
-		if (protocol.getDlt() != null) {
-			registerDLT(protocol.getDlt(), protocol.getId());
+		for (PcapDLT d: protocol.getDlt()) {
+			registerDLT(d, protocol.getId());
 		}
 
 		return protocol.getId();

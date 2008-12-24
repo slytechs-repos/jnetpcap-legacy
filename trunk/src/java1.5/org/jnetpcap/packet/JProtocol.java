@@ -27,6 +27,7 @@ import org.jnetpcap.packet.header.PPP;
 import org.jnetpcap.packet.header.Payload;
 import org.jnetpcap.packet.header.Tcp;
 import org.jnetpcap.packet.header.Udp;
+
 /**
  * Enum table of core protocols supported by the scanner.
  * 
@@ -109,7 +110,7 @@ public enum JProtocol {
 	 * Main class for the network header of this protocol
 	 */
 	private Class<? extends JHeader> clazz;
-	
+
 	private final String className;
 
 	/**
@@ -121,7 +122,7 @@ public enum JProtocol {
 	/**
 	 * A mapping to pcap dlt. If no mapping exists for a protocol, it is null.
 	 */
-	private final PcapDLT dlt;
+	private final PcapDLT[] dlt;
 
 	public final static int PAYLOAD_ID = 0;
 
@@ -148,50 +149,49 @@ public enum JProtocol {
 	public final static int PPP_ID = 11;
 
 	public final static int ICMP_ID = 12;
-	
-	private JProtocol(String className) {
-		this(className, null);
-	}
 
+	private JProtocol(String className) {
+		this(className, new PcapDLT[0]);
+	}
 
 	private JProtocol(Class<? extends JHeader> c) {
-		this(c, null);
+		this(c, new PcapDLT[0]);
 	}
 
-	private JProtocol(Class<? extends JHeader> c, PcapDLT dlt) {
+	private JProtocol(Class<? extends JHeader> c, PcapDLT... dlt) {
 		this.clazz = c;
 		this.className = c.getCanonicalName();
 		this.dlt = dlt;
 		this.ID = ordinal();
 	}
-	
-	private JProtocol(String className, PcapDLT dlt) {
+
+	private JProtocol(String className, PcapDLT... dlt) {
 		this.className = className;
 		this.dlt = dlt;
 		this.ID = ordinal();
-		
+
 		if (getClass().getResource(className) == null) {
 			throw new IllegalStateException("unable to find class " + className);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-  public Class<? extends JHeader> getHeaderClass() {
+	public Class<? extends JHeader> getHeaderClass() {
 		if (this.clazz == null) {
 			try {
-	      this.clazz = (Class<? extends JHeader>) Class.forName(className);
-      } catch (ClassNotFoundException e) {
-	      throw new IllegalStateException(e);
-      }
+				this.clazz = (Class<? extends JHeader>) Class.forName(className);
+			} catch (ClassNotFoundException e) {
+				throw new IllegalStateException(e);
+			}
 		}
-		
+
 		return this.clazz;
 	}
-	
+
 	public String getHeaderClassName() {
 		return this.className;
 	}
-	
+
 	/**
 	 * Checks the supplied ID if its is one of jNetPcap's core protocol set
 	 * 
@@ -279,28 +279,29 @@ public enum JProtocol {
 		}
 
 		for (JProtocol p : values()) {
-			if (dlt == p.getDlt()) {
-				return p;
+
+			for (PcapDLT d : p.dlt) {
+				if (dlt == d) {
+					return p;
+				}
 			}
 		}
 
 		return PAYLOAD; // Not found
 	}
 
+	/**
+	 * @return the dlt
+	 */
+	public PcapDLT[] getDlt() {
+		return dlt;
+	}
 
 	/**
-   * @return the dlt
-   */
-  public PcapDLT getDlt() {
-	  return dlt;
-  }
-
-
-	/**
-   * @return the iD
-   */
-  public int getId() {
-	  return ID;
-  }
+	 * @return the iD
+	 */
+	public int getId() {
+		return ID;
+	}
 
 }
