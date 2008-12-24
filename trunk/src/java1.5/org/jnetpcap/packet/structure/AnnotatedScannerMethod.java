@@ -62,7 +62,7 @@ public class AnnotatedScannerMethod
 		}
 	}
 
-	public static AnnotatedScannerMethod[] inspectClass(Class<?> c) {
+	public static AnnotatedScannerMethod[] inspectClass(Class<? extends JHeader> c) {
 
 		if (cache.containsKey(c)) {
 			return cache.get(c);
@@ -73,12 +73,15 @@ public class AnnotatedScannerMethod
 
 		for (Method method : getMethods(c, Scanner.class)) {
 			Scanner a = method.getAnnotation(Scanner.class);
-			if (a.value() == JHeader.class) {
+			Class<? extends JHeader> clazz =
+			    (a.value() == JHeader.class) ? c : a.value();
+
+			if (JHeader.class.isAssignableFrom(c) == false) {
 				throw new HeaderDefinitionError(c, "non JHeader based classes, "
 				    + "must declare protocol class in @Scanner annotation");
 			}
 
-			list.add(new AnnotatedScannerMethod(method, a.value()));
+			list.add(new AnnotatedScannerMethod(method, clazz));
 		}
 
 		AnnotatedScannerMethod[] m =
@@ -90,7 +93,7 @@ public class AnnotatedScannerMethod
 
 	public static AnnotatedScannerMethod[] inspectObject(Object container) {
 		Class<?> c = container.getClass();
-		
+
 		if (cache.containsKey(c)) {
 			return cache.get(c);
 		}
@@ -127,16 +130,16 @@ public class AnnotatedScannerMethod
 	}
 
 	/**
-   * @param method
-   * @param value
-   * @param container
-   */
-  public AnnotatedScannerMethod(Method method, Class<? extends JHeader> c,
-      Object container) {
-  	super(method, container);
-  	
-		this.id = JRegistry.lookupId(c); 	
-  }
+	 * @param method
+	 * @param value
+	 * @param container
+	 */
+	public AnnotatedScannerMethod(Method method, Class<? extends JHeader> c,
+	    Object container) {
+		super(method, container);
+
+		this.id = JRegistry.lookupId(c);
+	}
 
 	public void scan(JScan scan) {
 		try {
