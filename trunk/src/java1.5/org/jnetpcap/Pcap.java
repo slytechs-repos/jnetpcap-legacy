@@ -20,6 +20,7 @@ import org.jnetpcap.nio.JNumber;
 import org.jnetpcap.nio.JMemory.Type;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JPacketHandler;
+import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.JScanner;
 import org.jnetpcap.packet.PcapPacket;
@@ -1305,9 +1306,8 @@ public class Pcap {
 	 */
 	public <T> int dispatch(int cnt, JPacketHandler<T> handler, T user) {
 		final PcapPacket packet = new PcapPacket(Type.POINTER);
-		return dispatch(cnt, JRegistry.mapDLTToId(datalink()), handler, user,
-		    packet, packet.getState(), packet.getCaptureHeader(), JScanner
-		        .getThreadLocal());
+		return dispatch(cnt, datalinkToId(), handler, user, packet, packet.getState(), packet
+		    .getCaptureHeader(), JScanner.getThreadLocal());
 	}
 
 	/**
@@ -1367,9 +1367,8 @@ public class Pcap {
 
 	public <T> int dispatch(int cnt, PcapPacketHandler<T> handler, T user) {
 		final PcapPacket packet = new PcapPacket(Type.POINTER);
-		return dispatch(cnt, JRegistry.mapDLTToId(datalink()), handler, user,
-		    packet, packet.getState(), packet.getCaptureHeader(), JScanner
-		        .getThreadLocal());
+		return dispatch(cnt, datalinkToId(), handler, user, packet, packet.getState(), packet
+		    .getCaptureHeader(), JScanner.getThreadLocal());
 	}
 
 	/**
@@ -1419,6 +1418,19 @@ public class Pcap {
 	 * @since 1.2
 	 */
 	public native int getNonBlock(StringBuilder errbuf);
+
+	/**
+	 * Performs a mapping of Pcap.datalink() to JRegistry ID. If doesn't exist
+	 * defaults to ethernet.
+	 * 
+	 * @return JRegistry numerical ID for this datalink type.
+	 */
+	private int datalinkToId() {
+		int id = JRegistry.mapDLTToId(datalink());
+
+		return (id == JRegistry.NO_DLT_MAPPING) ? JProtocol.ETHERNET_ID : id;
+
+	}
 
 	/**
 	 * This method allows to send a raw packet to the network. The MAC CRC doesn't
@@ -1854,7 +1866,7 @@ public class Pcap {
 	 */
 	public <T> int loop(int cnt, JPacketHandler<T> handler, T user) {
 		final PcapPacket packet = new PcapPacket(Type.POINTER);
-		return loop(cnt, JRegistry.mapDLTToId(datalink()), handler, user, packet,
+		return loop(cnt, datalinkToId(), handler, user, packet,
 		    packet.getState(), packet.getCaptureHeader(), JScanner.getThreadLocal());
 	}
 
@@ -1946,7 +1958,7 @@ public class Pcap {
 	 */
 	public <T> int loop(int cnt, PcapPacketHandler<T> handler, T user) {
 		final PcapPacket packet = new PcapPacket(Type.POINTER);
-		return loop(cnt, JRegistry.mapDLTToId(datalink()), handler, user, packet,
+		return loop(cnt, datalinkToId(), handler, user, packet,
 		    packet.getState(), packet.getCaptureHeader(), JScanner.getThreadLocal());
 	}
 

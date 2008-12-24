@@ -111,7 +111,8 @@ public class TextFormatter
 			int i = 0;
 			for (byte[] b : table) {
 				final String v = stylizeSingleLine(header, field, b);
-				pad().format(FIELD_ARRAY_FORMAT + "%s", field.getDisplay(header), i++, v);
+				pad().format(FIELD_ARRAY_FORMAT + "%s", field.getDisplay(header), i++,
+				    v);
 			}
 
 			incLevel(0); // Inc for multi line fields
@@ -150,8 +151,14 @@ public class TextFormatter
 		incLevel(name);
 		incLevel(SEPARATOR);
 
-		pad().format(" ******* %s offset=%d (0x%X) length=%d", header.getName(),
-		    header.getOffset(), header.getOffset(), header.getLength());
+		if (header.hasDescription()) {
+			pad().format(" ******* %s - \"%s\" - offset=%d (0x%X) length=%d",
+			    header.getName(), header.getDescription(), header.getOffset(),
+			    header.getOffset(), header.getLength());
+		} else {
+			pad().format(" ******* %s offset=%d (0x%X) length=%d", header.getName(),
+			    header.getOffset(), header.getOffset(), header.getLength());
+		}
 		pad();
 
 	}

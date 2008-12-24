@@ -419,4 +419,18 @@ public abstract class JHeader
 	protected void validateHeader() {
 
 	}
+
+	/**
+   * @return
+   */
+  public boolean hasDescription() {
+	  return annotatedHeader.getDescription() != null;
+  }
+
+	/**
+   * @return
+   */
+  public String getDescription() {
+	  return annotatedHeader.getDescription();
+  }
 }

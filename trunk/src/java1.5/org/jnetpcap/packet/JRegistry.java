@@ -1,6 +1,7 @@
 package org.jnetpcap.packet;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
@@ -120,15 +121,18 @@ public final class JRegistry {
 	private final static JHeaderScanner[] scanners =
 	    new JHeaderScanner[A_MAX_ID_COUNT];
 
-	private static final int MAX_DLT_COUNT = 256;
+	private static final int MAX_DLT_COUNT = 512;
 
 	/**
 	 * Register all the core protocols as soon as the jRegistry class is loaded
 	 */
 	static {
-		
+
 		DLTS_TO_IDS = new int[MAX_DLT_COUNT];
 		IDS_TO_DLTS = new int[MAX_ID_COUNT];
+
+		Arrays.fill(JRegistry.DLTS_TO_IDS, -1);
+		Arrays.fill(JRegistry.IDS_TO_DLTS, -1);
 
 		for (JProtocol p : JProtocol.values()) {
 
@@ -544,13 +548,24 @@ public final class JRegistry {
 	}
 
 	private final static int[] DLTS_TO_IDS;
+
 	private final static int[] IDS_TO_DLTS;
-	
+
+	/**
+	 * A constant if returned from {@link #mapDltToId} or {@link #mapIdToDLT} that
+	 * no mapping exists.
+	 */
+	public static final int NO_DLT_MAPPING = -1;
+
+	public static boolean hasDltMapping(int dlt) {
+		return dlt >= 0 && dlt < DLTS_TO_IDS.length
+		    && DLTS_TO_IDS[dlt] != NO_DLT_MAPPING;
+	}
+
 	public static void registerDLT(int dlt, int id) {
 		DLTS_TO_IDS[dlt] = id;
 		IDS_TO_DLTS[id] = dlt;
 	}
-
 
 	public static void registerDLT(PcapDLT dlt, int id) {
 		registerDLT(dlt.getValue(), id);
@@ -572,10 +587,26 @@ public final class JRegistry {
 		Formatter out = new Formatter();
 
 		try {
+			/*
+			 * Dump scanners and their configs
+			 */
 			for (int i = 0; i < A_MAX_ID_COUNT; i++) {
 				if (scanners[i] != null) {
 					out.format("scanner[%-2d] class=%-15s %s\n", i, lookupClass(i)
 					    .getSimpleName(), scanners[i].toString());
+				}
+			}
+
+			/*
+			 * Dump existing DLT to ID mappings
+			 */
+			for (int i = 0; i < MAX_DLT_COUNT; i++) {
+				if (hasDltMapping(i)) {
+					int id = mapDLTToId(i);
+					Class<?> c = lookupClass(id);
+
+					out.format("libpcap::%-24s => header::%s.class(%d)\n", PcapDLT.valueOf(i).toString()
+					    + "(" + i + ")", c.getSimpleName(), id);
 				}
 			}
 		} catch (UnregisteredHeaderException e) {

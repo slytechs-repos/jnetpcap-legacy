@@ -29,12 +29,18 @@ import org.jnetpcap.packet.annotate.FieldSetter;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.packet.annotate.BindingVariable.MatchType;
+import org.jnetpcap.packet.annotate.Header.Layer;
 
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@Header(name = "Ip4", nicname = "Ip")
+@Header(
+		name = "Ip4",
+		nicname = "Ip",
+		osi = Layer.NETWORK,
+		spec = "RFC792",
+		description = "ip version 4")
 public class Ip4
     extends JHeaderMap<Ip4> {
 
