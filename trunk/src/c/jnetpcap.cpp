@@ -1414,7 +1414,9 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_Pcap_lookupDev
 	int size=WideCharToMultiByte(0, 0, (const WCHAR*)device, -1, NULL, 0, NULL, NULL);
 	char utf8[size + 1];
 	WideCharToMultiByte(0, 0, (const WCHAR*)device, -1, utf8, size, NULL, NULL);
+#ifdef DEBUG
 	printf("size=%d, utf8=%s device=%ws\n", size, utf8, device);
+#endif
 	
 	jstring jdevice = env->NewStringUTF(utf8);
 #else 

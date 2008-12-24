@@ -870,8 +870,8 @@ public class Ip4
 					break;
 			}
 
-			System.out.printf("i=%d id=%d bitmap=0x%X length=%d\n", i, id,
-			    optionsBitmap, optionsLength[id]);
+//			System.out.printf("i=%d id=%d bitmap=0x%X length=%d\n", i, id,
+//			    optionsBitmap, optionsLength[id]);
 		}
 	}
 
