@@ -36,7 +36,7 @@ public class Payload
 		return buffer.size() - offset;
 	}
 
-	public final static int ID = JProtocol.PAYLOAD.ID;
+	public final static int ID = JProtocol.PAYLOAD.getId();
 	
 	@Dynamic(Field.Property.LENGTH) 
 	public int dataLength() {

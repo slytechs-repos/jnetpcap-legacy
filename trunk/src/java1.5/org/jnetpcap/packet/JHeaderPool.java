@@ -62,7 +62,7 @@ public class JHeaderPool {
 	 * @return a shared instance of a header per thread per ID
 	 */
 	public <T extends JHeader> T getHeader(JProtocol protocol) {
-		return (T) getHeader(protocol.getHeaderClass(), protocol.ID);
+		return (T) getHeader(protocol.getHeaderClass(), protocol.getId());
 	}
 
 	/**

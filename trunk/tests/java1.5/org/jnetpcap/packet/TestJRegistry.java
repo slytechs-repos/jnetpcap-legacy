@@ -134,7 +134,7 @@ public class TestJRegistry
 	    throws UnregisteredHeaderException {
 
 		for (JProtocol p : JProtocol.values()) {
-			assertEquals(p.ID, JRegistry.lookupId(p));
+			assertEquals(p.getId(), JRegistry.lookupId(p));
 		}
 	}
 
@@ -144,7 +144,7 @@ public class TestJRegistry
 		System.out.println(JRegistry.toDebugString());
 
 		for (JProtocol p : JProtocol.values()) {
-			assertEquals(p.ID, JRegistry.lookupId(p.getHeaderClass()));
+			assertEquals(p.getId(), JRegistry.lookupId(p.getHeaderClass()));
 		}
 	}
 

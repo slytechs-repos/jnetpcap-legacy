@@ -103,7 +103,7 @@ public enum JProtocol {
 	/**
 	 * Unique ID of this protocol
 	 */
-	public final int ID;
+	private final int ID;
 
 	/**
 	 * Main class for the network header of this protocol
@@ -121,7 +121,7 @@ public enum JProtocol {
 	/**
 	 * A mapping to pcap dlt. If no mapping exists for a protocol, it is null.
 	 */
-	public final PcapDLT dlt;
+	private final PcapDLT dlt;
 
 	public final static int PAYLOAD_ID = 0;
 
@@ -279,12 +279,28 @@ public enum JProtocol {
 		}
 
 		for (JProtocol p : values()) {
-			if (dlt == p.dlt) {
+			if (dlt == p.getDlt()) {
 				return p;
 			}
 		}
 
 		return PAYLOAD; // Not found
 	}
+
+
+	/**
+   * @return the dlt
+   */
+  public PcapDLT getDlt() {
+	  return dlt;
+  }
+
+
+	/**
+   * @return the iD
+   */
+  public int getId() {
+	  return ID;
+  }
 
 }

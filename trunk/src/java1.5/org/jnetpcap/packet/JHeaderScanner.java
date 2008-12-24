@@ -108,7 +108,7 @@ public class JHeaderScanner
 	public JHeaderScanner(JProtocol protocol) {
 		super(FUNCT_NAME + protocol.toString().toLowerCase());
 		this.protocol = protocol;
-		this.id = protocol.ID;
+		this.id = protocol.getId();
 		this.needJProtocolInitialization = true;
 
 		bindNativeScanner(id);
