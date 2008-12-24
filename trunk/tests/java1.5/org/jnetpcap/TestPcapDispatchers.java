@@ -32,7 +32,7 @@ import org.jnetpcap.packet.format.FormatUtils;
 public class TestPcapDispatchers
     extends TestCase {
 
-	private final static int COUNT = 300;
+	private final static int COUNT = 3;
 
 	private StringBuilder errbuf = new StringBuilder();
 

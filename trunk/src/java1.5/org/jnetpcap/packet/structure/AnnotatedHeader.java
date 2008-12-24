@@ -402,4 +402,11 @@ public class AnnotatedHeader {
 	private void setParent(AnnotatedHeader parent) {
 		this.parent = parent;
 	}
+
+	/**
+   * @return
+   */
+  public String getDescription() {
+	  return this.description;
+  }
 }

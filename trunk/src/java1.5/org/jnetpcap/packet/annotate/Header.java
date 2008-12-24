@@ -29,21 +29,45 @@ import org.jnetpcap.packet.JHeader;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Header {
-
-	int id() default -1;
-
-	String name() default "";
-
-	String nicname() default "";
+	public enum Layer {
+		NULL,
+		PHYSICAL,
+		DATALINK,
+		NETWORK,
+		TRANSPORT,
+		SESSION,
+		PRESENTATION,
+		APPLICATION,
+	}
 	
+	public enum Characteristic {
+		NULL,
+		POINT_TO_POINT,
+		CSMA_CD,
+
+	}
+	
+	Characteristic[] characteristics() default Characteristic.NULL;
+
 	String description() default "";
-	
-	String format() default "";
 	
 	PcapDLT dlt() default PcapDLT.NULL;
 	
-	Class<? extends JHeader> parent() default JHeader.class;
+	String format() default "";
+	
+	int id() default -1;
 	
 	int length() default -1;
+	
+	String name() default "";
+	
+	String nicname() default "";
+	
+	Layer osi() default Layer.NULL;
+	
+	Class<? extends JHeader> parent() default JHeader.class;
+	
+	String[] spec() default "";
 
+	String url() default "";
 }

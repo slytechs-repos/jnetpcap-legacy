@@ -18,6 +18,8 @@ import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
+import org.jnetpcap.packet.annotate.Header.Characteristic;
+import org.jnetpcap.packet.annotate.Header.Layer;
 
 /**
  * DIX Ethernet2 definition
@@ -25,7 +27,15 @@ import org.jnetpcap.packet.annotate.Header;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@Header(length=14, nicname = "Eth", dlt = PcapDLT.EN10MB)
+@Header(
+		length = 14, 
+		dlt = PcapDLT.EN10MB, 
+		osi = Layer.DATALINK, 
+		characteristics = Characteristic.CSMA_CD,
+		nicname = "Eth", 
+		description = "Ethernet 2 (DIX)",
+		url = "http://en.wikipedia.org/wiki/Ethernet"
+)
 public class Ethernet
     extends JHeader {
 
@@ -124,7 +134,7 @@ public class Ethernet
 	public int type() {
 		return getUShort(0 + 12);
 	}
-	
+
 	public void type(int type) {
 		setUShort(0 + 12, type);
 	}
