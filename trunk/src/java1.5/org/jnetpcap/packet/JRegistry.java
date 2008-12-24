@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jnetpcap.PcapDLT;
 import org.jnetpcap.packet.structure.AnnotatedBinding;
 import org.jnetpcap.packet.structure.AnnotatedHeader;
 import org.jnetpcap.packet.structure.AnnotatedScannerMethod;
@@ -119,10 +120,16 @@ public final class JRegistry {
 	private final static JHeaderScanner[] scanners =
 	    new JHeaderScanner[A_MAX_ID_COUNT];
 
+	private static final int MAX_DLT_COUNT = 256;
+
 	/**
 	 * Register all the core protocols as soon as the jRegistry class is loaded
 	 */
 	static {
+		
+		DLTS_TO_IDS = new int[MAX_DLT_COUNT];
+		IDS_TO_DLTS = new int[MAX_ID_COUNT];
+
 		for (JProtocol p : JProtocol.values()) {
 
 			try {
@@ -447,6 +454,10 @@ public final class JRegistry {
 
 		addBindings(bindings);
 
+		if (annotatedHeader.getDlt() != null) {
+			registerDLT(annotatedHeader.getDlt(), id);
+		}
+
 		return id;
 	}
 
@@ -466,6 +477,10 @@ public final class JRegistry {
 		MAP_BY_ID[protocol.ID] = e;
 
 		scanners[protocol.ID] = new JHeaderScanner(protocol);
+
+		if (protocol.dlt != null) {
+			registerDLT(protocol.dlt, protocol.ID);
+		}
 
 		return protocol.ID;
 	}
@@ -526,6 +541,31 @@ public final class JRegistry {
 		    AnnotatedScannerMethod.inspectObject(container);
 
 		setScanners(methods);
+	}
+
+	private final static int[] DLTS_TO_IDS;
+	private final static int[] IDS_TO_DLTS;
+	
+	public static void registerDLT(int dlt, int id) {
+		DLTS_TO_IDS[dlt] = id;
+		IDS_TO_DLTS[id] = dlt;
+	}
+
+
+	public static void registerDLT(PcapDLT dlt, int id) {
+		registerDLT(dlt.getValue(), id);
+	}
+
+	public static int mapIdToDLT(int id) {
+		return IDS_TO_DLTS[id];
+	}
+
+	public static PcapDLT mapIdToPcapDLT(int id) {
+		return PcapDLT.valueOf(IDS_TO_DLTS[id]);
+	}
+
+	public static int mapDLTToId(int dlt) {
+		return DLTS_TO_IDS[dlt];
 	}
 
 	public static String toDebugString() {

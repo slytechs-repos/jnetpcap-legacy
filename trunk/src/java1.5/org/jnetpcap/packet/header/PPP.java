@@ -12,6 +12,7 @@
  */
 package org.jnetpcap.packet.header;
 
+import org.jnetpcap.PcapDLT;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.annotate.Field;
@@ -23,7 +24,7 @@ import org.jnetpcap.packet.annotate.Header;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@Header(length = 5)
+@Header(length = 5, dlt = PcapDLT.PPP)
 public class PPP
     extends JHeader {
 
