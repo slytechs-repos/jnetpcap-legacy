@@ -16,7 +16,9 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.jnetpcap.header.Http.Entry;
+import org.jnetpcap.newstuff.Html;
+import org.jnetpcap.newstuff.Http;
+import org.jnetpcap.newstuff.Http.Entry;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.RegistryHeaderErrors;
