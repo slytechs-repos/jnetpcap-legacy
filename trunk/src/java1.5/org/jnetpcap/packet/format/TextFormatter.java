@@ -13,6 +13,7 @@
 package org.jnetpcap.packet.format;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.Formatter;
 
 import org.jnetpcap.packet.JHeader;
@@ -174,6 +175,7 @@ public class TextFormatter
 		if (frameIndex != -1) {
 			pad().format("END OF PACKET %d", frameIndex);
 		}
+
 	}
 
 	/*
@@ -184,10 +186,26 @@ public class TextFormatter
 	 */
 	@Override
 	public void packetBefore(JPacket packet, Detail detail) throws IOException {
+		incLevel("Frame:");
 		pad();
 		if (frameIndex != -1) {
-			pad().format("START OF PACKET %d", frameIndex);
+			pad().format(FIELD_FORMAT + "%d", "#", frameIndex);
 		}
+
+		pad()
+		    .format(
+		        FIELD_FORMAT + "%s",
+		        "timestamp",
+		        new Timestamp(packet.getCaptureHeader().timestampInMillis())
+		            .toString());
+
+		pad().format(FIELD_FORMAT + "%d bytes", "wire length",
+		    packet.getCaptureHeader().wirelen());
+		pad().format(FIELD_FORMAT + "%d bytes", "captured length",
+		    packet.getCaptureHeader().caplen());
+
+		pad();
+		decLevel();
 	}
 
 	/*
@@ -206,6 +224,11 @@ public class TextFormatter
 		//		
 		// incLevel(SEPARATOR);
 	}
+
+	@Override
+  protected void packetNull(JPacket packet, Detail detail) {
+		pad().format("packet: NULL");
+  }
 
 	/*
 	 * (non-Javadoc)
