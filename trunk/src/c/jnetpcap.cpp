@@ -214,6 +214,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__ILorg_jnetpcap_PcapHandl
 	 * so we can dispatch to Java land.
 	 */
 	pcap_user_data_t data;
+	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
 	data.user = juser;
@@ -258,6 +259,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__ILorg_jnetpcap_ByteBuffe
 	 * so we can dispatch to Java land.
 	 */
 	cb_byte_buffer_t data;
+	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
 	data.user = juser;
@@ -307,6 +309,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__ILorg_jnetpcap_JBufferHa
 	 * so we can dispatch to Java land.
 	 */
 	cb_jbuffer_t data;
+	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
 	data.user = juser;
@@ -360,6 +363,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__IILorg_jnetpcap_packet_J
 	 * so we can dispatch to Java land.
 	 */
 	cb_jpacket_t data;
+	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
 	data.user = juser;
@@ -416,6 +420,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__IILorg_jnetpcap_packet_P
 	 * so we can dispatch to Java land.
 	 */
 	cb_jpacket_t data;
+	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
 	data.user = juser;
@@ -467,6 +472,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__ILorg_jnetpcap_PcapHandler_2
 	 * so we can dispatch to Java land.
 	 */
 	pcap_user_data_t data;
+	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
 	data.user = juser;
@@ -511,6 +517,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__ILorg_jnetpcap_ByteBufferHan
 	 * so we can dispatch to Java land.
 	 */
 	cb_byte_buffer_t data;
+	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
 	data.user = juser;
@@ -562,6 +569,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__ILorg_jnetpcap_JBufferHandle
 	 * so we can dispatch to Java land.
 	 */
 	cb_jbuffer_t data;
+	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
 	data.exception = NULL;
@@ -618,6 +626,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__IILorg_jnetpcap_packet_JPack
 	 * so we can dispatch to Java land.
 	 */
 	cb_jpacket_t data;
+	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
 	data.user = juser;
@@ -675,6 +684,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__IILorg_jnetpcap_packet_PcapP
 	 * so we can dispatch to Java land.
 	 */
 	cb_jpacket_t data;
+	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
 	data.user = juser;
