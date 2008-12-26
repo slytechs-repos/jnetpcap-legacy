@@ -227,7 +227,12 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__ILorg_jnetpcap_PcapHandl
 
 	}
 
-	return pcap_dispatch(p, jcnt, pcap_callback, (u_char *)&data);
+	int r = pcap_dispatch(p, jcnt, pcap_callback, (u_char *)&data);
+	if (data.exception != NULL) {
+		env->Throw(data.exception);
+	}
+
+	return r;
 }
 
 /*
@@ -266,7 +271,12 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__ILorg_jnetpcap_ByteBuffe
 		return -1;
 	}
 
-	return pcap_dispatch(p, jcnt, cb_byte_buffer_dispatch, (u_char *)&data);
+	int r = pcap_dispatch(p, jcnt, cb_byte_buffer_dispatch, (u_char *)&data);
+	if (data.exception != NULL) {
+		env->Throw(data.exception);
+	}
+
+	return r;
 }
 
 /*
@@ -311,7 +321,12 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__ILorg_jnetpcap_JBufferHa
 		return -1;
 	}
 
-	return pcap_dispatch(p, jcnt, cb_jbuffer_dispatch, (u_char *)&data);
+	int r = pcap_dispatch(p, jcnt, cb_jbuffer_dispatch, (u_char *)&data);
+	if (data.exception != NULL) {
+		env->Throw(data.exception);
+	}
+
+	return r;
 }
 
 /*
@@ -362,7 +377,12 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__IILorg_jnetpcap_packet_J
 		return -1;
 	}
 
-	return pcap_dispatch(p, jcnt, cb_jpacket_dispatch, (u_char *)&data);
+	int r = pcap_dispatch(p, jcnt, cb_jpacket_dispatch, (u_char *)&data);
+	if (data.exception != NULL) {
+		env->Throw(data.exception);
+	}
+
+	return r;
 }
 
 /*
@@ -413,7 +433,12 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__IILorg_jnetpcap_packet_P
 		return -1;
 	}
 
-	return pcap_dispatch(p, jcnt, cb_pcap_packet_dispatch, (u_char *)&data);
+	int r = pcap_dispatch(p, jcnt, cb_pcap_packet_dispatch, (u_char *)&data);
+	if (data.exception != NULL) {
+		env->Throw(data.exception);
+	}
+
+	return r;
 }
 
 
@@ -454,7 +479,12 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__ILorg_jnetpcap_PcapHandler_2
 		return -1;
 	}
 
-	return pcap_loop(p, jcnt, pcap_callback, (u_char *)&data);
+	int r = pcap_loop(p, jcnt, pcap_callback, (u_char *)&data);
+	if (data.exception != NULL) {
+		env->Throw(data.exception);
+	}
+
+	return r;
 }
 
 /*
@@ -495,7 +525,12 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__ILorg_jnetpcap_ByteBufferHan
 		return -1;
 	}
 	
-	return pcap_loop(p, jcnt, cb_byte_buffer_dispatch, (u_char *)&data);
+	int r = pcap_loop(p, jcnt, cb_byte_buffer_dispatch, (u_char *)&data);
+	if (data.exception != NULL) {
+		env->Throw(data.exception);
+	}
+
+	return r;
 }
 
 /*
@@ -529,6 +564,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__ILorg_jnetpcap_JBufferHandle
 	cb_jbuffer_t data;
 	data.env = env;
 	data.obj = jhandler;
+	data.exception = NULL;
 	data.user = juser;
 	data.header = jheader;
 	data.buffer = jbuffer;
@@ -541,7 +577,13 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__ILorg_jnetpcap_JBufferHandle
 		return -1;
 	}
 
-	return pcap_loop(p, jcnt, cb_jbuffer_dispatch, (u_char *)&data);
+	int r = pcap_loop(p, jcnt, cb_jbuffer_dispatch, (u_char *)&data);
+	
+	if (data.exception != NULL) {
+		env->Throw(data.exception);
+	}
+
+	return r;
 }
 
 /*
@@ -593,7 +635,12 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__IILorg_jnetpcap_packet_JPack
 		return -1;
 	}
 
-	return pcap_loop(p, jcnt, cb_jpacket_dispatch, (u_char *)&data);
+	int r = pcap_loop(p, jcnt, cb_jpacket_dispatch, (u_char *)&data);
+	if (data.exception != NULL) {
+		env->Throw(data.exception);
+	}
+
+	return r;
 }
 
 /*
@@ -645,7 +692,12 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__IILorg_jnetpcap_packet_PcapP
 		return -1;
 	}
 
-	return pcap_loop(p, jcnt, cb_pcap_packet_dispatch, (u_char *)&data);
+	int r = pcap_loop(p, jcnt, cb_pcap_packet_dispatch, (u_char *)&data);
+	if (data.exception != NULL) {
+		env->Throw(data.exception);
+	}
+
+	return r;
 }
 
 /*
