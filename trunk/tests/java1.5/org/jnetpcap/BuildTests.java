@@ -21,7 +21,9 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.jnetpcap.format.TestFormatter;
+import org.jnetpcap.header.TestHttp;
 import org.jnetpcap.header.TestIcmp;
+import org.jnetpcap.header.TestIpv6;
 import org.jnetpcap.header.TestSubHeader;
 import org.jnetpcap.nio.TestJBuffer;
 import org.jnetpcap.nio.TestJMemory;
@@ -38,6 +40,7 @@ import org.jnetpcap.packet.TestPcapUtils;
 public class BuildTests {
 
 	public static Test suite() {
+				
 		TestSuite suite = new TestSuite("Test for org.jnetpcap");
 		//$JUnit-BEGIN$
 		suite.addTestSuite(TestPcapJNI.class);
@@ -53,6 +56,8 @@ public class BuildTests {
 		suite.addTestSuite(TestJMemory.class);
 		suite.addTestSuite(TestFormatter.class);
 		suite.addTestSuite(TestPcapDispatchers.class);
+		suite.addTestSuite(TestHttp.class);
+		suite.addTestSuite(TestIpv6.class);
 		//$JUnit-END$
 		return suite;
 	}

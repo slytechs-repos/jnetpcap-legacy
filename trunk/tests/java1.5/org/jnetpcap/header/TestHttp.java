@@ -12,6 +12,7 @@
  */
 package org.jnetpcap.header;
 
+import java.io.IOException;
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -23,6 +24,10 @@ import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.RegistryHeaderErrors;
 import org.jnetpcap.packet.TestUtils;
+import org.jnetpcap.packet.format.JFormatter;
+import org.jnetpcap.packet.format.TextFormatter;
+import org.jnetpcap.packet.header.Ethernet;
+import org.jnetpcap.packet.header.Ip4;
 
 /**
  * @author Mark Bednarczyk
@@ -63,17 +68,57 @@ public class TestHttp
 	public void testRegistration() {
 		assertTrue(JRegistry.lookupId(Http.class) > 12);
 	}
+	
+	public void testHttpFormattingWithResolveAddressDisabled() throws IOException {
+		JFormatter out = new TextFormatter(TestUtils.DEV_NULL);
+		out.setResolveAddresses(false);
 
-	public void testOnPacket() {
-		PcapPacket packet =
-		    TestUtils.getPcapPacket("tests/test-http-jpeg.pcap", 5);
-		
-		System.out.println(packet.toString());
-		
+		PcapPacket packet = TestUtils.getPcapPacket("tests/test-http-jpeg.pcap", 5);
+
+		Ip4 ip = new Ip4();
+		Ethernet eth = new Ethernet();
+		if (packet.hasHeader(eth)) {
+			out.format(eth);
+		}
+		if (packet.hasHeader(ip)) {
+			out.format(ip);
+			out.format(ip);
+		}
+
+		out.format(packet);
+
 		if (true && packet.hasHeader(http)) {
-			Map<String, Entry> map = http.headerFields();
-			
-			for(Entry e: map.values()) {
+			Map<String, Http.Entry> map = http.headerFields();
+
+			for (Entry e : map.values()) {
+				System.out.println(e.toString());
+			}
+		}
+	}
+
+
+	public void testHttpFormattingWithResolveAddressEnabled() throws IOException {
+		JFormatter out = new TextFormatter();
+		out.setResolveAddresses(true);
+
+		PcapPacket packet = TestUtils.getPcapPacket("tests/test-http-jpeg.pcap", 5);
+
+		Ip4 ip = new Ip4();
+		Ethernet eth = new Ethernet();
+		if (packet.hasHeader(eth)) {
+			out.format(eth);
+		}
+		if (packet.hasHeader(ip)) {
+			out.format(ip);
+			out.format(ip);
+		}
+
+		out.format(packet);
+
+		if (true && packet.hasHeader(http)) {
+			Map<String, Http.Entry> map = http.headerFields();
+
+			for (Entry e : map.values()) {
 				System.out.println(e.toString());
 			}
 		}
