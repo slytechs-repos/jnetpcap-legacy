@@ -158,22 +158,48 @@ public abstract class JFormatter {
 		/**
 		 * Full detail using multi line output if neccessary
 		 */
-		MULTI_LINE_FULL_DETAIL,
+		MULTI_LINE_FULL_DETAIL {
+	    public boolean isDisplayable(Priority priority) {
+	    	return true;
+	    }
+
+		},
 
 		/**
 		 * Summary of one major component per line
 		 */
-		MULTI_LINE_SUMMARY,
+		MULTI_LINE_SUMMARY {
+	    public boolean isDisplayable(Priority priority) {
+	    	return priority == Priority.MEDIUM || priority == Priority.HIGH;
+	    }
+
+		},
 
 		/**
 		 * Supress output
 		 */
-		NONE,
+		NONE {
+	    public boolean isDisplayable(Priority priority) {
+	    	return false;
+	    }
+
+		},
 
 		/**
 		 * Compress output to a single line of output for the entire component
 		 */
-		ONE_LINE_SUMMARY,
+		ONE_LINE_SUMMARY {
+	    public boolean isDisplayable(Priority priority) {
+	    	return priority == Priority.HIGH;
+	    }
+
+		};
+
+		/**
+     * @param priority
+     * @return
+     */
+    public abstract boolean isDisplayable(Priority priority);
 	}
 
 	public static class IpResolver
@@ -411,7 +437,7 @@ public abstract class JFormatter {
 			URL web = new URL("http://standards.ieee.org/regauth/oui/oui.txt");
 			in = web.openStream();
 			readOuisFromRawIEEEDb(new BufferedReader(new InputStreamReader(in)));
-			saveCompressedIEEEDb();
+//			saveCompressedIEEEDb();
 
 			return true;
 		} catch (Exception e) {
@@ -625,7 +651,7 @@ public abstract class JFormatter {
 
 		for (final JField field : fields) {
 
-			if (field == null) {
+			if (field == null || detail.isDisplayable(field.getPriority()) == false) {
 				continue; // DEBUGING skip nulls for now
 			}
 
@@ -659,6 +685,11 @@ public abstract class JFormatter {
 	 *           any IO errors when sending data to default output device
 	 */
 	public void format(JPacket packet, Detail detail) throws IOException {
+		
+		if (packet == null) {
+			packetNull(packet, detail);
+			return;
+		}
 
 		packetBefore(packet, detail);
 
@@ -688,6 +719,14 @@ public abstract class JFormatter {
 
 		packetAfter(packet, detail);
 	}
+
+	/**
+   * @param packet
+   * @param detail
+   */
+  protected void packetNull(JPacket packet, Detail detail) {
+  	/* Do nothing by default */
+  }
 
 	/**
 	 * Formats a packet for output

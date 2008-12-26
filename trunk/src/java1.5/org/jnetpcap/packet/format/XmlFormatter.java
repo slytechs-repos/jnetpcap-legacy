@@ -13,9 +13,11 @@
 package org.jnetpcap.packet.format;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.packet.format.JFormatter.Style;
 import org.jnetpcap.packet.structure.JField;
 
 /**
@@ -120,6 +122,16 @@ public class XmlFormatter
 			    field.getLength(header));
 
 		} else if (field.getStyle() == Style.INT_BITS) {
+		} else if (field.getStyle() == Style.BYTE_ARRAY_ARRAY_IP4_ADDRESS) {
+			byte[][] table = (byte[][]) field.getValue(header);
+
+			int i = 0;
+			for (byte[] b : table) {
+				final String v = stylizeSingleLine(header, field, b);
+				pad().format(LT + "ip4=\"%s\" /" + GT, v);
+			}
+
+			incLevel(0); // Inc for multi line fields
 		} else {
 			final String v = stylizeSingleLine(header, field, field.getValue(header));
 
@@ -184,15 +196,24 @@ public class XmlFormatter
 	 */
 	@Override
 	public void packetBefore(JPacket packet, Detail detail) throws IOException {
-		pad().format(LT + "packet len=\"%d\"", packet.size());
+		pad().format(LT + "packet");
+
 		incLevel(PAD + PAD);
+
+		pad().format("wirelen=\"%d\"", packet.getCaptureHeader().wirelen());
+		pad().format("caplen=\"%d\"", packet.getCaptureHeader().caplen());
+
 		if (frameIndex != -1) {
 			pad().format("index=\"%d\"", frameIndex);
 		}
 
-		pad().format("captureSeconds=\"%s\"", "Not Implemented");
-		pad().format("captureNanoSeconds=\"%s\"" + GT, "Not Implemented");
+		pad().format("timestamp=\"%s\"",
+		    new Timestamp(packet.getCaptureHeader().timestampInMillis()));
+		pad().format("captureSeconds=\"%s\"", packet.getCaptureHeader().seconds());
+		pad().format("captureNanoSeconds=\"%s\"" + GT,
+		    packet.getCaptureHeader().nanos());
 		pad();
+
 		decLevel();
 
 		incLevel(PAD);
@@ -210,6 +231,7 @@ public class XmlFormatter
 	    throws IOException {
 
 		headerAfter(subHeader, detail);
+		decLevel();
 	}
 
 	/*
@@ -220,8 +242,14 @@ public class XmlFormatter
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
-	protected void subHeaderBefore(JHeader header, JHeader subHeader,
+	protected void subHeaderBefore(
+	    JHeader header,
+	    JHeader subHeader,
 	    Detail detail) throws IOException {
+		
+		incLevel(PAD);
+		pad();
+		
 		headerBefore(subHeader, detail);
 	}
 
