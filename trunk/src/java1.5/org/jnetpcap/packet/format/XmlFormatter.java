@@ -17,7 +17,6 @@ import java.sql.Timestamp;
 
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JPacket;
-import org.jnetpcap.packet.format.JFormatter.Style;
 import org.jnetpcap.packet.structure.JField;
 
 /**
@@ -125,7 +124,6 @@ public class XmlFormatter
 		} else if (field.getStyle() == Style.BYTE_ARRAY_ARRAY_IP4_ADDRESS) {
 			byte[][] table = (byte[][]) field.getValue(header);
 
-			int i = 0;
 			for (byte[] b : table) {
 				final String v = stylizeSingleLine(header, field, b);
 				pad().format(LT + "ip4=\"%s\" /" + GT, v);
