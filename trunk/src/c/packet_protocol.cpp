@@ -43,8 +43,10 @@ native_protocol_func_t native_protocols[MAX_ID_COUNT];
 char *native_protocol_names[MAX_ID_COUNT];
 
 void scan_not_implemented_yet(scan_t *scan) {
-	throwException(scan->env, UNSUPPORTED_OPERATION_EXCEPTION, 
-			"not implemented yet");
+	
+	sprintf(str_buf, "scanner (native or java) for protocol %s(%d) undefined",
+			id2str(scan->id), scan->id);
+	throwException(scan->env, ILLEGAL_STATE_EXCEPTION, str_buf);
 }
 
 /*
