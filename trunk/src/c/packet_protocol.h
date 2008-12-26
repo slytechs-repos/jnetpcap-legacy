@@ -157,8 +157,31 @@ typedef struct ethernet_t {
 	uint16_t type; /* destination eth addr */
 } ethernet_t;
 
-#define IP4_FLAGS_MASK 0xE000
-#define IP4_FRAG_OFF_MASK ~IP4_FLAGS_MASK
+/**
+ * IP v6 structure
+ * RFC 1883
+ */
+typedef struct ip6 {
+	union {
+		struct ip6_hdrctl {
+			uint32_t ip6_un1_flow;	/* 20 bits of flow-ID */
+			uint16_t ip6_un1_plen;	/* payload length */
+			uint8_t  ip6_un1_nxt;	/* next header */
+			uint8_t  ip6_un1_hlim;	/* hop limit */
+		} ip6_un1;
+		uint8_t ip6_un2_vfc;	/* 4 bits version, 4 bits class */
+	} ip6_ctlun;
+	uint8_t ip6_src[16];	/* source address */
+	uint8_t ip6_dst[16];	/* destination address */
+} ip6_t;
+
+#define ip6_vfc		ip6_ctlun.ip6_un2_vfc
+#define ip6_flow	ip6_ctlun.ip6_un1.ip6_un1_flow
+#define ip6_plen	ip6_ctlun.ip6_un1.ip6_un1_plen
+#define ip6_nxt		ip6_ctlun.ip6_un1.ip6_un1_nxt
+#define ip6_hlim	ip6_ctlun.ip6_un1.ip6_un1_hlim
+#define ip6_hops	ip6_ctlun.ip6_un1.ip6_un1_hlim
+
 
 /**
  * IP v4 structure
@@ -184,6 +207,10 @@ typedef struct ip4 {
 	uint32_t daddr;
 	/*The options start here. */
 } ip4_t;
+
+#define IP4_FLAGS_MASK 0xE000
+#define IP4_FRAG_OFF_MASK ~IP4_FLAGS_MASK
+
 
 /****************************************************************
  * **************************************************************

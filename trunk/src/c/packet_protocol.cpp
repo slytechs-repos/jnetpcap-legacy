@@ -195,6 +195,32 @@ void scan_payload(scan_t *scan) {
 }
 
 /*
+ * Scan IP version 6
+ */
+void scan_ip6(scan_t *scan) {
+	ip6_t *ip6 = (ip6_t *)(scan->buf + scan->offset);
+	scan->length = sizeof(ip6_t);
+	uint8_t *buf = (uint8_t *)(scan->buf + scan->offset + sizeof(ip6_t));
+
+	int type = ip6->ip6_nxt;
+again:
+	switch (type) {
+	case 1: scan->next_id = ICMP_ID; break;
+	case 4: scan->next_id = IP4_ID;  break;
+	case 6: scan->next_id = TCP_ID;  break;
+	case 17:scan->next_id = UDP_ID;  break;
+	default:
+		/* Skips over all option headers */
+		type = (int) *(buf + 0); // Option type
+		int len = (int) *(buf + 1); // Option length
+		scan->length += len;
+		buf += len;
+		goto again;
+	}
+}
+
+
+/*
  * Scan IP version 4
  */
 void scan_ip4(scan_t *scan) {
@@ -294,32 +320,27 @@ void init_native_protocols() {
 	
 	// TCP/IP families
 	native_protocols[IP4_ID]      = &scan_ip4;
+	native_protocols[IP6_ID]      = &scan_ip6;
 	native_protocols[UDP_ID]      = &scan_udp;
 	native_protocols[TCP_ID]      = &scan_tcp;
 	native_protocols[ICMP_ID]     = &scan_icmp;
 	
-	native_protocols[IP6_ID]      = &scan_not_implemented_yet;
 	native_protocols[IEEE_802DOT3_ID]      = &scan_not_implemented_yet;
-	native_protocols[IP6_ID]      = &scan_not_implemented_yet;
-	native_protocols[IP6_ID]      = &scan_not_implemented_yet;
-	native_protocols[IP6_ID]      = &scan_not_implemented_yet;
-	native_protocols[IP6_ID]      = &scan_not_implemented_yet;
-	native_protocols[IP6_ID]      = &scan_not_implemented_yet;
 	/*
 	 * Now store the names of each header, used for debuggin purposes
 	 */
-	native_protocol_names[PAYLOAD_ID]       = "PAYLOAD_ID";
-	native_protocol_names[ETHERNET_ID]      = "ETHERNET_ID";
-	native_protocol_names[TCP_ID]           = "TCP_ID";
-	native_protocol_names[UDP_ID]           = "UDP_ID";
-	native_protocol_names[IEEE_802DOT3_ID]  = "IEEE_802DOT3_ID";
-	native_protocol_names[IEEE_802DOT2_ID]  = "IEEE_802DOT2_ID";
-	native_protocol_names[IEEE_SNAP_ID]     = "IEEE_SNAP_ID";
-	native_protocol_names[IP4_ID]           = "IP4_ID";
-	native_protocol_names[IP6_ID]           = "IP6_ID";
-	native_protocol_names[IEEE_802DOT1Q_ID] = "IEEE_802DOT1Q_ID";
-	native_protocol_names[L2TP_ID]          = "L2TP_ID";
-	native_protocol_names[PPP_ID]           = "PPP_ID";
-	native_protocol_names[ICMP_ID]          = "ICMP_ID";
+	native_protocol_names[PAYLOAD_ID]       = "PAYLOAD";
+	native_protocol_names[ETHERNET_ID]      = "ETHERNET";
+	native_protocol_names[TCP_ID]           = "TCP";
+	native_protocol_names[UDP_ID]           = "UDP";
+	native_protocol_names[IEEE_802DOT3_ID]  = "IEEE_802DOT3";
+	native_protocol_names[IEEE_802DOT2_ID]  = "IEEE_802DOT2";
+	native_protocol_names[IEEE_SNAP_ID]     = "IEEE_SNAP";
+	native_protocol_names[IP4_ID]           = "IP4";
+	native_protocol_names[IP6_ID]           = "IP6";
+	native_protocol_names[IEEE_802DOT1Q_ID] = "IEEE_802DOT1Q";
+	native_protocol_names[L2TP_ID]          = "L2TP";
+	native_protocol_names[PPP_ID]           = "PPP";
+	native_protocol_names[ICMP_ID]          = "ICMP";
 }
 
