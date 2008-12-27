@@ -460,6 +460,64 @@ public abstract class JMemory {
 	}
 
 	/**
+	 * Returns a debug string about this JMemory state. Example:
+	 * 
+	 * <pre>
+	 * JMemory@b052fa8: size=1506, owner=nio.JMemoryPool$Block.class(size=10240/offset=4064)
+	 * </pre>
+	 * 
+	 * <ul>
+	 * <li> hex nuber, is physical memory location
+	 * <li> size = number of bytes of this memory object
+	 * <li> owner = the class name of the object that owns the physical memory
+	 * <li> isOwner = if true, means that this object is the owner of physical
+	 * memory
+	 * <li> size in parenthesis = the size of the physical memory allocated by the
+	 * owner
+	 * <li> offset in parenthesis = the offset into the physical memory block of
+	 * this memory object
+	 * </ul>
+	 * 
+	 * @return a summary string describing the state of this memory object
+	 */
+	public String toDebugString() {
+		StringBuilder b = new StringBuilder();
+
+		b.append("JMemory@").append(Long.toHexString(physical)).append(": ");
+		b.append("size=").append(size);
+		if (!owner) {
+			b.append(", ").append("owner=").append(
+			    keeper.getClass().getName().replaceAll("org.jnetpcap.", "")).append(
+			    ".class");
+			if (keeper instanceof JMemory) {
+				JMemory k = (JMemory) keeper;
+				b.append("(size=").append(k.physicalSize);
+				b.append("/offset=").append(this.physical - k.physical);
+				b.append(')');
+			}
+		} else {
+			b.append(", ").append("isOwner=").append(owner);
+		}
+
+		return b.toString();
+	}
+
+	/**
+	 * Checks if physical memory pointed to by this object, is owned either by
+	 * this JMemory based object or the actual owner is also JMemory based. This
+	 * method provides a check if the physical memory pointed to by this object
+	 * has been allocated through use of one of JMemory based functions or outside
+	 * its memory management scope. For example, memory allocated by libpcap
+	 * library will return false. While packets that copied their state to new
+	 * memory will return true.
+	 * 
+	 * @return true if physical memory is managed by JMemory, otherwise false
+	 */
+	public boolean isJMemoryBasedOwner() {
+		return physical != 0 && (owner || keeper instanceof JMemory);
+	}
+
+	/**
 	 * A debug method, similar to toString() which converts the contents of the
 	 * memory to textual hexdump.
 	 * 
