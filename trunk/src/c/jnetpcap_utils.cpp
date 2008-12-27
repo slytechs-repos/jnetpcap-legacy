@@ -711,6 +711,9 @@ void cb_jbuffer_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 
 	env->SetIntField(data->header, jmemorySizeFID, (jsize) sizeof(pcap_pkthdr));
 	env->SetIntField(data->buffer, jmemorySizeFID, (jsize) pkt_header->caplen);
+
+	env->SetObjectField(data->header, jmemoryKeeperFID, data->pcap);
+	env->SetObjectField(data->buffer, jmemoryKeeperFID, data->pcap);
 	
 	env->CallVoidMethod(
 			data->obj, 
@@ -739,6 +742,9 @@ void cb_jpacket_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 	
 	env->SetIntField(data->header, jmemorySizeFID, (jsize) sizeof(pcap_pkthdr));
 	env->SetIntField(data->packet, jmemorySizeFID, (jsize) pkt_header->caplen);
+
+	env->SetObjectField(data->header, jmemoryKeeperFID, data->pcap);
+	env->SetObjectField(data->packet, jmemoryKeeperFID, data->pcap);
 
 	if (Java_org_jnetpcap_packet_JScanner_scan(
 			data->env, 
@@ -775,6 +781,9 @@ void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 	
 	env->SetIntField(data->header, jmemorySizeFID, (jsize) sizeof(pcap_pkthdr));
 	env->SetIntField(data->packet, jmemorySizeFID, (jsize) pkt_header->caplen);
+
+	env->SetObjectField(data->header, jmemoryKeeperFID, data->pcap);
+	env->SetObjectField(data->packet, jmemoryKeeperFID, data->pcap);
 
 	if (Java_org_jnetpcap_packet_JScanner_scan(
 			data->env, 

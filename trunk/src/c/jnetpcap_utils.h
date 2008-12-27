@@ -63,6 +63,7 @@ jclass getClass(JNIEnv *env, char *clazz);
 typedef struct pcap_user_data_t {
 	JNIEnv *env;
 	jobject obj;
+	jobject pcap;
 	jobject user;
 	jclass clazz;
 	jthrowable  exception; // Any exceptions to rethrow
@@ -76,6 +77,7 @@ typedef struct cb_byte_buffer_t {
 	jmethodID mid;
 	JNIEnv *env;    // thread
 	jobject obj;    // ByteBufferHandler
+	jobject pcap;
 	jthrowable  exception; // Any exceptions to rethrow
 	jobject user;
 	jobject header; // PcapHeader
@@ -86,6 +88,7 @@ typedef struct cb_jbuffer_t {
 	jmethodID mid;
 	JNIEnv *env;    // thread
 	jobject obj;    // JBufferHandler
+	jobject pcap;
 	jthrowable  exception; // Any exceptions to rethrow
 	jobject user;
 	jobject header; // PcapHeader
@@ -97,6 +100,7 @@ typedef struct cb_jpacket_t {
 	jmethodID mid;
 	JNIEnv *env;       // thread
 	jobject obj;       // JPacketHandler
+	jobject pcap;
 	jthrowable  exception; // Any exceptions to rethrow
 	jobject user;
 	jobject header;    // PcapHeader

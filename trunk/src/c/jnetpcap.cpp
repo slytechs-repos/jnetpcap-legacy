@@ -217,6 +217,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__ILorg_jnetpcap_PcapHandl
 	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
+	data.pcap = obj;
 	data.user = juser;
 	data.clazz = env->GetObjectClass(jhandler);
 	data.p = p;
@@ -262,6 +263,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__ILorg_jnetpcap_ByteBuffe
 	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
+	data.pcap = obj;
 	data.user = juser;
 	data.header = jheader;
 	jclass clazz = env->GetObjectClass(jhandler);
@@ -312,6 +314,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__ILorg_jnetpcap_JBufferHa
 	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
+	data.pcap = obj;
 	data.user = juser;
 	data.header = jheader;
 	data.buffer = jbuffer;
@@ -366,6 +369,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__IILorg_jnetpcap_packet_J
 	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
+	data.pcap = obj;
 	data.user = juser;
 	data.header = jheader;
 	data.packet = jpacket;
@@ -423,6 +427,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__IILorg_jnetpcap_packet_P
 	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
+	data.pcap = obj;
 	data.user = juser;
 	data.header = jheader;
 	data.packet = jpacket;
@@ -474,7 +479,9 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__ILorg_jnetpcap_PcapHandler_2
 	pcap_user_data_t data;
 	memset(&data, 0, sizeof(data));
 	data.env = env;
+	data.pcap = obj;
 	data.obj = jhandler;
+	data.pcap = obj;
 	data.user = juser;
 	data.clazz = env->GetObjectClass(jhandler);
 	data.p = p;
@@ -520,6 +527,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__ILorg_jnetpcap_ByteBufferHan
 	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
+	data.pcap = obj;
 	data.user = juser;
 	data.header = jheader;
 	jclass clazz = env->GetObjectClass(jhandler);
@@ -572,6 +580,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__ILorg_jnetpcap_JBufferHandle
 	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
+	data.pcap = obj;
 	data.exception = NULL;
 	data.user = juser;
 	data.header = jheader;
@@ -629,6 +638,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__IILorg_jnetpcap_packet_JPack
 	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
+	data.pcap = obj;
 	data.user = juser;
 	data.header = jheader;
 	data.packet = jpacket;
@@ -687,6 +697,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__IILorg_jnetpcap_packet_PcapP
 	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
+	data.pcap = obj;
 	data.user = juser;
 	data.header = jheader;
 	data.packet = jpacket;
