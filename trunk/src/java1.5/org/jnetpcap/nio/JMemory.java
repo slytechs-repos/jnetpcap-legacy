@@ -396,7 +396,12 @@ public abstract class JMemory {
 		 * </ul>
 		 */
 		this.owner = false;
-		this.keeper = peer;
+
+		if (peer.keeper == null) {
+			this.keeper = peer;
+		} else {
+			this.keeper = peer.keeper;
+		}
 
 		return size;
 
