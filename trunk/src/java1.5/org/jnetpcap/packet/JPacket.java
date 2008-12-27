@@ -174,8 +174,8 @@ public abstract class JPacket
 		public native int findHeaderIndex(int id, int instance);
 
 		/**
-		 * 
-		 * @param index TODO: remove index, its no longer used natively
+		 * @param index
+		 *          TODO: remove index, its no longer used natively
 		 * @return
 		 */
 		public native long get64BitHeaderMap(int index);
@@ -679,6 +679,29 @@ public abstract class JPacket
 	 */
 	public void scan(int id) {
 		scanner.scan(this, id);
+	}
+
+	/**
+	 * Gets the current internal packet formatter used in the {@link #toString}
+	 * method.
+	 * 
+	 * @return current formatter
+	 */
+	public static JFormatter getFormatter() {
+		return JPacket.out;
+	}
+
+	/**
+	 * Replaced the default formatter for formatting output in the
+	 * {@link #toString} method. The new formatter will be used by default for all
+	 * packets. The formatter should internally build a string that will be
+	 * returned with out.toString() method call to get meaningfull output.
+	 * 
+	 * @param out
+	 *          new formatter
+	 */
+	public static void setFormatter(JFormatter out) {
+		JPacket.out = out;
 	}
 
 	/**
