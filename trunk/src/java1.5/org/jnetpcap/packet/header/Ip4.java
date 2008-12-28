@@ -32,6 +32,7 @@ import org.jnetpcap.packet.annotate.BindingVariable.MatchType;
 import org.jnetpcap.packet.annotate.Header.Layer;
 
 /**
+ * IP version 4. Network layer internet protocol version 4.
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
@@ -908,6 +909,12 @@ public class Ip4
 
 		setUByte(6, o);
 	}
+	
+	@Field(parent = "flags", offset = 2, length = 1, display = "reserved")
+	public int flags_Reserved() {
+		return (flags() & FLAG_RESERVED) >> 3;
+	}
+
 
 	@Field(parent = "flags", offset = 1, length = 1, display = "do not fragment")
 	public int flags_DF() {
