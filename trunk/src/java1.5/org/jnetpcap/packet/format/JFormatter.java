@@ -12,25 +12,8 @@
  */
 package org.jnetpcap.packet.format;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Writer;
-import java.net.InetAddress;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.util.Comparator;
 import java.util.Formatter;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Queue;
 import java.util.Stack;
 
 import org.jnetpcap.packet.JHeader;
@@ -39,6 +22,7 @@ import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.UnregisteredHeaderException;
+import org.jnetpcap.packet.JRegistry.ResolverType;
 import org.jnetpcap.packet.structure.JField;
 
 /**
@@ -48,105 +32,6 @@ import org.jnetpcap.packet.structure.JField;
  * @author Sly Technologies, Inc.
  */
 public abstract class JFormatter {
-
-	public abstract static class AbstractResolver implements Resolver {
-
-		private static class TimeoutEntry {
-			public int key;
-
-			public long timeout;
-
-			/**
-			 * @param key
-			 */
-			public TimeoutEntry(int key) {
-				this.key = key;
-				timeout = System.currentTimeMillis() + 30 * 1000; // 30 second timeout
-			}
-		}
-
-		private final static Queue<TimeoutEntry> timeoutQueue =
-		    new PriorityQueue<TimeoutEntry>(100, new Comparator<TimeoutEntry>() {
-
-			    public int compare(TimeoutEntry o1, TimeoutEntry o2) {
-				    return (int) (o1.timeout - o2.timeout);
-			    }
-
-		    });
-
-		private final Map<Integer, String> cache = new HashMap<Integer, String>();
-
-		protected void addToCache(byte[] address, String name, int hash) {
-			cache.put(hash, name);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.jnetpcap.packet.format.JFormatter.Resolver#isResolved(byte[])
-		 */
-		public boolean canBeResolved(byte[] address) {
-			return resolve(address) != null;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.jnetpcap.packet.format.JFormatter.Resolver#isCached(byte[])
-		 */
-		public boolean isCached(byte[] address) {
-			return this.cache.containsKey(toHashCode(address));
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.jnetpcap.packet.format.JFormatter.Resolver#resolve(byte[])
-		 */
-		public final String resolve(byte[] address) {
-
-			timeoutCache();
-
-			int hash = toHashCode(address);
-			String s = cache.get(hash);
-			if (cache.containsKey(hash)) {
-				return s;
-			}
-
-			s = resolveToName(address, hash);
-
-			addToCache(address, s, hash);
-
-			if (s == null) {
-				timeoutQueue.add(new TimeoutEntry(hash));
-			}
-
-			return s;
-		}
-
-		/**
-		 * @param address
-		 * @param hash
-		 */
-		protected abstract String resolveToName(byte[] address, int hash);
-
-		private void timeoutCache() {
-			final long t = System.currentTimeMillis();
-
-			for (Iterator<TimeoutEntry> i = timeoutQueue.iterator(); i.hasNext();) {
-				TimeoutEntry e = i.next();
-				if (e.timeout < t) {
-					System.out.printf("timedout %s\n", cache.get(e.key));
-					cache.remove(e.key);
-					i.remove();
-				} else {
-					break;
-				}
-			}
-		}
-
-		protected abstract int toHashCode(byte[] address);
-	}
 
 	/**
 	 * Detail level to include in formatted output
@@ -159,9 +44,9 @@ public abstract class JFormatter {
 		 * Full detail using multi line output if neccessary
 		 */
 		MULTI_LINE_FULL_DETAIL {
-	    public boolean isDisplayable(Priority priority) {
-	    	return true;
-	    }
+			public boolean isDisplayable(Priority priority) {
+				return true;
+			}
 
 		},
 
@@ -169,9 +54,9 @@ public abstract class JFormatter {
 		 * Summary of one major component per line
 		 */
 		MULTI_LINE_SUMMARY {
-	    public boolean isDisplayable(Priority priority) {
-	    	return priority == Priority.MEDIUM || priority == Priority.HIGH;
-	    }
+			public boolean isDisplayable(Priority priority) {
+				return priority == Priority.MEDIUM || priority == Priority.HIGH;
+			}
 
 		},
 
@@ -179,9 +64,9 @@ public abstract class JFormatter {
 		 * Supress output
 		 */
 		NONE {
-	    public boolean isDisplayable(Priority priority) {
-	    	return false;
-	    }
+			public boolean isDisplayable(Priority priority) {
+				return false;
+			}
 
 		},
 
@@ -189,61 +74,17 @@ public abstract class JFormatter {
 		 * Compress output to a single line of output for the entire component
 		 */
 		ONE_LINE_SUMMARY {
-	    public boolean isDisplayable(Priority priority) {
-	    	return priority == Priority.HIGH;
-	    }
+			public boolean isDisplayable(Priority priority) {
+				return priority == Priority.HIGH;
+			}
 
 		};
 
 		/**
-     * @param priority
-     * @return
-     */
-    public abstract boolean isDisplayable(Priority priority);
-	}
-
-	public static class IpResolver
-	    extends AbstractResolver {
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.jnetpcap.packet.format.JFormatter.AbstractResolver#resolveToName(byte[],
-		 *      int)
+		 * @param priority
+		 * @return
 		 */
-		@Override
-		protected String resolveToName(byte[] address, int hash) {
-			try {
-				InetAddress i = InetAddress.getByAddress(address);
-				String host = i.getHostName();
-				if (Character.isDigit(host.charAt(0)) == false) {
-					addToCache(address, host, hash);
-					return host;
-				}
-
-			} catch (UnknownHostException e) {
-				e.printStackTrace();
-			}
-			return null;
-
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.jnetpcap.packet.format.JFormatter.AbstractResolver#toHashCode(byte[])
-		 */
-		@Override
-		protected int toHashCode(byte[] address) {
-			int hash =
-			    ((address[3] < 0) ? address[3] + 256 : address[3])
-			        | ((address[2] < 0) ? address[2] + 256 : address[2]) << 8
-			        | ((address[1] < 0) ? address[1] + 256 : address[1]) << 16
-			        | ((address[0] < 0) ? address[0] + 256 : address[0]) << 24;
-
-			return hash;
-		}
-
+		public abstract boolean isDisplayable(Priority priority);
 	}
 
 	/**
@@ -270,14 +111,6 @@ public abstract class JFormatter {
 		 * Medium fields are included in multi line summary type output
 		 */
 		MEDIUM
-	}
-
-	public interface Resolver {
-		public boolean canBeResolved(byte[] address);
-
-		public boolean isCached(byte[] address);
-
-		public String resolve(byte[] address);
 	}
 
 	/**
@@ -332,9 +165,6 @@ public abstract class JFormatter {
 
 	private static JFormatter global;
 
-	private final static Map<Integer, String> OUI_CACHE =
-	    new HashMap<Integer, String>();
-
 	/**
 	 * Gets the default formatter
 	 * 
@@ -346,128 +176,6 @@ public abstract class JFormatter {
 		}
 
 		return global;
-	}
-
-	private static void readOuisFromCompressedIEEEDb(BufferedReader in)
-	    throws IOException {
-		try {
-			String s;
-			while ((s = in.readLine()) != null) {
-				String[] c = s.split(":");
-				if (c.length < 2) {
-					continue;
-				}
-
-				int i = Integer.parseInt(c[0], 16);
-
-				OUI_CACHE.put(i, c[1]);
-
-			}
-		} finally {
-			in.close(); // Make sure we close the file
-		}
-	}
-
-	private static boolean readOuisFromCompressedIEEEDb(String f)
-	    throws FileNotFoundException, IOException {
-		/*
-		 * Try local file first, more efficient
-		 */
-		File file = new File(f);
-		if (file.canRead()) {
-			readOuisFromCompressedIEEEDb(new BufferedReader(new FileReader(file)));
-			return true;
-		}
-
-		/*
-		 * Otherwise look for it in classpath
-		 */
-		InputStream in =
-		    JFormatter.class.getClassLoader().getResourceAsStream("resources/" + f);
-		if (in == null) {
-			return false; // Can't find it
-		}
-		readOuisFromCompressedIEEEDb(new BufferedReader(new InputStreamReader(in)));
-
-		return true;
-	}
-
-	private static void readOuisFromRawIEEEDb(BufferedReader in)
-	    throws IOException {
-		try {
-			String s;
-			while ((s = in.readLine()) != null) {
-				if (s.contains("(base 16)")) {
-					String[] c = s.split("\t\t");
-					if (c.length < 2) {
-						continue;
-					}
-
-					String p = c[0].split(" ")[0];
-					int i = Integer.parseInt(p, 16);
-					String[] a = c[1].split(" ");
-
-					if (a.length > 0) {
-						OUI_CACHE.put(i, a[0]);
-					}
-				}
-			}
-		} finally {
-			in.close(); // Make sure we close the file
-		}
-	}
-
-	private static void readOuisFromRawIEEEDb(File f) throws IOException {
-		readOuisFromRawIEEEDb(new BufferedReader(new FileReader(f)));
-	}
-
-	private static boolean readOuisFromRawIEEEDb(String f) throws IOException {
-		/*
-		 * Try local file first, more efficient
-		 */
-		File file = new File(f);
-		if (file.canRead()) {
-			readOuisFromRawIEEEDb(file);
-			return true;
-
-		}
-
-		InputStream in;
-		try {
-			URL web = new URL("http://standards.ieee.org/regauth/oui/oui.txt");
-			in = web.openStream();
-			readOuisFromRawIEEEDb(new BufferedReader(new InputStreamReader(in)));
-//			saveCompressedIEEEDb();
-
-			return true;
-		} catch (Exception e) {
-			// Do nothing, we failed, try classpath
-		}
-
-		/*
-		 * Otherwise look for it in classpath
-		 */
-		in =
-		    JFormatter.class.getClassLoader().getResourceAsStream("resources/" + f);
-		if (in == null) {
-			return false; // Can't find it
-		}
-		readOuisFromRawIEEEDb(new BufferedReader(new InputStreamReader(in)));
-
-		saveCompressedIEEEDb();
-
-		return true;
-	}
-
-	private static void saveCompressedIEEEDb() throws IOException {
-		Writer w = new FileWriter(new File("oui.txt"));
-		try {
-			for (int i : OUI_CACHE.keySet()) {
-				w.append(Integer.toHexString(i) + ":" + OUI_CACHE.get(i) + "\n");
-			}
-		} finally {
-			w.close();
-		}
 	}
 
 	/**
@@ -505,7 +213,9 @@ public abstract class JFormatter {
 
 	private JHeaderPool headers = new JHeaderPool();
 
-	private IpResolver ipResolver;
+	private JRegistry.Resolver ipResolver;
+
+	private JRegistry.Resolver ouiPrefixResolver;
 
 	private int level;
 
@@ -584,6 +294,14 @@ public abstract class JFormatter {
 	    JField field,
 	    Detail detail) throws IOException;
 
+	/**
+	 * @param packet
+	 * @param detail
+	 */
+	protected void fieldNull(JHeader header, JField field, Detail detail) {
+		/* Do nothing by default */
+	}
+
 	public void format(JHeader header) throws IOException {
 		format(header, DEFAULT_DETAIL);
 	}
@@ -595,6 +313,11 @@ public abstract class JFormatter {
 	 */
 	@SuppressWarnings("unchecked")
 	public void format(JHeader header, Detail detail) throws IOException {
+		if (header == null) {
+			headerNull(header, detail);
+			return;
+		}
+
 		final JField[] fields = header.getFields();
 
 		headerBefore(header, detail);
@@ -628,6 +351,16 @@ public abstract class JFormatter {
 	 */
 	public void format(JHeader header, JField field, Detail detail)
 	    throws IOException {
+
+		if (header == null) {
+			headerNull(header, detail);
+			return;
+		}
+
+		if (field == null) {
+			fieldNull(header, field, detail);
+			return;
+		}
 
 		fieldBefore(header, field, detail);
 
@@ -685,7 +418,7 @@ public abstract class JFormatter {
 	 *           any IO errors when sending data to default output device
 	 */
 	public void format(JPacket packet, Detail detail) throws IOException {
-		
+
 		if (packet == null) {
 			packetNull(packet, detail);
 			return;
@@ -721,14 +454,6 @@ public abstract class JFormatter {
 	}
 
 	/**
-   * @param packet
-   * @param detail
-   */
-  protected void packetNull(JPacket packet, Detail detail) {
-  	/* Do nothing by default */
-  }
-
-	/**
 	 * Formats a packet for output
 	 * 
 	 * @param out
@@ -759,19 +484,11 @@ public abstract class JFormatter {
 
 		String f = FormatUtils.asString(address, ':').toLowerCase();
 
-		int i =
-		    ((address[2] < 0) ? address[2] + 256 : address[2])
-		        | ((address[1] < 0) ? address[1] + 256 : address[1]) << 8
-		        | ((address[0] < 0) ? address[0] + 256 : address[0]) << 16;
-
-		if (resolveAddresses && OUI_CACHE.containsKey(i)) {
-			byte[] a = new byte[3];
-			a[0] = address[3];
-			a[1] = address[4];
-			a[2] = address[5];
-
+		if (resolveAddresses && ouiPrefixResolver.canBeResolved(address)) {
+			String prefix = ouiPrefixResolver.resolve(address);
 			String s =
-			    OUI_CACHE.get(i) + "_" + FormatUtils.asString(a, ':').toLowerCase();
+			    prefix + "_"
+			        + FormatUtils.asString(address, ':', 16, 3).toLowerCase();
 			return s + " (" + f + ")";
 		}
 
@@ -803,6 +520,14 @@ public abstract class JFormatter {
 	 */
 	protected abstract void headerBefore(JHeader header, Detail detail)
 	    throws IOException;
+
+	/**
+	 * @param packet
+	 * @param detail
+	 */
+	protected void headerNull(JHeader header, Detail detail) {
+		/* Do nothing by default */
+	}
 
 	/**
 	 * Increment the padding level using default padding string
@@ -843,6 +568,14 @@ public abstract class JFormatter {
 	    throws IOException;
 
 	/**
+	 * @param packet
+	 * @param detail
+	 */
+	protected void packetNull(JPacket packet, Detail detail) {
+		/* Do nothing by default */
+	}
+
+	/**
 	 * Appends a string, a pad, to the beginning of the line.
 	 * 
 	 * @return this formatter
@@ -878,10 +611,6 @@ public abstract class JFormatter {
 	 *         message
 	 */
 	private String resolveIp(byte[] address) {
-		if (ipResolver == null) {
-			ipResolver = new IpResolver();
-		}
-
 		String f =
 		    (address.length == 16) ? FormatUtils.asStringIp6(address, true)
 		        : FormatUtils.asString(address, '.', 10).toUpperCase();
@@ -984,15 +713,13 @@ public abstract class JFormatter {
 	public void setResolveAddresses(boolean enable) {
 		resolveAddresses = enable;
 
-		if (enable == true && OUI_CACHE.isEmpty()) {
-			try {
-				if (readOuisFromCompressedIEEEDb("oui.txt") == false) {
-					readOuisFromRawIEEEDb("ieee-oui.txt");
-				}
-
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+		if (enable == true && ouiPrefixResolver == null) {
+			this.ouiPrefixResolver =
+			    JRegistry.getResolver(ResolverType.IEEE_OUI_PREFIX);
+			this.ipResolver = JRegistry.getResolver(ResolverType.IP);
+		} else {
+			ouiPrefixResolver = null;
+			ipResolver = null;
 		}
 	}
 

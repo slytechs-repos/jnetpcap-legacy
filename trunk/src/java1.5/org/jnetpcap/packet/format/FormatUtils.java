@@ -23,12 +23,26 @@ import java.util.List;
  */
 public class FormatUtils {
 
+	private final static int DAY_MILLIS = 24 * 60 * 60 * 1000;
+
+	private final static int HOUR_MILLIS = 60 * 60 * 1000;
+
+	private final static int MINUTE_MILLIS = 60 * 1000;
+
 	private final static List<String> multiLineStringList =
 	    new ArrayList<String>();
+
+	/*
+	 * Few constants to help with breakdown of millis to various larger units of
+	 * time
+	 */
+	private final static int SECOND_MILLIS = 1000;
 
 	private static final String SPACE_CHAR = " ";
 
 	static String[] table = new String[256];
+
+	private final static int WEEK_MILLIS = 7 * 24 * 60 * 60 * 1000;
 
 	static {
 
@@ -84,20 +98,7 @@ public class FormatUtils {
 	 * @return the converted string
 	 */
 	public static String asString(byte[] array, char separator) {
-		StringBuilder buf = new StringBuilder();
-		for (byte b : array) {
-			if (buf.length() != 0) {
-				buf.append(separator);
-			}
-
-			if (b >= 0 && b < 16) {
-				buf.append('0');
-			}
-
-			buf.append(Integer.toHexString((b < 0) ? b + 256 : b).toUpperCase());
-		}
-
-		return buf.toString();
+		return asString(array, separator, 16); // Default HEX
 	}
 
 	/**
@@ -113,17 +114,28 @@ public class FormatUtils {
 	 * @return the converted string
 	 */
 	public static String asString(byte[] array, char separator, int radix) {
-		StringBuilder buf = new StringBuilder();
-		for (byte b : array) {
+		return asString(array, separator, radix, array.length);
+	}
+
+	/**
+	 * Convers the given byte array to a string using the supplied separator
+	 * character
+	 * 
+	 * @param array
+	 *          array to convert
+	 * @param separator
+	 *          separator character to use in between array elements
+	 * @return the converted string
+	 */
+	public static String asString(byte[] array, char separator, int radix, int len) {
+		final StringBuilder buf = new StringBuilder();
+		for (int i = 0; i < len; i++) {
+			byte b = array[i];
 			if (buf.length() != 0) {
 				buf.append(separator);
 			}
-			if (radix == 16) {
-				buf.append(Integer.toHexString((b < 0) ? b + 256 : b).toUpperCase());
-			} else {
-				buf.append(Integer.toString((b < 0) ? b + 256 : b).toUpperCase());
 
-			}
+			buf.append(Integer.toString((b < 0) ? b + 256 : b, radix).toUpperCase());
 		}
 
 		return buf.toString();
@@ -210,28 +222,53 @@ public class FormatUtils {
 	}
 
 	/**
-	 * Converts the byte arra to hexdump string
+	 * Formats a delta time
 	 * 
-	 * @param array
-	 *          array to convert
-	 * @param addressOffset
-	 *          offset of the address space reported
-	 * @param dataOffset
-	 *          offset of the data space reported
-	 * @param doAddress
-	 *          flag which specifies if address should be printed
-	 * @param doText
-	 *          flag which specifies if text should printed
-	 * @param doData
-	 *          flag which specifies if data should printed
-	 * @return converted string
+	 * @param millis
+	 *          delta timestamp in millis
+	 * @return formatted string
 	 */
-	public static String hexdumpCombined(byte[] array, int addressOffset,
-	    int dataOffset, boolean doAddress, boolean doText, boolean doData) {
+	public static String formatTimeInMillis(long millis) {
+
 		StringBuilder b = new StringBuilder();
-		for (String s : hexdump(array, addressOffset, dataOffset, doAddress,
-		    doText, doData)) {
-			b.append(s).append('\n');
+
+		long u = 0;
+
+		while (millis > 0) {
+			if (b.length() != 0) {
+				b.append(' ');
+			}
+
+			if (millis > WEEK_MILLIS) {
+				u = millis / WEEK_MILLIS;
+				b.append(u).append(' ').append((u > 1) ? "weeks" : "week");
+				millis -= u * WEEK_MILLIS;
+
+			} else if (millis > DAY_MILLIS) {
+				u = millis / DAY_MILLIS;
+				b.append(u).append(' ').append((u > 1) ? "days" : "day");
+				millis -= u * DAY_MILLIS;
+
+			} else if (millis > HOUR_MILLIS) {
+				u = millis / HOUR_MILLIS;
+				b.append(u).append(' ').append((u > 1) ? "days" : "day");
+				millis -= u * HOUR_MILLIS;
+
+			} else if (millis > MINUTE_MILLIS) {
+				u = millis / MINUTE_MILLIS;
+				b.append(u).append(' ').append((u > 1) ? "minutes" : "minute");
+				millis -= u * MINUTE_MILLIS;
+
+			} else if (millis > SECOND_MILLIS) {
+				u = millis / SECOND_MILLIS;
+				b.append(u).append(' ').append((u > 1) ? "seconds" : "second");
+				millis -= u * SECOND_MILLIS;
+
+			} else if (millis > 0) {
+				u = millis;
+				b.append(u).append(' ').append((u > 1) ? "millis" : "milli");
+				millis -= u;
+			}
 		}
 
 		return b.toString();
@@ -254,8 +291,13 @@ public class FormatUtils {
 	 *          flag which specifies if data should printed
 	 * @return converted string array, one array element per line of output
 	 */
-	public static String[] hexdump(byte[] array, int addressOffset,
-	    int dataOffset, boolean doAddress, boolean doText, boolean doData) {
+	public static String[] hexdump(
+	    byte[] array,
+	    int addressOffset,
+	    int dataOffset,
+	    boolean doAddress,
+	    boolean doText,
+	    boolean doData) {
 
 		multiLineStringList.clear();
 
@@ -282,10 +324,48 @@ public class FormatUtils {
 	 *          flag which specifies if text should printed
 	 * @param doData
 	 *          flag which specifies if data should printed
+	 * @return converted string
+	 */
+	public static String hexdumpCombined(
+	    byte[] array,
+	    int addressOffset,
+	    int dataOffset,
+	    boolean doAddress,
+	    boolean doText,
+	    boolean doData) {
+		StringBuilder b = new StringBuilder();
+		for (String s : hexdump(array, addressOffset, dataOffset, doAddress,
+		    doText, doData)) {
+			b.append(s).append('\n');
+		}
+
+		return b.toString();
+	}
+
+	/**
+	 * Converts the byte arra to hexdump string
+	 * 
+	 * @param array
+	 *          array to convert
+	 * @param addressOffset
+	 *          offset of the address space reported
+	 * @param dataOffset
+	 *          offset of the data space reported
+	 * @param doAddress
+	 *          flag which specifies if address should be printed
+	 * @param doText
+	 *          flag which specifies if text should printed
+	 * @param doData
+	 *          flag which specifies if data should printed
 	 * @return converted string array, one array element per line of output
 	 */
-	public static String hexLine(byte[] array, int addressOffset, int dataOffset,
-	    boolean doAddress, boolean doText, boolean doData) {
+	public static String hexLine(
+	    byte[] array,
+	    int addressOffset,
+	    int dataOffset,
+	    boolean doAddress,
+	    boolean doText,
+	    boolean doData) {
 		String s = "";
 		if (doAddress) {
 			s += hexLineAddress(addressOffset);
@@ -442,72 +522,5 @@ public class FormatUtils {
 			return ("0" + s);
 
 		return (s);
-	}
-
-	/*
-	 * Few constants to help with breakdown of millis to various larger units of
-	 * time
-	 */
-	private final static int SECOND_MILLIS = 1000;
-
-	private final static int MINUTE_MILLIS = SECOND_MILLIS * 60;
-
-	private final static int HOUR_MILLIS = MINUTE_MILLIS * 60;
-
-	private final static int DAY_MILLIS = HOUR_MILLIS * 24;
-
-	private final static int WEEK_MILLIS = DAY_MILLIS * 7;
-
-	/**
-	 * Formats a delta time
-	 * 
-	 * @param millis
-	 *          delta timestamp in millis
-	 * @return formatted string
-	 */
-	public static String formatTimeInMillis(long millis) {
-
-		StringBuilder b = new StringBuilder();
-
-		long u = 0;
-
-		while (millis > 0) {
-			if (b.length() != 0) {
-				b.append(' ');
-			}
-
-			if (millis > WEEK_MILLIS) {
-				u = millis / WEEK_MILLIS;
-				b.append(u).append(' ').append((u > 1) ? "weeks" : "week");
-				millis -= u * WEEK_MILLIS;
-
-			} else if (millis > DAY_MILLIS) {
-				u = millis / DAY_MILLIS;
-				b.append(u).append(' ').append((u > 1) ? "days" : "day");
-				millis -= u * DAY_MILLIS;
-
-			} else if (millis > HOUR_MILLIS) {
-				u = millis / HOUR_MILLIS;
-				b.append(u).append(' ').append((u > 1) ? "days" : "day");
-				millis -= u * HOUR_MILLIS;
-
-			} else if (millis > MINUTE_MILLIS) {
-				u = millis / MINUTE_MILLIS;
-				b.append(u).append(' ').append((u > 1) ? "minutes" : "minute");
-				millis -= u * MINUTE_MILLIS;
-
-			} else if (millis > SECOND_MILLIS) {
-				u = millis / SECOND_MILLIS;
-				b.append(u).append(' ').append((u > 1) ? "seconds" : "second");
-				millis -= u * SECOND_MILLIS;
-
-			} else if (millis > 0) {
-				u = millis;
-				b.append(u).append(' ').append((u > 1) ? "millis" : "milli");
-				millis -= u;
-			}
-		}
-
-		return b.toString();
 	}
 }
