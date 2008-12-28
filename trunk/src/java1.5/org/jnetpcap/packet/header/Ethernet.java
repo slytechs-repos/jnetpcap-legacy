@@ -12,17 +12,21 @@
  */
 package org.jnetpcap.packet.header;
 
+import java.util.List;
+
 import org.jnetpcap.PcapDLT;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
+import org.jnetpcap.packet.annotate.Format;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.Header.Characteristic;
 import org.jnetpcap.packet.annotate.Header.Layer;
+import org.jnetpcap.packet.structure.JField;
 
 /**
- * DIX Ethernet2 definition
+ * Ethernet2 definition. Datalink layer ethernet frame definition.
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
@@ -33,7 +37,7 @@ import org.jnetpcap.packet.annotate.Header.Layer;
 		osi = Layer.DATALINK, 
 		characteristics = Characteristic.CSMA_CD,
 		nicname = "Eth", 
-		description = "Ethernet 2 (DIX)",
+		description = "Ethernet",
 		url = "http://en.wikipedia.org/wiki/Ethernet"
 )
 public class Ethernet
@@ -98,16 +102,29 @@ public class Ethernet
 
 	}
 
+	public static final int ADDRESS_IG_BIT = 0x40;
+	public static final int ADDRESS_LG_BIT = 0x80;
 	public static final int ID = JProtocol.ETHERNET_ID;
 
 	public static final int LENGTH = 14; // Ethernet header is 14 bytes long
 
 	public static final String ORG_IEEE = "IEEE Ethernet2";
 
-	@Field(offset = 0, length = 48, format = "#mac#")
+	@Field(offset = 0, length = 48, format = "#mac#",	mask = 0xFFFF00000000L)
 	public byte[] destination() {
 		return getByteArray(0, 6);
 	}
+	
+	@Field(parent = "destination", offset = 48 - 8, length = 1, display = "IG bit")
+	public long destination_IG() {
+		return (getUByte(0) & ADDRESS_IG_BIT) >> 5;
+	}
+	
+	@Field(parent = "destination", offset = 48 - 7, length = 1, display = "LG bit")
+	public long destination_LG() {
+		return (getUByte(0) & ADDRESS_LG_BIT) >> 6;
+	}
+
 
 	public void destination(byte[] array) {
 		setByteArray(0, array);
@@ -117,10 +134,21 @@ public class Ethernet
 		return getByteArray(0, array);
 	}
 
-	@Field(offset = 48, length = 48, format = "#mac#")
+	@Field(offset = 48, length = 48, format = "#mac#",	mask = 0xFFFF00000000L)
+	@Format
 	public byte[] source() {
 		return getByteArray(0 + 6, 6);
 	}
+	@Field(parent = "source", offset = 48 - 8, length = 1, display = "IG bit")
+	public long source_IG() {
+		return (getUByte(0) & ADDRESS_IG_BIT) >> 5;
+	}
+	
+	@Field(parent = "source", offset = 48 - 7, length = 1, display = "LG bit")
+	public long source_LG() {
+		return (getUByte(0) & ADDRESS_LG_BIT) >> 6;
+	}
+
 
 	public void source(byte[] array) {
 		setByteArray(0 + 6, array);
@@ -142,6 +170,11 @@ public class Ethernet
 	@Dynamic(Field.Property.DESCRIPTION)
 	public String typeDescription() {
 		return EthernetType.toString(type());
+	}
+	
+	@Format
+	public void formatHeader(List<JField> fields) {
+		
 	}
 
 	public EthernetType typeEnum() {
