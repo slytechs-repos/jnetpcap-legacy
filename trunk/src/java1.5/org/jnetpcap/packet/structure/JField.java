@@ -238,8 +238,8 @@ public class JField {
 		return length.intMethod(header);
 	}
 	
-	public int getMask(JHeader header) {
-		return mask.intMethod(header);
+	public long getMask(JHeader header) {
+		return mask.longMethod(header);
 	}
 
 
