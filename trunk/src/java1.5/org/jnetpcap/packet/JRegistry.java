@@ -1,13 +1,30 @@
 package org.jnetpcap.packet;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Formatter;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
 import org.jnetpcap.PcapDLT;
+import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.structure.AnnotatedBinding;
 import org.jnetpcap.packet.structure.AnnotatedHeader;
 import org.jnetpcap.packet.structure.AnnotatedScannerMethod;
@@ -26,6 +43,347 @@ import org.jnetpcap.packet.structure.HeaderDefinitionError;
 @SuppressWarnings("unchecked")
 public final class JRegistry {
 
+	/**
+	 * Default adaptor class for Resovler interface. This abstract class provides
+	 * the default caching mechanism for positive and negative resolver lookups.
+	 * It also provides a timeout mechanism to time out lookup results.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public abstract static class AbstractResolver implements Resolver {
+
+		private static class TimeoutEntry {
+			public int key;
+
+			public long timeout;
+
+			/**
+			 * @param key
+			 */
+			public TimeoutEntry(int key, long timeout) {
+				this.key = key;
+				timeout = System.currentTimeMillis() + timeout;
+			}
+		}
+
+		/**
+		 * Default timeout interval in milli seconds for a negative lookup entry
+		 * (Default is 30 seconds)
+		 */
+		public static final long DEFAULT_NEGATIVE_TIMEOUT_IN_MILLIS = 30 * 1000;
+
+		/**
+		 * Default timeout interval in milli seconds for a positive lookup entry
+		 * (Defalt is 30 minutes)
+		 */
+		public static final long DEFAULT_POSITIVE_TIMEOUT_IN_MILLIS =
+		    60 * 1000 * 30; // 30 minutes
+
+		private Map<Integer, String> cache;
+
+		private int cacheCapacity = 100;
+
+		private float cacheLoadFactor = 0.75f;
+
+		private long negativeTimeout = DEFAULT_NEGATIVE_TIMEOUT_IN_MILLIS;
+
+		private long positiveTimeout = DEFAULT_POSITIVE_TIMEOUT_IN_MILLIS;
+
+		private Queue<TimeoutEntry> timeoutQueue;
+
+		public AbstractResolver(ResolverType type) {
+			this(type.name());
+		}
+
+		public AbstractResolver(String name) {
+			if (name == null || name.length() == 0) {
+				throw new IllegalArgumentException("resolver's name must be set");
+			}
+
+			loadCache(); // Loads using default behaviour
+		}
+
+		public void addToCache(int hash, String name) {
+
+			if (name == null && negativeTimeout == 0 || name != null
+			    && positiveTimeout == 0) {
+				return; // Don't cache
+			}
+
+			cache.put(hash, name);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.jnetpcap.packet.format.JFormatter.Resolver#isResolved(byte[])
+		 */
+		public boolean canBeResolved(byte[] address) {
+			return resolve(address) != null;
+		}
+
+		@Override
+		protected void finalize() throws Throwable {
+			saveCache();
+		}
+
+		public final int getCacheCapacity() {
+			return this.cacheCapacity;
+		}
+
+		public final float getCacheLoadFactor() {
+			return this.cacheLoadFactor;
+		}
+
+		public final long getNegativeTimeout() {
+			return this.negativeTimeout;
+		}
+
+		public final long getPositiveTimeout() {
+			return this.positiveTimeout;
+		}
+
+		/**
+		 * Called by JRegistry when resolver when it is being retrieved. This allows
+		 * the resolver to do a late initialization, only when its actually called
+		 * on to do work. This behaviour is JRegistry specific and therefore kept
+		 * package and subclass accessible.
+		 */
+		public void initializeIfNeeded() {
+
+			if (cache == null) {
+				cache = new HashMap<Integer, String>(cacheCapacity, cacheLoadFactor);
+				timeoutQueue =
+				    new PriorityQueue<TimeoutEntry>(cacheCapacity,
+				        new Comparator<TimeoutEntry>() {
+
+					        public int compare(TimeoutEntry o1, TimeoutEntry o2) {
+						        return (int) (o1.timeout - o2.timeout);
+					        }
+
+				        });
+			}
+
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.jnetpcap.packet.format.JFormatter.Resolver#isCached(byte[])
+		 */
+		public boolean isCached(byte[] address) {
+			return this.cache.containsKey(toHashCode(address));
+		}
+
+		/**
+		 * Load cache entries using default mechanism
+		 * 
+		 * @return number of cache entries read
+		 */
+		public int loadCache() {
+			// TODO: add default cache loading conditions and behaviour
+			return 0;
+		}
+
+		private int loadCache(BufferedReader in) throws IOException {
+			long time = System.currentTimeMillis();
+			int count = 0;
+
+			try {
+				String line;
+				while ((line = in.readLine()) != null) {
+					String[] c = line.split(":", 3);
+					if (c.length != 3) {
+						continue;
+					}
+					int hash = Integer.parseInt(c[0], 16);
+					Long timeout = (time - Long.parseLong(c[1], 16));
+					String v = (c[2].length() == 0) ? null : c[2];
+
+					if (timeout <= 0) {
+						continue; // Already timedout
+					}
+
+					timeoutQueue.add(new TimeoutEntry(hash, timeout));
+					addToCache(hash, v);
+
+					count++;
+				}
+
+			} finally {
+				in.close();
+			}
+
+			return count;
+		}
+
+		/**
+		 * Load cache entries from file. Each cached entry is saved with a timeout
+		 * timestamp. If the timeout is already expired, the entry is skipped.
+		 * 
+		 * @param file
+		 *          file to load cache entries from
+		 * @return number of entries saved
+		 * @throws IOException
+		 *           any IO errors
+		 */
+		public int loadCache(String file) throws IOException {
+
+			File f = new File(file);
+			if (f.canRead() == false) {
+				return 0;
+			}
+
+			final BufferedReader in = new BufferedReader(new FileReader(f));
+
+			return loadCache(in);
+		}
+
+		public int loadCache(URL url) throws IOException {
+			return loadCache(new BufferedReader(new InputStreamReader(url
+			    .openStream())));
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.jnetpcap.packet.format.JFormatter.Resolver#resolve(byte[])
+		 */
+		public final String resolve(byte[] address) {
+
+			timeoutCache();
+
+			int hash = toHashCode(address);
+			String s = cache.get(hash);
+			if (cache.containsKey(hash)) {
+				return s;
+			}
+
+			s = resolveToName(address, hash);
+
+			addToCache(hash, s);
+
+			if (s == null) {
+				timeoutQueue.add(new TimeoutEntry(hash, negativeTimeout));
+			}
+			{
+				timeoutQueue.add(new TimeoutEntry(hash, positiveTimeout));
+			}
+
+			return s;
+		}
+
+		/**
+		 * @param address
+		 * @param hash
+		 */
+		protected abstract String resolveToName(byte[] address, int hash);
+
+		/**
+		 * Save the cache using default mechanism, if set
+		 * 
+		 * @return number of cache entries saved
+		 */
+		public int saveCache() {
+			// TODO: add default cache saving conditions and behaviour
+			return 0;
+		}
+
+		private int saveCache(PrintWriter out) {
+			int count = 0;
+
+			try {
+				/*
+				 * We use the timeout queue to save the cache. All entries in cache are
+				 * also in the timeout queue.
+				 */
+				for (Iterator<TimeoutEntry> i = timeoutQueue.iterator(); i.hasNext();) {
+					final TimeoutEntry e = i.next();
+					String v = cache.get(e.key);
+
+					out.format("%X:%X:%s\n", e.key, e.timeout, (v == null) ? "" : v);
+					count++;
+				}
+
+			} finally {
+				out.close();
+			}
+
+			return count;
+		}
+
+		/**
+		 * Save the cache to file.
+		 * 
+		 * @param file
+		 *          file to save to
+		 * @return number of entries saved
+		 * @throws IOException
+		 *           any IO errors
+		 */
+		public int saveCache(String file) throws IOException {
+			timeoutCache();
+
+			File f = new File(file);
+			if (f.canWrite() == false) {
+				return 0;
+			}
+
+			final PrintWriter out = new PrintWriter(new FileWriter(f));
+
+			return saveCache(out);
+		}
+
+		public final void setCacheCapacity(int cacheCapacity) {
+			this.cacheCapacity = cacheCapacity;
+		}
+
+		public final void setCacheLoadFactor(float cacheLoadFactor) {
+			this.cacheLoadFactor = cacheLoadFactor;
+		}
+
+		public final void setNegativeTimeout(long negativeTimeout) {
+			this.negativeTimeout = negativeTimeout;
+		}
+
+		public final void setPositiveTimeout(long positiveTimeout) {
+			this.positiveTimeout = positiveTimeout;
+		}
+
+		private void timeoutCache() {
+			final long t = System.currentTimeMillis();
+
+			for (Iterator<TimeoutEntry> i = timeoutQueue.iterator(); i.hasNext();) {
+				TimeoutEntry e = i.next();
+				if (e.timeout < t) {
+					// System.out.printf("timedout %s\n", cache.get(e.key));
+					cache.remove(e.key);
+					i.remove();
+				} else {
+					break;
+				}
+			}
+		}
+
+		protected abstract int toHashCode(byte[] address);
+
+		public String toString() {
+			StringBuilder out = new StringBuilder();
+			out.append(String.format("cache[count=%d], "
+			    + "timeout[count=%d, positive=%d, negative=%d], ", cache.size(),
+			    positiveTimeout, negativeTimeout));
+			return out.toString();
+		}
+	}
+
+	/**
+	 * A header information entry created for every header registered. Entry class
+	 * contains various bits and pieces of information about the registred header.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
 	private static class Entry {
 		private AnnotatedHeader annotatedHeader;
 
@@ -64,6 +422,312 @@ public final class JRegistry {
 	}
 
 	/**
+	 * A resolver that resolves the first 3 bytes of a MAC address to a
+	 * manufacturer code. The resolver loads jNetPcap supplied compressed oui
+	 * database of manufacturer codes and caches that information. The resolver
+	 * can also download over the internet, if requested, a raw IEEE OUI database
+	 * of manufacturer code, parse it and produce a cache file for future use.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	private static class IEEEOuiPrefixResolver
+	    extends AbstractResolver {
+
+		public final static String IEEE_OUI_DATABASE_PATH =
+		    "http://standards.ieee.org/regauth/oui/oui.txt";
+
+		private boolean initialized = false;
+
+		/**
+		 * @param type
+		 */
+		public IEEEOuiPrefixResolver() {
+			super("IEEE_OUI_PREFIX");
+		}
+
+		@Override
+		public void initializeIfNeeded() {
+			if (initialized == false) {
+				initialized = true;
+
+				setCacheCapacity(13000); // There are over 12,000 entries in the db
+				setPositiveTimeout(Long.MAX_VALUE - System.currentTimeMillis()); // Never
+
+				setNegativeTimeout(0); // Never cache
+
+				super.initializeIfNeeded(); // Allow the baseclass to prep cache
+
+				try {
+					readOuisFromCompressedIEEEDb("oui.txt");
+				} catch (FileNotFoundException e) {
+				} catch (IOException e) {
+				}
+			}
+		}
+
+		@Override
+		public int loadCache(URL url) throws IOException {
+			return readOuisFromRawIEEEDb(new BufferedReader(new InputStreamReader(url
+			    .openStream())));
+		}
+
+		private int readOuisFromCompressedIEEEDb(BufferedReader in)
+		    throws IOException {
+			int count = 0;
+
+			try {
+				String s;
+				while ((s = in.readLine()) != null) {
+					String[] c = s.split(":");
+					if (c.length < 2) {
+						continue;
+					}
+
+					int i = Integer.parseInt(c[0], 16);
+
+					super.addToCache(i, c[1]);
+					count++;
+
+				}
+			} finally {
+				in.close(); // Make sure we close the file
+			}
+
+			return count;
+		}
+
+		private boolean readOuisFromCompressedIEEEDb(String f)
+		    throws FileNotFoundException, IOException {
+			/*
+			 * Try local file first, more efficient
+			 */
+			File file = new File(f);
+			if (file.canRead()) {
+				readOuisFromCompressedIEEEDb(new BufferedReader(new FileReader(file)));
+				return true;
+			}
+
+			/*
+			 * Otherwise look for it in classpath
+			 */
+			InputStream in =
+			    JFormatter.class.getClassLoader().getResourceAsStream(
+			        "resources/" + f);
+			if (in == null) {
+				return false; // Can't find it
+			}
+			readOuisFromCompressedIEEEDb(new BufferedReader(new InputStreamReader(in)));
+
+			return true;
+		}
+
+		private int readOuisFromRawIEEEDb(BufferedReader in) throws IOException {
+			int count = 0;
+			try {
+				String s;
+				while ((s = in.readLine()) != null) {
+					if (s.contains("(base 16)")) {
+						String[] c = s.split("\t\t");
+						if (c.length < 2) {
+							continue;
+						}
+
+						String p = c[0].split(" ")[0];
+						int i = Integer.parseInt(p, 16);
+						String[] a = c[1].split(" ");
+
+						if (a.length > 0) {
+							super.addToCache(i, a[1]);
+							count++;
+						}
+					}
+				}
+			} finally {
+				in.close(); // Make sure we close the file
+			}
+
+			return count;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.jnetpcap.packet.JRegistry.AbstractResolver#resolveToName(byte[],
+		 *      int)
+		 */
+		@Override
+		public String resolveToName(byte[] address, int hash) {
+			return null; // If its not in the cache, we don't know what it is
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.jnetpcap.packet.JRegistry.AbstractResolver#toHashCode(byte[])
+		 */
+		@Override
+		public int toHashCode(byte[] address) {
+			return ((address[2] < 0) ? address[2] + 256 : address[2])
+			    | ((address[1] < 0) ? address[1] + 256 : address[1]) << 8
+			    | ((address[0] < 0) ? address[0] + 256 : address[0]) << 16;
+		}
+	}
+
+	/**
+	 * Default IP resolver that JRegistry uses
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	private static class IpResolver
+	    extends AbstractResolver {
+
+		/**
+		 * @param type
+		 */
+		public IpResolver() {
+			super("IP");
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.jnetpcap.packet.format.JFormatter.AbstractResolver#resolveToName(byte[],
+		 *      int)
+		 */
+		@Override
+		public String resolveToName(byte[] address, int hash) {
+			try {
+				InetAddress i = InetAddress.getByAddress(address);
+				String host = i.getHostName();
+				if (Character.isDigit(host.charAt(0)) == false) {
+					addToCache(hash, host);
+					return host;
+				}
+
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			}
+			return null;
+
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.jnetpcap.packet.format.JFormatter.AbstractResolver#toHashCode(byte[])
+		 */
+		@Override
+		public int toHashCode(byte[] address) {
+			int hash =
+			    ((address[3] < 0) ? address[3] + 256 : address[3])
+			        | ((address[2] < 0) ? address[2] + 256 : address[2]) << 8
+			        | ((address[1] < 0) ? address[1] + 256 : address[1]) << 16
+			        | ((address[0] < 0) ? address[0] + 256 : address[0]) << 24;
+
+			return hash;
+		}
+
+	}
+
+	/**
+	 * A resolver interface that can resolver various types of addresses and
+	 * specific protocol numbers and types to a human readable name. The resolver
+	 * will do an appropriate type of look up is appropriate for a given protocol,
+	 * to try and map a binary entity to a human assigned and readable one.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public interface Resolver {
+		/**
+		 * Checks if a mapping exists or can be made. This operation may trigger a
+		 * lookup which may take certain amount of time to complete, some times many
+		 * seconds or even minutes.
+		 * 
+		 * @param address
+		 *          address to check mapping for
+		 * @return true the mapping can be made, otherwise false
+		 */
+		public boolean canBeResolved(byte[] address);
+
+		/**
+		 * 
+		 */
+		public void initializeIfNeeded();
+
+		/**
+		 * Checks if resolver already has a mapping made for this particular
+		 * address. This operation does not block and returns immediately. The
+		 * mapping may include a negative lookup, one that failed before. None the
+		 * less the negative result is cached along with positive results.
+		 * 
+		 * @param address
+		 *          address to check for
+		 * @return true if mapping is already cached, otherwise false
+		 */
+		public boolean isCached(byte[] address);
+
+		/**
+		 * Attempts to resoler an address to a human readable form. Any possible or
+		 * required look ups are performed, sometimes taking a long time to complete
+		 * if neccessary. All results, positive and negative for the lookup, are
+		 * cached for certain amount of time.
+		 * 
+		 * @param address
+		 *          address to try and resolve
+		 * @return human readable form if lookup succeeded (position) or null if
+		 *         lookup failed to produce a human label (negative)
+		 */
+		public String resolve(byte[] address);
+	}
+
+	/**
+	 * Type of resolver that can be registered with JRegistry. Resolvers job is to
+	 * convert a binary number to a human readable name associated with it. For
+	 * example IP resolver will convert ip address to hostnames.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public enum ResolverType {
+		/**
+		 * Converts MAC addresses to station names when defined
+		 */
+		IEEE_OUI_ADDRESS,
+
+		/**
+		 * Converts a MAC address manufacturer prefix to a name
+		 */
+		IEEE_OUI_PREFIX(new IEEEOuiPrefixResolver()),
+
+		/**
+		 * Converts Ip version 4 and 6 address to hostnames and constant labels
+		 */
+		IP(new IpResolver()),
+
+		/**
+		 * Converts TCP and UDP port numbers to application names
+		 */
+		PORT, ;
+
+		private final Resolver resolver;
+
+		private ResolverType() {
+			this.resolver = null;
+		}
+
+		private ResolverType(Resolver resolver) {
+			this.resolver = resolver;
+		}
+
+		public final Resolver getResolver() {
+			return this.resolver;
+		}
+	}
+
+	/**
 	 * A private duplicate constant for MAX_ID_COUNT who's name is prefixed with
 	 * A_ so that due to source code sorting, we don't get compiler errors. Made
 	 * private so no one outside this class knows about it. Got tired of having to
@@ -76,6 +740,8 @@ public final class JRegistry {
 	 */
 	@SuppressWarnings("unused")
 	public static final int CORE_ID_COUNT = JProtocol.values().length;
+
+	private final static int[] DLTS_TO_IDS;
 
 	private static List<HeaderDefinitionError> errors =
 	    new ArrayList<HeaderDefinitionError>();
@@ -94,6 +760,8 @@ public final class JRegistry {
 
 	private final static int headerFlags[] = new int[A_MAX_ID_COUNT];
 
+	private final static int[] IDS_TO_DLTS;
+
 	private static int LAST_ID = JProtocol.values().length;
 
 	private final static Entry[] MAP_BY_ID = new Entry[A_MAX_ID_COUNT];
@@ -107,11 +775,26 @@ public final class JRegistry {
 	private static Map<String, AnnotatedHeader> mapSubsByClassName =
 	    new HashMap<String, AnnotatedHeader>(50);
 
+	private static final int MAX_DLT_COUNT = 512;
+
 	/**
 	 * Maximum number of protocol header entries allowed by this implementation of
 	 * JRegistry
 	 */
 	public final static int MAX_ID_COUNT = 64;
+
+	/**
+	 * A constant if returned from {@link #mapDltToId} or {@link #mapIdToDLT} that
+	 * no mapping exists.
+	 */
+	public static final int NO_DLT_MAPPING = -1;
+
+	/**
+	 * Allow any type of key to be used so that users can register their own
+	 * unknown type resolvers
+	 */
+	private final static Map<Object, Resolver> resolvers =
+	    new HashMap<Object, Resolver>();
 
 	/**
 	 * Header scanners for each header type and protocol. The user can override
@@ -121,19 +804,28 @@ public final class JRegistry {
 	private final static JHeaderScanner[] scanners =
 	    new JHeaderScanner[A_MAX_ID_COUNT];
 
-	private static final int MAX_DLT_COUNT = 512;
-
 	/**
-	 * Register all the core protocols as soon as the jRegistry class is loaded
+	 * Initialize JRegistry with defaults
+	 * <ul>
+	 * <li> libpcap DLT mappings</li>
+	 * <li> Register CORE protocols</li>
+	 * <li> Register address resolvers</li>
+	 * </ul>
 	 */
 	static {
 
+		/**
+		 * Initialized DLT to ID mappings
+		 */
 		DLTS_TO_IDS = new int[MAX_DLT_COUNT];
 		IDS_TO_DLTS = new int[MAX_ID_COUNT];
 
 		Arrays.fill(JRegistry.DLTS_TO_IDS, -1);
 		Arrays.fill(JRegistry.IDS_TO_DLTS, -1);
 
+		/**
+		 * Register CORE protocols
+		 */
 		for (JProtocol p : JProtocol.values()) {
 
 			try {
@@ -144,19 +836,45 @@ public final class JRegistry {
 
 				System.exit(0);
 			}
+		}
 
+		/**
+		 * Register default resolvers for address to name mappings
+		 */
+		for (ResolverType t : ResolverType.values()) {
+			if (t.getResolver() != null) {
+				try {
+					registerResolver(t, t.getResolver());
+				} catch (Exception e) {
+					System.err.println("JRegistry Error: " + e.getMessage());
+					e.printStackTrace();
+
+					System.exit(0);
+				}
+			}
 		}
 	}
 
-	public static void addBindings(Class<?> c) {
+	/**
+	 * Adds bindings found in the container class. Any static methods that have
+	 * the <code>Bind</code> annotation defined will be extracted and wrapped as
+	 * <code>JBinding</code> interface objects, suitable to be registered with
+	 * for a target header. Bindings contained in any class that does not extend
+	 * <code>JHeader</code> is required to provide both "to" and "from"
+	 * parameters to <code>Bind</code> annotation.
+	 * 
+	 * @param container
+	 *          container that has static bind methods
+	 */
+	public static void addBindings(Class<?> container) {
 		clearErrors();
 
-		if (JHeader.class.isAssignableFrom(c)) {
+		if (JHeader.class.isAssignableFrom(container)) {
 			addBindings(AnnotatedBinding.inspectJHeaderClass(
-			    (Class<? extends JHeader>) c, errors));
+			    (Class<? extends JHeader>) container, errors));
 
 		} else {
-			addBindings(AnnotatedBinding.inspectClass(c, errors));
+			addBindings(AnnotatedBinding.inspectClass(container, errors));
 		}
 	}
 
@@ -174,11 +892,26 @@ public final class JRegistry {
 
 	}
 
+	/**
+	 * Adds all of the bindings found in the bindinsContainer object supplied. The
+	 * methods that have the <code>Bind</code> annotation, will be extracted and
+	 * converted to JBinding objects that will call on those methods as a binding.
+	 * The "this" pointer in the instance methods will be set to null, therefore
+	 * do not rely on any super methods and "this" operator. The bind annotation
+	 * inspector check and ensure that only "Object" class is extended for the
+	 * container class.
+	 * 
+	 * @param bindingContainer
+	 *          container object that contains binding instance methods
+	 */
 	public static void addBindings(Object bindingContainer) {
 		clearErrors();
 		addBindings(AnnotatedBinding.inspectObject(bindingContainer, errors));
 	}
 
+	/**
+	 * Clears any existing registery errors
+	 */
 	public static void clearErrors() {
 		errors.clear();
 	}
@@ -195,6 +928,13 @@ public final class JRegistry {
 		headerFlags[id] &= ~flags;
 	}
 
+	/**
+	 * Clears java scanners for supplied list of headers
+	 * 
+	 * @param classes
+	 *          classes of all the headers that java scanner will be cleared if
+	 *          previously registered
+	 */
 	public static void clearScanners(Class<? extends JHeader>... classes) {
 		for (Class<? extends JHeader> c : classes) {
 			int id = lookupId(c);
@@ -203,12 +943,29 @@ public final class JRegistry {
 		}
 	}
 
+	/**
+	 * Clears java scanners for supplied list of headers
+	 * 
+	 * @param ids
+	 *          ids of all the headers that java scanner will be cleared if
+	 *          previously registered
+	 */
 	public static void clearScanners(int... ids) {
 		for (int id : ids) {
 			scanners[id].setScannerMethod(null);
 		}
 	}
 
+	/**
+	 * Removes previously registered scanners that are defined in the supplied
+	 * object container. Any scanners within the supplied container are retrieved
+	 * and all the currently registered java scanner for the headers that the
+	 * retrieved scanners target, are cleared.
+	 * 
+	 * @param container
+	 *          container object containing scanner methods which target headers
+	 *          that will be cleared of java scanners
+	 */
 	public static void clearScanners(Object container) {
 		AnnotatedScannerMethod[] methods =
 		    AnnotatedScannerMethod.inspectObject(container);
@@ -222,6 +979,13 @@ public final class JRegistry {
 		clearScanners(ids);
 	}
 
+	/**
+	 * Creates a new header entry for storing information about a header
+	 * 
+	 * @param c
+	 *          header class
+	 * @return newly created entry
+	 */
 	private static Entry createNewEntry(Class<? extends JHeader> c) {
 		int id = LAST_ID;
 		Entry e;
@@ -244,6 +1008,11 @@ public final class JRegistry {
 		return scanners[id].getBindings();
 	}
 
+	/**
+	 * Retrieves the recent errors that were generated by registry operations
+	 * 
+	 * @return array of errors
+	 */
 	public static HeaderDefinitionError[] getErrors() {
 		return errors.toArray(new HeaderDefinitionError[errors.size()]);
 	}
@@ -271,8 +1040,73 @@ public final class JRegistry {
 		return s;
 	}
 
+	/**
+	 * Retrieves a registered instance of any resolver.
+	 * 
+	 * @param customType
+	 *          resolver type
+	 * @return currently registered resolver
+	 */
+	public static Resolver getResolver(Object customType) {
+		Resolver resolver = resolvers.get(customType);
+
+		resolver.initializeIfNeeded();
+
+		return resolver;
+	}
+
+	/**
+	 * Retrieves a registered instance of a resolver.
+	 * 
+	 * @param type
+	 *          resolver type
+	 * @return currently registered resolver
+	 */
+	public static Resolver getResolver(ResolverType type) {
+		return getResolver((Object) type);
+	}
+
+	/**
+	 * Checks if a mapping for libpcap dlt value is defined
+	 * 
+	 * @param dlt
+	 *          value to check for
+	 * @return true if dlt mapping exists, otherwise false
+	 */
+	public static boolean hasDltMapping(int dlt) {
+		return dlt >= 0 && dlt < DLTS_TO_IDS.length
+		    && DLTS_TO_IDS[dlt] != NO_DLT_MAPPING;
+	}
+
+	/**
+	 * Checks if there are any registry errors that were recently generated
+	 * 
+	 * @return true if error queue is not empty
+	 */
 	public static boolean hasErrors() {
 		return errors.isEmpty();
+	}
+
+	/**
+	 * Checks if resolver of specific type is currently registered
+	 * 
+	 * @param type
+	 *          type of resolver to check for
+	 * @return true if resolver is registered, otherwise false
+	 */
+	public static boolean hasResolver(Object type) {
+		return resolvers.containsKey(type);
+	}
+
+	/**
+	 * Checks if resolver of specific type is currently registered
+	 * 
+	 * @param type
+	 *          type of resolver to check for
+	 * @return true if resolver is registered, otherwise false
+	 */
+	public static boolean hasResolver(ResolverType type) {
+		return resolvers.containsKey(type);
 	}
 
 	public static AnnotatedHeader inspect(
@@ -280,6 +1114,15 @@ public final class JRegistry {
 	    List<HeaderDefinitionError> errors) {
 
 		return AnnotatedHeader.inspectJHeaderClass(c, errors);
+	}
+
+	/**
+	 * Returns a complete list of currently active resolvers types.
+	 * 
+	 * @return
+	 */
+	public static Object[] listResolvers() {
+		return resolvers.keySet().toArray(new Object[resolvers.size()]);
 	}
 
 	public static AnnotatedHeader lookupAnnotatedHeader(Class<? extends JHeader> c)
@@ -404,6 +1247,29 @@ public final class JRegistry {
 		return mapByClassName.get(c.getCanonicalName()).id;
 	}
 
+	/**
+	 * Looks up a header scanner.
+	 * 
+	 * @param id
+	 *          id of the scanner to lookup
+	 * @return header scanner for this ID
+	 */
+	public static JHeaderScanner lookupScanner(int id) {
+		return scanners[id];
+	}
+
+	public static int mapDLTToId(int dlt) {
+		return DLTS_TO_IDS[dlt];
+	}
+
+	public static int mapIdToDLT(int id) {
+		return IDS_TO_DLTS[id];
+	}
+
+	public static PcapDLT mapIdToPcapDLT(int id) {
+		return PcapDLT.valueOf(IDS_TO_DLTS[id]);
+	}
+
 	public static int register(Class<? extends JHeader> c)
 	    throws RegistryHeaderErrors {
 
@@ -482,7 +1348,7 @@ public final class JRegistry {
 
 		scanners[protocol.getId()] = new JHeaderScanner(protocol);
 
-		for (PcapDLT d: protocol.getDlt()) {
+		for (PcapDLT d : protocol.getDlt()) {
 			registerDLT(d, protocol.getId());
 		}
 
@@ -495,6 +1361,39 @@ public final class JRegistry {
 
 			registerAnnotatedSubHeaders(c.getHeaders());
 		}
+	}
+
+	public static void registerDLT(int dlt, int id) {
+		DLTS_TO_IDS[dlt] = id;
+		IDS_TO_DLTS[id] = dlt;
+	}
+
+	public static void registerDLT(PcapDLT dlt, int id) {
+		registerDLT(dlt.getValue(), id);
+	}
+
+	/**
+	 * Registers a new resolver of any type, replacing the previous resolver.
+	 * 
+	 * @param customType
+	 *          type of resolver to replace
+	 * @param custom
+	 *          new resolver to register
+	 */
+	public static void registerResolver(Object customType, Resolver custom) {
+		resolvers.put(customType, custom);
+	}
+
+	/**
+	 * Registers a new resolver of specific type, replacing the previous resolver.
+	 * 
+	 * @param type
+	 *          type of resolver to replace
+	 * @param custom
+	 *          new resolver to register
+	 */
+	public static void registerResolver(ResolverType type, Resolver custom) {
+		resolvers.put(type, custom);
 	}
 
 	/**
@@ -547,42 +1446,12 @@ public final class JRegistry {
 		setScanners(methods);
 	}
 
-	private final static int[] DLTS_TO_IDS;
-
-	private final static int[] IDS_TO_DLTS;
-
 	/**
-	 * A constant if returned from {@link #mapDltToId} or {@link #mapIdToDLT} that
-	 * no mapping exists.
+	 * Dumps various tables JRegistry maintains as debug information.
+	 * 
+	 * @return multi-line string containing various debug information about
+	 *         JRegistry
 	 */
-	public static final int NO_DLT_MAPPING = -1;
-
-	public static boolean hasDltMapping(int dlt) {
-		return dlt >= 0 && dlt < DLTS_TO_IDS.length
-		    && DLTS_TO_IDS[dlt] != NO_DLT_MAPPING;
-	}
-
-	public static void registerDLT(int dlt, int id) {
-		DLTS_TO_IDS[dlt] = id;
-		IDS_TO_DLTS[id] = dlt;
-	}
-
-	public static void registerDLT(PcapDLT dlt, int id) {
-		registerDLT(dlt.getValue(), id);
-	}
-
-	public static int mapIdToDLT(int id) {
-		return IDS_TO_DLTS[id];
-	}
-
-	public static PcapDLT mapIdToPcapDLT(int id) {
-		return PcapDLT.valueOf(IDS_TO_DLTS[id]);
-	}
-
-	public static int mapDLTToId(int dlt) {
-		return DLTS_TO_IDS[dlt];
-	}
-
 	public static String toDebugString() {
 		Formatter out = new Formatter();
 
@@ -614,22 +1483,16 @@ public final class JRegistry {
 			throw new IllegalStateException(e);
 		}
 
+		for (Object k : resolvers.keySet()) {
+			Resolver r = resolvers.get(k);
+			out.format("Resolver %s: %s\n", String.valueOf(k), r.toString());
+		}
+
 		return out.toString();
 	}
 
 	private JRegistry() {
 		// Can't instantiate
-	}
-
-	/**
-	 * Looks up a header scanner.
-	 * 
-	 * @param id
-	 *          id of the scanner to lookup
-	 * @return header scanner for this ID
-	 */
-	public static JHeaderScanner lookupScanner(int id) {
-		return scanners[id];
 	}
 
 }
