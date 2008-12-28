@@ -208,4 +208,11 @@ public class AnnotatedField {
 			return Style.STRING;
 		}
 	}
+
+	/**
+   * @return
+   */
+  public long getMask() {
+	  return annotation.mask();
+  }
 }
