@@ -14,6 +14,7 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Formatter;
 import java.util.HashMap;
@@ -114,6 +115,19 @@ public final class JRegistry {
 			cache.put(hash, name);
 		}
 
+		/**
+		 * Clear cache and timeout queues
+		 */
+		public void clearCache() {
+			if (cache != null) {
+				cache.clear();
+			}
+
+			if (timeoutQueue != null) {
+				timeoutQueue.clear();
+			}
+		}
+
 		/*
 		 * (non-Javadoc)
 		 * 
@@ -153,7 +167,9 @@ public final class JRegistry {
 		public void initializeIfNeeded() {
 
 			if (cache == null) {
-				cache = new HashMap<Integer, String>(cacheCapacity, cacheLoadFactor);
+				cache =
+				    Collections.synchronizedMap(new HashMap<Integer, String>(
+				        cacheCapacity, cacheLoadFactor));
 				timeoutQueue =
 				    new PriorityQueue<TimeoutEntry>(cacheCapacity,
 				        new Comparator<TimeoutEntry>() {
@@ -190,29 +206,31 @@ public final class JRegistry {
 			long time = System.currentTimeMillis();
 			int count = 0;
 
-			try {
-				String line;
-				while ((line = in.readLine()) != null) {
-					String[] c = line.split(":", 3);
-					if (c.length != 3) {
-						continue;
+			synchronized (cache) {
+				try {
+					String line;
+					while ((line = in.readLine()) != null) {
+						String[] c = line.split(":", 3);
+						if (c.length != 3) {
+							continue;
+						}
+						int hash = Integer.parseInt(c[0], 16);
+						Long timeout = (time - Long.parseLong(c[1], 16));
+						String v = (c[2].length() == 0) ? null : c[2];
+
+						if (timeout <= 0) {
+							continue; // Already timedout
+						}
+
+						timeoutQueue.add(new TimeoutEntry(hash, timeout));
+						addToCache(hash, v);
+
+						count++;
 					}
-					int hash = Integer.parseInt(c[0], 16);
-					Long timeout = (time - Long.parseLong(c[1], 16));
-					String v = (c[2].length() == 0) ? null : c[2];
 
-					if (timeout <= 0) {
-						continue; // Already timedout
-					}
-
-					timeoutQueue.add(new TimeoutEntry(hash, timeout));
-					addToCache(hash, v);
-
-					count++;
+				} finally {
+					in.close();
 				}
-
-			} finally {
-				in.close();
 			}
 
 			return count;
@@ -293,21 +311,23 @@ public final class JRegistry {
 		private int saveCache(PrintWriter out) {
 			int count = 0;
 
-			try {
-				/*
-				 * We use the timeout queue to save the cache. All entries in cache are
-				 * also in the timeout queue.
-				 */
-				for (Iterator<TimeoutEntry> i = timeoutQueue.iterator(); i.hasNext();) {
-					final TimeoutEntry e = i.next();
-					String v = cache.get(e.key);
+			synchronized (cache) {
+				try {
+					/*
+					 * We use the timeout queue to save the cache. All entries in cache
+					 * are also in the timeout queue.
+					 */
+					for (Iterator<TimeoutEntry> i = timeoutQueue.iterator(); i.hasNext();) {
+						final TimeoutEntry e = i.next();
+						String v = cache.get(e.key);
 
-					out.format("%X:%X:%s\n", e.key, e.timeout, (v == null) ? "" : v);
-					count++;
+						out.format("%X:%X:%s\n", e.key, e.timeout, (v == null) ? "" : v);
+						count++;
+					}
+
+				} finally {
+					out.close();
 				}
-
-			} finally {
-				out.close();
 			}
 
 			return count;
@@ -354,14 +374,16 @@ public final class JRegistry {
 		private void timeoutCache() {
 			final long t = System.currentTimeMillis();
 
-			for (Iterator<TimeoutEntry> i = timeoutQueue.iterator(); i.hasNext();) {
-				TimeoutEntry e = i.next();
-				if (e.timeout < t) {
-					// System.out.printf("timedout %s\n", cache.get(e.key));
-					cache.remove(e.key);
-					i.remove();
-				} else {
-					break;
+			synchronized (cache) {
+				for (Iterator<TimeoutEntry> i = timeoutQueue.iterator(); i.hasNext();) {
+					TimeoutEntry e = i.next();
+					if (e.timeout < t) {
+						// System.out.printf("timedout %s\n", cache.get(e.key));
+						cache.remove(e.key);
+						i.remove();
+					} else {
+						break;
+					}
 				}
 			}
 		}
@@ -681,6 +703,11 @@ public final class JRegistry {
 		 *         lookup failed to produce a human label (negative)
 		 */
 		public String resolve(byte[] address);
+
+		/**
+		 * Resets the cache to its defaults.
+		 */
+		public void clearCache();
 	}
 
 	/**
