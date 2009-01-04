@@ -37,6 +37,10 @@
   
   - Activated java's logging system for logging messages
   
+* Changes
+
+  - Renamed annotation interface @FieldRuntime to @Dynamic
+  
 * TODO
 
   - Mapped fields for protocols such as Http and SIP
