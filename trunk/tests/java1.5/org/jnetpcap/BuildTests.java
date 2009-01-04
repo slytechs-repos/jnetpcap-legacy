@@ -29,8 +29,11 @@ import org.jnetpcap.nio.TestJBuffer;
 import org.jnetpcap.nio.TestJMemory;
 import org.jnetpcap.packet.JHandlerTest;
 import org.jnetpcap.packet.TestJRegistry;
+import org.jnetpcap.packet.TestJScanner;
 import org.jnetpcap.packet.TestPcapPacket;
 import org.jnetpcap.packet.TestPcapUtils;
+import org.jnetpcap.util.TestExpandableString;
+import org.jnetpcap.util.TestSearchPaths;
 
 /**
  * @author Mark Bednarczyk
@@ -49,6 +52,7 @@ public class BuildTests {
 		suite.addTestSuite(TestPcapPacket.class);
 		suite.addTestSuite(JHandlerTest.class);
 		suite.addTestSuite(TestJRegistry.class);
+		suite.addTestSuite(TestJScanner.class);
 		suite.addTestSuite(TestPcapUtils.class);
 		suite.addTestSuite(TestSubHeader.class);
 		suite.addTestSuite(TestIcmp.class);
@@ -58,6 +62,8 @@ public class BuildTests {
 		suite.addTestSuite(TestPcapDispatchers.class);
 		suite.addTestSuite(TestHttp.class);
 		suite.addTestSuite(TestIpv6.class);
+		suite.addTestSuite(TestExpandableString.class);
+		suite.addTestSuite(TestSearchPaths.class);
 		//$JUnit-END$
 		return suite;
 	}

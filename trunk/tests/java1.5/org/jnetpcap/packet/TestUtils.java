@@ -134,11 +134,13 @@ public class TestUtils {
 			    public void nextPacket(PcapHeader header, JBuffer buffer, Pcap pcap) {
 
 				    if (i >= start) {
+				    	PcapPacket packet = new PcapPacket(header, buffer);
+//				    	packet.scan(JRegistry.mapDLTToId(pcap.datalink()));
 					    /*
 							 * Put the packet on the queue. No scan, scan is delayed for
 							 * maximum performance in this thread.
 							 */
-					    queue.offer(new PcapPacket(header, buffer));
+					    queue.offer(packet);
 				    }
 
 				    i++;

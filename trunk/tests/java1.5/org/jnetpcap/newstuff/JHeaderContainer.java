@@ -15,20 +15,33 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.jnetpcap.packet;
+package org.jnetpcap.newstuff;
+
+import org.jnetpcap.packet.JHeader;
 
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  *
  */
-public interface JCompoundHeader<B extends JHeader> {
+public interface JHeaderContainer<B extends JHeader> {
+	
+	public void addHeader(int id, int offset, int length);
+	
+	public boolean hasHeader(int id);
+	
+	public boolean hasHeader(int id, int instance);
+	
+	public B getHeader(B header);
+	
+	public B getHeader(B header, int instance);
+	
+	public JHeader getHeaderByIndex(JHeader header, int index);
+	
+	public int getHeaderCount();
+	
+	public boolean hasHeader(B header);
+	
+	public void clear();
 
-	public boolean hasSubHeader(int id);
-	
-	public <T extends JSubHeader<B>> boolean hasSubHeader(T header);
-	
-	public <T extends JSubHeader<B>> T getSubHeader(T header);
-	
-	public boolean hasSubHeaders();
 }

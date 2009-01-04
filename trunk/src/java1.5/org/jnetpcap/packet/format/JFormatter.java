@@ -22,8 +22,9 @@ import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.UnregisteredHeaderException;
-import org.jnetpcap.packet.JRegistry.ResolverType;
 import org.jnetpcap.packet.structure.JField;
+import org.jnetpcap.util.resolver.Resolver;
+import org.jnetpcap.util.resolver.Resolver.ResolverType;
 
 /**
  * Formats decoded contents of a JPacket for output.
@@ -213,9 +214,9 @@ public abstract class JFormatter {
 
 	private JHeaderPool headers = new JHeaderPool();
 
-	private JRegistry.Resolver ipResolver;
+	private Resolver ipResolver;
 
-	private JRegistry.Resolver ouiPrefixResolver;
+	private Resolver ouiPrefixResolver;
 
 	private int level;
 
@@ -488,7 +489,7 @@ public abstract class JFormatter {
 			String prefix = ouiPrefixResolver.resolve(address);
 			String s =
 			    prefix + "_"
-			        + FormatUtils.asString(address, ':', 16, 3).toLowerCase();
+			        + FormatUtils.asString(address, ':', 16, 3, 3).toLowerCase();
 			return s + " (" + f + ")";
 		}
 

@@ -14,6 +14,8 @@ package org.jnetpcap.header;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import junit.framework.TestCase;
 
@@ -28,6 +30,10 @@ import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.packet.header.Ethernet;
 import org.jnetpcap.packet.header.Ip4;
+import org.jnetpcap.util.JLogger;
+import org.jnetpcap.util.config.JConfig;
+import org.jnetpcap.util.resolver.IpResolver;
+import org.jnetpcap.util.resolver.Resolver;
 
 /**
  * @author Mark Bednarczyk
@@ -35,6 +41,9 @@ import org.jnetpcap.packet.header.Ip4;
  */
 public class TestHttp
     extends TestCase {
+
+	// private final static Appendable OUT = TestUtils.DEV_NULL;
+	private final static Appendable OUT = System.out;
 
 	static {
 		try {
@@ -68,9 +77,9 @@ public class TestHttp
 	public void testRegistration() {
 		assertTrue(JRegistry.lookupId(Http.class) > 12);
 	}
-	
+
 	public void testHttpFormattingWithResolveAddressDisabled() throws IOException {
-		JFormatter out = new TextFormatter(TestUtils.DEV_NULL);
+		JFormatter out = new TextFormatter(OUT);
 		out.setResolveAddresses(false);
 
 		PcapPacket packet = TestUtils.getPcapPacket("tests/test-http-jpeg.pcap", 5);
@@ -96,9 +105,12 @@ public class TestHttp
 		}
 	}
 
-
 	public void testHttpFormattingWithResolveAddressEnabled() throws IOException {
-		JFormatter out = new TextFormatter();
+		JLogger.getLogger(JConfig.class).setLevel(Level.FINE);
+
+		JLogger.getLogger(Resolver.class.getPackage()).setLevel(Level.FINER);
+
+		JFormatter out = new TextFormatter(OUT);
 		out.setResolveAddresses(true);
 
 		PcapPacket packet = TestUtils.getPcapPacket("tests/test-http-jpeg.pcap", 5);
@@ -109,19 +121,21 @@ public class TestHttp
 			out.format(eth);
 		}
 		if (packet.hasHeader(ip)) {
+			// out.format(ip);
 			out.format(ip);
-			out.format(ip);
+			System.out.println();
 		}
 
-		out.format(packet);
+		// out.format(packet);
 
-		if (true && packet.hasHeader(http)) {
-			Map<String, Http.Entry> map = http.headerFields();
+		// if (true && packet.hasHeader(http)) {
+		// Map<String, Http.Entry> map = http.headerFields();
+		//
+		// for (Entry e : map.values()) {
+		// System.out.println(e.toString());
+		// }
+		// }
 
-			for (Entry e : map.values()) {
-				System.out.println(e.toString());
-			}
-		}
+		JRegistry.shutdown();
 	}
-
 }

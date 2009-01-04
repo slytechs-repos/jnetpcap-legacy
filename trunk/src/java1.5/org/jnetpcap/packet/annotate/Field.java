@@ -63,21 +63,21 @@ import org.jnetpcap.packet.format.JFormatter.Priority;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@Target(ElementType.METHOD)
+@Target(value= {ElementType.METHOD, ElementType.TYPE, ElementType.FIELD})
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Field {
 
 	public enum Property {
-  	CHECK,
-  	OFFSET,
-  	LENGTH,
-  	VALUE,
-  	DESCRIPTION,
-  	DISPLAY,
-  	MASK,
-  	UNITS,
-  }
+		CHECK,
+		OFFSET,
+		LENGTH,
+		VALUE,
+		DESCRIPTION,
+		DISPLAY,
+		MASK,
+		UNITS,
+	}
 
 	/**
 	 * An empty string
@@ -168,6 +168,16 @@ public @interface Field {
 	 * @return name of the parent field this sub field is appart of
 	 */
 	String parent() default EMPTY;
+
+	/**
+	 * Sets which bits within the field are significant. The mask is also used in
+	 * displaying bitfields, where each set bit is reported as significant and non
+	 * significant bits are skipped completely. Default is that all bits within
+	 * the length of the field are significant.
+	 * 
+	 * @return a bit mask which has significant bits set
+	 */
+	public long mask() default 0xFFFFFFFFFFFFFFFFL;
 
 	/**
 	 * A priority this field is assigned which is used in determining which field

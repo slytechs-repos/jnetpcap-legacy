@@ -16,14 +16,11 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
-import org.jnetpcap.Pcap;
 import org.jnetpcap.packet.JPacket;
-import org.jnetpcap.packet.JPacketHandler;
+import org.jnetpcap.packet.TestUtils;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.packet.format.XmlFormatter;
-import org.jnetpcap.packet.format.JFormatter.Detail;
-import org.jnetpcap.packet.header.Ip4;
 
 /**
  * @author Mark Bednarczyk
@@ -31,6 +28,9 @@ import org.jnetpcap.packet.header.Ip4;
  */
 public class TestFormatter
     extends TestCase {
+	
+//private final static Appendable OUT = TestUtils.DEV_NULL;
+	private final static Appendable OUT = System.out;
 
 	/*
 	 * (non-Javadoc)
@@ -50,64 +50,37 @@ public class TestFormatter
 		super.tearDown();
 	}
 
-	public void _testTextFormatter() throws IOException {
-		dumpToFormatter(new TextFormatter(), "tests/test-vlan.pcap");
-	}
-
-	public void _testXmlFormatter() throws IOException {
-		dumpToFormatter(new XmlFormatter(), "tests/test-vlan.pcap");
-	}
-
-	public void dumpToFormatter(final JFormatter formatter, String file)
-	    throws IOException {
-
-		StringBuilder errbuf = new StringBuilder();
-		final Pcap pcap = Pcap.openOffline(file, errbuf);
-
-//		final JPacket packet = new PcapPacket(Type.POINTER);
-//		final JScanner scanner = new JScanner();
+	public void testTextFormatter() throws IOException {
+		JFormatter out = new TextFormatter(OUT);
 		
+		JPacket packet = TestUtils.getPcapPacket("tests/test-vlan.pcap", 0);
 
-		// long start = System.currentTimeMillis();
+		out.format(packet);
+	}
 
-		pcap.loop(1, new JPacketHandler<String>() {
-			int i = 0;
+	public void testXmlFormatter() throws IOException {
+		JFormatter out = new XmlFormatter(OUT);
+		
+		JPacket packet = TestUtils.getPcapPacket("tests/test-afs.pcap", 0);
 
-			Ip4 ip = new Ip4();
-			public void nextPacket(JPacket packet, String user) {
-
-//				if (i < 157) {
-//					i++;
-//					return;
-//				}
-
-				try {
-					if (packet.hasHeader(ip)) {
-						formatter.format(ip, Detail.MULTI_LINE_FULL_DETAIL);
-					}
-					
-					formatter.setFrameIndex(i);
-//					formatter.format(packet);
-					
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
-				i++;
-			}
-
-		}, "");
-
-		// long end = System.currentTimeMillis();
-		//
-		// System.out.printf("time=%d ms\n", (end - start));
-
-		pcap.close();
-
+		out.format(packet);
 	}
 	
+	public void testXmlIp4RecordRouteOpt() throws IOException {
+		JFormatter out = new XmlFormatter(OUT);
+		
+		JPacket packet = TestUtils.getPcapPacket("tests/test-icmp-recordroute-opt.pcap", 0);
+
+		out.format(packet);
+	}
+
+	
 	public void testSubHeader() throws IOException {
-		dumpToFormatter(new TextFormatter(), "tests/test-afs.pcap");
+		JFormatter out = new TextFormatter(OUT);
+		
+		JPacket packet = TestUtils.getPcapPacket("tests/test-afs.pcap", 0);
+
+		out.format(packet);
 	}
 
 }
