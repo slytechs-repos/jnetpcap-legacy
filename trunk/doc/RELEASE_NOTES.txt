@@ -20,14 +20,14 @@
 
 
                               jNetPcap Package
-                               Version 1.2 RC1
+                               Version 1.2 RC4
                                Release Notes
-                            Created on 2008-11-24
+                            Created on 2009-01-04
 
 INTRODUCTION:
 ============
 
-This is a release candidate #1 release of jNetPcap library. 
+This is a release candidate #4 release of jNetPcap library. 
 
 The API classes are compiled with Java 1.5.X compiler and require Java 1.5 
 compatibility. The package is platform dependent as there is a native library 
