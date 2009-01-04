@@ -114,7 +114,7 @@ public class FormatUtils {
 	 * @return the converted string
 	 */
 	public static String asString(byte[] array, char separator, int radix) {
-		return asString(array, separator, radix, array.length);
+		return asString(array, separator, radix, 0, array.length);
 	}
 
 	/**
@@ -127,9 +127,9 @@ public class FormatUtils {
 	 *          separator character to use in between array elements
 	 * @return the converted string
 	 */
-	public static String asString(byte[] array, char separator, int radix, int len) {
+	public static String asString(byte[] array, char separator, int radix, int start, int len) {
 		final StringBuilder buf = new StringBuilder();
-		for (int i = 0; i < len; i++) {
+		for (int i = start; i < (start + len); i++) {
 			byte b = array[i];
 			if (buf.length() != 0) {
 				buf.append(separator);

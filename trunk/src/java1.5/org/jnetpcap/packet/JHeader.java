@@ -83,7 +83,6 @@ public abstract class JHeader
 		}
 	}
 
-	
 	/**
 	 * No fields
 	 */
@@ -421,16 +420,24 @@ public abstract class JHeader
 	}
 
 	/**
-   * @return
-   */
-  public boolean hasDescription() {
-	  return annotatedHeader.getDescription() != null;
-  }
+	 * @return
+	 */
+	public boolean hasDescription() {
+		return annotatedHeader.getDescription() != null;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getDescription() {
+		return annotatedHeader.getDescription();
+	}
 
 	/**
    * @return
    */
-  public String getDescription() {
-	  return annotatedHeader.getDescription();
+  public AnnotatedHeader getAnnotatedHeader() {
+	  // TODO Auto-generated method stub
+	  throw new UnsupportedOperationException("Not implemented yet");
   }
 }

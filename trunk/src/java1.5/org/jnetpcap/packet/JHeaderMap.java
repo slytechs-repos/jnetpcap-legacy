@@ -19,13 +19,15 @@ import org.jnetpcap.packet.structure.AnnotatedHeader;
 import org.jnetpcap.packet.structure.JField;
 
 /**
+ * @param <B>
+ *          header baseclass that all sub-header's should be enclosed in
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
 public abstract class JHeaderMap<B extends JHeader>
     extends JHeader implements JCompoundHeader<B> {
 
-	public final static int MAX_HEADERS = 16;
+	public final static int MAX_HEADERS = 64;
 
 	protected long optionsBitmap = -1;
 
@@ -56,12 +58,12 @@ public abstract class JHeaderMap<B extends JHeader>
 
 	private static JHeader createHeaderInstance(AnnotatedHeader header) {
 		try {
-	    return header.getHeaderClass().newInstance();
-    } catch (InstantiationException e) {
-	    throw new IllegalStateException(e);
-    } catch (IllegalAccessException e) {
-	    throw new IllegalStateException(e);
-    }
+			return header.getHeaderClass().newInstance();
+		} catch (InstantiationException e) {
+			throw new IllegalStateException(e);
+		} catch (IllegalAccessException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	/**
@@ -166,6 +168,12 @@ public abstract class JHeaderMap<B extends JHeader>
 
 	public boolean hasSubHeaders() {
 		return this.optionsBitmap != 0;
+	}
+	
+	protected void setSubHeader(int id, int offset, int length) {
+		this.optionsBitmap |= (1L << id);
+		this.optionsLength[id] = length;
+		this.optionsOffsets[id] = offset;
 	}
 
 }

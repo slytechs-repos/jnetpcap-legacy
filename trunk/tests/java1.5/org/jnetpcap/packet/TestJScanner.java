@@ -136,7 +136,7 @@ public class TestJScanner
 		pcap.close();
 	}
 
-	public void testScanFileJBHandler() throws IOException {
+	public void _testScanFileJBHandler() throws IOException {
 		StringBuilder errbuf = new StringBuilder();
 		final Pcap pcap = Pcap.openOffline("tests/test-l2tp.pcap", errbuf);
 

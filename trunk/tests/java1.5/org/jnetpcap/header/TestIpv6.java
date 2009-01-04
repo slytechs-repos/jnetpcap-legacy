@@ -27,6 +27,9 @@ import org.jnetpcap.packet.header.Ethernet;
  */
 public class TestIpv6
     extends TestCase {
+	
+	private final static Appendable OUT = TestUtils.DEV_NULL;
+//	private final static Appendable OUT = System.out;
 
 	/*
 	 * (non-Javadoc)
@@ -54,13 +57,14 @@ public class TestIpv6
 	 * @throws IOException
 	 */
 	public void testScanIpv6File() throws IOException {
-		TextFormatter out = new TextFormatter(TestUtils.DEV_NULL);
+		TextFormatter out = new TextFormatter(OUT);
 		out.setResolveAddresses(false);
 
 		int i = 0;
 		Ethernet eth = new Ethernet();
 		for (PcapPacket packet : TestUtils.getIterable("tests/test-ipv6.pcap")) {
 
+			System.out.println(packet.toDebugString());
 			if (packet.hasHeader(eth)) {
 				out.format(eth);
 			}

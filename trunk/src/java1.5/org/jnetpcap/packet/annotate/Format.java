@@ -15,20 +15,13 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.jnetpcap.packet;
+package org.jnetpcap.packet.annotate;
 
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  *
  */
-public interface JCompoundHeader<B extends JHeader> {
+public @interface Format {
 
-	public boolean hasSubHeader(int id);
-	
-	public <T extends JSubHeader<B>> boolean hasSubHeader(T header);
-	
-	public <T extends JSubHeader<B>> T getSubHeader(T header);
-	
-	public boolean hasSubHeaders();
 }
