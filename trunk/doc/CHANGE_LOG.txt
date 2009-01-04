@@ -20,6 +20,28 @@
 
                               jNetPcap Package
                                  Change Log
+                                 
+== Release 1.2.rc4 (2009-1-4) ==
+
+* Fixes
+
+  - #2469209 - Ip6 CORE protocol missing scanner 
+  
+  - #2469205 - Unchecked exceptions consumed in dispatch handlers 
+  
+  - #2469198 - PcapPacket.transferStateAndDataFrom(PcapPacket) not working 
+  
+* Added
+
+  - JConfig class for managing configuration through properties
+  
+  - Activated java's logging system for logging messages
+  
+* TODO
+
+  - Mapped fields for protocols such as Http and SIP
+  
+                                 
 == Release 1.2.rc3 (2008-12-22) ==
 
 * Update to 1.2.rc2
