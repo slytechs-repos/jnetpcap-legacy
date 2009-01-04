@@ -58,14 +58,14 @@ public class TestSearchPaths
 
 	}
 
-	public void testResourceSearchPathOuiTxtFile() throws IOException {
+	public void _testResourceSearchPathOuiTxtFile() throws IOException {
 		logger.setLevel(Level.FINER);
 
 		assertNotNull("failed to locate oui.txt resource file", JConfig
 		    .getResourceInputStream("oui.txt"));
 	}
 
-	public void testResourceSearchPathOuiTxtURL() throws IOException {
+	public void _testResourceSearchPathOuiTxtURL() throws IOException {
 		logger.setLevel(Level.FINER);
 
 		URL url = null;
