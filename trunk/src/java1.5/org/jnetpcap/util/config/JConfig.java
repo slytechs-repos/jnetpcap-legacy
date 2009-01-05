@@ -1107,4 +1107,23 @@ public class JConfig {
 		return dir;
 	}
 
+	public static ConfigString createConfigString(String str) {
+		return new ConfigString(str, globalVariables, topReadOnlyProperties);
+	}
+	
+	public static SearchpathString createSearchString(String str) {
+		return new SearchpathString(str, globalVariables, topReadOnlyProperties);
+	}
+	
+	public static Properties getTopProperties() {
+		return topReadOnlyProperties;
+	}
+	
+	public static Properties getUserProperties() {
+		return userProperties;
+	}
+	
+	public static Map<String, String> getGlobalVariables() {
+		return globalVariables;
+	}
 }
