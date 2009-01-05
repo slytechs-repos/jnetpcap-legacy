@@ -37,6 +37,9 @@
   
   - Activated java's logging system for logging messages
   
+  - Address resolvers - resolve addresses and numbers to human labels such as
+    ip addresses to hostnames
+  
 * Changes
 
   - Renamed annotation interface @FieldRuntime to @Dynamic
