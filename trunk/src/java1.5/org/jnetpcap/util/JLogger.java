@@ -13,6 +13,7 @@
 package org.jnetpcap.util;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.Properties;
@@ -58,10 +59,15 @@ public class JLogger
 	 */
 	static {
 		try {
-			LogManager.getLogManager()
-			    .readConfiguration(
-			        JLogger.class.getClassLoader().getResourceAsStream(
-			            PROPERTIES_CONFIG));
+			InputStream in =
+			    JLogger.class.getClassLoader().getResourceAsStream(PROPERTIES_CONFIG);
+			if (in == null) {
+				Logger.getLogger("").severe(
+				    "JLogger.static<>: Unable to find builtin-logger.properties. "
+				        + "Is resources directory missing in JAR File?");
+			} else {
+				LogManager.getLogManager().readConfiguration(in);
+			}
 		} catch (Exception e) {
 			Logger.getLogger("").log(Level.SEVERE,
 			    "Unable to find jNetPcap logger.properties", e);
@@ -84,7 +90,7 @@ public class JLogger
 			 * basically trigger the JConfig initialization on the first getLogger
 			 * request. If JConfig has already been initialized some other means, it
 			 * won't do it again, but since we don't know we call its init method, the
-			 * first time we do anyway. JConfig also preserves its own level, so 
+			 * first time we do anyway. JConfig also preserves its own level, so
 			 */
 			triggerConfigInit = false;
 			JConfig.init();
@@ -92,7 +98,7 @@ public class JLogger
 
 		return getLogger(c.getName());
 	}
-	
+
 	public static Logger getLogger(Package p) {
 		if (triggerConfigInit) {
 			/*
@@ -101,7 +107,7 @@ public class JLogger
 			 * basically trigger the JConfig initialization on the first getLogger
 			 * request. If JConfig has already been initialized some other means, it
 			 * won't do it again, but since we don't know we call its init method, the
-			 * first time we do anyway. JConfig also preserves its own level, so 
+			 * first time we do anyway. JConfig also preserves its own level, so
 			 */
 			triggerConfigInit = false;
 			JConfig.init();
@@ -109,7 +115,6 @@ public class JLogger
 
 		return getLogger(p.getName());
 	}
-
 
 	public static LogManager readConfiguration(final Properties properties)
 	    throws SecurityException, IOException {
