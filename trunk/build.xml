@@ -340,25 +340,6 @@
 	</target>
 
 	<!--                        COMPILE SECTION  -->
-	
-	<!-- =================================================================== -->
-	<!-- Compiles java sources using javac -->
-	<!-- =================================================================== -->
-	<target name="comp-java-beta" depends="prep-java">
-		<property name="compiler.debuglevel" value="lines,vars,source" />
-
-		<javac 
-			srcdir="${src.beta.dir}${compiler.target}" 
-			destdir="${build.classes.dir}${compiler.target}" 
-			debug="${compiler.debug}" 
-			debuglevel="${compiler.debuglevel}" 
-			deprecation="${compiler.deprecate}" 
-			optimize="${compiler.optimize}" 
-			classpathref="compiler.classpath"
-			source="${compiler.target}"
-			target="${compiler.target}" />
-	</target>
-
 
 	<!-- =================================================================== -->
 	<!-- Compiles java sources using javac -->
@@ -376,6 +357,12 @@
 			classpathref="compiler.classpath"
 			source="${compiler.target}"
 			target="${compiler.target}" />
+		
+		<copy todir="${build.classes.dir}${compiler.target}/resources">
+			<fileset dir="${src.java.dir}${compiler.target}/resources" />
+
+		</copy>
+
 	</target>
 
 	<!-- =================================================================== -->
