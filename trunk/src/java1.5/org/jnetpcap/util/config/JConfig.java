@@ -722,9 +722,14 @@ public class JConfig {
 			url =
 			    JConfig.class.getClassLoader().getResource(
 			        "resources/builtin-config.properties");
-
-			builtinDefaults.load(new PreprocessStream(url.openStream()));
-			logger.fine("loaded " + url.toString());
+			if (url == null) {
+				logger
+				    .severe("JConfig.static<>: unable to find builtin-config.properites. "
+				        + "Is resources directory in JAR file?");
+			} else {
+				builtinDefaults.load(new PreprocessStream(url.openStream()));
+				logger.fine("loaded " + url.toString());
+			}
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, "builtin config intialization", e);
 		}
@@ -774,28 +779,36 @@ public class JConfig {
 		Properties builtinLoggerProperties = new Properties();
 		try {
 			url = getURL("builtin-logger.properties", LOGGER_SEARCH_PATH);
-			builtinLoggerProperties.load(url.openStream());
-			logger.fine("loaded " + url.toString());
 
-			Properties userLoggerProperties = new Properties();
-			url = getURL(getProperty(LOGGER_NAME), LOGGER_SEARCH_PATH);
-			if (url != null) {
-				userLoggerProperties.load(url.openStream());
-				loggingProperties
-				    .addProperties(userProperties, builtinLoggerProperties);
-
-				Level level = logger.getLevel();
-				JLogger.readConfiguration(loggingProperties);
-				logger.setLevel(level);
-				logger.fine("loaded " + url.toString());
-				logger.fine("logger config reinitialized from user settings");
-				logger.fine("restoring logging to Level." + level);
+			if (url == null) {
+				logger
+				    .severe("JConfig.static<>3: unable to find builtin-logger.properties. "
+				        + "Is resources directory in JAR file?");
 
 			} else {
-				/*
-				 * No need to reinitialize, JLogger already initialized to builtins.
-				 */
-				loggingProperties.addProperties(builtinLoggerProperties);
+				builtinLoggerProperties.load(url.openStream());
+				logger.fine("loaded " + url.toString());
+
+				Properties userLoggerProperties = new Properties();
+				url = getURL(getProperty(LOGGER_NAME), LOGGER_SEARCH_PATH);
+				if (url != null) {
+					userLoggerProperties.load(url.openStream());
+					loggingProperties.addProperties(userProperties,
+					    builtinLoggerProperties);
+
+					Level level = logger.getLevel();
+					JLogger.readConfiguration(loggingProperties);
+					logger.setLevel(level);
+					logger.fine("loaded " + url.toString());
+					logger.fine("logger config reinitialized from user settings");
+					logger.fine("restoring logging to Level." + level);
+
+				} else {
+					/*
+					 * No need to reinitialize, JLogger already initialized to builtins.
+					 */
+					loggingProperties.addProperties(builtinLoggerProperties);
+				}
 			}
 
 		} catch (Exception e) {
@@ -890,6 +903,11 @@ public class JConfig {
 	 */
 	public static File getFile(String name, SearchPath[] paths)
 	    throws IOException {
+
+		if (paths == null) {
+			return null;
+		}
+
 		File file = null;
 
 		if (paths == null) {
@@ -915,11 +933,19 @@ public class JConfig {
 	 * @throws IOException
 	 */
 	public static File getFile(String name, String property) throws IOException {
+		if (topReadOnlyProperties.containsKey(property) == false) {
+			return null;
+		}
 		return getFile(name, createSearchPath(property));
 	}
 
 	public static InputStream getInputStream(String name, SearchPath[] paths)
 	    throws IOException {
+
+		if (paths == null) {
+			return null;
+		}
+
 		InputStream in = null;
 
 		logger.log(Level.FINEST, "searching InputStream for " + name);
@@ -935,6 +961,10 @@ public class JConfig {
 
 	public static InputStream getInputStream(String name, String property)
 	    throws IOException {
+		if (topReadOnlyProperties.containsKey(property) == false) {
+			return null;
+		}
+
 		SearchPath[] path = createSearchPath(property);
 
 		return getInputStream(name, path);
@@ -957,12 +987,12 @@ public class JConfig {
 			return null;
 		}
 	}
-	
+
 	public static String getExpandedProperty(String property, String defaults) {
-		if (topReadOnlyProperties.contains(property) == false) {
+		if (topReadOnlyProperties.containsKey(property) == false) {
 			return defaults;
 		}
-		
+
 		ConfigString s =
 		    new ConfigString(getProperty(property), globalVariables,
 		        topReadOnlyProperties);
@@ -972,7 +1002,6 @@ public class JConfig {
 			return defaults;
 		}
 	}
-
 
 	/**
 	 * @param property
@@ -995,6 +1024,10 @@ public class JConfig {
 	private static URL getURL(String name, SearchPath[] paths) throws IOException {
 		URL in = null;
 
+		if (paths == null) {
+			return null;
+		}
+
 		logger.log(Level.FINEST, "searching URL for " + name);
 
 		for (SearchPath path : paths) {
@@ -1007,6 +1040,10 @@ public class JConfig {
 	}
 
 	public static URL getURL(String name, String property) throws IOException {
+		if (topReadOnlyProperties.containsKey(property) == false) {
+			return null;
+		}
+
 		return getURL(name, createSearchPath(property));
 	}
 
@@ -1110,19 +1147,19 @@ public class JConfig {
 	public static ConfigString createConfigString(String str) {
 		return new ConfigString(str, globalVariables, topReadOnlyProperties);
 	}
-	
+
 	public static SearchpathString createSearchString(String str) {
 		return new SearchpathString(str, globalVariables, topReadOnlyProperties);
 	}
-	
+
 	public static Properties getTopProperties() {
 		return topReadOnlyProperties;
 	}
-	
+
 	public static Properties getUserProperties() {
 		return userProperties;
 	}
-	
+
 	public static Map<String, String> getGlobalVariables() {
 		return globalVariables;
 	}
