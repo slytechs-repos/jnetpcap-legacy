@@ -321,14 +321,14 @@ public abstract class AbstractResolver implements Resolver,
 
 		if (cache == null) {
 			createCache();
-		}
+			
+			initProperties();
 
-		initProperties();
-
-		try {
-			loadCache(); // Loads using default behaviour
-		} catch (IOException e) {
-			e.printStackTrace();
+			try {
+				loadCache(); // Loads using default behaviour
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
