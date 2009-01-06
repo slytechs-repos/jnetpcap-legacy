@@ -67,9 +67,9 @@ public class IEEEOuiPrefixResolver
 			initialized = true;
 
 			setCacheCapacity(13000); // There are over 12,000 entries in the db
-			
+
 			super.initializeIfNeeded(); // Allow the baseclass to prep cache
-			
+
 			setPositiveTimeout(INFINITE_TIMEOUT); // Never
 			setNegativeTimeout(0);
 
@@ -188,12 +188,41 @@ public class IEEEOuiPrefixResolver
 						continue;
 					}
 
-					String p = c[0].split(" ")[0];
-					long i = Long.parseLong(p, 16);
+					String id = c[0].split(" ")[0];
+					long i = Long.parseLong(id, 16);
 					String[] a = c[1].split(" ");
 
 					if (a.length > 1) {
-						super.addToCache(i, a[1]);
+						String p = a[0]; // Prefix
+
+						if (p.length() <= 3 || p.length() == 2 && p.charAt(1) == '.') {
+							/* Too short, combine additional company name words */
+							p += a[1]; // make it a little longer
+						}
+
+						/*
+						 * Fix up the prefix and replace some invalid characters
+						 */
+						p = p.replace('.', '_');
+						p = p.replace('-', '_');
+						p = p.replace('\t', ' ').trim();
+						p = p.replace(',', ' ').trim();
+
+						if (p.endsWith("_") || p.endsWith("-")) {
+							p = p.substring(0, p.length() - 1);
+						}
+
+						/*
+						 * Transform some common long terms into short abbrieviations. Also
+						 * transform their plural forms and upper and lower case
+						 * counterpars.
+						 */
+						p = transform(p, a);
+
+						/*
+						 * Done, now cache it
+						 */
+						super.addToCache(i, p);
 						count++;
 					}
 				}
@@ -203,6 +232,99 @@ public class IEEEOuiPrefixResolver
 		}
 
 		return count;
+	}
+
+	private String transform(String str, String[] a) {
+		int i = 1;
+		while (true) {
+			String more  = (a.length > 1)?a[i]: null;
+			
+			String after = transform(str, more);
+			
+			if (after == str) {
+				break;
+			}
+			
+			str = after;
+		}
+		
+		return str;
+	}
+
+	private String transform(String str, String more) {
+
+		str = transform(str, more, "Graphic", "Graph");
+		str = transform(str, more, "Electronic", "Elect");
+		str = transform(str, more, "Application", "App");
+		str = transform(str, more, "Incorporated", "Inc");
+		str = transform(str, more, "Corporation", "Corp");
+		str = transform(str, more, "Company", "Co");
+		str = transform(str, more, "Technologies", "Tech");
+		str = transform(str, more, "Technology", "Tech");
+		str = transform(str, more, "Communication", "Com");
+		str = transform(str, more, "Network", "Net");
+		str = transform(str, more, "System", "Sys");
+		str = transform(str, more, "Information", "Info");
+		str = transform(str, more, "Industries", "Ind");
+		str = transform(str, more, "Industrial", "Ind");
+		str = transform(str, more, "Industry", "Ind");
+		str = transform(str, more, "Laboratories", "Lab");
+		str = transform(str, more, "Laboratory", "Ind");
+		str = transform(str, more, "Enterprises", "Ent");
+		str = transform(str, more, "Computer", "Cp");
+		str = transform(str, more, "Manufacturing", "Mfg");
+		str = transform(str, more, "Resources", "Res");
+		str = transform(str, more, "Resource", "Res");
+		str = transform(str, more, "Limited", "Ltd");
+		str = transform(str, more, "International", "Int");
+		str = transform(str, more, "Presentation", "Pres");
+		str = transform(str, more, "Equipment", "Eq");
+		str = transform(str, more, "Peripheral", "Pr");
+		str = transform(str, more, "Interactive", "Int");
+
+		return str;
+	}
+
+	/**
+	 * Transform any reference to specific terms with abbrieviations. The method
+	 * also makes the sigular form plural and checks both lower and upper case
+	 * versions.
+	 * 
+	 * @param str
+	 *          string to be transformed
+	 * @param singular
+	 *          term to look for in sigular form
+	 * @param abbr
+	 *          abbreviation to substitute in place
+	 * @return new string
+	 */
+	private String transform(
+	    String str,
+	    String more,
+	    final String singular,
+	    final String abbr) {
+
+		final String plural = singular + "s";
+
+		str = str.replace(plural.toUpperCase(), abbr);
+		str = str.replace(plural.toLowerCase(), abbr);
+		str = str.replace(plural, abbr);
+
+		str = str.replace(singular.toUpperCase(), abbr);
+		str = str.replace(singular.toLowerCase(), abbr);
+		str = str.replace(singular, abbr);
+
+		/*
+		 * If after transformation we end up just the short abbreviation, we need to
+		 * add more to the string if we can from company parts.
+		 */
+		if (str.equals(abbr)) {
+			if (more != null) {
+				str += more;
+			}
+		}
+
+		return str;
 	}
 
 	/**
