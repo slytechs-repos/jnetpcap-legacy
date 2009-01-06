@@ -13,7 +13,6 @@
 package org.jnetpcap.util;
 
 import java.util.logging.Formatter;
-import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
 /**
@@ -38,7 +37,7 @@ public class JNetPcapFormatter
 	public String format(LogRecord record) {
 		final String msg =
 		    String.format(record.getMessage(), record.getParameters());
-		String[] c = record.getLoggerName().split("\\.");
+		record.getLoggerName().split("\\.");
 		String prefix = prefix(record);
 
 		Throwable thrown = record.getThrown();
