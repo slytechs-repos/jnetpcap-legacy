@@ -19,6 +19,7 @@ import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
+import org.jnetpcap.packet.annotate.FlowKey;
 import org.jnetpcap.packet.annotate.Format;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.Header.Characteristic;
@@ -116,6 +117,7 @@ public class Ethernet
 	}
 	
 	@Field(parent = "destination", offset = 48 - 8, length = 1, display = "IG bit")
+	@FlowKey(index = 0)
 	public long destination_IG() {
 		return (getUByte(0) & ADDRESS_IG_BIT) >> 5;
 	}
@@ -135,7 +137,7 @@ public class Ethernet
 	}
 
 	@Field(offset = 48, length = 48, format = "#mac#",	mask = 0xFFFF00000000L)
-	@Format
+	@FlowKey(index = 0)
 	public byte[] source() {
 		return getByteArray(0 + 6, 6);
 	}
@@ -159,6 +161,7 @@ public class Ethernet
 	}
 
 	@Field(offset = 96, length = 16, format = "%x")
+	@FlowKey(index = 1)
 	public int type() {
 		return getUShort(0 + 12);
 	}

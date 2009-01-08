@@ -26,6 +26,7 @@ import org.jnetpcap.packet.annotate.BindingVariable;
 import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FieldSetter;
+import org.jnetpcap.packet.annotate.FlowKey;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.packet.annotate.BindingVariable.MatchType;
@@ -33,15 +34,11 @@ import org.jnetpcap.packet.annotate.Header.Layer;
 
 /**
  * IP version 4. Network layer internet protocol version 4.
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@Header(
-		name = "Ip4",
-		nicname = "Ip",
-		osi = Layer.NETWORK,
-		spec = "RFC792",
-		description = "ip version 4")
+@Header(name = "Ip4", nicname = "Ip", osi = Layer.NETWORK, spec = "RFC792", description = "ip version 4")
 public class Ip4
     extends JHeaderMap<Ip4> {
 
@@ -173,21 +170,20 @@ public class Ip4
 			/* 5 */
 			UNASSIGNED1(5),
 			/* 6 */
-			UNASSIGNED2(6),
-			;
+			UNASSIGNED2(6), ;
 			public final int id;
 
 			private OptionCode(int id) {
-				this.id = id;				
+				this.id = id;
 			}
-			
+
 			public static OptionCode valueOf(int id) {
-				for (OptionCode c: values()) {
+				for (OptionCode c : values()) {
 					if (c.id == id) {
 						return c;
 					}
 				}
-				
+
 				return null;
 			}
 		}
@@ -196,7 +192,6 @@ public class Ip4
 		public static int headerLength(JBuffer buffer, int offset) {
 			return buffer.getUByte(1);
 		}
-
 
 		/**
 		 * Gets the Ip4.code field. Specifies the optional header type.
@@ -365,7 +360,7 @@ public class Ip4
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
-	@Header(id=3)
+	@Header(id = 3)
 	public static class LooseSourceRoute
 	    extends Routing {
 	}
@@ -376,7 +371,7 @@ public class Ip4
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
-	@Header(id=1)
+	@Header(id = 1)
 	public static class NoOp
 	    extends IpOption {
 	}
@@ -387,7 +382,7 @@ public class Ip4
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
-	@Header(id=7)
+	@Header(id = 7)
 	public static class RecordRoute
 	    extends Routing {
 	}
@@ -416,7 +411,7 @@ public class Ip4
 			setByteArray(index * 4 + 3, value);
 		}
 
-		@Field(offset = 24, length=0, format = "#ip4[]#")
+		@Field(offset = 24, length = 0, format = "#ip4[]#")
 		public byte[][] addressArray() {
 
 			byte[][] ba = new byte[addressCount()][];
@@ -469,7 +464,7 @@ public class Ip4
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
-	@Header(id=2)
+	@Header(id = 2)
 	public static class Security
 	    extends IpOption {
 
@@ -576,7 +571,7 @@ public class Ip4
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
-	@Header(id=8)
+	@Header(id = 8)
 	public static class StreamId
 	    extends IpOption {
 
@@ -607,7 +602,7 @@ public class Ip4
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
-	@Header(id=9)
+	@Header(id = 9)
 	public static class StrictSourceRoute
 	    extends Routing {
 	};
@@ -618,10 +613,10 @@ public class Ip4
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
-	@Header(id=4)
+	@Header(id = 4)
 	public static class Timestamp
 	    extends IpOption {
-		
+
 		@HeaderLength
 		public static int headerLength(JBuffer buffer, int offset) {
 			return buffer.getUByte(1);
@@ -666,13 +661,13 @@ public class Ip4
 				return getByteArray(index * 4 + 4, 4);
 			}
 		}
-		
+
 		@Dynamic(Field.Property.LENGTH)
 		public int entriesLength() {
-			return (length() -4) * 8;
+			return (length() - 4) * 8;
 		}
 
-		@Field(offset = 4 * 8, format="%s")
+		@Field(offset = 4 * 8, format = "%s")
 		public Entry[] entries() {
 			final int flags = flags();
 
@@ -794,7 +789,7 @@ public class Ip4
 	public final static int FLAG_MORE_FRAGMENTS = 0x1;
 
 	public final static int FLAG_RESERVED = 0x4;
-	
+
 	public final static int ID = JProtocol.IP4_ID;
 
 	@Bind(to = Ethernet.class)
@@ -846,7 +841,7 @@ public class Ip4
 		optionsBitmap = 0;
 		this.hashcode = (id() << 16) ^ sourceToInt() ^ destinationToInt() ^ type();
 
-//		System.out.printf("offset=%d, %s", getOffset(), toHexdump());
+		// System.out.printf("offset=%d, %s", getOffset(), toHexdump());
 		final int hlen = hlen() * 4;
 
 		for (int i = 20; i < hlen; i++) {
@@ -871,12 +866,13 @@ public class Ip4
 					break;
 			}
 
-//			System.out.printf("i=%d id=%d bitmap=0x%X length=%d\n", i, id,
-//			    optionsBitmap, optionsLength[id]);
+			// System.out.printf("i=%d id=%d bitmap=0x%X length=%d\n", i, id,
+			// optionsBitmap, optionsLength[id]);
 		}
 	}
 
 	@Field(offset = 16 * 8, length = 32, format = "#ip4#")
+	@FlowKey(index = 0)
 	public byte[] destination() {
 		return getByteArray(16, 4);
 	}
@@ -909,12 +905,11 @@ public class Ip4
 
 		setUByte(6, o);
 	}
-	
+
 	@Field(parent = "flags", offset = 2, length = 1, display = "reserved")
 	public int flags_Reserved() {
 		return (flags() & FLAG_RESERVED) >> 3;
 	}
-
 
 	@Field(parent = "flags", offset = 1, length = 1, display = "do not fragment")
 	public int flags_DF() {
@@ -995,6 +990,7 @@ public class Ip4
 	}
 
 	@Field(offset = 12 * 8, length = 32, format = "#ip4#")
+	@FlowKey(index = 0)
 	public byte[] source() {
 		return getByteArray(12, 4);
 	}
@@ -1066,6 +1062,7 @@ public class Ip4
 	}
 
 	@Field(offset = 9 * 8, length = 8, format = "%d")
+	@FlowKey(index = 1)
 	public int type() {
 		return getUByte(9);
 	}
@@ -1081,7 +1078,8 @@ public class Ip4
 
 	@Dynamic(Field.Property.DESCRIPTION)
 	public String typeDescription() {
-		return "next: " + Ip4Type.toString(type());
+		return (offset() == 0) ? "next: " + Ip4Type.toString(type())
+		    : "ip fragment";
 	}
 
 	public Ip4Type typeEnum() {

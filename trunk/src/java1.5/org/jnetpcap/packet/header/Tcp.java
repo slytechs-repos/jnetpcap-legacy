@@ -17,6 +17,7 @@ import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.annotate.BindingVariable;
 import org.jnetpcap.packet.annotate.Field;
+import org.jnetpcap.packet.annotate.FlowKey;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
 
@@ -57,12 +58,14 @@ public class Tcp
 
 	@BindingVariable
 	@Field(offset = 0, length = 16)
+	@FlowKey(index = 2, reversable = true)
 	public int source() {
 		return getUShort(0);
 	}
 
 	@BindingVariable
 	@Field(offset = 16, length = 16)
+	@FlowKey(index = 2, reversable = true)
 	public int destination() {
 		return getUShort(2);
 	}
