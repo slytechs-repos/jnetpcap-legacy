@@ -10,6 +10,7 @@
 #include "org_jnetpcap_packet_JScanner.h"
 #include "org_jnetpcap_packet_JRegistry.h"
 #include "org_jnetpcap_packet_JProtocol.h"
+#include "analysis_flow.h"
 #include <jni.h>
 
 /******************************
@@ -82,6 +83,8 @@ typedef struct header_t {
 } header_t;
 
 typedef struct packet_state_t {
+	flow_key_t pkt_flow_key; // Flow key calculated for this packet
+	uint64_t pkt_frame_num;  // Packet's frame number assigned by scanner
 	uint64_t pkt_header_map; // bit map of presence of headers
 	int8_t pkt_header_count; // total number of headers found
 
@@ -92,6 +95,7 @@ typedef struct scanner_t {
 	int32_t sc_len; // bytes allocated for sc_packets buffer
 	
 	int32_t sc_offset; // offset into sc_packets for next packet
+	uint64_t sc_cur_frame_num; // Current frame number
 
 	uint32_t sc_flags[MAX_ID_COUNT]; // protocol flags
 //	uint64_t sc_native_header_scanner_map;  // java binding map

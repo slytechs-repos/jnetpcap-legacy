@@ -157,6 +157,22 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getInstanceCo
 
 /*
  * Class:     org_jnetpcap_packet_JPacket_State
+ * Method:    getFrameNumber
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getFrameNumber
+  (JNIEnv *env, jobject obj) {
+	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	if (packet == NULL) {
+		return -1;
+	}
+
+	return (jint) packet->pkt_frame_num;
+}
+
+
+/*
+ * Class:     org_jnetpcap_packet_JPacket_State
  * Method:    getHeaderIdByIndex
  * Signature: (I)I
  */

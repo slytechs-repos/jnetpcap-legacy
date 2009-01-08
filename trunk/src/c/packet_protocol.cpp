@@ -156,7 +156,26 @@ void scan_llc(scan_t *scan) {
 void scan_snap(scan_t *scan) {
 	snap_t *snap = (snap_t *) (scan->buf + scan->offset);
 	scan->length = 5;
-
+	
+	/*
+	 * Set the flow key pair for SNAP.
+	 * First, we check if SNAP has already been set by looking in the
+	 * flow_key_t and checking if SNAP has previously been processed
+	 */
+	if ((scan->packet->pkt_flow_key.header_map & (1L << IEEE_SNAP_ID)) == 0) {
+		scan->packet->pkt_flow_key.header_map |= (1L << IEEE_SNAP_ID);
+		
+		/*
+		 * Ip4 always takes up pair[1]
+		 * pair[1] is next protocol in on both sides of the pair
+		 */
+		scan->packet->pkt_flow_key.pair_count = 2;
+		scan->packet->pkt_flow_key.forward_pair[1][0] = BIG_ENDIAN16(snap->pid);
+		scan->packet->pkt_flow_key.forward_pair[1][1] = BIG_ENDIAN16(snap->pid);
+		
+		scan->packet->pkt_flow_key.id[1] = IEEE_SNAP_ID;
+	}
+	
 	switch (snap->oui) {
 	case 0: scan->next_id = lookup_ethertype(snap->pid); break;
 	}
@@ -166,9 +185,43 @@ void scan_snap(scan_t *scan) {
  * Scan TCP header
  */
 void scan_tcp(scan_t *scan) {
+	
 
 	tcp_t *tcp = (tcp_t *) (scan->buf + scan->offset);
 	scan->length = tcp->doff * 4;
+	
+	
+	/*
+	 * Set the flow key pair for Tcp.
+	 * First, we check if Tcp has already been set by looking in the
+	 * flow_key_t and checking if Tcp has previously been processed
+	 */
+	if ((scan->packet->pkt_flow_key.header_map & (1L << TCP_ID)) == 0) {
+		scan->packet->pkt_flow_key.header_map |= (1L << TCP_ID);
+		
+		/*
+		 * Tcp takes up one pair
+		 * pair[0] is tcp source and destination ports
+		 */
+		int count = scan->packet->pkt_flow_key.pair_count++;
+		scan->packet->pkt_flow_key.forward_pair[count][0] = BIG_ENDIAN16(tcp->sport);
+		scan->packet->pkt_flow_key.forward_pair[count][1] = BIG_ENDIAN16(tcp->dport);
+
+		scan->packet->pkt_flow_key.id[count] = TCP_ID;
+
+		scan->packet->pkt_flow_key.flags |= FLOW_KEY_FLAG_REVERSABLE_PAIRS;
+		
+//#define DEBUG
+#ifdef DEBUG
+	printf("scan_tcp(): count=%d map=0x%lx\n", 
+			scan->packet->pkt_flow_key.pair_count,
+			scan->packet->pkt_flow_key.header_map
+			);
+	fflush(stdout);
+#endif
+	}
+
+
 }
 
 /*
@@ -176,7 +229,28 @@ void scan_tcp(scan_t *scan) {
  */
 void scan_udp(scan_t *scan) {
 	udp_t *udp = (udp_t *) (scan->buf + scan->offset);
-	scan->length = sizeof(udp_t);	
+	scan->length = sizeof(udp_t);
+	
+	/*
+	 * Set the flow key pair for Udp.
+	 * First, we check if Udp has already been set by looking in the
+	 * flow_key_t and checking if Udp has previously been processed
+	 */
+	if ((scan->packet->pkt_flow_key.header_map & (1L << UDP_ID)) == 0) {
+		scan->packet->pkt_flow_key.header_map |= (1L << UDP_ID);
+		
+		/*
+		 * Tcp takes up one pair
+		 * pair[0] is tcp source and destination ports
+		 */
+		int count = scan->packet->pkt_flow_key.pair_count++;
+		scan->packet->pkt_flow_key.forward_pair[count][0] = BIG_ENDIAN16(udp->sport);
+		scan->packet->pkt_flow_key.forward_pair[count][1] = BIG_ENDIAN16(udp->dport);
+
+		scan->packet->pkt_flow_key.id[count] = UDP_ID;
+		
+		scan->packet->pkt_flow_key.flags |= FLOW_KEY_FLAG_REVERSABLE_PAIRS;
+	}
 	
 	switch (BIG_ENDIAN16(udp->dport)) {
 	case 1701: scan->next_id = L2TP_ID;	break;
@@ -201,6 +275,42 @@ void scan_ip6(scan_t *scan) {
 	ip6_t *ip6 = (ip6_t *)(scan->buf + scan->offset);
 	scan->length = sizeof(ip6_t);
 	uint8_t *buf = (uint8_t *)(scan->buf + scan->offset + sizeof(ip6_t));
+	
+	/*
+	 * Set the flow key pair for Ip6.
+	 * First, we check if Ip6 has already been set by looking in the
+	 * flow_key_t and checking if it has been previously been processed
+	 */
+	if ((scan->packet->pkt_flow_key.header_map & (1L << IP6_ID)) == 0) {
+		scan->packet->pkt_flow_key.header_map |= (1L << IP6_ID);
+		
+		/*
+		 * Ip6 always takes up 2 pairs
+		 * pair[0] is hash of addresses
+		 * pair[1] is next protocol in on both sides of the pair
+		 * 
+		 */
+		register uint32_t t;
+		scan->packet->pkt_flow_key.pair_count = 2;
+		
+		t = *(uint32_t *)&ip6->ip6_src[0] ^ 
+			*(uint32_t *)&ip6->ip6_src[4] ^
+			*(uint32_t *)&ip6->ip6_src[8] ^
+			*(uint32_t *)&ip6->ip6_src[12];
+		scan->packet->pkt_flow_key.forward_pair[0][0] = t;
+		
+		t = *(uint32_t *)&ip6->ip6_dst[0] ^ 
+			*(uint32_t *)&ip6->ip6_dst[4] ^
+			*(uint32_t *)&ip6->ip6_dst[8] ^
+			*(uint32_t *)&ip6->ip6_dst[12];
+		scan->packet->pkt_flow_key.forward_pair[0][1] = t;
+		
+		scan->packet->pkt_flow_key.forward_pair[1][0] = ip6->ip6_nxt;
+		scan->packet->pkt_flow_key.forward_pair[1][1] = ip6->ip6_nxt;
+		
+		scan->packet->pkt_flow_key.id[0] = IP6_ID;
+		scan->packet->pkt_flow_key.id[1] = IP6_ID;
+	}
 
 	int type = ip6->ip6_nxt;
 again:
@@ -226,9 +336,32 @@ again:
 void scan_ip4(scan_t *scan) {
 	ip4_t *ip4 = (ip4_t *) (scan->buf + scan->offset);
 	scan->length = ip4->ihl * 4;
+	
+	/*
+	 * Set the flow key pair for Ip4.
+	 * First, we check if Ip4 has already been set by looking in the
+	 * flow_key_t and checking if Ip4 has previously been processed
+	 */
+	if ((scan->packet->pkt_flow_key.header_map & (1L << IP4_ID)) == 0) {
+		scan->packet->pkt_flow_key.header_map |= (1L << IP4_ID);
+		
+		/*
+		 * Ip4 always takes up pair[0] and pair[1]
+		 * pair[0] is Ip addresses
+		 * pair[1] is next protocol in on both sides of the pair
+		 */
+		scan->packet->pkt_flow_key.pair_count = 2;
+		scan->packet->pkt_flow_key.forward_pair[0][0] = BIG_ENDIAN32(ip4->saddr);
+		scan->packet->pkt_flow_key.forward_pair[0][1] = BIG_ENDIAN32(ip4->daddr);
+		scan->packet->pkt_flow_key.forward_pair[1][0] = ip4->protocol;
+		scan->packet->pkt_flow_key.forward_pair[1][1] = ip4->protocol;
+		
+		scan->packet->pkt_flow_key.id[0] = IP4_ID;
+		scan->packet->pkt_flow_key.id[1] = IP4_ID;
+	}
 
 #ifdef DEBUG
-	printf("scan() IP4_ID: type=%d frag_off=%d @ frag_off.pos=%X\n", 
+	printf("scan_ip4(): type=%d frag_off=%d @ frag_off.pos=%X\n", 
 			ip4->protocol, 
 			BIG_ENDIAN16(ip4->frag_off) & IP4_FRAG_OFF_MASK, 
 			(int)((char *)&ip4->frag_off - scan->buf));
@@ -245,6 +378,7 @@ void scan_ip4(scan_t *scan) {
 		case 4: scan->next_id = IP4_ID;  break;
 		case 6: scan->next_id = TCP_ID;  break;
 		case 17:scan->next_id = UDP_ID;  break;
+		case 115: scan->next_id = L2TP_ID; break;
 
 		//			case 1: // ICMP
 		//			case 2: // IGMP
@@ -259,13 +393,63 @@ void scan_ip4(scan_t *scan) {
 		//			case 89: // OSPF
 		//			case 90: // MOSPF
 		//			case 97: // EtherIP
-		//			case 115: // L2TP
 		//			case 132: // SCTP, Stream Control Transmission Protocol
 		//			case 137: // MPLS in IP
 
 
 	}	
 }
+
+/*
+ * Scan IEEE 802.3 ethernet
+ */
+void scan_802dot3(scan_t *scan) {
+	
+	ethernet_t *eth = (ethernet_t *) (scan->buf + scan->offset);
+	
+	scan->length = sizeof(ethernet_t);
+	
+
+
+	if (BIG_ENDIAN16(eth->type) >= 0x600) { // We have an Ethernet frame
+		scan->id      = ETHERNET_ID;
+		scan->next_id = lookup_ethertype(eth->type);
+		
+		return;
+		
+	} else {
+		scan->next_id = IEEE_802DOT2_ID; // LLC v2
+	}
+	
+	/*
+	 * Set the flow key pair for Ethernet.
+	 * First, we check if Ethernet has already been set by looking in the
+	 * flow_key_t and checking if it has been previously been processed
+	 */
+	if ((scan->packet->pkt_flow_key.header_map & (1L << IEEE_802DOT3_ID)) == 0) {
+		scan->packet->pkt_flow_key.header_map |= (1L << IEEE_802DOT3_ID);
+		
+		/*
+		 * Ethernet always takes up 2 pairs
+		 * pair[0] is hash of addresses
+		 * pair[1] is next protocol in on both sides of the pair
+		 * 
+		 * Our hash takes the last 4 bytes of address literally and XORs the
+		 * remaining bytes with first 2 bytes
+		 */
+		register uint32_t t;
+		scan->packet->pkt_flow_key.pair_count = 1;
+		t = *(uint32_t *)&eth->dhost[2] ^ (*(uint16_t *)&eth->dhost[0]);
+		scan->packet->pkt_flow_key.forward_pair[0][0] = t;
+		t = *(uint32_t *)&eth->shost[2] ^ (*(uint16_t *)&eth->shost[0]);
+		scan->packet->pkt_flow_key.forward_pair[0][1] = t;
+
+		scan->packet->pkt_flow_key.id[0] = IEEE_802DOT3_ID;
+
+	}
+
+}
+
 
 /*
  * Scan ethertype
@@ -275,6 +459,37 @@ void scan_ethernet(scan_t *scan) {
 	ethernet_t *eth = (ethernet_t *) (scan->buf + scan->offset);
 	
 	scan->length = sizeof(ethernet_t);
+	
+	/*
+	 * Set the flow key pair for Ethernet.
+	 * First, we check if Ethernet has already been set by looking in the
+	 * flow_key_t and checking if it has been previously been processed
+	 */
+	if ((scan->packet->pkt_flow_key.header_map & (1L << ETHERNET_ID)) == 0) {
+		scan->packet->pkt_flow_key.header_map |= (1L << ETHERNET_ID);
+		
+		/*
+		 * Ethernet always takes up 2 pairs
+		 * pair[0] is hash of addresses
+		 * pair[1] is next protocol in on both sides of the pair
+		 * 
+		 * Our hash takes the last 4 bytes of address literally and XORs the
+		 * remaining bytes with first 2 bytes
+		 */
+		register uint32_t t;
+		scan->packet->pkt_flow_key.pair_count = 2;
+		t = *(uint32_t *)&eth->dhost[2] ^ (*(uint16_t *)&eth->dhost[0]);
+		scan->packet->pkt_flow_key.forward_pair[0][0] = t;
+		t = *(uint32_t *)&eth->shost[2] ^ (*(uint16_t *)&eth->shost[0]);
+		scan->packet->pkt_flow_key.forward_pair[0][1] = t;
+		
+		scan->packet->pkt_flow_key.forward_pair[1][0] = eth->type;
+		scan->packet->pkt_flow_key.forward_pair[1][1] = eth->type;
+		
+		scan->packet->pkt_flow_key.id[0] = ETHERNET_ID;
+		scan->packet->pkt_flow_key.id[1] = ETHERNET_ID;
+	}
+
 
 	if (BIG_ENDIAN16(eth->type) < 0x600) { // We have an IEEE 802.3 frame
 		scan->id      = IEEE_802DOT3_ID;

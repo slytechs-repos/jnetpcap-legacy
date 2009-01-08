@@ -116,8 +116,8 @@ typedef struct udp_t {
  * TCP structure
  */
 typedef struct tcp_t {
-	uint16_t source;
-	uint16_t dest;
+	uint16_t sport;
+	uint16_t dport;
 	uint32_t seq;
 	uint32_t ack_seq;
 #  if __BYTE_ORDER == __LITTLE_ENDIAN
