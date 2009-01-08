@@ -100,6 +100,8 @@ public class TextFormatter
 
 		} else if (field.getStyle() == Style.BYTE_ARRAY_HEX_DUMP
 		    || field.getStyle() == Style.STRING_TEXT_DUMP) {
+			decLevel();
+			decLevel();
 			final String[] v =
 			    stylizeMultiLine(header, field, field.getValue(header));
 			for (String i : v) {
@@ -190,6 +192,10 @@ public class TextFormatter
 		pad();
 		if (frameIndex != -1) {
 			pad().format(FIELD_FORMAT + "%d", "#", frameIndex);
+		} else {
+			pad()
+			    .format(FIELD_FORMAT + "%d", "number", packet.getState().getFrameNumber());
+
 		}
 
 		pad()
@@ -226,9 +232,9 @@ public class TextFormatter
 	}
 
 	@Override
-  protected void packetNull(JPacket packet, Detail detail) {
+	protected void packetNull(JPacket packet, Detail detail) {
 		pad().format("packet: NULL");
-  }
+	}
 
 	/*
 	 * (non-Javadoc)

@@ -15,6 +15,7 @@ package org.jnetpcap.packet.header;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.annotate.Field;
+import org.jnetpcap.packet.annotate.FlowKey;
 import org.jnetpcap.packet.annotate.Header;
 
 /**
@@ -30,11 +31,13 @@ public class Udp
 	public static final int ID = JProtocol.UDP_ID;
 
 	@Field(offset = 0, length = 16)
+	@FlowKey(index = 2, reversable = true)
 	public int source() {
 		return getUShort(0);
 	}
 
 	@Field(offset = 2 * 8, length = 16)
+	@FlowKey(index = 2, reversable = true)
 	public int destination() {
 		return getUShort(2);
 	}

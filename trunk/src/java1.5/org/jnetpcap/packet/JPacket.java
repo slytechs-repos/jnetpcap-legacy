@@ -14,8 +14,10 @@ package org.jnetpcap.packet;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Collection;
 
 import org.jnetpcap.JCaptureHeader;
+import org.jnetpcap.analysis.JAnalysis;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.nio.JMemoryPool;
@@ -51,7 +53,7 @@ import org.jnetpcap.packet.format.TextFormatter;
  * @author Sly Technologies, Inc.
  */
 public abstract class JPacket
-    extends JBuffer {
+    extends JBuffer implements JAnalysis {
 
 	/**
 	 * Class maintains the decoded packet state. The class is peered with
@@ -106,6 +108,8 @@ public abstract class JPacket
 	 */
 	public static class State
 	    extends JStruct {
+
+		private final JFlowKey flowKey = new JFlowKey();
 
 		public final static String STRUCT_NAME = "packet_state_t";
 
@@ -186,17 +190,33 @@ public abstract class JPacket
 
 		public native int getInstanceCount(int id);
 
+		/**
+		 * The frame number is assigned by the scanner at the time of the scan.
+		 * Therefore number is only unique within the same scanner.
+		 * 
+		 * @return frame number
+		 */
+		public native long getFrameNumber();
+
 		public int peer(ByteBuffer peer) throws PeeringException {
-			return super.peer(peer);
+			int r = super.peer(peer);
+			flowKey.peer(this);
+			return r;
 		}
 
 		public int peer(JBuffer peer) {
-			return super.peer(peer, 0, size());
+			int r = super.peer(peer, 0, size());
+
+			flowKey.peer(this);
+			return r;
 		}
 
 		public int peer(JBuffer peer, int offset, int length)
 		    throws IndexOutOfBoundsException {
-			return super.peer(peer, offset, length);
+			int r = super.peer(peer, offset, length);
+
+			flowKey.peer(this);
+			return r;
 		}
 
 		/**
@@ -204,7 +224,10 @@ public abstract class JPacket
 		 * @param offset
 		 */
 		public int peer(JMemory memory, int offset) {
-			return super.peer(memory, offset, size());
+			int r = super.peer(memory, offset, size());
+
+			flowKey.peer(this);
+			return r;
 		}
 
 		/*
@@ -215,11 +238,17 @@ public abstract class JPacket
 		 */
 		public int peer(JMemoryPool.Block peer, int offset, int length)
 		    throws IndexOutOfBoundsException {
-			return super.peer(peer, offset, length);
+			int r = super.peer(peer, offset, length);
+
+			flowKey.peer(this);
+			return r;
 		}
 
 		public int peer(State peer) {
-			return super.peer(peer, 0, size());
+			int r = super.peer(peer, 0, size());
+
+			flowKey.peer(this);
+			return r;
 		}
 
 		public native int peerHeaderById(int id, int instance, JHeader.State dst);
@@ -232,7 +261,10 @@ public abstract class JPacket
 		 * @param offset
 		 */
 		public int peerTo(State state, int offset) {
-			return super.peer(state, offset, state.size());
+			int r = super.peer(state, offset, state.size());
+
+			flowKey.peer(this);
+			return r;
 		}
 
 		public int transferTo(JBuffer dst, int srcOffset, int length, int dstOffset) {
@@ -261,7 +293,10 @@ public abstract class JPacket
 		 * @return number of bytes peered
 		 */
 		public int peerTo(JBuffer buffer, int offset) {
-			return super.peer(buffer, offset, size());
+			int r = super.peer(buffer, offset, size());
+
+			flowKey.peer(this);
+			return r;
 		}
 
 		/**
@@ -276,7 +311,14 @@ public abstract class JPacket
 		 * @return number of bytes peered
 		 */
 		public int peerTo(JBuffer buffer, int offset, int size) {
-			return super.peer(buffer, offset, size);
+			int r = super.peer(buffer, offset, size);
+
+			flowKey.peer(this);
+			return r;
+		}
+
+		public JFlowKey getFlowKey() {
+			return this.flowKey;
 		}
 	}
 
@@ -310,6 +352,8 @@ public abstract class JPacket
 	 * state and data into a single buffer
 	 */
 	protected final JBuffer memory = new JBuffer(Type.POINTER);
+	
+	protected JAnalysis jAnalysis = null;
 
 	/**
 	 * Gets the memory buffer with the supplied byte array data copied into it.
@@ -721,4 +765,16 @@ public abstract class JPacket
 			    "internal error, StringBuilder threw IOException");
 		}
 	}
+
+	public Collection<JAnalysis> getAnalysis() {
+	  return this.jAnalysis.getAnalysis();
+  }
+
+	public <T extends JAnalysis> T getAnalysis(T analysis) {
+	  return this.jAnalysis.getAnalysis(analysis);
+  }
+
+	public <T extends JAnalysis> boolean hasAnalysis(T analysis) {
+	  return this.jAnalysis.hasAnalysis(analysis);
+  }
 }

@@ -15,6 +15,7 @@ package org.jnetpcap.packet.header;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.annotate.Field;
+import org.jnetpcap.packet.annotate.FlowKey;
 import org.jnetpcap.packet.annotate.Header;
 
 /**
@@ -50,6 +51,7 @@ public class Ip6
 	}
 
 	@Field(offset = 6 * 8, length = 8)
+	@FlowKey(index = 1)
 	public int next() {
 		return getUByte(6);
 	}
@@ -60,6 +62,7 @@ public class Ip6
 	}
 
 	@Field(offset = 8 * 8, length = 128, format = "#ip6#")
+	@FlowKey(index = 0)
 	public byte[] source() {
 		return getByteArray(8, 16);
 	}
@@ -72,6 +75,7 @@ public class Ip6
 	}
 
 	@Field(offset = 8 * 8, length = 128, format = "#ip6#")
+	@FlowKey(index = 0)
 	public byte[] destination() {
 		return getByteArray(24, 16);
 	}

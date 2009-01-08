@@ -271,6 +271,10 @@ public abstract class JFormatter {
 	 * 
 	 */
 	protected void decLevel() {
+		if (this.level == 0) {
+			return;
+		}
+		
 		this.level--;
 		padStack.pop();
 	}

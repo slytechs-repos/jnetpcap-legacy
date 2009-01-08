@@ -45,7 +45,23 @@ public class FormatUtils {
 	private final static int WEEK_MILLIS = 7 * 24 * 60 * 60 * 1000;
 
 	static {
+		initTable1char();
+	}
 
+	private static void initTable1char() {
+		for (int i = 0; i < 31; i++) {
+			table[i] = ".";
+		}
+
+		for (int i = 31; i < 127; i++)
+			table[i] = new String(new byte[] { (byte) i });
+
+		for (int i = 127; i < 256; i++) {
+			table[i] = ".";
+		}
+	}
+
+	private static void initTable3chars() {
 		for (int i = 0; i < 31; i++) {
 			table[i] = "\\" + Integer.toHexString(i);
 			if (table[i].length() == 2)
@@ -72,6 +88,7 @@ public class FormatUtils {
 		table['\n'] = "\\n ";
 		table['\f'] = "\\f ";
 		table['\r'] = "\\r ";
+
 	}
 
 	/**
@@ -127,7 +144,12 @@ public class FormatUtils {
 	 *          separator character to use in between array elements
 	 * @return the converted string
 	 */
-	public static String asString(byte[] array, char separator, int radix, int start, int len) {
+	public static String asString(
+	    byte[] array,
+	    char separator,
+	    int radix,
+	    int start,
+	    int len) {
 		final StringBuilder buf = new StringBuilder();
 		for (int i = start; i < (start + len); i++) {
 			byte b = array[i];
@@ -139,6 +161,18 @@ public class FormatUtils {
 		}
 
 		return buf.toString();
+	}
+
+	public static String ip(byte[] address) {
+		if (address.length == 4) {
+			return asString(address, '.', 10);
+		} else {
+			return asStringIp6(address, true);
+		}
+	}
+
+	public static String mac(byte[] address) {
+		return asString(address, '-');
 	}
 
 	/**
@@ -426,7 +460,7 @@ public class FormatUtils {
 			if (i % 4 == 0 && i != 0)
 				s += SPACE_CHAR;
 
-			s += toHexString(data[i + offset]);
+			s += toHexString(data[i + offset]) + SPACE_CHAR;
 		}
 
 		/**
