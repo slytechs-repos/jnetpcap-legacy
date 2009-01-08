@@ -413,11 +413,7 @@
 			<class name="org.jnetpcap.winpcap.WinPcapSamp" />
 			<class name="org.jnetpcap.winpcap.WinPcapRmtAuth" />
 			<class name="org.jnetpcap.winpcap.WinPcapSendQueue" />
-			
-			<!--
-			****  BETA FEATURES
-			/-->
-			
+						
 			<class name="org.jnetpcap.PcapUtils" />
 			<class name="org.jnetpcap.PcapHeader" />
 			
@@ -433,6 +429,9 @@
 			<class name="org.jnetpcap.packet.JProtocol" />
 			<class name="org.jnetpcap.packet.JHeaderScanner" />
 			<class name="org.jnetpcap.packet.JScan" />
+			
+			<class name="org.jnetpcap.packet.JFlowKey" />
+
 		</javah>
 	</target>
 
