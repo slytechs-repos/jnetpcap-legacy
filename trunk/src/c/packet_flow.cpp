@@ -24,7 +24,7 @@
 #include <unistd.h>
 #endif /*WIN32*/
 
-#include "analysis_flow.h"
+#include "packet_flow.h"
 #include "nio_jmemory.h"
 #include "packet_jscanner.h"
 #include "jnetpcap_utils.h"

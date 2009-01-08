@@ -1,7 +1,7 @@
 /* Header for analysis_flow utility methods */
 
-#ifndef _Included_analysis_flow_h
-#define _Included_analysis_flow_h
+#ifndef _Included_packet_flow_h
+#define _Included_packet_flow_h
 #ifdef __cplusplus
 extern "C" {
 #define	EXTERN extern "C"
