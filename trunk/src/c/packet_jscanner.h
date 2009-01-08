@@ -10,7 +10,7 @@
 #include "org_jnetpcap_packet_JScanner.h"
 #include "org_jnetpcap_packet_JRegistry.h"
 #include "org_jnetpcap_packet_JProtocol.h"
-#include "analysis_flow.h"
+#include "packet_flow.h"
 #include <jni.h>
 
 /******************************
