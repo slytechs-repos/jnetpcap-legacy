@@ -195,6 +195,8 @@ int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner,
 
 	/* record number of header entries found */
 	//	scan.packet->pkt_header_count = count;
+	
+	process_flow_key(&scan);
 
 #ifdef DEBUG
 	printf("scan() finished   : header_count=%d offset=%d header_map=0x%X\n",
@@ -243,11 +245,16 @@ int scanJPacket(JNIEnv *env, jobject obj, jobject jpacket, jobject jstate,
 
 	packet_state_t *packet =(packet_state_t *)(((char *)scanner->sc_packet)
 			+ scanner->sc_offset);
-
+	
 	/*
 	 * Peer JPacket.state to packet_state_t structure
 	 */
 	setJMemoryPhysical(env, jstate, toLong(packet));
+	
+	/*
+	 * Reset the entire packet_state_t structure
+	 */
+	memset(packet, 0, sizeof(packet_state_t));
 
 	/* 
 	 * Initialize the packet_state_t structure for new packet entry. We need to 
@@ -256,6 +263,7 @@ int scanJPacket(JNIEnv *env, jobject obj, jobject jpacket, jobject jstate,
 	 */
 	packet->pkt_header_map = 0;
 	packet->pkt_header_count = 0;
+	packet->pkt_frame_num = scanner->sc_cur_frame_num ++;
 
 	scanner->sc_offset +=scan(env, obj, jpacket, scanner, packet, first_id,
 			buf, buf_length);
@@ -263,6 +271,7 @@ int scanJPacket(JNIEnv *env, jobject obj, jobject jpacket, jobject jstate,
 	env->SetIntField(jstate, jmemorySizeFID, (jsize) sizeof(packet_state_t)
 			+ sizeof(header_t) * packet->pkt_header_count);
 }
+
 
 /****************************************************************
  * **************************************************************
