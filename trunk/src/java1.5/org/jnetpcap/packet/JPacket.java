@@ -14,10 +14,12 @@ package org.jnetpcap.packet;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Collection;
 
 import org.jnetpcap.JCaptureHeader;
+import org.jnetpcap.analysis.AnalysisUtils;
 import org.jnetpcap.analysis.JAnalysis;
+import org.jnetpcap.analysis.JPeerableAnalysis;
+import org.jnetpcap.analysis.tcpip.FragmentSequence;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.nio.JMemoryPool;
@@ -53,7 +55,7 @@ import org.jnetpcap.packet.format.TextFormatter;
  * @author Sly Technologies, Inc.
  */
 public abstract class JPacket
-    extends JBuffer implements JAnalysis {
+    extends JBuffer {
 
 	/**
 	 * Class maintains the decoded packet state. The class is peered with
@@ -353,7 +355,7 @@ public abstract class JPacket
 	 */
 	protected final JBuffer memory = new JBuffer(Type.POINTER);
 	
-	protected JAnalysis jAnalysis = null;
+	protected JPeerableAnalysis jAnalysis = null;
 
 	/**
 	 * Gets the memory buffer with the supplied byte array data copied into it.
@@ -766,15 +768,23 @@ public abstract class JPacket
 		}
 	}
 
-	public Collection<JAnalysis> getAnalysis() {
-	  return this.jAnalysis.getAnalysis();
-  }
-
-	public <T extends JAnalysis> T getAnalysis(T analysis) {
+	public <T extends JPeerableAnalysis> T getAnalysis(T analysis) {
 	  return this.jAnalysis.getAnalysis(analysis);
   }
 
-	public <T extends JAnalysis> boolean hasAnalysis(T analysis) {
+	public <T extends JPeerableAnalysis> boolean hasAnalysis(T analysis) {
 	  return this.jAnalysis.hasAnalysis(analysis);
+  }
+	
+	public int getType() {
+		return AnalysisUtils.ROOT_TYPE;
+	}
+
+	/**
+   * @param sequence
+   */
+  public <T extends JAnalysis> void addAnalysis(T analysis) {
+	  // TODO Auto-generated method stub
+	  throw new UnsupportedOperationException("Not implemented yet");
   }
 }

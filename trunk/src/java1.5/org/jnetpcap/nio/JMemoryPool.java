@@ -147,10 +147,10 @@ public class JMemoryPool {
 	}
 
 	/**
-	 * @param atLeastInSize
+	 * @param minimumSize
 	 * @return
 	 */
-	private Block getFromPool(int atLeastInSize) {
+	private Block getFromPool(int minimumSize) {
 		Iterator<Reference<Block>> i = pool.iterator();
 		while (i.hasNext()) {
 			final Reference<Block> r = i.next();
@@ -158,7 +158,7 @@ public class JMemoryPool {
 			if (b == null) {
 				i.remove();
 			} else {
-				if (b.available > atLeastInSize) {
+				if (b.available > minimumSize) {
 					return b;
 				}
 			}
@@ -182,14 +182,14 @@ public class JMemoryPool {
 	 * 
 	 * @param size
 	 *          number of bytes
-	 * @param buffer
+	 * @param memory
 	 *          memory pointer
 	 */
-	public void allocate(int size, JBuffer buffer) {
+	public void allocate(int size, JMemory memory) {
 		final Block block = getBlock(size);
 		final int offset = block.allocate(size);
 		
-		buffer.peer(block, offset, size);
+		memory.peer(block, offset, size);
 	}
 
 
