@@ -14,6 +14,9 @@ package org.jnetpcap.packet;
 
 import java.nio.ByteOrder;
 
+import org.jnetpcap.analysis.AnalysisUtils;
+import org.jnetpcap.analysis.JAnalysis;
+import org.jnetpcap.analysis.JPeerableAnalysis;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JStruct;
 import org.jnetpcap.packet.structure.AnnotatedHeader;
@@ -440,4 +443,30 @@ public abstract class JHeader
 	  // TODO Auto-generated method stub
 	  throw new UnsupportedOperationException("Not implemented yet");
   }
+
+	public <T extends JAnalysis> T getAnalysis(Class<T> analysis) {
+	  // TODO Auto-generated method stub
+	  throw new UnsupportedOperationException("Not implemented yet");
+  }
+	
+	public <T extends JPeerableAnalysis> T getAnalysis(T analysis) {
+	  // TODO Auto-generated method stub
+	  throw new UnsupportedOperationException("Not implemented yet");
+  }
+
+	public int getType() {
+		return AnalysisUtils.ROOT_TYPE;
+  }
+	
+	public boolean hasAnalysis(Class<? extends JAnalysis> analysis) {
+	  // TODO Auto-generated method stub
+	  throw new UnsupportedOperationException("Not implemented yet");
+  }
+
+	public <T extends JPeerableAnalysis> boolean hasAnalysis(T analysis) {
+	  // TODO Auto-generated method stub
+	  throw new UnsupportedOperationException("Not implemented yet");
+  }
+  
+  
 }
