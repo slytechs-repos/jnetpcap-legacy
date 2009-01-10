@@ -344,6 +344,25 @@ public abstract class JPacket
 	protected static JMemoryPool pool = new JMemoryPool();
 
 	/**
+	 * Replaces the default memory allocation mechanism with user supplied one.
+	 * 
+	 * @param pool
+	 *          new memory pool to use.
+	 */
+	public static void setMemoryPool(JMemoryPool pool) {
+		JPacket.pool = pool;
+	}
+
+	/**
+	 * Gets the current memory allocation memory pool.
+	 * 
+	 * @return current memory pool
+	 */
+	public static JMemoryPool getMemoryPool() {
+		return pool;
+	}
+
+	/**
 	 * Default scanner used to scan a packet per user request
 	 */
 	protected static JScanner scanner = new JScanner();
@@ -354,7 +373,7 @@ public abstract class JPacket
 	 * state and data into a single buffer
 	 */
 	protected final JBuffer memory = new JBuffer(Type.POINTER);
-	
+
 	protected JPeerableAnalysis jAnalysis = null;
 
 	/**
@@ -769,22 +788,22 @@ public abstract class JPacket
 	}
 
 	public <T extends JPeerableAnalysis> T getAnalysis(T analysis) {
-	  return this.jAnalysis.getAnalysis(analysis);
-  }
+		return this.jAnalysis.getAnalysis(analysis);
+	}
 
 	public <T extends JPeerableAnalysis> boolean hasAnalysis(T analysis) {
-	  return this.jAnalysis.hasAnalysis(analysis);
-  }
-	
+		return this.jAnalysis.hasAnalysis(analysis);
+	}
+
 	public int getType() {
 		return AnalysisUtils.ROOT_TYPE;
 	}
 
 	/**
-   * @param sequence
-   */
-  public <T extends JAnalysis> void addAnalysis(T analysis) {
-	  // TODO Auto-generated method stub
-	  throw new UnsupportedOperationException("Not implemented yet");
-  }
+	 * @param sequence
+	 */
+	public <T extends JAnalysis> void addAnalysis(T analysis) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Not implemented yet");
+	}
 }
