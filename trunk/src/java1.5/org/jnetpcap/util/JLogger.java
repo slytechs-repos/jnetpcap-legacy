@@ -66,7 +66,9 @@ public class JLogger
 				    "JLogger.static<>: Unable to find builtin-logger.properties. "
 				        + "Is resources directory missing in JAR File?");
 			} else {
-				LogManager.getLogManager().readConfiguration(in);
+				// TODO: disabled logger properties reload, causing issues for customers
+				in.close();
+//				LogManager.getLogManager().readConfiguration(in);
 			}
 		} catch (Exception e) {
 			Logger.getLogger("").log(Level.SEVERE,
@@ -120,6 +122,11 @@ public class JLogger
 	    throws SecurityException, IOException {
 
 		LogManager man = LogManager.getLogManager();
+		
+		// TODO: disabled logging reload. Causing issues for customers
+		if (true) {
+			return man;
+		}
 
 		final PipedOutputStream buf = new PipedOutputStream();
 		final Exchanger<IOException> io = new Exchanger<IOException>();
