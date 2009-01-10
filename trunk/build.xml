@@ -421,7 +421,7 @@
 			<class name="org.jnetpcap.nio.JNumber" />
 			<class name="org.jnetpcap.nio.JBuffer" />
 			
-			<class name="org.jnetpcap.analysis.Analysis" />
+			<class name="org.jnetpcap.analysis.JAnalysis" />
 			<class name="org.jnetpcap.analysis.AnalysisUtils" />
 			
 			<class name="org.jnetpcap.packet.JScanner" />
