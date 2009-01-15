@@ -20,6 +20,7 @@ package org.jnetpcap;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.jnetpcap.analysis.TestAnalysisAccessors;
 import org.jnetpcap.format.TestFormatter;
 import org.jnetpcap.header.TestHttp;
 import org.jnetpcap.header.TestIcmp;
@@ -64,6 +65,7 @@ public class BuildTests {
 		suite.addTestSuite(TestIpv6.class);
 		suite.addTestSuite(TestExpandableString.class);
 		suite.addTestSuite(TestSearchPaths.class);
+		suite.addTestSuite(TestAnalysisAccessors.class);
 		//$JUnit-END$
 		return suite;
 	}
