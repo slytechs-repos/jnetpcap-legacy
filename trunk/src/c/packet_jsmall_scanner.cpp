@@ -168,6 +168,7 @@ int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner,
 			scan.packet->pkt_header_map |= mask;
 			scan.header->hdr_id = scan.id;
 			scan.header->hdr_offset = scan.offset;
+			scan.header->hdr_analysis = NULL;
 
 			/*
 			 * Adjust for truncated packets
@@ -250,6 +251,7 @@ int scanJPacket(JNIEnv *env, jobject obj, jobject jpacket, jobject jstate,
 	 * Peer JPacket.state to packet_state_t structure
 	 */
 	setJMemoryPhysical(env, jstate, toLong(packet));
+	env->SetObjectField(jstate, jmemoryKeeperFID, obj); // Set it to JScanner
 	
 	/*
 	 * Reset the entire packet_state_t structure
