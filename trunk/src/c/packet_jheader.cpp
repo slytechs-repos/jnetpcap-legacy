@@ -38,7 +38,6 @@
  * **************************************************************
  ****************************************************************/
 
-
 /****************************************************************
  * **************************************************************
  * 
@@ -49,12 +48,28 @@
 
 /*
  * Class:     org_jnetpcap_packet_JHeader_State
+ * Method:    getAnalysis
+ * Signature: ()Lorg/jnetpcap/analysis/JAnalysis;
+ */
+JNIEXPORT jobject JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getAnalysis
+(JNIEnv *env, jobject obj) {
+
+	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
+	if (header == NULL) {
+		return NULL;
+	}
+
+	return header->hdr_analysis;
+}
+
+/*
+ * Class:     org_jnetpcap_packet_JHeader_State
  * Method:    getId
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getId
-  (JNIEnv *env, jobject obj) {
-	
+(JNIEnv *env, jobject obj) {
+
 	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
 	if (header == NULL) {
 		return -1;
@@ -69,8 +84,8 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getId
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getOffset
-  (JNIEnv *env, jobject obj) {
-	
+(JNIEnv *env, jobject obj) {
+
 	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
 	if (header == NULL) {
 		return -1;
@@ -85,13 +100,39 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getOffset
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getLength
-  (JNIEnv *env, jobject obj) {
-	
+(JNIEnv *env, jobject obj) {
+
 	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
 	if (header == NULL) {
 		return -1;
 	}
 
 	return (jint) header->hdr_length;
+}
+
+/*
+ * Class:     org_jnetpcap_packet_JHeader_State
+ * Method:    setAnalysis
+ * Signature: (Lorg/jnetpcap/packet/JPacket$State;Lorg/jnetpcap/analysis/JAnalysis;)V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JHeader_00024State_setAnalysis
+(JNIEnv *env, jobject obj, jobject packet, jobject analysis) {
+
+	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
+	if (header == NULL) {
+		return;
+	}
+
+	if (header->hdr_analysis != NULL) {
+		/* params: packet_state_t struct and analysis JNI global reference */
+		jmemoryRefRelease(env, packet, header->hdr_analysis);
+	}
+
+	if (analysis == NULL) {
+		header->hdr_analysis = NULL;
+	} else	{
+		/* params: packet_state_t struct and analysis JNI local reference */
+		header->hdr_analysis = jmemoryRefCreate(env, packet, analysis);
+	}
 }
 

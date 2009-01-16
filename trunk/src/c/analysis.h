@@ -35,6 +35,16 @@ typedef struct root_analysis_t {
 	analysis_t *child;
 };
 
+
+typedef void (*native_analyzer_func_t)(packet_state_t *packet);
+extern native_analyzer_func_t native_analyzers[];
+
+typedef struct analyzer_t {
+	
+	native_analyzer_func_t analyzers[64][4];
+	
+} analyzer_t;
+
 #ifdef __cplusplus
 }
 #endif

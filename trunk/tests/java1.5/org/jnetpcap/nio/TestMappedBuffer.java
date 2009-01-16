@@ -15,34 +15,46 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.jnetpcap.analysis;
+package org.jnetpcap.nio;
 
-import java.util.Queue;
-
-import org.jnetpcap.packet.JPacket;
-
+import junit.framework.TestCase;
 
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  *
  */
-public interface JAnalyzer {
-
-	/**
-   * @param packet
-   */
-  public boolean processPacket(JPacket packet);
-
-	/**
-   * @return
-   */
-  public int getPriority();
-  
-  public void setParent(JAnalyzer parent);
-  
-  public Queue<JPacket> getInQueue();
-  
-  public Queue<JPacket> getOutQueue();
-
+public class TestMappedBuffer
+    extends TestCase {
+	
+	public void testBasic() {
+		JBuffer b1 = new JBuffer(10);
+		JBuffer b2 = new JBuffer(20);
+		JMappedBuffer b = new JMappedBuffer();
+		
+		int offset = b.add(b1, 0);
+		b.add(b2, offset, 18, 2);
+		
+		b1.setUInt(0, 0x12345678);
+		b2.setUInt(0, 0x12345678);
+	
+		assertEquals(0x12345678, b.getUInt(0));
+		assertEquals(0x1234, b.getUInt(10));
+	}
+	
+	public void testBoundary() {
+		JBuffer b1 = new JBuffer(10);
+		JBuffer b2 = new JBuffer(20);
+		JMappedBuffer b = new JMappedBuffer();
+		
+		int offset = b.add(b1, 0);
+		b.add(b2, offset);
+		
+		b1.setUInt(0, 0x12345678);
+		b2.setUInt(0, 0x12345678);
+	
+		assertEquals(0x12345678, b.getUInt(0));
+		assertEquals(0x12345678, b.getUInt(10));
+		assertEquals(0x56780000, b.getUInt(8));
+	}
 }

@@ -16,7 +16,6 @@ import java.nio.ByteOrder;
 
 import org.jnetpcap.analysis.AnalysisUtils;
 import org.jnetpcap.analysis.JAnalysis;
-import org.jnetpcap.analysis.JPeerableAnalysis;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JStruct;
 import org.jnetpcap.packet.structure.AnnotatedHeader;
@@ -62,6 +61,13 @@ public abstract class JHeader
 			super(STRUCT_NAME, type);
 		}
 
+		/**
+		 * Retrieves the analysis object that is attached to this header.
+		 * 
+		 * @return an attached analysis based object or null if not set
+		 */
+		public native JAnalysis getAnalysis();
+
 		public native int getId();
 
 		public native int getLength();
@@ -79,6 +85,16 @@ public abstract class JHeader
 			}
 			return super.peer(peer);
 		}
+
+		/**
+		 * Sets the analysis object for this header.
+		 * 
+		 * @param state
+		 *          packet's state object
+		 * @param analysis
+		 *          analysis object to set
+		 */
+		public native void setAnalysis(JPacket.State state, JAnalysis analysis);
 
 		public String toString() {
 			return "(id=" + getId() + ", offset=" + getOffset() + ", length="
@@ -148,26 +164,6 @@ public abstract class JHeader
 		initFromAnnotatedHeader(header);
 	}
 
-	public JHeader(JProtocol protocol) {
-		super(Type.POINTER);
-		order(ByteOrder.BIG_ENDIAN); // network byte order by default
-		state = new State(Type.POINTER);
-
-		this.id = protocol.getId();
-		AnnotatedHeader header = JRegistry.lookupAnnotatedHeader(protocol);
-
-		initFromAnnotatedHeader(header);
-	}
-
-	private void initFromAnnotatedHeader(AnnotatedHeader header) {
-		this.annotatedHeader = header;
-
-		this.name = header.getName();
-		this.nicname = header.getNicname();
-
-		this.fields = DefaultField.fromAnnotatedFields(header.getFields());
-	}
-
 	/**
 	 * Constructs a header and initializes its static fields
 	 * 
@@ -232,6 +228,17 @@ public abstract class JHeader
 		this(id, DEFAULT_FIELDS, name, nicname);
 	}
 
+	public JHeader(JProtocol protocol) {
+		super(Type.POINTER);
+		order(ByteOrder.BIG_ENDIAN); // network byte order by default
+		state = new State(Type.POINTER);
+
+		this.id = protocol.getId();
+		AnnotatedHeader header = JRegistry.lookupAnnotatedHeader(protocol);
+
+		initFromAnnotatedHeader(header);
+	}
+
 	/**
 	 * Constructs a header and initializes its static fields
 	 * 
@@ -272,6 +279,45 @@ public abstract class JHeader
 	 */
 	protected void decodeHeader() {
 
+	}
+
+	public void addAnalysis(JAnalysis analysis) {
+
+		AnalysisUtils.addToRoot(getPacket().getState(), this.state, analysis);
+	}
+
+	public <T extends JAnalysis> T getAnalysis(T analysis) {
+		JAnalysis a = state.getAnalysis();
+		if (a == null) {
+			return null;
+		}
+		
+		if (a.getType() == AnalysisUtils.CONTAINER_TYPE) {
+			return getAnalysis(analysis);
+		}
+		
+		if (a.getType() == analysis.getType()) {
+			analysis.peer(a);
+			return analysis;
+			
+		} else {
+			return null;
+		}
+
+	}
+
+	/**
+	 * @return
+	 */
+	public AnnotatedHeader getAnnotatedHeader() {
+		return this.annotatedHeader;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getDescription() {
+		return annotatedHeader.getDescription();
 	}
 
 	/**
@@ -365,8 +411,42 @@ public abstract class JHeader
 		return EMPTY_HEADER_ARRAY;
 	}
 
+	public int getType() {
+		return AnalysisUtils.ROOT_TYPE;
+	}
+
+	public boolean hasAnalysis(int type) {
+		return state.getAnalysis() != null && state.getAnalysis().hasAnalysis(type);
+	}
+
+	public boolean hasAnalysis(Class<? extends JAnalysis> analysis) {
+		return state.getAnalysis() != null
+		    && state.getAnalysis().hasAnalysis(analysis);
+	}
+
+	public <T extends JAnalysis> boolean hasAnalysis(T analysis) {
+		return (state.getAnalysis() != null) ? state.getAnalysis().hasAnalysis(
+		    analysis) : null;
+	}
+
+	/**
+	 * @return
+	 */
+	public boolean hasDescription() {
+		return annotatedHeader.getDescription() != null;
+	}
+
 	public boolean hasSubHeaders() {
 		return false;
+	}
+
+	private void initFromAnnotatedHeader(AnnotatedHeader header) {
+		this.annotatedHeader = header;
+
+		this.name = header.getName();
+		this.nicname = header.getNicname();
+
+		this.fields = DefaultField.fromAnnotatedFields(header.getFields());
 	}
 
 	public int peer(JBuffer buffer, int offset) {
@@ -423,50 +503,10 @@ public abstract class JHeader
 	}
 
 	/**
-	 * @return
-	 */
-	public boolean hasDescription() {
-		return annotatedHeader.getDescription() != null;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getDescription() {
-		return annotatedHeader.getDescription();
-	}
-
-	/**
    * @return
    */
-  public AnnotatedHeader getAnnotatedHeader() {
-	  // TODO Auto-generated method stub
-	  throw new UnsupportedOperationException("Not implemented yet");
+  public Iterable<JAnalysis> getAnalysisIterable() {
+  	return AnalysisUtils.toIterable(state.getAnalysis());
   }
 
-	public <T extends JAnalysis> T getAnalysis(Class<T> analysis) {
-	  // TODO Auto-generated method stub
-	  throw new UnsupportedOperationException("Not implemented yet");
-  }
-	
-	public <T extends JPeerableAnalysis> T getAnalysis(T analysis) {
-	  // TODO Auto-generated method stub
-	  throw new UnsupportedOperationException("Not implemented yet");
-  }
-
-	public int getType() {
-		return AnalysisUtils.ROOT_TYPE;
-  }
-	
-	public boolean hasAnalysis(Class<? extends JAnalysis> analysis) {
-	  // TODO Auto-generated method stub
-	  throw new UnsupportedOperationException("Not implemented yet");
-  }
-
-	public <T extends JPeerableAnalysis> boolean hasAnalysis(T analysis) {
-	  // TODO Auto-generated method stub
-	  throw new UnsupportedOperationException("Not implemented yet");
-  }
-  
-  
 }

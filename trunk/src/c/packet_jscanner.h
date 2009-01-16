@@ -78,12 +78,14 @@ typedef struct scan_t {
 
 typedef struct header_t {
 	uint8_t hdr_id; // header ID
+	jobject hdr_analysis; // Java JAnalysis based object if not null
 	uint32_t hdr_offset:24; // offset into the packet_t->data buffer
 	uint32_t hdr_length:24; // length of the header in packet_t->data buffer
 } header_t;
 
 typedef struct packet_state_t {
-	flow_key_t pkt_flow_key; // Flow key calculated for this packet
+	flow_key_t pkt_flow_key; // Flow key calculated for this packet, must be first
+	jobject pkt_analysis; // Java JAnalysis based object if not null
 	uint64_t pkt_frame_num;  // Packet's frame number assigned by scanner
 	uint64_t pkt_header_map; // bit map of presence of headers
 	int8_t pkt_header_count; // total number of headers found

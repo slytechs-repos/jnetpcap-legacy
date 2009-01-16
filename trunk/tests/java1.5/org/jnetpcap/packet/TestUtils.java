@@ -134,8 +134,8 @@ public class TestUtils {
 			    public void nextPacket(PcapHeader header, JBuffer buffer, Pcap pcap) {
 
 				    if (i >= start) {
-				    	PcapPacket packet = new PcapPacket(header, buffer);
-//				    	packet.scan(JRegistry.mapDLTToId(pcap.datalink()));
+					    PcapPacket packet = new PcapPacket(header, buffer);
+					    // packet.scan(JRegistry.mapDLTToId(pcap.datalink()));
 					    /*
 							 * Put the packet on the queue. No scan, scan is delayed for
 							 * maximum performance in this thread.
@@ -285,6 +285,41 @@ public class TestUtils {
 		}
 
 		return pcap;
+	}
+
+	/**
+	 * @param file
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public static Iterable<JPacket> getJPacketIterable(
+	    final String file,
+	    final int start,
+	    final int end) {
+		
+		return new Iterable<JPacket>() {
+
+			public Iterator<JPacket> iterator() {
+				final Iterator<PcapPacket> i = getPcapPacketIterator(file, start, end);
+				return new Iterator<JPacket>() {
+
+					public boolean hasNext() {
+						return i.hasNext();
+					}
+
+					public JPacket next() {
+						return i.next();
+					}
+
+					public void remove() {
+						i.remove();
+					}
+
+				};
+			}
+
+		};
 	}
 
 }

@@ -14,22 +14,21 @@ package org.jnetpcap.newstuff.analysis;
 
 import junit.framework.TestCase;
 
-import org.jnetpcap.analysis.AnalyzerListener;
-import org.jnetpcap.analysis.tcpip.FieldAnalysis;
-import org.jnetpcap.analysis.tcpip.FragmentSequence;
-import org.jnetpcap.analysis.tcpip.FragmentSequenceEvent;
-import org.jnetpcap.analysis.tcpip.HeaderAnalysis;
-import org.jnetpcap.analysis.tcpip.Ip4Analyzer;
+import org.jnetpcap.analysis.FieldAnalysis;
+import org.jnetpcap.analysis.FragmentSequence;
+import org.jnetpcap.analysis.HeaderAnalysis;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.TestUtils;
 import org.jnetpcap.packet.header.Ethernet;
 import org.jnetpcap.packet.header.Ip4;
 import org.jnetpcap.packet.header.Tcp;
+import org.jnetpcap.util.TimeoutQueue;
 
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@SuppressWarnings("unused")
 public class TestAnalysisSyntax
     extends TestCase {
 
@@ -44,11 +43,11 @@ public class TestAnalysisSyntax
 		Tcp tcp = new Tcp();
 
 		/* Analysis objects */
-		Ip4Analyzer ipAnalyzer = new Ip4Analyzer();
+		TimeoutQueue ipAnalyzer = new TimeoutQueue();
 
 		FragmentSequence ipSequence = new FragmentSequence();
 		FragmentSequence tcpSequence = new FragmentSequence();
-		HeaderAnalysis etherValidation;
+		HeaderAnalysis etherValidation = new HeaderAnalysis();
 
 //		ipAnalyzer
 //		    .addFragmentationListener(new AnalyzerListener<FragmentSequenceEvent>() {
@@ -74,9 +73,7 @@ public class TestAnalysisSyntax
 		 * If headers were validated, we may have errors. We get a per header field
 		 * analysis object which we can use to report errors and protocol state.
 		 */
-		if (packet.hasHeader(ether) && ether.hasAnalysis(HeaderAnalysis.class)) {
-
-			etherValidation = ether.getAnalysis(HeaderAnalysis.class);
+		if (packet.hasHeader(ether) && ether.hasAnalysis(etherValidation)) {
 
 			if (etherValidation.hasFieldErrors()) {
 
@@ -84,8 +81,21 @@ public class TestAnalysisSyntax
 					System.out.printf("field %s has errors: %s", f.getFieldName(), f
 					    .getErrorMessage());
 				}
-
 			}
 		}
+	}
+	
+	public void testChain() {
+		/**
+		 * <pre>
+		 * 
+		 * Pcap.loopAnalyzer(new JPacketHandler() {
+		 *   public void nextPacket(JPacket packet) {
+		 *   }
+		 * });
+		 * 
+		 * </pre>
+		 * 
+		 */
 	}
 }

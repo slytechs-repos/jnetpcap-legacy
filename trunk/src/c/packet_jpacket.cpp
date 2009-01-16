@@ -117,6 +117,23 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_packet_JPacket_00024State_get64BitHead
 
 /*
  * Class:     org_jnetpcap_packet_JPacket_State
+ * Method:    getAnalysis
+ * Signature: ()Lorg/jnetpcap/analysis/JAnalysis;
+ */
+JNIEXPORT jobject JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getAnalysis
+
+  (JNIEnv *env, jobject obj) {
+	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	if (packet == NULL) {
+		return NULL;
+	}
+
+	return packet->pkt_analysis;
+}
+
+
+/*
+ * Class:     org_jnetpcap_packet_JPacket_State
  * Method:    getHeaderCount
  * Signature: ()I
  */
@@ -195,6 +212,33 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getHeaderIdBy
 
 }
 
+/*
+ * Class:     org_jnetpcap_packet_JPacket_State
+ * Method:    setAnalysis
+ * Signature: (Lorg/jnetpcap/analysis/JAnalysis;)V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JPacket_00024State_setAnalysis
+  (JNIEnv *env, jobject obj, jobject analysis) {
+	
+	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	if (packet == NULL) {
+		return;
+	}
+	
+	if (packet->pkt_analysis != NULL) {
+		/* params: packet_state_t struct and analysis JNI global reference */
+		jmemoryRefRelease(env, obj, packet->pkt_analysis);
+	}
+
+	if (analysis == NULL) {
+		packet->pkt_analysis = NULL;
+	} else	{
+		/* params: packet_state_t struct and analysis JNI local reference */
+		packet->pkt_analysis = jmemoryRefCreate(env, obj, analysis);
+	}
+}
+
+
 
 /*
  * Class:     org_jnetpcap_packet_JPacket_State
@@ -215,6 +259,8 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_peerHeaderByI
 	}
 	
 	setJMemoryPhysical(env, dst, toLong(&packet->pkt_headers[index]));
+	jobject keeper = env->GetObjectField(obj, jmemoryKeeperFID);
+	env->SetObjectField(dst, jmemoryKeeperFID, keeper);
 
 	return sizeof(header_t);
 }
@@ -254,10 +300,10 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_sizeof
 
 /*
  * Class:     org_jnetpcap_packet_JPacket_State
- * Method:    toDebugString
+ * Method:    toDebugStringJPacketState
  * Signature: ()Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_org_jnetpcap_packet_JPacket_00024State_toDebugString
+JNIEXPORT jstring JNICALL Java_org_jnetpcap_packet_JPacket_00024State_toDebugStringJPacketState
   (JNIEnv *env, jobject obj) {
 	
 	char buf[5 * 1024];
@@ -269,10 +315,10 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_packet_JPacket_00024State_toDebugStr
 	}
 	
 	sprintf(buf, 
-			"sizeof(packet_state_t)=%d\n"
-			"sizeof(header_t)=%d and *%d=%d\n"
-			"pkt_header_map=0x%X\n"
-			"pkt_header_count=%x\n",
+			"JPacket.State: sizeof(packet_state_t)=%d\n"
+			"JPacket.State: sizeof(header_t)=%d and *%d=%d\n"
+			"JPacket.State: pkt_header_map=0x%X\n"
+			"JPacket.State: pkt_header_count=%x\n",
 			sizeof(packet_state_t),
 			sizeof(header_t), 
 			packet->pkt_header_count, 
@@ -285,7 +331,7 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_packet_JPacket_00024State_toDebugStr
 	for (int i = 0; i < packet->pkt_header_count; i ++) {
 		p = buf + strlen(buf);
 		sprintf(p, 
-				"pkt_headers[%d]=<hdr_id=%-2d %-15s,hdr_offset=%-4d,hdr_length=%d>\n", 
+				"JPacket.State: pkt_headers[%d]=[hdr_id=%-2d %-15s,hdr_offset=%-4d,hdr_length=%d]\n", 
 				i,
 				packet->pkt_headers[i].hdr_id,
 				id2str(packet->pkt_headers[i].hdr_id),

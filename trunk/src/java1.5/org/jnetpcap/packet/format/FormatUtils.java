@@ -61,7 +61,8 @@ public class FormatUtils {
 		}
 	}
 
-	private static void initTable3chars() {
+	@SuppressWarnings("unused")
+  private static void initTable3chars() {
 		for (int i = 0; i < 31; i++) {
 			table[i] = "\\" + Integer.toHexString(i);
 			if (table[i].length() == 2)

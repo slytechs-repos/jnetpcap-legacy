@@ -15,16 +15,23 @@ package org.jnetpcap.analysis.tcpip;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jnetpcap.analysis.AbstractAnalyzer;
 import org.jnetpcap.analysis.AnalyzerListener;
 import org.jnetpcap.analysis.AnalyzerSupport;
+import org.jnetpcap.analysis.FragmentSequence;
+import org.jnetpcap.analysis.FragmentSequenceAnalyzer;
+import org.jnetpcap.analysis.FragmentSequenceEvent;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.header.Ip4;
 
 /**
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
+ *
  */
-public class Ip4FragmentationAnalyzer implements FragmentSequenceAnalyzer {
+public class Ip4FragmentationAnalyzer
+    extends AbstractAnalyzer implements FragmentSequenceAnalyzer {
 
 	private static final int SIZE = 500;
 
@@ -34,17 +41,13 @@ public class Ip4FragmentationAnalyzer implements FragmentSequenceAnalyzer {
 	private AnalyzerSupport<FragmentSequenceEvent> fragSup =
 	    new AnalyzerSupport<FragmentSequenceEvent>();
 
-	private final Ip4Analyzer parent;
-
-	public Ip4FragmentationAnalyzer(Ip4Analyzer parent) {
-		this.parent = parent;
-	}
+	private Ip4 ip = new Ip4();
 
 	public boolean addFragmentationListener(
 	    AnalyzerListener<FragmentSequenceEvent> listener) {
 		return this.fragSup.addListener(listener, null);
 	}
-
+	
 	private FragmentSequence getSequence(int hash) {
 		/*
 		 * Sorted by ip offset
@@ -60,18 +63,26 @@ public class Ip4FragmentationAnalyzer implements FragmentSequenceAnalyzer {
 
 	}
 
-	public void process(JPacket packet, Ip4 ip) {
-		processFragmentation(packet, ip);
-	}
+	/* (non-Javadoc)
+   * @see org.jnetpcap.analysis.AbstractAnalyzer#process(org.jnetpcap.packet.JPacket)
+   */
+  @Override
+  public boolean processPacket(JPacket packet) {
+  	if (packet.hasHeader(ip)) {
+  		return processFragmentation(packet);
+  	}
+  	
+  	return true;
+  }
 
-	private void processFragmentation(JPacket packet, Ip4 ip) {
+	private boolean processFragmentation(JPacket packet) {
 		int hash = ip.hashCode(); // Unidirectional Ip.source/Ip.destination
 		int offset = ip.offset() * 8;
 		int length = ip.length();
 
-		if (ip.flags_DF() == 1 || ip.flags_MF() == 0 && offset == 0) {
-			return; // IP datagram not fragmented
-		}
+//		if (ip.flags_MF() == 0 && offset == 0) {
+//			return true; // IP datagram not fragmented
+//		}
 
 		FragmentSequence sequence = getSequence(hash);
 
@@ -83,7 +94,9 @@ public class Ip4FragmentationAnalyzer implements FragmentSequenceAnalyzer {
 		    .sequenceNewPacket(this, sequence, packet));
 		sequence.addFragment(packet, offset, length);
 
-		packet.addAnalysis(sequence);
+		ip.addAnalysis(sequence);
+		
+		return true;
 	}
 
 	public boolean removeFragmentationListener(
@@ -101,4 +114,5 @@ public class Ip4FragmentationAnalyzer implements FragmentSequenceAnalyzer {
 
 		fragSup.fire(FragmentSequenceEvent.sequenceTimeout(this, analysis));
 	}
+
 }
