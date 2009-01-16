@@ -18,8 +18,6 @@ import java.nio.ByteBuffer;
 import org.jnetpcap.JCaptureHeader;
 import org.jnetpcap.analysis.AnalysisUtils;
 import org.jnetpcap.analysis.JAnalysis;
-import org.jnetpcap.analysis.JPeerableAnalysis;
-import org.jnetpcap.analysis.tcpip.FragmentSequence;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.nio.JMemoryPool;
@@ -111,8 +109,6 @@ public abstract class JPacket
 	public static class State
 	    extends JStruct {
 
-		private final JFlowKey flowKey = new JFlowKey();
-
 		public final static String STRUCT_NAME = "packet_state_t";
 
 		/**
@@ -121,6 +117,8 @@ public abstract class JPacket
 		 * @return size in bytes
 		 */
 		public static native int sizeof(int count);
+
+		private final JFlowKey flowKey = new JFlowKey();
 
 		/**
 		 * @param size
@@ -137,42 +135,6 @@ public abstract class JPacket
 			super.cleanup();
 		}
 
-		/**
-		 * Dump packet_state_t structure and its sub structures to textual debug
-		 * output
-		 * <p>
-		 * Explanation:
-		 * 
-		 * <pre>
-		 * sizeof(packet_state_t)=16
-		 * sizeof(header_t)=8 and *4=32
-		 * pkt_header_map=0x1007         // bitmap, each bit represets a header
-		 * pkt_header_count=4            // how many header found
-		 * // per header information (4 header found in this example)
-		 * pkt_headers[0]=&lt;hdr_id=1  ETHERNET ,hdr_offset=0  ,hdr_length=14&gt;
-		 * pkt_headers[1]=&lt;hdr_id=2  IP4      ,hdr_offset=14 ,hdr_length=60&gt;
-		 * pkt_headers[2]=&lt;hdr_id=12 ICMP     ,hdr_offset=74 ,hdr_length=2&gt;
-		 * pkt_headers[3]=&lt;hdr_id=0  PAYLOAD  ,hdr_offset=76 ,hdr_length=62&gt;
-		 * 
-		 * // hdr_id = numerical ID of the header, asssigned by JRegistry
-		 * // hdr_offset = offset in bytes into the packet buffer
-		 * // hdr_length = length in bytes of the entire header
-		 * </pre>
-		 * 
-		 * Packet state is made up of 2 structures: packet_stat_t and an array of
-		 * header_t, one per header. Total size in bytes is all of the header
-		 * structures combined, that is 16 + 32 = 48 bytes. Each bit in the
-		 * header_map represents the presence of that header type. The index of the
-		 * bit is the numerical ID of the header. If 2 headers of the same type are
-		 * present, they are both represented by a single bit in the bitmap. This
-		 * way the implementation JPacket.hasHeader(int id) is a simple bit
-		 * operation to test if the header is present or not.
-		 * </p>
-		 * 
-		 * @return multiline string containing dump of the entire structure
-		 */
-		public native String toDebugString();
-
 		public int findHeaderIndex(int id) {
 			return findHeaderIndex(id, 0);
 		}
@@ -186,11 +148,16 @@ public abstract class JPacket
 		 */
 		public native long get64BitHeaderMap(int index);
 
-		public native int getHeaderCount();
+		/**
+		 * Retrieves the analysis object that is attached to this packet.
+		 * 
+		 * @return an attached analysis based object or null if not set
+		 */
+		public native JAnalysis getAnalysis();
 
-		public native int getHeaderIdByIndex(int index);
-
-		public native int getInstanceCount(int id);
+		public JFlowKey getFlowKey() {
+			return this.flowKey;
+		}
 
 		/**
 		 * The frame number is assigned by the scanner at the time of the scan.
@@ -199,6 +166,12 @@ public abstract class JPacket
 		 * @return frame number
 		 */
 		public native long getFrameNumber();
+
+		public native int getHeaderCount();
+
+		public native int getHeaderIdByIndex(int index);
+
+		public native int getInstanceCount(int id);
 
 		public int peer(ByteBuffer peer) throws PeeringException {
 			int r = super.peer(peer);
@@ -259,33 +232,6 @@ public abstract class JPacket
 		    throws IndexOutOfBoundsException;
 
 		/**
-		 * @param state
-		 * @param offset
-		 */
-		public int peerTo(State state, int offset) {
-			int r = super.peer(state, offset, state.size());
-
-			flowKey.peer(this);
-			return r;
-		}
-
-		public int transferTo(JBuffer dst, int srcOffset, int length, int dstOffset) {
-			return super.transferTo(dst, srcOffset, size(), dstOffset);
-		}
-
-		public int transferTo(byte[] dst, int dstOffset) {
-			return super.transferTo(dst, 0, size(), dstOffset);
-		}
-
-		public int transferTo(byte[] dst, int srcOffset, int length, int dstOffset) {
-			return super.transferTo(dst, srcOffset, size(), dstOffset);
-		}
-
-		public int transferTo(State dst) {
-			return super.transferTo(dst, 0, size(), 0);
-		}
-
-		/**
 		 * Peers this packet's state to buffer
 		 * 
 		 * @param buffer
@@ -319,8 +265,79 @@ public abstract class JPacket
 			return r;
 		}
 
-		public JFlowKey getFlowKey() {
-			return this.flowKey;
+		/**
+		 * @param state
+		 * @param offset
+		 */
+		public int peerTo(State state, int offset) {
+			int r = super.peer(state, offset, state.size());
+
+			flowKey.peer(this);
+			return r;
+		}
+
+		/**
+		 * Sets the analysis object for this packet.
+		 * 
+		 * @param analysis
+		 */
+		public native void setAnalysis(JAnalysis analysis);
+
+		/**
+		 * Dump packet_state_t structure and its sub structures to textual debug
+		 * output
+		 * <p>
+		 * Explanation:
+		 * 
+		 * <pre>
+		 * sizeof(packet_state_t)=16
+		 * sizeof(header_t)=8 and *4=32
+		 * pkt_header_map=0x1007         // bitmap, each bit represets a header
+		 * pkt_header_count=4            // how many header found
+		 * // per header information (4 header found in this example)
+		 * pkt_headers[0]=&lt;hdr_id=1  ETHERNET ,hdr_offset=0  ,hdr_length=14&gt;
+		 * pkt_headers[1]=&lt;hdr_id=2  IP4      ,hdr_offset=14 ,hdr_length=60&gt;
+		 * pkt_headers[2]=&lt;hdr_id=12 ICMP     ,hdr_offset=74 ,hdr_length=2&gt;
+		 * pkt_headers[3]=&lt;hdr_id=0  PAYLOAD  ,hdr_offset=76 ,hdr_length=62&gt;
+		 * 
+		 * // hdr_id = numerical ID of the header, asssigned by JRegistry
+		 * // hdr_offset = offset in bytes into the packet buffer
+		 * // hdr_length = length in bytes of the entire header
+		 * </pre>
+		 * 
+		 * Packet state is made up of 2 structures: packet_stat_t and an array of
+		 * header_t, one per header. Total size in bytes is all of the header
+		 * structures combined, that is 16 + 32 = 48 bytes. Each bit in the
+		 * header_map represents the presence of that header type. The index of the
+		 * bit is the numerical ID of the header. If 2 headers of the same type are
+		 * present, they are both represented by a single bit in the bitmap. This
+		 * way the implementation JPacket.hasHeader(int id) is a simple bit
+		 * operation to test if the header is present or not.
+		 * </p>
+		 * 
+		 * @return multiline string containing dump of the entire structure
+		 */
+		public String toDebugString() {
+
+			return super.toDebugString() + "\n" + toDebugStringJPacketState();
+		}
+
+		private native String toDebugStringJPacketState();
+
+		public int transferTo(byte[] dst, int dstOffset) {
+			return super.transferTo(dst, 0, size(), dstOffset);
+		}
+
+		public int transferTo(byte[] dst, int srcOffset, int length, int dstOffset) {
+			return super.transferTo(dst, srcOffset, size(), dstOffset);
+		}
+
+		public int transferTo(JBuffer dst, int srcOffset, int length, int dstOffset) {
+			return super.transferTo(dst, srcOffset, size(), dstOffset);
+		}
+
+		public int transferTo(State dst) {
+			return super.transferTo(dst, 0, size(), 0);
 		}
 	}
 
@@ -334,23 +351,23 @@ public abstract class JPacket
 	private static JFormatter out = new TextFormatter(new StringBuilder());
 
 	/**
-	 * Packet's state structure
-	 */
-	protected final State state = new State(Type.POINTER);
-
-	/**
 	 * Packet's default memory pool out of which allocates memory for deep copies
 	 */
 	protected static JMemoryPool pool = new JMemoryPool();
 
 	/**
-	 * Replaces the default memory allocation mechanism with user supplied one.
-	 * 
-	 * @param pool
-	 *          new memory pool to use.
+	 * Default scanner used to scan a packet per user request
 	 */
-	public static void setMemoryPool(JMemoryPool pool) {
-		JPacket.pool = pool;
+	protected static JScanner scanner = new JScanner();
+
+	/**
+	 * Gets the current internal packet formatter used in the {@link #toString}
+	 * method.
+	 * 
+	 * @return current formatter
+	 */
+	public static JFormatter getFormatter() {
+		return JPacket.out;
 	}
 
 	/**
@@ -363,9 +380,27 @@ public abstract class JPacket
 	}
 
 	/**
-	 * Default scanner used to scan a packet per user request
+	 * Replaced the default formatter for formatting output in the
+	 * {@link #toString} method. The new formatter will be used by default for all
+	 * packets. The formatter should internally build a string that will be
+	 * returned with out.toString() method call to get meaningfull output.
+	 * 
+	 * @param out
+	 *          new formatter
 	 */
-	protected static JScanner scanner = new JScanner();
+	public static void setFormatter(JFormatter out) {
+		JPacket.out = out;
+	}
+
+	/**
+	 * Replaces the default memory allocation mechanism with user supplied one.
+	 * 
+	 * @param pool
+	 *          new memory pool to use.
+	 */
+	public static void setMemoryPool(JMemoryPool pool) {
+		JPacket.pool = pool;
+	}
 
 	/**
 	 * The allocated memory buffer. Initialy this buffer is empty, but may be
@@ -374,75 +409,26 @@ public abstract class JPacket
 	 */
 	protected final JBuffer memory = new JBuffer(Type.POINTER);
 
-	protected JPeerableAnalysis jAnalysis = null;
+	/**
+	 * Packet's state structure
+	 */
+	protected final State state = new State(Type.POINTER);
 
 	/**
-	 * Gets the memory buffer with the supplied byte array data copied into it.
-	 * The internal memory buffer is allocated if neccessary.
+	 * Allocates a memory block and peers both the state and data buffer with it.
+	 * The size parameter has to be big enough to hold both state and data for the
+	 * packet.
 	 * 
-	 * @param buffer
-	 *          source array buffer to copy data out of
-	 * @return the memory buffer
+	 * @param size
+	 *          amount of memory to allocate for packet data
+	 * @param state
+	 *          size of the state
 	 */
-	protected JBuffer getMemoryBuffer(byte[] buffer) {
-		pool.allocate(buffer.length, memory);
-		memory.transferFrom(buffer);
+	public JPacket(int size, int state) {
+		super(Type.POINTER);
 
-		return memory;
+		allocate(size + state);
 	}
-
-	/**
-	 * Gets the memory buffer with the supplied JBuffer data copied into it. The
-	 * internal memory buffer is allocated if neccessary.
-	 * 
-	 * @param buffer
-	 *          source array buffer to copy data out of
-	 * @return the memory buffer
-	 */
-	protected JBuffer getMemoryBuffer(JBuffer buffer) {
-		memory.peer(buffer);
-
-		return memory;
-	}
-
-	/**
-	 * Gets the memory buffer with the supplied ByteBuffer data copied into it.
-	 * The internal memory buffer is allocated if neccessary.
-	 * 
-	 * @param buffer
-	 *          source array buffer to copy data out of
-	 * @return the memory buffer
-	 */
-	protected JBuffer getMemoryBuffer(ByteBuffer buffer) throws PeeringException {
-		memory.peer(buffer);
-
-		return memory;
-	}
-
-	/**
-	 * Retrieves a memory buffer, allocated if neccessary, at least minSize in
-	 * bytes. If existing buffer is already big enough, it is returned, otherwise
-	 * a new buffer is allocated and the existing one released.
-	 * 
-	 * @param minSize
-	 *          minimum number of bytes required for the buffer
-	 * @return the buffer
-	 */
-	protected JBuffer getMemoryBuffer(int minSize) {
-		if (!memory.isInitialized() || memory.size() < minSize) {
-			allocate(minSize);
-		}
-
-		return memory;
-	}
-
-	/**
-	 * Gets the total size of this packet. The size includes state, header and
-	 * packet data.
-	 * 
-	 * @return size in bytes
-	 */
-	protected abstract int getTotalSize();
 
 	/**
 	 * A JPacket pointer. This is a pointer type constructor that does not
@@ -472,19 +458,11 @@ public abstract class JPacket
 	}
 
 	/**
-	 * Allocates a memory block and peers both the state and data buffer with it.
-	 * The size parameter has to be big enough to hold both state and data for the
-	 * packet.
-	 * 
-	 * @param size
-	 *          amount of memory to allocate for packet data
-	 * @param state
-	 *          size of the state
+	 * @param sequence
 	 */
-	public JPacket(int size, int state) {
-		super(Type.POINTER);
-
-		allocate(size + state);
+	public <T extends JAnalysis> void addAnalysis(T analysis) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Not implemented yet");
 	}
 
 	/**
@@ -508,6 +486,10 @@ public abstract class JPacket
 		}
 
 		return memory.size();
+	}
+
+	public <T extends JAnalysis> T getAnalysis(T analysis) {
+		return this.state.getAnalysis().getAnalysis(analysis);
 	}
 
 	/**
@@ -619,12 +601,100 @@ public abstract class JPacket
 	}
 
 	/**
+	 * Gets the memory buffer with the supplied byte array data copied into it.
+	 * The internal memory buffer is allocated if neccessary.
+	 * 
+	 * @param buffer
+	 *          source array buffer to copy data out of
+	 * @return the memory buffer
+	 */
+	protected JBuffer getMemoryBuffer(byte[] buffer) {
+		pool.allocate(buffer.length, memory);
+		memory.transferFrom(buffer);
+
+		return memory;
+	}
+
+	/**
+	 * Gets the memory buffer with the supplied ByteBuffer data copied into it.
+	 * The internal memory buffer is allocated if neccessary.
+	 * 
+	 * @param buffer
+	 *          source array buffer to copy data out of
+	 * @return the memory buffer
+	 */
+	protected JBuffer getMemoryBuffer(ByteBuffer buffer) throws PeeringException {
+		memory.peer(buffer);
+
+		return memory;
+	}
+
+	/**
+	 * Retrieves a memory buffer, allocated if neccessary, at least minSize in
+	 * bytes. If existing buffer is already big enough, it is returned, otherwise
+	 * a new buffer is allocated and the existing one released.
+	 * 
+	 * @param minSize
+	 *          minimum number of bytes required for the buffer
+	 * @return the buffer
+	 */
+	protected JBuffer getMemoryBuffer(int minSize) {
+		if (!memory.isInitialized() || memory.size() < minSize) {
+			allocate(minSize);
+		}
+
+		return memory;
+	}
+
+	/**
+	 * Gets the memory buffer with the supplied JBuffer data copied into it. The
+	 * internal memory buffer is allocated if neccessary.
+	 * 
+	 * @param buffer
+	 *          source array buffer to copy data out of
+	 * @return the memory buffer
+	 */
+	protected JBuffer getMemoryBuffer(JBuffer buffer) {
+		memory.peer(buffer);
+
+		return memory;
+	}
+
+	/**
 	 * Gets the peered packet state object
 	 * 
 	 * @return packet native state
 	 */
 	public State getState() {
 		return state;
+	}
+
+	/**
+	 * Gets the total size of this packet. The size includes state, header and
+	 * packet data.
+	 * 
+	 * @return size in bytes
+	 */
+	protected abstract int getTotalSize();
+
+	public int getType() {
+		return AnalysisUtils.ROOT_TYPE;
+	}
+
+	public boolean hasAnalysis(int type) {
+		return state.getAnalysis() != null
+		    && state.getAnalysis().hasAnalysis(type);
+	}
+
+
+	public boolean hasAnalysis(Class<? extends JAnalysis> analysis) {
+		return state.getAnalysis() != null
+		    && state.getAnalysis().hasAnalysis(analysis);
+	}
+
+	public <T extends JAnalysis> boolean hasAnalysis(T analysis) {
+		return (state.getAnalysis() != null) ? state.getAnalysis().hasAnalysis(
+		    analysis) : null;
 	}
 
 	/**
@@ -747,29 +817,6 @@ public abstract class JPacket
 	}
 
 	/**
-	 * Gets the current internal packet formatter used in the {@link #toString}
-	 * method.
-	 * 
-	 * @return current formatter
-	 */
-	public static JFormatter getFormatter() {
-		return JPacket.out;
-	}
-
-	/**
-	 * Replaced the default formatter for formatting output in the
-	 * {@link #toString} method. The new formatter will be used by default for all
-	 * packets. The formatter should internally build a string that will be
-	 * returned with out.toString() method call to get meaningfull output.
-	 * 
-	 * @param out
-	 *          new formatter
-	 */
-	public static void setFormatter(JFormatter out) {
-		JPacket.out = out;
-	}
-
-	/**
 	 * Generates text formatted output using the default builtin formatter. The
 	 * default is to generate TextFormatter that uses a StringBuilder for output
 	 * buffer and gerate a single string that is returned from here.
@@ -785,25 +832,5 @@ public abstract class JPacket
 			throw new IllegalStateException(
 			    "internal error, StringBuilder threw IOException");
 		}
-	}
-
-	public <T extends JPeerableAnalysis> T getAnalysis(T analysis) {
-		return this.jAnalysis.getAnalysis(analysis);
-	}
-
-	public <T extends JPeerableAnalysis> boolean hasAnalysis(T analysis) {
-		return this.jAnalysis.hasAnalysis(analysis);
-	}
-
-	public int getType() {
-		return AnalysisUtils.ROOT_TYPE;
-	}
-
-	/**
-	 * @param sequence
-	 */
-	public <T extends JAnalysis> void addAnalysis(T analysis) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Not implemented yet");
 	}
 }

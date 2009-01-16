@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Formatter;
 
+import org.jnetpcap.analysis.JAnalysis;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.structure.JField;
@@ -30,9 +31,9 @@ import org.jnetpcap.packet.structure.JField;
 public class TextFormatter
     extends JFormatter {
 
-	private final static String FIELD_FORMAT = "%16s = ";
-
 	private final static String FIELD_ARRAY_FORMAT = "%16s[%d] = ";
+
+	private final static String FIELD_FORMAT = "%16s = ";
 
 	private static final String SEPARATOR = ": ";
 
@@ -42,13 +43,9 @@ public class TextFormatter
 	final Formatter uf = new Formatter();
 
 	/**
-	 * Creates a text formatter which sends its output to a string buffer
 	 * 
-	 * @param out
-	 *          buffer where to send output
 	 */
-	public TextFormatter(StringBuilder out) {
-		super(out);
+	public TextFormatter() {
 	}
 
 	/**
@@ -63,10 +60,45 @@ public class TextFormatter
 	}
 
 	/**
+	 * Creates a text formatter which sends its output to a string buffer
 	 * 
+	 * @param out
+	 *          buffer where to send output
 	 */
-	public TextFormatter() {
+	public TextFormatter(StringBuilder out) {
+		super(out);
 	}
+
+	@Override
+  protected void analysisAfter(JHeader header, JAnalysis analysis, Detail detail)
+      throws IOException {
+		decLevel();
+  }
+
+	@Override
+  protected void analysisBefore(JHeader header, JAnalysis analysis, Detail detail)
+       throws IOException {
+		
+		pad();
+		pad().format("*** %s analysis ***", analysis.getName());
+		incLevel(analysis.getNicName() + ": ");
+		
+		if (analysis.getSummary() != null) {
+			pad().format("%s", analysis.getSummary());	
+		}
+ }
+	
+	
+
+	@Override
+  protected void subAnalysisBefore(
+      JHeader header,
+      JAnalysis analysis,
+      JAnalysis subAnalysis,
+      Detail detail) throws IOException {
+		
+		pad().format("%s %s", subAnalysis.getName(), subAnalysis.getSummary());
+  }
 
 	protected void fieldAfter(JHeader header, JField field, Detail detail)
 	    throws IOException {
@@ -214,6 +246,11 @@ public class TextFormatter
 		decLevel();
 	}
 
+	@Override
+	protected void packetNull(JPacket packet, Detail detail) {
+		pad().format("packet: NULL");
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -229,11 +266,6 @@ public class TextFormatter
 		// decLevel();
 		//		
 		// incLevel(SEPARATOR);
-	}
-
-	@Override
-	protected void packetNull(JPacket packet, Detail detail) {
-		pad().format("packet: NULL");
 	}
 
 	/*
@@ -257,4 +289,6 @@ public class TextFormatter
 		pad().format("+ %s: offset=%d length=%d", subHeader.getName(),
 		    subHeader.getOffset(), subHeader.getLength());
 	}
+	
+	
 }

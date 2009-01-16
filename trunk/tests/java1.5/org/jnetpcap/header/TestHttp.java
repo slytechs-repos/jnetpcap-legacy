@@ -15,7 +15,6 @@ package org.jnetpcap.header;
 import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import junit.framework.TestCase;
 
@@ -32,7 +31,6 @@ import org.jnetpcap.packet.header.Ethernet;
 import org.jnetpcap.packet.header.Ip4;
 import org.jnetpcap.util.JLogger;
 import org.jnetpcap.util.config.JConfig;
-import org.jnetpcap.util.resolver.IpResolver;
 import org.jnetpcap.util.resolver.Resolver;
 
 /**

@@ -18,6 +18,7 @@ import java.util.Arrays;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@SuppressWarnings("unused")
 public class StatisticManager {
 
 	public enum Catetory implements Ordinal {

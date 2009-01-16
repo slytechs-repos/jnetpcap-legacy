@@ -10,10 +10,8 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.analysis.tcpip;
+package org.jnetpcap.analysis;
 
-import org.jnetpcap.analysis.AbstractAnalysis;
-import org.jnetpcap.analysis.AnalyzerEvent;
 
 /**
  * @author Mark Bednarczyk
@@ -21,6 +19,16 @@ import org.jnetpcap.analysis.AnalyzerEvent;
  */
 public class FieldAnalysis
     extends AbstractAnalysis<FieldAnalysis, AnalyzerEvent> {
+
+	private static final String NAME = "Field";
+
+	/**
+   * @param type
+   * @param size
+   */
+  public FieldAnalysis() {
+	  super(Type.POINTER, 0, NAME);
+  }
 
 	public String getFieldName() {
 		// TODO Auto-generated method stub

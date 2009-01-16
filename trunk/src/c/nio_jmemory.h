@@ -23,13 +23,24 @@ typedef struct memory_usage_t {
 	uint64_t seg_256_or_above_bytes;		
 } memory_usage_t;
 
+typedef struct jni_global_ref_t {
+	int count; // Number of references held
+	jobject reference[]; // array of references held
+} jni_global_ref_t;
+
+
 extern	jclass jmemoryClass;
+extern	jclass jreferenceClass;
+
+extern  jmethodID jreferenceConstVoidMID;
+extern  jmethodID jmemoryToDebugStringMID;
 
 extern	jfieldID jmemoryPhysicalFID;
 extern	jfieldID jmemoryPhysicalSizeFID;
 extern	jfieldID jmemorySizeFID;
 extern	jfieldID jmemoryOwnerFID;
 extern	jfieldID jmemoryKeeperFID;
+extern	jfieldID jmemoryReferencesFID;
 
 extern memory_usage_t memory_usage;
 
@@ -37,6 +48,11 @@ extern memory_usage_t memory_usage;
 void *getJMemoryPhysical(JNIEnv *env, jobject obj);
 void setJMemoryPhysical(JNIEnv *env, jobject obj, jlong value);
 void jmemoryCleanup(JNIEnv *env, jobject obj);
+jobject jmemoryRefCreate(JNIEnv *env, jobject jmemory, jobject local_ref);
+void jmemoryRefRelease(JNIEnv *env, jobject jmemory, jobject global_ref);
+
+jobject jreferenceCreate(JNIEnv *env, jobject jref, jobject local_ref);
+void jreferenceRelease(JNIEnv *env, jobject jref, jobject global_ref);
 
 
 #ifdef __cplusplus

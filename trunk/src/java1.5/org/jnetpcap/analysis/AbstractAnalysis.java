@@ -12,30 +12,86 @@
  */
 package org.jnetpcap.analysis;
 
+import java.nio.ByteOrder;
+import java.util.Iterator;
+
+import org.jnetpcap.nio.JMemory;
+import org.jnetpcap.nio.JObjectBuffer;
+
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class AbstractAnalysis<S extends JAnalysis, E extends AnalyzerEvent>
-    implements JAnalysis {
+public abstract class AbstractAnalysis<S extends JAnalysis, E extends AnalyzerEvent>
+    extends JObjectBuffer implements JAnalysis {
 
-	private final int category;
+	private final static int ANALYZER = 4 + REF;
 
-	private AnalyzerSupport<E> listeners = null;
+	private final static int CATEGORY = 0;
 
-	private JAnalyzer analyzer;
+	private final static int LISTENERS = 4;
 
-	public AbstractAnalysis() {
-		this.category = AnalysisUtils.getType(getClass());
+	private final static int SIZE = REF * 2 + 4;
+
+	private final int offset;
+	
+	private final String name;
+
+	private String nicname;
+
+	public AbstractAnalysis(Type type, int size) {
+		this(type, size, null);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.jnetpcap.analysis.JAnalysis#getAnalysis(java.lang.Class)
-	 */
-	public <T extends JAnalysis> T getAnalysis(Class<T> analysis) {
+	public AbstractAnalysis(int size) {
+		this(size, null);
+	}
+	
+	public AbstractAnalysis(int size, String name) {
+		super(SIZE + size);
+		this.offset = size;
+		this.name = name == null ? getClass().getSimpleName() : name;
+		this.nicname = name;
+
+		super.order(ByteOrder.nativeOrder());
+		setType(AnalysisUtils.getType(getClass()));
+		
+	}
+
+
+	/**
+   * @param pointer
+   * @param i
+   * @param name
+   */
+  public AbstractAnalysis(Type type, int size, String name) {
+		super(type);
+		this.offset = size;
+		this.name = name == null? getClass().getSimpleName() : name;
+		this.nicname = name;
+		
+		super.order(ByteOrder.nativeOrder());
+		setType(AnalysisUtils.getType(getClass()));
+  }
+
+	public <U> boolean addListener(AnalyzerListener<E> listener, U user) {
+		if (getSupport() == null) {
+			setSupport(new AnalyzerSupport<E>());
+		}
+		return getSupport().addListener(listener, user);
+	}
+
+	public <T extends JAnalysis> T getAnalysis(T analysis) {
 		return null;
+	}
+
+	public JAnalyzer getAnalyzer() {
+		return getObject(JAnalyzer.class, offset + ANALYZER);
+	}
+
+	@SuppressWarnings("unchecked")
+	private AnalyzerSupport<E> getSupport() {
+		return getObject(AnalyzerSupport.class, offset + LISTENERS);
 	}
 
 	/*
@@ -44,28 +100,62 @@ public class AbstractAnalysis<S extends JAnalysis, E extends AnalyzerEvent>
 	 * @see org.jnetpcap.analysis.JAnalysis#getCategory()
 	 */
 	public int getType() {
-		return this.category;
+		return getInt(offset + CATEGORY);
 	}
 
-	public <U> boolean addListener(AnalyzerListener<E> listener, U user) {
-		if (listeners == null) {
-			listeners = new AnalyzerSupport<E>();
-		}
-		return this.listeners.addListener(listener, user);
+	public <T extends JAnalysis> boolean hasAnalysis(T analysis) {
+		return hasAnalysis(analysis.getType());
 	}
 
-	public boolean removeListener(AnalyzerListener<E> listener) {
-		return (listeners == null) ? false : this.listeners
-		    .removeListener(listener);
+	public <T extends JAnalysis> boolean hasAnalysis(Class<T> analysis) {
+		return hasAnalysis(AnalysisUtils.getType(analysis));
+	}
+
+	public boolean hasAnalysis(int type) {
+		return false;
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.JAnalysis#hasAnalysis(java.lang.Class)
+	 * @see org.jnetpcap.analysis.JAnalysis#peer(org.jnetpcap.analysis.JAnalysis)
 	 */
-	public boolean hasAnalysis(Class<? extends JAnalysis> analysis) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Not implemented yet");
+	public int peer(JAnalysis peer) {
+		return (getType() == peer.getType()) ? super.peer((JMemory) peer) : 0;
 	}
+
+	public boolean removeListener(AnalyzerListener<E> listener) {
+		return (getSupport() == null) ? false : getSupport().removeListener(
+		    listener);
+	}
+
+	public void setAnalyzer(JAnalyzer analyzer) {
+		setObject(offset + ANALYZER, analyzer);
+	}
+
+	private void setSupport(AnalyzerSupport<E> support) {
+		setObject(offset + LISTENERS, support);
+	}
+
+	private void setType(int type) {
+		setInt(CATEGORY, type);
+
+	}
+
+	public Iterator<JAnalysis> iterator() {
+		return AnalysisUtils.EMPTY_ITERATOR;
+  }
+
+	public String getName() {
+		return this.name;
+  }
+
+	public String getSummary() {
+		return null;
+  }
+
+	public String getNicName() {
+		return nicname;
+  }
+
 }

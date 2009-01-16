@@ -95,7 +95,8 @@ public class TestPcapDispatchers
 		pcap = null;
 	}
 
-	private void dispatch(String file, PcapPacketHandler<Counter> handler) {
+	@SuppressWarnings("deprecation")
+  private void dispatch(String file, PcapPacketHandler<Counter> handler) {
 		pcap = open(file);
 		assertEquals(Pcap.OK, pcap.dispatch(Pcap.DISPATCH_BUFFER_FULL, handler,
 		    COUNTER));

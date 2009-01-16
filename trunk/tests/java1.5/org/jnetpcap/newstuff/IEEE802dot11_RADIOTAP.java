@@ -815,6 +815,7 @@ public class IEEE802dot11_RADIOTAP
 		 * Should put this outside the method body as a private field. Do it once
 		 * everytime the header is created.
 		 */
+		@SuppressWarnings("unused")
 		int id = JRegistry.lookupId(IEEE802dot11_RADIOTAP.class);
 
 		// JRegistry.lookupId(IEEE802dot11.class);

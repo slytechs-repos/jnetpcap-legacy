@@ -28,6 +28,7 @@
 #include "nio_jmemory.h"
 #include "jnetpcap_utils.h"
 #include "org_jnetpcap_nio_JBuffer.h"
+#include "org_jnetpcap_nio_JObjectBuffer.h"
 #include "export.h"
 
 /****************************************************************
@@ -786,5 +787,65 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setUShort
 	register jshort temp = (jshort) jval;
 	
 	*((u_int16_t *)(mem + jindex)) = ENDIAN16_GET(big, temp);
+}
+
+
+/*
+ * Class:     org_jnetpcap_nio_JObjectBuffer
+ * Method:    getObject
+ * Signature: (Ljava/lang/Class;I)Ljava/lang/Object;
+ */
+JNIEXPORT jobject JNICALL Java_org_jnetpcap_nio_JObjectBuffer_getObject
+  (JNIEnv *env, jobject obj, jclass clazz, jint offset) {
+	
+	
+	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
+	if (mem == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
+		return NULL;
+	}
+
+#ifdef DEBUG
+	printf("getObject(): here mem=%p offset=%d *=%p\n", 
+			mem, 
+			offset, 
+			*((jobject *) (mem + offset)));
+	fflush(stdout);
+#endif
+	return *((jobject *) (mem + offset));
+}
+
+/*
+ * Class:     org_jnetpcap_nio_JObjectBuffer
+ * Method:    setObject
+ * Signature: (ILjava/lang/Object;)V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JObjectBuffer_setObject
+  (JNIEnv *env, jobject obj, jint offset, jobject object) {
+	
+	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
+	if (mem == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
+		return;
+	}
+	
+	jobject global_ref = jmemoryRefCreate(env, obj, object);
+	if (global_ref == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "Failed to create global_ref");
+		return;
+	}
+	
+	*((jobject *)(mem + offset)) = global_ref; 
+}
+
+/*
+ * Class:     org_jnetpcap_nio_JObjectBuffer
+ * Method:    sizeofJObject
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JObjectBuffer_sizeofJObject
+  (JNIEnv *env, jclass clazz) {
+	
+	return sizeof(jobject);
 }
 

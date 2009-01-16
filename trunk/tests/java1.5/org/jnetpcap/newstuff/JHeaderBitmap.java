@@ -15,11 +15,9 @@ package org.jnetpcap.newstuff;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jnetpcap.packet.JCompoundHeader;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JSubHeader;
 import org.jnetpcap.packet.structure.AnnotatedHeader;
-import org.jnetpcap.packet.structure.JField;
 
 /**
  * @param <B>
@@ -27,6 +25,7 @@ import org.jnetpcap.packet.structure.JField;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@SuppressWarnings("unused")
 public class JHeaderBitmap<B extends JHeader> implements JHeaderContainer<B> {
 
 	public final static int MAX_HEADERS = 64;

@@ -16,11 +16,32 @@ package org.jnetpcap.analysis;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public interface JAnalysis {
+public interface JAnalysis extends Iterable<JAnalysis> {
 	
 	public int getType();
 
-	public <T extends JAnalysis> T getAnalysis(Class<T> analysis);
+	public <T extends JAnalysis> T getAnalysis(T analysis);
 
-	public boolean hasAnalysis(Class<? extends JAnalysis> analysis);
+	public <T extends JAnalysis> boolean hasAnalysis(T analysis);
+	
+	public <T extends JAnalysis> boolean hasAnalysis(Class<T> analysis);
+	
+	public boolean hasAnalysis(int type);
+
+	public int peer(JAnalysis peer);
+
+	/**
+   * @return
+   */
+  public String getName();
+
+	/**
+   * @return
+   */
+  public Object getSummary();
+
+	/**
+   * @return
+   */
+  public String getNicName();
 }

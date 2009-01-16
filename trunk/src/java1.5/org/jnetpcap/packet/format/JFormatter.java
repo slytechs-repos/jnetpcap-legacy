@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.Formatter;
 import java.util.Stack;
 
+import org.jnetpcap.analysis.JAnalysis;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JHeaderPool;
 import org.jnetpcap.packet.JPacket;
@@ -216,9 +217,9 @@ public abstract class JFormatter {
 
 	private Resolver ipResolver;
 
-	private Resolver ouiPrefixResolver;
-
 	private int level;
+
+	private Resolver ouiPrefixResolver;
 
 	protected Formatter out;
 
@@ -268,13 +269,29 @@ public abstract class JFormatter {
 	}
 
 	/**
+	 * @param analysis
+	 * @param detail
+	 */
+	protected void analysisAfter(JHeader header, JAnalysis analysis, Detail detail)
+	    throws IOException {
+	}
+
+	/**
+	 * @param analysis
+	 * @param detail
+	 */
+	protected void analysisBefore(JHeader header, JAnalysis analysis, Detail detail)
+	    throws IOException {
+	}
+
+	/**
 	 * 
 	 */
 	protected void decLevel() {
 		if (this.level == 0) {
 			return;
 		}
-		
+
 		this.level--;
 		padStack.pop();
 	}
@@ -340,8 +357,48 @@ public abstract class JFormatter {
 			format(header, subHeader, detail);
 		}
 
+		for (JAnalysis analysis : header.getAnalysisIterable()) {
+			format(header, analysis, detail);
+		}
+
 		headerAfter(header, detail);
 
+	}
+
+	/**
+	 * @param header
+	 * @param analysis
+	 * @param detail
+	 */
+	public void format(JHeader header, JAnalysis analysis, Detail detail) throws IOException{
+
+		analysisBefore(header, analysis, detail);
+
+		for (JAnalysis subAnalysis : analysis) {
+			format(header, analysis, subAnalysis, detail);
+		}
+
+		analysisAfter(header, analysis, detail);
+	}
+
+	/**
+	 * @param header
+	 * @param analysis
+	 * @param subAnalysis
+	 * @throws IOException
+	 */
+	public void format(
+	    JHeader header,
+	    JAnalysis analysis,
+	    JAnalysis subAnalysis,
+	    Detail detail) throws IOException {
+		subAnalysisBefore(header, analysis, subAnalysis, detail);
+
+		for (JAnalysis child : subAnalysis) {
+			format(header, subAnalysis, child, detail);
+		}
+
+		subAnalysisAfter(header, analysis, subAnalysis, detail);
 	}
 
 	public void format(JHeader header, JField field) throws IOException {
@@ -887,6 +944,30 @@ public abstract class JFormatter {
 			default:
 				return value.toString();
 		}
+	}
+
+	/**
+	 * @param header
+	 * @param analysis
+	 * @param subAnalysis
+	 */
+	protected void subAnalysisAfter(
+	    JHeader header,
+	    JAnalysis analysis,
+	    JAnalysis subAnalysis,
+	    Detail detail) throws IOException {
+	}
+
+	/**
+	 * @param header
+	 * @param analysis
+	 * @param subAnalysis
+	 */
+	protected void subAnalysisBefore(
+	    JHeader header,
+	    JAnalysis analysis,
+	    JAnalysis subAnalysis,
+	    Detail detail) throws IOException {
 	}
 
 	/**

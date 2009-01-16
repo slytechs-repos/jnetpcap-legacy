@@ -10,9 +10,8 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.analysis.tcpip;
+package org.jnetpcap.analysis;
 
-import org.jnetpcap.analysis.AbstractAnalyzerEvent;
 import org.jnetpcap.analysis.AnalyzerEvent.AnalyzerEventType;
 import org.jnetpcap.packet.JPacket;
 

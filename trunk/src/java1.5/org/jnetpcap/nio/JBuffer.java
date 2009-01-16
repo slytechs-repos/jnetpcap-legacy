@@ -24,7 +24,7 @@ import org.jnetpcap.packet.PeeringException;
  * @author Sly Technologies, Inc.
  */
 public class JBuffer
-    extends JMemory {
+    extends JMemory implements JByteBuffer {
 
 	/**
 	 * 

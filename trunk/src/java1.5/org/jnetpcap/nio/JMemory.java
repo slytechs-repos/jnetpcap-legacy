@@ -199,6 +199,14 @@ public abstract class JMemory {
 	 * Number of byte currently allocated
 	 */
 	private volatile int size;
+
+	/**
+	 * Keeps track of JNI global references. As long as there is a java object
+	 * referencing the JReference container, the JNI references will not be
+	 * released. Null means that there are no references.
+	 */
+	private JReference references;
+
 	{
 		physicalSize = 0;
 	} // Prevent compiler optimizing away to 0
@@ -403,6 +411,13 @@ public abstract class JMemory {
 			this.keeper = peer.keeper;
 		}
 
+		/*
+		 * Transfer the JNI global references
+		 */
+		if (peer.references != null) {
+			this.references = peer.references;
+		}
+
 		return size;
 
 	}
@@ -483,10 +498,11 @@ public abstract class JMemory {
 	public String toDebugString() {
 		StringBuilder b = new StringBuilder();
 
-		b.append("JMemory@").append(Long.toHexString(physical)).append(": ");
-		b.append("size=").append(size);
+		b.append("JMemory: JMemory@").append(Long.toHexString(physical)).append(
+		    ": ");
+		b.append("size=").append(size).append(" bytes");
 		if (!owner) {
-			b.append(", ").append("owner=").append(
+			b.append("\n").append("JMemory: owner=").append(
 			    keeper.getClass().getName().replaceAll("org.jnetpcap.", "")).append(
 			    ".class");
 			if (keeper instanceof JMemory) {
@@ -496,7 +512,14 @@ public abstract class JMemory {
 				b.append(')');
 			}
 		} else {
-			b.append(", ").append("isOwner=").append(owner);
+			b.append("\n").append("JMemory: isOwner=").append(owner);
+		}
+
+		if (references == null) {
+			b.append("\nJMemory: references(null)");
+		} else {
+			b.append("\nJMemory: references(").append(references.toDebugString())
+			    .append(')');
 		}
 
 		return b.toString();

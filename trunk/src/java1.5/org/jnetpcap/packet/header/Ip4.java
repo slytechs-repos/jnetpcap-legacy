@@ -43,6 +43,17 @@ public class Ip4
     extends JHeaderMap<Ip4> {
 
 	/**
+	 * Enum table for Ip4.flags field.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public enum Flag {
+		DF,
+		MF
+	}
+
+	/**
 	 * A table of IpTypes and their names
 	 * 
 	 * @author Mark Bednarczyk
@@ -898,6 +909,19 @@ public class Ip4
 		return getUByte(6) >> 5;
 	}
 
+	public Set<Ip4.Flag> flagsEnum() {
+		Set<Ip4.Flag> set = EnumSet.noneOf(Ip4.Flag.class);
+		if (flags_DF() > 0) {
+			set.add(Ip4.Flag.DF);
+		}
+
+		if (flags_MF() > 0) {
+			set.add(Ip4.Flag.MF);
+		}
+
+		return set;
+	}
+
 	@FieldSetter
 	public void flags(int flags) {
 		int o = getUByte(6) & 0x1F;
@@ -923,7 +947,7 @@ public class Ip4
 
 	@Field(parent = "flags", offset = 0, length = 1, display = "more fragments", nicname = "M")
 	public int flags_MF() {
-		return (flags() & FLAG_MORE_FRAGMENTS) >> 2;
+		return (flags() & FLAG_MORE_FRAGMENTS);
 	}
 
 	@Dynamic(Field.Property.DESCRIPTION)
