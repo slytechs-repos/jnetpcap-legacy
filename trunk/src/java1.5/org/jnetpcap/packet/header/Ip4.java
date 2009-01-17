@@ -935,7 +935,7 @@ public class Ip4
 		return (flags() & FLAG_RESERVED) >> 3;
 	}
 
-	@Field(parent = "flags", offset = 1, length = 1, display = "do not fragment")
+	@Field(parent = "flags", offset = 1, length = 1, display = "DF: do not fragment")
 	public int flags_DF() {
 		return (flags() & FLAG_DONT_FRAGMENT) >> 1;
 	}
@@ -945,7 +945,7 @@ public class Ip4
 		return (flags_DF() > 0) ? "set" : "not set";
 	}
 
-	@Field(parent = "flags", offset = 0, length = 1, display = "more fragments", nicname = "M")
+	@Field(parent = "flags", offset = 0, length = 1, display = "MF: more fragments", nicname = "M")
 	public int flags_MF() {
 		return (flags() & FLAG_MORE_FRAGMENTS);
 	}
@@ -998,6 +998,12 @@ public class Ip4
 	@FieldSetter
 	public void length(int value) {
 		setUShort(2, value);
+	}
+
+	@Dynamic(Field.Property.DESCRIPTION)
+	public String offsetDescription() {
+		return (offset() == 0) ? null : "" + offset() + " * 8 = " + (offset() * 8)
+		    + " bytes";
 	}
 
 	@Field(offset = 6 * 8 + 3, length = 13, format = "%d")
@@ -1102,8 +1108,9 @@ public class Ip4
 
 	@Dynamic(Field.Property.DESCRIPTION)
 	public String typeDescription() {
-		return (offset() == 0) ? "next: " + Ip4Type.toString(type())
-		    : "ip fragment";
+		String next = Ip4Type.toString(type());
+		return (offset() == 0) ? "next: " + next
+		    : "ip fragment" + (next == null?"":" of " + next + " PDU");
 	}
 
 	public Ip4Type typeEnum() {
