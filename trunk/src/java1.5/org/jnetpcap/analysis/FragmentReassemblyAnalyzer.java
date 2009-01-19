@@ -15,17 +15,13 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.jnetpcap.util;
+package org.jnetpcap.analysis;
 
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  *
  */
-public interface Timeout extends Comparable<Timeout> {
-	
-	public boolean isTimedout(long timeInMillis);
-	
-	public void timeout();
+public interface FragmentReassemblyAnalyzer extends JAnalyzer {
 
 }

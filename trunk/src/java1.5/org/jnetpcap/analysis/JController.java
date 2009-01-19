@@ -49,13 +49,28 @@ public class JController
 	private Comparator<JPacket> PACKET_TIMESTAMP = new Comparator<JPacket>() {
 
 		public int compare(JPacket o1, JPacket o2) {
-			return (int) (o1.getCaptureHeader().timestampInMillis() - o2
-			    .getCaptureHeader().timestampInMillis());
+			int r =
+			    (int) (o1.getCaptureHeader().timestampInNanos() - o2
+			        .getCaptureHeader().timestampInNanos());
+			final long M = 0x00FFFFFF;
+
+//			System.out.printf("%d/%d - %d/%d = %d\n", 
+//					o1.getFrameNumber(), 
+//					o1.getCaptureHeader().timestampInNanos() & M,
+//					o2.getFrameNumber(),
+//					o2.getCaptureHeader()
+//			    .timestampInNanos() & M, r);
+
+			if (r == 0) {
+				return (int) (o1.getFrameNumber() - o2.getFrameNumber());
+			} else {
+				return r;
+			}
 		}
 
 	};
 
-	private TimeoutQueue timeouts = new TimeoutQueue();
+	private TimeoutQueue timeQueue = new TimeoutQueue();
 
 	private Queue<JPacket> inQ =
 	    new PriorityQueue<JPacket>(INITIAL_CAPACITY, PACKET_TIMESTAMP);
@@ -67,11 +82,25 @@ public class JController
 
 	private long analyzerMap = 0;
 
+	private long timeInMillis;
+
+	private int lock;
+
 	public void addAnalyzer(JAnalyzer analyzer, int id) {
 		analyzerMap |= (1L << id);
 
 		getAnalyzers(id).add(analyzer);
 		analyzer.setParent(this);
+	}
+
+	@Override
+	public Queue<JPacket> getInQueue() {
+		return inQ;
+	}
+
+	@Override
+	public Queue<JPacket> getOutQueue() {
+		return outQ;
 	}
 
 	public Set<JAnalyzer> getAnalyzers(int id) {
@@ -89,23 +118,31 @@ public class JController
 	public boolean remove(JPacketHandler<?> o) {
 		return this.support.remove(o);
 	}
+	
+	private long totalBuffered = 0;
+
+	private long bufferSize = Long.MAX_VALUE;
 
 	protected void processQueue() {
 
 		while (inQ.isEmpty() == false) {
 			JPacket p = inQ.poll();
 
-			super.setProcessingTime(p);
+			setProcessingTime(p);
 			processPacket(p);
 
+			totalBuffered += p.getTotalSize();
 			outQ.offer(p);
 		}
 	}
 
 	protected void processingComplete() {
 
-		while (outQ.isEmpty() == false) {
-			support.fireNextPacket(outQ.poll());
+		while ((this.lock == 0 || totalBuffered > bufferSize ) && outQ.isEmpty() == false) {
+			JPacket packet = outQ.poll();
+			totalBuffered -= packet.getTotalSize();
+			
+			support.fireNextPacket(packet);
 		}
 
 	}
@@ -115,13 +152,13 @@ public class JController
 		/*
 		 * Set the curren time from the packet stream
 		 */
-		super.setProcessingTime(packet);
+		setProcessingTime(packet);
 
 		/*
 		 * Process the timeout queue and timeout any entries based on the latest
 		 * time
 		 */
-		timeouts.timeout(getProcessingTime());
+		timeQueue.timeout(getProcessingTime());
 
 		/*
 		 * Put the packet on the inbound queue to be processed
@@ -185,4 +222,42 @@ public class JController
 	public int getPriority() {
 		return 0; // Highest priority
 	}
+
+	@Override
+	public TimeoutQueue getTimeoutQueue() {
+		return this.timeQueue;
+	}
+
+	protected void setProcessingTime(JPacket packet) {
+		this.timeInMillis = packet.getCaptureHeader().timestampInMillis();
+	}
+
+	@Override
+	public long getProcessingTime() {
+		return this.timeInMillis;
+	}
+
+	@Override
+	public int hold() {
+		return this.lock++;
+	}
+
+	@Override
+	public int release() {
+		this.lock--;
+		if (lock == 0) {
+			processingComplete();
+		}
+
+		return lock + 1;
+	}
+
+	public final long getBufferSize() {
+  	return this.bufferSize;
+  }
+
+	public final void setBufferSize(long bufferSize) {
+  	this.bufferSize = bufferSize;
+  }
+
 }

@@ -17,15 +17,45 @@
  */
 package org.jnetpcap.util;
 
+import java.lang.reflect.Constructor;
+
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  *
  */
-public interface Timeout extends Comparable<Timeout> {
+public class JThreadLocal<T>
+    extends ThreadLocal<T> {
+
+	private final Constructor<T> constructor;
+
+	/**
+	 * 
+	 */
+	public JThreadLocal() {
+		super();
+		constructor = null;
+	}
 	
-	public boolean isTimedout(long timeInMillis);
-	
-	public void timeout();
+	public JThreadLocal(Class<T> c) {
+		try {
+	    constructor = c.getConstructor();
+    } catch (Exception e) {
+    	throw new IllegalArgumentException(e);
+    } 
+	}
+
+	@Override
+  protected T initialValue() {
+		if (constructor == null) {
+			return super.initialValue();
+		} else {
+			try {
+	      return constructor.newInstance();
+      } catch (Exception e) {
+      	throw new IllegalStateException(e);
+      }
+		}
+  }
 
 }

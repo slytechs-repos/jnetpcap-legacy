@@ -147,4 +147,51 @@ public class PcapHeader
 		return hdr_wirelen();
 	}
 
+	/* (non-Javadoc)
+   * @see org.jnetpcap.JCaptureHeader#caplen(int)
+   */
+  public void caplen(int caplen) {
+	  throw new UnsupportedOperationException("Not allowed on PcapHeader");
+  }
+
+	/* (non-Javadoc)
+   * @see org.jnetpcap.JCaptureHeader#nanos(long)
+   */
+  public void nanos(long nanos) {
+	  throw new UnsupportedOperationException("Not allowed on PcapHeader");
+  }
+
+	/* (non-Javadoc)
+   * @see org.jnetpcap.JCaptureHeader#seconds(long)
+   */
+  public void seconds(long seconds) {
+	  throw new UnsupportedOperationException("Not allowed on PcapHeader");
+  }
+
+	/* (non-Javadoc)
+   * @see org.jnetpcap.JCaptureHeader#wirelen(int)
+   */
+  public void wirelen(int wirelen) {
+	  throw new UnsupportedOperationException("Not allowed on PcapHeader");
+  }
+
+	/* (non-Javadoc)
+   * @see org.jnetpcap.JCaptureHeader#initFrom(org.jnetpcap.JCaptureHeader)
+   */
+  public void initFrom(JCaptureHeader captureHeader) {
+	  throw new UnsupportedOperationException("Not allowed on PcapHeader");
+  }
+
+	/* (non-Javadoc)
+   * @see org.jnetpcap.JCaptureHeader#timestampInNanos()
+   */
+  public long timestampInNanos() {
+  	return hdr_sec() * 1000000000 + hdr_usec() * 1000;
+  }
+  
+  public long timestampInMicros() {
+  	return hdr_sec() * 1000000 + hdr_usec();
+  }
+
+
 }

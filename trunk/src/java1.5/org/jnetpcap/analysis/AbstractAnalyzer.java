@@ -15,20 +15,13 @@ package org.jnetpcap.analysis;
 import java.util.Queue;
 
 import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.util.TimeoutQueue;
 
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
 public abstract class AbstractAnalyzer implements JAnalyzer {
-
-	/*
-	 * This is our processing time, not the system time. This time is set from the
-	 * capture timestamp of the last packet. If packet was read from a file, its
-	 * the saved timestamp. Of if this is a live capture it may be the system
-	 * timestamp.
-	 */
-	private long timeInMillis;
 
 	/**
 	 * Priority within the sorted set. It has to be final as its used in the
@@ -66,12 +59,8 @@ public abstract class AbstractAnalyzer implements JAnalyzer {
 		this.parent = parent;
 	}
 
-	protected void setProcessingTime(JPacket packet) {
-		this.timeInMillis = packet.getCaptureHeader().timestampInMillis();
-	}
-
-	protected long getProcessingTime() {
-		return this.timeInMillis;
+	public long getProcessingTime() {
+		return (parent == null) ? null : parent.getProcessingTime();
 	}
 
 	/**
@@ -96,4 +85,17 @@ public abstract class AbstractAnalyzer implements JAnalyzer {
 		return (parent == null) ? null : parent.getOutQueue();
 	}
 
+	public TimeoutQueue getTimeoutQueue() {
+		return (parent == null) ? null : parent.getTimeoutQueue();
+	}
+
+	public int hold() {
+		return (parent == null) ? -1 : parent.hold();
+  }
+
+	public int release() {
+		return (parent == null) ? -1 : parent.release();
+  }
+	
+	
 }

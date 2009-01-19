@@ -291,15 +291,15 @@ public abstract class JHeader
 		if (a == null) {
 			return null;
 		}
-		
+
 		if (a.getType() == AnalysisUtils.CONTAINER_TYPE) {
 			return getAnalysis(analysis);
 		}
-		
+
 		if (a.getType() == analysis.getType()) {
 			analysis.peer(a);
 			return analysis;
-			
+
 		} else {
 			return null;
 		}
@@ -425,8 +425,7 @@ public abstract class JHeader
 	}
 
 	public <T extends JAnalysis> boolean hasAnalysis(T analysis) {
-		return (state.getAnalysis() != null) ? state.getAnalysis().hasAnalysis(
-		    analysis) : null;
+		return (state.getAnalysis() == null) ? false : state.getAnalysis().hasAnalysis(analysis);
 	}
 
 	/**
@@ -503,10 +502,10 @@ public abstract class JHeader
 	}
 
 	/**
-   * @return
-   */
-  public Iterable<JAnalysis> getAnalysisIterable() {
-  	return AnalysisUtils.toIterable(state.getAnalysis());
-  }
+	 * @return
+	 */
+	public Iterable<JAnalysis> getAnalysisIterable() {
+		return AnalysisUtils.toIterable(state.getAnalysis());
+	}
 
 }

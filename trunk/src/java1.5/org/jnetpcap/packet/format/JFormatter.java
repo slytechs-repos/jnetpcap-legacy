@@ -995,5 +995,21 @@ public abstract class JFormatter {
 	public String toString() {
 		return this.out.toString();
 	}
+	
+
+	/**
+   * @param text
+   */
+  public void println(String text) {
+  	out.format("%s\n", text);
+  }
+  
+	/**
+   * @param text
+   */
+  public void printf(String format, Object...args) {
+  	out.format(format, args);
+  }
+
 
 }

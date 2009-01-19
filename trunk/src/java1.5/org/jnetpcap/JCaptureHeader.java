@@ -63,4 +63,34 @@ public interface JCaptureHeader {
 	public abstract long nanos();
 
 	public abstract long timestampInMillis();
+	
+	public abstract long timestampInNanos();
+	
+	public abstract long timestampInMicros();
+
+
+	/**
+   * @param seconds
+   */
+  public abstract void seconds(long seconds);
+
+	/**
+   * @param nanos
+   */
+  public abstract void nanos(long nanos);
+
+	/**
+   * @param caplen
+   */
+  public abstract void caplen(int caplen);
+
+	/**
+   * @param wirelen
+   */
+  public abstract void wirelen(int wirelen);
+
+	/**
+   * @param captureHeader
+   */
+  public abstract void initFrom(JCaptureHeader captureHeader);
 }

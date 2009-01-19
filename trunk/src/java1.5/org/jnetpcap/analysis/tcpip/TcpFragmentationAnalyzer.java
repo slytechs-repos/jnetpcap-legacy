@@ -12,8 +12,11 @@
  */
 package org.jnetpcap.analysis.tcpip;
 
+import java.util.List;
+
 import org.jnetpcap.analysis.FragmentSequence;
 import org.jnetpcap.analysis.FragmentSequenceAnalyzer;
+import org.jnetpcap.analysis.JAnalysis;
 import org.jnetpcap.analysis.JAnalyzer;
 import org.jnetpcap.analysis.JController;
 import org.jnetpcap.packet.JPacket;
@@ -54,4 +57,12 @@ public class TcpFragmentationAnalyzer
 		
 		return true;
 	}
+
+	/* (non-Javadoc)
+   * @see org.jnetpcap.analysis.FragmentSequenceAnalyzer#generateInfo(org.jnetpcap.analysis.FragmentSequence)
+   */
+  public List<JAnalysis> generateInfo(FragmentSequence sequence) {
+	  // TODO Auto-generated method stub
+	  throw new UnsupportedOperationException("Not implemented yet");
+  }
 }

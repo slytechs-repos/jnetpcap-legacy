@@ -114,7 +114,7 @@ public class AnalysisUtils {
 	    JPacket.State packetState,
 	    JHeader.State headerState,
 	    JAnalysis analysis) {
-		JAnalysis a = packetState.getAnalysis();
+		JAnalysis a = headerState.getAnalysis();
 		if (a == null) {
 			headerState.setAnalysis(packetState, analysis);
 			return;

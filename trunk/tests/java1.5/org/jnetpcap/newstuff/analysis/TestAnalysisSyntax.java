@@ -14,8 +14,10 @@ package org.jnetpcap.newstuff.analysis;
 
 import junit.framework.TestCase;
 
+import org.jnetpcap.analysis.AbstractAnalysis;
 import org.jnetpcap.analysis.FieldAnalysis;
 import org.jnetpcap.analysis.FragmentSequence;
+import org.jnetpcap.analysis.FragmentSequenceEvent;
 import org.jnetpcap.analysis.HeaderAnalysis;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.TestUtils;
@@ -45,8 +47,8 @@ public class TestAnalysisSyntax
 		/* Analysis objects */
 		TimeoutQueue ipAnalyzer = new TimeoutQueue();
 
-		FragmentSequence ipSequence = new FragmentSequence();
-		FragmentSequence tcpSequence = new FragmentSequence();
+		AbstractAnalysis<FragmentSequence, FragmentSequenceEvent> ipSequence = new FragmentSequence();
+		AbstractAnalysis<FragmentSequence, FragmentSequenceEvent> tcpSequence = new FragmentSequence();
 		HeaderAnalysis etherValidation = new HeaderAnalysis();
 
 //		ipAnalyzer

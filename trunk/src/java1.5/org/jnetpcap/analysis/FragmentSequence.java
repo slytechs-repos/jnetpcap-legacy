@@ -15,10 +15,8 @@ package org.jnetpcap.analysis;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import org.jnetpcap.packet.JPacket;
-import org.jnetpcap.packet.header.Ip4;
 import org.jnetpcap.util.Timeout;
 
 /**
@@ -29,59 +27,72 @@ public class FragmentSequence
     extends AbstractAnalysis<FragmentSequence, FragmentSequenceEvent> implements
     Timeout {
 
-	private final static int PACKET_SEQUENCE = 0;
+	public final static int FLAG_HAS_ALL_FRAGMENTS = 0x0001;
 
-	private final static int SIZE = REF;
+	public final static int FLAG_HAS_FIRST_FRAGMENT = 0x0002;
+
+	public final static int FLAG_HAS_LAST_FRAGMENT = 0x0004;
 
 	private static final String NAME = "Fragment Sequence";
 
 	private static final String NICNAME = "Frame";
 
-	private boolean hasAllFragments = false;
+	private final FragmentSequenceAnalyzer analyzer;
 
-	private FragmentSequenceAnalyzer analyzer;
+	private int totalLength = -1;
 
-	private long timeoutInMillis;
+	public enum Field implements AnalysisField {
+		PACKET_SEQUENCE(0, REF),
+		FLAGS(REF, 4),
+		TIMEOUT(REF + 4, 8),
+		LEN(REF + 12, 4),
+		HASH(REF + 16, 4),
+		LAST(REF + REF + 20, 0),
+		;
+		private final int len;
+		private final int offset;
+		private Field() {
+			this(0, 4);
+		}
 
-	/**
-	 * @param size
-	 */
-	public FragmentSequence() {
-		super(SIZE, NAME);
+		private Field(int offset, int len) {
+			this.len = len;
+			this.offset = offset;
+		}
 
-		setPacketSequence(new LinkedList<JPacket>());
+		public final int getLength() {
+    	return this.len;
+    }
+
+		public final int getOffset() {
+    	return this.offset;
+    }
 	}
-
+	
 	/**
 	 * @param type
 	 * @param size
 	 */
-	public FragmentSequence(int a) {
+	public FragmentSequence() {
 		super(Type.POINTER, 0, NAME);
-	}
 
-	@SuppressWarnings("unchecked")
-	public List<JPacket> getPacketSequence() {
-		return super.getObject(List.class, PACKET_SEQUENCE);
+		this.analyzer = null;
 	}
-
-	private void setPacketSequence(List<JPacket> list) {
-		super.setObject(PACKET_SEQUENCE, list);
-	}
-
-	public boolean hasAllFragments() {
-		return hasAllFragments;
-	}
-
-	public void setHasAllFragments(boolean state) {
-		this.hasAllFragments = state;
-	}
-
+	
 	/**
-	 * @return
+	 * @param size
 	 */
-	public boolean isEmpty() {
-		return getPacketSequence().isEmpty();
+	public FragmentSequence(int hash, FragmentSequenceAnalyzer analyzer) {
+		super(Field.LAST.getOffset(), NAME);
+		this.analyzer = analyzer;
+
+		setPacketSequence(new LinkedList<JPacket>());
+		setLen(0);
+		setHash(hash);
+	}
+	
+	private void setHash(int hash) {
+		super.setInt(Field.HASH.getOffset(), hash);
 	}
 
 	/**
@@ -91,28 +102,36 @@ public class FragmentSequence
 	 */
 	public void addFragment(JPacket packet, int offset, int length) {
 		getPacketSequence().add(packet);
+		
+		setLen(getLen() + length);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.jnetpcap.analysis.Timeout#isTimedout(long)
-	 */
-	public boolean isTimedout(long timeInMillis) {
-		return timeoutInMillis < timeInMillis;
+
+	@Override
+  public int hashCode() {
+		return super.getInt(Field.HASH.getOffset());
+  }
+
+	private int getFlags() {
+		return super.getInt(Field.FLAGS.getOffset());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.jnetpcap.analysis.Timeout#timeout()
-	 */
-	public void timeout() {
-		analyzer.timeout(this);
+	public int getLen() {
+		return super.getInt(Field.LEN.getOffset());
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<JPacket> getPacketSequence() {
+		return super.getObject(List.class, Field.PACKET_SEQUENCE.getOffset());
 	}
 
 	@Override
-	public String getSummary() {
+	public String getShortTitle() {
+		return NICNAME;
+	}
+
+	@Override
+	public String[] getText() {
 		StringBuilder b = new StringBuilder();
 		for (JPacket packet : getPacketSequence()) {
 			if (b.length() != 0) {
@@ -125,44 +144,109 @@ public class FragmentSequence
 		return null;
 	}
 
-	@Override
-	public String getNicName() {
-		return NICNAME;
+	public long getTimeout() {
+		return super.getLong(Field.TIMEOUT.getOffset());
 	}
 
-	private Ip4 ip = new Ip4();
+	public final int getTotalLength() {
+  	return this.totalLength;
+  }
+
+	public boolean hasAllFragments() {
+		return (getFlags() & FLAG_HAS_ALL_FRAGMENTS) > 0;
+	}
+
+	/**
+   * @return
+   */
+  public boolean hasLastFragment() {
+  	return (getFlags() & FLAG_HAS_LAST_FRAGMENT) > 0;
+  }
+
+	/**
+	 * @return
+	 */
+	public boolean isEmpty() {
+		return getPacketSequence().isEmpty();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jnetpcap.analysis.Timeout#isTimedout(long)
+	 */
+	public boolean isTimedout(long timeInMillis) {
+		return getTimeout() < timeInMillis;
+	}
 
 	@Override
 	public Iterator<JAnalysis> iterator() {
-		final Iterator<JPacket> seq = getPacketSequence().iterator();
-
-		return new Iterator<JAnalysis>() {
-
-			public boolean hasNext() {
-				return seq.hasNext();
-			}
-
-			public JAnalysis next() {
-				JPacket packet = seq.next();
-				if (packet.hasHeader(ip)) {
-					int start = ip.offset() * 8;
-					int end = start + ip.length() - ip.hlen() * 4 -1;
-					Set<Ip4.Flag> flags = ip.flagsEnum();
-					
-					return new AnalysisInfo("partial", "partial", "#"
-					    + packet.getState().getFrameNumber() + " offset=" + start + "-"
-					    + end + " len=" + ip.length() + ", flags=" + flags.toString());
-
-				} else {
-					return new AnalysisInfo("partial", "partial", "#"
-					    + packet.getState().getFrameNumber());
-				}
-			}
-
-			public void remove() {
-				throw new UnsupportedOperationException("Not supported");
-			}
-
-		};
+		return analyzer.generateInfo(this).iterator();
 	}
+
+	private void setFlags(int flags) {
+		super.setInt(Field.FLAGS.getOffset(), flags);
+	}
+
+	public void setHasAllFragments(boolean state) {
+		setFlags(getFlags() | FLAG_HAS_ALL_FRAGMENTS);
+	}
+
+	/**
+   * @param tru
+   */
+  public void setHasFirstFragment(boolean state) {
+  	if (state) {
+  		setFlags(getFlags() | FLAG_HAS_FIRST_FRAGMENT);
+  	} else {
+  		setFlags(getFlags() & ~FLAG_HAS_FIRST_FRAGMENT);
+  	}
+  }
+
+	/**
+   * @param tru
+   */
+  public void setHasLastFragment(boolean state) {
+  	if (state) {
+  		setFlags(getFlags() | FLAG_HAS_LAST_FRAGMENT);
+  	} else {
+  		setFlags(getFlags() & ~FLAG_HAS_LAST_FRAGMENT);
+  	}
+  }
+
+	public void setLen(int len) {
+		super.setInt(Field.LEN.getOffset(), len);
+	}
+  
+	private void setPacketSequence(List<JPacket> list) {
+		super.setObject(Field.PACKET_SEQUENCE.getOffset(), list);
+	}
+
+	/**
+	 * @param timeout
+	 */
+	public void setTimeout(long timeout) {
+		super.setLong(Field.TIMEOUT.getOffset(), timeout);
+	}
+
+	public final void setTotalLength(int totalLength) {
+  	this.totalLength = totalLength;
+  }
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jnetpcap.analysis.Timeout#timeout()
+	 */
+	public void timeout() {
+		analyzer.timeout(this);
+	}
+
+	/* (non-Javadoc)
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   */
+  public int compareTo(Timeout o) {
+  	return o.equals(this) ? 0 : 1;
+  }
+
 }

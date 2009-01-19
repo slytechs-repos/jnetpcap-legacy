@@ -675,17 +675,15 @@ public abstract class JPacket
 	 * 
 	 * @return size in bytes
 	 */
-	protected abstract int getTotalSize();
+	public abstract int getTotalSize();
 
 	public int getType() {
 		return AnalysisUtils.ROOT_TYPE;
 	}
 
 	public boolean hasAnalysis(int type) {
-		return state.getAnalysis() != null
-		    && state.getAnalysis().hasAnalysis(type);
+		return state.getAnalysis() != null && state.getAnalysis().hasAnalysis(type);
 	}
-
 
 	public boolean hasAnalysis(Class<? extends JAnalysis> analysis) {
 		return state.getAnalysis() != null
@@ -832,5 +830,15 @@ public abstract class JPacket
 			throw new IllegalStateException(
 			    "internal error, StringBuilder threw IOException");
 		}
+	}
+
+	/**
+	 * Returns the frame number as assigned by either the packet scanner or
+	 * analyzers.
+	 * 
+	 * @return zero based frame number
+	 */
+	public long getFrameNumber() {
+		return state.getFrameNumber();
 	}
 }

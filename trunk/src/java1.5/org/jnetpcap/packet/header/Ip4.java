@@ -15,6 +15,7 @@ package org.jnetpcap.packet.header;
 import java.util.EnumSet;
 import java.util.Set;
 
+import org.jnetpcap.analysis.FragmentReassembly;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JHeaderMap;
 import org.jnetpcap.packet.JHeaderType;
@@ -990,6 +991,28 @@ public class Ip4
 		setUShort(4, value);
 	}
 
+	/**
+	 * Checks if this is ip fragment of a larger PDU. The method checks offset and
+	 * flags.MF fields to see if there are other fragments, marked by flags and
+	 * offset, for a larger PDU.
+	 * 
+	 * @return true if this is a fragment, otherwise false
+	 */
+	public boolean isFragment() {
+		return offset() != 0 || flags_MF() > 0;
+	}
+
+	/**
+	 * Checks if this packet has been reassembled from other IP fragments. This
+	 * check only works, if the PDU has been analyzed and reassembled by
+	 * Ip4Reassembler.
+	 * 
+	 * @return true if this PDU is reassembled, otherwise false if atomic
+	 */
+	public boolean isReassembled() {
+		return hasAnalysis(FragmentReassembly.class);
+	}
+
 	@Field(offset = 2 * 8, length = 16, format = "%d")
 	public int length() {
 		return getUShort(2);
@@ -1109,8 +1132,8 @@ public class Ip4
 	@Dynamic(Field.Property.DESCRIPTION)
 	public String typeDescription() {
 		String next = Ip4Type.toString(type());
-		return (offset() == 0) ? "next: " + next
-		    : "ip fragment" + (next == null?"":" of " + next + " PDU");
+		return (offset() == 0) ? "next: " + next : "ip fragment"
+		    + (next == null ? "" : " of " + next + " PDU");
 	}
 
 	public Ip4Type typeEnum() {
