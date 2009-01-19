@@ -23,11 +23,9 @@ import java.util.Iterator;
  */
 public class AnalysisInfo implements JAnalysis {
 
-	private final String nicname;
+	private final String[] text;
 
-	private final String summary;
-
-	private final String name;
+	private final String title;
 
 	/*
 	 * (non-Javadoc)
@@ -37,16 +35,15 @@ public class AnalysisInfo implements JAnalysis {
 	public <T extends JAnalysis> T getAnalysis(T analysis) {
 		return null;
 	}
-
+	
 	/**
 	 * @param name
 	 * @param nicname
-	 * @param summary
+	 * @param text
 	 */
-	public AnalysisInfo(String name, String nicname, String summary) {
-		this.name = name;
-		this.nicname = nicname;
-		this.summary = summary;
+	public AnalysisInfo(String name, String... text) {
+		this.title = name;
+		this.text = text;
 	}
 
 	/*
@@ -54,17 +51,8 @@ public class AnalysisInfo implements JAnalysis {
 	 * 
 	 * @see org.jnetpcap.analysis.JAnalysis#getName()
 	 */
-	public String getName() {
-		return name;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.jnetpcap.analysis.JAnalysis#getNicName()
-	 */
-	public String getNicName() {
-		return nicname;
+	public String getTitle() {
+		return title;
 	}
 
 	/*
@@ -72,8 +60,8 @@ public class AnalysisInfo implements JAnalysis {
 	 * 
 	 * @see org.jnetpcap.analysis.JAnalysis#getSummary()
 	 */
-	public Object getSummary() {
-		return summary;
+	public String[] getText() {
+		return text;
 	}
 
 	/*
@@ -129,4 +117,5 @@ public class AnalysisInfo implements JAnalysis {
 	public Iterator<JAnalysis> iterator() {
 		return AnalysisUtils.EMPTY_ITERATOR;
 	}
+
 }

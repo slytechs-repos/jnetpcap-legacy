@@ -17,7 +17,9 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 import org.jnetpcap.analysis.tcpip.Ip4FragmentationAnalyzer;
+import org.jnetpcap.analysis.tcpip.Ip4Reassembler;
 import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.packet.JPacketHandler;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.TestUtils;
 import org.jnetpcap.packet.format.TextFormatter;
@@ -39,6 +41,8 @@ public class TestIp4FragmentationAnalyzer
 
 	private Ip4FragmentationAnalyzer ip4Analyzer;
 
+	private Ip4Reassembler ip4Defrag;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -48,6 +52,7 @@ public class TestIp4FragmentationAnalyzer
 		controller = new JController();
 		ip4Analyzer = new Ip4FragmentationAnalyzer();
 		controller.addAnalyzer(ip4Analyzer, Ip4.ID);
+
 	}
 
 	/*
@@ -59,7 +64,7 @@ public class TestIp4FragmentationAnalyzer
 		super.tearDown();
 	}
 
-	public void test1() throws IOException {
+	public void testFragAnalyze2Packets() throws IOException {
 
 		TextFormatter out = new TextFormatter(System.out);
 
@@ -69,28 +74,57 @@ public class TestIp4FragmentationAnalyzer
 		controller.nextPacket(packet1, null);
 		controller.nextPacket(packet2, null);
 
-		FragmentSequence seq = new FragmentSequence();
+		AbstractAnalysis<FragmentSequence, FragmentSequenceEvent> seq =
+		    new FragmentSequence();
 		Ip4 ip = new Ip4();
 		packet2.getHeader(ip);
 
 		assertNotNull(ip.getAnalysis(seq));
 
-		out.format(ip);
+		// out.format(ip);
 
 	}
 
-	public void test2() throws IOException {
+	public void testFragAnalyzeBunchOfPackets() throws IOException {
 
 		TextFormatter out = new TextFormatter(System.out);
-    FragmentSequence seq = new FragmentSequence();
+		AbstractAnalysis<FragmentSequence, FragmentSequenceEvent> seq =
+		    new FragmentSequence();
 		Ip4 ip = new Ip4();
 
-		for (JPacket packet : TestUtils.getJPacketIterable(AFS, 124, 128)) {
+		for (JPacket packet : TestUtils.getJPacketIterable(AFS, 0, 128)) {
 			controller.nextPacket(packet, null);
 
 			packet.getHeader(ip);
 
-			out.format(ip);
+			// out.format(ip);
+		}
+	}
+
+	public void testIp4Reasemble() throws IOException {
+
+		ip4Defrag = new Ip4Reassembler(ip4Analyzer);
+
+		controller.add(new JPacketHandler<Object>() {
+			Ip4 ip = new Ip4();
+			TextFormatter out = new TextFormatter(System.out);
+			FragmentReassembly reassembly = new FragmentReassembly();
+
+			public void nextPacket(JPacket packet, Object user) {
+				try {
+					if (packet.hasHeader(ip) && ip.isReassembled()) {
+						out.printf("\nFrame #%d", packet.getFrameNumber());
+						out.format(ip);
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+
+		}, null);
+
+		for (JPacket packet : TestUtils.getJPacketIterable(AFS, 124, 128)) {
+			controller.nextPacket(packet, null);
 		}
 	}
 

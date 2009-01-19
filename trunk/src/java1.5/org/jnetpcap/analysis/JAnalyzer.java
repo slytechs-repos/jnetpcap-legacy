@@ -20,6 +20,7 @@ package org.jnetpcap.analysis;
 import java.util.Queue;
 
 import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.util.TimeoutQueue;
 
 
 /**
@@ -44,5 +45,16 @@ public interface JAnalyzer {
   public Queue<JPacket> getInQueue();
   
   public Queue<JPacket> getOutQueue();
+
+	/**
+   * @return
+   */
+  public TimeoutQueue getTimeoutQueue();
+  
+  public long getProcessingTime();
+  
+  public int hold();
+  
+  public int release();
 
 }

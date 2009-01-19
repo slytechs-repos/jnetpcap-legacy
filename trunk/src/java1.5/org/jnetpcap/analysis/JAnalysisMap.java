@@ -62,6 +62,7 @@ public class JAnalysisMap
 	 * @see org.jnetpcap.analysis.JPeerableAnalysis#hasAnalysis(org.jnetpcap.analysis.JPeerableAnalysis)
 	 */
 	public <T extends JAnalysis> boolean hasAnalysis(T analysis) {
+		Map<Integer, JAnalysis> map = getMap();
 		if (getMap().containsKey(analysis.getType())) {
 			getAnalysis(analysis); // Do the peering
 
@@ -77,7 +78,43 @@ public class JAnalysisMap
 	}
 
 	public Iterator<JAnalysis> iterator() {
-		return getMap().values().iterator();
+		final Iterator<JAnalysis> i = getMap().values().iterator();
+		
+		return i;
+		
+//		return new Iterator<JAnalysis>() {
+//			JAnalysis main = null;
+//			Iterator<JAnalysis> s = null;
+//
+//			public boolean hasNext() {
+//				if (main == null && (s == null || s.hasNext() == false)) {
+//					if (i.hasNext()) {
+//						main = i.next();
+//						s = main.iterator();
+//						
+//					} else {
+//						return false;
+//					}
+//				}
+//				
+//				return main != null || s.hasNext();
+//      }
+//
+//			public JAnalysis next() {
+//				JAnalysis a = (main == null) ? s.next() : main;
+//			
+//				if (main != null) { 
+//					main = null;
+//				}
+//				
+//				return a;
+//      }
+//
+//			public void remove() {
+//	      throw new UnsupportedOperationException("Not implemented yet");
+//      }
+//			
+//		};
   }
 	
 	

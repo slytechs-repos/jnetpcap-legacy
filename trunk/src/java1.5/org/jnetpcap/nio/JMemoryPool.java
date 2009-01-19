@@ -154,6 +154,10 @@ public class JMemoryPool {
 		Iterator<Reference<Block>> i = pool.iterator();
 		while (i.hasNext()) {
 			final Reference<Block> r = i.next();
+			if (r == null) {
+				continue;
+			}
+			
 			final Block b = r.get();
 			if (b == null) {
 				i.remove();

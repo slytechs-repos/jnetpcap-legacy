@@ -12,31 +12,40 @@
  */
 package org.jnetpcap.analysis;
 
+import org.jnetpcap.analysis.AnalyzerEvent.AnalyzerEventType;
+
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public interface JAnalysis extends Iterable<JAnalysis> {
-	
-	public int getType();
+public class FragmentReassemblyEvent
+    extends AbstractAnalyzerEvent<FragmentReassemblyEvent.Type> {
 
-	public <T extends JAnalysis> T getAnalysis(T analysis);
-
-	public <T extends JAnalysis> boolean hasAnalysis(T analysis);
-	
-	public <T extends JAnalysis> boolean hasAnalysis(Class<T> analysis);
-	
-	public boolean hasAnalysis(int type);
-
-	public int peer(JAnalysis peer);
+	public enum Type implements AnalyzerEventType {
+		COMPLETE_PDU,
+		INCOMPLETE_PDU,
+	}
 
 	/**
-   * @return
-   */
-  public String getTitle();
+	 * @param source
+	 * @param type
+	 */
+	public FragmentReassemblyEvent(FragmentReassemblyAnalyzer source, Type type) {
+		super(source, type);
+	}
 
-	/**
-   * @return
-   */
-  public String[] getText();
+	public static FragmentReassemblyEvent createCompletePdu(
+	    FragmentReassemblyAnalyzer source,
+	    FragmentReassembly re) {
+
+		return new FragmentReassemblyEvent(source, Type.COMPLETE_PDU);
+	}
+	
+	public static FragmentReassemblyEvent createIncompletePdu(
+	    FragmentReassemblyAnalyzer source,
+	    FragmentReassembly re) {
+
+		return new FragmentReassemblyEvent(source, Type.INCOMPLETE_PDU);
+	}
+
 }

@@ -70,35 +70,44 @@ public class TextFormatter
 	}
 
 	@Override
-  protected void analysisAfter(JHeader header, JAnalysis analysis, Detail detail)
-      throws IOException {
+	protected void analysisAfter(JHeader header, JAnalysis analysis, Detail detail)
+	    throws IOException {
 		decLevel();
-  }
+	}
 
 	@Override
-  protected void analysisBefore(JHeader header, JAnalysis analysis, Detail detail)
-       throws IOException {
-		
+	protected void analysisBefore(
+	    JHeader header,
+	    JAnalysis analysis,
+	    Detail detail) throws IOException {
+
 		pad();
-		pad().format("*** %s analysis ***", analysis.getName());
-		incLevel(analysis.getNicName() + ": ");
-		
-		if (analysis.getSummary() != null) {
-			pad().format("%s", analysis.getSummary());	
+		if (analysis.getText() != null) {
+			pad().format("*** %s analysis ***", analysis.getTitle());
+
+			for (String s : analysis.getText()) {
+				pad().format("%s: %s", analysis.getTitle(), s);
+			}
 		}
- }
-	
-	
+	}
 
 	@Override
-  protected void subAnalysisBefore(
-      JHeader header,
-      JAnalysis analysis,
-      JAnalysis subAnalysis,
-      Detail detail) throws IOException {
-		
-		pad().format("%s %s", subAnalysis.getName(), subAnalysis.getSummary());
-  }
+	protected void subAnalysisBefore(
+	    JHeader header,
+	    JAnalysis analysis,
+	    JAnalysis subAnalysis,
+	    Detail detail) throws IOException {
+
+		incLevel(subAnalysis.getTitle() + ": ");
+
+		if (subAnalysis.getText() != null) {
+			for (String s : subAnalysis.getText()) {
+				pad().format("%s", s);
+			}
+		}
+
+		decLevel();
+	}
 
 	protected void fieldAfter(JHeader header, JField field, Detail detail)
 	    throws IOException {
@@ -225,8 +234,8 @@ public class TextFormatter
 		if (frameIndex != -1) {
 			pad().format(FIELD_FORMAT + "%d", "#", frameIndex);
 		} else {
-			pad()
-			    .format(FIELD_FORMAT + "%d", "number", packet.getState().getFrameNumber());
+			pad().format(FIELD_FORMAT + "%d", "number",
+			    packet.getState().getFrameNumber());
 
 		}
 
@@ -289,6 +298,4 @@ public class TextFormatter
 		pad().format("+ %s: offset=%d length=%d", subHeader.getName(),
 		    subHeader.getOffset(), subHeader.getLength());
 	}
-	
-	
 }

@@ -25,6 +25,18 @@ import org.jnetpcap.nio.JObjectBuffer;
 public abstract class AbstractAnalysis<S extends JAnalysis, E extends AnalyzerEvent>
     extends JObjectBuffer implements JAnalysis {
 
+	/**
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public interface AnalysisField {
+
+		public int getLength();
+
+		public int getOffset();
+
+	}
+
 	private final static int ANALYZER = 4 + REF;
 
 	private final static int CATEGORY = 0;
@@ -34,10 +46,12 @@ public abstract class AbstractAnalysis<S extends JAnalysis, E extends AnalyzerEv
 	private final static int SIZE = REF * 2 + 4;
 
 	private final int offset;
-	
+
 	private final String name;
 
 	private String nicname;
+
+	private int type;
 
 	public AbstractAnalysis(Type type, int size) {
 		this(type, size, null);
@@ -46,7 +60,7 @@ public abstract class AbstractAnalysis<S extends JAnalysis, E extends AnalyzerEv
 	public AbstractAnalysis(int size) {
 		this(size, null);
 	}
-	
+
 	public AbstractAnalysis(int size, String name) {
 		super(SIZE + size);
 		this.offset = size;
@@ -54,25 +68,32 @@ public abstract class AbstractAnalysis<S extends JAnalysis, E extends AnalyzerEv
 		this.nicname = name;
 
 		super.order(ByteOrder.nativeOrder());
+
+		/*
+		 * We set a local type field and the native type in buffer. Native type is
+		 * needed by native analyzers.
+		 */
 		setType(AnalysisUtils.getType(getClass()));
-		
+		this.type = AnalysisUtils.getType(getClass());
+
 	}
 
-
 	/**
-   * @param pointer
-   * @param i
-   * @param name
-   */
-  public AbstractAnalysis(Type type, int size, String name) {
+	 * Peered constructor
+	 * 
+	 * @param pointer
+	 * @param i
+	 * @param name
+	 */
+	public AbstractAnalysis(Type type, int size, String name) {
 		super(type);
 		this.offset = size;
-		this.name = name == null? getClass().getSimpleName() : name;
+		this.name = name == null ? getClass().getSimpleName() : name;
 		this.nicname = name;
-		
+		this.type = AnalysisUtils.getType(getClass());
+
 		super.order(ByteOrder.nativeOrder());
-		setType(AnalysisUtils.getType(getClass()));
-  }
+	}
 
 	public <U> boolean addListener(AnalyzerListener<E> listener, U user) {
 		if (getSupport() == null) {
@@ -100,7 +121,7 @@ public abstract class AbstractAnalysis<S extends JAnalysis, E extends AnalyzerEv
 	 * @see org.jnetpcap.analysis.JAnalysis#getCategory()
 	 */
 	public int getType() {
-		return getInt(offset + CATEGORY);
+		return this.type;
 	}
 
 	public <T extends JAnalysis> boolean hasAnalysis(T analysis) {
@@ -112,7 +133,7 @@ public abstract class AbstractAnalysis<S extends JAnalysis, E extends AnalyzerEv
 	}
 
 	public boolean hasAnalysis(int type) {
-		return false;
+		return this.type == type;
 	}
 
 	/*
@@ -144,18 +165,18 @@ public abstract class AbstractAnalysis<S extends JAnalysis, E extends AnalyzerEv
 
 	public Iterator<JAnalysis> iterator() {
 		return AnalysisUtils.EMPTY_ITERATOR;
-  }
+	}
 
-	public String getName() {
+	public String getTitle() {
 		return this.name;
-  }
+	}
 
-	public String getSummary() {
+	public String[] getText() {
 		return null;
-  }
+	}
 
-	public String getNicName() {
+	public String getShortTitle() {
 		return nicname;
-  }
+	}
 
 }

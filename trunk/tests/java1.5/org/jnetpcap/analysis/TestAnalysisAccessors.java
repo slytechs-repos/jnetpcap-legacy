@@ -55,17 +55,17 @@ public class TestAnalysisAccessors
 	    throw new UnsupportedOperationException("Not implemented yet");
     }
 
-		public String getName() {
+		public String getTitle() {
 	    // TODO Auto-generated method stub
 	    throw new UnsupportedOperationException("Not implemented yet");
     }
 
-		public String getNicName() {
+		public String getShortTitle() {
 	    // TODO Auto-generated method stub
 	    throw new UnsupportedOperationException("Not implemented yet");
     }
 
-		public Object getSummary() {
+		public String[] getText() {
 	    // TODO Auto-generated method stub
 	    throw new UnsupportedOperationException("Not implemented yet");
     }
