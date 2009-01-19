@@ -183,7 +183,19 @@ public class Ip4Reassembler
 		if (evt.getType() == FragmentSequenceEvent.Type.SEQUENCE_START) {
 			hold(); // Hold the output queue until we reassemble
 		}
+		
+		/*
+		 * Check for error conditions. The reassembly will be aborted therefore
+		 * we must release the hold we placed at the sequence start
+		 */
+		if (evt.getType() == FragmentSequenceEvent.Type.SEQUENCE_TIMEOUT ||
+				evt.getType() == FragmentSequenceEvent.Type.SEQUENCE_FRAGMENT_OVERLAP) {
+			release(); // Release the queue
+		}
 
+		/*
+		 * All the PDU fragments have been seen and we can start our reassembly
+		 */
 		if (evt.getType() == FragmentSequenceEvent.Type.SEQUENCE_COMPLETE) {
 			FragmentSequence seq = evt.getSequence();
 			JPacket packet = createPacketFromSequence(seq);
@@ -195,7 +207,8 @@ public class Ip4Reassembler
 			}
 
 			/*
-			 * Put on the inbound queue so it gets processed by higher layers
+			 * Put on the inbound queue so it gets analyzed. This gives higher layer
+			 * protocols complete PDUs for them to analyze and scanner to decode.
 			 */
 			Queue<JPacket> in = getInQueue();
 			in.offer(packet);
