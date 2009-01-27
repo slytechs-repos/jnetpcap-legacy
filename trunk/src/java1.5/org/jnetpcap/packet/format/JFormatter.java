@@ -157,6 +157,7 @@ public abstract class JFormatter {
 		LONG_HEX,
 		STRING,
 		STRING_TEXT_DUMP,
+		BOOLEAN,
 	}
 
 	private static final Detail DEFAULT_DETAIL = Detail.MULTI_LINE_FULL_DETAIL;
@@ -280,8 +281,10 @@ public abstract class JFormatter {
 	 * @param analysis
 	 * @param detail
 	 */
-	protected void analysisBefore(JHeader header, JAnalysis analysis, Detail detail)
-	    throws IOException {
+	protected void analysisBefore(
+	    JHeader header,
+	    JAnalysis analysis,
+	    Detail detail) throws IOException {
 	}
 
 	/**
@@ -370,7 +373,8 @@ public abstract class JFormatter {
 	 * @param analysis
 	 * @param detail
 	 */
-	public void format(JHeader header, JAnalysis analysis, Detail detail) throws IOException{
+	public void format(JHeader header, JAnalysis analysis, Detail detail)
+	    throws IOException {
 
 		analysisBefore(header, analysis, detail);
 
@@ -792,7 +796,7 @@ public abstract class JFormatter {
 		final int plen = parent.getLength(header);
 		// final int p = parent.getValue(int.class, header);
 		final long pmask = parent.getMask(header);
-		long v = field.getValue(Number.class, header).longValue();
+		long v = field.longValue(header);
 
 		final int offset = field.getOffset(header);
 		final int length = field.getLength(header);
@@ -995,21 +999,19 @@ public abstract class JFormatter {
 	public String toString() {
 		return this.out.toString();
 	}
-	
 
 	/**
-   * @param text
-   */
-  public void println(String text) {
-  	out.format("%s\n", text);
-  }
-  
-	/**
-   * @param text
-   */
-  public void printf(String format, Object...args) {
-  	out.format(format, args);
-  }
+	 * @param text
+	 */
+	public void println(String text) {
+		out.format("%s\n", text);
+	}
 
+	/**
+	 * @param text
+	 */
+	public void printf(String format, Object... args) {
+		out.format(format, args);
+	}
 
 }

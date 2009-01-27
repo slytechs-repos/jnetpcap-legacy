@@ -12,12 +12,14 @@
  */
 package org.jnetpcap.packet;
 
+import java.io.IOException;
 import java.nio.ByteOrder;
 
 import org.jnetpcap.analysis.AnalysisUtils;
 import org.jnetpcap.analysis.JAnalysis;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JStruct;
+import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.structure.AnnotatedHeader;
 import org.jnetpcap.packet.structure.DefaultField;
 import org.jnetpcap.packet.structure.JField;
@@ -425,7 +427,8 @@ public abstract class JHeader
 	}
 
 	public <T extends JAnalysis> boolean hasAnalysis(T analysis) {
-		return (state.getAnalysis() == null) ? false : state.getAnalysis().hasAnalysis(analysis);
+		return (state.getAnalysis() == null) ? false : state.getAnalysis()
+		    .hasAnalysis(analysis);
 	}
 
 	/**
@@ -490,8 +493,14 @@ public abstract class JHeader
 	 * @return String with summary of the header
 	 */
 	public String toString() {
-		return "(id=" + getId() + ", offset=" + getOffset() + ", length="
-		    + getLength() + ")";
+		JFormatter out = JPacket.getFormatter();
+		out.reset();
+		try {
+	    out.format(this);
+    } catch (IOException e) {
+	    throw new IllegalStateException("Unexpected StringBuilder IO error");
+    }
+		return out.toString();
 	}
 
 	/**

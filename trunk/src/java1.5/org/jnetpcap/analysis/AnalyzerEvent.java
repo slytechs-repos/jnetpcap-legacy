@@ -25,5 +25,7 @@ public interface AnalyzerEvent {
 	};
 
 	public JAnalyzer getSource();
+	
+	public AnalyzerEventType getType();
 
 }

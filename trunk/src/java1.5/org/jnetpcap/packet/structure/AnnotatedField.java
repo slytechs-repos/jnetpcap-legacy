@@ -186,6 +186,8 @@ public class AnnotatedField {
 	private static Style mapFormatToStyle(String format) {
 		if (format.contains("%s")) {
 			return Style.STRING;
+		} else if (format.contains("%b")) {
+			return Style.BOOLEAN;
 		} else if (format.contains("%d")) {
 			return Style.INT_DEC;
 		} else if (format.contains("%x")) {

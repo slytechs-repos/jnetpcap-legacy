@@ -260,4 +260,21 @@ public class JField {
 		return value.objectMethod(header);
 	}
 
+	/**
+   * @param header
+   * @return
+   */
+  public long longValue(JHeader header) {
+  	Object o = getValue(header);
+  	if (o instanceof Number) {
+  		return ((Number) o).longValue();
+  	} else if (o instanceof Boolean) {
+  		return ((Boolean)o).booleanValue()?1L:0L;
+  	} else if (o instanceof String) {
+  		return Long.parseLong(o.toString());
+  	} else {
+  		throw new IllegalStateException("unknown format encountered");
+  	}
+  }
+
 }

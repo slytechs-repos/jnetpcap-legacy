@@ -24,31 +24,31 @@ import org.jnetpcap.packet.JPacket;
 public class FragmentReassembly
     extends AbstractAnalysis<FragmentReassembly, FragmentReassemblyEvent> {
 
-	private final static String NAME = "Fragment Reassembly";
+	private final static String TITLE = "Fragment Reassembly";
 
-	public enum Field implements AnalysisField {
-		PACKET_SEQUENCE(0, REF),
-		PACKET(REF, REF),
-		LAST(REF + REF, 0), ;
+	public enum Field implements JStructField {
+		PACKET_SEQUENCE(REF),
+		PACKET(REF),;
+		
 		private final int len;
 
-		private final int offset;
+		int offset;
 
 		private Field() {
-			this(0, 4);
+			this(4);
 		}
 
-		private Field(int offset, int len) {
+		private Field(int len) {
 			this.len = len;
-			this.offset = offset;
 		}
 
-		public final int getLength() {
+		public int length(int offset) {
+			this.offset = offset;
 			return this.len;
 		}
 
-		public final int getOffset() {
-			return this.offset;
+		public final int offset() {
+			return offset;
 		}
 	}
 
@@ -57,7 +57,7 @@ public class FragmentReassembly
 	 * @param name
 	 */
 	public FragmentReassembly(JPacket packet, FragmentSequence sequence) {
-		super(Field.LAST.getOffset(), NAME);
+		super(TITLE, Field.class);
 
 		setFragmentSequence(sequence);
 		setPacket(packet);
@@ -65,12 +65,12 @@ public class FragmentReassembly
 
 	private void setFragmentSequence(
 	    AbstractAnalysis<FragmentSequence, FragmentSequenceEvent> sequence) {
-		super.setObject(Field.PACKET_SEQUENCE.getOffset(), sequence);
+		super.setObject(Field.PACKET_SEQUENCE.offset(), sequence);
 	}
 
 	public AbstractAnalysis<FragmentSequence, FragmentSequenceEvent> getFragmentSequence() {
 		return super.getObject(FragmentSequence.class, Field.PACKET_SEQUENCE
-		    .getOffset());
+		    .offset());
 	}
 
 	/**
@@ -79,7 +79,7 @@ public class FragmentReassembly
 	 * @param name
 	 */
 	public FragmentReassembly() {
-		super(JMemory.Type.POINTER, REF, NAME);
+		super(JMemory.Type.POINTER);
 	}
 
 	/*
@@ -123,11 +123,11 @@ public class FragmentReassembly
 	 * @return
 	 */
 	public JPacket getPacket() {
-		return super.getObject(JPacket.class, Field.PACKET.getOffset());
+		return super.getObject(JPacket.class, Field.PACKET.offset());
 	}
 
 	public void setPacket(JPacket packet) {
-		super.setObject(Field.PACKET.getOffset(), packet);
+		super.setObject(Field.PACKET.offset(), packet);
 	}
 	
 }

@@ -17,11 +17,15 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.jnetpcap.Pcap;
+import org.jnetpcap.analysis.tcpip.AnalysisException;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JPacketHandler;
 import org.jnetpcap.packet.JRegistry;
+import org.jnetpcap.util.JLogger;
 import org.jnetpcap.util.JPacketSupport;
 import org.jnetpcap.util.TimeoutQueue;
 
@@ -33,11 +37,11 @@ import org.jnetpcap.util.TimeoutQueue;
 public class JController
     extends AbstractAnalyzer implements JPacketHandler<Pcap> {
 
+	private final static Logger logger = JLogger.getLogger(JController.class);
+
 	private final static int INITIAL_CAPACITY = 1000;
 
-	private JPacketSupport support = new JPacketSupport();
-
-	private Comparator<JAnalyzer> ANALYZER_PRIORITY =
+	private final static Comparator<JAnalyzer> ANALYZER_PRIORITY =
 	    new Comparator<JAnalyzer>() {
 
 		    public int compare(JAnalyzer o1, JAnalyzer o2) {
@@ -46,51 +50,74 @@ public class JController
 
 	    };
 
-	private Comparator<JPacket> PACKET_TIMESTAMP = new Comparator<JPacket>() {
+	private long analyzerMap = 0;
 
-		public int compare(JPacket o1, JPacket o2) {
-			int r =
-			    (int) (o1.getCaptureHeader().timestampInNanos() - o2
-			        .getCaptureHeader().timestampInNanos());
-			final long M = 0x00FFFFFF;
+	private Set<JAnalyzer>[] analyzers = new TreeSet[JRegistry.MAX_ID_COUNT];
 
-//			System.out.printf("%d/%d - %d/%d = %d\n", 
-//					o1.getFrameNumber(), 
-//					o1.getCaptureHeader().timestampInNanos() & M,
-//					o2.getFrameNumber(),
-//					o2.getCaptureHeader()
-//			    .timestampInNanos() & M, r);
-
-			if (r == 0) {
-				return (int) (o1.getFrameNumber() - o2.getFrameNumber());
-			} else {
-				return r;
-			}
-		}
-
-	};
-
-	private TimeoutQueue timeQueue = new TimeoutQueue();
+	private long bufferSize = Long.MAX_VALUE;
 
 	private Queue<JPacket> inQ =
 	    new PriorityQueue<JPacket>(INITIAL_CAPACITY, PACKET_TIMESTAMP);
 
+	private int lock;
+
 	private Queue<JPacket> outQ =
-	    new PriorityQueue<JPacket>(INITIAL_CAPACITY, PACKET_TIMESTAMP);
+	    new PriorityQueue<JPacket>(INITIAL_CAPACITY, JController.PACKET_TIMESTAMP);
 
-	private Set<JAnalyzer>[] analyzers = new TreeSet[JRegistry.MAX_ID_COUNT];
+	private final static Comparator<JPacket> PACKET_TIMESTAMP =
+	    new Comparator<JPacket>() {
 
-	private long analyzerMap = 0;
+		    public int compare(JPacket o1, JPacket o2) {
+			    int r =
+			        (int) (o1.getCaptureHeader().timestampInNanos() - o2
+			            .getCaptureHeader().timestampInNanos());
+			    // final long M = 0x00FFFFFF;
+			    //
+			    // System.out.printf("%d/%d - %d/%d = %d\n",
+			    // o1.getFrameNumber(),
+			    // o1.getCaptureHeader().timestampInNanos() & M,
+			    // o2.getFrameNumber(),
+			    // o2.getCaptureHeader()
+			    // .timestampInNanos() & M, r);
+
+			    if (r == 0) {
+				    return (int) (o1.getFrameNumber() - o2.getFrameNumber());
+			    } else {
+				    return r;
+			    }
+		    }
+
+	    };
+
+	private JPacketSupport support = new JPacketSupport();
 
 	private long timeInMillis;
 
-	private int lock;
+	private TimeoutQueue timeQueue = new TimeoutQueue();
+
+	private long totalBuffered = 0;
+
+	public <T> boolean add(JPacketHandler<T> o, T user) {
+		return this.support.add(o, user);
+	}
 
 	public void addAnalyzer(JAnalyzer analyzer, int id) {
 		analyzerMap |= (1L << id);
 
 		getAnalyzers(id).add(analyzer);
 		analyzer.setParent(this);
+	}
+
+	public Set<JAnalyzer> getAnalyzers(int id) {
+		if (analyzers[id] == null) {
+			analyzers[id] = new TreeSet<JAnalyzer>(JController.ANALYZER_PRIORITY);
+		}
+
+		return analyzers[id];
+	}
+
+	public final long getBufferSize() {
+		return this.bufferSize;
 	}
 
 	@Override
@@ -103,48 +130,28 @@ public class JController
 		return outQ;
 	}
 
-	public Set<JAnalyzer> getAnalyzers(int id) {
-		if (analyzers[id] == null) {
-			analyzers[id] = new TreeSet<JAnalyzer>(ANALYZER_PRIORITY);
-		}
-
-		return analyzers[id];
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jnetpcap.analysis.JAnalyzer#getPriority()
+	 */
+	public int getPriority() {
+		return 0; // Highest priority
 	}
 
-	public <T> boolean add(JPacketHandler<T> o, T user) {
-		return this.support.add(o, user);
+	@Override
+	public long getProcessingTime() {
+		return this.timeInMillis;
 	}
 
-	public boolean remove(JPacketHandler<?> o) {
-		return this.support.remove(o);
-	}
-	
-	private long totalBuffered = 0;
-
-	private long bufferSize = Long.MAX_VALUE;
-
-	protected void processQueue() {
-
-		while (inQ.isEmpty() == false) {
-			JPacket p = inQ.poll();
-
-			setProcessingTime(p);
-			processPacket(p);
-
-			totalBuffered += p.getTotalSize();
-			outQ.offer(p);
-		}
+	@Override
+	public TimeoutQueue getTimeoutQueue() {
+		return this.timeQueue;
 	}
 
-	protected void processingComplete() {
-
-		while ((this.lock == 0 || totalBuffered > bufferSize ) && outQ.isEmpty() == false) {
-			JPacket packet = outQ.poll();
-			totalBuffered -= packet.getTotalSize();
-			
-			support.fireNextPacket(packet);
-		}
-
+	@Override
+	public int hold() {
+		return this.lock++;
 	}
 
 	public void nextPacket(JPacket packet, Pcap pcap) {
@@ -168,22 +175,21 @@ public class JController
 		/*
 		 * Process the inbound queue of packets
 		 */
-		processQueue();
+		processInboundQueue();
 
 		/**
 		 * Process the outbound queue of packets
 		 */
-		processingComplete();
+		processingOutboundQueue();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.jnetpcap.analysis.AbstractAnalyzer#processPacket(org.jnetpcap.packet.JPacket)
-	 */
-	@Override
-	public boolean processPacket(JPacket packet) {
+	public boolean processHeaders(JPacket packet) {
 		long map = packet.getState().get64BitHeaderMap(0);
+
+		return processHeaders(packet, map);
+	}
+
+	public boolean processHeaders(JPacket packet, long map) {
 		if ((map & analyzerMap) == 0) {
 			return true; // No analyzers matching headers in the packet
 		}
@@ -207,57 +213,74 @@ public class JController
 			 * Now go through all the analyzers for this protocol, sorted by priority
 			 */
 			for (JAnalyzer analyzer : analyzers[id]) {
-				analyzer.processPacket(packet);
+				try {
+					analyzer.processPacket(packet);
+				} catch (AnalysisException e) {
+					logger.log(Level.WARNING, e.getMessage(), e);
+				}
 			}
 		}
 
 		return true;
 	}
 
+	protected void processInboundQueue() {
+
+		while (inQ.isEmpty() == false) {
+			JPacket p = inQ.poll();
+
+			setProcessingTime(p);
+			processPacket(p);
+
+			totalBuffered += p.getTotalSize();
+			outQ.offer(p);
+		}
+	}
+
+	protected void processingOutboundQueue() {
+
+		while ((this.lock == 0 || totalBuffered > bufferSize)
+		    && outQ.isEmpty() == false) {
+			JPacket packet = outQ.poll();
+			totalBuffered -= packet.getTotalSize();
+
+			support.fireNextPacket(packet);
+		}
+
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.JAnalyzer#getPriority()
+	 * @see org.jnetpcap.analysis.AbstractAnalyzer#processPacket(org.jnetpcap.packet.JPacket)
 	 */
-	public int getPriority() {
-		return 0; // Highest priority
-	}
-
 	@Override
-	public TimeoutQueue getTimeoutQueue() {
-		return this.timeQueue;
-	}
+	public boolean processPacket(JPacket packet) {
+		long map = packet.getState().get64BitHeaderMap(0);
 
-	protected void setProcessingTime(JPacket packet) {
-		this.timeInMillis = packet.getCaptureHeader().timestampInMillis();
-	}
-
-	@Override
-	public long getProcessingTime() {
-		return this.timeInMillis;
-	}
-
-	@Override
-	public int hold() {
-		return this.lock++;
+		return processHeaders(packet, map);
 	}
 
 	@Override
 	public int release() {
 		this.lock--;
 		if (lock == 0) {
-			processingComplete();
+			processingOutboundQueue();
 		}
 
 		return lock + 1;
 	}
 
-	public final long getBufferSize() {
-  	return this.bufferSize;
-  }
+	public boolean remove(JPacketHandler<?> o) {
+		return this.support.remove(o);
+	}
 
 	public final void setBufferSize(long bufferSize) {
-  	this.bufferSize = bufferSize;
-  }
+		this.bufferSize = bufferSize;
+	}
+
+	protected void setProcessingTime(JPacket packet) {
+		this.timeInMillis = packet.getCaptureHeader().timestampInMillis();
+	}
 
 }

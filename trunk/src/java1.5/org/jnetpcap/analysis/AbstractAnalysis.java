@@ -16,56 +16,76 @@ import java.nio.ByteOrder;
 import java.util.Iterator;
 
 import org.jnetpcap.nio.JMemory;
-import org.jnetpcap.nio.JObjectBuffer;
+import org.jnetpcap.nio.JStructBuffer;
 
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
 public abstract class AbstractAnalysis<S extends JAnalysis, E extends AnalyzerEvent>
-    extends JObjectBuffer implements JAnalysis {
+    extends JStructBuffer implements JAnalysis {
 
-	/**
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
-	 */
-	public interface AnalysisField {
+	private enum Field implements JStructField {
+		TYPE,
+		TITLE(REF),
+		TEXT(REF),
+		ANALYZER(REF),
+		LISTENERS(REF), ;
 
-		public int getLength();
 
-		public int getOffset();
+		private final int len;
 
+		int offset;
+
+		private Field() {
+			this(4);
+		}
+
+		private Field(int len) {
+			this.len = len;
+		}
+
+		public int length(int offset) {
+			this.offset = offset;
+			return this.len;
+		}
+
+		public final int offset() {
+			return offset;
+		}
 	}
 
-	private final static int ANALYZER = 4 + REF;
+	private final int type;
 
-	private final static int CATEGORY = 0;
+	public AbstractAnalysis(Type type) {
+		super(type);
 
-	private final static int LISTENERS = 4;
-
-	private final static int SIZE = REF * 2 + 4;
-
-	private final int offset;
-
-	private final String name;
-
-	private String nicname;
-
-	private int type;
-
-	public AbstractAnalysis(Type type, int size) {
-		this(type, size, null);
+		this.type = AnalysisUtils.getType(getClass());
 	}
 
-	public AbstractAnalysis(int size) {
-		this(size, null);
+	@SuppressWarnings("unchecked")
+	public <T extends Enum<T> & JStructField> AbstractAnalysis(Class<T> c) {
+		this(null, (Class<T>) Field.class, c);
 	}
 
-	public AbstractAnalysis(int size, String name) {
-		super(SIZE + size);
-		this.offset = size;
-		this.name = name == null ? getClass().getSimpleName() : name;
-		this.nicname = name;
+	@SuppressWarnings("unchecked")
+	public <T extends Enum<T> & JStructField> AbstractAnalysis(Class<T> c1,
+	    Class<T> c2) {
+		this(null, (Class<T>) Field.class, c1, c2);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends Enum<T> & JStructField> AbstractAnalysis(Class<T> c1,
+	    Class<T> c2, Class<T> c3) {
+		this(null, (Class<T>) Field.class, c1, c2, c3);
+	}
+
+	public <T extends Enum<T> & JStructField> AbstractAnalysis(String title,
+	    Class<T>... c) {
+
+		super(c);
+
+		setTitle(title == null ? getClass().getSimpleName() : title);
 
 		super.order(ByteOrder.nativeOrder());
 
@@ -73,26 +93,8 @@ public abstract class AbstractAnalysis<S extends JAnalysis, E extends AnalyzerEv
 		 * We set a local type field and the native type in buffer. Native type is
 		 * needed by native analyzers.
 		 */
+		this.type = AnalysisUtils.getType(getClass());
 		setType(AnalysisUtils.getType(getClass()));
-		this.type = AnalysisUtils.getType(getClass());
-
-	}
-
-	/**
-	 * Peered constructor
-	 * 
-	 * @param pointer
-	 * @param i
-	 * @param name
-	 */
-	public AbstractAnalysis(Type type, int size, String name) {
-		super(type);
-		this.offset = size;
-		this.name = name == null ? getClass().getSimpleName() : name;
-		this.nicname = name;
-		this.type = AnalysisUtils.getType(getClass());
-
-		super.order(ByteOrder.nativeOrder());
 	}
 
 	public <U> boolean addListener(AnalyzerListener<E> listener, U user) {
@@ -107,12 +109,12 @@ public abstract class AbstractAnalysis<S extends JAnalysis, E extends AnalyzerEv
 	}
 
 	public JAnalyzer getAnalyzer() {
-		return getObject(JAnalyzer.class, offset + ANALYZER);
+		return getObject(JAnalyzer.class, Field.ANALYZER.offset());
 	}
 
 	@SuppressWarnings("unchecked")
 	private AnalyzerSupport<E> getSupport() {
-		return getObject(AnalyzerSupport.class, offset + LISTENERS);
+		return getObject(AnalyzerSupport.class, Field.LISTENERS.offset());
 	}
 
 	/*
@@ -133,7 +135,7 @@ public abstract class AbstractAnalysis<S extends JAnalysis, E extends AnalyzerEv
 	}
 
 	public boolean hasAnalysis(int type) {
-		return this.type == type;
+		return getType() == type;
 	}
 
 	/*
@@ -151,16 +153,15 @@ public abstract class AbstractAnalysis<S extends JAnalysis, E extends AnalyzerEv
 	}
 
 	public void setAnalyzer(JAnalyzer analyzer) {
-		setObject(offset + ANALYZER, analyzer);
+		setObject(Field.ANALYZER.offset(), analyzer);
 	}
 
 	private void setSupport(AnalyzerSupport<E> support) {
-		setObject(offset + LISTENERS, support);
+		setObject(Field.LISTENERS.offset(), support);
 	}
 
 	private void setType(int type) {
-		setInt(CATEGORY, type);
-
+		setInt(Field.TYPE.offset(), type);
 	}
 
 	public Iterator<JAnalysis> iterator() {
@@ -168,15 +169,18 @@ public abstract class AbstractAnalysis<S extends JAnalysis, E extends AnalyzerEv
 	}
 
 	public String getTitle() {
-		return this.name;
+		return getObject(String.class, Field.TITLE.offset());
+	}
+
+	private void setTitle(String title) {
+		setObject(Field.TITLE.offset(), title);
 	}
 
 	public String[] getText() {
-		return null;
+		return getObject(String[].class, Field.TEXT.offset());
 	}
 
-	public String getShortTitle() {
-		return nicname;
+	public void setText(String[] text) {
+		setObject(Field.TEXT.offset(), text);
 	}
-
 }

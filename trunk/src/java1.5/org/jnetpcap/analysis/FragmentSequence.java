@@ -33,40 +33,39 @@ public class FragmentSequence
 
 	public final static int FLAG_HAS_LAST_FRAGMENT = 0x0004;
 
-	private static final String NAME = "Fragment Sequence";
-
-	private static final String NICNAME = "Frame";
+	private static final String TITLE = "Fragment Sequence";
 
 	private final FragmentSequenceAnalyzer analyzer;
 
 	private int totalLength = -1;
 
-	public enum Field implements AnalysisField {
-		PACKET_SEQUENCE(0, REF),
-		FLAGS(REF, 4),
-		TIMEOUT(REF + 4, 8),
-		LEN(REF + 12, 4),
-		HASH(REF + 16, 4),
-		LAST(REF + REF + 20, 0),
+	public enum Field implements JStructField {
+		PACKET_SEQUENCE(REF),
+		FLAGS,
+		TIMEOUT(8),
+		LEN,
+		HASH,
 		;
 		private final int len;
-		private final int offset;
+
+		int offset;
+
 		private Field() {
-			this(0, 4);
+			this(4);
 		}
 
-		private Field(int offset, int len) {
+		private Field(int len) {
 			this.len = len;
-			this.offset = offset;
 		}
 
-		public final int getLength() {
-    	return this.len;
-    }
+		public int length(int offset) {
+			this.offset = offset;
+			return this.len;
+		}
 
-		public final int getOffset() {
-    	return this.offset;
-    }
+		public final int offset() {
+			return offset;
+		}
 	}
 	
 	/**
@@ -74,7 +73,7 @@ public class FragmentSequence
 	 * @param size
 	 */
 	public FragmentSequence() {
-		super(Type.POINTER, 0, NAME);
+		super(Type.POINTER);
 
 		this.analyzer = null;
 	}
@@ -83,7 +82,7 @@ public class FragmentSequence
 	 * @param size
 	 */
 	public FragmentSequence(int hash, FragmentSequenceAnalyzer analyzer) {
-		super(Field.LAST.getOffset(), NAME);
+		super(TITLE, Field.class);
 		this.analyzer = analyzer;
 
 		setPacketSequence(new LinkedList<JPacket>());
@@ -92,7 +91,7 @@ public class FragmentSequence
 	}
 	
 	private void setHash(int hash) {
-		super.setInt(Field.HASH.getOffset(), hash);
+		super.setInt(Field.HASH.offset(), hash);
 	}
 
 	/**
@@ -109,25 +108,20 @@ public class FragmentSequence
 
 	@Override
   public int hashCode() {
-		return super.getInt(Field.HASH.getOffset());
+		return super.getInt(Field.HASH.offset());
   }
 
 	private int getFlags() {
-		return super.getInt(Field.FLAGS.getOffset());
+		return super.getInt(Field.FLAGS.offset());
 	}
 
 	public int getLen() {
-		return super.getInt(Field.LEN.getOffset());
+		return super.getInt(Field.LEN.offset());
 	}
 
 	@SuppressWarnings("unchecked")
 	public List<JPacket> getPacketSequence() {
-		return super.getObject(List.class, Field.PACKET_SEQUENCE.getOffset());
-	}
-
-	@Override
-	public String getShortTitle() {
-		return NICNAME;
+		return super.getObject(List.class, Field.PACKET_SEQUENCE.offset());
 	}
 
 	@Override
@@ -145,7 +139,7 @@ public class FragmentSequence
 	}
 
 	public long getTimeout() {
-		return super.getLong(Field.TIMEOUT.getOffset());
+		return super.getLong(Field.TIMEOUT.offset());
 	}
 
 	public final int getTotalLength() {
@@ -185,7 +179,7 @@ public class FragmentSequence
 	}
 
 	private void setFlags(int flags) {
-		super.setInt(Field.FLAGS.getOffset(), flags);
+		super.setInt(Field.FLAGS.offset(), flags);
 	}
 
 	public void setHasAllFragments(boolean state) {
@@ -215,18 +209,18 @@ public class FragmentSequence
   }
 
 	public void setLen(int len) {
-		super.setInt(Field.LEN.getOffset(), len);
+		super.setInt(Field.LEN.offset(), len);
 	}
   
 	private void setPacketSequence(List<JPacket> list) {
-		super.setObject(Field.PACKET_SEQUENCE.getOffset(), list);
+		super.setObject(Field.PACKET_SEQUENCE.offset(), list);
 	}
 
 	/**
 	 * @param timeout
 	 */
 	public void setTimeout(long timeout) {
-		super.setLong(Field.TIMEOUT.getOffset(), timeout);
+		super.setLong(Field.TIMEOUT.offset(), timeout);
 	}
 
 	public final void setTotalLength(int totalLength) {

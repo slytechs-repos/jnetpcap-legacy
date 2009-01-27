@@ -14,6 +14,8 @@ package org.jnetpcap.analysis;
 
 import java.util.Queue;
 
+import org.jnetpcap.analysis.tcpip.AnalysisException;
+import org.jnetpcap.analysis.tcpip.InvalidStreamHashcode;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.util.TimeoutQueue;
 
@@ -65,8 +67,10 @@ public abstract class AbstractAnalyzer implements JAnalyzer {
 
 	/**
 	 * @param packet
+	 * @throws InvalidStreamHashcode
 	 */
-	public abstract boolean processPacket(JPacket packet);
+	public abstract boolean processPacket(JPacket packet)
+	    throws AnalysisException;
 
 	public int getPriority() {
 		return (priority == -1 && parent != null) ? parent.getPriority()
@@ -91,11 +95,18 @@ public abstract class AbstractAnalyzer implements JAnalyzer {
 
 	public int hold() {
 		return (parent == null) ? -1 : parent.hold();
-  }
+	}
 
 	public int release() {
 		return (parent == null) ? -1 : parent.release();
-  }
-	
-	
+	}
+
+	public boolean processHeaders(JPacket packet) {
+		return (parent == null) ? true : parent.processHeaders(packet);
+	}
+
+	public boolean processHeaders(JPacket packet, long map) {
+		return (parent == null) ? true : parent.processHeaders(packet, map);
+	}
+
 }

@@ -32,21 +32,13 @@ import org.jnetpcap.packet.annotate.HeaderLength;
 public class Tcp
     extends JHeader {
 
-	@HeaderLength
-	public static int headerLength(JBuffer buffer, int offset) {
-		final int hlen = (buffer.getUByte(offset + 12) & 0xF0) >> 4;
-		return hlen * 4;
-	}
-
-	public static final int ID = JProtocol.TCP_ID;
+	private static final int FLAG_ACK = 0x10;
 
 	private static final int FLAG_CONG = 0x80;
 
 	private static final int FLAG_ECN = 0x40;
 
-	private static final int FLAG_URG = 0x20;
-
-	private static final int FLAG_ACK = 0x10;
+	private static final int FLAG_FIN = 0x01;
 
 	private static final int FLAG_PUSH = 0x08;
 
@@ -54,13 +46,46 @@ public class Tcp
 
 	private static final int FLAG_SYNCH = 0x02;
 
-	private static final int FLAG_FIN = 0x01;
+	private static final int FLAG_URG = 0x20;
 
-	@BindingVariable
-	@Field(offset = 0, length = 16)
-	@FlowKey(index = 2, reversable = true)
-	public int source() {
-		return getUShort(0);
+	public static final int ID = JProtocol.TCP_ID;
+
+	private static final int FLAG_ECE = 0x40;
+
+	private static final int FLAG_CWR = 0x80;
+
+	@HeaderLength
+	public static int headerLength(JBuffer buffer, int offset) {
+		final int hlen = (buffer.getUByte(offset + 12) & 0xF0) >> 4;
+		return hlen * 4;
+	}
+
+	private int hash;
+
+	private Ip4 ip = new Ip4();
+
+	@Field(offset = 8 * 8, length = 16, format = "%x")
+	public long ack() {
+		return getUInt(8);
+	}
+
+	@Field(offset = 16 * 8, length = 16, format = "%x")
+	public int checksum() {
+		return getUShort(16);
+	}
+
+	@Override
+	protected void decodeHeader() {
+		/*
+		 * Generate a bi-directional hashcode
+		 */
+		if (getPacket() != null && getPacket().hasHeader(ip)) {
+			this.hash =
+			    (ip.destinationToInt() + destination())
+			        ^ (ip.sourceToInt() + source());
+		} else {
+			this.hash = super.hashCode();
+		}
 	}
 
 	@BindingVariable
@@ -70,44 +95,90 @@ public class Tcp
 		return getUShort(2);
 	}
 
-	@Field(offset = 4 * 8, length = 16, format="%x")
-	public long seq() {
-		return getUInt(4);
+	@Field(offset = 13 * 8, length = 8, format = "%x")
+	public int flags() {
+		return getUByte(13);
 	}
 
-	@Field(offset = 8 * 8, length = 16, format="%x")
-	public long ack() {
-		return getUInt(8);
+	/**
+   * @return
+   */
+	@Field(parent = "flags", offset=4, length = 1, format = "%b", display = "ack", description = "acknowledgment")
+  public boolean flags_ACK() {
+  	return (flags() & FLAG_ACK) != 0;
+  }
+
+	@Field(parent = "flags", offset=0, length = 1, format = "%b", display = "fin", description = "closing down connection")
+  public boolean flags_FIN() {
+  	return (flags() & FLAG_FIN) != 0;
+  }
+
+	@Field(parent = "flags", offset=3, length = 1, format = "%b", display = "ack", description = "push current segment of data")
+  public boolean flags_PSH() {
+  	return (flags() & FLAG_PUSH) != 0;
+  }
+
+	@Field(parent = "flags", offset=2, length = 1, format = "%b", display = "ack", description = "reset connection")
+  public boolean flags_RST() {
+  	return (flags() & FLAG_RESET) != 0;
+  }
+
+	@Field(parent = "flags", offset=1, length = 1, format = "%b", display = "ack", description = "synchronize connection, startup")
+  public boolean flags_SYN() {
+  	return (flags() & FLAG_SYNCH) != 0;
+  }
+
+	@Field(parent = "flags", offset=5, length = 1, format = "%b", display = "ack", description = "urgent, out-of-band data")
+  public boolean flags_URG() {
+  	return (flags() & FLAG_URG) != 0;
+  }
+	
+	@Field(parent = "flags", offset=6, length = 1, format = "%b", display = "ece", description = "ECN echo flag")
+  public boolean flags_ECE() {
+  	return (flags() & FLAG_ECE) != 0;
+  }
+	
+	@Field(parent = "flags", offset=7, length = 1, format = "%b", display = "cwr", description = "reduced (cwr)")
+  public boolean flags_CWR() {
+  	return (flags() & FLAG_CWR) != 0;
+  }
+
+
+
+	@Override
+	public int hashCode() {
+		return this.hash;
 	}
 
 	@Field(offset = 12 * 8, length = 4)
 	public int hlen() {
 		return (getUByte(12) & 0xF0) >> 4;
 	}
-
+	
 	@Field(offset = 12 * 8 + 4, length = 4)
 	public int reserved() {
 		return getUByte(12) & 0x0F;
 	}
+	
+	@Field(offset = 4 * 8, length = 16, format = "%x")
+	public long seq() {
+		return getUInt(4);
+	}
 
-	@Field(offset = 13 * 8, length = 8, format="%x")
-	public int flags() {
-		return getUByte(13);
+	@BindingVariable
+	@Field(offset = 0, length = 16)
+	@FlowKey(index = 2, reversable = true)
+	public int source() {
+		return getUShort(0);
+	}
+	
+	@Field(offset = 18 * 8, length = 16)
+	public int urgent() {
+		return getUShort(18);
 	}
 
 	@Field(offset = 14 * 8, length = 16)
 	public int window() {
 		return getUShort(14);
 	}
-
-	@Field(offset = 16 * 8, length = 16, format="%x")
-	public int checksum() {
-		return getUShort(16);
-	}
-
-	@Field(offset = 18 * 8, length = 16)
-	public int urgent() {
-		return getUShort(18);
-	}
-
 }
