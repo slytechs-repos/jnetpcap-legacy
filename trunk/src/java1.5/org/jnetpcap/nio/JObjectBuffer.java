@@ -14,6 +14,8 @@ package org.jnetpcap.nio;
 
 import java.nio.ByteBuffer;
 
+import org.jnetpcap.util.Offset;
+
 
 /**
  * A special buffer that also allows java object references to be set within the
@@ -72,6 +74,19 @@ public class JObjectBuffer
 	public JObjectBuffer(byte[] data) {
 		super(data);
 	}
+	
+	/**
+	 * Retrieves a jobject reference from the specified memory location.
+	 * 
+	 * @param <T>
+	 * @param c
+	 * @param offset
+	 * @return
+	 */
+	public <T> T getObject(Class<T> c, Offset offset) {
+		return getObject(c, offset.offset());
+	}
+
 
 	/**
 	 * Retrieves a jobject reference from the specified memory location.
@@ -92,6 +107,19 @@ public class JObjectBuffer
 	 * @param value
 	 */
 	public native <T> void setObject(int offset, T value);
+	
+	/**
+	 * Sets the jobject reference at specified location within the buffer. The
+	 * buffer will keep track of the global JNI object reference that is created
+	 * and it will be deallocated when this object buffer is released.
+	 * 
+	 * @param <T>
+	 * @param value
+	 */
+	public <T> void setObject(Offset offset, T value) {
+		setObject(offset.offset(), value);
+	}
+
 
 	/**
 	 * Returns the native size of JNI's jobject type. sizeof(jobject)

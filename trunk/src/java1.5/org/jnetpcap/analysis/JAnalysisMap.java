@@ -26,11 +26,34 @@ public class JAnalysisMap
 	public final static int TYPE = AnalysisUtils.CONTAINER_TYPE;
 
 	private final static int MAP = 0; // offset
+	
+	private enum Field implements JStructField {
+		;
+		private final int len;
 
-	private final static int SIZE = REF;
+		int offset;
+
+		private Field() {
+			this(4);
+		}
+
+		private Field(int len) {
+			this.len = len;
+		}
+
+		public int length(int offset) {
+			this.offset = offset;
+			return this.len;
+		}
+
+		public final int offset() {
+			return offset;
+		}
+
+	}
 
 	public JAnalysisMap() {
-		super(SIZE);
+		super(Field.class);
 
 		super.setObject(MAP, new HashMap<Integer, JAnalysis>());
 	}

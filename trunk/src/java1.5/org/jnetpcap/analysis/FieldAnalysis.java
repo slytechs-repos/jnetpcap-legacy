@@ -21,13 +21,34 @@ public class FieldAnalysis
     extends AbstractAnalysis<FieldAnalysis, AnalyzerEvent> {
 
 	private static final String NAME = "Field";
+	
+	private enum Field implements JStructField {
+	  ;
+
+		/* (non-Javadoc)
+     * @see org.jnetpcap.analysis.AbstractAnalysis.JStructField#length(int)
+     */
+    public int length(int offset) {
+	    // TODO Auto-generated method stub
+	    throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+		/* (non-Javadoc)
+     * @see org.jnetpcap.util.Offset#offset()
+     */
+    public int offset() {
+	    // TODO Auto-generated method stub
+	    throw new UnsupportedOperationException("Not implemented yet");
+    }
+		
+	}
 
 	/**
    * @param type
    * @param size
    */
   public FieldAnalysis() {
-	  super(Type.POINTER, 0, NAME);
+	  super(Type.POINTER);
   }
 
 	public String getFieldName() {

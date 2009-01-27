@@ -64,4 +64,11 @@ public class AnalyzerSupport<E extends AnalyzerEvent> {
 			e.listener.processAnalyzerEvent(evt);
 		}
 	}
+
+	/**
+   * @return
+   */
+  public boolean hasListeners() {
+  	return listeners.isEmpty() == false;
+  }
 }

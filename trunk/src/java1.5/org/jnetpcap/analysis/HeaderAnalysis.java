@@ -21,13 +21,38 @@ public class HeaderAnalysis
     extends AbstractAnalysis<HeaderAnalysis, AnalyzerEvent> {
 	
 	private final static String NAME = "Header";
+	
+	public enum Field implements JStructField {
+		;
+		private final int len;
+
+		int offset;
+
+		private Field() {
+			this(4);
+		}
+
+		private Field(int len) {
+			this.len = len;
+		}
+
+		public int length(int offset) {
+			this.offset = offset;
+			return this.len;
+		}
+
+		public final int offset() {
+			return offset;
+		}
+
+	}
 
 	/**
    * @param type
    * @param size
    */
   public HeaderAnalysis() {
-	  super(Type.POINTER, 0, NAME);
+	  super(Type.POINTER);
   }
 
 	public boolean hasFieldErrors() {

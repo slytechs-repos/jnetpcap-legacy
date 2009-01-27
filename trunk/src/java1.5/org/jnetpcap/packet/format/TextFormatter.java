@@ -135,7 +135,7 @@ public class TextFormatter
 
 			final String v = stylizeSingleLine(header, field, field.getValue(header));
 			final String d = field.getValueDescription(header);
-			final long i = field.getValue(Number.class, header).longValue();
+			final long i = field.longValue(header);
 			pad().format("%s = [%d] %s%s", v, i, field.getDisplay(header),
 			    ((d == null) ? "" : ": " + d));
 

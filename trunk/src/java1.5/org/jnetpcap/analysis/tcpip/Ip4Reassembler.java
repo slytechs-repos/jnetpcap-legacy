@@ -212,6 +212,7 @@ public class Ip4Reassembler
 			 */
 			Queue<JPacket> in = getInQueue();
 			in.offer(packet);
+			
 
 			release();
 		}
