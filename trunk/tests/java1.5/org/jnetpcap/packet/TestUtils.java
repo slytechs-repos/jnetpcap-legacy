@@ -17,6 +17,8 @@ import java.util.Iterator;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import junit.framework.TestCase;
+
 import org.jnetpcap.JBufferHandler;
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapHeader;
@@ -30,7 +32,22 @@ import org.jnetpcap.nio.JBuffer;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class TestUtils {
+public class TestUtils extends TestCase {
+	
+	public final static String AFS = "tests/test-afs.pcap";
+	
+	public final static String HTTP = "tests/test-http-jpeg.pcap";
+	
+	public final static String VLAN = "tests/test-vlan.pcap";
+	
+	public final static String REASEMBLY = "tests/test-ipreassembly.pcap";
+	
+	public final static String IP6 = "tests/test-ipv6.pcap";
+	
+	public final static String L2TP = "tests/test-l2tp.pcap";
+	
+	public final static String MYSQL = "tests/test-mysql.pcap";
+	
 
 	/**
 	 * Special Appendable device that throws away its output. Used in stress
@@ -320,6 +337,20 @@ public class TestUtils {
 			}
 
 		};
+	}
+	
+	public void openOffline(String file, JPacketHandler<Pcap> handler) {
+		StringBuilder errbuf = new StringBuilder();
+		
+		Pcap pcap;
+		
+		if ( (pcap = Pcap.openOffline(file, errbuf)) == null) {
+			fail(errbuf.toString());
+		}
+		
+		pcap.loop(Pcap.LOOP_INFINATE, handler, pcap);
+		
+		pcap.close();
 	}
 
 }

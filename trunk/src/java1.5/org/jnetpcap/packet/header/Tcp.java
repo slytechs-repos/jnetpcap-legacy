@@ -101,49 +101,47 @@ public class Tcp
 	}
 
 	/**
-   * @return
-   */
-	@Field(parent = "flags", offset=4, length = 1, format = "%b", display = "ack", description = "acknowledgment")
-  public boolean flags_ACK() {
-  	return (flags() & FLAG_ACK) != 0;
-  }
+	 * @return
+	 */
+	@Field(parent = "flags", offset = 4, length = 1, format = "%b", display = "ack", description = "acknowledgment")
+	public boolean flags_ACK() {
+		return (flags() & FLAG_ACK) != 0;
+	}
 
-	@Field(parent = "flags", offset=0, length = 1, format = "%b", display = "fin", description = "closing down connection")
-  public boolean flags_FIN() {
-  	return (flags() & FLAG_FIN) != 0;
-  }
+	@Field(parent = "flags", offset = 0, length = 1, format = "%b", display = "fin", description = "closing down connection")
+	public boolean flags_FIN() {
+		return (flags() & FLAG_FIN) != 0;
+	}
 
-	@Field(parent = "flags", offset=3, length = 1, format = "%b", display = "ack", description = "push current segment of data")
-  public boolean flags_PSH() {
-  	return (flags() & FLAG_PUSH) != 0;
-  }
+	@Field(parent = "flags", offset = 3, length = 1, format = "%b", display = "ack", description = "push current segment of data")
+	public boolean flags_PSH() {
+		return (flags() & FLAG_PUSH) != 0;
+	}
 
-	@Field(parent = "flags", offset=2, length = 1, format = "%b", display = "ack", description = "reset connection")
-  public boolean flags_RST() {
-  	return (flags() & FLAG_RESET) != 0;
-  }
+	@Field(parent = "flags", offset = 2, length = 1, format = "%b", display = "ack", description = "reset connection")
+	public boolean flags_RST() {
+		return (flags() & FLAG_RESET) != 0;
+	}
 
-	@Field(parent = "flags", offset=1, length = 1, format = "%b", display = "ack", description = "synchronize connection, startup")
-  public boolean flags_SYN() {
-  	return (flags() & FLAG_SYNCH) != 0;
-  }
+	@Field(parent = "flags", offset = 1, length = 1, format = "%b", display = "ack", description = "synchronize connection, startup")
+	public boolean flags_SYN() {
+		return (flags() & FLAG_SYNCH) != 0;
+	}
 
-	@Field(parent = "flags", offset=5, length = 1, format = "%b", display = "ack", description = "urgent, out-of-band data")
-  public boolean flags_URG() {
-  	return (flags() & FLAG_URG) != 0;
-  }
-	
-	@Field(parent = "flags", offset=6, length = 1, format = "%b", display = "ece", description = "ECN echo flag")
-  public boolean flags_ECE() {
-  	return (flags() & FLAG_ECE) != 0;
-  }
-	
-	@Field(parent = "flags", offset=7, length = 1, format = "%b", display = "cwr", description = "reduced (cwr)")
-  public boolean flags_CWR() {
-  	return (flags() & FLAG_CWR) != 0;
-  }
+	@Field(parent = "flags", offset = 5, length = 1, format = "%b", display = "ack", description = "urgent, out-of-band data")
+	public boolean flags_URG() {
+		return (flags() & FLAG_URG) != 0;
+	}
 
+	@Field(parent = "flags", offset = 6, length = 1, format = "%b", display = "ece", description = "ECN echo flag")
+	public boolean flags_ECE() {
+		return (flags() & FLAG_ECE) != 0;
+	}
 
+	@Field(parent = "flags", offset = 7, length = 1, format = "%b", display = "cwr", description = "reduced (cwr)")
+	public boolean flags_CWR() {
+		return (flags() & FLAG_CWR) != 0;
+	}
 
 	@Override
 	public int hashCode() {
@@ -154,12 +152,12 @@ public class Tcp
 	public int hlen() {
 		return (getUByte(12) & 0xF0) >> 4;
 	}
-	
+
 	@Field(offset = 12 * 8 + 4, length = 4)
 	public int reserved() {
 		return getUByte(12) & 0x0F;
 	}
-	
+
 	@Field(offset = 4 * 8, length = 16, format = "%x")
 	public long seq() {
 		return getUInt(4);
@@ -171,7 +169,7 @@ public class Tcp
 	public int source() {
 		return getUShort(0);
 	}
-	
+
 	@Field(offset = 18 * 8, length = 16)
 	public int urgent() {
 		return getUShort(18);
@@ -180,5 +178,19 @@ public class Tcp
 	@Field(offset = 14 * 8, length = 16)
 	public int window() {
 		return getUShort(14);
+	}
+
+	public int windowScaled() {
+		return window() << 6;
+	}
+
+	/**
+	 * Calculates the length of the TCP payload.
+	 * 
+	 * @return length of tcp segment data in bytes
+	 */
+	public int getPayloadLength() {
+		getPacket().getHeader(ip);
+		return ip.length() - ip.hlen() * 4 - hlen() * 4;
 	}
 }

@@ -14,11 +14,13 @@ package org.jnetpcap.analysis.tcpip;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
 
 import org.jnetpcap.analysis.AbstractAnalyzer;
 import org.jnetpcap.analysis.AnalyzerListener;
 import org.jnetpcap.analysis.AnalyzerSupport;
 import org.jnetpcap.analysis.JAnalyzer;
+import org.jnetpcap.analysis.tcpip.TcpDuplexStream.Direction;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.header.Ip4;
 import org.jnetpcap.packet.header.Tcp;
@@ -46,7 +48,9 @@ public class TcpAnalyzer
 
 	private static final int PRIORITY = 100;
 
-	private ThreadLocal<Ip4> ip4Local = new JThreadLocal<Ip4>(Ip4.class);
+	private ThreadLocal<Ip4> ip1Local = new JThreadLocal<Ip4>(Ip4.class);
+
+	private ThreadLocal<Ip4> ip2Local = new JThreadLocal<Ip4>(Ip4.class);
 
 	private Map<Integer, TcpDuplexStream> streams =
 	    new HashMap<Integer, TcpDuplexStream>();
@@ -54,7 +58,9 @@ public class TcpAnalyzer
 	private AnalyzerSupport<TcpStreamEvent> support =
 	    new AnalyzerSupport<TcpStreamEvent>();
 
-	private ThreadLocal<Tcp> tcpLocal = new JThreadLocal<Tcp>(Tcp.class);
+	private ThreadLocal<Tcp> tcp1Local = new JThreadLocal<Tcp>(Tcp.class);
+
+	private ThreadLocal<Tcp> tcp2Local = new JThreadLocal<Tcp>(Tcp.class);
 
 	/**
 	 * @param priority
@@ -100,10 +106,12 @@ public class TcpAnalyzer
 		if (duplex == null) {
 			duplex = new TcpDuplexStream(duplexHash, clientHash, serverHash);
 			streams.put(duplexHash, duplex);
+			duplex.getClientStream().setDestinationPort(tcp.destination());
+			duplex.getServerStream().setDestinationPort(tcp.source());
 
 			if (support.hasListeners()) {
-				support.fire(TcpStreamEvent.Type.DUPLEX_STREAM_OPEN
-				    .create(this, duplex));
+				// support.fire(TcpStreamEvent.Type.DUPLEX_STREAM_OPEN
+				// .create(this, duplex));
 			}
 		}
 
@@ -111,58 +119,77 @@ public class TcpAnalyzer
 	}
 
 	/**
-	 * Modified 3way handshake for closing down the connection.
-	 * 
 	 * @param packet
-	 * @param duplex
 	 * @param tcp
 	 * @param ip4
-	 * @return
 	 */
-	private boolean processFin3WayHandshake(
+	private void initializeFromPacket(
+	    TcpDuplexStream duplex,
+	    JPacket packet,
+	    Tcp tcp,
+	    Ip4 ip4) {
+		TcpStream sender = duplex.getForward(tcp);
+		TcpStream receiver = duplex.getReverse(tcp);
+
+		/*
+		 * Direction: 1st packet seen is automatically the sender
+		 */
+
+		duplex.setStage(Stage.SYN_COMPLETE);
+
+		sender.setSndStart(tcp.seq());
+		sender.setSndNXT(tcp.seq() + 1, packet);
+		sender.setSndUNA(tcp.seq());
+
+		if (tcp.flags_ACK()) {
+			receiver.setSndStart(tcp.ack());
+			receiver.setSndUNA(tcp.ack());
+
+			receiver.setRcvWIN(tcp.window());
+		}
+
+	}
+
+	private void printDebug(
+	    String pre,
+	    Direction printDir,
 	    JPacket packet,
 	    TcpDuplexStream duplex,
 	    Tcp tcp,
-	    Ip4 ip4) {
+	    int len) {
 
-		System.out.println("stage=" + duplex.getStage());
-		Stage stage = duplex.getStage();
+		/*
+		 * foward/reverse from this packet's perspective
+		 */
+		TcpStream sender = duplex.getForward(tcp);
+		TcpStream receiver = duplex.getReverse(tcp);
 
-		if (tcp.flags_FIN() && (stage == Stage.SYN_COMPLETE || stage == Stage.NULL)) {
-			duplex.setStage(Stage.FIN_WAIT1);
-			duplex.setTime(getProcessingTime());
-			duplex.getClientStream().setSequenceStart(tcp.seq());
+		long sseq = sender.getSndStart();
+		long rseq = receiver.getSndStart();
+		long seq = tcp.seq();
+		long nseq = seq - sseq;
+		long ack = tcp.ack();
+		long nack = ack - rseq;
+		long nxt = sender.getSndNXT();
+		long una = sender.getSndUNA();
 
-			if (support.hasListeners()) {
-				support
-				    .fire(TcpStreamEvent.Type.FIN_START.create(this, duplex, packet));
-			}
+		Direction dir = duplex.getDirection(tcp);
 
-			return true;
+		if (dir.equals(printDir)) {
+			System.out.printf(
+			    "%s#%d %s(%d):: nseq=%-4d seq=%-9d nack=%-4d len=%-4d :: ", pre,
+			    packet.getFrameNumber(), dir, duplex.getServerStream()
+			        .getDestinationPort(), nseq, seq, nack, len);
 
-		} else if (tcp.flags_FIN() && stage == Stage.FIN_WAIT1) {
-			duplex.setStage(Stage.FIN_WAIT2);
-			System.out
-			    .printf("delta=%d us\n", getProcessingTime() - duplex.getTime());
+			System.out.printf("snd.nxt=%-4d snd.una=%-4d ", sender.getSndNXTNormal(),
+			    sender.getSndUNANormal(), dir.inverse());
 
-			return true;
+			System.out.printf(" snd.q=%d", sender.getSequenceQueue().size());
+			System.out.printf(" snd.st=%d", sender.getSndStart());
 
-		} else if (!tcp.flags_FIN() && stage == Stage.FIN_WAIT2) {
-			duplex.setStage(Stage.FIN_COMPLETE);
-			System.out
-			    .printf("delta=%d us\n", getProcessingTime() - duplex.getTime());
-			System.out.printf("FIN_COMPLETE=%d\n", tcp.seq()
-			    - duplex.getForward(tcp).getSequenceStart());
-
-			if (support.hasListeners()) {
-				support.fire(TcpStreamEvent.Type.FIN_COMPLETE.create(this, duplex,
-				    packet));
-			}
-
-			return true;
+			System.out.println();
 		}
 
-		return false;
 	}
 
 	/*
@@ -172,112 +199,12 @@ public class TcpAnalyzer
 	 */
 	@Override
 	public boolean processPacket(JPacket packet) throws InvalidStreamHashcode {
-		Tcp tcp = tcpLocal.get();
-		Ip4 ip4 = ip4Local.get();
+		Tcp tcp = tcp1Local.get();
+		Ip4 ip4 = ip1Local.get();
 
 		if (packet.hasHeader(ip4) && packet.hasHeader(tcp)) {
 			int hash = processStream(packet, tcp, ip4);
 		}
-
-		return true;
-	}
-
-	/**
-	 * Process a regular segment. We get window, ACK, SEQUENCE and data updates in
-	 * regular segments. In addition we can get RST signal and out of band data.
-	 * 
-	 * @param packet
-	 * @param duplex
-	 * @param tcp
-	 * @param ip4
-	 * @return
-	 */
-	private boolean processSegment(
-	    JPacket packet,
-	    TcpDuplexStream duplex,
-	    Tcp tcp,
-	    Ip4 ip4) {
-
-		/*
-		 * Segment data length
-		 */
-		int len = ip4.length() - (ip4.hlen() + tcp.hlen()) << 2;
-
-		/*
-		 * foward/reverse from this packet's perspective
-		 */
-		TcpStream forward = duplex.getForward(tcp);
-		TcpStream reverse = duplex.getReverse(tcp);
-
-		if (forward.getRcvNXT() < tcp.seq()) {
-			/*
-			 * Out of order segment
-			 */
-			if (support.hasListeners()) {
-				support.fire(TcpStreamEvent.Type.OUT_OF_ORDER.create(this, duplex,
-				    packet));
-			}
-		} else if (forward.getRcvNXT() > tcp.seq()) {
-			/*
-			 * Duplicate segment
-			 */
-			if (support.hasListeners()) {
-				support.fire(TcpStreamEvent.Type.DUPLICATE_SEGMENT.create(this, duplex,
-				    packet));
-			}
-		} else {
-
-			/*
-			 * In sequence new segment
-			 */
-
-			forward.setRcvNXT(tcp.seq());
-			forward.setSndNXT(tcp.seq() + len);
-			if (support.hasListeners()) {
-				support.fire(TcpStreamEvent.Type.NEW_SEQUENCE.create(this, duplex,
-				    packet));
-			}
-		}
-
-		if (tcp.flags_ACK()) {
-			if (reverse.getSndUNA() == tcp.ack()) {
-				/*
-				 * Duplicate ACK
-				 */
-				if (support.hasListeners()) {
-					support.fire(TcpStreamEvent.Type.DUPLICATE_ACK.create(this, duplex,
-					    packet));
-				}
-
-			} else if (reverse.getSndUNA() > tcp.ack()) {
-				/*
-				 * Error: ACKed a historically ACKed and advanced segments
-				 */
-				if (support.hasListeners()) {
-					support.fire(TcpStreamEvent.Type.OLD_ACK.create(this, duplex,
-					    packet));
-				}
-
-			} else if (reverse.getSndNXT() < tcp.ack()) {
-				/*
-				 * Error: ACKed a segment that hasn't been sent yet
-				 */
-				if (support.hasListeners()) {
-					support.fire(TcpStreamEvent.Type.FUTURE_ACK.create(this, duplex,
-					    packet));
-				}
-			} else {
-
-				reverse.setRcvNXT(tcp.ack());
-				if (support.hasListeners()) {
-					support.fire(TcpStreamEvent.Type.ACK.create(this, duplex,
-					    packet));
-				}
-
-			}
-		}
-
-		// processWinUpdate(forward, tcp);
 
 		return true;
 	}
@@ -299,6 +226,15 @@ public class TcpAnalyzer
 
 		TcpDuplexStream duplex = getDuplexStream(tcp, ip4);
 
+		// final int filter = 3179;
+		// final int filter = 3306;
+		// final int filter = 3200;
+		// if (tcp.destination() != filter && tcp.source() != filter) {
+		// return duplexHash;
+		// }
+
+		// System.out.printf("#%-2d ", packet.getFrameNumber() + 1);
+
 		tcp.addAnalysis(duplex);
 		// System.out.printf("#%d: %s\n", packet.getFrameNumber(), tcp.toString());
 
@@ -306,11 +242,16 @@ public class TcpAnalyzer
 		 * Check if its the first packet in 3-way handshake
 		 */
 
-		if (processSyn3WayHandshake(packet, duplex, tcp, ip4)) {
+		if (duplex.isInitialized() == false && tcp.flags_SYN() == false) {
+			initializeFromPacket(duplex, packet, tcp, ip4);
 
-		} else if (processFin3WayHandshake(packet, duplex, tcp, ip4)) {
+		} else if (processTcp3WaySyn(packet, duplex, tcp, ip4)) {
 
-		} else if (processSegment(packet, duplex, tcp, ip4)) {
+		} else if (processTcp3WayFin(packet, duplex, tcp, ip4)) {
+			// System.out.printf("client.queue=%d server.queue=%d\n", duplex
+			// .getClientStream().getSequenceQueue().size(), duplex
+			// .getServerStream().getSequenceQueue().size());
+		} else if (processTcp(packet, duplex, tcp, ip4)) {
 
 		} else {
 			throw new IllegalStateException(
@@ -318,6 +259,110 @@ public class TcpAnalyzer
 		}
 
 		return duplexHash;
+	}
+
+	private boolean processTcp(
+	    JPacket packet,
+	    TcpDuplexStream duplex,
+	    Tcp tcp,
+	    Ip4 ip4)
+
+	{
+		int len = ip4.length() - (ip4.hlen() + tcp.hlen()) * 4;
+
+		return processTcp(packet, duplex, tcp, duplex.getForward(tcp), duplex
+		    .getReverse(tcp), len);
+	}
+
+	/**
+	 * @param packet
+	 * @param duplex
+	 * @param tcp
+	 * @param sender
+	 * @param receiver
+	 *          TODO
+	 * @param len
+	 *          TODO
+	 * @return
+	 */
+	private boolean processTcp(
+	    JPacket packet,
+	    TcpDuplexStream duplex,
+	    Tcp tcp,
+	    TcpStream sender,
+	    TcpStream receiver,
+	    int len) {
+
+		processTcpSeq(packet, duplex, tcp, sender, receiver, len);
+		processTcpAck(packet, duplex, tcp, sender, receiver, len);
+
+		return true;
+	}
+
+	/**
+	 * Modified 3way handshake for closing down the connection.
+	 * 
+	 * @param packet
+	 * @param duplex
+	 * @param tcp
+	 * @param ip4
+	 * @return
+	 */
+	private boolean processTcp3WayFin(
+	    JPacket packet,
+	    TcpDuplexStream duplex,
+	    Tcp tcp,
+	    Ip4 ip4) {
+
+		/*
+		 * Segment data length
+		 */
+		int len = ip4.length() - (ip4.hlen() + tcp.hlen()) * 4;
+
+		Stage stage = duplex.getStage();
+		TcpStream sender = duplex.getForward(tcp);
+		TcpStream receiver = duplex.getReverse(tcp);
+
+		long seq = tcp.seq();
+		long ack = tcp.ack();
+
+		if (tcp.flags_FIN() && (stage == Stage.SYN_COMPLETE || stage == Stage.NULL)) {
+			duplex.setStage(Stage.FIN_WAIT1);
+			duplex.setTime(getProcessingTime());
+
+			if (support.hasListeners()) {
+				support
+				    .fire(TcpStreamEvent.Type.FIN_START.create(this, duplex, packet));
+			}
+
+			return processTcp(packet, duplex, tcp, ip4);
+
+		} else if (tcp.flags_FIN() && stage == Stage.FIN_WAIT1) {
+			duplex.setStage(Stage.FIN_WAIT2);
+			// System.out
+			// .printf("delta=%d us\n", getProcessingTime() - duplex.getTime());
+
+			return true;
+
+		} else if (!tcp.flags_FIN() && stage == Stage.FIN_WAIT2) {
+			duplex.setStage(Stage.FIN_COMPLETE);
+			// System.out
+			// .printf("delta=%d us\n", getProcessingTime() - duplex.getTime());
+			// System.out.printf("FIN_COMPLETE: transfer stats: client=%d bytes,
+			// server=%d bytes\n",
+			// duplex.getClientStream().getSndNXTNormal() - 2,
+			// duplex.getServerStream()
+			// .getSndNXTNormal() - 2);
+
+			if (support.hasListeners()) {
+				support.fire(TcpStreamEvent.Type.FIN_COMPLETE.create(this, duplex,
+				    packet));
+			}
+
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -329,52 +374,252 @@ public class TcpAnalyzer
 	 * @param ip4
 	 * @return
 	 */
-	private boolean processSyn3WayHandshake(
+	private boolean processTcp3WaySyn(
 	    JPacket packet,
 	    TcpDuplexStream duplex,
 	    Tcp tcp,
 	    Ip4 ip4) {
+
+		// System.out.printf("%s seq=%d ack=%d\n", duplex.getDirection(tcp),
+		// tcp.seq(), tcp.ack());
+		TcpStream client = duplex.getClientStream();
+		TcpStream server = duplex.getServerStream();
+
 		if (tcp.flags_SYN() && !tcp.flags_ACK()) {
+
+			/*
+			 * Direction: client ==> server
+			 */
+
 			duplex.setStage(Stage.SYN_WAIT1);
-			duplex.getForward(tcp).setRcvNXT(tcp.seq());
+
+			client.setSndStart(tcp.seq());
+			client.setSndUNA(tcp.seq());
+			client.setSndNXT(tcp.seq());
+
 			if (support.hasListeners()) {
 				support
 				    .fire(TcpStreamEvent.Type.SYN_START.create(this, duplex, packet));
 			}
 
-			TcpStream client = duplex.getClientStream();
-			client.setSequenceStart(tcp.seq());
-
-			return true;
+			return processTcp(packet, duplex, tcp, client, server, 1);
 
 		} else if (tcp.flags_ACK() && tcp.flags_SYN()
 		    && duplex.getStage() == Stage.SYN_WAIT1) {
-			duplex.setStage(Stage.SYN_WAIT2);
-			
-			duplex.getForward(tcp).setRcvNXT(tcp.seq());
-			duplex.getReverse(tcp).setRcvNXT(tcp.ack());
-			
-			TcpStream server = duplex.getServerStream();
-			server.setSequenceStart(tcp.seq());
 
-			return true;
+			/*
+			 * Direction: server ==> client
+			 */
+
+			duplex.setStage(Stage.SYN_WAIT2);
+
+			server.setSndStart(tcp.seq());
+			server.setSndUNA(tcp.seq());
+			server.setSndNXT(tcp.seq());
+
+			// System.out.println(Stage.SYN_WAIT2.toString());
+
+			return processTcp(packet, duplex, tcp, server, client, 1);
 
 		} else if (tcp.flags_ACK() && !tcp.flags_SYN()
 		    && duplex.getStage() == Stage.SYN_WAIT2) {
+
+			/*
+			 * Direction: client ==> server
+			 */
+
 			duplex.setStage(Stage.SYN_COMPLETE);
 
-			duplex.getForward(tcp).setRcvNXT(tcp.seq());
-			duplex.getReverse(tcp).setRcvNXT(tcp.ack());
-			
 			if (support.hasListeners()) {
 				support.fire(TcpStreamEvent.Type.SYN_COMPLETE.create(this, duplex,
 				    packet));
 			}
 
-			return true;
+			return processTcp(packet, duplex, tcp, ip4);
 		}
 
 		return false;
+	}
+
+	private Direction display = Direction.NONE;
+
+	/**
+	 * Process a regular segment. We get window, ACK, SEQUENCE and data updates in
+	 * regular segments. In addition we can get RST signal and out of band data.
+	 * 
+	 * @param packet
+	 * @param duplex
+	 * @param tcp
+	 * @param sender
+	 * @param receiver
+	 *          TODO
+	 * @param len
+	 *          TODO
+	 * @return
+	 */
+	private boolean processTcpAck(
+	    JPacket packet,
+	    TcpDuplexStream duplex,
+	    Tcp tcp,
+	    TcpStream sender,
+	    TcpStream receiver,
+	    int len) {
+
+		if (tcp.flags_ACK() == false) {
+			return false;
+		}
+
+		long sseq = sender.getSndStart();
+		long rseq = receiver.getSndStart();
+		long seq = tcp.seq();
+		long ack = tcp.ack();
+
+		Direction dir = duplex.getDirection(tcp);
+
+		printDebug("ACK:", display, packet, duplex, tcp, len);
+
+		/*
+		 * Now handle the ACKs which signal to the tcp stream in reverse direction.
+		 */
+		if (false && receiver.getSndUNA() == ack) {
+			/*
+			 * Duplicate ACK
+			 */
+			if (support.hasListeners()) {
+				support.fire(TcpStreamEvent.Type.DUPLICATE_ACK.create(this, duplex,
+				    packet));
+			}
+
+		} else if (false && receiver.getSndUNA() > ack) {
+			/*
+			 * Error: ACKed a historically ACKed and advanced segments
+			 */
+			if (support.hasListeners()) {
+				support.fire(TcpStreamEvent.Type.OLD_ACK.create(this, duplex, packet));
+			}
+
+		} else if (receiver.getSndNXT() < ack) {
+			/*
+			 * Warning: ACKed a segment that hasn't been sent yet
+			 */
+			if (support.hasListeners()) {
+				support.fire(TcpStreamEvent.Type.ACK_FOR_UNSEEN_SEGMENT
+				    .create(this, duplex, packet));
+			}
+
+			receiver.setSndNXT(ack);
+			receiver.setSndUNA(ack);
+
+		} else {
+
+			receiver.setSndUNA(ack);
+			receiver.setRcvWIN(tcp.windowScaled());
+			if (support.hasListeners()) {
+				// support.fire(TcpStreamEvent.Type.ACK.create(this, duplex, packet));
+			}
+
+		}
+
+		// processWinUpdate(forward, tcp);
+
+		return true;
+	}
+
+	/**
+	 * Process a regular segment. We get window, ACK, SEQUENCE and data updates in
+	 * regular segments. In addition we can get RST signal and out of band data.
+	 * 
+	 * @param packet
+	 * @param duplex
+	 * @param tcp
+	 * @param sender
+	 * @param receiver
+	 *          TODO
+	 * @param len
+	 *          TODO
+	 * @return
+	 */
+	private boolean processTcpSeq(
+	    JPacket packet,
+	    TcpDuplexStream duplex,
+	    Tcp tcp,
+	    TcpStream sender,
+	    TcpStream receiver,
+	    int len) {
+
+		long sseq = sender.getSndStart();
+		long rseq = receiver.getSndStart();
+		long seq = tcp.seq();
+		long nseq = seq - sseq;
+		long ack = tcp.ack();
+		long nack = ack - rseq;
+		long nxt = sender.getSndNXT();
+		long una = sender.getSndUNA();
+
+		Direction dir = duplex.getDirection(tcp);
+
+		printDebug("SEQ:", display, packet, duplex, tcp, len);
+
+		if (seq > nxt) {
+
+			/*
+			 * Don't advance snd.nxt but put the packet on the timeout/sequence queue
+			 */
+			sender.addToSequenceQueue(packet);
+
+			/*
+			 * Out of order segment
+			 */
+			if (support.hasListeners()) {
+				support.fire(TcpStreamEvent.Type.OUT_OF_ORDER_SEGMENT.create(this, duplex,
+				    packet));
+			}
+		} else if (false && una > seq) {
+			/*
+			 * Duplicate segment
+			 */
+			if (support.hasListeners()) {
+				support.fire(TcpStreamEvent.Type.DUPLICATE_SEGMENT.create(this, duplex,
+				    packet));
+			}
+		} else {
+
+			/*
+			 * In sequence new segment
+			 */
+
+			receiver.setRcvWIN(tcp.window());
+
+			if (len > 0) {
+				long n = sender.getSndNXT() + len + 1; // NXT points to +1, not last
+																								// seq
+
+				/*
+				 * Now check to see if there are existing segments in the queue that can
+				 * be sequentially combined (holes filled) so that we can skip ahead in
+				 * nxt sequence number to the last contigues sequence number. Remember
+				 * the queue is a sorted set on sequence number.
+				 */
+				Queue<JPacket> queue = sender.getSequenceQueue();
+				Tcp tcp2 = tcp2Local.get();
+				Ip4 ip = ip2Local.get();
+				for (JPacket p : queue) {
+					if (p.hasHeader(tcp2) && tcp2.seq() + 1 == n && packet.hasHeader(ip)) {
+						n += tcp2.getPayloadLength();
+					} else {
+						break;
+					}
+				}
+
+				sender.setSndNXT(n, packet);
+				if (support.hasListeners()) {
+					// support.fire(TcpStreamEvent.Type.NEW_SEQUENCE.create(this, duplex,
+					// packet));
+				}
+			}
+		}
+
+		return true;
 	}
 
 	public boolean removeListener(AnalyzerListener<TcpStreamEvent> listener) {

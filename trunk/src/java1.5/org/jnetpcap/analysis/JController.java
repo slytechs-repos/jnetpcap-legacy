@@ -25,6 +25,7 @@ import org.jnetpcap.analysis.tcpip.AnalysisException;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JPacketHandler;
 import org.jnetpcap.packet.JRegistry;
+import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.util.JLogger;
 import org.jnetpcap.util.JPacketSupport;
 import org.jnetpcap.util.TimeoutQueue;
@@ -155,6 +156,8 @@ public class JController
 	}
 
 	public void nextPacket(JPacket packet, Pcap pcap) {
+		
+		packet = new PcapPacket(packet);
 
 		/*
 		 * Set the curren time from the packet stream
