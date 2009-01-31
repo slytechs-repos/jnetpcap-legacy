@@ -12,9 +12,18 @@
  */
 package org.jnetpcap.analysis.tcpip;
 
+import java.util.Comparator;
+import java.util.Queue;
+import java.util.concurrent.PriorityBlockingQueue;
+
 import org.jnetpcap.analysis.AbstractAnalysis;
 import org.jnetpcap.analysis.JAnalysis;
+import org.jnetpcap.analysis.tcpip.TcpDuplexStream.Direction;
 import org.jnetpcap.nio.JMemory;
+import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.packet.header.Tcp;
+import org.jnetpcap.util.JThreadLocal;
+import org.jnetpcap.util.Timeout;
 
 /**
  * A stream in a single direction of a bi-directional stream. The parent of this
@@ -27,43 +36,13 @@ import org.jnetpcap.nio.JMemory;
 public class TcpStream
     extends AbstractAnalysis<TcpStream, TcpStreamEvent> {
 
-	public final static int FLAG_SACK_PERMITTED = 0x0001;
-
-	public final static int FLAG_WINDOW_SCALING = 0x0002;
-
-	public final static int FLAG_HAS_MSS = 0x0010;
-
-	public final static int FLAG_HAS_WARNINGS = 0x1000;
-
-	public final static int FLAG_HAS_ERRORS = 0x2000;
-
 	private enum Field implements JStructField {
-		WINDOW_SCALE,
-		MSS,
+		DPORT(2),
+		DUPLEX_STREAM(REF),
 		FLAGS,
 		HASH,
 
-		/**
-		 * First sequence number seen in this TCP stream. Could be SYN generated or
-		 * the first sequence of an already established stream.
-		 */
-		SEQUENCE,
-
-		/**
-		 * oldest unacknowledged sequence number by the sender
-		 */
-		SND_UNA,
-
-		/**
-		 * next sequence number to be sent
-		 */
-		SND_NXT,
-
-		/**
-		 * next sequence number expected on an incoming segment, and is the left or
-		 * lower edge of the receive window
-		 */
-		RCV_NXT,
+		MSS,
 
 		/**
 		 * RCV_NXT + RCV_WND = last sequence number expected on an incoming segment,
@@ -71,9 +50,24 @@ public class TcpStream
 		 */
 		RCV_WND,
 
-		DPORT,
+		/**
+		 * next sequence number to be sent
+		 */
+		SND_NXT,
 
-		DUPLEX_STREAM(REF), ;
+		/**
+		 * First sequence number seen in this TCP stream in the sender to receiver
+		 * direction. Could be SYN generated or the first sequence of an already
+		 * established stream.
+		 */
+		SND_START,
+
+		/**
+		 * oldest unacknowledged sequence number by the sender
+		 */
+		SND_UNA,
+
+		WINDOW_SCALE, ;
 
 		private final int len;
 
@@ -97,7 +91,35 @@ public class TcpStream
 		}
 	}
 
+	public final static int FLAG_HAS_ERRORS = 0x2000;
+
+	public final static int FLAG_HAS_MSS = 0x0010;
+
+	public final static int FLAG_HAS_WARNINGS = 0x1000;
+
+	public final static int FLAG_SACK_PERMITTED = 0x0001;
+
+	public final static int FLAG_WINDOW_SCALING = 0x0002;
+
 	private static final String TITLE = "tcp stream";
+
+	private final Queue<JPacket> bySequence =
+	    new PriorityBlockingQueue<JPacket>(100, new Comparator<JPacket>() {
+		    Tcp tcp1 = new Tcp();
+
+		    Tcp tcp2 = new Tcp();
+
+		    public int compare(JPacket o1, JPacket o2) {
+			    if (o1.hasHeader(tcp1) && o2.hasHeader(tcp2)) {
+				    return (int) (tcp1.seq() - tcp2.seq());
+			    } else {
+				    throw new IllegalStateException("A non TCP packet");
+			    }
+		    }
+
+	    });
+
+	private final Direction direction;
 
 	/**
 	 * @param type
@@ -105,6 +127,7 @@ public class TcpStream
 	 */
 	public TcpStream() {
 		super(JMemory.Type.POINTER);
+		direction = null;
 	}
 
 	/**
@@ -112,22 +135,22 @@ public class TcpStream
 	 * @param name
 	 */
 	@SuppressWarnings("unchecked")
-  public TcpStream(int hash) {
+	public TcpStream(int hash, Direction direction) {
 		super(TITLE, Field.class);
+		this.direction = direction;
 
 		setHashcode(hash);
+		setSndStart(0);
 	}
 
-	@Override
-	public int hashCode() {
-		return super.getInt(Field.HASH.offset());
-	}
-
-	/**
-	 * @param hash
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
-	private void setHashcode(int hash) {
-		super.setInt(Field.HASH.offset(), hash);
+	public int compareTo(Timeout o) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Not implemented yet");
 	}
 
 	/*
@@ -136,6 +159,62 @@ public class TcpStream
 	 * @see org.jnetpcap.analysis.JAnalysis#getAnalysis(org.jnetpcap.analysis.JAnalysis)
 	 */
 	public <T extends JAnalysis> T getAnalysis(T analysis) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Not implemented yet");
+	}
+
+	/**
+	 * @return
+	 */
+	public int getDestinationPort() {
+		return super.getUShort(Field.DPORT.offset());
+	}
+
+	/**
+	 * @return the rcvWIN
+	 */
+	public final long getRcvWIN() {
+		return getUInt(Field.RCV_WND.offset());
+	}
+
+	/**
+	 * @return the sndNXT
+	 */
+	public final long getSndNXT() {
+		return getUInt(Field.SND_NXT.offset());
+	}
+
+	/**
+	 * @return the sndNXT
+	 */
+	public final long getSndNXTNormal() {
+		return getUInt(Field.SND_NXT.offset()) - getSndStart();
+	}
+
+	public long getSndStart() {
+		return super.getUInt(Field.SND_START.offset());
+	}
+
+	/**
+	 * @return the sndUNA
+	 */
+	public final long getSndUNA() {
+		return getUInt(Field.SND_UNA.offset());
+	}
+
+	/**
+	 * @return the sndUNA
+	 */
+	public final long getSndUNANormal() {
+		return getUInt(Field.SND_UNA.offset()) - getSndStart();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jnetpcap.analysis.JAnalysis#hasAnalysis(java.lang.Class)
+	 */
+	public <T extends JAnalysis> boolean hasAnalysis(Class<T> analysis) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Not implemented yet");
 	}
@@ -150,32 +229,23 @@ public class TcpStream
 		throw new UnsupportedOperationException("Not implemented yet");
 	}
 
+	@Override
+	public int hashCode() {
+		return super.getInt(Field.HASH.offset());
+	}
+
+	public boolean hasSndStart() {
+		return (getSndStart() != 0);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.JAnalysis#hasAnalysis(java.lang.Class)
+	 * @see org.jnetpcap.util.Timeout#isTimedout(long)
 	 */
-	public <T extends JAnalysis> boolean hasAnalysis(Class<T> analysis) {
+	public boolean isTimedout(long timeInMillis) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Not implemented yet");
-	}
-
-	/**
-	 * @param seq
-	 */
-	public void setSequenceStart(long sequence) {
-		super.setUInt(Field.SEQUENCE.offset(), sequence);
-	}
-
-	public long getSequenceStart() {
-		return super.getUInt(Field.SEQUENCE.offset());
-	}
-
-	/**
-	 * @return
-	 */
-	public int getDestinationPort() {
-		return super.getUShort(Field.DPORT.offset());
 	}
 
 	public void setDestinationPort(int value) {
@@ -183,59 +253,123 @@ public class TcpStream
 	}
 
 	/**
-   * @return the sndUNA
-   */
-  public final long getSndUNA() {
-  	return getUInt(Field.SND_UNA.offset());
-  }
+	 * @param hash
+	 */
+	private void setHashcode(int hash) {
+		super.setInt(Field.HASH.offset(), hash);
+	}
 
 	/**
-   * @param sndUNA the sndUNA to set
-   */
-  public final void setSndUNA(long sndUNA) {
-  	setUInt(Field.SND_UNA.offset(), sndUNA);
-  }
+	 * @param rcvWIN
+	 *          the rcvWIN to set
+	 */
+	public final void setRcvWIN(long rcvWIN) {
+		super.setUInt(Field.RCV_WND.offset(), rcvWIN);
+	}
 
 	/**
-   * @return the sndNXT
-   */
-  public final long getSndNXT() {
-  	return getUInt(Field.SND_NXT.offset());
-  }
+	 * @param sndNXT
+	 *          the sndNXT to set
+	 */
+	public final void setSndNXT(long sndNXT) {
+		setUInt(Field.SND_NXT.offset(), sndNXT);
+	}
 
 	/**
-   * @param sndNXT the sndNXT to set
-   */
-  public final void setSndNXT(long sndNXT) {
-  	setUInt(Field.SND_NXT.offset(), sndNXT);
-  }
+	 * @param sndNXT
+	 *          the sndNXT to set
+	 */
+	public final void setSndNXT(long sndNXT, JPacket packet) {
+		setUInt(Field.SND_NXT.offset(), sndNXT);
+
+		addToSequenceQueue(packet);
+	}
 
 	/**
-   * @return the rcvNXT
-   */
-  public final long getRcvNXT() {
-  	return getUInt(Field.RCV_NXT.offset());
-  }
+	 * @param seq
+	 */
+	public void setSndStart(long sequence) {
+		super.setUInt(Field.SND_START.offset(), sequence);
+	}
 
 	/**
-   * @param rcvNXT the rcvNXT to set
-   */
-  public final void setRcvNXT(long rcvNXT) {
-  	setUInt(Field.RCV_NXT.offset(), rcvNXT);
-  }
+	 * @param sndUNA
+	 *          the sndUNA to set
+	 */
+	public final void setSndUNA(long sndUNA) {
+		setUInt(Field.SND_UNA.offset(), sndUNA);
+		removeFromSequenceQueue(sndUNA, null);
+	}
 
 	/**
-   * @return the rcvWIN
-   */
-  public final long getRcvWIN() {
-  	return getUInt(Field.RCV_WND.offset());
-  }
+	 * @param sndUNA
+	 *          the sndUNA to set
+	 */
+	public final void setSndUNANormal(long sndUNA) {
+		setUInt(Field.SND_UNA.offset(), sndUNA);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jnetpcap.util.Timeout#timeout()
+	 */
+	public void timeout() {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Not implemented yet");
+	}
+
+	public void addToSequenceQueue(JPacket packet) {
+
+		Tcp tcp = new Tcp();
+//		System.out.printf("QUEUE:%s:add(#%d: %d)\n", direction, packet.getFrameNumber(),
+//		    packet.getHeader(tcp).seq() - getSndStart());
+
+		bySequence.offer(packet);
+	}
+
+	private final JThreadLocal<Tcp> tcpLocal = new JThreadLocal<Tcp>(Tcp.class);
 
 	/**
-   * @param rcvWIN the rcvWIN to set
-   */
-  public final void setRcvWIN(long rcvWIN) {
-  	super.setUInt(Field.RCV_WND.offset(), rcvWIN);
-  }
+	 * Removes from queue segments that have lower sequence numbers then the one
+	 * supplied. If analysis is not null, it is also applied to all the segments
+	 * that are being removed from the queue at the same time.
+	 * 
+	 * @param sequence
+	 *          timeout lower sequenced numbered segments
+	 * @param analysis
+	 *          apply analysis to each removed/timedout segment, if null ignored
+	 * @return returns true if segments were removed from the queue otherwise
+	 *         false
+	 */
+	public boolean removeFromSequenceQueue(long sequence, JAnalysis analysis) {
+		if (bySequence.isEmpty()) {
+			return false;
+		}
 
+		final Tcp tcp = tcpLocal.get();
+
+		while (!bySequence.isEmpty()) {
+			final JPacket packet = bySequence.peek();
+
+			if (packet.hasHeader(tcp) && tcp.seq() <= sequence) {
+				bySequence.poll();
+				
+//				System.out.printf("QUEUE:%s:remove(#%d: %d <= %d)\n", direction, packet
+//				    .getFrameNumber(), tcp.seq() - getSndStart(), sequence  - getSndStart());
+
+				if (analysis != null) {
+					tcp.addAnalysis(analysis);
+				}
+			} else {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	public Queue<JPacket> getSequenceQueue() {
+		return bySequence;
+	}
 }

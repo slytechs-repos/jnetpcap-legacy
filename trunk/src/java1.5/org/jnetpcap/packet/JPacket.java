@@ -839,6 +839,6 @@ public abstract class JPacket
 	 * @return zero based frame number
 	 */
 	public long getFrameNumber() {
-		return state.getFrameNumber();
+		return state.getFrameNumber() + 1;
 	}
 }

@@ -29,15 +29,57 @@ import org.jnetpcap.packet.header.Tcp;
 public class TcpDuplexStream
     extends AbstractAnalysis<TcpDuplexStream, TcpStreamEvent> {
 
+	public enum Direction {
+		BOTH,
+		CLIENT,
+		NONE,
+		SERVER;
+
+		/**
+		 * Provides a custom equals method, that takes into account the constant
+		 * BOTH and always matches if compared against either in self or supplied
+		 * parameter.
+		 * 
+		 * @param dir
+		 *          direction to match
+		 * @return true if directions are equal and always true matching against
+		 *         BOTH constant
+		 */
+		public boolean equals(Direction dir) {
+			if (this == BOTH || dir == BOTH) {
+				return true;
+			}
+
+			return dir == this;
+		}
+
+		/**
+		 * Returns the inverse constant of this one. If BOTH is the constant, then
+		 * NONE is returned as its inverse.
+		 * 
+		 * @return opposite meaning CONSTANT of this one
+		 */
+		public Direction inverse() {
+			if (this == BOTH) {
+				return NONE;
+			}
+
+			if (this == CLIENT) {
+				return SERVER;
+			} else {
+				return CLIENT;
+			}
+		}
+	}
+
 	private enum Field implements JStructField {
 		CLIENT_STREAM(REF),
 		FLAGS,
 		HASH(8),
-		STAGE,
-
 		SEQUENCE,
-		SERVER_STREAM(REF), 
-		;
+
+		SERVER_STREAM(REF),
+		STAGE, ;
 
 		private final int len;
 
@@ -87,24 +129,12 @@ public class TcpDuplexStream
 	 * @param name
 	 */
 	@SuppressWarnings("unchecked")
-  protected TcpDuplexStream(int hash, int client, int server) {
+	protected TcpDuplexStream(int hash, int client, int server) {
 		super(TITLE, Field.class);
 
-		setClient(new TcpStream(client));
-		setServer(new TcpStream(server));
+		setClient(new TcpStream(client, Direction.CLIENT));
+		setServer(new TcpStream(server, Direction.SERVER));
 		setHashcode(hash);
-	}
-
-	/**
-	 * @param hash
-	 */
-	private void setHashcode(int hash) {
-		super.setInt(Field.HASH.offset(), hash);
-	}
-
-	@Override
-	public int hashCode() {
-		return super.getInt(Field.HASH.offset());
 	}
 
 	/*
@@ -121,8 +151,67 @@ public class TcpDuplexStream
 		return super.getObject(TcpStream.class, Field.CLIENT_STREAM.offset());
 	}
 
+	public Direction getDirection(Tcp tcp) {
+		if (getClientStream().getDestinationPort() == tcp.destination()) {
+			return Direction.CLIENT;
+		} else {
+			return Direction.SERVER;
+		}
+
+	}
+
+	public TcpStream getForward(int uniHash) throws InvalidStreamHashcode {
+		TcpStream stream = getClientStream();
+		if (stream.hashCode() == uniHash) {
+			return stream;
+
+		} else if ((stream = getServerStream()).hashCode() == uniHash) {
+			return stream;
+
+		} else {
+			throw new InvalidStreamHashcode();
+		}
+	}
+
+	public TcpStream getForward(Tcp tcp) {
+		if (getClientStream().getDestinationPort() == tcp.destination()) {
+			return getClientStream();
+		} else {
+			return getServerStream();
+		}
+	}
+
+	public TcpStream getReverse(int uniHash) throws InvalidStreamHashcode {
+		final TcpStream stream = getClientStream();
+		if (stream.hashCode() == uniHash) {
+			return getServerStream();
+
+		} else if (getServerStream().hashCode() == uniHash) {
+			return stream;
+
+		} else {
+			throw new InvalidStreamHashcode();
+		}
+	}
+
+	public TcpStream getReverse(Tcp tcp) {
+		if (getClientStream().getDestinationPort() == tcp.destination()) {
+			return getServerStream();
+		} else {
+			return getClientStream();
+		}
+	}
+
 	public TcpStream getServerStream() {
 		return super.getObject(TcpStream.class, Field.SERVER_STREAM.offset());
+	}
+
+	public Stage getStage() {
+		return Stage.values()[getInt(Field.STAGE.offset)];
+	}
+
+	public long getTime() {
+		return this.processingTime;
 	}
 
 	/*
@@ -145,54 +234,28 @@ public class TcpDuplexStream
 		throw new UnsupportedOperationException("Not implemented yet");
 	}
 
+	@Override
+	public int hashCode() {
+		return super.getInt(Field.HASH.offset());
+	}
+
+	public boolean isInitialized() {
+		return getStage() != Stage.NULL;
+	}
+
 	private void setClient(TcpStream stream) {
 		super.setObject(Field.CLIENT_STREAM.offset(), stream);
 	}
 
+	/**
+	 * @param hash
+	 */
+	private void setHashcode(int hash) {
+		super.setInt(Field.HASH.offset(), hash);
+	}
+
 	private void setServer(TcpStream stream) {
 		super.setObject(Field.SERVER_STREAM.offset(), stream);
-	}
-
-	public TcpStream getForward(Tcp tcp) {
-		if (getClientStream().getDestinationPort() == tcp.destination()) {
-			return getClientStream();
-		} else {
-			return getServerStream();
-		}
-	}
-
-	public TcpStream getReverse(Tcp tcp) {
-		if (getClientStream().getDestinationPort() != tcp.destination()) {
-			return getServerStream();
-		} else {
-			return getClientStream();
-		}
-	}
-
-	public TcpStream getForward(int uniHash) throws InvalidStreamHashcode {
-		TcpStream stream = getClientStream();
-		if (stream.hashCode() == uniHash) {
-			return stream;
-
-		} else if ((stream = getServerStream()).hashCode() == uniHash) {
-			return stream;
-
-		} else {
-			throw new InvalidStreamHashcode();
-		}
-	}
-
-	public TcpStream getReverse(int uniHash) throws InvalidStreamHashcode {
-		final TcpStream stream = getClientStream();
-		if (stream.hashCode() == uniHash) {
-			return getServerStream();
-
-		} else if (getServerStream().hashCode() == uniHash) {
-			return stream;
-
-		} else {
-			throw new InvalidStreamHashcode();
-		}
 	}
 
 	/**
@@ -202,18 +265,10 @@ public class TcpDuplexStream
 		setInt(Field.STAGE.offset(), stage.ordinal());
 	}
 
-	public Stage getStage() {
-		return Stage.values()[getInt(Field.STAGE.offset)];
-	}
-
 	/**
 	 * @param processingTime
 	 */
 	public void setTime(long processingTime) {
 		this.processingTime = processingTime;
-	}
-
-	public long getTime() {
-		return this.processingTime;
 	}
 }
