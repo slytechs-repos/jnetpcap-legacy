@@ -10,7 +10,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.newstuff;
+package org.jnetpcap.packet.header;
 
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JHeader;
@@ -34,8 +34,8 @@ public class Html
 		return buffer.size() - offset;
 	}
 
-	@Bind(to = Http.class)
-	public static boolean isBound(JPacket packet, Http http) {
+	@Bind(to = Http.class, stringValue = "text/html")
+	public static boolean bind2Http(JPacket packet, Http http) {
 		return http.hasContentType() && http.contentType().startsWith("text/html;");
 	}
 

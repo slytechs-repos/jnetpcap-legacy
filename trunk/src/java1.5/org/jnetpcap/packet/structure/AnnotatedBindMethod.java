@@ -236,20 +236,14 @@ public class AnnotatedBindMethod
 		return inspectAnyClass(c, errors);
 	}
 
-	private final AnnotatedHeaderLengthMethod lengthMethod;
-
 	private AnnotatedBindMethod(final Class<? extends JHeader> target,
 	    final Method method, final Object object) {
 		super(method, object);
-
-		lengthMethod = AnnotatedHeaderLengthMethod.inspectClass(target);
 	}
 
 	private AnnotatedBindMethod(final Class<? extends JHeader> target,
 	    final Method method) {
 		super(method);
-
-		lengthMethod = AnnotatedHeaderLengthMethod.inspectClass(target);
 	}
 
 	public boolean isBound(
@@ -258,9 +252,6 @@ public class AnnotatedBindMethod
 	    final JHeader header) {
 
 		try {
-			header.peer(packet, offset, lengthMethod.getHeaderLength(packet, offset));
-			header.decode();
-			
 			return (Boolean) method.invoke(object, packet, header);
 		} catch (final IllegalArgumentException e) {
 			throw new IllegalStateException(e);

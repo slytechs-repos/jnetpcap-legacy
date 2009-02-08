@@ -13,10 +13,13 @@
 package org.jnetpcap.analysis;
 
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,6 +29,7 @@ import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JPacketHandler;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.PcapPacket;
+import org.jnetpcap.util.BlockingQueuePump;
 import org.jnetpcap.util.JLogger;
 import org.jnetpcap.util.JPacketSupport;
 import org.jnetpcap.util.TimeoutQueue;
@@ -65,6 +69,8 @@ public class JController
 	private Queue<JPacket> outQ =
 	    new PriorityQueue<JPacket>(INITIAL_CAPACITY, JController.PACKET_TIMESTAMP);
 
+	private BlockingQueuePump<JPacket> dispatchWorker;
+
 	private final static Comparator<JPacket> PACKET_TIMESTAMP =
 	    new Comparator<JPacket>() {
 
@@ -90,13 +96,26 @@ public class JController
 
 	    };
 
-	private JPacketSupport support = new JPacketSupport();
+	private final JPacketSupport support = new JPacketSupport();
 
 	private long timeInMillis;
 
 	private TimeoutQueue timeQueue = new TimeoutQueue();
 
 	private long totalBuffered = 0;
+
+	public JController() {
+		dispatchWorker = 
+	    new BlockingQueuePump<JPacket>("out_queue_pump", 1000) {
+
+	    @Override
+	    protected void dispatch(JPacket packet) {
+	    	support.fireNextPacket(packet);
+	    }
+
+    };
+
+	}
 
 	public <T> boolean add(JPacketHandler<T> o, T user) {
 		return this.support.add(o, user);
@@ -156,7 +175,7 @@ public class JController
 	}
 
 	public void nextPacket(JPacket packet, Pcap pcap) {
-		
+
 		packet = new PcapPacket(packet);
 
 		/*
@@ -227,6 +246,8 @@ public class JController
 		return true;
 	}
 
+	private Queue<JPacket> consumeQ = new LinkedList<JPacket>();
+
 	protected void processInboundQueue() {
 
 		while (inQ.isEmpty() == false) {
@@ -236,7 +257,17 @@ public class JController
 			processPacket(p);
 
 			totalBuffered += p.getTotalSize();
-			outQ.offer(p);
+
+			/*
+			 * Now check if this packet is to be consumed (if its found on the consume
+			 * queue). If consumed we simply discard the packet by not putting it on
+			 * the outbound queue.
+			 */
+			if (true || consumeQ.isEmpty() || consumeQ.remove(p) == false) {
+				outQ.offer(p);
+			} else {
+				System.out.printf("consumed=%d\n", p.getFrameNumber());
+			}
 		}
 	}
 
@@ -247,10 +278,22 @@ public class JController
 			JPacket packet = outQ.poll();
 			totalBuffered -= packet.getTotalSize();
 
-			support.fireNextPacket(packet);
+			/*
+			 * Dispatch using a QueuePump which uses a bg thread. Therefore we never
+			 * block here
+			 */
+			try {
+//				bq.put(packet);
+				dispatchWorker.put(packet);
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+//			dispatchWorker.dispatchQueue.run();
 		}
-
 	}
+	
+	private BlockingQueue<JPacket> bq = new ArrayBlockingQueue<JPacket>(1000);
 
 	/*
 	 * (non-Javadoc)
@@ -284,6 +327,13 @@ public class JController
 
 	protected void setProcessingTime(JPacket packet) {
 		this.timeInMillis = packet.getCaptureHeader().timestampInMillis();
+	}
+
+	@Override
+	public void consumePacket(JPacket packet) {
+		if (consumeQ.contains(packet) == false) {
+			consumeQ.add(packet);
+		}
 	}
 
 }

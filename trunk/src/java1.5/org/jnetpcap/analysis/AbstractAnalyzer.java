@@ -109,4 +109,9 @@ public abstract class AbstractAnalyzer implements JAnalyzer {
 		return (parent == null) ? true : parent.processHeaders(packet, map);
 	}
 
+	public void consumePacket(JPacket packet) {
+		if (parent != null) {
+			parent.consumePacket(packet);
+		}
+	}
 }

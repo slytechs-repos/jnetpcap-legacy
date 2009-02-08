@@ -41,11 +41,11 @@ public class AnnotatedBinding implements JBinding {
 			JHeader header = c.newInstance();
 			return header;
 		} catch (InstantiationException e) {
-			throw new HeaderDefinitionError(c,
-			    "problem in the default constructor", e);
+			throw new HeaderDefinitionError(c, "problem in the default constructor",
+			    e);
 		} catch (IllegalAccessException e) {
-			throw new HeaderDefinitionError(c,
-			    "problem in the default constructor", e);
+			throw new HeaderDefinitionError(c, "problem in the default constructor",
+			    e);
 		}
 	}
 
@@ -59,11 +59,12 @@ public class AnnotatedBinding implements JBinding {
 
 		AnnotatedBindMethod[] bindMethods =
 		    AnnotatedBindMethod.inspectClass(c, errors);
-		
+
 		return createBindings(c, bindMethods, errors);
 	}
 
-	private static JBinding[] createBindings(Class<?> c,
+	private static JBinding[] createBindings(
+	    Class<?> c,
 	    AnnotatedBindMethod[] bindMethods,
 	    List<HeaderDefinitionError> errors) {
 
@@ -208,7 +209,9 @@ public class AnnotatedBinding implements JBinding {
 	 */
 	public boolean isBound(JPacket packet, int offset) {
 
-		header.peer(packet, offset);
+		System.out.printf("AnnotatedBinding::packet=%s\n", packet.getState()
+		    .toDebugString());
+		packet.getHeader(header);
 
 		return annotatedBound.isBound(packet, offset, header);
 	}
@@ -250,16 +253,16 @@ public class AnnotatedBinding implements JBinding {
 	public static JBinding[] inspectObject(
 	    Object object,
 	    List<HeaderDefinitionError> errors) {
-		
+
 		Class<?> c = object.getClass();
-		
+
 		if (cache.containsKey(c)) {
 			return cache.get(c);
 		}
 
 		AnnotatedBindMethod[] bindMethods =
 		    AnnotatedBindMethod.inspectObject(object, errors);
-		
+
 		return createBindings(c, bindMethods, errors);
 
 	}

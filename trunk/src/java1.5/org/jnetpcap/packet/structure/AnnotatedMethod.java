@@ -25,6 +25,12 @@ import java.util.List;
 public abstract class AnnotatedMethod {
 
 	protected final Method method;
+	
+	protected boolean isMapped = false;
+	
+	public void setIsMapped(boolean state) {
+		this.isMapped = state;
+	}
 
 	protected final Class<?> declaringClass;
 
@@ -37,6 +43,7 @@ public abstract class AnnotatedMethod {
 		this.method = null;
 		this.declaringClass = null;
 		this.object = null;
+		this.isMapped = false;
 	}
 
 	public AnnotatedMethod(Method method, Object object) {
@@ -67,6 +74,7 @@ public abstract class AnnotatedMethod {
 			return declaringClass.getSimpleName() + "." + method.getName() + "()";
 		}
 	}
+
 
 	public static Method[] getMethods(
 	    Class<?> c,

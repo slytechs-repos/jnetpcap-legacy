@@ -98,6 +98,22 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScan_scan_1length__
 
 /*
  * Class:     org_jnetpcap_packet_JScan
+ * Method:    record_header
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_record_1header
+  (JNIEnv *env, jobject obj) {
+	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	if (scan == NULL) {
+		return;
+	}
+
+	record_header(scan);
+}
+
+
+/*
+ * Class:     org_jnetpcap_packet_JScan
  * Method:    scan_id
  * Signature: (I)V
  */

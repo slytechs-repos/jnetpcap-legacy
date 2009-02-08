@@ -13,7 +13,9 @@
 package org.jnetpcap.analysis.tcpip;
 
 import org.jnetpcap.analysis.AbstractAnalysis;
+import org.jnetpcap.analysis.AnalyzerSupport;
 import org.jnetpcap.analysis.JAnalysis;
+import org.jnetpcap.analysis.JAnalyzer;
 import org.jnetpcap.analysis.tcpip.TcpAnalyzer.Stage;
 import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.packet.header.Tcp;
@@ -115,25 +117,31 @@ public class TcpDuplexStream
 
 	private long processingTime;
 
+	private final TcpAnalyzer analyzer;
+
 	/**
 	 * @param type
 	 * @param size
 	 */
 	public TcpDuplexStream() {
 		super(JMemory.Type.POINTER);
+		this.analyzer = null;
 	}
 
 	/**
+	 * @param support
+	 *          TODO
 	 * @param type
 	 * @param size
 	 * @param name
 	 */
-	@SuppressWarnings("unchecked")
-	protected TcpDuplexStream(int hash, int client, int server) {
-		super(TITLE, Field.class);
+	protected TcpDuplexStream(int hash, int client, int server,
+	    TcpAnalyzer analyzer) {
+		super(TITLE, Field.values());
+		this.analyzer = analyzer;
 
-		setClient(new TcpStream(client, Direction.CLIENT));
-		setServer(new TcpStream(server, Direction.SERVER));
+		setClient(new TcpStream(client, Direction.CLIENT, this, analyzer));
+		setServer(new TcpStream(server, Direction.SERVER, this, analyzer));
 		setHashcode(hash);
 	}
 
@@ -220,8 +228,7 @@ public class TcpDuplexStream
 	 * @see org.jnetpcap.analysis.JAnalysis#hasAnalysis(java.lang.Class)
 	 */
 	public <T extends JAnalysis> boolean hasAnalysis(Class<T> analysis) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Not implemented yet");
+		return false;
 	}
 
 	/*
@@ -230,8 +237,7 @@ public class TcpDuplexStream
 	 * @see org.jnetpcap.analysis.JAnalysis#hasAnalysis(org.jnetpcap.analysis.JAnalysis)
 	 */
 	public <T extends JAnalysis> boolean hasAnalysis(T analysis) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Not implemented yet");
+		return false;
 	}
 
 	@Override

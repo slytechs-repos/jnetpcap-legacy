@@ -18,6 +18,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jnetpcap.nio.JMemory.Type;
+
 /**
  * Provides a mechanism for allocating memory to JMemory objects. This class is
  * intended to be used when for example JPacket objects need to be kept around
@@ -157,7 +159,7 @@ public class JMemoryPool {
 			if (r == null) {
 				continue;
 			}
-			
+
 			final Block b = r.get();
 			if (b == null) {
 				i.remove();
@@ -192,8 +194,29 @@ public class JMemoryPool {
 	public void allocate(int size, JMemory memory) {
 		final Block block = getBlock(size);
 		final int offset = block.allocate(size);
-		
+
 		memory.peer(block, offset, size);
+	}
+
+	private final static JMemoryPool global = new JMemoryPool();
+
+	/**
+	 * @param size
+	 * @param storage
+	 */
+	public static void malloc(int size, JMemory storage) {
+		global.allocate(size, storage);
+	}
+	
+	/**
+	 * @param size
+	 * @param storage
+	 */
+	public static JBuffer buffer(int size) {
+		final JBuffer buffer = new JBuffer(Type.POINTER);
+		global.allocate(size, buffer);
+		
+		return buffer;
 	}
 
 

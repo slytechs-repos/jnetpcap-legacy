@@ -58,8 +58,22 @@ public class TcpAck
 	 * @param c
 	 */
 	public TcpAck(JPacket packet) {
-		super(Field.class);
+		super(Field.values());
+		
+		setPacket(packet);
 	}
+
+	/**
+   * @param packet
+   */
+  public void setPacket(JPacket packet) {
+  	super.setObject(Field.PACKET.offset(), packet);
+  }
+  
+  public JPacket getPacket() {
+  	return super.getObject(JPacket.class, Field.PACKET.offset());
+  }
+  
 
 	/*
 	 * (non-Javadoc)

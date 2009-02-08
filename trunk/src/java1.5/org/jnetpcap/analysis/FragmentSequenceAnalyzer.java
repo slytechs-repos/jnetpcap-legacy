@@ -17,6 +17,12 @@ import java.util.List;
 public interface FragmentSequenceAnalyzer extends JAnalyzer {
 
 	/**
+   * The default timeout interval in millis for a fragment sequence completion.
+   */
+  public static final int DEFAULT_FRAGMENT_TIMEOUT = 60 * 1000;
+	public final FragmentReassembly reassembly = new FragmentReassembly();
+
+	/**
 	 * Signal to analyzer that this fragment sequence has expired
 	 * 
 	 * @param analysis

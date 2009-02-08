@@ -53,6 +53,7 @@ typedef void (*native_protocol_func_t)(scan_t *scan);
 extern native_protocol_func_t native_protocols[];
 extern char *native_protocol_names[];
 void callJavaHeaderScanner(scan_t *scan);
+void record_header(scan_t *scan);
 
 extern char str_buf[1024];
 

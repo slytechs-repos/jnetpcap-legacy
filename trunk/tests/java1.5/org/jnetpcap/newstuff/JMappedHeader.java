@@ -14,10 +14,13 @@ package org.jnetpcap.newstuff;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JProtocol;
+import org.jnetpcap.packet.annotate.Dynamic;
+import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.structure.JField;
 
 /**
@@ -86,30 +89,155 @@ public class JMappedHeader
 		super(state, fields, name, nicname);
 	}
 
-	private Map<String, JField> fieldMap;
+	private static class Entry {
+
+		private final String description;
+
+		private final String display;
+
+		private final int length;
+
+		private final int offset;
+
+		private final Object value;
+
+		/**
+		 * @param value
+		 * @param offset
+		 * @param length
+		 * @param description
+		 */
+		public Entry(Object value, int offset, int length, String display,
+		    String description) {
+			this.value = value;
+			this.offset = offset;
+			this.length = length;
+			this.display = display;
+			this.description = description;
+		}
+
+		/**
+		 * @param mappedHeader
+		 * @return
+		 */
+		public String getValueDescription(JHeader mappedHeader) {
+			return description;
+		}
+
+		/**
+		 * @param mappedHeader
+		 * @return
+		 */
+		public int getLength(JMappedHeader mappedHeader) {
+			return length;
+		}
+
+		public String getDisplay(JMappedHeader mappedHeader) {
+			return display;
+		}
+
+		/**
+		 * @param mappedHeader
+		 * @return
+		 */
+		public int getOffset(JMappedHeader mappedHeader) {
+			return offset;
+		}
+
+		/**
+		 * @param mappedHeader
+		 * @return
+		 */
+		public Object getValue(JMappedHeader mappedHeader) {
+			return value;
+		}
+
+		@SuppressWarnings("unchecked")
+		public <V> V getValue(Class<V> c, JMappedHeader mappedHeader) {
+			return (V) value;
+		}
+
+	}
+
+	private final Map<String, Entry> fieldMap = new HashMap<String, Entry>(50);
 
 	protected boolean hasField(Enum<? extends Enum<?>> field) {
+		return fieldMap.containsKey(map(field));
+	}
+
+	@Dynamic(Field.Property.CHECK)
+	protected boolean hasField(String field) {
 		return fieldMap.containsKey(field);
 	}
 
 	protected String fieldDescription(Enum<? extends Enum<?>> field) {
-		return fieldMap.get(field).getValueDescription(this);
+		return fieldMap.get(map(field)).getValueDescription(this);
+	}
+
+	@Dynamic(Field.Property.DESCRIPTION)
+	protected String fieldDescription(String field) {
+		return fieldMap.get(map(field)).getValueDescription(this);
+	}
+
+	protected String fieldDisplay(Enum<? extends Enum<?>> field) {
+		return fieldMap.get(map(field)).getDisplay(this);
+	}
+
+	@Dynamic(Field.Property.DISPLAY)
+	protected String fieldDisplay(String field) {
+		return fieldMap.get(map(field)).getDisplay(this);
 	}
 
 	protected int fieldLength(Enum<? extends Enum<?>> field) {
-		return fieldMap.get(field).getLength(this);
+		return fieldMap.get(map(field)).getLength(this);
+	}
+
+	@Dynamic(Field.Property.LENGTH)
+	protected int fieldLength(String field) {
+		return fieldMap.get(map(field)).getLength(this);
 	}
 
 	protected int fieldOffset(Enum<? extends Enum<?>> field) {
-		return fieldMap.get(field).getOffset(this);
+		return fieldMap.get(map(field)).getOffset(this);
+	}
+	
+	protected String map(Enum<? extends Enum<?>> field) {
+		String s = field.name().replace('_', '-');
+//		System.out.printf("JMappedHeader::map(%s)=%s\n", field.name(), s);
+		return s;
+	}
+	
+	protected String map(String field) {
+		String s = field;
+//		System.out.printf("JMappedHeader::map(%s)=%s\n", field, s);
+		return s;
+	}
+
+
+	@Dynamic(Field.Property.OFFSET)
+	protected int fieldOffset(String field) {
+		if (fieldMap.get(map(field)) == null) {
+			return -1;
+		}
+		
+		return fieldMap.get(map(field)).getOffset(this);
 	}
 
 	protected Object fieldValue(Enum<? extends Enum<?>> field) {
-		return fieldMap.get(field.name()).getValue(this);
+		return fieldMap.get(map(field)).getValue(this);
+	}
+
+	@Dynamic(Field.Property.VALUE)
+	protected Object fieldValue(String field) {
+		return fieldMap.get(map(field)).getValue(this);
 	}
 
 	protected <V> V fieldValue(Class<V> c, Enum<? extends Enum<?>> field) {
-		return fieldMap.get(field).getValue(c, this);
+		return fieldMap.get(map(field)).getValue(c, this);
+	}
+
+	protected <V> V fieldValue(Class<V> c, String field) {
+		return fieldMap.get(map(field)).getValue(c, this);
 	}
 
 	public String[] fieldArray() {
@@ -127,17 +255,14 @@ public class JMappedHeader
 
 		return r;
 	}
-	
+
 	/**
 	 * @param name
 	 * @param value
 	 * @param offset
 	 * @param length
 	 */
-	public void addField(
-	    Enum<? extends Enum<?>> field,
-	    String value,
-	    int offset) {
+	public void addField(Enum<? extends Enum<?>> field, String value, int offset) {
 		addField(field, value, offset, value.length());
 	}
 
@@ -152,7 +277,8 @@ public class JMappedHeader
 	    String value,
 	    int offset,
 	    int length) {
-		this.fieldMap.put(field.name(), null);
+		this.fieldMap.put(map(field), new Entry(value, offset, length, field
+		    .name(), null));
 	}
 
 	/**
@@ -162,7 +288,7 @@ public class JMappedHeader
 	 * @param length
 	 */
 	public void addField(String name, String value, int offset, int length) {
-		this.fieldMap.put(name, null);
+		this.fieldMap.put(name, new Entry(value, offset, length, name, null));
 	}
 
 	/**

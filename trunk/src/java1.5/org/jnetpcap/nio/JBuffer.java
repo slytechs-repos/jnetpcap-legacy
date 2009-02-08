@@ -110,26 +110,27 @@ public class JBuffer
 
 	public int findUTF8String(int index, char... delimeter) {
 
-		final int len = index + size();
+		final int size = size();
 
-		int searchedLength = len - index;
+		int searchedLength = 0;
 		int match = 0;
-		for (int i = index; i < len; i++) {
-			if (match == delimeter.length) {
-				searchedLength = i - index;
-				break;
-			}
+		for (int i = index; i < size; i++) {		
 
 			char c = getUTF8Char(i);
 			char d = delimeter[match];
 
 			if (d == c) {
 				match++;
+				
+				if (match == delimeter.length) {
+					searchedLength = i - index + 1;
+					break;
+				}
 			} else {
 				match = 0;
 			}
 		}
-
+		
 		return searchedLength;
 	}
 
@@ -138,10 +139,15 @@ public class JBuffer
 	    StringBuilder buf,
 	    char... delimeter) {
 
-		final int len = index + size();
+		final int size = size();
+		final int len = index + size;
 
 		int match = 0;
 		for (int i = index; i < len; i++) {
+			if (i >= size) {
+				return buf;
+			}
+
 			if (match == delimeter.length) {
 				break;
 			}

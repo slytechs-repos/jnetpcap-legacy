@@ -16,6 +16,7 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
+import org.jnetpcap.analysis.tcpip.AbstractFragmentationAnalyzer;
 import org.jnetpcap.analysis.tcpip.Ip4FragmentationAnalyzer;
 import org.jnetpcap.analysis.tcpip.Ip4Reassembler;
 import org.jnetpcap.packet.JPacket;
@@ -39,7 +40,7 @@ public class TestIp4FragmentationAnalyzer
 
 	private JController controller;
 
-	private Ip4FragmentationAnalyzer ip4Analyzer;
+	private AbstractFragmentationAnalyzer ip4Analyzer;
 
 	private Ip4Reassembler ip4Defrag;
 

@@ -18,9 +18,6 @@ import java.util.logging.Level;
 
 import junit.framework.TestCase;
 
-import org.jnetpcap.newstuff.Html;
-import org.jnetpcap.newstuff.Http;
-import org.jnetpcap.newstuff.Http.Entry;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.RegistryHeaderErrors;
@@ -28,6 +25,8 @@ import org.jnetpcap.packet.TestUtils;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.packet.header.Ethernet;
+import org.jnetpcap.packet.header.Html;
+import org.jnetpcap.packet.header.Http;
 import org.jnetpcap.packet.header.Ip4;
 import org.jnetpcap.util.JLogger;
 import org.jnetpcap.util.config.JConfig;
@@ -95,10 +94,9 @@ public class TestHttp
 		out.format(packet);
 
 		if (true && packet.hasHeader(http)) {
-			Map<String, Http.Entry> map = http.headerFields();
 
-			for (Entry e : map.values()) {
-				System.out.println(e.toString());
+			for (String e : http.fieldArray()) {
+				System.out.println(e);
 			}
 		}
 	}

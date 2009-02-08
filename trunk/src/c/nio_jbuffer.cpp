@@ -804,7 +804,7 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_nio_JObjectBuffer_getObject
 		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
 		return NULL;
 	}
-
+//#define DEBUG
 #ifdef DEBUG
 	printf("getObject(): here mem=%p offset=%d *=%p\n", 
 			mem, 
@@ -827,6 +827,10 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JObjectBuffer_setObject
 	if (mem == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
 		return;
+	}
+	
+	if (object == NULL) {
+		return; // Nothing todo
 	}
 	
 	jobject global_ref = jmemoryRefCreate(env, obj, object);

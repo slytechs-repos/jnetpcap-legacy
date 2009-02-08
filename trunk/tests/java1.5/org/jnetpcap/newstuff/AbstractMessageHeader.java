@@ -12,6 +12,9 @@
  */
 package org.jnetpcap.newstuff;
 
+import org.jnetpcap.nio.JBuffer;
+import org.jnetpcap.packet.annotate.HeaderLength;
+
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
@@ -33,6 +36,17 @@ public abstract class AbstractMessageHeader
 	protected final StringBuilder buf = new StringBuilder(1024);
 
 	private MessageType messageType;
+	
+	@HeaderLength
+	public static int headerLength(JBuffer buffer, int offset) {
+		/*
+		 * We need to scan the buffer for an empty new line which identifies
+		 * the end of the header that would the 2 sets of '\n' '\r' characters.
+		 */
+		int len = buffer.findUTF8String(offset, HEADER_DELIMITER);
+		
+		return len;
+	}
 
 	/**
 	 * Decode the http header. First we need to convert raw bytes to a char's we
@@ -43,13 +57,13 @@ public abstract class AbstractMessageHeader
 	protected void decodeHeader() {
 		
 		super.clearFields();
-
+		
 		/*
-		 * First we need to scan the buffer for an empty new line which identifies
-		 * the end of the header that would the 2 sets of '\n' '\r' characters.
+		 * We already know the length of the header, so just get the raw chars
 		 */
 		buf.setLength(0);
-		super.getUTF8String(0, buf, HEADER_DELIMITER);
+		int len = super.getLength();
+		super.getUTF8String(0, buf, len);
 
 		String s = buf.toString();
 		String lines[] = s.split("\r\n");
@@ -70,7 +84,7 @@ public abstract class AbstractMessageHeader
 			int offset = s.indexOf(name + ":");
 			int length = name.length() + value.length() + 1;
 
-			super.addField(name, value, offset, length);
+			super.addField(name.trim(), value.trim(), offset, length);
 		}
 	}
 	

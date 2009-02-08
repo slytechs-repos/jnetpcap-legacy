@@ -13,49 +13,24 @@
 package org.jnetpcap.analysis.tcpip;
 
 import java.util.Formatter;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 
-import org.jnetpcap.analysis.AbstractAnalyzer;
 import org.jnetpcap.analysis.AnalysisInfo;
-import org.jnetpcap.analysis.AnalyzerListener;
-import org.jnetpcap.analysis.AnalyzerSupport;
-import org.jnetpcap.analysis.FragmentReassembly;
 import org.jnetpcap.analysis.FragmentSequence;
 import org.jnetpcap.analysis.FragmentSequenceAnalyzer;
 import org.jnetpcap.analysis.FragmentSequenceEvent;
 import org.jnetpcap.analysis.JAnalysis;
 import org.jnetpcap.packet.JPacket;
-import org.jnetpcap.packet.format.FormatUtils;
 import org.jnetpcap.packet.header.Ip4;
-import org.jnetpcap.util.JLogger;
 
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
 public class Ip4FragmentationAnalyzer
-    extends AbstractAnalyzer implements FragmentSequenceAnalyzer {
-
-	private final static Logger logger =
-	    JLogger.getLogger(Ip4FragmentationAnalyzer.class);
-
-	/**
-	 * The default timeout interval in millis for a fragment sequence completion.
-	 */
-	public final static int DEFAULT_FRAGMENT_TIMEOUT = 60 * 1000; // 60 seconds
-
-	private static final int SIZE = 500;
-
-	private final Map<Integer, FragmentSequence> fragmentation =
-	    new HashMap<Integer, FragmentSequence>(SIZE);
-
-	private final AnalyzerSupport<FragmentSequenceEvent> fragSupport =
-	    new AnalyzerSupport<FragmentSequenceEvent>();
+    extends AbstractFragmentationAnalyzer implements FragmentSequenceAnalyzer {
 
 	private final Ip4 ip = new Ip4();
 
@@ -65,15 +40,6 @@ public class Ip4FragmentationAnalyzer
 	    new Formatter(outStringBuilder = new StringBuilder());
 
 	private final StringBuilder outStringBuilder;
-
-	private long timeout = DEFAULT_FRAGMENT_TIMEOUT;
-
-	public boolean addFragmentationListener(
-	    AnalyzerListener<FragmentSequenceEvent> listener) {
-		return this.fragSupport.addListener(listener, null);
-	}
-
-	FragmentReassembly reassembly = new FragmentReassembly();
 
 	public List<JAnalysis> generateInfo(FragmentSequence sequence) {
 		list.clear();
@@ -110,23 +76,6 @@ public class Ip4FragmentationAnalyzer
 		return list;
 	}
 
-	private FragmentSequence getSequence(int hash) {
-		/*
-		 * Sorted by ip offset
-		 */
-		FragmentSequence sequence = fragmentation.get(hash);
-		if (sequence == null) {
-			sequence = new FragmentSequence(hash, this);
-			sequence.setTimeout(getProcessingTime() + timeout);
-
-			fragmentation.put(hash, sequence);
-			getTimeoutQueue().add(sequence);
-		}
-
-		return sequence;
-
-	}
-
 	private boolean processFragmentation(JPacket packet) {
 		int hash = ip.hashCode(); // Unidirectional Ip.source/Ip.destination
 		int offset = ip.offset() * 8;
@@ -136,15 +85,11 @@ public class Ip4FragmentationAnalyzer
 			return true; // IP datagram not fragmented
 		}
 
-		FragmentSequence sequence = getSequence(hash);
+		FragmentSequence sequence = getSequence(hash, true);
 
-		if (sequence.isEmpty()) {
-			fragSupport.fire(FragmentSequenceEvent.sequenceStart(this, sequence));
-		}
-
+		sequence.addFragment(packet, offset, length);
 		fragSupport.fire(FragmentSequenceEvent.sequenceNewPacket(this, sequence,
 		    packet));
-		sequence.addFragment(packet, offset, length);
 
 		if (ip.offset() == 0) {
 			sequence.setHasFirstFragment(true);
@@ -188,28 +133,6 @@ public class Ip4FragmentationAnalyzer
 		}
 
 		return true;
-	}
-
-	public boolean removeFragmentationListener(
-	    AnalyzerListener<FragmentSequenceEvent> listener) {
-		return this.fragSupport.removeListener(listener);
-	}
-
-	protected void setProcessingTime(JPacket packet) {
-		packet.getCaptureHeader().timestampInMillis();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.jnetpcap.analysis.JAnalyzer#timeout(org.jnetpcap.analysis.JAnalysis)
-	 */
-	public void timeout(FragmentSequence analysis) {
-		if (fragmentation.remove(analysis.hashCode()) == null) {
-			logger.warning("Unable to remove analysis info from fragmentation map");
-		}
-
-		fragSupport.fire(FragmentSequenceEvent.sequenceTimeout(this, analysis));
 	}
 
 }

@@ -66,4 +66,6 @@ public interface JAnalyzer {
    * @return
    */
   public boolean processHeaders(JPacket packet);
+  
+  public void consumePacket(JPacket packet);
 }

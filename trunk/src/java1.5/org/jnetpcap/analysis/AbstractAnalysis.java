@@ -63,29 +63,28 @@ public abstract class AbstractAnalysis<S extends JAnalysis, E extends AnalyzerEv
 		this.type = AnalysisUtils.getType(getClass());
 	}
 
-	@SuppressWarnings("unchecked")
-	public <T extends Enum<T> & JStructField> AbstractAnalysis(Class<T> c) {
-		this(null, (Class<T>) Field.class, c);
+	public AbstractAnalysis(JStructField... c) {
+		this((String) null, c);
 	}
+//
+//	@SuppressWarnings("unchecked")
+//	public <T extends Enum<T> & JStructField> AbstractAnalysis(Class<T> c1,
+//	    Class<T> c2) {
+//		this((String) null, (Class<T>) Field.class, c1, c2);
+//	}
+//
+//	@SuppressWarnings("unchecked")
+//	public <T extends Enum<T> & JStructField> AbstractAnalysis(Class<T> c1,
+//	    Class<T> c2, Class<T> c3) {
+//		this((String) null, (Class<T>) Field.class, c1, c2, c3);
+//	}
 
-	@SuppressWarnings("unchecked")
-	public <T extends Enum<T> & JStructField> AbstractAnalysis(Class<T> c1,
-	    Class<T> c2) {
-		this(null, (Class<T>) Field.class, c1, c2);
-	}
+	public AbstractAnalysis(String title, JStructField... fields) {
 
-	@SuppressWarnings("unchecked")
-	public <T extends Enum<T> & JStructField> AbstractAnalysis(Class<T> c1,
-	    Class<T> c2, Class<T> c3) {
-		this(null, (Class<T>) Field.class, c1, c2, c3);
-	}
-
-	public <T extends Enum<T> & JStructField> AbstractAnalysis(String title,
-	    Class<T>... c) {
-
-		super(c);
+		super(Field.values(), fields);
 
 		setTitle(title == null ? getClass().getSimpleName() : title);
+		setText(new String[0]);
 
 		super.order(ByteOrder.nativeOrder());
 
@@ -108,12 +107,12 @@ public abstract class AbstractAnalysis<S extends JAnalysis, E extends AnalyzerEv
 		return null;
 	}
 
-	public JAnalyzer getAnalyzer() {
+	protected JAnalyzer getAnalyzer() {
 		return getObject(JAnalyzer.class, Field.ANALYZER.offset());
 	}
 
 	@SuppressWarnings("unchecked")
-	private AnalyzerSupport<E> getSupport() {
+	protected AnalyzerSupport<E> getSupport() {
 		return getObject(AnalyzerSupport.class, Field.LISTENERS.offset());
 	}
 

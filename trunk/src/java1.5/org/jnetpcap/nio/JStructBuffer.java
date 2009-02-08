@@ -49,16 +49,15 @@ public class JStructBuffer
 	 * @param fields
 	 *          vararg list of field enum tables
 	 */
-	public <T extends Enum<T> & JStructField> JStructBuffer(Class<T>... fields) {
+	public JStructBuffer(JStructField[]... fields) {
 		super(calcSize(fields));
 	}
 
-	protected static <T extends Enum<T> & JStructField> int calcSize(
-	    Class<T>... fields) {
+	protected static int calcSize(JStructField[]... fields) {
 		int l = 0;
 
-		for (Class<T> c : fields) {
-			for (JStructField f : c.getEnumConstants()) {
+		for (JStructField[] fs : fields) {
+			for (JStructField f: fs) {
 				l += f.length(l);
 			}
 		}
