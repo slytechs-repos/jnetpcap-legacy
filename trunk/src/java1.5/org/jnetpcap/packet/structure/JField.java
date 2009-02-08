@@ -222,42 +222,42 @@ public class JField {
 	}
 
 	public String getUnits(JHeader header) {
-		return units.stringMethod(header);
+		return units.stringMethod(header, name);
 	}
 	
 	public boolean hasField(JHeader header) {
-		return check.booleanMethod(header);
+		return check.booleanMethod(header, name);
 	}
 
 
 	public String getDisplay(JHeader header) {
-		return display.stringMethod(header);
+		return display.stringMethod(header, name);
 	}
 
 	public int getLength(JHeader header) {
-		return length.intMethod(header);
+		return length.intMethod(header, name);
 	}
 	
 	public long getMask(JHeader header) {
-		return mask.longMethod(header);
+		return mask.longMethod(header, name);
 	}
 
 
 	public int getOffset(JHeader header) {
-		return offset.intMethod(header);
+		return offset.intMethod(header, name);
 	}
 
 	public String getValueDescription(JHeader header) {
-		return description.stringMethod(header);
+		return description.stringMethod(header, name);
 	}
 	
 	@SuppressWarnings("unchecked")
   public <T> T getValue(Class<T> c, JHeader header) {
-		return (T) value.objectMethod(header);
+		return (T) value.objectMethod(header, name);
 	}
 
 	public Object getValue(JHeader header) {
-		return value.objectMethod(header);
+		return value.objectMethod(header, name);
 	}
 
 	/**

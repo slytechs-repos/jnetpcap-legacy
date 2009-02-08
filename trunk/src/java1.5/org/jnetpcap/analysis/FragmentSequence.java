@@ -45,6 +45,7 @@ public class FragmentSequence
 		TIMEOUT(8),
 		LEN,
 		HASH,
+		START,
 		;
 		private final int len;
 
@@ -81,12 +82,14 @@ public class FragmentSequence
 	/**
 	 * @param size
 	 */
-	public FragmentSequence(int hash, FragmentSequenceAnalyzer analyzer) {
-		super(TITLE, Field.class);
+	@SuppressWarnings("unchecked")
+  public FragmentSequence(int hash, FragmentSequenceAnalyzer analyzer) {
+		super(TITLE, Field.values());
 		this.analyzer = analyzer;
 
 		setPacketSequence(new LinkedList<JPacket>());
 		setLen(0);
+		setStart(0L);
 		setHash(hash);
 	}
 	
@@ -243,4 +246,14 @@ public class FragmentSequence
   	return o.equals(this) ? 0 : 1;
   }
 
+	/**
+   * @param start
+   */
+  public void setStart(long start) {
+  	super.setUInt(Field.START.offset(), start);
+  }
+
+  public long getStart() {
+  	return super.getUInt(Field.START.offset());
+  }
 }

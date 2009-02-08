@@ -558,8 +558,8 @@ public abstract class JPacket
 		this.state.peerHeaderByIndex(index, hstate);
 
 		header.peer(this, hstate.getOffset(), hstate.getLength());
-		header.decode(); // Call its decode routine if defined
 		header.setPacket(this); // Set the header's parent
+		header.decode(); // Call its decode routine if defined
 
 		return header;
 

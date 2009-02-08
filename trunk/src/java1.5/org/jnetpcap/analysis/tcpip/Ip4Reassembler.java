@@ -168,7 +168,7 @@ public class Ip4Reassembler
 	 * @param priority
 	 * @param parent
 	 */
-	public Ip4Reassembler(Ip4FragmentationAnalyzer parent) {
+	public Ip4Reassembler(AbstractFragmentationAnalyzer parent) {
 		super(PRIORITY, parent);
 
 		parent.addFragmentationListener(this);

@@ -57,8 +57,8 @@ public abstract class AnnotatedFieldMethod
 		 * @see org.jnetpcap.packet.AnnotatedFieldMethod#booleanMethod(org.jnetpcap.packet.JHeader)
 		 */
 		@Override
-		public boolean booleanMethod(JHeader header) {
-			return execute(header);
+		public boolean booleanMethod(JHeader header, String name) {
+			return execute(header, name);
 		}
 
 		public final void configFromField(AnnotatedField field) {
@@ -80,13 +80,17 @@ public abstract class AnnotatedFieldMethod
 			}
 		}
 
-		public boolean execute(JHeader header) {
+		public boolean execute(JHeader header, String name) {
 			if (hasStaticValue) {
 				return this.value;
 			}
 
 			try {
-				return (boolean) (Boolean) method.invoke(header);
+				if (isMapped) {
+					return (boolean) (Boolean) method.invoke(header, name);
+				} else {
+					return (boolean) (Boolean) method.invoke(header);
+				}
 
 			} catch (IllegalArgumentException e) {
 				throw new IllegalStateException(e);
@@ -159,13 +163,17 @@ public abstract class AnnotatedFieldMethod
 
 		}
 
-		public int execute(JHeader header) {
+		public int execute(JHeader header, String name) {
 			if (hasStaticValue) {
 				return this.value;
 			}
 
 			try {
-				return (int) (Integer) method.invoke(header);
+				if (isMapped) {
+					return (int) (Integer) method.invoke(header, name);
+				} else {
+					return (int) (Integer) method.invoke(header);
+				}
 
 			} catch (IllegalArgumentException e) {
 				throw new IllegalStateException(e);
@@ -182,8 +190,8 @@ public abstract class AnnotatedFieldMethod
 		 * @see org.jnetpcap.packet.AnnotatedFieldMethod#intMethod(org.jnetpcap.packet.JHeader)
 		 */
 		@Override
-		public int intMethod(JHeader header) {
-			return execute(header);
+		public int intMethod(JHeader header, String name) {
+			return execute(header, name);
 		}
 
 		private void setValue(int value) {
@@ -241,13 +249,17 @@ public abstract class AnnotatedFieldMethod
 
 		}
 
-		public long execute(JHeader header) {
+		public long execute(JHeader header, String name) {
 			if (hasStaticValue) {
 				return this.value;
 			}
 
 			try {
-				return (long) (Long) method.invoke(header);
+				if (isMapped) {
+					return (long) (Long) method.invoke(header, name);
+				} else {
+					return (long) (Long) method.invoke(header);
+				}
 
 			} catch (IllegalArgumentException e) {
 				throw new IllegalStateException(e);
@@ -264,8 +276,8 @@ public abstract class AnnotatedFieldMethod
 		 * @see org.jnetpcap.packet.AnnotatedFieldMethod#longMethod(org.jnetpcap.packet.JHeader)
 		 */
 		@Override
-		public long longMethod(JHeader header) {
-			return execute(header);
+		public long longMethod(JHeader header, String name) {
+			return execute(header, name);
 		}
 
 		private void setValue(long mask) {
@@ -310,10 +322,14 @@ public abstract class AnnotatedFieldMethod
 			}
 		}
 
-		public Object execute(JHeader header) {
+		public Object execute(JHeader header, String name) {
 
 			try {
-				return method.invoke(header);
+				if (isMapped) {
+					return method.invoke(header, name);
+				} else {
+					return method.invoke(header);
+				}
 
 			} catch (IllegalArgumentException e) {
 				throw new IllegalStateException(e);
@@ -330,8 +346,8 @@ public abstract class AnnotatedFieldMethod
 		 * @see org.jnetpcap.packet.AnnotatedFieldMethod#objectMethod(org.jnetpcap.packet.JHeader)
 		 */
 		@Override
-		public Object objectMethod(JHeader header) {
-			return execute(header);
+		public Object objectMethod(JHeader header, String name) {
+			return execute(header, name);
 		}
 	}
 
@@ -396,13 +412,17 @@ public abstract class AnnotatedFieldMethod
 			}
 		}
 
-		public String execute(JHeader header) {
+		public String execute(JHeader header, String name) {
 			if (hasStaticValue) {
 				return this.value;
 			}
 
 			try {
-				return (String) method.invoke(header);
+				if (isMapped) {
+					return (String) method.invoke(header, name);
+				} else {
+					return (String) method.invoke(header);
+				}
 
 			} catch (IllegalArgumentException e) {
 				throw new IllegalStateException(e);
@@ -424,8 +444,8 @@ public abstract class AnnotatedFieldMethod
 		 * @see org.jnetpcap.packet.AnnotatedFieldMethod#StringMethod(org.jnetpcap.packet.JHeader)
 		 */
 		@Override
-		public String stringMethod(JHeader header) {
-			return execute(header);
+		public String stringMethod(JHeader header, String name) {
+			return execute(header, name);
 		}
 	}
 
@@ -454,98 +474,15 @@ public abstract class AnnotatedFieldMethod
 		}
 	}
 
-	/**
-	 * @param method
-	 */
-	private static void checkBooleanSignature(Method method) {
+	private static void checkSignature(Method method, Class<?> c) {
 		final Class<?> declaringClass = method.getDeclaringClass();
 
 		/*
 		 * Now make sure it has the right signature of: <code>String name()</code.
 		 */
 		final Class<?>[] sig = method.getParameterTypes();
-		if (sig.length != 0 || method.getReturnType() != boolean.class) {
-			throw new AnnotatedMethodException(declaringClass,
-			    "Invalid signature for " + method.getName() + "()");
-		}
-
-		if ((method.getModifiers() & Modifier.STATIC) != 0) {
-			throw new AnnotatedMethodException(declaringClass, method.getName()
-			    + "()" + " can not be declared static");
-		}
-	}
-
-	private static void checkLongSignature(Method method) {
-		final Class<?> declaringClass = method.getDeclaringClass();
-
-		/*
-		 * Now make sure it has the right signature of: <code>String name()</code.
-		 */
-		final Class<?>[] sig = method.getParameterTypes();
-		if (sig.length != 0 || method.getReturnType() != long.class) {
-			throw new AnnotatedMethodException(declaringClass,
-			    "Invalid signature for " + method.getName() + "()");
-		}
-
-		if ((method.getModifiers() & Modifier.STATIC) != 0) {
-			throw new AnnotatedMethodException(declaringClass, method.getName()
-			    + "()" + " can not be declared static");
-		}
-	}
-
-	/**
-	 * @param method
-	 */
-	private static void checkIntSignature(Method method) {
-		final Class<?> declaringClass = method.getDeclaringClass();
-
-		/*
-		 * Now make sure it has the right signature of: <code>String name()</code.
-		 */
-		final Class<?>[] sig = method.getParameterTypes();
-		if (sig.length != 0 || method.getReturnType() != int.class) {
-			throw new AnnotatedMethodException(declaringClass,
-			    "Invalid signature for " + method.getName() + "()");
-		}
-
-		if ((method.getModifiers() & Modifier.STATIC) != 0) {
-			throw new AnnotatedMethodException(declaringClass, method.getName()
-			    + "()" + " can not be declared static");
-		}
-	}
-
-	/**
-	 * @param method
-	 */
-	private static void checkObjectSignature(Method method) {
-		final Class<?> declaringClass = method.getDeclaringClass();
-
-		/*
-		 * Now make sure it has the right signature of: <code>anythign name()</code.
-		 */
-		final Class<?>[] sig = method.getParameterTypes();
-		if (sig.length != 0) {
-			throw new AnnotatedMethodException(declaringClass,
-			    "Invalid signature for " + method.getName() + "()");
-		}
-
-		if ((method.getModifiers() & Modifier.STATIC) != 0) {
-			throw new AnnotatedMethodException(declaringClass, method.getName()
-			    + "()" + " can not be declared static");
-		}
-	}
-
-	/**
-	 * @param method
-	 */
-	private static void checkStringSignature(Method method) {
-		final Class<?> declaringClass = method.getDeclaringClass();
-
-		/*
-		 * Now make sure it has the right signature of: <code>String name()</code.
-		 */
-		final Class<?>[] sig = method.getParameterTypes();
-		if (sig.length != 0 || method.getReturnType() != String.class) {
+		if ((sig.length == 1 && sig[0] != String.class) || sig.length > 1
+		    || method.getReturnType() != c) {
 			throw new AnnotatedMethodException(declaringClass,
 			    "Invalid signature for " + method.getName() + "()");
 		}
@@ -619,24 +556,25 @@ public abstract class AnnotatedFieldMethod
 		switch (function) {
 			case LENGTH:
 			case OFFSET:
-				checkIntSignature(method);
+				checkSignature(method, int.class);
 				return new IntFunction(method, function);
 
 			case MASK:
-				checkLongSignature(method);
+				checkSignature(method, long.class);
 				return new LongFunction(method, function);
 
 			case VALUE:
-				checkObjectSignature(method);
+				checkSignature(method, Object.class);
 
 				return new ObjectFunction(method, function);
 
 			case CHECK:
-				checkBooleanSignature(method);
+				checkSignature(method, boolean.class);
 				return new BooleanFunction(method, function);
 
+			case DISPLAY:
 			case DESCRIPTION:
-				checkStringSignature(method);
+				checkSignature(method, String.class);
 				return new StringFunction(method, function);
 
 			default:
@@ -684,7 +622,7 @@ public abstract class AnnotatedFieldMethod
 		}
 	}
 
-	public boolean booleanMethod(JHeader header) {
+	public boolean booleanMethod(JHeader header, String name) {
 		throw new UnsupportedOperationException(
 		    "this return type is invalid for this function type");
 	}
@@ -699,17 +637,17 @@ public abstract class AnnotatedFieldMethod
 		return this.function;
 	}
 
-	public int intMethod(JHeader header) {
+	public int intMethod(JHeader header, String name) {
 		throw new UnsupportedOperationException(
 		    "this return type is invalid for this function type");
 	}
 
-	public Object objectMethod(JHeader header) {
+	public Object objectMethod(JHeader header, String name) {
 		throw new UnsupportedOperationException(
 		    "this return type is invalid for this function type");
 	}
 
-	public String stringMethod(JHeader header) {
+	public String stringMethod(JHeader header, String name) {
 		throw new UnsupportedOperationException(
 		    "this return type is invalid for this function type");
 	}
@@ -727,7 +665,7 @@ public abstract class AnnotatedFieldMethod
 	 * @param header
 	 * @return
 	 */
-	public long longMethod(JHeader header) {
+	public long longMethod(JHeader header, String name) {
 		throw new UnsupportedOperationException(
 		    "this return type is invalid for this function type");
 	}

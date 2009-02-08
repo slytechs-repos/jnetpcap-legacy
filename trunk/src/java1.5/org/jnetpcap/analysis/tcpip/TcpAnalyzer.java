@@ -104,7 +104,7 @@ public class TcpAnalyzer
 
 		TcpDuplexStream duplex = streams.get(duplexHash);
 		if (duplex == null) {
-			duplex = new TcpDuplexStream(duplexHash, clientHash, serverHash);
+			duplex = new TcpDuplexStream(duplexHash, clientHash, serverHash, this);
 			streams.put(duplexHash, duplex);
 			duplex.getClientStream().setDestinationPort(tcp.destination());
 			duplex.getServerStream().setDestinationPort(tcp.source());
@@ -139,11 +139,11 @@ public class TcpAnalyzer
 
 		sender.setSndStart(tcp.seq());
 		sender.setSndNXT(tcp.seq() + 1, packet);
-		sender.setSndUNA(tcp.seq());
+		sender.setSndUNA(tcp.seq(), null);
 
 		if (tcp.flags_ACK()) {
 			receiver.setSndStart(tcp.ack());
-			receiver.setSndUNA(tcp.ack());
+			receiver.setSndUNA(tcp.ack(), packet);
 
 			receiver.setRcvWIN(tcp.window());
 		}
@@ -228,10 +228,10 @@ public class TcpAnalyzer
 
 		// final int filter = 3179;
 		// final int filter = 3306;
-		// final int filter = 3200;
-		// if (tcp.destination() != filter && tcp.source() != filter) {
-		// return duplexHash;
-		// }
+		 final int filter = 3200;
+		if (tcp.destination() != filter && tcp.source() != filter) {
+			return duplexHash;
+		}
 
 		// System.out.printf("#%-2d ", packet.getFrameNumber() + 1);
 
@@ -394,7 +394,7 @@ public class TcpAnalyzer
 			duplex.setStage(Stage.SYN_WAIT1);
 
 			client.setSndStart(tcp.seq());
-			client.setSndUNA(tcp.seq());
+			client.setSndUNA(tcp.seq(), packet);
 			client.setSndNXT(tcp.seq());
 
 			if (support.hasListeners()) {
@@ -414,7 +414,7 @@ public class TcpAnalyzer
 			duplex.setStage(Stage.SYN_WAIT2);
 
 			server.setSndStart(tcp.seq());
-			server.setSndUNA(tcp.seq());
+			server.setSndUNA(tcp.seq(), packet);
 			server.setSndNXT(tcp.seq());
 
 			// System.out.println(Stage.SYN_WAIT2.toString());
@@ -503,16 +503,16 @@ public class TcpAnalyzer
 			 * Warning: ACKed a segment that hasn't been sent yet
 			 */
 			if (support.hasListeners()) {
-				support.fire(TcpStreamEvent.Type.ACK_FOR_UNSEEN_SEGMENT
-				    .create(this, duplex, packet));
+				support.fire(TcpStreamEvent.Type.ACK_FOR_UNSEEN_SEGMENT.create(this,
+				    duplex, packet));
 			}
 
 			receiver.setSndNXT(ack);
-			receiver.setSndUNA(ack);
+			receiver.setSndUNA(ack, packet);
 
 		} else {
 
-			receiver.setSndUNA(ack);
+			receiver.setSndUNA(ack, packet);
 			receiver.setRcvWIN(tcp.windowScaled());
 			if (support.hasListeners()) {
 				// support.fire(TcpStreamEvent.Type.ACK.create(this, duplex, packet));
@@ -571,8 +571,8 @@ public class TcpAnalyzer
 			 * Out of order segment
 			 */
 			if (support.hasListeners()) {
-				support.fire(TcpStreamEvent.Type.OUT_OF_ORDER_SEGMENT.create(this, duplex,
-				    packet));
+				support.fire(TcpStreamEvent.Type.OUT_OF_ORDER_SEGMENT.create(this,
+				    duplex, packet));
 			}
 		} else if (false && una > seq) {
 			/*
@@ -592,7 +592,7 @@ public class TcpAnalyzer
 
 			if (len > 0) {
 				long n = sender.getSndNXT() + len + 1; // NXT points to +1, not last
-																								// seq
+				// seq
 
 				/*
 				 * Now check to see if there are existing segments in the queue that can
@@ -625,4 +625,11 @@ public class TcpAnalyzer
 	public boolean removeListener(AnalyzerListener<TcpStreamEvent> listener) {
 		return this.support.removeListener(listener);
 	}
+
+	/**
+   * @return
+   */
+  public AnalyzerSupport<TcpStreamEvent> getSupport() {
+  	return support;
+  }
 }

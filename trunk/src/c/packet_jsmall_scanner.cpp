@@ -154,34 +154,7 @@ int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner,
 			 * * Now record discovered information in structures
 			 * ****************************************************
 			 ******************************************************/
-
-#ifdef DEBUG
-			printf(
-					"scan() loop-record: id=%-16s offset=%-4d nid=%s length=%d\n",
-					id2str(scan.id), scan.offset, id2str(scan.next_id),
-					scan.length);
-#endif
-			/*
-			 * Initialize the header entry in our packet header array
-			 */
-			mask = (1 << scan.id);
-			scan.packet->pkt_header_map |= mask;
-			scan.header->hdr_id = scan.id;
-			scan.header->hdr_offset = scan.offset;
-			scan.header->hdr_analysis = NULL;
-
-			/*
-			 * Adjust for truncated packets
-			 */
-			scan.length
-					= ((scan.length > scan.buf_len - scan.offset) ? scan.buf_len
-							- scan.offset
-							: scan.length);
-
-			scan.header->hdr_length = scan.length;
-			scan.offset += scan.length;
-			scan.header ++; /* point to next header entry *** ptr arithmatic */
-			scan.packet->pkt_header_count ++; /* number of entries */
+			record_header(&scan);
 		} // End if len != 0
 
 #ifdef DEBUG
@@ -209,6 +182,47 @@ int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner,
 
 	return scan.offset;
 } // End scan()
+
+/**
+ * Record state of the header in the packet state structure.
+ */
+void record_header(scan_t *scan) {
+#ifdef DEBUG
+	printf(
+			"scan() loop-record: id=%-16s offset=%-4d nid=%s length=%d\n",
+			id2str(scan.id), scan.offset, id2str(scan.next_id),
+			scan.length);
+#endif
+	
+	/*
+	 * Check if already recorded
+	 */
+	if (scan->id == -1) {
+		return;
+	}
+	/*
+	 * Initialize the header entry in our packet header array
+	 */
+	scan->packet->pkt_header_map |= (1 << scan->id);
+	scan->header->hdr_id = scan->id;
+	scan->header->hdr_offset = scan->offset;
+	scan->header->hdr_analysis = NULL;
+
+	/*
+	 * Adjust for truncated packets
+	 */
+	scan->length
+			= ((scan->length > scan->buf_len - scan->offset) ? scan->buf_len
+					- scan->offset
+					: scan->length);
+
+	scan->header->hdr_length = scan->length;
+	scan->offset += scan->length;
+	scan->header ++; /* point to next header entry *** ptr arithmatic */
+	scan->packet->pkt_header_count ++; /* number of entries */
+	
+	scan->id = -1; // Indicates, that header is already recorded
+}
 
 /**
  * Scan packet buffer by dispatching to JBinding java objects

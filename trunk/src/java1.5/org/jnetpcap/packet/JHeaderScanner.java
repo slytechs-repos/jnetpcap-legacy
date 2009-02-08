@@ -229,7 +229,7 @@ public class JHeaderScanner
 	 * @return numerical ID of the next header as assigned by JRegistry
 	 */
 	public int scanAllBindings(JPacket packet, int offset) {
-		for (final JBinding b : getBindings()) {
+ 		for (final JBinding b : getBindings()) {
 			if (b == null) {
 				continue;
 			}
@@ -266,8 +266,11 @@ public class JHeaderScanner
 			final int offset = scan.scan_offset();
 
 			int len = getHeaderLength(packet, offset);
-
 			scan.scan_length(len);
+		}
+		
+		if (scan.scan_length() > 0) {
+			scan.record_header(); // Now we record info in the packet
 		}
 
 		if (scan.scan_next_id() == JProtocol.PAYLOAD_ID) {

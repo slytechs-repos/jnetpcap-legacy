@@ -21,6 +21,7 @@ import junit.framework.TestCase;
 
 import org.jnetpcap.JBufferHandler;
 import org.jnetpcap.Pcap;
+import org.jnetpcap.PcapBpfProgram;
 import org.jnetpcap.PcapHeader;
 import org.jnetpcap.PcapTask;
 import org.jnetpcap.PcapUtils;
@@ -340,12 +341,26 @@ public class TestUtils extends TestCase {
 	}
 	
 	public void openOffline(String file, JPacketHandler<Pcap> handler) {
+		openOffline(file, handler, null);
+	}
+
+	
+	public void openOffline(String file, JPacketHandler<Pcap> handler, String filter) {
 		StringBuilder errbuf = new StringBuilder();
 		
 		Pcap pcap;
 		
 		if ( (pcap = Pcap.openOffline(file, errbuf)) == null) {
 			fail(errbuf.toString());
+		}
+		
+		if (filter != null) {
+			PcapBpfProgram program = new PcapBpfProgram();
+			if (pcap.compile(program, filter, 0, 0) != Pcap.OK) {
+				System.err.printf("pcap filter err: %s\n", pcap.getErr());
+			}
+			
+			pcap.setFilter(program);
 		}
 		
 		pcap.loop(Pcap.LOOP_INFINATE, handler, pcap);

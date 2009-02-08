@@ -18,38 +18,20 @@ import java.util.Map;
 
 import org.jnetpcap.packet.annotate.Field.Property;
 
-
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
 public class AnnotatedFieldRuntime {
 
-	private final AnnotatedField parent;
-
 	private final Map<Property, AnnotatedFieldMethod> map =
 	    new HashMap<Property, AnnotatedFieldMethod>();
+
+	private final AnnotatedField parent;
 
 	public AnnotatedFieldRuntime(AnnotatedField parent) {
 		this.parent = parent;
 
-	}
-
-	public void setFunction(AnnotatedFieldMethod method) {
-		final Property function = method.getFunction();
-
-		if (map.containsKey(function)) {
-			throw new HeaderDefinitionError(method.getMethod()
-			    .getDeclaringClass(), "duplicate " + function
-			    + " method declarations for field " + parent.getName());
-		}
-
-		/*
-		 * Set default values if they were declared with the @Field annotation. This
-		 * saves having to make the actual call to the header.
-		 */
-		method.configFromField(parent);
-		map.put(function, method);
 	}
 
 	/**
@@ -60,12 +42,12 @@ public class AnnotatedFieldRuntime {
 		/*
 		 * Time to optimize and fill in the blanks if there are any
 		 */
-		for (Property f: Property.values()) {
-			
+		for (Property f : Property.values()) {
+
 			try {
-			if (map.containsKey(f) == false) {
-				map.put(f, AnnotatedFieldMethod.generateFunction(f, parent));
-			}
+				if (map.containsKey(f) == false) {
+					map.put(f, AnnotatedFieldMethod.generateFunction(f, parent));
+				}
 			} catch (HeaderDefinitionError e) {
 				errors.add(e);
 			}
@@ -73,10 +55,38 @@ public class AnnotatedFieldRuntime {
 	}
 
 	/**
-   * @return
-   */
-  public Map<Property, AnnotatedFieldMethod> getFunctionMap() {
-	  return map;
-  }
+	 * @return
+	 */
+	public Map<Property, AnnotatedFieldMethod> getFunctionMap() {
+		return map;
+	}
+
+	public void setFunction(AnnotatedFieldMethod method) {
+		final Property function = method.getFunction();
+
+		if (map.containsKey(function)) {
+			throw new HeaderDefinitionError(method.getMethod().getDeclaringClass(),
+			    "duplicate " + function + " method declarations for field "
+			        + parent.getName());
+		}
+
+		/*
+		 * Set default values if they were declared with the @Field annotation. This
+		 * saves having to make the actual call to the header.
+		 */
+		if (method.isMapped == false) {
+			method.configFromField(parent);
+		}
+		map.put(function, method);
+	}
+
+	/**
+	 * @param methods
+	 */
+	public void setFunction(Map<Property, AnnotatedFieldMethod> methods) {
+		for (AnnotatedFieldMethod f : methods.values()) {
+			setFunction(f);
+		}
+	}
 
 }

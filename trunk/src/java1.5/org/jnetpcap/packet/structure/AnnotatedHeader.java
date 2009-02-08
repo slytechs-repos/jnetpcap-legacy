@@ -14,6 +14,7 @@ package org.jnetpcap.packet.structure;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FieldSetter;
 import org.jnetpcap.packet.annotate.Header;
+import org.jnetpcap.packet.annotate.Field.Property;
 
 /**
  * @author Mark Bednarczyk
@@ -102,7 +104,7 @@ public class AnnotatedHeader {
 			} else {
 				header.nicname = header.name;
 			}
-			
+
 			if (a.description().length() != 0) {
 				header.description = a.description();
 			} else if (a.dlt().length != 0) {
@@ -110,7 +112,7 @@ public class AnnotatedHeader {
 				 * Description comes from libpcap itself :)
 				 */
 				header.description = a.dlt()[0].getDescription();
-				
+
 			} else {
 				header.description = null;
 			}
@@ -129,9 +131,8 @@ public class AnnotatedHeader {
 
 					if (p.isAnnotationPresent(Header.class)) {
 						if (JHeader.class.isAssignableFrom(p) == false) {
-							errors.add(new HeaderDefinitionError(c,
-							    "parentClass header '" + p.getSimpleName()
-							        + "' must subclass 'JHeader'"));
+							errors.add(new HeaderDefinitionError(c, "parentClass header '"
+							    + p.getSimpleName() + "' must subclass 'JHeader'"));
 							break;
 						}
 
@@ -166,17 +167,35 @@ public class AnnotatedHeader {
 		List<Method> fieldMethods = new ArrayList<Method>(50);
 		List<Method> setterMethods = new ArrayList<Method>(50);
 		List<Method> runtimeMethods = new ArrayList<Method>(50);
+		List<Method> allMethods = new ArrayList<Method>(100);
 
 		Map<String, AnnotatedField> fields =
 		    new HashMap<String, AnnotatedField>(fieldMethods.size());
 
-		for (Method m : c.getMethods()) {
+		/*
+		 * Extract protected methods
+		 */
+		Class<?> p = c;
+		while (p != Object.class) {
+			allMethods.addAll(Arrays.asList(p.getDeclaredMethods()));
+
+			p = p.getSuperclass();
+		}
+
+		for (Method m : allMethods) {
 			if (m.isAnnotationPresent(Field.class)) {
 				fieldMethods.add(m);
 			}
 
 			if (m.isAnnotationPresent(Dynamic.class)) {
 				runtimeMethods.add(m);
+
+				/*
+				 * Allow the method to be invoked by JField directly
+				 */
+				m.setAccessible(true);
+				// System.out.printf("AnnotatedHeader::Dynamic=%s %s\n", m.getName(), c
+				// .getSimpleName());
 			}
 
 			if (m.isAnnotationPresent(FieldSetter.class)) {
@@ -204,12 +223,21 @@ public class AnnotatedHeader {
 			}
 		}
 
+		Map<Property, AnnotatedFieldMethod> defaultMethods =
+		    new HashMap<Property, AnnotatedFieldMethod>();
+
 		/*
 		 * Second process @Dynamic marked methods
 		 */
 		for (Method m : runtimeMethods) {
 			try {
 				AnnotatedFieldMethod function = AnnotatedFieldMethod.inspectMethod(m);
+
+				if (function.method.getParameterTypes().length == 1) {
+					defaultMethods.put(function.getFunction(), function);
+					function.setIsMapped(true);
+					continue;
+				}
 
 				AnnotatedField field = fields.get(function.getFieldName());
 				if (field == null) {
@@ -220,6 +248,58 @@ public class AnnotatedHeader {
 				field.getRuntime().setFunction(function);
 			} catch (HeaderDefinitionError e) {
 				errors.add(e);
+			}
+		}
+
+		/**
+		 * Handle 3 different cases of enum tables and enum constant field
+		 * declarations. In this step we create the field and also assign the
+		 * dynamic property getter methods since enum based fields do not use
+		 * constant properties and never are field value getter methods themselves.
+		 * Therefore the default dynamic methods must have already been seen and
+		 * defined in the class hierarchy somewhere, otherwise its an error.
+		 * 
+		 * <pre>
+		 * &#064;Field 
+		 * public enum ABC {
+		 * A,
+		 * B,
+		 * C,
+		 * }
+		 * 
+		 * &#064;Field
+		 * public enum ABC {
+		 * A,
+		 * &#064;Field B,
+		 * C
+		 * }
+		 * 
+		 * public enum ABC {
+		 * &#064;Field A,
+		 * &#064;Field B,
+		 * &#064;Field C
+		 * </pre>
+		 */
+		Field enumAnnotation = null;
+		for (Class<?> e : c.getClasses()) {
+			enumAnnotation = null; // reset
+
+			if (e.isAnnotationPresent(Field.class) && e.isEnum()) {
+				enumAnnotation = e.getAnnotation(Field.class); // Table wide
+
+				for (Object element : e.getEnumConstants()) {
+					String name = element.toString().replace('_', '-');
+//					System.out.printf("enum name=%s\n", name);
+					try {
+						AnnotatedField field =
+						    AnnotatedField.inspectEnumConstant(name, enumAnnotation,
+						        defaultMethods, c);
+
+						fields.put(name, field);
+					} catch (AnnotatedMethodException er) {
+						errors.add(er);
+					}
+				}
 			}
 		}
 
@@ -360,7 +440,7 @@ public class AnnotatedHeader {
 	public String getName() {
 		return this.name;
 	}
-	
+
 	public PcapDLT[] getDlt() {
 		return annotation.dlt();
 	}
@@ -404,9 +484,9 @@ public class AnnotatedHeader {
 	}
 
 	/**
-   * @return
-   */
-  public String getDescription() {
-	  return this.description;
-  }
+	 * @return
+	 */
+	public String getDescription() {
+		return this.description;
+	}
 }

@@ -15,9 +15,11 @@ package org.jnetpcap.packet.structure;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.annotate.Field;
+import org.jnetpcap.packet.annotate.Field.Property;
 import org.jnetpcap.packet.format.JFormatter.Priority;
 import org.jnetpcap.packet.format.JFormatter.Style;
 
@@ -40,6 +42,39 @@ public class AnnotatedField {
 	}
 
 	/**
+	 * @param field
+	 * @param enumAnnotation
+	 * @param methods
+	 * @return
+	 */
+	public static AnnotatedField inspectEnumConstant(
+	    String field,
+	    Field enumAnnotation,
+	    Map<Property, AnnotatedFieldMethod> methods,
+	    Class<?> c) {
+
+		if (methods.containsKey(Property.VALUE) == false) {
+			throw new AnnotatedMethodException(c,
+			    "missing value getter method for field based on enum constant: "
+			        + field);
+		}
+
+		if (methods.containsKey(Property.LENGTH) == false) {
+			throw new AnnotatedMethodException(c,
+			    "missing length getter method for field based on enum constant: "
+			        + field);
+		}
+
+		if (methods.containsKey(Property.OFFSET) == false) {
+			throw new AnnotatedMethodException(c,
+			    "missing offset getter method for field based on enum constant: "
+			        + field);
+		}
+
+		return new AnnotatedField(field, enumAnnotation, methods, c);
+	}
+
+	/**
 	 * @param c
 	 * @param m
 	 * @return
@@ -53,134 +88,6 @@ public class AnnotatedField {
 		AnnotatedField field = new AnnotatedField(m);
 
 		return field;
-	}
-
-	private final Field annotation;
-
-	private final Class<?> declaringClass;
-
-	private final Method method;
-
-	private final AnnotatedFieldRuntime runtime;
-
-	private final List<AnnotatedField> subFields =
-	    new ArrayList<AnnotatedField>();
-
-	private AnnotatedField(Method method) {
-		this.method = method;
-		this.annotation = method.getAnnotation(Field.class);
-		this.runtime = new AnnotatedFieldRuntime(this);
-		this.declaringClass = method.getDeclaringClass();
-	}
-
-	/**
-	 * 
-	 */
-	public void finishProcessing(List<HeaderDefinitionError> errors) {
-		runtime.finishProcessing(errors);
-
-		for (AnnotatedField field : subFields) {
-			field.finishProcessing(errors);
-		}
-	}
-
-	/**
-	 * @return
-	 */
-	public Class<?> getDeclaringClass() {
-		return this.declaringClass;
-	}
-
-	public String getDescription() {
-		return annotation.description();
-	}
-
-	public final String getDisplay() {
-		return (annotation.display().length() == 0) ? getName() : annotation.display();
-	}
-
-	public final String getFormat() {
-		if (isSubField() && annotation.format().length() == 0) {
-			return "#bitfield#";
-		}
-		return (annotation.format().length() == 0) ? "%s" : annotation.format();
-	}
-
-	public int getLength() {
-		return annotation.length();
-	}
-
-	/**
-	 * @return
-	 */
-	public Method getMethod() {
-		return this.method;
-	}
-
-	public final String getName() {
-		return (annotation.name().length() == 0) ? method.getName() : annotation.name();
-	}
-
-	public final String getNicname() {
-		return (annotation.nicname().length() == 0) ? getName() : annotation.nicname();
-	}
-
-	public int getOffset() {
-		return annotation.offset();
-	}
-
-	/**
-	 * @return
-	 */
-	public String getParent() {
-		return annotation.parent();
-	}
-
-	public final AnnotatedFieldRuntime getRuntime() {
-		return this.runtime;
-	}
-
-	public String getUnits() {
-		return annotation.units();
-	}
-
-	/**
-	 * @return
-	 */
-	public boolean isSubField() {
-		return annotation.parent().length() != 0;
-	}
-
-	/**
-	 * @param field
-	 */
-	public void addSubField(AnnotatedField field) {
-		this.subFields.add(field);
-	}
-
-	/**
-	 * @return
-	 */
-	public List<AnnotatedField> getSubFields() {
-		return subFields;
-	}
-
-	/**
-	 * @return
-	 */
-	public Style getStyle() {
-		if (isSubField()) {
-			return Style.INT_BITS;
-		}
-		
-		return mapFormatToStyle(getFormat());
-	}
-
-	/**
-	 * @return
-	 */
-	public Priority getPriority() {
-		return annotation.priority();
 	}
 
 	private static Style mapFormatToStyle(String format) {
@@ -211,10 +118,163 @@ public class AnnotatedField {
 		}
 	}
 
+	private final Field annotation;
+
+	private final Class<?> declaringClass;
+
+	private final Method method;
+
+	private final AnnotatedFieldRuntime runtime;
+
+	private final List<AnnotatedField> subFields =
+	    new ArrayList<AnnotatedField>();
+
+	private String name;
+
+	private AnnotatedField(Method method) {
+		this.method = method;
+		this.annotation = method.getAnnotation(Field.class);
+		this.runtime = new AnnotatedFieldRuntime(this);
+		this.declaringClass = method.getDeclaringClass();
+	}
+
 	/**
-   * @return
-   */
-  public long getMask() {
-	  return annotation.mask();
-  }
+	 * @param name
+	 * @param enumAnnotation
+	 * @param methods
+	 */
+	public AnnotatedField(String name, Field enumAnnotation,
+	    Map<Property, AnnotatedFieldMethod> methods, Class<?> declaringClass) {
+
+		this.name = name;
+		this.method = methods.get(Property.VALUE).method;
+		this.annotation = enumAnnotation;
+		this.runtime = new AnnotatedFieldRuntime(this);
+		this.declaringClass = method.getDeclaringClass();
+
+		this.runtime.setFunction(methods);
+	}
+
+	/**
+	 * @param field
+	 */
+	public void addSubField(AnnotatedField field) {
+		this.subFields.add(field);
+	}
+
+	/**
+	 * 
+	 */
+	public void finishProcessing(List<HeaderDefinitionError> errors) {
+		runtime.finishProcessing(errors);
+
+		for (AnnotatedField field : subFields) {
+			field.finishProcessing(errors);
+		}
+	}
+
+	/**
+	 * @return
+	 */
+	public Class<?> getDeclaringClass() {
+		return this.declaringClass;
+	}
+
+	public String getDescription() {
+		return annotation.description();
+	}
+
+	public final String getDisplay() {
+		return (annotation.display().length() == 0) ? getName() : annotation
+		    .display();
+	}
+
+	public final String getFormat() {
+		if (isSubField() && annotation.format().length() == 0) {
+			return "#bitfield#";
+		}
+		return (annotation.format().length() == 0) ? "%s" : annotation.format();
+	}
+
+	public int getLength() {
+		return annotation.length();
+	}
+
+	/**
+	 * @return
+	 */
+	public long getMask() {
+		return annotation.mask();
+	}
+
+	/**
+	 * @return
+	 */
+	public Method getMethod() {
+		return this.method;
+	}
+
+	public final String getName() {
+		if (this.name != null) {
+			return name;
+		}
+		return (annotation.name().length() == 0) ? method.getName() : annotation
+		    .name();
+	}
+
+	public final String getNicname() {
+		return (annotation.nicname().length() == 0) ? getName() : annotation
+		    .nicname();
+	}
+
+	public int getOffset() {
+		return annotation.offset();
+	}
+
+	/**
+	 * @return
+	 */
+	public String getParent() {
+		return annotation.parent();
+	}
+
+	/**
+	 * @return
+	 */
+	public Priority getPriority() {
+		return annotation.priority();
+	}
+
+	public final AnnotatedFieldRuntime getRuntime() {
+		return this.runtime;
+	}
+
+	/**
+	 * @return
+	 */
+	public Style getStyle() {
+		if (isSubField()) {
+			return Style.INT_BITS;
+		}
+
+		return mapFormatToStyle(getFormat());
+	}
+
+	/**
+	 * @return
+	 */
+	public List<AnnotatedField> getSubFields() {
+		return subFields;
+	}
+
+	public String getUnits() {
+		return annotation.units();
+	}
+
+	/**
+	 * @return
+	 */
+	public boolean isSubField() {
+		return annotation.parent().length() != 0;
+	}
 }

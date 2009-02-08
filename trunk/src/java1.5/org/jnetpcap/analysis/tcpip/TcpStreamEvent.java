@@ -27,6 +27,8 @@ public class TcpStreamEvent
 
 	private final TcpDuplexStream duplex;
 
+	private final JPacket packet;
+
 	public enum Type implements AnalyzerEventType {
 		DUPLEX_STREAM_OPEN,
 		SYN_START,
@@ -40,13 +42,22 @@ public class TcpStreamEvent
 		ACK,
 		OUT_OF_ORDER_SEGMENT,
 		DUPLICATE_SEGMENT,
-		NEW_SEQUENCE, ;
+		NEW_SEQUENCE,
+		ACKED_SEGMENT, ;
+
+		public TcpStreamEvent create(
+		    TcpAnalyzer source,
+		    TcpDuplexStream duplex,
+		    TcpStream stream,
+		    JPacket packet) {
+			return new TcpStreamEvent(source, this, duplex, stream, packet);
+		}
 
 		public TcpStreamEvent create(
 		    TcpAnalyzer source,
 		    TcpDuplexStream duplex,
 		    JPacket packet) {
-			return new TcpStreamEvent(source, this, duplex);
+			return new TcpStreamEvent(source, this, duplex, packet);
 		}
 
 		public TcpStreamEvent create(TcpAnalyzer source, TcpDuplexStream duplex) {
@@ -55,11 +66,30 @@ public class TcpStreamEvent
 
 	}
 
+	public TcpStreamEvent(TcpAnalyzer source, Type type, TcpDuplexStream duplex,
+	    TcpStream stream, JPacket packet) {
+		super(source, type);
+
+		this.duplex = duplex;
+		this.packet = packet;
+		this.stream = stream;
+	}
+
+	public TcpStreamEvent(TcpAnalyzer source, Type type, TcpDuplexStream duplex,
+	    JPacket packet) {
+		super(source, type);
+
+		this.duplex = duplex;
+		this.packet = packet;
+		this.stream = null;
+	}
+
 	public TcpStreamEvent(TcpAnalyzer source, Type type, TcpDuplexStream duplex) {
 		super(source, type);
 
 		this.duplex = duplex;
 		this.stream = null;
+		this.packet = null;
 	}
 
 	/**
@@ -71,9 +101,24 @@ public class TcpStreamEvent
 
 		this.stream = stream;
 		this.duplex = null;
+		this.packet = null;
 	}
 
 	public final TcpStream getStream() {
 		return this.stream;
+	}
+
+	/**
+	 * @return
+	 */
+	public JPacket getPacket() {
+		return packet;
+	}
+
+	/**
+	 * @return the duplex
+	 */
+	public final TcpDuplexStream getDuplex() {
+		return this.duplex;
 	}
 }

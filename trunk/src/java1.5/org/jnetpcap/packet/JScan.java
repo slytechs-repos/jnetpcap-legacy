@@ -64,6 +64,8 @@ public class JScan
 	public native void scan_next_id(int next_id);
 
 	public native void scan_length(int length);
+	
+	public native void record_header();
 
 	/**
 	 * Size in bytes of the native scan_t structure on this particular platform

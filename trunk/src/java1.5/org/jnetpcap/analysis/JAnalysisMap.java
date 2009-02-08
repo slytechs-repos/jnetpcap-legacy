@@ -53,7 +53,7 @@ public class JAnalysisMap
 	}
 
 	public JAnalysisMap() {
-		super(Field.class);
+		super(Field.values());
 
 		super.setObject(MAP, new HashMap<Integer, JAnalysis>());
 	}

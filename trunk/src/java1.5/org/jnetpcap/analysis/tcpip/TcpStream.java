@@ -17,6 +17,7 @@ import java.util.Queue;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import org.jnetpcap.analysis.AbstractAnalysis;
+import org.jnetpcap.analysis.AnalyzerSupport;
 import org.jnetpcap.analysis.JAnalysis;
 import org.jnetpcap.analysis.tcpip.TcpDuplexStream.Direction;
 import org.jnetpcap.nio.JMemory;
@@ -121,23 +122,34 @@ public class TcpStream
 
 	private final Direction direction;
 
+	private final TcpDuplexStream duplex;
+
+	private final TcpAnalyzer analyzer;
+
 	/**
 	 * @param type
 	 * @param size
 	 */
 	public TcpStream() {
 		super(JMemory.Type.POINTER);
-		direction = null;
+		this.direction = null;
+		this.duplex = null;
+		this.analyzer = null;
 	}
 
 	/**
+	 * @param duplex
+	 *          TODO
 	 * @param size
 	 * @param name
 	 */
 	@SuppressWarnings("unchecked")
-	public TcpStream(int hash, Direction direction) {
-		super(TITLE, Field.class);
+	public TcpStream(int hash, Direction direction, TcpDuplexStream duplex,
+	    TcpAnalyzer analyzer) {
+		super(TITLE, Field.values());
 		this.direction = direction;
+		this.duplex = duplex;
+		this.analyzer = analyzer;
 
 		setHashcode(hash);
 		setSndStart(0);
@@ -296,9 +308,9 @@ public class TcpStream
 	 * @param sndUNA
 	 *          the sndUNA to set
 	 */
-	public final void setSndUNA(long sndUNA) {
+	public final void setSndUNA(long sndUNA, JPacket packet) {
 		setUInt(Field.SND_UNA.offset(), sndUNA);
-		removeFromSequenceQueue(sndUNA, null);
+		removeFromSequenceQueue(sndUNA, new TcpAck(packet));
 	}
 
 	/**
@@ -322,8 +334,9 @@ public class TcpStream
 	public void addToSequenceQueue(JPacket packet) {
 
 		Tcp tcp = new Tcp();
-//		System.out.printf("QUEUE:%s:add(#%d: %d)\n", direction, packet.getFrameNumber(),
-//		    packet.getHeader(tcp).seq() - getSndStart());
+		// System.out.printf("QUEUE:%s:add(#%d: %d)\n", direction,
+		// packet.getFrameNumber(),
+		// packet.getHeader(tcp).seq() - getSndStart());
 
 		bySequence.offer(packet);
 	}
@@ -354,12 +367,19 @@ public class TcpStream
 
 			if (packet.hasHeader(tcp) && tcp.seq() <= sequence) {
 				bySequence.poll();
-				
-//				System.out.printf("QUEUE:%s:remove(#%d: %d <= %d)\n", direction, packet
-//				    .getFrameNumber(), tcp.seq() - getSndStart(), sequence  - getSndStart());
+
+				// System.out.printf("QUEUE:%s:remove(#%d: %d <= %d)\n", direction,
+				// packet
+				// .getFrameNumber(), tcp.seq() - getSndStart(), sequence -
+				// getSndStart());
 
 				if (analysis != null) {
 					tcp.addAnalysis(analysis);
+
+					TcpStreamEvent evt =
+					    TcpStreamEvent.Type.ACKED_SEGMENT.create(analyzer, duplex, this,
+					        packet);
+					analyzer.getSupport().fire(evt);
 				}
 			} else {
 				return false;
