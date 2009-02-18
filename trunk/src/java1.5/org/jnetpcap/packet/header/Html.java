@@ -20,6 +20,7 @@ import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
+import org.jnetpcap.util.JThreadLocal;
 
 /**
  * @author Mark Bednarczyk
@@ -39,7 +40,8 @@ public class Html
 		return http.hasContentType() && http.contentType().startsWith("text/html;");
 	}
 
-	private final StringBuilder buf = new StringBuilder();
+	private final JThreadLocal<StringBuilder> stringLocal =
+	    new JThreadLocal<StringBuilder>(StringBuilder.class);
 
 	private String page;
 
@@ -55,9 +57,10 @@ public class Html
 
 	@Override
 	protected void decodeHeader() {
-		this.buf.setLength(0);
+		final StringBuilder buf = stringLocal.get();
+		buf.setLength(0);
 
-		super.getUTF8String(0, this.buf, size());
+		super.getUTF8String(0, buf, size());
 
 		this.page = buf.toString();
 	}
