@@ -17,13 +17,14 @@ import java.io.InputStream;
 
 import org.jnetpcap.analysis.tcpip.SlidingBuffer;
 import org.jnetpcap.analysis.tcpip.TcpAnalyzer;
-import org.jnetpcap.analysis.tcpip.TcpFragmentationAnalyzer;
-import org.jnetpcap.analysis.tcpip.TcpReassembler;
+import org.jnetpcap.analysis.tcpip.TcpSequencer;
+import org.jnetpcap.analysis.tcpip.TcpAssembler;
 import org.jnetpcap.newstuff.Image;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JPacketHandler;
 import org.jnetpcap.packet.JProtocol;
+import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.TestUtils;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
@@ -60,7 +61,7 @@ public class TestTcpAnalysis
 
 		EventDumper dumper = new EventDumper();
 
-		JController controller = new JController();
+		JController controller = JRegistry.getAnalyzer(JController.class);
 		TcpAnalyzer tcpAnalyzer = new TcpAnalyzer();
 		controller.addAnalyzer(tcpAnalyzer, JProtocol.TCP_ID);
 		tcpAnalyzer.addTcpStreamListener(dumper, null);
@@ -105,7 +106,7 @@ public class TestTcpAnalysis
 
 		EventDumper dumper = new EventDumper();
 
-		JController controller = new JController();
+		JController controller = JRegistry.getAnalyzer(JController.class);
 		TcpAnalyzer tcpAnalyzer = new TcpAnalyzer();
 		controller.addAnalyzer(tcpAnalyzer, JProtocol.TCP_ID);
 		tcpAnalyzer.addTcpStreamListener(dumper, null);
@@ -119,10 +120,9 @@ public class TestTcpAnalysis
 
 		EventDumper dumper = new EventDumper();
 
-		JController controller = new JController();
+		JController controller = JRegistry.getAnalyzer(JController.class);
 		TcpAnalyzer tcpAnalyzer = new TcpAnalyzer();
-		final TcpFragmentationAnalyzer frag =
-		    new TcpFragmentationAnalyzer(tcpAnalyzer);
+		final TcpSequencer frag = new TcpSequencer();
 		controller.addAnalyzer(tcpAnalyzer, JProtocol.TCP_ID);
 		// tcpAnalyzer.addTcpStreamListener(dumper, null);
 		frag.addFragmentationListener(dumper);
@@ -136,11 +136,10 @@ public class TestTcpAnalysis
 
 		EventDumper dumper = new EventDumper();
 
-		JController controller = new JController();
+		JController controller = JRegistry.getAnalyzer(JController.class);
 		TcpAnalyzer tcpAnalyzer = new TcpAnalyzer();
-		final TcpFragmentationAnalyzer frag =
-		    new TcpFragmentationAnalyzer(tcpAnalyzer);
-		final TcpReassembler reassembler = new TcpReassembler(frag);
+		final TcpSequencer frag = new TcpSequencer();
+		final TcpAssembler reassembler = new TcpAssembler(frag);
 		controller.addAnalyzer(tcpAnalyzer, JProtocol.TCP_ID);
 		// tcpAnalyzer.addTcpStreamListener(dumper, null);
 		frag.setFragmentationBoundary(0xa010de5, 937638703L, 191777L);
@@ -169,7 +168,7 @@ public class TestTcpAnalysis
 
 		reassembler.addReassemblyListener(dumper, null);
 		openOffline(HTTP, controller);
-		
+
 		System.out.println("--------FINISHED------------");
 	}
 
@@ -184,7 +183,7 @@ public class TestTcpAnalysis
 		/*
 		 * Main analyzer controller
 		 */
-		JController controller = new JController();
+		JController controller = JRegistry.getAnalyzer(JController.class);
 
 		/*
 		 * Main TCP analyzer. Tracks ACKs, retransmissions, builds TcpDuplexStream
@@ -195,21 +194,20 @@ public class TestTcpAnalysis
 		/*
 		 * Tracks contigues TCP segments via sequence numbers
 		 */
-		final TcpFragmentationAnalyzer frag =
-		    new TcpFragmentationAnalyzer(tcpAnalyzer);
+		final TcpSequencer frag = new TcpSequencer();
 
 		/*
 		 * Reassembles multiple TCP segments into large packets, InputStream,
 		 * SlidingWindows
 		 */
-		final TcpReassembler reassembler = new TcpReassembler(frag);
+		final TcpAssembler reassembler = new TcpAssembler(frag);
 		controller.addAnalyzer(tcpAnalyzer, JProtocol.TCP_ID);
 		// tcpAnalyzer.addTcpStreamListener(dumper, null);
 
 		/*
 		 * This will normally be calculated by HttpAnalyzer, but because it doesn't
 		 * exist yet, we manually tell frag-analyzer to track down these sequences
-		 * for us. TcpReassembler is listening to its events and will reassemble
+		 * for us. TcpAssembler is listening to its events and will reassemble
 		 * into a single large Http only based packet.
 		 */
 		frag.setFragmentationBoundary(0xa010de5, 937638703L, 191777L);
@@ -242,7 +240,7 @@ public class TestTcpAnalysis
 						 * Content can be reassembled completely into memory, depending how
 						 * much memory we want to dedicate for this purpose. Remember the
 						 * content could be very very large. The call to getContent()
-						 * signals TcpReassembler to reassembly all related TCP segments
+						 * signals TcpAssembler to reassembly all related TCP segments
 						 * into a single buffer.
 						 */
 						if (img.length() < 1024 * 1024) {
@@ -253,16 +251,16 @@ public class TestTcpAnalysis
 
 							/*
 							 * Or for larger content, read one byte at a time using IO stream.
-							 * getInputStream signals TcpReassembler that we are going to be
+							 * getInputStream signals TcpAssembler that we are going to be
 							 * reading 1 byte at a time out of each TCP segment. This only
-							 * requires the use of TcpFragmentationAnalyzer to tell us what is
+							 * requires the use of TcpSequencer to tell us what is
 							 * the next ACKed TCP segment in the chain.
 							 */
 							InputStream in = img.getInputStream();
 							/*
 							 * Or for larger content, read a buffer full at a time while
 							 * sliding left edge of buffer/window. getSlidingBuffer() signals
-							 * TcpReassembler that we will be reassembling various portions of
+							 * TcpAssembler that we will be reassembling various portions of
 							 * this part of the stream. We will be adding new segments on the
 							 * right, while letting already processed segments on the left
 							 * expire and be released. Both sequence analysis and reassembly

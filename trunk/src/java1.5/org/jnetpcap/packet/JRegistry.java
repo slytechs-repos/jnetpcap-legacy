@@ -9,6 +9,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.jnetpcap.PcapDLT;
+import org.jnetpcap.analysis.JAnalyzer;
+import org.jnetpcap.analysis.JController;
+import org.jnetpcap.analysis.tcpip.Ip4Sequencer;
+import org.jnetpcap.analysis.tcpip.Ip4Assembler;
+import org.jnetpcap.analysis.tcpip.TcpAnalyzer;
+import org.jnetpcap.analysis.tcpip.TcpSequencer;
+import org.jnetpcap.analysis.tcpip.TcpAssembler;
+import org.jnetpcap.analysis.tcpip.http.HttpAnalyzer;
 import org.jnetpcap.packet.structure.AnnotatedBinding;
 import org.jnetpcap.packet.structure.AnnotatedHeader;
 import org.jnetpcap.packet.structure.AnnotatedScannerMethod;
@@ -169,6 +177,7 @@ public final class JRegistry {
 		Arrays.fill(JRegistry.DLTS_TO_IDS, -1);
 		Arrays.fill(JRegistry.IDS_TO_DLTS, -1);
 
+
 		/**
 		 * Register CORE protocols
 		 */
@@ -199,6 +208,19 @@ public final class JRegistry {
 				}
 			}
 		}
+		
+		analyzers = new HashMap<Class<?>, JAnalyzer>();
+
+		/**
+		 * Register core analyzer: JController
+		 */
+		addAnalyzer(new JController());
+		addAnalyzer(new Ip4Sequencer());
+		addAnalyzer(new Ip4Assembler());
+		addAnalyzer(new TcpAnalyzer());
+		addAnalyzer(new TcpSequencer());
+		addAnalyzer(new TcpAssembler());
+		addAnalyzer(new HttpAnalyzer());
 	}
 
 	/**
@@ -399,6 +421,16 @@ public final class JRegistry {
 		resolver.initializeIfNeeded();
 
 		return resolver;
+	}
+
+	private final static Map<Class<?>, JAnalyzer> analyzers;
+
+	public static <T extends JAnalyzer> T getAnalyzer(Class<T> c) {
+		return (T) analyzers.get(c);
+	}
+
+	public static <T extends JAnalyzer> void addAnalyzer(T analyzer) {
+		analyzers.put(analyzer.getClass(), analyzer);
 	}
 
 	/**

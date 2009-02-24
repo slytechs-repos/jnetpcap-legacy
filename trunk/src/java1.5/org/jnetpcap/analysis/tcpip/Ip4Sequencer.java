@@ -19,7 +19,7 @@ import java.util.Set;
 
 import org.jnetpcap.analysis.AnalysisInfo;
 import org.jnetpcap.analysis.FragmentSequence;
-import org.jnetpcap.analysis.FragmentSequenceAnalyzer;
+import org.jnetpcap.analysis.FragmentSequencer;
 import org.jnetpcap.analysis.FragmentSequenceEvent;
 import org.jnetpcap.analysis.JAnalysis;
 import org.jnetpcap.packet.JPacket;
@@ -29,8 +29,8 @@ import org.jnetpcap.packet.header.Ip4;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class Ip4FragmentationAnalyzer
-    extends AbstractFragmentationAnalyzer implements FragmentSequenceAnalyzer {
+public class Ip4Sequencer
+    extends AbstractSequencer implements FragmentSequencer {
 
 	private final Ip4 ip = new Ip4();
 

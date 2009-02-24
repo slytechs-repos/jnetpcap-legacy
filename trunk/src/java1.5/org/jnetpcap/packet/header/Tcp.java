@@ -67,6 +67,8 @@ public class Tcp
 
 	private Ip4 ip = new Ip4();
 
+	private int uniHash;
+
 	@Field(offset = 8 * 8, length = 16, format = "%x")
 	public long ack() {
 		return getUInt(8);
@@ -105,6 +107,9 @@ public class Tcp
 			this.hash =
 			    (ip.destinationToInt() + destination())
 			        ^ (ip.sourceToInt() + source());
+			
+			this.uniHash = (ip.destinationToInt() + destination());
+			
 		} else {
 			this.hash = super.hashCode();
 		}
@@ -224,6 +229,10 @@ public class Tcp
 	@Override
 	public int hashCode() {
 		return this.hash;
+	}
+	
+	public int uniHashCode() {
+		return this.uniHash;
 	}
 
 	@Field(offset = 12 * 8, length = 4)

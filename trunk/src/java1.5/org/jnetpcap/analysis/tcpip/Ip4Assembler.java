@@ -22,7 +22,7 @@ import org.jnetpcap.analysis.AnalysisInfo;
 import org.jnetpcap.analysis.AnalyzerListener;
 import org.jnetpcap.analysis.AnalyzerSupport;
 import org.jnetpcap.analysis.FragmentReassembly;
-import org.jnetpcap.analysis.FragmentReassemblyAnalyzer;
+import org.jnetpcap.analysis.FragmentAssembler;
 import org.jnetpcap.analysis.FragmentReassemblyEvent;
 import org.jnetpcap.analysis.FragmentSequence;
 import org.jnetpcap.analysis.FragmentSequenceEvent;
@@ -39,8 +39,8 @@ import org.jnetpcap.util.JThreadLocal;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class Ip4Reassembler
-    extends AbstractAnalyzer implements FragmentReassemblyAnalyzer,
+public class Ip4Assembler
+    extends AbstractAnalyzer implements FragmentAssembler,
     AnalyzerListener<FragmentSequenceEvent> {
 
 	private static final int IP4_HEADER_LENGTH = 20;
@@ -60,7 +60,7 @@ public class Ip4Reassembler
 	private final static ThreadLocal<Ip4> ipLocal2 =
 	    new JThreadLocal<Ip4>(Ip4.class);
 
-	private final static Logger logger = JLogger.getLogger(Ip4Reassembler.class);
+	private final static Logger logger = JLogger.getLogger(Ip4Assembler.class);
 
 	private final static JMemoryPool memory = new JMemoryPool();
 
@@ -160,7 +160,7 @@ public class Ip4Reassembler
 	/**
 	 * @param priority
 	 */
-	public Ip4Reassembler() {
+	public Ip4Assembler() {
 		super(PRIORITY);
 	}
 
@@ -168,7 +168,7 @@ public class Ip4Reassembler
 	 * @param priority
 	 * @param parent
 	 */
-	public Ip4Reassembler(AbstractFragmentationAnalyzer parent) {
+	public Ip4Assembler(AbstractSequencer parent) {
 		super(PRIORITY, parent);
 
 		parent.addFragmentationListener(this);

@@ -14,6 +14,7 @@ package org.jnetpcap.newstuff;
 
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.annotate.HeaderLength;
+import org.jnetpcap.util.JThreadLocal;
 
 /**
  * @author Mark Bednarczyk
@@ -21,7 +22,7 @@ import org.jnetpcap.packet.annotate.HeaderLength;
  */
 public abstract class AbstractMessageHeader
     extends JMappedHeader {
-	
+
 	public enum MessageType {
 		RESPONSE,
 		REQUEST
@@ -33,19 +34,57 @@ public abstract class AbstractMessageHeader
 	    '\r',
 	    '\n' };
 
-	protected final StringBuilder buf = new StringBuilder(1024);
+	private final JThreadLocal<StringBuilder> stringLocal =
+	    new JThreadLocal<StringBuilder>(StringBuilder.class);
 
 	private MessageType messageType;
-	
+
 	@HeaderLength
 	public static int headerLength(JBuffer buffer, int offset) {
+
 		/*
-		 * We need to scan the buffer for an empty new line which identifies
-		 * the end of the header that would the 2 sets of '\n' '\r' characters.
+		 * Since we could be reading from a TCP segment that does not contain a
+		 * message header, we check the first character if atleast its a valid
+		 * character for any of the possible values. The first line defines a
+		 * consise set of chars.
+		 */
+		if (checkValidFirstChars(buffer, offset) == false) {
+			return 0;
+		}
+
+		/*
+		 * We need to scan the buffer for an empty new line which identifies the end
+		 * of the header that would the 2 sets of '\n' '\r' characters.
 		 */
 		int len = buffer.findUTF8String(offset, HEADER_DELIMITER);
-		
+
 		return len;
+	}
+
+	private final static String[] VALID_CHARS = {
+	    "GET",
+	    "PUT",
+	    "POS",
+	    "CON",
+	    "CAN", // CONNECT, CANCEL
+	    "HEA",
+	    "HTT", // HEAD, HTTP
+	    "OPT", // OPTIONS
+	    "DEL", // DELETE
+	    "TRA", // TRACE
+	    "SIP", // SIP
+	    "INV", // INVITE
+	};
+
+	private static boolean checkValidFirstChars(JBuffer buffer, int offset) {
+		final String first = buffer.getUTF8String(offset, 3);
+		for (String c : VALID_CHARS) {
+			if (first.equals(c)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -55,12 +94,13 @@ public abstract class AbstractMessageHeader
 	 */
 	@Override
 	protected void decodeHeader() {
-		
+
 		super.clearFields();
-		
+
 		/*
 		 * We already know the length of the header, so just get the raw chars
 		 */
+		final StringBuilder buf = stringLocal.get();
 		buf.setLength(0);
 		int len = super.getLength();
 		super.getUTF8String(0, buf, len);
@@ -87,18 +127,18 @@ public abstract class AbstractMessageHeader
 			super.addField(name.trim(), value.trim(), offset, length);
 		}
 	}
-	
+
 	protected abstract void decodeFirstLine(String line);
-	
+
 	/**
-   * @param type
-   */
-  public void setMessageType(MessageType type) {
-  	this.messageType = type;
-  }
-  
-  public MessageType getMessageType() {
-  	return this.messageType;
-  }
+	 * @param type
+	 */
+	public void setMessageType(MessageType type) {
+		this.messageType = type;
+	}
+
+	public MessageType getMessageType() {
+		return this.messageType;
+	}
 
 }

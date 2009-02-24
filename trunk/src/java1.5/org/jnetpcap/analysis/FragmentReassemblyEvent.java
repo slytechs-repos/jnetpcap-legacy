@@ -21,6 +21,8 @@ import org.jnetpcap.analysis.AnalyzerEvent.AnalyzerEventType;
 public class FragmentReassemblyEvent
     extends AbstractAnalyzerEvent<FragmentReassemblyEvent.Type> {
 
+	private final FragmentReassembly assembly;
+
 	public enum Type implements AnalyzerEventType {
 		COMPLETE_PDU,
 		INCOMPLETE_PDU,
@@ -30,22 +32,28 @@ public class FragmentReassemblyEvent
 	 * @param source
 	 * @param type
 	 */
-	public FragmentReassemblyEvent(FragmentReassemblyAnalyzer source, Type type) {
+	public FragmentReassemblyEvent(FragmentAssembler source, Type type,
+	    FragmentReassembly assembly) {
 		super(source, type);
+		this.assembly = assembly;
 	}
 
 	public static FragmentReassemblyEvent createCompletePdu(
-	    FragmentReassemblyAnalyzer source,
-	    FragmentReassembly re) {
+	    FragmentAssembler source,
+	    FragmentReassembly assembly) {
 
-		return new FragmentReassemblyEvent(source, Type.COMPLETE_PDU);
+		return new FragmentReassemblyEvent(source, Type.COMPLETE_PDU, assembly);
 	}
-	
-	public static FragmentReassemblyEvent createIncompletePdu(
-	    FragmentReassemblyAnalyzer source,
-	    FragmentReassembly re) {
 
-		return new FragmentReassemblyEvent(source, Type.INCOMPLETE_PDU);
+	public static FragmentReassemblyEvent createIncompletePdu(
+	    FragmentAssembler source,
+	    FragmentReassembly assembly) {
+
+		return new FragmentReassemblyEvent(source, Type.INCOMPLETE_PDU, assembly);
+	}
+
+	public final FragmentReassembly getAssembly() {
+		return this.assembly;
 	}
 
 }

@@ -14,6 +14,9 @@ package org.jnetpcap.newstuff;
 
 import java.io.IOException;
 
+import org.jnetpcap.analysis.JController;
+import org.jnetpcap.analysis.tcpip.http.HttpAnalyzer;
+import org.jnetpcap.analysis.tcpip.http.HttpHandler;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.RegistryHeaderErrors;
@@ -39,6 +42,8 @@ public class TestHttp2
 		}
 	}
 
+	private final JFormatter out = new TextFormatter(System.out);
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -58,11 +63,39 @@ public class TestHttp2
 	}
 
 	public void test1() throws IOException {
-		
 		JPacket packet = getPcapPacket(HTTP, 5);
-		
+
 		JFormatter out = new TextFormatter(System.out);
-		
+
 		out.format(packet);
 	}
+
+	public void test2() throws IOException {
+
+		HttpAnalyzer httpAnalyzer = JRegistry.getAnalyzer(HttpAnalyzer.class);
+		httpAnalyzer.add(new HttpHandler() {
+
+			public void processHttp(Http http) {
+				try {
+					if (http.getMessageType() == null) {
+						return;
+					}
+					out.printf("\n\n#%d *** %s ***", http.getPacket().getFrameNumber(),
+					    http.getMessageType());
+					out.format(http);
+
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+
+		});
+
+		// JPacket packet = getPcapPacket(HTTP, 51);
+		// controller.nextPacket(packet, null);
+
+		super.openOffline(HTTP, JRegistry.getAnalyzer(JController.class));
+
+	}
+
 }

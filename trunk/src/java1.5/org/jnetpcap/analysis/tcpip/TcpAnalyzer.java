@@ -20,8 +20,10 @@ import org.jnetpcap.analysis.AbstractAnalyzer;
 import org.jnetpcap.analysis.AnalyzerListener;
 import org.jnetpcap.analysis.AnalyzerSupport;
 import org.jnetpcap.analysis.JAnalyzer;
+import org.jnetpcap.analysis.JController;
 import org.jnetpcap.analysis.tcpip.TcpDuplexStream.Direction;
 import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.header.Ip4;
 import org.jnetpcap.packet.header.Tcp;
 import org.jnetpcap.util.JThreadLocal;
@@ -67,6 +69,8 @@ public class TcpAnalyzer
 	 */
 	public TcpAnalyzer() {
 		super(PRIORITY);
+		
+		JRegistry.getAnalyzer(JController.class).addAnalyzer(this, Tcp.ID);
 	}
 
 	/**

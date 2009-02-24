@@ -16,9 +16,9 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
-import org.jnetpcap.analysis.tcpip.AbstractFragmentationAnalyzer;
-import org.jnetpcap.analysis.tcpip.Ip4FragmentationAnalyzer;
-import org.jnetpcap.analysis.tcpip.Ip4Reassembler;
+import org.jnetpcap.analysis.tcpip.AbstractSequencer;
+import org.jnetpcap.analysis.tcpip.Ip4Sequencer;
+import org.jnetpcap.analysis.tcpip.Ip4Assembler;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JPacketHandler;
 import org.jnetpcap.packet.PcapPacket;
@@ -40,9 +40,9 @@ public class TestIp4FragmentationAnalyzer
 
 	private JController controller;
 
-	private AbstractFragmentationAnalyzer ip4Analyzer;
+	private AbstractSequencer ip4Analyzer;
 
-	private Ip4Reassembler ip4Defrag;
+	private Ip4Assembler ip4Defrag;
 
 	/*
 	 * (non-Javadoc)
@@ -51,7 +51,7 @@ public class TestIp4FragmentationAnalyzer
 	 */
 	protected void setUp() throws Exception {
 		controller = new JController();
-		ip4Analyzer = new Ip4FragmentationAnalyzer();
+		ip4Analyzer = new Ip4Sequencer();
 		controller.addAnalyzer(ip4Analyzer, Ip4.ID);
 
 	}
@@ -104,7 +104,7 @@ public class TestIp4FragmentationAnalyzer
 
 	public void testIp4Reasemble() throws IOException {
 
-		ip4Defrag = new Ip4Reassembler(ip4Analyzer);
+		ip4Defrag = new Ip4Assembler(ip4Analyzer);
 
 		controller.add(new JPacketHandler<Object>() {
 			Ip4 ip = new Ip4();

@@ -208,9 +208,7 @@ public class AnnotatedBinding implements JBinding {
 	 * @see org.jnetpcap.packet.JBinding#isBound(org.jnetpcap.packet.JPacket, int)
 	 */
 	public boolean isBound(JPacket packet, int offset) {
-
-		System.out.printf("AnnotatedBinding::packet=%s\n", packet.getState()
-		    .toDebugString());
+		
 		packet.getHeader(header);
 
 		return annotatedBound.isBound(packet, offset, header);

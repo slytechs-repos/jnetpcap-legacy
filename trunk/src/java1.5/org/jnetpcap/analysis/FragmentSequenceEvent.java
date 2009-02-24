@@ -27,13 +27,13 @@ public class FragmentSequenceEvent
 	}
 
 	public static FragmentSequenceEvent sequenceComplete(
-	    FragmentSequenceAnalyzer source,
+	    FragmentSequencer source,
 	    FragmentSequence sequence) {
 		return new FragmentSequenceEvent(source, Type.SEQUENCE_COMPLETE, sequence);
 	}
 
 	public static FragmentSequenceEvent sequenceNewPacket(
-	    FragmentSequenceAnalyzer source,
+	    FragmentSequencer source,
 	    FragmentSequence sequence,
 	    JPacket packet) {
 		return new FragmentSequenceEvent(source, Type.SEQUENCE_NEW_PACKET,
@@ -41,13 +41,13 @@ public class FragmentSequenceEvent
 	}
 
 	public static FragmentSequenceEvent sequenceStart(
-	    FragmentSequenceAnalyzer source,
+	    FragmentSequencer source,
 	    FragmentSequence sequence) {
 		return new FragmentSequenceEvent(source, Type.SEQUENCE_START, sequence);
 	}
 
 	public static FragmentSequenceEvent sequenceTimeout(
-	    FragmentSequenceAnalyzer source,
+	    FragmentSequencer source,
 	    FragmentSequence sequence) {
 		return new FragmentSequenceEvent(source, Type.SEQUENCE_TIMEOUT, sequence);
 	}
@@ -59,12 +59,12 @@ public class FragmentSequenceEvent
 	/**
 	 * @param source
 	 */
-	public FragmentSequenceEvent(FragmentSequenceAnalyzer source,
+	public FragmentSequenceEvent(FragmentSequencer source,
 	    FragmentSequenceEvent.Type type) {
 		super(source, type);
 	}
 
-	public FragmentSequenceEvent(FragmentSequenceAnalyzer source,
+	public FragmentSequenceEvent(FragmentSequencer source,
 	    FragmentSequenceEvent.Type type, FragmentSequence sequence) {
 		super(source, type);
 		this.sequence = sequence;
@@ -76,7 +76,7 @@ public class FragmentSequenceEvent
 	 * @param sequence
 	 * @param packet
 	 */
-	public FragmentSequenceEvent(FragmentSequenceAnalyzer source, Type type,
+	public FragmentSequenceEvent(FragmentSequencer source, Type type,
 	    FragmentSequence sequence, JPacket packet) {
 		this(source, type, sequence);
 		this.packet = packet;
