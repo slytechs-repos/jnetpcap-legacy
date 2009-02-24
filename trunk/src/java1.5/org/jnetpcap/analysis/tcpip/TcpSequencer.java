@@ -15,7 +15,6 @@ package org.jnetpcap.analysis.tcpip;
 import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.List;
-import java.util.Set;
 
 import org.jnetpcap.analysis.AnalysisInfo;
 import org.jnetpcap.analysis.AnalyzerListener;
@@ -23,6 +22,7 @@ import org.jnetpcap.analysis.FragmentSequence;
 import org.jnetpcap.analysis.FragmentSequenceEvent;
 import org.jnetpcap.analysis.JAnalysis;
 import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.header.Ip4;
 import org.jnetpcap.packet.header.Tcp;
 import org.jnetpcap.util.JThreadLocal;
@@ -31,8 +31,8 @@ import org.jnetpcap.util.JThreadLocal;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class TcpFragmentationAnalyzer
-    extends AbstractFragmentationAnalyzer implements
+public class TcpSequencer
+    extends AbstractSequencer implements
     AnalyzerListener<TcpStreamEvent> {
 
 	private final TcpAnalyzer analyzer;
@@ -41,10 +41,10 @@ public class TcpFragmentationAnalyzer
 
 	private JThreadLocal<Tcp> tcpLocal = new JThreadLocal<Tcp>(Tcp.class);
 
-	public TcpFragmentationAnalyzer(TcpAnalyzer analyzer) {
-		super(200, analyzer);
+	public TcpSequencer() {
+		super(200, JRegistry.getAnalyzer(TcpAnalyzer.class));
 
-		this.analyzer = analyzer;
+		this.analyzer = JRegistry.getAnalyzer(TcpAnalyzer.class);
 
 		this.analyzer.addTcpStreamListener(this, null);
 
@@ -60,7 +60,7 @@ public class TcpFragmentationAnalyzer
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.FragmentSequenceAnalyzer#generateInfo(org.jnetpcap.analysis.FragmentSequence)
+	 * @see org.jnetpcap.analysis.FragmentSequencer#generateInfo(org.jnetpcap.analysis.FragmentSequence)
 	 */
 	public List<JAnalysis> generateInfo(FragmentSequence sequence) {
 		List<JAnalysis> list = new ArrayList<JAnalysis>();
@@ -187,7 +187,7 @@ public class TcpFragmentationAnalyzer
 		if (packet.hasHeader(ip) && packet.hasHeader(tcp)) {
 			int hash = ip.destinationToInt() + tcp.destination();
 
-			System.out.printf("#%d:: %s", packet.getFrameNumber(), tcp.toString());
+//			System.out.printf("#%d:: %s", packet.getFrameNumber(), tcp.toString());
 
 			setFragmentationBoundary(hash, tcp.seq(), length);
 		}

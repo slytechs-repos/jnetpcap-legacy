@@ -1005,7 +1005,7 @@ public class Ip4
 	/**
 	 * Checks if this packet has been reassembled from other IP fragments. This
 	 * check only works, if the PDU has been analyzed and reassembled by
-	 * Ip4Reassembler.
+	 * Ip4Assembler.
 	 * 
 	 * @return true if this PDU is reassembled, otherwise false if atomic
 	 */

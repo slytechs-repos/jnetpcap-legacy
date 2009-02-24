@@ -285,7 +285,7 @@ public class JController
 			try {
 //				bq.put(packet);
 				dispatchWorker.put(packet);
-				Thread.sleep(100);
+//				Thread.sleep(100);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

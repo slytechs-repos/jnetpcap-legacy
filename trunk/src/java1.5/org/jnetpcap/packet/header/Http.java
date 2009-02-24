@@ -13,7 +13,6 @@
 package org.jnetpcap.packet.header;
 
 import org.jnetpcap.newstuff.AbstractMessageHeader;
-import org.jnetpcap.newstuff.AbstractMessageHeader.MessageType;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.annotate.Bind;
 import org.jnetpcap.packet.annotate.Field;
@@ -107,6 +106,8 @@ public class Http
 
 	@Override
 	protected void decodeFirstLine(String line) {
+//		System.out.printf("#%d Http::decodeFirstLine line=%s\n", getPacket()
+//		    .getFrameNumber(), line);
 		String[] c = line.split(" ");
 		if (c[0].startsWith("HTTP")) {
 			super.setMessageType(MessageType.RESPONSE);
@@ -139,18 +140,16 @@ public class Http
 	}
 
 	/**
-   * @return
-   */
-  public boolean isResponse() {
-	  // TODO Auto-generated method stub
-	  throw new UnsupportedOperationException("Not implemented yet");
-  }
+	 * @return
+	 */
+	public boolean isResponse() {
+		return getMessageType() == MessageType.RESPONSE;
+	}
 
 	/**
-   * @return
-   */
-  public boolean hasContent() {
-	  // TODO Auto-generated method stub
-	  throw new UnsupportedOperationException("Not implemented yet");
-  }
+	 * @return
+	 */
+	public boolean hasContent() {
+		return hasField(Response.Content_Type);
+	}
 }

@@ -118,6 +118,10 @@ public class JBuffer
 
 			char c = getUTF8Char(i);
 			char d = delimeter[match];
+			
+			if (Character.isDefined(c) == false) {
+				break;
+			}
 
 			if (d == c) {
 				match++;

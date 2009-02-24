@@ -20,7 +20,7 @@ import org.jnetpcap.analysis.AbstractAnalyzer;
 import org.jnetpcap.analysis.AnalyzerListener;
 import org.jnetpcap.analysis.AnalyzerSupport;
 import org.jnetpcap.analysis.FragmentSequence;
-import org.jnetpcap.analysis.FragmentSequenceAnalyzer;
+import org.jnetpcap.analysis.FragmentSequencer;
 import org.jnetpcap.analysis.FragmentSequenceEvent;
 import org.jnetpcap.analysis.JAnalyzer;
 import org.jnetpcap.packet.JPacket;
@@ -30,12 +30,12 @@ import org.jnetpcap.util.JLogger;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public abstract class AbstractFragmentationAnalyzer
-    extends AbstractAnalyzer implements FragmentSequenceAnalyzer {
+public abstract class AbstractSequencer
+    extends AbstractAnalyzer implements FragmentSequencer {
 
 	private static final int SIZE = 500;
 
-	static final Logger logger = JLogger.getLogger(Ip4FragmentationAnalyzer.class);
+	static final Logger logger = JLogger.getLogger(Ip4Sequencer.class);
 
 	protected final Map<Integer, FragmentSequence> fragmentation =
 	    new HashMap<Integer, FragmentSequence>(SIZE);
@@ -50,14 +50,14 @@ public abstract class AbstractFragmentationAnalyzer
 	/**
 	 * 
 	 */
-	public AbstractFragmentationAnalyzer() {
+	public AbstractSequencer() {
 		super();
 	}
 
 	/**
 	 * @param priority
 	 */
-	public AbstractFragmentationAnalyzer(int priority) {
+	public AbstractSequencer(int priority) {
 		super(priority);
 	}
 
@@ -65,7 +65,7 @@ public abstract class AbstractFragmentationAnalyzer
 	 * @param priority
 	 * @param parent
 	 */
-	public AbstractFragmentationAnalyzer(int priority, JAnalyzer parent) {
+	public AbstractSequencer(int priority, JAnalyzer parent) {
 		super(priority, parent);
 	}
 

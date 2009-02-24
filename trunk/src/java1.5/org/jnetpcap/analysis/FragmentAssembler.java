@@ -22,6 +22,6 @@ package org.jnetpcap.analysis;
  * @author Sly Technologies, Inc.
  *
  */
-public interface FragmentReassemblyAnalyzer extends JAnalyzer {
+public interface FragmentAssembler extends JAnalyzer {
 
 }

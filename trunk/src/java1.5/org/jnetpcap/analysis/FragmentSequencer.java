@@ -14,7 +14,7 @@ package org.jnetpcap.analysis;
 
 import java.util.List;
 
-public interface FragmentSequenceAnalyzer extends JAnalyzer {
+public interface FragmentSequencer extends JAnalyzer {
 
 	/**
    * The default timeout interval in millis for a fragment sequence completion.

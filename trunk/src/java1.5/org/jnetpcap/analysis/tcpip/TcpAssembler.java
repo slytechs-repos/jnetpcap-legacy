@@ -12,13 +12,11 @@
  */
 package org.jnetpcap.analysis.tcpip;
 
-import java.util.Queue;
-
 import org.jnetpcap.analysis.AbstractAnalyzer;
 import org.jnetpcap.analysis.AnalyzerListener;
 import org.jnetpcap.analysis.AnalyzerSupport;
 import org.jnetpcap.analysis.FragmentReassembly;
-import org.jnetpcap.analysis.FragmentReassemblyAnalyzer;
+import org.jnetpcap.analysis.FragmentAssembler;
 import org.jnetpcap.analysis.FragmentReassemblyEvent;
 import org.jnetpcap.analysis.FragmentSequence;
 import org.jnetpcap.analysis.FragmentSequenceEvent;
@@ -27,6 +25,7 @@ import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.nio.JMemoryPool;
 import org.jnetpcap.packet.JMemoryPacket;
 import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.header.Ip4;
 import org.jnetpcap.packet.header.Tcp;
 import org.jnetpcap.util.JThreadLocal;
@@ -35,8 +34,8 @@ import org.jnetpcap.util.JThreadLocal;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class TcpReassembler
-    extends AbstractAnalyzer implements FragmentReassemblyAnalyzer,
+public class TcpAssembler
+    extends AbstractAnalyzer implements FragmentAssembler,
     AnalyzerListener<FragmentSequenceEvent> {
 
 	private final AnalyzerSupport<FragmentReassemblyEvent> support =
@@ -45,14 +44,17 @@ public class TcpReassembler
 	/**
 	 * 
 	 */
-	public TcpReassembler() {
+	public TcpAssembler() {
+
+		JRegistry.getAnalyzer(TcpSequencer.class)
+		    .addFragmentationListener(this);
 	}
 
 	/**
 	 * @param priority
 	 * @param parent
 	 */
-	public TcpReassembler(TcpFragmentationAnalyzer parent) {
+	public TcpAssembler(TcpSequencer parent) {
 		super(300, parent);
 
 		parent.addFragmentationListener(this);
@@ -79,22 +81,21 @@ public class TcpReassembler
 	 */
 	public void processAnalyzerEvent(FragmentSequenceEvent evt) {
 		if (evt.getType() == FragmentSequenceEvent.Type.SEQUENCE_COMPLETE) {
-			
+
 			FragmentSequence sequence = evt.getSequence();
 			if (sequence.isEmpty()) {
 				return; // Nothing to do
 			}
-			
+
 			JPacket packet = reassemble(sequence);
-			
+
 			FragmentReassembly assembly = new FragmentReassembly(packet, sequence);
-			
+
 			JPacket first = sequence.getPacketSequence().get(0); // 1st packet
 			Tcp tcp = tcpLocal.get();
 			if (first.hasHeader(tcp)) {
 				tcp.addAnalysis(assembly);
 			}
-			
 
 			support.fire(FragmentReassemblyEvent.createCompletePdu(this, assembly));
 
@@ -103,36 +104,39 @@ public class TcpReassembler
 			hold();
 		}
 	}
-	
+
 	private final JMemoryPool memory = new JMemoryPool();
+
 	private final JThreadLocal<Tcp> tcpLocal = new JThreadLocal<Tcp>(Tcp.class);
+
 	private final JThreadLocal<Ip4> ipLocal = new JThreadLocal<Ip4>(Ip4.class);
-	
+
 	private JPacket reassemble(FragmentSequence sequence) {
 		JBuffer buf = new JBuffer(JMemory.Type.POINTER);
-		memory.allocate(sequence.getTotalLength() + 40, buf);
+		memory.allocate(sequence.getTotalLength(), buf);
 		Tcp tcp = tcpLocal.get();
 		Ip4 ip = ipLocal.get();
 		long start = sequence.getStart();
-		
-		for (JPacket p: sequence.getPacketSequence()) {
+
+		for (JPacket p : sequence.getPacketSequence()) {
 			if (p.hasHeader(tcp)) {
 				int seq = (int) (tcp.seq() - start);
 				int offset = tcp.getOffset() + tcp.hlen() * 4;
 				int length = tcp.getPayloadLength();
-				
-				p.transferTo(buf, offset, length, seq + 40);
+
+				p.transferTo(buf, offset, length, seq);
+			} else {
+				throw new IllegalStateException(
+				    "expected tcp header binding in tcp packet");
 			}
 		}
-		
-		
-		
+
 		JPacket packet = sequence.getPacketSequence().get(0);
 		int i = packet.getState().findHeaderIndex(Tcp.ID);
 		int nid = packet.getState().getHeaderIdByIndex(i + 1);
-		
-		packet = new JMemoryPacket(nid, buf); 
-		
+
+		packet = new JMemoryPacket(nid, buf);
+
 		return packet;
 	}
 

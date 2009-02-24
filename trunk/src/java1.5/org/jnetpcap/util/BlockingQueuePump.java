@@ -169,9 +169,6 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 			try {
 				while (thread.get() != null) {
 					dispatch(take());
-
-					System.out.printf("size=%d\n", queue.size());
-					System.out.flush();
 				}
 
 				if (thread.get() != null) {
@@ -217,8 +214,6 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	public T take() throws InterruptedException {
-		System.out.println("taking");
-//		Thread.sleep(1000);
 		return this.queue.take();
 	}
 

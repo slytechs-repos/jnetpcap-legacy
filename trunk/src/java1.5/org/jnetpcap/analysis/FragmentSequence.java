@@ -35,7 +35,7 @@ public class FragmentSequence
 
 	private static final String TITLE = "Fragment Sequence";
 
-	private final FragmentSequenceAnalyzer analyzer;
+	private final FragmentSequencer analyzer;
 
 	private int totalLength = -1;
 
@@ -83,7 +83,7 @@ public class FragmentSequence
 	 * @param size
 	 */
 	@SuppressWarnings("unchecked")
-  public FragmentSequence(int hash, FragmentSequenceAnalyzer analyzer) {
+  public FragmentSequence(int hash, FragmentSequencer analyzer) {
 		super(TITLE, Field.values());
 		this.analyzer = analyzer;
 
