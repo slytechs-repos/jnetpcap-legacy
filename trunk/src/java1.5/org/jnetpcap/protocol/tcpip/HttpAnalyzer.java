@@ -10,22 +10,19 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.analysis.tcpip.http;
+package org.jnetpcap.protocol.tcpip;
 
 import org.jnetpcap.analysis.AbstractAnalyzer;
 import org.jnetpcap.analysis.AnalyzerListener;
-import org.jnetpcap.analysis.FragmentReassembly;
-import org.jnetpcap.analysis.FragmentReassemblyEvent;
+import org.jnetpcap.analysis.FragmentAssemblyEvent;
+import org.jnetpcap.analysis.FragmentAssembly;
 import org.jnetpcap.analysis.JController;
 import org.jnetpcap.analysis.ProtocolSupport;
 import org.jnetpcap.analysis.tcpip.AnalysisException;
-import org.jnetpcap.analysis.tcpip.TcpSequencer;
-import org.jnetpcap.analysis.tcpip.TcpAssembler;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
-import org.jnetpcap.packet.header.Http;
 import org.jnetpcap.packet.header.Tcp;
-import org.jnetpcap.packet.header.Http.Response;
+import org.jnetpcap.protocol.tcpip.Http.Response;
 import org.jnetpcap.util.JThreadLocal;
 
 /**
@@ -33,8 +30,7 @@ import org.jnetpcap.util.JThreadLocal;
  * @author Sly Technologies, Inc.
  */
 public class HttpAnalyzer
-    extends AbstractAnalyzer implements
-    AnalyzerListener<FragmentReassemblyEvent> {
+    extends AbstractAnalyzer implements AnalyzerListener<FragmentAssemblyEvent> {
 
 	private JThreadLocal<Http> httpLocal = new JThreadLocal<Http>(Http.class);
 
@@ -91,16 +87,27 @@ public class HttpAnalyzer
 		if (http.hasContent() && packet.hasHeader(tcp)
 		    && http.hasField(Response.Content_Length)) {
 
-			int len =
-			    Integer.parseInt(http.fieldValue(Response.Content_Length))
-			        + http.size();
+			int tcp_len = tcp.getPayloadLength();
+			int content_len =
+			    Integer.parseInt(http.fieldValue(Response.Content_Length));
+			int http_len = content_len + http.size();
 
-			tcpFragAnalyzer.setFragmentationBoundary(tcp.uniHashCode(), tcp.seq(),
-			    len);
+			if (tcp_len >= http_len) {
+				Http userHttp = packet.getHeader(new Http());
+				support.fire(userHttp);
+			} else {
 
-			System.out.printf("#%d HttpAnalyzer::hash=%d seq=%d len=%d frag=%b\n",
-			    packet.getFrameNumber(), tcp.uniHashCode(), tcp.seq(), len, (tcp
-			        .getPayloadLength() < len));
+				tcpFragAnalyzer.setFragmentationBoundary(tcp.uniHashCode(), tcp.seq(),
+				    http_len);
+			}
+
+//			System.out.printf(
+//			    "#%d HttpAnalyzer::hash=%d seq=%d tcp_len=%d http_len=%s frag=%b ",
+//			    packet.getFrameNumber(), tcp.uniHashCode(), tcp.seq(), http_len, http
+//			        .fieldValue(Response.Content_Length),
+//			    (tcp.getPayloadLength() < http_len));
+//			System.out.printf("src=%d -> dst->%d\n", tcp.source(), tcp.destination());
+//			System.out.printf("http=%s\n", http.toString());
 
 		} else {
 			// support.fire(packet.getHeader(new Http()));
@@ -120,11 +127,11 @@ public class HttpAnalyzer
 	 * 
 	 * @see org.jnetpcap.analysis.AnalyzerListener#processAnalyzerEvent(org.jnetpcap.analysis.AnalyzerEvent)
 	 */
-	public void processAnalyzerEvent(FragmentReassemblyEvent evt) {
-		if (evt.getType() == FragmentReassemblyEvent.Type.COMPLETE_PDU) {
-			FragmentReassembly assembly = evt.getAssembly();
+	public void processAnalyzerEvent(FragmentAssemblyEvent evt) {
+		if (evt.getType() == FragmentAssemblyEvent.Type.COMPLETE_PDU) {
+			FragmentAssembly assembly = evt.getAssembly();
 			JPacket packet = assembly.getPacket();
-			System.out.printf("packet=%s\n", packet.getState().toDebugString());
+//			System.out.printf("packet=%s\n", packet.getState().toDebugString());
 			Http http = new Http();
 			if (packet.hasHeader(http)) {
 				support.fire(http);

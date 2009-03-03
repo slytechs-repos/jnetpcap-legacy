@@ -21,15 +21,15 @@ import org.jnetpcap.packet.JPacket;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class FragmentReassembly
-    extends AbstractAnalysis<FragmentReassembly, FragmentReassemblyEvent> {
+public class FragmentAssembly
+    extends AbstractAnalysis<FragmentAssembly, FragmentAssemblyEvent> {
 
 	private final static String TITLE = "Fragment Reassembly";
 
 	public enum Field implements JStructField {
 		PACKET_SEQUENCE(REF),
-		PACKET(REF),;
-		
+		PACKET(REF), ;
+
 		private final int len;
 
 		int offset;
@@ -56,19 +56,18 @@ public class FragmentReassembly
 	 * @param size
 	 * @param name
 	 */
-	public FragmentReassembly(JPacket packet, FragmentSequence sequence) {
+	public FragmentAssembly(JPacket packet, FragmentSequence sequence) {
 		super(TITLE, Field.values());
 
 		setFragmentSequence(sequence);
 		setPacket(packet);
 	}
 
-	private void setFragmentSequence(
-	    AbstractAnalysis<FragmentSequence, FragmentSequenceEvent> sequence) {
+	private void setFragmentSequence(FragmentSequence sequence) {
 		super.setObject(Field.PACKET_SEQUENCE.offset(), sequence);
 	}
 
-	public AbstractAnalysis<FragmentSequence, FragmentSequenceEvent> getFragmentSequence() {
+	public FragmentSequence getFragmentSequence() {
 		return super.getObject(FragmentSequence.class, Field.PACKET_SEQUENCE
 		    .offset());
 	}
@@ -78,7 +77,7 @@ public class FragmentReassembly
 	 * @param size
 	 * @param name
 	 */
-	public FragmentReassembly() {
+	public FragmentAssembly() {
 		super(JMemory.Type.POINTER);
 	}
 

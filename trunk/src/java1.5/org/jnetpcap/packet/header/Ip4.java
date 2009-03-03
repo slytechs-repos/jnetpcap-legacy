@@ -15,12 +15,11 @@ package org.jnetpcap.packet.header;
 import java.util.EnumSet;
 import java.util.Set;
 
-import org.jnetpcap.analysis.FragmentReassembly;
+import org.jnetpcap.analysis.FragmentAssembly;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JHeaderMap;
 import org.jnetpcap.packet.JHeaderType;
 import org.jnetpcap.packet.JPacket;
-import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.JSubHeader;
 import org.jnetpcap.packet.annotate.Bind;
 import org.jnetpcap.packet.annotate.BindingVariable;
@@ -32,6 +31,7 @@ import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.packet.annotate.BindingVariable.MatchType;
 import org.jnetpcap.packet.annotate.Header.Layer;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * IP version 4. Network layer internet protocol version 4.
@@ -1010,7 +1010,7 @@ public class Ip4
 	 * @return true if this PDU is reassembled, otherwise false if atomic
 	 */
 	public boolean isReassembled() {
-		return hasAnalysis(FragmentReassembly.class);
+		return hasAnalysis(FragmentAssembly.class);
 	}
 
 	@Field(offset = 2 * 8, length = 16, format = "%d")

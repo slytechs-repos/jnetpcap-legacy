@@ -10,7 +10,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.analysis.tcpip;
+package org.jnetpcap.protocol.tcpip;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,11 +21,12 @@ import org.jnetpcap.analysis.AnalyzerListener;
 import org.jnetpcap.analysis.AnalyzerSupport;
 import org.jnetpcap.analysis.JAnalyzer;
 import org.jnetpcap.analysis.JController;
-import org.jnetpcap.analysis.tcpip.TcpDuplexStream.Direction;
+import org.jnetpcap.analysis.tcpip.InvalidStreamHashcode;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.header.Ip4;
 import org.jnetpcap.packet.header.Tcp;
+import org.jnetpcap.protocol.tcpip.TcpDuplexStream.Direction;
 import org.jnetpcap.util.JThreadLocal;
 
 /**
@@ -232,10 +233,10 @@ public class TcpAnalyzer
 
 		// final int filter = 3179;
 		// final int filter = 3306;
-		 final int filter = 3200;
-		if (tcp.destination() != filter && tcp.source() != filter) {
-			return duplexHash;
-		}
+//		 final int filter = 3200;
+//		if (tcp.destination() != filter && tcp.source() != filter) {
+//			return duplexHash;
+//		}
 
 		// System.out.printf("#%-2d ", packet.getFrameNumber() + 1);
 
@@ -519,7 +520,7 @@ public class TcpAnalyzer
 			receiver.setSndUNA(ack, packet);
 			receiver.setRcvWIN(tcp.windowScaled());
 			if (support.hasListeners()) {
-				// support.fire(TcpStreamEvent.Type.ACK.create(this, duplex, packet));
+				 support.fire(TcpStreamEvent.Type.ACK.create(this, duplex, packet));
 			}
 
 		}

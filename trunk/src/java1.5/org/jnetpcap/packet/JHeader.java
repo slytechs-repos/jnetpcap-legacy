@@ -23,6 +23,7 @@ import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.structure.AnnotatedHeader;
 import org.jnetpcap.packet.structure.DefaultField;
 import org.jnetpcap.packet.structure.JField;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * A base class for all protocol header definitions.

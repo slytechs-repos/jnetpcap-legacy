@@ -21,9 +21,9 @@ import org.jnetpcap.analysis.AbstractAnalyzer;
 import org.jnetpcap.analysis.AnalysisInfo;
 import org.jnetpcap.analysis.AnalyzerListener;
 import org.jnetpcap.analysis.AnalyzerSupport;
-import org.jnetpcap.analysis.FragmentReassembly;
+import org.jnetpcap.analysis.FragmentAssembly;
 import org.jnetpcap.analysis.FragmentAssembler;
-import org.jnetpcap.analysis.FragmentReassemblyEvent;
+import org.jnetpcap.analysis.FragmentAssemblyEvent;
 import org.jnetpcap.analysis.FragmentSequence;
 import org.jnetpcap.analysis.FragmentSequenceEvent;
 import org.jnetpcap.nio.JBuffer;
@@ -45,8 +45,8 @@ public class Ip4Assembler
 
 	private static final int IP4_HEADER_LENGTH = 20;
 
-	private AnalyzerSupport<FragmentReassemblyEvent> support =
-	    new AnalyzerSupport<FragmentReassemblyEvent>();
+	private AnalyzerSupport<FragmentAssemblyEvent> support =
+	    new AnalyzerSupport<FragmentAssemblyEvent>();
 
 	/**
 	 * First thread local pool of ips
@@ -66,7 +66,7 @@ public class Ip4Assembler
 
 	private static final int PRIORITY = 200;
 
-	private FragmentReassembly reassembly = new FragmentReassembly();
+	private FragmentAssembly reassembly = new FragmentAssembly();
 
 	private static Ip4 createIp4HeaderFromSequence(
 	    JBuffer buf,
@@ -135,7 +135,7 @@ public class Ip4Assembler
 		 */
 		JPacket packet = new JMemoryPacket(Ip4.ID, buf);
 		packet.getHeader(header); // Repeer to new packet
-		header.addAnalysis(new FragmentReassembly(packet, seq));
+		header.addAnalysis(new FragmentAssembly(packet, seq));
 
 
 		JCaptureHeader capture = packet.getCaptureHeader();
@@ -202,7 +202,7 @@ public class Ip4Assembler
 			Ip4 ip = ipLocal1.get();
 
 			if (packet.hasHeader(ip) && ip.hasAnalysis(reassembly)) {
-				support.fire(FragmentReassemblyEvent
+				support.fire(FragmentAssemblyEvent
 				    .createCompletePdu(this, reassembly));
 			}
 
@@ -232,13 +232,13 @@ public class Ip4Assembler
 	}
 
 	public <U> boolean addListener(
-	    AnalyzerListener<FragmentReassemblyEvent> listener,
+	    AnalyzerListener<FragmentAssemblyEvent> listener,
 	    U user) {
 		return this.support.addListener(listener, user);
 	}
 
 	public boolean removeListener(
-	    AnalyzerListener<FragmentReassemblyEvent> listener) {
+	    AnalyzerListener<FragmentAssemblyEvent> listener) {
 		return this.support.removeListener(listener);
 	}
 }

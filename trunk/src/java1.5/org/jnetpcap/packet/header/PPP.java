@@ -14,9 +14,9 @@ package org.jnetpcap.packet.header;
 
 import org.jnetpcap.PcapDLT;
 import org.jnetpcap.packet.JHeader;
-import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * Point to Point Protocol header definition

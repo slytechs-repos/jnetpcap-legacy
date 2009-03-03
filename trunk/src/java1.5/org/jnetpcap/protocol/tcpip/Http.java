@@ -10,19 +10,21 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.packet.header;
+package org.jnetpcap.protocol.tcpip;
 
-import org.jnetpcap.newstuff.AbstractMessageHeader;
+import org.jnetpcap.packet.AbstractMessageHeader;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.annotate.Bind;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
+import org.jnetpcap.packet.header.Tcp;
+import org.jnetpcap.protocol.JProtocol.Suite;
 
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@Header
+@Header(suite=Suite.TCP_IP)
 public class Http
     extends AbstractMessageHeader {
 
@@ -88,6 +90,35 @@ public class Http
 		RequestUrl,
 	}
 
+	public enum ContentType {
+		JPEG("image/jpeg"),
+		GIF("image/gif"),
+		PNG("image/png"),
+		HTML("text/html"), ;
+
+		private final String[] magic;
+
+		private ContentType(String... magic) {
+			this.magic = magic;
+		}
+
+		public static ContentType parseContentType(String type) {
+			for (ContentType t : values()) {
+				if (t.name().equalsIgnoreCase(type)) {
+					return t;
+				}
+				
+				for (String m : t.magic) {
+					if (type.startsWith(m)) {
+						return t;
+					}
+				}
+			}
+
+			return null;
+		}
+	}
+
 	public boolean hasField(Request field) {
 		return super.hasField(field);
 	}
@@ -106,8 +137,8 @@ public class Http
 
 	@Override
 	protected void decodeFirstLine(String line) {
-//		System.out.printf("#%d Http::decodeFirstLine line=%s\n", getPacket()
-//		    .getFrameNumber(), line);
+		// System.out.printf("#%d Http::decodeFirstLine line=%s\n", getPacket()
+		// .getFrameNumber(), line);
 		String[] c = line.split(" ");
 		if (c[0].startsWith("HTTP")) {
 			super.setMessageType(MessageType.RESPONSE);
@@ -137,6 +168,10 @@ public class Http
 	 */
 	public String contentType() {
 		return fieldValue(Response.Content_Type);
+	}
+	
+	public ContentType contentTypeEnum() {
+		return ContentType.parseContentType(contentType());
 	}
 
 	/**

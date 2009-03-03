@@ -10,7 +10,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.analysis.tcpip;
+package org.jnetpcap.protocol.tcpip;
 
 import java.util.ArrayList;
 import java.util.Formatter;
@@ -21,6 +21,7 @@ import org.jnetpcap.analysis.AnalyzerListener;
 import org.jnetpcap.analysis.FragmentSequence;
 import org.jnetpcap.analysis.FragmentSequenceEvent;
 import org.jnetpcap.analysis.JAnalysis;
+import org.jnetpcap.analysis.tcpip.AbstractSequencer;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.header.Ip4;
@@ -104,6 +105,7 @@ public class TcpSequencer
 	 * @see org.jnetpcap.analysis.AnalyzerListener#processAnalyzerEvent(org.jnetpcap.analysis.AnalyzerEvent)
 	 */
 	public void processAnalyzerEvent(TcpStreamEvent evt) {
+		
 		if (evt.getType() == TcpStreamEvent.Type.ACKED_SEGMENT) {
 			final JPacket packet = evt.getPacket();
 			final TcpStream stream = evt.getStream();
@@ -143,8 +145,8 @@ public class TcpSequencer
 				sequence.addFragment(packet, (int) tcp.seq(), length);
 				// tcp.addAnalysis(sequence);
 
-				long nseq = seq - start;
-				long delta = sequence.getTotalLength() - nseq - length;
+//				long nseq = seq - start;
+//				long delta = sequence.getTotalLength() - nseq - length;
 				// System.out.printf("#%d seq=%d-%d::%5d seg.len=%d rcv.len=%d :: ",
 				// packet.getFrameNumber(), nseq, nseq + length, delta, length,
 				// sequence.getLen());
@@ -156,7 +158,8 @@ public class TcpSequencer
 					sequence.setHasLastFragment(true);
 					sequence.setHasAllFragments(true);
 					getTimeoutQueue().timeout(sequence);
-
+					super.removeSequence(hash);
+					
 					fragSupport.fire(FragmentSequenceEvent.sequenceComplete(this,
 					    sequence));
 
@@ -165,6 +168,7 @@ public class TcpSequencer
 			}
 		}
 	}
+
 
 	public boolean processPacket(JPacket packet) {
 
@@ -177,6 +181,7 @@ public class TcpSequencer
 		sequence.setTotalLength((int) length);
 		sequence.setStart(start);
 
+//		System.out.printf("map=%s\n", fragmentation.keySet());
 	}
 
 	public void setFragmentationBoundary(JPacket packet, long length) {
@@ -185,11 +190,7 @@ public class TcpSequencer
 		setProcessingTime(packet);
 
 		if (packet.hasHeader(ip) && packet.hasHeader(tcp)) {
-			int hash = ip.destinationToInt() + tcp.destination();
-
-//			System.out.printf("#%d:: %s", packet.getFrameNumber(), tcp.toString());
-
-			setFragmentationBoundary(hash, tcp.seq(), length);
+			setFragmentationBoundary(tcp.hashCode(), tcp.seq(), length);
 		}
 	}
 

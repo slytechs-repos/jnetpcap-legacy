@@ -20,6 +20,7 @@ import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
+import org.jnetpcap.protocol.tcpip.Http;
 import org.jnetpcap.util.JThreadLocal;
 
 /**

@@ -10,15 +10,16 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.analysis.tcpip;
+package org.jnetpcap.protocol.tcpip;
 
 import org.jnetpcap.analysis.AbstractAnalysis;
 import org.jnetpcap.analysis.AnalyzerSupport;
 import org.jnetpcap.analysis.JAnalysis;
 import org.jnetpcap.analysis.JAnalyzer;
-import org.jnetpcap.analysis.tcpip.TcpAnalyzer.Stage;
+import org.jnetpcap.analysis.tcpip.InvalidStreamHashcode;
 import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.packet.header.Tcp;
+import org.jnetpcap.protocol.tcpip.TcpAnalyzer.Stage;
 
 /**
  * The main tcp stream analysis object that keeps global properties about a tcp
@@ -277,4 +278,39 @@ public class TcpDuplexStream
 	public void setTime(long processingTime) {
 		this.processingTime = processingTime;
 	}
+	
+	public String toString() {
+		TcpStream client = getClientStream();
+		TcpStream server = getServerStream();
+		
+		return "" + server.getDestinationPort() + " <-> " + client.getDestinationPort();
+	}
+
+	/**
+   * @param tcp
+   * @return
+   */
+  public long getNormalizedSequence(Tcp tcp) {
+		if (getClientStream().getDestinationPort() == tcp.destination()) {
+			return tcp.seq() - getClientStream().getSndStart();
+		} else {
+			return tcp.seq() - getServerStream().getSndStart();
+		}
+  }
+
+	/**
+   * @param tcp
+   * @return
+   */
+  public long getNormalizedAck(Tcp tcp) {
+  	if (tcp.flags_ACK() == false) {
+  		return 0;
+  	}
+  	
+		if (getClientStream().getDestinationPort() == tcp.destination()) {
+			return tcp.ack() - getServerStream().getSndStart();
+		} else {
+			return tcp.ack() - getClientStream().getSndStart();
+		}
+  }
 }
