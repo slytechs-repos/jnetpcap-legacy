@@ -10,7 +10,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.packet.header;
+package org.jnetpcap.protocol.network;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -32,6 +32,8 @@ import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.packet.annotate.BindingVariable.MatchType;
 import org.jnetpcap.packet.annotate.Header.Layer;
 import org.jnetpcap.protocol.JProtocol;
+import org.jnetpcap.protocol.lan.Ethernet;
+import org.jnetpcap.protocol.lan.IEEESnap;
 
 /**
  * IP version 4. Network layer internet protocol version 4.

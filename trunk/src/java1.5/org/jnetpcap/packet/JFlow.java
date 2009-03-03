@@ -16,9 +16,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jnetpcap.packet.format.FormatUtils;
-import org.jnetpcap.packet.header.Ethernet;
-import org.jnetpcap.packet.header.Ip4;
-import org.jnetpcap.packet.header.Tcp;
+import org.jnetpcap.protocol.lan.Ethernet;
+import org.jnetpcap.protocol.network.Ip4;
+import org.jnetpcap.protocol.tcpip.Tcp;
 
 /**
  * @author Mark Bednarczyk

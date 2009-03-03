@@ -21,7 +21,6 @@ import org.jnetpcap.analysis.AnalyzerSupport;
 import org.jnetpcap.analysis.JAnalysis;
 import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.packet.JPacket;
-import org.jnetpcap.packet.header.Tcp;
 import org.jnetpcap.protocol.tcpip.TcpDuplexStream.Direction;
 import org.jnetpcap.util.JThreadLocal;
 import org.jnetpcap.util.Timeout;

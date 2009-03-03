@@ -15,19 +15,19 @@ package org.jnetpcap.protocol;
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapDLT;
 import org.jnetpcap.packet.JHeader;
-import org.jnetpcap.packet.header.Ethernet;
-import org.jnetpcap.packet.header.IEEE802dot1q;
-import org.jnetpcap.packet.header.IEEE802dot2;
-import org.jnetpcap.packet.header.IEEE802dot3;
-import org.jnetpcap.packet.header.IEEESnap;
-import org.jnetpcap.packet.header.Icmp;
-import org.jnetpcap.packet.header.Ip4;
-import org.jnetpcap.packet.header.Ip6;
-import org.jnetpcap.packet.header.L2TP;
-import org.jnetpcap.packet.header.PPP;
-import org.jnetpcap.packet.header.Payload;
-import org.jnetpcap.packet.header.Tcp;
-import org.jnetpcap.packet.header.Udp;
+import org.jnetpcap.packet.Payload;
+import org.jnetpcap.protocol.lan.Ethernet;
+import org.jnetpcap.protocol.lan.IEEE802dot1q;
+import org.jnetpcap.protocol.lan.IEEE802dot2;
+import org.jnetpcap.protocol.lan.IEEE802dot3;
+import org.jnetpcap.protocol.lan.IEEESnap;
+import org.jnetpcap.protocol.network.Icmp;
+import org.jnetpcap.protocol.network.Ip4;
+import org.jnetpcap.protocol.network.Ip6;
+import org.jnetpcap.protocol.tcpip.Tcp;
+import org.jnetpcap.protocol.tcpip.Udp;
+import org.jnetpcap.protocol.vpn.L2TP;
+import org.jnetpcap.protocol.wan.PPP;
 
 /**
  * Enum table of core protocols supported by the scanner.

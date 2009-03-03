@@ -16,16 +16,15 @@ import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.List;
 
+import org.jnetpcap.analysis.AbstractSequencer;
 import org.jnetpcap.analysis.AnalysisInfo;
 import org.jnetpcap.analysis.AnalyzerListener;
 import org.jnetpcap.analysis.FragmentSequence;
 import org.jnetpcap.analysis.FragmentSequenceEvent;
 import org.jnetpcap.analysis.JAnalysis;
-import org.jnetpcap.analysis.tcpip.AbstractSequencer;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
-import org.jnetpcap.packet.header.Ip4;
-import org.jnetpcap.packet.header.Tcp;
+import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.util.JThreadLocal;
 
 /**

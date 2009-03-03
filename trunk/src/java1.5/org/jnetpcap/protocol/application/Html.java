@@ -10,42 +10,59 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.packet.header;
+package org.jnetpcap.protocol.application;
 
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JHeader;
+import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.packet.annotate.Bind;
 import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
-import org.jnetpcap.protocol.JProtocol;
+import org.jnetpcap.protocol.tcpip.Http;
+import org.jnetpcap.util.JThreadLocal;
 
 /**
- * Builtin header type that is a catch all for all unmatch data within a packet
- * buffer
- * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@Header(nicname = "Data")
-public class Payload
+@Header(nicname = "Html")
+public class Html
     extends JHeader {
-	
+
 	@HeaderLength
 	public static int headerLength(JBuffer buffer, int offset) {
 		return buffer.size() - offset;
 	}
 
-	public final static int ID = JProtocol.PAYLOAD.getId();
-	
-	@Dynamic(Field.Property.LENGTH) 
-	public int dataLength() {
-		return size() * 8;
-	}
-	
-	@Field(offset = 0, format="#hexdump#")
-	public byte[] data() {
-		return super.getByteArray(0, size());
+	@Bind(to = Http.class, stringValue = "text/html")
+	public static boolean bind2Http(JPacket packet, Http http) {
+		return http.hasContentType() && http.contentType().startsWith("text/html;");
 	}
 
+	private final JThreadLocal<StringBuilder> stringLocal =
+	    new JThreadLocal<StringBuilder>(StringBuilder.class);
+
+	private String page;
+
+	@Dynamic(Field.Property.LENGTH)
+	public int pageLength() {
+		return size() * 8;
+	}
+
+	@Field(offset = 0, format = "#textdump#")
+	public String page() {
+		return this.page;
+	}
+
+	@Override
+	protected void decodeHeader() {
+		final StringBuilder buf = stringLocal.get();
+		buf.setLength(0);
+
+		super.getUTF8String(0, buf, size());
+
+		this.page = buf.toString();
+	}
 }

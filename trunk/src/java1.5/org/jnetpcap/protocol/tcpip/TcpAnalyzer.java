@@ -21,11 +21,9 @@ import org.jnetpcap.analysis.AnalyzerListener;
 import org.jnetpcap.analysis.AnalyzerSupport;
 import org.jnetpcap.analysis.JAnalyzer;
 import org.jnetpcap.analysis.JController;
-import org.jnetpcap.analysis.tcpip.InvalidStreamHashcode;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
-import org.jnetpcap.packet.header.Ip4;
-import org.jnetpcap.packet.header.Tcp;
+import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.protocol.tcpip.TcpDuplexStream.Direction;
 import org.jnetpcap.util.JThreadLocal;
 
@@ -203,7 +201,7 @@ public class TcpAnalyzer
 	 * @see org.jnetpcap.analysis.AbstractAnalyzer#processPacket(org.jnetpcap.packet.JPacket)
 	 */
 	@Override
-	public boolean processPacket(JPacket packet) throws InvalidStreamHashcode {
+	public boolean processPacket(JPacket packet) throws TcpInvalidStreamHashcode {
 		Tcp tcp = tcp1Local.get();
 		Ip4 ip4 = ip1Local.get();
 
@@ -217,10 +215,10 @@ public class TcpAnalyzer
 	/**
 	 * @param packet
 	 * @param tcp
-	 * @throws InvalidStreamHashcode
+	 * @throws TcpInvalidStreamHashcode
 	 */
 	private int processStream(JPacket packet, Tcp tcp, Ip4 ip4)
-	    throws InvalidStreamHashcode {
+	    throws TcpInvalidStreamHashcode {
 
 		/*
 		 * A duplex hashcode

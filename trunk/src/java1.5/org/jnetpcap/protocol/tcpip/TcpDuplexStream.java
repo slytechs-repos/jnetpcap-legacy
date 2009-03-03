@@ -16,9 +16,7 @@ import org.jnetpcap.analysis.AbstractAnalysis;
 import org.jnetpcap.analysis.AnalyzerSupport;
 import org.jnetpcap.analysis.JAnalysis;
 import org.jnetpcap.analysis.JAnalyzer;
-import org.jnetpcap.analysis.tcpip.InvalidStreamHashcode;
 import org.jnetpcap.nio.JMemory;
-import org.jnetpcap.packet.header.Tcp;
 import org.jnetpcap.protocol.tcpip.TcpAnalyzer.Stage;
 
 /**
@@ -169,7 +167,7 @@ public class TcpDuplexStream
 
 	}
 
-	public TcpStream getForward(int uniHash) throws InvalidStreamHashcode {
+	public TcpStream getForward(int uniHash) throws TcpInvalidStreamHashcode {
 		TcpStream stream = getClientStream();
 		if (stream.hashCode() == uniHash) {
 			return stream;
@@ -178,7 +176,7 @@ public class TcpDuplexStream
 			return stream;
 
 		} else {
-			throw new InvalidStreamHashcode();
+			throw new TcpInvalidStreamHashcode();
 		}
 	}
 
@@ -190,7 +188,7 @@ public class TcpDuplexStream
 		}
 	}
 
-	public TcpStream getReverse(int uniHash) throws InvalidStreamHashcode {
+	public TcpStream getReverse(int uniHash) throws TcpInvalidStreamHashcode {
 		final TcpStream stream = getClientStream();
 		if (stream.hashCode() == uniHash) {
 			return getServerStream();
@@ -199,7 +197,7 @@ public class TcpDuplexStream
 			return stream;
 
 		} else {
-			throw new InvalidStreamHashcode();
+			throw new TcpInvalidStreamHashcode();
 		}
 	}
 
