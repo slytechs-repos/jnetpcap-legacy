@@ -10,7 +10,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.packet.header;
+package org.jnetpcap.protocol.tcpip;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -23,6 +23,7 @@ import org.jnetpcap.packet.annotate.FlowKey;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.protocol.JProtocol;
+import org.jnetpcap.protocol.network.Ip4;
 
 /**
  * Tcp/Ip header definition

@@ -13,15 +13,14 @@
 package org.jnetpcap.protocol.tcpip;
 
 import org.jnetpcap.analysis.AbstractAnalyzer;
+import org.jnetpcap.analysis.AnalysisException;
 import org.jnetpcap.analysis.AnalyzerListener;
 import org.jnetpcap.analysis.FragmentAssemblyEvent;
 import org.jnetpcap.analysis.FragmentAssembly;
 import org.jnetpcap.analysis.JController;
 import org.jnetpcap.analysis.ProtocolSupport;
-import org.jnetpcap.analysis.tcpip.AnalysisException;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
-import org.jnetpcap.packet.header.Tcp;
 import org.jnetpcap.protocol.tcpip.Http.Response;
 import org.jnetpcap.util.JThreadLocal;
 

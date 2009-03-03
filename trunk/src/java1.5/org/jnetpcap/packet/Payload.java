@@ -10,44 +10,41 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.packet.header;
+package org.jnetpcap.packet;
 
-import org.jnetpcap.PcapDLT;
-import org.jnetpcap.packet.JHeader;
+import org.jnetpcap.nio.JBuffer;
+import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
+import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.protocol.JProtocol;
 
 /**
- * Point to Point Protocol header definition
+ * Builtin header type that is a catch all for all unmatch data within a packet
+ * buffer
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@Header(length = 5, dlt = PcapDLT.PPP)
-public class PPP
+@Header(nicname = "Data")
+public class Payload
     extends JHeader {
-
-	public static final int ID = JProtocol.PPP_ID;
 	
-	@Field(offset = 0, length = 8) 
-	public int flags() {
-		return getUByte(0);
+	@HeaderLength
+	public static int headerLength(JBuffer buffer, int offset) {
+		return buffer.size() - offset;
 	}
 
-	@Field(offset = 8, length = 8)
-	public int address() {
-		return getUByte(1);
+	public final static int ID = JProtocol.PAYLOAD.getId();
+	
+	@Dynamic(Field.Property.LENGTH) 
+	public int dataLength() {
+		return size() * 8;
 	}
-
-	@Field(offset = 16, length = 8)
-	public int control() {
-		return getUByte(2);
-	}
-
-	@Field(offset = 24, length = 16)
-	public int protocol() {
-		return getUShort(3);
+	
+	@Field(offset = 0, format="#hexdump#")
+	public byte[] data() {
+		return super.getByteArray(0, size());
 	}
 
 }

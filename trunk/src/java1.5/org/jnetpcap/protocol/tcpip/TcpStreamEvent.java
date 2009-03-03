@@ -15,7 +15,6 @@ package org.jnetpcap.protocol.tcpip;
 import org.jnetpcap.analysis.AbstractAnalyzerEvent;
 import org.jnetpcap.analysis.AnalyzerEvent.AnalyzerEventType;
 import org.jnetpcap.packet.JPacket;
-import org.jnetpcap.packet.header.Tcp;
 
 /**
  * @author Mark Bednarczyk

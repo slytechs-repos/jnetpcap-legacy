@@ -10,58 +10,49 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.packet.header;
+package org.jnetpcap.protocol.lan;
 
-import org.jnetpcap.PcapDLT;
 import org.jnetpcap.packet.JHeader;
+import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.protocol.JProtocol;
 
 /**
- * IEEE 802.3 data link header definition
+ * IEEE Vlan header definition
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@Header(length = 14, dlt = PcapDLT.IEEE802)
-public class IEEE802dot3
+@Header(length = 4, nicname = "vlan")
+public class IEEE802dot1q
     extends JHeader {
 
-	public static final int ID = JProtocol.IEEE_802DOT3_ID;
+	public static final int ID = JProtocol.IEEE_802DOT1Q_ID;
 
-	@Field(offset = 0, length = 48, format = "#mac#")
-	public byte[] destination() {
-		return getByteArray(0, 6);
+
+	@Field(offset = 0, length = 3, format = "%d")
+	public int priority() {
+		return (getUByte(0) & 0xE0) >> 5;
 	}
 
-	public byte[] destinationToByteArray(byte[] array) {
-		return getByteArray(0, array);
+	@Field(offset = 3, length = 1, format = "%x")
+	public int cfi() {
+		return (getUByte(0) & 0x10) >> 4;
 	}
 
-	public void destination(byte[] array) {
-		setByteArray(0, array);
+	@Field(offset = 4, length = 12, format = "%x")
+	public int id() {
+		return getUShort(0) & 0x0FFF;
+	}
+	
+	@Dynamic(Field.Property.DESCRIPTION)
+	public String typeDescription() {
+		return Ethernet.EthernetType.toString(type());
 	}
 
-	@Field(offset = 48, length = 48, format = "#mac#")
-	public byte[] source() {
-		return getByteArray(0 + 6, 6);
-	}
-
-	public void source(byte[] array) {
-		setByteArray(0 + 6, array);
-	}
-
-	public byte[] sourceToByteArray(byte[] array) {
-		return getByteArray(0 + 6, array);
-	}
-
-	@Field(offset = 96, length = 16, format = "%d")
-	public int length() {
-		return getUShort(0 + 12);
-	}
-
-	public void length(int len) {
-		setUShort(0 + 12, len);
+	@Field(offset = 16, length = 16, format = "%x")
+	public int type() {
+		return getUShort(2);
 	}
 }

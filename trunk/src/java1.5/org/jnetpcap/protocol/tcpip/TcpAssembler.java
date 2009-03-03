@@ -13,6 +13,7 @@
 package org.jnetpcap.protocol.tcpip;
 
 import org.jnetpcap.analysis.AbstractAnalyzer;
+import org.jnetpcap.analysis.AnalysisException;
 import org.jnetpcap.analysis.AnalyzerListener;
 import org.jnetpcap.analysis.AnalyzerSupport;
 import org.jnetpcap.analysis.FragmentAssembly;
@@ -20,15 +21,13 @@ import org.jnetpcap.analysis.FragmentAssembler;
 import org.jnetpcap.analysis.FragmentAssemblyEvent;
 import org.jnetpcap.analysis.FragmentSequence;
 import org.jnetpcap.analysis.FragmentSequenceEvent;
-import org.jnetpcap.analysis.tcpip.AnalysisException;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.nio.JMemoryPool;
 import org.jnetpcap.packet.JMemoryPacket;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
-import org.jnetpcap.packet.header.Ip4;
-import org.jnetpcap.packet.header.Tcp;
+import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.util.JThreadLocal;
 
 /**

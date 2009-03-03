@@ -17,7 +17,6 @@ import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.annotate.Bind;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
-import org.jnetpcap.packet.header.Tcp;
 import org.jnetpcap.protocol.JProtocol.Suite;
 
 /**
