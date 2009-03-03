@@ -14,9 +14,8 @@ package org.jnetpcap.analysis;
 
 import java.util.Queue;
 
-import org.jnetpcap.analysis.tcpip.AnalysisException;
-import org.jnetpcap.analysis.tcpip.InvalidStreamHashcode;
 import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.protocol.tcpip.TcpInvalidStreamHashcode;
 import org.jnetpcap.util.TimeoutQueue;
 
 /**
@@ -67,7 +66,7 @@ public abstract class AbstractAnalyzer implements JAnalyzer {
 
 	/**
 	 * @param packet
-	 * @throws InvalidStreamHashcode
+	 * @throws TcpInvalidStreamHashcode
 	 */
 	public abstract boolean processPacket(JPacket packet)
 	    throws AnalysisException;

@@ -24,7 +24,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.jnetpcap.Pcap;
-import org.jnetpcap.analysis.tcpip.AnalysisException;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JPacketHandler;
 import org.jnetpcap.packet.JRegistry;
