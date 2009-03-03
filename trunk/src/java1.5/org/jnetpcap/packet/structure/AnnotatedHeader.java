@@ -23,6 +23,7 @@ import java.util.Map;
 import org.jnetpcap.PcapDLT;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JSubHeader;
+import org.jnetpcap.packet.JProtocol.JProtocolSuite;
 import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FieldSetter;
@@ -445,6 +446,10 @@ public class AnnotatedHeader {
 		return annotation.dlt();
 	}
 
+	public JProtocolSuite getSuite() {
+		return annotation.suite();
+	}
+	
 	public final String getNicname() {
 		return this.nicname;
 	}
