@@ -10,16 +10,17 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.analysis.tcpip;
+package org.jnetpcap.protocol.tcpip;
 
 import org.jnetpcap.analysis.AbstractAnalyzer;
 import org.jnetpcap.analysis.AnalyzerListener;
 import org.jnetpcap.analysis.AnalyzerSupport;
-import org.jnetpcap.analysis.FragmentReassembly;
+import org.jnetpcap.analysis.FragmentAssembly;
 import org.jnetpcap.analysis.FragmentAssembler;
-import org.jnetpcap.analysis.FragmentReassemblyEvent;
+import org.jnetpcap.analysis.FragmentAssemblyEvent;
 import org.jnetpcap.analysis.FragmentSequence;
 import org.jnetpcap.analysis.FragmentSequenceEvent;
+import org.jnetpcap.analysis.tcpip.AnalysisException;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.nio.JMemoryPool;
@@ -38,8 +39,8 @@ public class TcpAssembler
     extends AbstractAnalyzer implements FragmentAssembler,
     AnalyzerListener<FragmentSequenceEvent> {
 
-	private final AnalyzerSupport<FragmentReassemblyEvent> support =
-	    new AnalyzerSupport<FragmentReassemblyEvent>();
+	private final AnalyzerSupport<FragmentAssemblyEvent> support =
+	    new AnalyzerSupport<FragmentAssemblyEvent>();
 
 	/**
 	 * 
@@ -69,7 +70,7 @@ public class TcpAssembler
 	 *      java.lang.Object)
 	 */
 	public <U> boolean addReassemblyListener(
-	    AnalyzerListener<FragmentReassemblyEvent> listener,
+	    AnalyzerListener<FragmentAssemblyEvent> listener,
 	    U user) {
 		return this.support.addListener(listener, user);
 	}
@@ -89,7 +90,7 @@ public class TcpAssembler
 
 			JPacket packet = reassemble(sequence);
 
-			FragmentReassembly assembly = new FragmentReassembly(packet, sequence);
+			FragmentAssembly assembly = new FragmentAssembly(packet, sequence);
 
 			JPacket first = sequence.getPacketSequence().get(0); // 1st packet
 			Tcp tcp = tcpLocal.get();
@@ -97,7 +98,7 @@ public class TcpAssembler
 				tcp.addAnalysis(assembly);
 			}
 
-			support.fire(FragmentReassemblyEvent.createCompletePdu(this, assembly));
+			support.fire(FragmentAssemblyEvent.createCompletePdu(this, assembly));
 
 			release();
 		} else if (evt.getType() == FragmentSequenceEvent.Type.SEQUENCE_START) {
@@ -156,7 +157,7 @@ public class TcpAssembler
 	 * @see org.jnetpcap.analysis.AnalyzerSupport#removeListener(org.jnetpcap.analysis.AnalyzerListener)
 	 */
 	public boolean removeReassemblyListener(
-	    AnalyzerListener<FragmentReassemblyEvent> listener) {
+	    AnalyzerListener<FragmentAssemblyEvent> listener) {
 		return this.support.removeListener(listener);
 	}
 

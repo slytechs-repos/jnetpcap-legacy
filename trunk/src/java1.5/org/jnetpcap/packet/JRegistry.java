@@ -13,14 +13,15 @@ import org.jnetpcap.analysis.JAnalyzer;
 import org.jnetpcap.analysis.JController;
 import org.jnetpcap.analysis.tcpip.Ip4Sequencer;
 import org.jnetpcap.analysis.tcpip.Ip4Assembler;
-import org.jnetpcap.analysis.tcpip.TcpAnalyzer;
-import org.jnetpcap.analysis.tcpip.TcpSequencer;
-import org.jnetpcap.analysis.tcpip.TcpAssembler;
-import org.jnetpcap.analysis.tcpip.http.HttpAnalyzer;
 import org.jnetpcap.packet.structure.AnnotatedBinding;
 import org.jnetpcap.packet.structure.AnnotatedHeader;
 import org.jnetpcap.packet.structure.AnnotatedScannerMethod;
 import org.jnetpcap.packet.structure.HeaderDefinitionError;
+import org.jnetpcap.protocol.JProtocol;
+import org.jnetpcap.protocol.tcpip.HttpAnalyzer;
+import org.jnetpcap.protocol.tcpip.TcpAnalyzer;
+import org.jnetpcap.protocol.tcpip.TcpAssembler;
+import org.jnetpcap.protocol.tcpip.TcpSequencer;
 import org.jnetpcap.util.resolver.Resolver;
 import org.jnetpcap.util.resolver.Resolver.ResolverType;
 
@@ -167,6 +168,8 @@ public final class JRegistry {
 	 * </ul>
 	 */
 	static {
+		
+		analyzers = new HashMap<Class<?>, JAnalyzer>();
 
 		/**
 		 * Initialized DLT to ID mappings
@@ -208,8 +211,6 @@ public final class JRegistry {
 				}
 			}
 		}
-		
-		analyzers = new HashMap<Class<?>, JAnalyzer>();
 
 		/**
 		 * Register core analyzer: JController

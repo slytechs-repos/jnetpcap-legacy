@@ -20,6 +20,8 @@ import java.lang.annotation.Target;
 
 import org.jnetpcap.PcapDLT;
 import org.jnetpcap.packet.JHeader;
+import org.jnetpcap.protocol.JProtocol;
+import org.jnetpcap.protocol.JProtocol.JProtocolSuite;
 
 /**
  * @author Mark Bednarczyk
@@ -43,6 +45,7 @@ public @interface Header {
 	public enum Characteristic {
 		NULL,
 		POINT_TO_POINT,
+		POINT_TO_MULTIPOINT,
 		CSMA_CD,
 
 	}
@@ -62,6 +65,8 @@ public @interface Header {
 	String name() default "";
 	
 	String nicname() default "";
+	
+	JProtocol.Suite suite() default JProtocol.Suite.OTHER;
 	
 	Layer osi() default Layer.NULL;
 	

@@ -12,6 +12,8 @@
  */
 package org.jnetpcap.packet;
 
+import org.jnetpcap.protocol.JProtocol;
+
 /**
  * A thread local pool of instances of headers. The header pool keeps track of
  * instances of headers it allocates based on protocol and thread IDs. The class

@@ -20,6 +20,7 @@ import java.util.List;
 import org.jnetpcap.nio.JFunction;
 import org.jnetpcap.packet.structure.AnnotatedHeaderLengthMethod;
 import org.jnetpcap.packet.structure.AnnotatedScannerMethod;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * A header scanner, there is one per header, that is able to scan raw memory

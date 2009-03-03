@@ -16,7 +16,6 @@ import java.util.List;
 
 import org.jnetpcap.PcapDLT;
 import org.jnetpcap.packet.JHeader;
-import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FlowKey;
@@ -25,6 +24,7 @@ import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.Header.Characteristic;
 import org.jnetpcap.packet.annotate.Header.Layer;
 import org.jnetpcap.packet.structure.JField;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * Ethernet2 definition. Datalink layer ethernet frame definition.

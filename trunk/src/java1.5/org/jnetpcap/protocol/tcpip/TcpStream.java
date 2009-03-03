@@ -10,7 +10,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.analysis.tcpip;
+package org.jnetpcap.protocol.tcpip;
 
 import java.util.Comparator;
 import java.util.Queue;
@@ -19,10 +19,10 @@ import java.util.concurrent.PriorityBlockingQueue;
 import org.jnetpcap.analysis.AbstractAnalysis;
 import org.jnetpcap.analysis.AnalyzerSupport;
 import org.jnetpcap.analysis.JAnalysis;
-import org.jnetpcap.analysis.tcpip.TcpDuplexStream.Direction;
 import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.header.Tcp;
+import org.jnetpcap.protocol.tcpip.TcpDuplexStream.Direction;
 import org.jnetpcap.util.JThreadLocal;
 import org.jnetpcap.util.Timeout;
 

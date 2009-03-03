@@ -23,12 +23,12 @@ import java.util.Map;
 import org.jnetpcap.PcapDLT;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JSubHeader;
-import org.jnetpcap.packet.JProtocol.JProtocolSuite;
 import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FieldSetter;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.Field.Property;
+import org.jnetpcap.protocol.JProtocol.JProtocolSuite;
 
 /**
  * @author Mark Bednarczyk

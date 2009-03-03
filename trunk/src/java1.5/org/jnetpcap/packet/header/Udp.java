@@ -13,10 +13,10 @@
 package org.jnetpcap.packet.header;
 
 import org.jnetpcap.packet.JHeader;
-import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FlowKey;
 import org.jnetpcap.packet.annotate.Header;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * Udp/Ip header definition

@@ -10,10 +10,11 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.packet;
+package org.jnetpcap.protocol;
 
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapDLT;
+import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.header.Ethernet;
 import org.jnetpcap.packet.header.IEEE802dot1q;
 import org.jnetpcap.packet.header.IEEE802dot2;
@@ -100,6 +101,45 @@ public enum JProtocol {
 	 * Internet Control Message Protocol header
 	 */
 	ICMP(Icmp.class), ;
+
+	/**
+	 * A protocol suite.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public interface JProtocolSuite {
+		public String name();
+	}
+
+	/**
+	 * Standard protocol suite names.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public enum Suite implements JProtocolSuite {
+		TCP_IP,
+		SECURITY,
+		VPN,
+		MOBILE,
+		WIRELESS,
+		VOIP,
+		LAN,
+		MAN,
+		WAN,
+		SAN,
+		ISO,
+		SS7,
+		CISCO,
+		IBM,
+		MICROSOFT,
+		NOVELL,
+		APPLE,
+		HP,
+		SUN,
+		OTHER,
+	}
 
 	/**
 	 * Unique ID of this protocol

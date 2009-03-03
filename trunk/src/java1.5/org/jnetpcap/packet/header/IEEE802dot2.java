@@ -14,11 +14,11 @@ package org.jnetpcap.packet.header;
 
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JHeader;
-import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * IEEE LLC2 header definition

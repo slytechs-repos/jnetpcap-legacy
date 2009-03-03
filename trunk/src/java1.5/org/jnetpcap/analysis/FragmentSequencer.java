@@ -20,7 +20,7 @@ public interface FragmentSequencer extends JAnalyzer {
    * The default timeout interval in millis for a fragment sequence completion.
    */
   public static final int DEFAULT_FRAGMENT_TIMEOUT = 60 * 1000;
-	public final FragmentReassembly reassembly = new FragmentReassembly();
+	public final FragmentAssembly reassembly = new FragmentAssembly();
 
 	/**
 	 * Signal to analyzer that this fragment sequence has expired

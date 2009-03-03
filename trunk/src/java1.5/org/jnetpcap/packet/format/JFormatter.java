@@ -20,10 +20,10 @@ import org.jnetpcap.analysis.JAnalysis;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JHeaderPool;
 import org.jnetpcap.packet.JPacket;
-import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.UnregisteredHeaderException;
 import org.jnetpcap.packet.structure.JField;
+import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.util.resolver.Resolver;
 import org.jnetpcap.util.resolver.Resolver.ResolverType;
 

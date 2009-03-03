@@ -86,7 +86,10 @@ public abstract class AbstractSequencer
 		}
 
 		return sequence;
-
+	}
+	
+	protected void removeSequence(int hash) {
+		fragmentation.remove(hash);
 	}
 
 	public boolean addFragmentationListener(

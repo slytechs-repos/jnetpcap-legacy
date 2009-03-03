@@ -155,6 +155,18 @@ public abstract class JPacket
 		 */
 		public native JAnalysis getAnalysis();
 
+		/**
+		 * Retrieves the analysis object htat is attached to the header at index.
+		 * This method provides a way to retrive analysis object directly from a
+		 * header without having to have a reference to the header, only its index
+		 * in the packet state table of headers.
+		 * 
+		 * @param index
+		 *          index of the header within the packet state structure
+		 * @return attached analysis object or null if none are attached
+		 */
+		public native JAnalysis getAnalysis(int index);
+
 		public JFlowKey getFlowKey() {
 			return this.flowKey;
 		}
@@ -490,6 +502,21 @@ public abstract class JPacket
 
 	public <T extends JAnalysis> T getAnalysis(T analysis) {
 		return this.state.getAnalysis().getAnalysis(analysis);
+	}
+
+	public <T extends JAnalysis> T getAnalysis(int id, T analysis) {
+		return getAnalysis(id, 0, analysis);
+	}
+
+	public <T extends JAnalysis> T getAnalysis(int id, int instance, T analysis) {
+		int index = state.findHeaderIndex(id, instance);
+		return this.state.getAnalysis(index).getAnalysis(analysis);
+	}
+
+	public <T extends JAnalysis> T getAnalysis(
+	    Class<? extends JHeader> c,
+	    T analysis) {
+		return getAnalysis(JRegistry.lookupId(c), 0, analysis);
 	}
 
 	/**

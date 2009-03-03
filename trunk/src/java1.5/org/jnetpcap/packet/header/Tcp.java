@@ -17,12 +17,12 @@ import java.util.Set;
 
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JHeader;
-import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.annotate.BindingVariable;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FlowKey;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * Tcp/Ip header definition
@@ -34,6 +34,49 @@ import org.jnetpcap.packet.annotate.HeaderLength;
 @SuppressWarnings("unused")
 public class Tcp
     extends JHeader {
+
+	/**
+	 * Constants for each TCP flag
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public enum Flag {
+		FIN,
+		SYN,
+		RST,
+		PSH,
+		ACK,
+		URG, 
+		ECE,
+		CWR,
+		;
+		public static Set<Flag> asSet(int flags) {
+			Set<Flag> set = EnumSet.noneOf(Tcp.Flag.class);
+			final int len = values().length;
+
+			for (int i = 0; i < len; i++) {
+				if ((flags & (1 << i)) > 0) {
+					set.add(values()[i]);
+				}
+			}
+
+			return set;
+		}
+
+		public static String toCompactString(int flags) {
+			return toCompactString(asSet(flags));
+		}
+
+		public static String toCompactString(Set<Flag> flags) {
+			StringBuilder b = new StringBuilder(values().length);
+			for (Flag f : flags) {
+				b.append(f.name().charAt(0));
+			}
+
+			return b.toString();
+		}
+	}
 
 	private static final int FLAG_ACK = 0x10;
 
@@ -63,11 +106,19 @@ public class Tcp
 		return hlen * 4;
 	}
 
-	private int hash;
+	/**
+	 * Hashcode computed
+	 */
+	private int biDirectionalHashcode;
 
 	private Ip4 ip = new Ip4();
 
-	private int uniHash;
+	/**
+	 * Computed in decodeHeader. The hashcode is made up of IP address and port
+	 * number using only the destination addresses. This creates a hashcode that
+	 * is unique in a single direction.
+	 */
+	private int uniDirectionalHashcode;
 
 	@Field(offset = 8 * 8, length = 16, format = "%x")
 	public long ack() {
@@ -104,14 +155,14 @@ public class Tcp
 		 * Generate a bi-directional hashcode
 		 */
 		if (getPacket() != null && getPacket().hasHeader(ip)) {
-			this.hash =
+			this.biDirectionalHashcode =
 			    (ip.destinationToInt() + destination())
 			        ^ (ip.sourceToInt() + source());
-			
-			this.uniHash = (ip.destinationToInt() + destination());
-			
+
+			this.uniDirectionalHashcode = (ip.destinationToInt() + destination());
+
 		} else {
-			this.hash = super.hashCode();
+			this.biDirectionalHashcode = super.hashCode();
 		}
 	}
 
@@ -123,8 +174,8 @@ public class Tcp
 	}
 
 	public void destination(int dst) {
-  	super.setUShort(2, dst);
-  }
+		super.setUShort(2, dst);
+	}
 
 	@Field(offset = 13 * 8, length = 8, format = "%x")
 	public int flags() {
@@ -216,6 +267,17 @@ public class Tcp
 		setFlag(flag, FLAG_URG);
 	}
 
+	public String flagsCompactString() {
+		return Flag.toCompactString(flags());
+	}
+
+	/**
+	 * @return
+	 */
+	public Set<Flag> flagsEnum() {
+		return Flag.asSet(flags());
+	}
+
 	/**
 	 * Calculates the length of the TCP payload.
 	 * 
@@ -226,13 +288,18 @@ public class Tcp
 		return ip.length() - ip.hlen() * 4 - hlen() * 4;
 	}
 
+	/**
+	 * Returns a bi-directional hashcode for this header. The hashcode is made up
+	 * of IP source, IP destination, Tcp source and destination port numbers. It
+	 * is created in a such a way that packet's source and destination fields are
+	 * interchangable and will generate the same hashcode.
+	 * 
+	 * @return bi-directional hashcode for this TCP/IP header combination
+	 * @see #uniHashCode()
+	 */
 	@Override
 	public int hashCode() {
-		return this.hash;
-	}
-	
-	public int uniHashCode() {
-		return this.uniHash;
+		return this.biDirectionalHashcode;
 	}
 
 	@Field(offset = 12 * 8, length = 4)
@@ -259,11 +326,11 @@ public class Tcp
 	}
 
 	/**
-   * @param seq
-   */
-  public void seq(long seq) {
-  	super.setUInt(4, seq);
-  }
+	 * @param seq
+	 */
+	public void seq(long seq) {
+		super.setUInt(4, seq);
+	}
 
 	private void setFlag(boolean state, int flag) {
 		if (state) {
@@ -285,8 +352,19 @@ public class Tcp
 	}
 
 	public void source(int src) {
-  	super.setUShort(0, src);
-  }
+		super.setUShort(0, src);
+	}
+
+	/**
+	 * Uni-directional hashcode. A hashcode that is computed based on IP
+	 * destination and TCP destination port. This make the hashcode uni-direction
+	 * in the direction from source to destination.
+	 * 
+	 * @return a hashcode that is uni-directional
+	 */
+	public int uniHashCode() {
+		return this.uniDirectionalHashcode;
+	}
 
 	@Field(offset = 18 * 8, length = 16)
 	public int urgent() {
@@ -299,72 +377,17 @@ public class Tcp
 	public void urgent(int urg) {
 		super.setUShort(18, urg);
 	}
-  
-  @Field(offset = 14 * 8, length = 16)
+
+	@Field(offset = 14 * 8, length = 16)
 	public int window() {
 		return getUShort(14);
 	}
-  
-  public void window(int win) {
-  	super.setUShort(14, win);
-  }
-  
-  public int windowScaled() {
+
+	public void window(int win) {
+		super.setUShort(14, win);
+	}
+
+	public int windowScaled() {
 		return window() << 6;
 	}
-  
-  /**
-   * Constants for each TCP flag
-   * @author Mark Bednarczyk
-   * @author Sly Technologies, Inc.
-   *
-   */
-  public enum Flag {
-  	FIN,
-  	SYN,
-  	RST,
-  	PSH,
-  	ACK,
-  	URG,
-  	ECE,
-  	CWR,
-  	;
-  	public static Set<Flag> asSet(int flags) {
-    	Set<Flag> set = EnumSet.noneOf(Tcp.Flag.class);
-  		final int len = values().length;
-  		
-  		for (int i = 0; i < len; i ++) {
-  			if ((flags & (1 << i)) > 0) {
-  				set.add(values()[i]);
-  			}
-  		}
-  		
-  		return set;
-  	}
-  	
-  	public static String toCompactString(int flags) {
-  		return toCompactString(asSet(flags));
-  	}
-
-  	
-  	public static String toCompactString(Set<Flag> flags) {
-  		StringBuilder b = new StringBuilder(values().length);
-  		for (Flag f: flags) {
-  			b.append(f.name().charAt(0));
-  		}
-  		
-  		return b.toString();
-  	}
-  }
-
-	/**
-   * @return
-   */
-  public Set<Flag> flagsEnum() {
-  	return Flag.asSet(flags());
-  }
-
-  public String flagsCompactString() {
-  	return Flag.toCompactString(flags());
-  }
 }
