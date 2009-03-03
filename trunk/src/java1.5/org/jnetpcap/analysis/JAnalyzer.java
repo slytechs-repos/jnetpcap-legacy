@@ -19,7 +19,6 @@ package org.jnetpcap.analysis;
 
 import java.util.Queue;
 
-import org.jnetpcap.analysis.tcpip.AnalysisException;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.util.TimeoutQueue;
 

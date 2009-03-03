@@ -10,20 +10,14 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.analysis.tcpip;
+package org.jnetpcap.analysis;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import org.jnetpcap.analysis.AbstractAnalyzer;
-import org.jnetpcap.analysis.AnalyzerListener;
-import org.jnetpcap.analysis.AnalyzerSupport;
-import org.jnetpcap.analysis.FragmentSequence;
-import org.jnetpcap.analysis.FragmentSequencer;
-import org.jnetpcap.analysis.FragmentSequenceEvent;
-import org.jnetpcap.analysis.JAnalyzer;
 import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.protocol.network.Ip4Sequencer;
 import org.jnetpcap.util.JLogger;
 
 /**
