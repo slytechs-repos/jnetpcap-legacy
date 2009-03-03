@@ -19,6 +19,8 @@ import java.util.Formatter;
 import org.jnetpcap.analysis.JAnalysis;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.packet.JProtocol;
+import org.jnetpcap.packet.JProtocol.JProtocolSuite;
 import org.jnetpcap.packet.structure.JField;
 
 /**
@@ -195,13 +197,20 @@ public class TextFormatter
 		incLevel(name);
 		incLevel(SEPARATOR);
 
+		JProtocolSuite suite = header.getAnnotatedHeader().getSuite();
+		String suiteStr = "";
+		if (suite != JProtocol.Suite.OTHER) {
+			suiteStr = "protocol suite=" + suite.name().replace('_', '/');
+		}
+
 		if (header.hasDescription()) {
-			pad().format(" ******* %s - \"%s\" - offset=%d (0x%X) length=%d",
+			pad().format(" ******* %s - \"%s\" - offset=%d (0x%X) length=%d %s",
 			    header.getName(), header.getDescription(), header.getOffset(),
-			    header.getOffset(), header.getLength());
+			    header.getOffset(), header.getLength(), suiteStr);
 		} else {
-			pad().format(" ******* %s offset=%d (0x%X) length=%d", header.getName(),
-			    header.getOffset(), header.getOffset(), header.getLength());
+			pad().format(" ******* %s offset=%d (0x%X) length=%d %s",
+			    header.getName(), header.getOffset(), header.getOffset(),
+			    header.getLength(), suiteStr);
 		}
 		pad();
 
