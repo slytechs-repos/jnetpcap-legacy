@@ -20,8 +20,7 @@ import java.lang.annotation.Target;
 
 import org.jnetpcap.PcapDLT;
 import org.jnetpcap.packet.JHeader;
-import org.jnetpcap.protocol.JProtocol;
-import org.jnetpcap.protocol.JProtocol.JProtocolSuite;
+import org.jnetpcap.protocol.JProtocol.Suite;
 
 /**
  * @author Mark Bednarczyk
@@ -66,7 +65,7 @@ public @interface Header {
 	
 	String nicname() default "";
 	
-	JProtocol.Suite suite() default JProtocol.Suite.OTHER;
+	ProtocolSuite suite() default ProtocolSuite.OTHER;
 	
 	Layer osi() default Layer.NULL;
 	

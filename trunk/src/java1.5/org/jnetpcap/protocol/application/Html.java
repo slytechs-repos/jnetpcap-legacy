@@ -20,6 +20,7 @@ import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
+import org.jnetpcap.packet.annotate.ProtocolSuite;
 import org.jnetpcap.protocol.tcpip.Http;
 import org.jnetpcap.util.JThreadLocal;
 
@@ -27,9 +28,10 @@ import org.jnetpcap.util.JThreadLocal;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@Header(nicname = "Html")
+@Header(nicname = "Html", suite = ProtocolSuite.APPLICATION)
 public class Html
-    extends JHeader {
+    extends
+    JHeader {
 
 	@HeaderLength
 	public static int headerLength(JBuffer buffer, int offset) {

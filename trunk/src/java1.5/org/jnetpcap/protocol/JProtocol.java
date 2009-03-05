@@ -108,37 +108,8 @@ public enum JProtocol {
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
-	public interface JProtocolSuite {
+	public interface Suite {
 		public String name();
-	}
-
-	/**
-	 * Standard protocol suite names.
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
-	 */
-	public enum Suite implements JProtocolSuite {
-		TCP_IP,
-		SECURITY,
-		VPN,
-		MOBILE,
-		WIRELESS,
-		VOIP,
-		LAN,
-		MAN,
-		WAN,
-		SAN,
-		ISO,
-		SS7,
-		CISCO,
-		IBM,
-		MICROSOFT,
-		NOVELL,
-		APPLE,
-		HP,
-		SUN,
-		OTHER,
 	}
 
 	/**

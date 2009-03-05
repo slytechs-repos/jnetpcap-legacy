@@ -17,13 +17,13 @@ import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.annotate.Bind;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
-import org.jnetpcap.protocol.JProtocol.Suite;
+import org.jnetpcap.packet.annotate.ProtocolSuite;
 
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@Header(suite=Suite.TCP_IP)
+@Header(suite=ProtocolSuite.TCP_IP)
 public class Http
     extends AbstractMessageHeader {
 

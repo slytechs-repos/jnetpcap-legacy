@@ -28,7 +28,7 @@ import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FieldSetter;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.Field.Property;
-import org.jnetpcap.protocol.JProtocol.JProtocolSuite;
+import org.jnetpcap.protocol.JProtocol.Suite;
 
 /**
  * @author Mark Bednarczyk
@@ -446,7 +446,7 @@ public class AnnotatedHeader {
 		return annotation.dlt();
 	}
 
-	public JProtocolSuite getSuite() {
+	public Suite getSuite() {
 		return annotation.suite();
 	}
 	
