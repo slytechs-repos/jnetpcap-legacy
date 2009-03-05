@@ -19,9 +19,9 @@ import java.util.Formatter;
 import org.jnetpcap.analysis.JAnalysis;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.packet.annotate.ProtocolSuite;
 import org.jnetpcap.packet.structure.JField;
-import org.jnetpcap.protocol.JProtocol;
-import org.jnetpcap.protocol.JProtocol.JProtocolSuite;
+import org.jnetpcap.protocol.JProtocol.Suite;
 
 /**
  * Formatter that formats packet content for human readable output. This class
@@ -197,9 +197,9 @@ public class TextFormatter
 		incLevel(name);
 		incLevel(SEPARATOR);
 
-		JProtocolSuite suite = header.getAnnotatedHeader().getSuite();
+		Suite suite = header.getAnnotatedHeader().getSuite();
 		String suiteStr = "";
-		if (suite != JProtocol.Suite.OTHER) {
+		if (suite != ProtocolSuite.OTHER) {
 			suiteStr = "protocol suite=" + suite.name().replace('_', '/');
 		}
 

@@ -29,6 +29,7 @@ import org.jnetpcap.packet.annotate.FieldSetter;
 import org.jnetpcap.packet.annotate.FlowKey;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
+import org.jnetpcap.packet.annotate.ProtocolSuite;
 import org.jnetpcap.packet.annotate.BindingVariable.MatchType;
 import org.jnetpcap.packet.annotate.Header.Layer;
 import org.jnetpcap.protocol.JProtocol;
@@ -41,9 +42,10 @@ import org.jnetpcap.protocol.lan.IEEESnap;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@Header(name = "Ip4", nicname = "Ip", osi = Layer.NETWORK, spec = "RFC792", description = "ip version 4")
+@Header(name = "Ip4", nicname = "Ip", osi = Layer.NETWORK, suite = ProtocolSuite.NETWORK, spec = "RFC792", description = "ip version 4")
 public class Ip4
-    extends JHeaderMap<Ip4> {
+    extends
+    JHeaderMap<Ip4> {
 
 	/**
 	 * Enum table for Ip4.flags field.
@@ -156,7 +158,8 @@ public class Ip4
 	 * @author Sly Technologies, Inc.
 	 */
 	public static abstract class IpOption
-	    extends JSubHeader<Ip4> {
+	    extends
+	    JSubHeader<Ip4> {
 
 		/**
 		 * A table of IpOption types and their names
@@ -376,7 +379,8 @@ public class Ip4
 	 */
 	@Header(id = 3)
 	public static class LooseSourceRoute
-	    extends Routing {
+	    extends
+	    Routing {
 	}
 
 	/**
@@ -387,7 +391,8 @@ public class Ip4
 	 */
 	@Header(id = 1)
 	public static class NoOp
-	    extends IpOption {
+	    extends
+	    IpOption {
 	}
 
 	/**
@@ -398,7 +403,8 @@ public class Ip4
 	 */
 	@Header(id = 7)
 	public static class RecordRoute
-	    extends Routing {
+	    extends
+	    Routing {
 	}
 
 	/**
@@ -408,7 +414,8 @@ public class Ip4
 	 * @author Sly Technologies, Inc.
 	 */
 	public static abstract class Routing
-	    extends IpOption {
+	    extends
+	    IpOption {
 
 		@FieldSetter
 		public void address(byte[][] values) {
@@ -480,7 +487,8 @@ public class Ip4
 	 */
 	@Header(id = 2)
 	public static class Security
-	    extends IpOption {
+	    extends
+	    IpOption {
 
 		/**
 		 * A table of security algorithm types
@@ -587,7 +595,8 @@ public class Ip4
 	 */
 	@Header(id = 8)
 	public static class StreamId
-	    extends IpOption {
+	    extends
+	    IpOption {
 
 		@Field(offset = 8, length = 8)
 		public int length() {
@@ -618,7 +627,8 @@ public class Ip4
 	 */
 	@Header(id = 9)
 	public static class StrictSourceRoute
-	    extends Routing {
+	    extends
+	    Routing {
 	};
 
 	/**
@@ -629,7 +639,8 @@ public class Ip4
 	 */
 	@Header(id = 4)
 	public static class Timestamp
-	    extends IpOption {
+	    extends
+	    IpOption {
 
 		@HeaderLength
 		public static int headerLength(JBuffer buffer, int offset) {
