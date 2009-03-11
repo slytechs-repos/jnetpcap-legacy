@@ -19,18 +19,38 @@ package org.jnetpcap.newstuff;
 
 import java.io.InputStream;
 
-import org.jnetpcap.analysis.tcpip.SlidingBuffer;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.packet.annotate.Bind;
+import org.jnetpcap.packet.annotate.Header;
+import org.jnetpcap.packet.annotate.HeaderLength;
+import org.jnetpcap.protocol.tcpip.Http;
+import org.jnetpcap.util.SlidingBuffer;
 
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  *
  */
+@Header
 public class Image
     extends JHeader {
+	
+	@HeaderLength
+	public static int headerLength(JBuffer buffer, int offset) {
+		return buffer.size() - offset;
+	}
+	
+	@Bind(to=Http.class)
+	public static boolean bind2Http(JPacket packet, Http http) {
+		Http.ContentType type = http.contentTypeEnum();
+		if (type == Http.ContentType.JPEG) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 	
 	public enum Type {
 		JPEG,

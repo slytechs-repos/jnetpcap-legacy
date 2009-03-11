@@ -14,7 +14,7 @@ package org.jnetpcap.examples.packet;
 
 import org.jnetpcap.packet.JMemoryPacket;
 import org.jnetpcap.packet.JPacket;
-import org.jnetpcap.packet.JProtocol;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * @author Mark Bednarczyk

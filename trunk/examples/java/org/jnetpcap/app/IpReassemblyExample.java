@@ -26,7 +26,7 @@ import org.jnetpcap.packet.JMemoryPacket;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.PcapPacketHandler;
-import org.jnetpcap.packet.header.Ip4;
+import org.jnetpcap.protocol.network.Ip4;
 
 /**
  * This is a demonstration application for reassembling IP fragments.

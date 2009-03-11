@@ -14,11 +14,11 @@ package org.jnetpcap.examples.packet;
 
 import org.jnetpcap.packet.JMemoryPacket;
 import org.jnetpcap.packet.JPacket;
-import org.jnetpcap.packet.header.Ethernet;
-import org.jnetpcap.packet.header.Icmp;
-import org.jnetpcap.packet.header.Ip4;
-import org.jnetpcap.packet.header.Tcp;
-import org.jnetpcap.packet.header.Udp;
+import org.jnetpcap.protocol.lan.Ethernet;
+import org.jnetpcap.protocol.network.Icmp;
+import org.jnetpcap.protocol.network.Ip4;
+import org.jnetpcap.protocol.tcpip.Tcp;
+import org.jnetpcap.protocol.tcpip.Udp;
 
 /**
  * @author Mark Bednarczyk

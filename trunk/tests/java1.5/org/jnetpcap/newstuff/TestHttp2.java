@@ -14,24 +14,29 @@ package org.jnetpcap.newstuff;
 
 import java.io.IOException;
 
-import org.jnetpcap.analysis.JController;
-import org.jnetpcap.analysis.tcpip.http.HttpAnalyzer;
-import org.jnetpcap.analysis.tcpip.http.HttpHandler;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.RegistryHeaderErrors;
 import org.jnetpcap.packet.TestUtils;
+import org.jnetpcap.packet.analysis.FragmentAssembly;
+import org.jnetpcap.packet.analysis.FragmentSequence;
+import org.jnetpcap.packet.analysis.JController;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
-import org.jnetpcap.packet.header.Html;
-import org.jnetpcap.packet.header.Http;
+import org.jnetpcap.protocol.application.Html;
+import org.jnetpcap.protocol.tcpip.Http;
+import org.jnetpcap.protocol.tcpip.HttpAnalyzer;
+import org.jnetpcap.protocol.tcpip.HttpHandler;
+import org.jnetpcap.protocol.tcpip.Tcp;
+import org.jnetpcap.protocol.tcpip.Http.ContentType;
 
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
 public class TestHttp2
-    extends TestUtils {
+    extends
+    TestUtils {
 
 	static {
 		try {
@@ -70,22 +75,35 @@ public class TestHttp2
 		out.format(packet);
 	}
 
-	public void test2() throws IOException {
+	public void test2() throws IOException, RegistryHeaderErrors {
+		final FragmentSequence seq = new FragmentSequence();
+		JRegistry.register(Image.class);
 
 		HttpAnalyzer httpAnalyzer = JRegistry.getAnalyzer(HttpAnalyzer.class);
 		httpAnalyzer.add(new HttpHandler() {
 
 			public void processHttp(Http http) {
-				try {
-					if (http.getMessageType() == null) {
-						return;
-					}
-					out.printf("\n\n#%d *** %s ***", http.getPacket().getFrameNumber(),
-					    http.getMessageType());
-					out.format(http);
+				if (http.getMessageType() != Http.MessageType.RESPONSE) {
+					return;
+				}
+				out.printf("\n\n#%d *** %s len=%s *** ", http.getPacket()
+				    .getFrameNumber(), http.getMessageType(), String.valueOf(http
+				    .fieldValue(Http.Response.Content_Length)), http.toString());
 
-				} catch (IOException e) {
-					e.printStackTrace();
+				ContentType type = http.contentTypeEnum();
+				if (type != ContentType.JPEG) {
+					return;
+				}
+
+				switch (type) {
+					case JPEG:
+						Image jpeg = http.getPacket().getHeader(new Image());
+						System.out.printf("\nJPEG reassembled lenth=%d\n", jpeg.size());
+						// printSequence(http.getPacket().getAnalysis(Tcp.ID, seq));
+						break;
+
+					default:
+						System.out.printf("Unknown content type %s\n", type);
 				}
 			}
 
@@ -94,8 +112,11 @@ public class TestHttp2
 		// JPacket packet = getPcapPacket(HTTP, 51);
 		// controller.nextPacket(packet, null);
 
-		super.openOffline(HTTP, JRegistry.getAnalyzer(JController.class));
+		openOffline(HTTP, JRegistry.getAnalyzer(JController.class));
 
 	}
 
+	private void printSequence(FragmentSequence seq) {
+		System.out.printf("seq=%s\n", seq.toString());
+	}
 }

@@ -26,6 +26,7 @@ import org.jnetpcap.PcapHeader;
 import org.jnetpcap.PcapTask;
 import org.jnetpcap.PcapUtils;
 import org.jnetpcap.nio.JBuffer;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * Various jUnit support utilities
@@ -340,12 +341,12 @@ public class TestUtils extends TestCase {
 		};
 	}
 	
-	public void openOffline(String file, JPacketHandler<Pcap> handler) {
+	public static void openOffline(String file, JPacketHandler<Pcap> handler) {
 		openOffline(file, handler, null);
 	}
 
 	
-	public void openOffline(String file, JPacketHandler<Pcap> handler, String filter) {
+	public static void openOffline(String file, JPacketHandler<Pcap> handler, String filter) {
 		StringBuilder errbuf = new StringBuilder();
 		
 		Pcap pcap;

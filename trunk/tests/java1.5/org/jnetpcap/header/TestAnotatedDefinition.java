@@ -21,7 +21,6 @@ import junit.framework.TestCase;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JPacket;
-import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.JSubHeader;
 import org.jnetpcap.packet.TestUtils;
 import org.jnetpcap.packet.annotate.Dynamic;
@@ -31,8 +30,6 @@ import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.packet.format.JFormatter.Detail;
-import org.jnetpcap.packet.header.Ethernet;
-import org.jnetpcap.packet.header.Ip4;
 import org.jnetpcap.packet.structure.AnnotatedBindMethod;
 import org.jnetpcap.packet.structure.AnnotatedBinding;
 import org.jnetpcap.packet.structure.AnnotatedField;
@@ -41,6 +38,9 @@ import org.jnetpcap.packet.structure.AnnotatedHeaderLengthMethod;
 import org.jnetpcap.packet.structure.DefaultField;
 import org.jnetpcap.packet.structure.HeaderDefinitionError;
 import org.jnetpcap.packet.structure.JField;
+import org.jnetpcap.protocol.JProtocol;
+import org.jnetpcap.protocol.lan.Ethernet;
+import org.jnetpcap.protocol.network.Ip4;
 
 /**
  * @author Mark Bednarczyk

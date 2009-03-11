@@ -16,15 +16,20 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
-import org.jnetpcap.analysis.tcpip.AbstractSequencer;
-import org.jnetpcap.analysis.tcpip.Ip4Sequencer;
-import org.jnetpcap.analysis.tcpip.Ip4Assembler;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JPacketHandler;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.TestUtils;
+import org.jnetpcap.packet.analysis.AbstractAnalysis;
+import org.jnetpcap.packet.analysis.AbstractSequencer;
+import org.jnetpcap.packet.analysis.FragmentAssembly;
+import org.jnetpcap.packet.analysis.FragmentSequence;
+import org.jnetpcap.packet.analysis.FragmentSequenceEvent;
+import org.jnetpcap.packet.analysis.JController;
 import org.jnetpcap.packet.format.TextFormatter;
-import org.jnetpcap.packet.header.Ip4;
+import org.jnetpcap.protocol.network.Ip4;
+import org.jnetpcap.protocol.network.Ip4Assembler;
+import org.jnetpcap.protocol.network.Ip4Sequencer;
 
 /**
  * @author Mark Bednarczyk
@@ -109,7 +114,7 @@ public class TestIp4FragmentationAnalyzer
 		controller.add(new JPacketHandler<Object>() {
 			Ip4 ip = new Ip4();
 			TextFormatter out = new TextFormatter(System.out);
-			FragmentReassembly reassembly = new FragmentReassembly();
+			FragmentAssembly reassembly = new FragmentAssembly();
 
 			public void nextPacket(JPacket packet, Object user) {
 				try {

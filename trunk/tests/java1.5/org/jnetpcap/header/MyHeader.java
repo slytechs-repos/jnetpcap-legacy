@@ -19,7 +19,6 @@ import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JHeaderMap;
 import org.jnetpcap.packet.JHeaderType;
 import org.jnetpcap.packet.JPacket;
-import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.JSubHeader;
 import org.jnetpcap.packet.annotate.Bind;
 import org.jnetpcap.packet.annotate.BindingVariable;
@@ -29,9 +28,10 @@ import org.jnetpcap.packet.annotate.FieldSetter;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.packet.annotate.BindingVariable.MatchType;
-import org.jnetpcap.packet.header.Ethernet;
-import org.jnetpcap.packet.header.IEEESnap;
-import org.jnetpcap.packet.header.Ip4;
+import org.jnetpcap.protocol.JProtocol;
+import org.jnetpcap.protocol.lan.Ethernet;
+import org.jnetpcap.protocol.lan.IEEESnap;
+import org.jnetpcap.protocol.network.Ip4;
 
 /**
  * @author Mark Bednarczyk

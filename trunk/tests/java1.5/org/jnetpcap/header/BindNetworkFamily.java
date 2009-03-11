@@ -14,7 +14,7 @@ package org.jnetpcap.header;
 
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.annotate.Bind;
-import org.jnetpcap.packet.header.Ethernet;
+import org.jnetpcap.protocol.lan.Ethernet;
 
 /**
  * A collection of network layer protocol to protocol bindings.
