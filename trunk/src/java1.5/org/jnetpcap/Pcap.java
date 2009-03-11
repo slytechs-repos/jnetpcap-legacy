@@ -341,6 +341,22 @@ public class Pcap {
 	public static final int OK = 0;
 
 	/**
+	 * Default capture SNAP len to be used (default: {@value #DEFAULT_SNAPLEN})
+	 */
+	public static final int DEFAULT_SNAPLEN = 64 * 1024;
+
+	/**
+	 * Default capture promiscous mode to be used (default:
+	 * {@value #DEFAULT_PROMISC})
+	 */
+	public static final int DEFAULT_PROMISC = 1;
+
+	/**
+	 * Default capture timeout (default: {@value #DEFAULT_TIMEOUT})
+	 */
+	public static final int DEFAULT_TIMEOUT = 0;
+
+	/**
 	 * Static initializer
 	 */
 	static {
