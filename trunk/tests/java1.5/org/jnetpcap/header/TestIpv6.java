@@ -19,7 +19,7 @@ import junit.framework.TestCase;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.TestUtils;
 import org.jnetpcap.packet.format.TextFormatter;
-import org.jnetpcap.packet.header.Ethernet;
+import org.jnetpcap.protocol.lan.Ethernet;
 
 /**
  * @author Mark Bednarczyk

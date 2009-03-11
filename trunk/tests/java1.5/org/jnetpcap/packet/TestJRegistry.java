@@ -24,13 +24,14 @@ import org.jnetpcap.packet.annotate.Bind;
 import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Scanner;
-import org.jnetpcap.packet.header.Ethernet;
-import org.jnetpcap.packet.header.Ip4;
-import org.jnetpcap.packet.header.Ip6;
 import org.jnetpcap.packet.structure.AnnotatedBindMethod;
 import org.jnetpcap.packet.structure.AnnotatedBinding;
 import org.jnetpcap.packet.structure.AnnotatedHeaderLengthMethod;
 import org.jnetpcap.packet.structure.HeaderDefinitionError;
+import org.jnetpcap.protocol.JProtocol;
+import org.jnetpcap.protocol.lan.Ethernet;
+import org.jnetpcap.protocol.network.Ip4;
+import org.jnetpcap.protocol.network.Ip6;
 
 
 /**

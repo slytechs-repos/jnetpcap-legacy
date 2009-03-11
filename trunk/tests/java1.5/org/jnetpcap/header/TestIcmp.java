@@ -16,17 +16,17 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
-import org.jnetpcap.packet.JProtocol;
+import org.jnetpcap.packet.Payload;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.TestUtils;
 import org.jnetpcap.packet.format.TextFormatter;
-import org.jnetpcap.packet.header.Ethernet;
-import org.jnetpcap.packet.header.IEEE802dot1q;
-import org.jnetpcap.packet.header.Icmp;
-import org.jnetpcap.packet.header.Ip4;
-import org.jnetpcap.packet.header.Payload;
-import org.jnetpcap.packet.header.Udp;
-import org.jnetpcap.packet.header.Icmp.IcmpType;
+import org.jnetpcap.protocol.JProtocol;
+import org.jnetpcap.protocol.lan.Ethernet;
+import org.jnetpcap.protocol.lan.IEEE802dot1q;
+import org.jnetpcap.protocol.network.Icmp;
+import org.jnetpcap.protocol.network.Ip4;
+import org.jnetpcap.protocol.network.Icmp.IcmpType;
+import org.jnetpcap.protocol.tcpip.Udp;
 
 /**
  * @author Mark Bednarczyk

@@ -14,16 +14,16 @@ package org.jnetpcap.newstuff.analysis;
 
 import junit.framework.TestCase;
 
-import org.jnetpcap.analysis.AbstractAnalysis;
-import org.jnetpcap.analysis.FieldAnalysis;
-import org.jnetpcap.analysis.FragmentSequence;
-import org.jnetpcap.analysis.FragmentSequenceEvent;
-import org.jnetpcap.analysis.HeaderAnalysis;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.TestUtils;
-import org.jnetpcap.packet.header.Ethernet;
-import org.jnetpcap.packet.header.Ip4;
-import org.jnetpcap.packet.header.Tcp;
+import org.jnetpcap.packet.analysis.AbstractAnalysis;
+import org.jnetpcap.packet.analysis.FieldAnalysis;
+import org.jnetpcap.packet.analysis.FragmentSequence;
+import org.jnetpcap.packet.analysis.FragmentSequenceEvent;
+import org.jnetpcap.packet.analysis.HeaderAnalysis;
+import org.jnetpcap.protocol.lan.Ethernet;
+import org.jnetpcap.protocol.network.Ip4;
+import org.jnetpcap.protocol.tcpip.Tcp;
 import org.jnetpcap.util.TimeoutQueue;
 
 /**

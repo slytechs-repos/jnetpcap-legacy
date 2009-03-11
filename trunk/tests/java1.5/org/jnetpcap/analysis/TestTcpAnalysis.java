@@ -15,21 +15,24 @@ package org.jnetpcap.analysis;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.jnetpcap.analysis.tcpip.SlidingBuffer;
-import org.jnetpcap.analysis.tcpip.TcpAnalyzer;
-import org.jnetpcap.analysis.tcpip.TcpSequencer;
-import org.jnetpcap.analysis.tcpip.TcpAssembler;
 import org.jnetpcap.newstuff.Image;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JPacketHandler;
-import org.jnetpcap.packet.JProtocol;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.TestUtils;
+import org.jnetpcap.packet.analysis.EventDumper;
+import org.jnetpcap.packet.analysis.FragmentAssembly;
+import org.jnetpcap.packet.analysis.JController;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
-import org.jnetpcap.packet.header.Http;
-import org.jnetpcap.packet.header.Tcp;
+import org.jnetpcap.protocol.JProtocol;
+import org.jnetpcap.protocol.tcpip.Http;
+import org.jnetpcap.protocol.tcpip.Tcp;
+import org.jnetpcap.protocol.tcpip.TcpAnalyzer;
+import org.jnetpcap.protocol.tcpip.TcpAssembler;
+import org.jnetpcap.protocol.tcpip.TcpSequencer;
+import org.jnetpcap.util.SlidingBuffer;
 
 /**
  * @author Mark Bednarczyk
@@ -152,7 +155,7 @@ public class TestTcpAnalysis
 			public void nextPacket(JPacket packet, Object user) {
 				try {
 					if (packet.hasHeader(tcp)
-					    && tcp.hasAnalysis(FragmentReassembly.class)) {
+					    && tcp.hasAnalysis(FragmentAssembly.class)) {
 					}
 
 					out.format(packet);

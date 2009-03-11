@@ -13,15 +13,15 @@
 package org.jnetpcap.examples;
 
 import java.io.File;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jnetpcap.JBufferHandler;
+import org.jnetpcap.ByteBufferHandler;
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapDumper;
 import org.jnetpcap.PcapHeader;
 import org.jnetpcap.PcapIf;
-import org.jnetpcap.nio.JBuffer;
 
 /**
  * This example is the classic libpcap example shown in nearly every tutorial on
@@ -36,7 +36,7 @@ import org.jnetpcap.nio.JBuffer;
  * @author Sly Technologies, Inc.
  */
 @SuppressWarnings("deprecation")
-public class PcapDumperExampleUsingJBuffer {
+public class PcapDumperExampleUsingByteBuffer {
 
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) {
@@ -78,9 +78,9 @@ public class PcapDumperExampleUsingJBuffer {
 		 * Fouth we create a packet hander which receive packets and tell the dumper
 		 * to write those packets to its output file
 		 **************************************************************************/
-		JBufferHandler<PcapDumper> dumpHandler = new JBufferHandler<PcapDumper>() {
+		ByteBufferHandler<PcapDumper> dumpHandler = new ByteBufferHandler<PcapDumper>() {
 
-			public void nextPacket(PcapHeader header, JBuffer buffer,
+			public void nextPacket(PcapHeader header, ByteBuffer buffer,
 			    PcapDumper dumper) {
 
 				dumper.dump(header, buffer);

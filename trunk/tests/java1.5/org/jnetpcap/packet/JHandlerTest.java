@@ -23,9 +23,10 @@ import org.jnetpcap.PcapHeader;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory.Type;
 import org.jnetpcap.packet.format.FormatUtils;
-import org.jnetpcap.packet.header.Ethernet;
-import org.jnetpcap.packet.header.Ip4;
-import org.jnetpcap.packet.header.Ip6;
+import org.jnetpcap.protocol.JProtocol;
+import org.jnetpcap.protocol.lan.Ethernet;
+import org.jnetpcap.protocol.network.Ip4;
+import org.jnetpcap.protocol.network.Ip6;
 
 /**
  * @author Mark Bednarczyk

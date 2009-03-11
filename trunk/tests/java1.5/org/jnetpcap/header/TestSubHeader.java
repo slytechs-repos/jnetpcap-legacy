@@ -20,7 +20,7 @@ import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.TestUtils;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
-import org.jnetpcap.packet.header.Ip4;
+import org.jnetpcap.protocol.network.Ip4;
 
 
 

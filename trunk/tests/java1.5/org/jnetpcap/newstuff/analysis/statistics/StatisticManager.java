@@ -94,14 +94,14 @@ public class StatisticManager {
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see org.jnetpcap.analysis.statistics.StatisticManager.Counters#clear(int)
+		 * @see org.jnetpcap.packet.analysis.statistics.StatisticManager.Counters#clear(int)
 		 */
 		public void clear(int id) {
 			this.counters[id] = 0;
 		}
 
 		/* (non-Javadoc)
-     * @see org.jnetpcap.analysis.statistics.StatisticManager.Counters#close()
+     * @see org.jnetpcap.packet.analysis.statistics.StatisticManager.Counters#close()
      */
     public void close() {
 	    this.active = false;
@@ -111,7 +111,7 @@ public class StatisticManager {
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see org.jnetpcap.analysis.statistics.StatisticManager.Counters#count()
+		 * @see org.jnetpcap.packet.analysis.statistics.StatisticManager.Counters#count()
 		 */
 		public int count() {
 			return this.counters.length;
@@ -120,14 +120,14 @@ public class StatisticManager {
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see org.jnetpcap.analysis.statistics.StatisticManager.Counters#dec(int)
+		 * @see org.jnetpcap.packet.analysis.statistics.StatisticManager.Counters#dec(int)
 		 */
 		public void dec(int id) {
 			this.counters[id]--;
 		}
 
 		/* (non-Javadoc)
-     * @see org.jnetpcap.analysis.statistics.StatisticManager.IntervalCounters#deltaInMillis()
+     * @see org.jnetpcap.packet.analysis.statistics.StatisticManager.IntervalCounters#deltaInMillis()
      */
     public long deltaInMillis() {
     	if (this.end == 0) {
@@ -138,7 +138,7 @@ public class StatisticManager {
     }
 
 		/* (non-Javadoc)
-     * @see org.jnetpcap.analysis.statistics.StatisticManager.IntervalCounters#endInMillis()
+     * @see org.jnetpcap.packet.analysis.statistics.StatisticManager.IntervalCounters#endInMillis()
      */
     public long endInMillis() {
 	    return this.end;
@@ -147,14 +147,14 @@ public class StatisticManager {
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see org.jnetpcap.analysis.statistics.StatisticManager.Counters#get(int)
+		 * @see org.jnetpcap.packet.analysis.statistics.StatisticManager.Counters#get(int)
 		 */
 		public long get(int id) {
 			return this.counters[id];
 		}
 
 		/* (non-Javadoc)
-     * @see org.jnetpcap.analysis.statistics.StatisticManager.IntervalCounters#getRate(int)
+     * @see org.jnetpcap.packet.analysis.statistics.StatisticManager.IntervalCounters#getRate(int)
      */
     public double getRate(int id) {
 	    double d = get(id) / deltaInMillis() / 1000;
@@ -165,7 +165,7 @@ public class StatisticManager {
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see org.jnetpcap.analysis.statistics.StatisticManager.Counters#inc(int)
+		 * @see org.jnetpcap.packet.analysis.statistics.StatisticManager.Counters#inc(int)
 		 */
 		public void inc(int id) {
 			this.counters[id]++;
@@ -174,7 +174,7 @@ public class StatisticManager {
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see org.jnetpcap.analysis.statistics.StatisticManager.Counters#inc(int,
+		 * @see org.jnetpcap.packet.analysis.statistics.StatisticManager.Counters#inc(int,
 		 *      int)
 		 */
 		public void inc(int id, int delta) {
@@ -183,7 +183,7 @@ public class StatisticManager {
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see org.jnetpcap.analysis.statistics.StatisticManager.Counters#isActive()
+		 * @see org.jnetpcap.packet.analysis.statistics.StatisticManager.Counters#isActive()
 		 */
 		public boolean isActive() {
 			return this.active;
@@ -193,14 +193,14 @@ public class StatisticManager {
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see org.jnetpcap.analysis.statistics.StatisticManager.Counters#reset()
+		 * @see org.jnetpcap.packet.analysis.statistics.StatisticManager.Counters#reset()
 		 */
 		public void reset() {
 			Arrays.fill(this.counters, 0);
 		}
 
 		/* (non-Javadoc)
-     * @see org.jnetpcap.analysis.statistics.StatisticManager.IntervalCounters#startInMillis()
+     * @see org.jnetpcap.packet.analysis.statistics.StatisticManager.IntervalCounters#startInMillis()
      */
     public long startInMillis() {
 	    return this.start;
@@ -209,7 +209,7 @@ public class StatisticManager {
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see org.jnetpcap.analysis.statistics.StatisticManager.Counters#toArray()
+		 * @see org.jnetpcap.packet.analysis.statistics.StatisticManager.Counters#toArray()
 		 */
 		public long[] toArray() {
 			final long[] a;
@@ -221,7 +221,7 @@ public class StatisticManager {
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see org.jnetpcap.analysis.statistics.StatisticManager.Counters#toArray(long[])
+		 * @see org.jnetpcap.packet.analysis.statistics.StatisticManager.Counters#toArray(long[])
 		 */
 		public long[] toArray(long[] storage) {
 			if (count() != storage.length) {
