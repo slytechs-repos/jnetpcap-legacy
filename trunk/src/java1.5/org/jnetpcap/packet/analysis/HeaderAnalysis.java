@@ -10,57 +10,69 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.analysis;
+package org.jnetpcap.packet.analysis;
 
 
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class FieldAnalysis
-    extends AbstractAnalysis<FieldAnalysis, AnalyzerEvent> {
-
-	private static final String NAME = "Field";
+public class HeaderAnalysis
+    extends AbstractAnalysis<HeaderAnalysis, AnalyzerEvent> {
 	
-	private enum Field implements JStructField {
-	  ;
+	private final static String NAME = "Header";
+	
+	public enum Field implements JStructField {
+		;
+		private final int len;
 
-		/* (non-Javadoc)
-     * @see org.jnetpcap.analysis.AbstractAnalysis.JStructField#length(int)
-     */
-    public int length(int offset) {
-	    // TODO Auto-generated method stub
-	    throw new UnsupportedOperationException("Not implemented yet");
-    }
+		int offset;
 
-		/* (non-Javadoc)
-     * @see org.jnetpcap.util.Offset#offset()
-     */
-    public int offset() {
-	    // TODO Auto-generated method stub
-	    throw new UnsupportedOperationException("Not implemented yet");
-    }
-		
+		private Field() {
+			this(4);
+		}
+
+		private Field(int len) {
+			this.len = len;
+		}
+
+		public int length(int offset) {
+			this.offset = offset;
+			return this.len;
+		}
+
+		public final int offset() {
+			return offset;
+		}
+
 	}
 
 	/**
    * @param type
    * @param size
    */
-  public FieldAnalysis() {
+  public HeaderAnalysis() {
 	  super(Type.POINTER);
   }
 
-	public String getFieldName() {
+	public boolean hasFieldErrors() {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Not implemented yet");
 	}
 
-	/**
-	 * @return
-	 */
-	public String getErrorMessage() {
+	public boolean hasFieldWarnings() {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Not implemented yet");
 	}
+
+	public FieldAnalysis[] getFieldErrors() {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Not implemented yet");
+	}
+
+	public FieldAnalysis[] getFieldWarnings() {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Not implemented yet");
+	}
+
 }

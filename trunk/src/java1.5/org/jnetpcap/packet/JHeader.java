@@ -15,10 +15,10 @@ package org.jnetpcap.packet;
 import java.io.IOException;
 import java.nio.ByteOrder;
 
-import org.jnetpcap.analysis.AnalysisUtils;
-import org.jnetpcap.analysis.JAnalysis;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JStruct;
+import org.jnetpcap.packet.analysis.AnalysisUtils;
+import org.jnetpcap.packet.analysis.JAnalysis;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.structure.AnnotatedHeader;
 import org.jnetpcap.packet.structure.DefaultField;

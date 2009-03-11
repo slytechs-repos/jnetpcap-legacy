@@ -12,11 +12,11 @@
  */
 package org.jnetpcap.protocol.tcpip;
 
-import org.jnetpcap.analysis.AbstractAnalysis;
-import org.jnetpcap.analysis.AnalyzerSupport;
-import org.jnetpcap.analysis.JAnalysis;
-import org.jnetpcap.analysis.JAnalyzer;
 import org.jnetpcap.nio.JMemory;
+import org.jnetpcap.packet.analysis.AbstractAnalysis;
+import org.jnetpcap.packet.analysis.AnalyzerSupport;
+import org.jnetpcap.packet.analysis.JAnalysis;
+import org.jnetpcap.packet.analysis.JAnalyzer;
 import org.jnetpcap.protocol.tcpip.TcpAnalyzer.Stage;
 
 /**
@@ -147,7 +147,7 @@ public class TcpDuplexStream
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.JAnalysis#getAnalysis(org.jnetpcap.analysis.JAnalysis)
+	 * @see org.jnetpcap.packet.analysis.JAnalysis#getAnalysis(org.jnetpcap.packet.analysis.JAnalysis)
 	 */
 	public <T extends JAnalysis> T getAnalysis(T analysis) {
 		// TODO Auto-generated method stub
@@ -224,7 +224,7 @@ public class TcpDuplexStream
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.JAnalysis#hasAnalysis(java.lang.Class)
+	 * @see org.jnetpcap.packet.analysis.JAnalysis#hasAnalysis(java.lang.Class)
 	 */
 	public <T extends JAnalysis> boolean hasAnalysis(Class<T> analysis) {
 		return false;
@@ -233,7 +233,7 @@ public class TcpDuplexStream
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.JAnalysis#hasAnalysis(org.jnetpcap.analysis.JAnalysis)
+	 * @see org.jnetpcap.packet.analysis.JAnalysis#hasAnalysis(org.jnetpcap.packet.analysis.JAnalysis)
 	 */
 	public <T extends JAnalysis> boolean hasAnalysis(T analysis) {
 		return false;

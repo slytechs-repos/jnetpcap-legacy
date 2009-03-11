@@ -10,7 +10,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.analysis;
+package org.jnetpcap.packet.analysis;
 
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -152,7 +152,7 @@ public class JController
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.JAnalyzer#getPriority()
+	 * @see org.jnetpcap.packet.analysis.JAnalyzer#getPriority()
 	 */
 	public int getPriority() {
 		return 0; // Highest priority
@@ -297,7 +297,7 @@ public class JController
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.AbstractAnalyzer#processPacket(org.jnetpcap.packet.JPacket)
+	 * @see org.jnetpcap.packet.analysis.AbstractAnalyzer#processPacket(org.jnetpcap.packet.JPacket)
 	 */
 	@Override
 	public boolean processPacket(JPacket packet) {

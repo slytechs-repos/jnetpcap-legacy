@@ -15,47 +15,56 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.jnetpcap.analysis;
+package org.jnetpcap.packet.analysis;
+
+import java.util.Queue;
+
+import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.util.TimeoutQueue;
+
 
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  *
  */
-public class AnalysisException
-    extends Exception {
+public interface JAnalyzer {
 
 	/**
-   * 
+   * @param packet
+	 * @throws AnalyzerException 
    */
-  private static final long serialVersionUID = 823973259873527495L;
+  public boolean processPacket(JPacket packet) throws AnalysisException;
 
 	/**
-	 * 
-	 */
-	public AnalysisException() {
-	}
+   * @return
+   */
+  public int getPriority();
+  
+  public void setParent(JAnalyzer parent);
+  
+  public Queue<JPacket> getInQueue();
+  
+  public Queue<JPacket> getOutQueue();
 
 	/**
-	 * @param message
-	 */
-	public AnalysisException(String message) {
-		super(message);
-	}
+   * @return
+   */
+  public TimeoutQueue getTimeoutQueue();
+  
+  public long getProcessingTime();
+  
+  public int hold();
+  
+  public int release();
+
+  public boolean processHeaders(JPacket packet, long map);
 
 	/**
-	 * @param cause
-	 */
-	public AnalysisException(Throwable cause) {
-		super(cause);
-	}
-
-	/**
-	 * @param message
-	 * @param cause
-	 */
-	public AnalysisException(String message, Throwable cause) {
-		super(message, cause);
-	}
-
+   * @param packet
+   * @return
+   */
+  public boolean processHeaders(JPacket packet);
+  
+  public void consumePacket(JPacket packet);
 }

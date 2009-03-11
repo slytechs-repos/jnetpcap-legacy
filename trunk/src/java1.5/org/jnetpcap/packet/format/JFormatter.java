@@ -16,12 +16,12 @@ import java.io.IOException;
 import java.util.Formatter;
 import java.util.Stack;
 
-import org.jnetpcap.analysis.JAnalysis;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JHeaderPool;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.UnregisteredHeaderException;
+import org.jnetpcap.packet.analysis.JAnalysis;
 import org.jnetpcap.packet.structure.JField;
 import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.util.resolver.Resolver;

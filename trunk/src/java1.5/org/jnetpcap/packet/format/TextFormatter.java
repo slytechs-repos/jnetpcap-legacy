@@ -16,9 +16,9 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Formatter;
 
-import org.jnetpcap.analysis.JAnalysis;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.packet.analysis.JAnalysis;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
 import org.jnetpcap.packet.structure.JField;
 import org.jnetpcap.protocol.JProtocol.Suite;

@@ -12,21 +12,21 @@
  */
 package org.jnetpcap.protocol.tcpip;
 
-import org.jnetpcap.analysis.AbstractAnalyzer;
-import org.jnetpcap.analysis.AnalysisException;
-import org.jnetpcap.analysis.AnalyzerListener;
-import org.jnetpcap.analysis.AnalyzerSupport;
-import org.jnetpcap.analysis.FragmentAssembly;
-import org.jnetpcap.analysis.FragmentAssembler;
-import org.jnetpcap.analysis.FragmentAssemblyEvent;
-import org.jnetpcap.analysis.FragmentSequence;
-import org.jnetpcap.analysis.FragmentSequenceEvent;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.nio.JMemoryPool;
 import org.jnetpcap.packet.JMemoryPacket;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
+import org.jnetpcap.packet.analysis.AbstractAnalyzer;
+import org.jnetpcap.packet.analysis.AnalysisException;
+import org.jnetpcap.packet.analysis.AnalyzerListener;
+import org.jnetpcap.packet.analysis.AnalyzerSupport;
+import org.jnetpcap.packet.analysis.FragmentAssembler;
+import org.jnetpcap.packet.analysis.FragmentAssembly;
+import org.jnetpcap.packet.analysis.FragmentAssemblyEvent;
+import org.jnetpcap.packet.analysis.FragmentSequence;
+import org.jnetpcap.packet.analysis.FragmentSequenceEvent;
 import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.util.JThreadLocal;
 
@@ -65,7 +65,7 @@ public class TcpAssembler
 	 * @param listener
 	 * @param user
 	 * @return
-	 * @see org.jnetpcap.analysis.AnalyzerSupport#addListener(org.jnetpcap.analysis.AnalyzerListener,
+	 * @see org.jnetpcap.packet.analysis.AnalyzerSupport#addListener(org.jnetpcap.packet.analysis.AnalyzerListener,
 	 *      java.lang.Object)
 	 */
 	public <U> boolean addReassemblyListener(
@@ -77,7 +77,7 @@ public class TcpAssembler
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.AnalyzerListener#processAnalyzerEvent(org.jnetpcap.analysis.AnalyzerEvent)
+	 * @see org.jnetpcap.packet.analysis.AnalyzerListener#processAnalyzerEvent(org.jnetpcap.packet.analysis.AnalyzerEvent)
 	 */
 	public void processAnalyzerEvent(FragmentSequenceEvent evt) {
 		if (evt.getType() == FragmentSequenceEvent.Type.SEQUENCE_COMPLETE) {
@@ -143,7 +143,7 @@ public class TcpAssembler
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.AbstractAnalyzer#processPacket(org.jnetpcap.packet.JPacket)
+	 * @see org.jnetpcap.packet.analysis.AbstractAnalyzer#processPacket(org.jnetpcap.packet.JPacket)
 	 */
 	@Override
 	public boolean processPacket(JPacket packet) throws AnalysisException {
@@ -153,7 +153,7 @@ public class TcpAssembler
 	/**
 	 * @param listener
 	 * @return
-	 * @see org.jnetpcap.analysis.AnalyzerSupport#removeListener(org.jnetpcap.analysis.AnalyzerListener)
+	 * @see org.jnetpcap.packet.analysis.AnalyzerSupport#removeListener(org.jnetpcap.packet.analysis.AnalyzerListener)
 	 */
 	public boolean removeReassemblyListener(
 	    AnalyzerListener<FragmentAssemblyEvent> listener) {

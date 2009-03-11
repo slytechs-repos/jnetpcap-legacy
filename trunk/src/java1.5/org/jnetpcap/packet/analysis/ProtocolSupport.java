@@ -15,56 +15,46 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.jnetpcap.analysis;
+package org.jnetpcap.packet.analysis;
 
-import java.util.Queue;
-
-import org.jnetpcap.packet.JPacket;
-import org.jnetpcap.util.TimeoutQueue;
-
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  *
  */
-public interface JAnalyzer {
+public abstract class ProtocolSupport<L, D> {
 
-	/**
-   * @param packet
-	 * @throws AnalyzerException 
-   */
-  public boolean processPacket(JPacket packet) throws AnalysisException;
+	private List<L> listeners = new ArrayList<L>();
 
-	/**
-   * @return
-   */
-  public int getPriority();
-  
-  public void setParent(JAnalyzer parent);
-  
-  public Queue<JPacket> getInQueue();
-  
-  public Queue<JPacket> getOutQueue();
+	public boolean add(L o) {
+	  return this.listeners.add(o);
+  }
 
-	/**
-   * @return
-   */
-  public TimeoutQueue getTimeoutQueue();
-  
-  public long getProcessingTime();
-  
-  public int hold();
-  
-  public int release();
+	public boolean isEmpty() {
+	  return this.listeners.isEmpty();
+  }
 
-  public boolean processHeaders(JPacket packet, long map);
+	public Iterator<L> iterator() {
+	  return this.listeners.iterator();
+  }
 
-	/**
-   * @param packet
-   * @return
-   */
-  public boolean processHeaders(JPacket packet);
-  
-  public void consumePacket(JPacket packet);
+	public boolean remove(Object o) {
+	  return this.listeners.remove(o);
+  }
+
+	public int size() {
+	  return this.listeners.size();
+  }
+	
+	public void fire(D data) {
+		for (L l: listeners) {
+			dispatch(l, data);
+		}
+	}
+	
+	protected abstract void dispatch(L listener, D data);
 }

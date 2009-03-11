@@ -16,14 +16,14 @@ import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.List;
 
-import org.jnetpcap.analysis.AbstractSequencer;
-import org.jnetpcap.analysis.AnalysisInfo;
-import org.jnetpcap.analysis.AnalyzerListener;
-import org.jnetpcap.analysis.FragmentSequence;
-import org.jnetpcap.analysis.FragmentSequenceEvent;
-import org.jnetpcap.analysis.JAnalysis;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
+import org.jnetpcap.packet.analysis.AbstractSequencer;
+import org.jnetpcap.packet.analysis.AnalysisInfo;
+import org.jnetpcap.packet.analysis.AnalyzerListener;
+import org.jnetpcap.packet.analysis.FragmentSequence;
+import org.jnetpcap.packet.analysis.FragmentSequenceEvent;
+import org.jnetpcap.packet.analysis.JAnalysis;
 import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.util.JThreadLocal;
 
@@ -60,7 +60,7 @@ public class TcpSequencer
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.FragmentSequencer#generateInfo(org.jnetpcap.analysis.FragmentSequence)
+	 * @see org.jnetpcap.packet.analysis.FragmentSequencer#generateInfo(org.jnetpcap.packet.analysis.FragmentSequence)
 	 */
 	public List<JAnalysis> generateInfo(FragmentSequence sequence) {
 		List<JAnalysis> list = new ArrayList<JAnalysis>();
@@ -101,7 +101,7 @@ public class TcpSequencer
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.AnalyzerListener#processAnalyzerEvent(org.jnetpcap.analysis.AnalyzerEvent)
+	 * @see org.jnetpcap.packet.analysis.AnalyzerListener#processAnalyzerEvent(org.jnetpcap.packet.analysis.AnalyzerEvent)
 	 */
 	public void processAnalyzerEvent(TcpStreamEvent evt) {
 		

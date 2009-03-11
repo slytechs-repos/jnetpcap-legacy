@@ -10,7 +10,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.analysis;
+package org.jnetpcap.packet.analysis;
 
 import java.nio.ByteOrder;
 import java.util.Iterator;
@@ -119,7 +119,7 @@ public abstract class AbstractAnalysis<S extends JAnalysis, E extends AnalyzerEv
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.JAnalysis#getCategory()
+	 * @see org.jnetpcap.packet.analysis.JAnalysis#getCategory()
 	 */
 	public int getType() {
 		return this.type;
@@ -140,7 +140,7 @@ public abstract class AbstractAnalysis<S extends JAnalysis, E extends AnalyzerEv
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.JAnalysis#peer(org.jnetpcap.analysis.JAnalysis)
+	 * @see org.jnetpcap.packet.analysis.JAnalysis#peer(org.jnetpcap.packet.analysis.JAnalysis)
 	 */
 	public int peer(JAnalysis peer) {
 		return (getType() == peer.getType()) ? super.peer((JMemory) peer) : 0;

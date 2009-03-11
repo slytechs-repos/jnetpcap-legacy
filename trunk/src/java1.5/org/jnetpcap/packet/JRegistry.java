@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.jnetpcap.PcapDLT;
-import org.jnetpcap.analysis.JAnalyzer;
-import org.jnetpcap.analysis.JController;
+import org.jnetpcap.packet.analysis.JAnalyzer;
+import org.jnetpcap.packet.analysis.JController;
 import org.jnetpcap.packet.structure.AnnotatedBinding;
 import org.jnetpcap.packet.structure.AnnotatedHeader;
 import org.jnetpcap.packet.structure.AnnotatedScannerMethod;

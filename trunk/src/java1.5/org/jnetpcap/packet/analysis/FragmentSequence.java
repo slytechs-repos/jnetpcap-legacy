@@ -10,7 +10,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.analysis;
+package org.jnetpcap.packet.analysis;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -170,7 +170,7 @@ public class FragmentSequence
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.Timeout#isTimedout(long)
+	 * @see org.jnetpcap.packet.analysis.Timeout#isTimedout(long)
 	 */
 	public boolean isTimedout(long timeInMillis) {
 		return getTimeout() < timeInMillis;
@@ -233,7 +233,7 @@ public class FragmentSequence
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.Timeout#timeout()
+	 * @see org.jnetpcap.packet.analysis.Timeout#timeout()
 	 */
 	public void timeout() {
 		analyzer.timeout(this);
