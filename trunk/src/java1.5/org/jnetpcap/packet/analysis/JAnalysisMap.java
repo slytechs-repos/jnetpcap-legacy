@@ -10,7 +10,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.analysis;
+package org.jnetpcap.packet.analysis;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -70,7 +70,7 @@ public class JAnalysisMap
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.JPeerableAnalysis#getAnalysis(org.jnetpcap.analysis.JPeerableAnalysis)
+	 * @see org.jnetpcap.packet.analysis.JPeerableAnalysis#getAnalysis(org.jnetpcap.packet.analysis.JPeerableAnalysis)
 	 */
 	public <T extends JAnalysis> T getAnalysis(T analysis) {
 		JAnalysis a = getMap().get(analysis.getType());
@@ -82,7 +82,7 @@ public class JAnalysisMap
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.JPeerableAnalysis#hasAnalysis(org.jnetpcap.analysis.JPeerableAnalysis)
+	 * @see org.jnetpcap.packet.analysis.JPeerableAnalysis#hasAnalysis(org.jnetpcap.packet.analysis.JPeerableAnalysis)
 	 */
 	public <T extends JAnalysis> boolean hasAnalysis(T analysis) {
 		Map<Integer, JAnalysis> map = getMap();

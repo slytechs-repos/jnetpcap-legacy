@@ -12,15 +12,15 @@
  */
 package org.jnetpcap.protocol.tcpip;
 
-import org.jnetpcap.analysis.AbstractAnalyzer;
-import org.jnetpcap.analysis.AnalysisException;
-import org.jnetpcap.analysis.AnalyzerListener;
-import org.jnetpcap.analysis.FragmentAssemblyEvent;
-import org.jnetpcap.analysis.FragmentAssembly;
-import org.jnetpcap.analysis.JController;
-import org.jnetpcap.analysis.ProtocolSupport;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
+import org.jnetpcap.packet.analysis.AbstractAnalyzer;
+import org.jnetpcap.packet.analysis.AnalysisException;
+import org.jnetpcap.packet.analysis.AnalyzerListener;
+import org.jnetpcap.packet.analysis.FragmentAssembly;
+import org.jnetpcap.packet.analysis.FragmentAssemblyEvent;
+import org.jnetpcap.packet.analysis.JController;
+import org.jnetpcap.packet.analysis.ProtocolSupport;
 import org.jnetpcap.protocol.tcpip.Http.Response;
 import org.jnetpcap.util.JThreadLocal;
 
@@ -64,7 +64,7 @@ public class HttpAnalyzer
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.AbstractAnalyzer#processPacket(org.jnetpcap.packet.JPacket)
+	 * @see org.jnetpcap.packet.analysis.AbstractAnalyzer#processPacket(org.jnetpcap.packet.JPacket)
 	 */
 	@Override
 	public boolean processPacket(JPacket packet) throws AnalysisException {
@@ -124,7 +124,7 @@ public class HttpAnalyzer
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.AnalyzerListener#processAnalyzerEvent(org.jnetpcap.analysis.AnalyzerEvent)
+	 * @see org.jnetpcap.packet.analysis.AnalyzerListener#processAnalyzerEvent(org.jnetpcap.packet.analysis.AnalyzerEvent)
 	 */
 	public void processAnalyzerEvent(FragmentAssemblyEvent evt) {
 		if (evt.getType() == FragmentAssemblyEvent.Type.COMPLETE_PDU) {

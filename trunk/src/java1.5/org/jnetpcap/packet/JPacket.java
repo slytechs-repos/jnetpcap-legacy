@@ -16,12 +16,12 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.jnetpcap.JCaptureHeader;
-import org.jnetpcap.analysis.AnalysisUtils;
-import org.jnetpcap.analysis.JAnalysis;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.nio.JMemoryPool;
 import org.jnetpcap.nio.JStruct;
+import org.jnetpcap.packet.analysis.AnalysisUtils;
+import org.jnetpcap.packet.analysis.JAnalysis;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
 

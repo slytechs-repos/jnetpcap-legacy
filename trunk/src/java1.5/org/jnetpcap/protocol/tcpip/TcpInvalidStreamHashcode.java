@@ -17,7 +17,7 @@
  */
 package org.jnetpcap.protocol.tcpip;
 
-import org.jnetpcap.analysis.AnalysisException;
+import org.jnetpcap.packet.analysis.AnalysisException;
 
 /**
  * @author Mark Bednarczyk

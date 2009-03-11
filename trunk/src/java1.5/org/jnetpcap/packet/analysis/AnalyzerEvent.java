@@ -15,46 +15,17 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.jnetpcap.analysis;
+package org.jnetpcap.packet.analysis;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
-/**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
- *
- */
-public abstract class ProtocolSupport<L, D> {
+public interface AnalyzerEvent {
 
-	private List<L> listeners = new ArrayList<L>();
+	public interface AnalyzerEventType {
 
-	public boolean add(L o) {
-	  return this.listeners.add(o);
-  }
+	};
 
-	public boolean isEmpty() {
-	  return this.listeners.isEmpty();
-  }
-
-	public Iterator<L> iterator() {
-	  return this.listeners.iterator();
-  }
-
-	public boolean remove(Object o) {
-	  return this.listeners.remove(o);
-  }
-
-	public int size() {
-	  return this.listeners.size();
-  }
+	public JAnalyzer getSource();
 	
-	public void fire(D data) {
-		for (L l: listeners) {
-			dispatch(l, data);
-		}
-	}
-	
-	protected abstract void dispatch(L listener, D data);
+	public AnalyzerEventType getType();
+
 }

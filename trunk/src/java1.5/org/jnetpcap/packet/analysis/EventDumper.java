@@ -10,34 +10,25 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.analysis;
+package org.jnetpcap.packet.analysis;
 
-import org.jnetpcap.analysis.AnalyzerEvent.AnalyzerEventType;
+/**
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
+ */
+public class EventDumper<T extends AnalyzerEvent> implements
+    AnalyzerListener<T> {
 
-public class AbstractAnalyzerEvent<T extends AnalyzerEventType> implements
-    AnalyzerEvent {
-
-	private final JAnalyzer source;
-
-	private final T type;
-
-	public AbstractAnalyzerEvent(JAnalyzer source, T type) {
-		this.source = source;
-		this.type = type;
-
+	public void toConsole(AnalyzerEvent event) {
+		System.out.println(event.getType());
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.tcpip.AnalyzerListener.AnalyzerEvent#getSource()
+	 * @see org.jnetpcap.packet.analysis.AnalyzerListener#processAnalyzerEvent(org.jnetpcap.packet.analysis.AnalyzerEvent)
 	 */
-	public JAnalyzer getSource() {
-		return source;
+	public void processAnalyzerEvent(T evt) {
+		toConsole(evt);
 	}
-
-	public final T getType() {
-		return this.type;
-	}
-
 }

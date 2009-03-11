@@ -10,7 +10,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.analysis;
+package org.jnetpcap.packet.analysis;
 
 import java.util.Iterator;
 
@@ -30,7 +30,7 @@ public class AnalysisInfo implements JAnalysis {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.JAnalysis#getAnalysis(org.jnetpcap.analysis.JAnalysis)
+	 * @see org.jnetpcap.packet.analysis.JAnalysis#getAnalysis(org.jnetpcap.packet.analysis.JAnalysis)
 	 */
 	public <T extends JAnalysis> T getAnalysis(T analysis) {
 		return null;
@@ -49,7 +49,7 @@ public class AnalysisInfo implements JAnalysis {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.JAnalysis#getName()
+	 * @see org.jnetpcap.packet.analysis.JAnalysis#getName()
 	 */
 	public String getTitle() {
 		return title;
@@ -58,7 +58,7 @@ public class AnalysisInfo implements JAnalysis {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.JAnalysis#getSummary()
+	 * @see org.jnetpcap.packet.analysis.JAnalysis#getSummary()
 	 */
 	public String[] getText() {
 		return text;
@@ -67,7 +67,7 @@ public class AnalysisInfo implements JAnalysis {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.JAnalysis#getType()
+	 * @see org.jnetpcap.packet.analysis.JAnalysis#getType()
 	 */
 	public int getType() {
 		return AnalysisUtils.INFO_TYPE;
@@ -76,7 +76,7 @@ public class AnalysisInfo implements JAnalysis {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.JAnalysis#hasAnalysis(org.jnetpcap.analysis.JAnalysis)
+	 * @see org.jnetpcap.packet.analysis.JAnalysis#hasAnalysis(org.jnetpcap.packet.analysis.JAnalysis)
 	 */
 	public <T extends JAnalysis> boolean hasAnalysis(T analysis) {
 		return false;
@@ -85,7 +85,7 @@ public class AnalysisInfo implements JAnalysis {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.JAnalysis#hasAnalysis(java.lang.Class)
+	 * @see org.jnetpcap.packet.analysis.JAnalysis#hasAnalysis(java.lang.Class)
 	 */
 	public <T extends JAnalysis> boolean hasAnalysis(Class<T> analysis) {
 		return false;
@@ -94,7 +94,7 @@ public class AnalysisInfo implements JAnalysis {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.JAnalysis#hasAnalysis(int)
+	 * @see org.jnetpcap.packet.analysis.JAnalysis#hasAnalysis(int)
 	 */
 	public boolean hasAnalysis(int type) {
 		return false;
@@ -103,7 +103,7 @@ public class AnalysisInfo implements JAnalysis {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.JAnalysis#peer(org.jnetpcap.analysis.JAnalysis)
+	 * @see org.jnetpcap.packet.analysis.JAnalysis#peer(org.jnetpcap.packet.analysis.JAnalysis)
 	 */
 	public int peer(JAnalysis peer) {
 		return 0;

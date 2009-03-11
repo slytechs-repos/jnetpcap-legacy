@@ -17,21 +17,21 @@ import java.util.Queue;
 import java.util.logging.Logger;
 
 import org.jnetpcap.JCaptureHeader;
-import org.jnetpcap.analysis.AbstractAnalyzer;
-import org.jnetpcap.analysis.AbstractSequencer;
-import org.jnetpcap.analysis.AnalysisInfo;
-import org.jnetpcap.analysis.AnalyzerListener;
-import org.jnetpcap.analysis.AnalyzerSupport;
-import org.jnetpcap.analysis.FragmentAssembly;
-import org.jnetpcap.analysis.FragmentAssembler;
-import org.jnetpcap.analysis.FragmentAssemblyEvent;
-import org.jnetpcap.analysis.FragmentSequence;
-import org.jnetpcap.analysis.FragmentSequenceEvent;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.nio.JMemoryPool;
 import org.jnetpcap.packet.JMemoryPacket;
 import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.packet.analysis.AbstractAnalyzer;
+import org.jnetpcap.packet.analysis.AbstractSequencer;
+import org.jnetpcap.packet.analysis.AnalysisInfo;
+import org.jnetpcap.packet.analysis.AnalyzerListener;
+import org.jnetpcap.packet.analysis.AnalyzerSupport;
+import org.jnetpcap.packet.analysis.FragmentAssembler;
+import org.jnetpcap.packet.analysis.FragmentAssembly;
+import org.jnetpcap.packet.analysis.FragmentAssemblyEvent;
+import org.jnetpcap.packet.analysis.FragmentSequence;
+import org.jnetpcap.packet.analysis.FragmentSequenceEvent;
 import org.jnetpcap.util.JLogger;
 import org.jnetpcap.util.JThreadLocal;
 
@@ -177,7 +177,7 @@ public class Ip4Assembler
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.AnalyzerListener#processAnalyzerEvent(org.jnetpcap.analysis.AnalyzerEvent)
+	 * @see org.jnetpcap.packet.analysis.AnalyzerListener#processAnalyzerEvent(org.jnetpcap.packet.analysis.AnalyzerEvent)
 	 */
 	public void processAnalyzerEvent(FragmentSequenceEvent evt) {
 		if (evt.getType() == FragmentSequenceEvent.Type.SEQUENCE_START) {
@@ -221,7 +221,7 @@ public class Ip4Assembler
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.AbstractAnalyzer#processPacket(org.jnetpcap.packet.JPacket)
+	 * @see org.jnetpcap.packet.analysis.AbstractAnalyzer#processPacket(org.jnetpcap.packet.JPacket)
 	 */
 	@Override
 	public boolean processPacket(JPacket packet) {

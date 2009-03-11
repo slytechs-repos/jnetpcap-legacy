@@ -12,9 +12,9 @@
  */
 package org.jnetpcap.protocol.tcpip;
 
-import org.jnetpcap.analysis.AbstractAnalysis;
-import org.jnetpcap.analysis.JAnalysis;
 import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.packet.analysis.AbstractAnalysis;
+import org.jnetpcap.packet.analysis.JAnalysis;
 
 /**
  * @author Mark Bednarczyk
@@ -78,7 +78,7 @@ public class TcpAck
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.JAnalysis#getAnalysis(org.jnetpcap.analysis.JAnalysis)
+	 * @see org.jnetpcap.packet.analysis.JAnalysis#getAnalysis(org.jnetpcap.packet.analysis.JAnalysis)
 	 */
 	public <T extends JAnalysis> T getAnalysis(T analysis) {
 		// TODO Auto-generated method stub
@@ -88,7 +88,7 @@ public class TcpAck
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.JAnalysis#hasAnalysis(org.jnetpcap.analysis.JAnalysis)
+	 * @see org.jnetpcap.packet.analysis.JAnalysis#hasAnalysis(org.jnetpcap.packet.analysis.JAnalysis)
 	 */
 	public <T extends JAnalysis> boolean hasAnalysis(T analysis) {
 		// TODO Auto-generated method stub
@@ -98,7 +98,7 @@ public class TcpAck
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.JAnalysis#hasAnalysis(java.lang.Class)
+	 * @see org.jnetpcap.packet.analysis.JAnalysis#hasAnalysis(java.lang.Class)
 	 */
 	public <T extends JAnalysis> boolean hasAnalysis(Class<T> analysis) {
 		// TODO Auto-generated method stub

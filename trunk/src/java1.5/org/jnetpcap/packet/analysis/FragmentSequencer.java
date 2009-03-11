@@ -10,33 +10,32 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.analysis;
+package org.jnetpcap.packet.analysis;
 
-/**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
- */
-public interface JAnalysis extends Iterable<JAnalysis> {
-	
-	public int getType();
+import java.util.List;
 
-	public <T extends JAnalysis> T getAnalysis(T analysis);
-
-	public <T extends JAnalysis> boolean hasAnalysis(T analysis);
-	
-	public <T extends JAnalysis> boolean hasAnalysis(Class<T> analysis);
-	
-	public boolean hasAnalysis(int type);
-
-	public int peer(JAnalysis peer);
+public interface FragmentSequencer extends JAnalyzer {
 
 	/**
-   * @return
+   * The default timeout interval in millis for a fragment sequence completion.
    */
-  public String getTitle();
+  public static final int DEFAULT_FRAGMENT_TIMEOUT = 60 * 1000;
+	public final FragmentAssembly reassembly = new FragmentAssembly();
 
 	/**
-   * @return
-   */
-  public String[] getText();
+	 * Signal to analyzer that this fragment sequence has expired
+	 * 
+	 * @param analysis
+	 *          sequence which expired
+	 */
+	public void timeout(FragmentSequence analysis);
+
+	/**
+	 * Allows an analyzer to generate analyzer specific information to be
+	 * displayed by formatters.
+	 * 
+	 * @return list typically made up of AnalysisInfo objects
+	 */
+	public List<JAnalysis> generateInfo(FragmentSequence sequence);
+
 }

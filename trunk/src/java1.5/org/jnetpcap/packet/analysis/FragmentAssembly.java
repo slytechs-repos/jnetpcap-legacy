@@ -10,18 +10,24 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.analysis;
+package org.jnetpcap.packet.analysis;
 
+import java.util.Iterator;
+
+import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.packet.JPacket;
 
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class Fragment
-    extends AbstractAnalysis<Fragment, AnalyzerEvent> {
+public class FragmentAssembly
+    extends AbstractAnalysis<FragmentAssembly, FragmentAssemblyEvent> {
+
+	private final static String TITLE = "Fragment Reassembly";
 
 	public enum Field implements JStructField {
+		PACKET_SEQUENCE(REF),
 		PACKET(REF), ;
 
 		private final int len;
@@ -47,56 +53,69 @@ public class Fragment
 	}
 
 	/**
+	 * @param size
+	 * @param name
+	 */
+	public FragmentAssembly(JPacket packet, FragmentSequence sequence) {
+		super(TITLE, Field.values());
+
+		setFragmentSequence(sequence);
+		setPacket(packet);
+	}
+
+	private void setFragmentSequence(FragmentSequence sequence) {
+		super.setObject(Field.PACKET_SEQUENCE.offset(), sequence);
+	}
+
+	public FragmentSequence getFragmentSequence() {
+		return super.getObject(FragmentSequence.class, Field.PACKET_SEQUENCE
+		    .offset());
+	}
+
+	/**
 	 * @param type
+	 * @param size
+	 * @param name
 	 */
-	public Fragment(Type type) {
-		super(type);
-	}
-
-	/**
-	 * @param c
-	 */
-	public Fragment(JStructField... c) {
-		super(c);
-	}
-
-	/**
-	 * @param title
-	 * @param fields
-	 */
-	public Fragment(String title, JStructField... fields) {
-		super(title, fields);
-		// TODO Auto-generated constructor stub
+	public FragmentAssembly() {
+		super(JMemory.Type.POINTER);
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.JAnalysis#getAnalysis(org.jnetpcap.analysis.JAnalysis)
+	 * @see org.jnetpcap.packet.analysis.JAnalysis#getAnalysis(org.jnetpcap.packet.analysis.JAnalysis)
 	 */
+	@SuppressWarnings("unchecked")
 	public <T extends JAnalysis> T getAnalysis(T analysis) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Not implemented yet");
+		if (analysis.getType() == AnalysisUtils.getType(FragmentSequence.class)) {
+			return (T) getFragmentSequence();
+		} else {
+			return null;
+		}
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.JAnalysis#hasAnalysis(org.jnetpcap.analysis.JAnalysis)
+	 * @see org.jnetpcap.packet.analysis.JAnalysis#hasAnalysis(org.jnetpcap.packet.analysis.JAnalysis)
 	 */
 	public <T extends JAnalysis> boolean hasAnalysis(T analysis) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Not implemented yet");
+		return super.hasAnalysis(analysis.getType());
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.JAnalysis#hasAnalysis(java.lang.Class)
+	 * @see org.jnetpcap.packet.analysis.JAnalysis#hasAnalysis(java.lang.Class)
 	 */
 	public <T extends JAnalysis> boolean hasAnalysis(Class<T> analysis) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Not implemented yet");
+		return super.hasAnalysis(AnalysisUtils.getType(analysis));
+	}
+
+	@Override
+	public Iterator<JAnalysis> iterator() {
+		return getFragmentSequence().iterator();
 	}
 
 	/**
@@ -109,5 +128,4 @@ public class Fragment
 	public void setPacket(JPacket packet) {
 		super.setObject(Field.PACKET.offset(), packet);
 	}
-
 }

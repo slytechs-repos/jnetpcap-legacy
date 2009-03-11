@@ -10,32 +10,34 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.analysis;
+package org.jnetpcap.packet.analysis;
 
-import java.util.List;
+import org.jnetpcap.packet.analysis.AnalyzerEvent.AnalyzerEventType;
 
-public interface FragmentSequencer extends JAnalyzer {
+public class AbstractAnalyzerEvent<T extends AnalyzerEventType> implements
+    AnalyzerEvent {
 
-	/**
-   * The default timeout interval in millis for a fragment sequence completion.
-   */
-  public static final int DEFAULT_FRAGMENT_TIMEOUT = 60 * 1000;
-	public final FragmentAssembly reassembly = new FragmentAssembly();
+	private final JAnalyzer source;
 
-	/**
-	 * Signal to analyzer that this fragment sequence has expired
+	private final T type;
+
+	public AbstractAnalyzerEvent(JAnalyzer source, T type) {
+		this.source = source;
+		this.type = type;
+
+	}
+
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @param analysis
-	 *          sequence which expired
+	 * @see org.jnetpcap.packet.analysis.tcpip.AnalyzerListener.AnalyzerEvent#getSource()
 	 */
-	public void timeout(FragmentSequence analysis);
+	public JAnalyzer getSource() {
+		return source;
+	}
 
-	/**
-	 * Allows an analyzer to generate analyzer specific information to be
-	 * displayed by formatters.
-	 * 
-	 * @return list typically made up of AnalysisInfo objects
-	 */
-	public List<JAnalysis> generateInfo(FragmentSequence sequence);
+	public final T getType() {
+		return this.type;
+	}
 
 }

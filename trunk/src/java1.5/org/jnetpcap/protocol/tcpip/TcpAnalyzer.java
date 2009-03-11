@@ -16,13 +16,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 
-import org.jnetpcap.analysis.AbstractAnalyzer;
-import org.jnetpcap.analysis.AnalyzerListener;
-import org.jnetpcap.analysis.AnalyzerSupport;
-import org.jnetpcap.analysis.JAnalyzer;
-import org.jnetpcap.analysis.JController;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
+import org.jnetpcap.packet.analysis.AbstractAnalyzer;
+import org.jnetpcap.packet.analysis.AnalyzerListener;
+import org.jnetpcap.packet.analysis.AnalyzerSupport;
+import org.jnetpcap.packet.analysis.JAnalyzer;
+import org.jnetpcap.packet.analysis.JController;
 import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.protocol.tcpip.TcpDuplexStream.Direction;
 import org.jnetpcap.util.JThreadLocal;
@@ -198,7 +198,7 @@ public class TcpAnalyzer
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.AbstractAnalyzer#processPacket(org.jnetpcap.packet.JPacket)
+	 * @see org.jnetpcap.packet.analysis.AbstractAnalyzer#processPacket(org.jnetpcap.packet.JPacket)
 	 */
 	@Override
 	public boolean processPacket(JPacket packet) throws TcpInvalidStreamHashcode {

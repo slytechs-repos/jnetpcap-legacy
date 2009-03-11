@@ -15,12 +15,12 @@ package org.jnetpcap.protocol.network;
 import java.util.EnumSet;
 import java.util.Set;
 
-import org.jnetpcap.analysis.FragmentAssembly;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JHeaderMap;
 import org.jnetpcap.packet.JHeaderType;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JSubHeader;
+import org.jnetpcap.packet.analysis.FragmentAssembly;
 import org.jnetpcap.packet.annotate.Bind;
 import org.jnetpcap.packet.annotate.BindingVariable;
 import org.jnetpcap.packet.annotate.Dynamic;

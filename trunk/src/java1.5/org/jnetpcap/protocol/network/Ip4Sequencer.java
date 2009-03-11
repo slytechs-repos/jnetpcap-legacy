@@ -17,13 +17,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.jnetpcap.analysis.AbstractSequencer;
-import org.jnetpcap.analysis.AnalysisInfo;
-import org.jnetpcap.analysis.FragmentSequence;
-import org.jnetpcap.analysis.FragmentSequencer;
-import org.jnetpcap.analysis.FragmentSequenceEvent;
-import org.jnetpcap.analysis.JAnalysis;
 import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.packet.analysis.AbstractSequencer;
+import org.jnetpcap.packet.analysis.AnalysisInfo;
+import org.jnetpcap.packet.analysis.FragmentSequence;
+import org.jnetpcap.packet.analysis.FragmentSequenceEvent;
+import org.jnetpcap.packet.analysis.FragmentSequencer;
+import org.jnetpcap.packet.analysis.JAnalysis;
 
 /**
  * @author Mark Bednarczyk
@@ -124,7 +124,7 @@ public class Ip4Sequencer
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.analysis.AbstractAnalyzer#process(org.jnetpcap.packet.JPacket)
+	 * @see org.jnetpcap.packet.analysis.AbstractAnalyzer#process(org.jnetpcap.packet.JPacket)
 	 */
 	@Override
 	public boolean processPacket(JPacket packet) {
