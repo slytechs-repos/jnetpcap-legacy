@@ -24,8 +24,8 @@ public abstract class AbstractMessageHeader
     extends JMappedHeader {
 
 	public enum MessageType {
-		RESPONSE,
-		REQUEST
+		REQUEST,
+		RESPONSE
 	}
 
 	private final static char[] HEADER_DELIMITER = {
@@ -34,10 +34,31 @@ public abstract class AbstractMessageHeader
 	    '\r',
 	    '\n' };
 
-	private final JThreadLocal<StringBuilder> stringLocal =
-	    new JThreadLocal<StringBuilder>(StringBuilder.class);
+	private final static String[] VALID_CHARS = {
+	    "GET",
+	    "PUT",
+	    "POS", // POST
+	    "CON", // CONNECT
+	    "CAN", // CANCEL
+	    "HEA", // HEAD
+	    "HTT", // HTTP
+	    "OPT", // OPTIONS
+	    "DEL", // DELETE
+	    "TRA", // TRACE
+	    "SIP", // SIP
+	    "INV", // INVITE
+	};
 
-	private MessageType messageType;
+	private static boolean checkValidFirstChars(JBuffer buffer, int offset) {
+		final String first = buffer.getUTF8String(offset, 3);
+		for (String c : VALID_CHARS) {
+			if (first.equals(c)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 	@HeaderLength
 	public static int headerLength(JBuffer buffer, int offset) {
@@ -61,31 +82,12 @@ public abstract class AbstractMessageHeader
 		return len;
 	}
 
-	private final static String[] VALID_CHARS = {
-	    "GET",
-	    "PUT",
-	    "POS",
-	    "CON",
-	    "CAN", // CONNECT, CANCEL
-	    "HEA",
-	    "HTT", // HEAD, HTTP
-	    "OPT", // OPTIONS
-	    "DEL", // DELETE
-	    "TRA", // TRACE
-	    "SIP", // SIP
-	    "INV", // INVITE
-	};
+	private MessageType messageType;
 
-	private static boolean checkValidFirstChars(JBuffer buffer, int offset) {
-		final String first = buffer.getUTF8String(offset, 3);
-		for (String c : VALID_CHARS) {
-			if (first.equals(c)) {
-				return true;
-			}
-		}
+	private final JThreadLocal<StringBuilder> stringLocal =
+	    new JThreadLocal<StringBuilder>(StringBuilder.class);
 
-		return false;
-	}
+	protected abstract void decodeFirstLine(String line);
 
 	/**
 	 * Decode the http header. First we need to convert raw bytes to a char's we
@@ -128,17 +130,15 @@ public abstract class AbstractMessageHeader
 		}
 	}
 
-	protected abstract void decodeFirstLine(String line);
+	public MessageType getMessageType() {
+		return this.messageType;
+	}
 
 	/**
 	 * @param type
 	 */
 	public void setMessageType(MessageType type) {
 		this.messageType = type;
-	}
-
-	public MessageType getMessageType() {
-		return this.messageType;
 	}
 
 }
