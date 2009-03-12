@@ -37,6 +37,24 @@ public class IEEE802dot2
 		return ((buffer.getUShort(offset + 2) & 0x3) == 0x3) ? 4 : 5;
 	}
 
+	@Field(offset = 0, format = "%x")
+	public int control() {
+		/*
+		 * This field is either 1 or 2 bytes in length depending on the control bit.
+		 */
+		int c = getUByte(2);
+		if ((c & 0x3) == 0x3) {
+			return c;
+		} else {
+			return getUShort(2);
+		}
+	}
+
+	@Dynamic(Field.Property.LENGTH)
+	public int controlLength() {
+		return ((super.getUByte(2) & 0x3) == 0x3) ? 1 * 8 : 2 * 8;
+	}
+
 	@Field(offset = 0, length = 8, format = "%x")
 	public int dsap() {
 		return getUByte(0);
@@ -45,23 +63,5 @@ public class IEEE802dot2
 	@Field(offset = 8, length = 8, format = "%x")
 	public int ssap() {
 		return getUByte(1);
-	}
-
-	@Dynamic(Field.Property.LENGTH)
-	public int controlLength() {
-		return ((super.getUShort(2) & 0x3) == 0x3) ? 2 * 8 : 3 * 8;
-	}
-
-	@Field(offset = 0, format = "%x")
-	public int control() {
-		/*
-		 * This field is either 1 or 2 bytes in length depending on the control bit.
-		 */
-		int c = getUShort(2);
-		if ((c & 0x3) == 0x3) {
-			return c & 0x00FF;
-		} else {
-			return c;
-		}
 	}
 }
