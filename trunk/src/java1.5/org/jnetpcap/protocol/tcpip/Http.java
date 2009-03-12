@@ -27,12 +27,33 @@ import org.jnetpcap.packet.annotate.ProtocolSuite;
 public class Http
     extends AbstractMessageHeader {
 
-	@Bind(to = Tcp.class, intValue = {
-	    80,
-	    8080 })
-	public static boolean bindToTcp(JPacket packet, Tcp tcp) {
-		return tcp.destination() == 80 || tcp.source() == 80
-		    || tcp.destination() == 8080 || tcp.source() == 8080;
+	public enum ContentType {
+		GIF("image/gif"),
+		HTML("text/html"),
+		JPEG("image/jpeg"),
+		PNG("image/png"), ;
+
+		public static ContentType parseContentType(String type) {
+			for (ContentType t : values()) {
+				if (t.name().equalsIgnoreCase(type)) {
+					return t;
+				}
+				
+				for (String m : t.magic) {
+					if (type.startsWith(m)) {
+						return t;
+					}
+				}
+			}
+
+			return null;
+		}
+
+		private final String[] magic;
+
+		private ContentType(String... magic) {
+			this.magic = magic;
+		}
 	}
 
 	/**
@@ -56,11 +77,11 @@ public class Http
 		If_Modified_Since,
 		If_None_Match,
 		Referrer,
-		User_Agent,
-
-		RequestVersion,
 		RequestMethod,
+
 		RequestUrl,
+		RequestVersion,
+		User_Agent,
 	}
 
 	/**
@@ -75,63 +96,37 @@ public class Http
 		Age,
 		Allow,
 		Cache_Control,
+		Content_Disposition,
 		Content_Encoding,
 		Content_Length,
 		Content_Location,
-		Content_Disposition,
 		Content_MD5,
 		Content_Range,
 		Content_Type,
 
+		RequestUrl,
 		RequestVersion,
 		ResponseCode,
 		ResponseCodeMsg,
-		RequestUrl,
 	}
 
-	public enum ContentType {
-		JPEG("image/jpeg"),
-		GIF("image/gif"),
-		PNG("image/png"),
-		HTML("text/html"), ;
-
-		private final String[] magic;
-
-		private ContentType(String... magic) {
-			this.magic = magic;
-		}
-
-		public static ContentType parseContentType(String type) {
-			for (ContentType t : values()) {
-				if (t.name().equalsIgnoreCase(type)) {
-					return t;
-				}
-				
-				for (String m : t.magic) {
-					if (type.startsWith(m)) {
-						return t;
-					}
-				}
-			}
-
-			return null;
-		}
+	@Bind(to = Tcp.class, intValue = {
+	    80,
+	    8080 })
+	public static boolean bindToTcp(JPacket packet, Tcp tcp) {
+		return tcp.destination() == 80 || tcp.source() == 80
+		    || tcp.destination() == 8080 || tcp.source() == 8080;
 	}
 
-	public boolean hasField(Request field) {
-		return super.hasField(field);
+	/**
+	 * @return
+	 */
+	public String contentType() {
+		return fieldValue(Response.Content_Type);
 	}
 
-	public String fieldValue(Request field) {
-		return super.fieldValue(String.class, field);
-	}
-
-	public boolean hasField(Response field) {
-		return super.hasField(field);
-	}
-
-	public String fieldValue(Response field) {
-		return super.fieldValue(String.class, field);
+	public ContentType contentTypeEnum() {
+		return ContentType.parseContentType(contentType());
 	}
 
 	@Override
@@ -155,29 +150,12 @@ public class Http
 		}
 	}
 
-	/**
-	 * @return
-	 */
-	public boolean hasContentType() {
-		return hasField(Response.Content_Type);
+	public String fieldValue(Request field) {
+		return super.fieldValue(String.class, field);
 	}
 
-	/**
-	 * @return
-	 */
-	public String contentType() {
-		return fieldValue(Response.Content_Type);
-	}
-	
-	public ContentType contentTypeEnum() {
-		return ContentType.parseContentType(contentType());
-	}
-
-	/**
-	 * @return
-	 */
-	public boolean isResponse() {
-		return getMessageType() == MessageType.RESPONSE;
+	public String fieldValue(Response field) {
+		return super.fieldValue(String.class, field);
 	}
 
 	/**
@@ -185,5 +163,27 @@ public class Http
 	 */
 	public boolean hasContent() {
 		return hasField(Response.Content_Type);
+	}
+
+	/**
+	 * @return
+	 */
+	public boolean hasContentType() {
+		return hasField(Response.Content_Type);
+	}
+	
+	public boolean hasField(Request field) {
+		return super.hasField(field);
+	}
+
+	public boolean hasField(Response field) {
+		return super.hasField(field);
+	}
+
+	/**
+	 * @return
+	 */
+	public boolean isResponse() {
+		return getMessageType() == MessageType.RESPONSE;
 	}
 }
