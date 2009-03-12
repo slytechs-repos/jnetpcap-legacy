@@ -9,25 +9,25 @@
 #include "export.h"
 #include <jni.h>
 #include "nio_jbuffer.h"
-#include "org_jnetpcap_packet_JProtocol.h"
+#include "org_jnetpcap_protocol_JProtocol.h"
 #include "org_jnetpcap_packet_JScan.h"
 
 // Proto types
 char *id2str(int id);
 
 #define END_OF_HEADERS   org_jnetpcap_packet_JScan_END_OF_HEADERS_ID
-#define ETHERNET_ID      org_jnetpcap_packet_JProtocol_ETHERNET_ID
-#define TCP_ID           org_jnetpcap_packet_JProtocol_TCP_ID
-#define UDP_ID           org_jnetpcap_packet_JProtocol_UDP_ID
-#define IEEE_802DOT3_ID  org_jnetpcap_packet_JProtocol_IEEE_802DOT3_ID
-#define IEEE_802DOT2_ID  org_jnetpcap_packet_JProtocol_IEEE_802DOT2_ID
-#define IEEE_SNAP_ID     org_jnetpcap_packet_JProtocol_IEEE_SNAP_ID
-#define IP4_ID           org_jnetpcap_packet_JProtocol_IP4_ID
-#define IP6_ID           org_jnetpcap_packet_JProtocol_IP6_ID
-#define IEEE_802DOT1Q_ID org_jnetpcap_packet_JProtocol_IEEE_802DOT1Q_ID
-#define L2TP_ID          org_jnetpcap_packet_JProtocol_L2TP_ID
-#define PPP_ID           org_jnetpcap_packet_JProtocol_PPP_ID
-#define ICMP_ID          org_jnetpcap_packet_JProtocol_ICMP_ID
+#define ETHERNET_ID      org_jnetpcap_protocol_JProtocol_ETHERNET_ID
+#define TCP_ID           org_jnetpcap_protocol_JProtocol_TCP_ID
+#define UDP_ID           org_jnetpcap_protocol_JProtocol_UDP_ID
+#define IEEE_802DOT3_ID  org_jnetpcap_protocol_JProtocol_IEEE_802DOT3_ID
+#define IEEE_802DOT2_ID  org_jnetpcap_protocol_JProtocol_IEEE_802DOT2_ID
+#define IEEE_SNAP_ID     org_jnetpcap_protocol_JProtocol_IEEE_SNAP_ID
+#define IP4_ID           org_jnetpcap_protocol_JProtocol_IP4_ID
+#define IP6_ID           org_jnetpcap_protocol_JProtocol_IP6_ID
+#define IEEE_802DOT1Q_ID org_jnetpcap_protocol_JProtocol_IEEE_802DOT1Q_ID
+#define L2TP_ID          org_jnetpcap_protocol_JProtocol_L2TP_ID
+#define PPP_ID           org_jnetpcap_protocol_JProtocol_PPP_ID
+#define ICMP_ID          org_jnetpcap_protocol_JProtocol_ICMP_ID
 
 
 typedef struct icmp_t {

@@ -9,7 +9,7 @@
 #include "export.h"
 #include "org_jnetpcap_packet_JScanner.h"
 #include "org_jnetpcap_packet_JRegistry.h"
-#include "org_jnetpcap_packet_JProtocol.h"
+#include "org_jnetpcap_protocol_JProtocol.h"
 #include "packet_flow.h"
 #include <jni.h>
 
@@ -22,7 +22,7 @@
 #define FLAG_OVERRIDE_LENGTH org_jnetpcap_packet_JRegistry_FLAG_OVERRIDE_LENGTH
 #define FLAG_OVERRIDE_BINDING org_jnetpcap_packet_JRegistry_FLAG_OVERRIDE_BINDING
 
-#define PAYLOAD_ID org_jnetpcap_packet_JProtocol_PAYLOAD_ID
+#define PAYLOAD_ID org_jnetpcap_protocol_JProtocol_PAYLOAD_ID
 
 /******************************
  ******************************

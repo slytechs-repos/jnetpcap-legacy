@@ -423,15 +423,15 @@
 			<class name="org.jnetpcap.nio.JBuffer" />
 			<class name="org.jnetpcap.nio.JObjectBuffer" />
 			
-			<class name="org.jnetpcap.analysis.JAnalysis" />
-			<class name="org.jnetpcap.analysis.AnalysisUtils" />
+			<class name="org.jnetpcap.packet.analysis.JAnalysis" />
+			<class name="org.jnetpcap.packet.analysis.AnalysisUtils" />
 			
 			<class name="org.jnetpcap.packet.JScanner" />
 			<class name="org.jnetpcap.packet.JRegistry" />
 			<class name="org.jnetpcap.packet.JPacket$State" />
 			<class name="org.jnetpcap.packet.JHeader" />
 			<class name="org.jnetpcap.packet.JHeader$State" />
-			<class name="org.jnetpcap.packet.JProtocol" />
+			<class name="org.jnetpcap.protocol.JProtocol" />
 			<class name="org.jnetpcap.packet.JHeaderScanner" />
 			<class name="org.jnetpcap.packet.JScan" />
 			

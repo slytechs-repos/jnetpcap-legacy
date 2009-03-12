@@ -12,8 +12,8 @@ extern "C" {
 #include "export.h"
 	
 #include <jni.h>
-#include "org_jnetpcap_analysis_Analysis.h"
-#include "org_jnetpcap_analysis_AnalysisUtils.h"
+#include "org_jnetpcap_packet_analysis_Analysis.h"
+#include "org_jnetpcap_packet_analysis_AnalysisUtils.h"
 
 #define ROOT_TYPE org_jnetpcap_analysis_AnalysisUtils_ROOT_TYPE
 

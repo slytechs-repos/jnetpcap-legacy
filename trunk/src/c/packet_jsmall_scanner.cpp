@@ -30,7 +30,7 @@
 #include "jnetpcap_utils.h"
 #include "nio_jmemory.h"
 #include "nio_jbuffer.h"
-#include "org_jnetpcap_packet_JProtocol.h"
+#include "org_jnetpcap_protocol_JProtocol.h"
 #include "export.h"
 
 /****************************************************************
