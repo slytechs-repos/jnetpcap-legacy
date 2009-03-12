@@ -37,7 +37,17 @@ import org.jnetpcap.protocol.lan.Ethernet;
 import org.jnetpcap.protocol.lan.IEEESnap;
 
 /**
- * IP version 4. Network layer internet protocol version 4.
+ * IP version 4. Network layer internet protocol version 4. This is the main
+ * header file for Internet Protocol version 4. The header file defines various
+ * accessor methods for reading directly out of the Ip4 data structure found
+ * within the packet data buffer. The header is peered with the packet at
+ * appropriate offset into the buffer and data can be accessed via friendly
+ * accessor methods defined by this header, or by using JBuffer accessors. The
+ * header also performs decoding of the header, sepecifically decoding and
+ * attaching optional sub-headers to this header.
+ * <p>
+ * Ip4 header is the backbone of the internet.
+ * </p>
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
@@ -914,15 +924,39 @@ public class Ip4
 		return getByteArray(16, address);
 	}
 
+	/**
+	 * Converts the 32 bit Ip4 destination address to a java signed 32 bit
+	 * integer. The value returned should be treated as an unsigned integer, which
+	 * java can not represent as an int. If neccessary to printout the value
+	 * returned, in order to correctly represent the unsinged value, the integer
+	 * returned should be converted to a java long type and sign appropriately
+	 * handled to take advantage of the extra length of a java long type.
+	 * 
+	 * @return unsinged 32 bit integer representing the Ip4 destination address
+	 */
 	public int destinationToInt() {
 		return getInt(16);
 	}
 
+	/**
+	 * Retrives the flags header field as an unsigned integer, length of 3 bits,
+	 * that has each Ip4 flag encoded as a bit field. The first flag is encoded in
+	 * bit number 0 of the returned usigned integer.
+	 * 
+	 * @return 3 bits of the flag field as unsigned integer
+	 */
 	@Field(offset = 6 * 8, length = 3, format = "%x")
 	public int flags() {
 		return getUByte(6) >> 5;
 	}
 
+	/**
+	 * Retrieves the flags field as a collection's set of enum constants that
+	 * represent each flag. The flags returned are an EnumSet which efficiently
+	 * encodes the enum constants as an internal bitfield.
+	 * 
+	 * @return
+	 */
 	public Set<Ip4.Flag> flagsEnum() {
 		Set<Ip4.Flag> set = EnumSet.noneOf(Ip4.Flag.class);
 		if (flags_DF() > 0) {
@@ -936,6 +970,13 @@ public class Ip4
 		return set;
 	}
 
+	/**
+	 * A setter method that changes the flag bits directly in the peered Ip4
+	 * header structure within the packet data buffer.
+	 * 
+	 * @param flags
+	 *          new flags to set
+	 */
 	@FieldSetter
 	public void flags(int flags) {
 		int o = getUByte(6) & 0x1F;
@@ -1055,6 +1096,16 @@ public class Ip4
 		setUShort(6, o);
 	}
 
+	/**
+	 * Converts the 32 bit Ip4 source address to a java signed 32 bit integer. The
+	 * value returned should be treated as an unsigned integer, which java can not
+	 * represent as an int. If neccessary to printout the value returned, in order
+	 * to correctly represent the unsinged value, the integer returned should be
+	 * converted to a java long type and sign appropriately handled to take
+	 * advantage of the extra length of a java long type.
+	 * 
+	 * @return unsinged 32 bit integer representing the Ip4 source address
+	 */
 	@Field(offset = 12 * 8, length = 32, format = "#ip4#")
 	@FlowKey(index = 0)
 	public byte[] source() {

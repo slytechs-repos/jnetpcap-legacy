@@ -103,12 +103,19 @@ public enum JProtocol {
 	ICMP(Icmp.class), ;
 
 	/**
-	 * A protocol suite.
+	 * A protocol suite. Meta data interface that provides general category for
+	 * the protocol as a family of related protocols.
 	 * 
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
 	public interface Suite {
+
+		/**
+		 * Retrieves the name of the protocol suite.
+		 * 
+		 * @return name of the protocol family
+		 */
 		public String name();
 	}
 
@@ -302,14 +309,18 @@ public enum JProtocol {
 	}
 
 	/**
-	 * @return the dlt
+	 * Gets the corresponding Pcap defined Data Link Type.
+	 * 
+	 * @return the dlt dlt for this protocol
 	 */
 	public PcapDLT[] getDlt() {
 		return dlt;
 	}
 
 	/**
-	 * @return the iD
+	 * Gets a unique runtime numerica ID of this protocol assigned by jNetStream.
+	 * 
+	 * @return the protocol id
 	 */
 	public int getId() {
 		return ID;
