@@ -13,7 +13,9 @@
 package org.jnetpcap.packet;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -23,6 +25,7 @@ import org.jnetpcap.JBufferHandler;
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapBpfProgram;
 import org.jnetpcap.PcapHeader;
+import org.jnetpcap.PcapIf;
 import org.jnetpcap.PcapTask;
 import org.jnetpcap.PcapUtils;
 import org.jnetpcap.nio.JBuffer;
@@ -34,22 +37,23 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class TestUtils extends TestCase {
-	
+public class TestUtils
+    extends
+    TestCase {
+
 	public final static String AFS = "tests/test-afs.pcap";
-	
+
 	public final static String HTTP = "tests/test-http-jpeg.pcap";
-	
+
 	public final static String VLAN = "tests/test-vlan.pcap";
-	
+
 	public final static String REASEMBLY = "tests/test-ipreassembly.pcap";
-	
+
 	public final static String IP6 = "tests/test-ipv6.pcap";
-	
+
 	public final static String L2TP = "tests/test-l2tp.pcap";
-	
+
 	public final static String MYSQL = "tests/test-mysql.pcap";
-	
 
 	/**
 	 * Special Appendable device that throws away its output. Used in stress
@@ -316,7 +320,7 @@ public class TestUtils extends TestCase {
 	    final String file,
 	    final int start,
 	    final int end) {
-		
+
 		return new Iterable<JPacket>() {
 
 			public Iterator<JPacket> iterator() {
@@ -340,33 +344,60 @@ public class TestUtils extends TestCase {
 
 		};
 	}
-	
+
 	public static void openOffline(String file, JPacketHandler<Pcap> handler) {
 		openOffline(file, handler, null);
 	}
 
-	
-	public static void openOffline(String file, JPacketHandler<Pcap> handler, String filter) {
+	public static void openOffline(
+	    String file,
+	    JPacketHandler<Pcap> handler,
+	    String filter) {
 		StringBuilder errbuf = new StringBuilder();
-		
+
 		Pcap pcap;
-		
-		if ( (pcap = Pcap.openOffline(file, errbuf)) == null) {
+
+		if ((pcap = Pcap.openOffline(file, errbuf)) == null) {
 			fail(errbuf.toString());
 		}
-		
+
 		if (filter != null) {
 			PcapBpfProgram program = new PcapBpfProgram();
 			if (pcap.compile(program, filter, 0, 0) != Pcap.OK) {
 				System.err.printf("pcap filter err: %s\n", pcap.getErr());
 			}
-			
+
 			pcap.setFilter(program);
 		}
-		
+
 		pcap.loop(Pcap.LOOP_INFINATE, handler, pcap);
-		
+
 		pcap.close();
+	}
+
+	public static void openLive(JPacketHandler<Pcap> handler) {
+		openLive(Pcap.LOOP_INFINATE, handler);
+	}
+
+	/**
+	 * 
+	 */
+	public static void openLive(long count, JPacketHandler<Pcap> handler) {
+		StringBuilder errbuf = new StringBuilder();
+		List<PcapIf> alldevs = new ArrayList<PcapIf>();
+
+		if (Pcap.findAllDevs(alldevs, errbuf) != Pcap.OK) {
+			throw new IllegalStateException(errbuf.toString());
+		}
+
+		Pcap pcap =
+		    Pcap.openLive(alldevs.get(0).getName(), Pcap.DEFAULT_SNAPLEN,
+		        Pcap.DEFAULT_PROMISC, Pcap.DEFAULT_TIMEOUT, errbuf);
+		if (pcap == null) {
+			throw new IllegalArgumentException(errbuf.toString());
+		}
+
+		pcap.loop((int) count, handler, pcap);
 	}
 
 }

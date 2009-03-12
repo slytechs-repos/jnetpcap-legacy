@@ -101,7 +101,8 @@ public class TcpStreamMonitorApp
 		TcpAnalyzer tcpAnalyzer = JRegistry.getAnalyzer(TcpAnalyzer.class);
 		tcpAnalyzer.addTcpStreamListener(this, null);
 
-		TestUtils.openOffline(file, JRegistry.getAnalyzer(JController.class));
+//		TestUtils.openOffline(file, JRegistry.getAnalyzer(JController.class));
+		TestUtils.openLive(100, JRegistry.getAnalyzer(JController.class));
 	}
 
 	public TcpStreamMonitorApp() {
@@ -140,6 +141,8 @@ public class TcpStreamMonitorApp
 		}
 
 		stream.offer(evt);
+		
+		stream.revalidate();
 		stream.repaint();
 
 		System.out.flush();
