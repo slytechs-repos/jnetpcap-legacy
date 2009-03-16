@@ -27,7 +27,6 @@ import org.jnetpcap.packet.analysis.FragmentAssembly;
 import org.jnetpcap.packet.analysis.FragmentAssemblyEvent;
 import org.jnetpcap.packet.analysis.FragmentSequence;
 import org.jnetpcap.packet.analysis.FragmentSequenceEvent;
-import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.util.JThreadLocal;
 
 /**
@@ -105,17 +104,17 @@ public class TcpAssembler
 		}
 	}
 
-	private final JMemoryPool memory = new JMemoryPool();
+	private final static JMemoryPool memory = new JMemoryPool();
 
-	private final JThreadLocal<Tcp> tcpLocal = new JThreadLocal<Tcp>(Tcp.class);
+	private static final JThreadLocal<Tcp> tcpLocal = new JThreadLocal<Tcp>(Tcp.class);
 
-	private final JThreadLocal<Ip4> ipLocal = new JThreadLocal<Ip4>(Ip4.class);
+//	private final JThreadLocal<Ip4> ipLocal = new JThreadLocal<Ip4>(Ip4.class);
 
 	private JPacket reassemble(FragmentSequence sequence) {
 		JBuffer buf = new JBuffer(JMemory.Type.POINTER);
 		memory.allocate(sequence.getTotalLength(), buf);
 		Tcp tcp = tcpLocal.get();
-		Ip4 ip = ipLocal.get();
+//		Ip4 ip = ipLocal.get();
 		long start = sequence.getStart();
 
 		for (JPacket p : sequence.getPacketSequence()) {

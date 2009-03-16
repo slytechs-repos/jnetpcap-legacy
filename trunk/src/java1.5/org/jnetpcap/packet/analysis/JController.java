@@ -18,8 +18,6 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -292,8 +290,6 @@ public class JController
 		}
 	}
 	
-	private BlockingQueue<JPacket> bq = new ArrayBlockingQueue<JPacket>(1000);
-
 	/*
 	 * (non-Javadoc)
 	 * 
