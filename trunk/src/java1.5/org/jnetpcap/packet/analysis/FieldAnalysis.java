@@ -20,9 +20,11 @@ package org.jnetpcap.packet.analysis;
 public class FieldAnalysis
     extends AbstractAnalysis<FieldAnalysis, AnalyzerEvent> {
 
-	private static final String NAME = "Field";
+	@SuppressWarnings("unused")
+  private static final String NAME = "Field";
 	
-	private enum Field implements JStructField {
+	@SuppressWarnings("unused")
+  private enum Field implements JStructField {
 	  ;
 
 		/* (non-Javadoc)

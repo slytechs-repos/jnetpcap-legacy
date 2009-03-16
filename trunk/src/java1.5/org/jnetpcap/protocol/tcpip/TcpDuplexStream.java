@@ -14,9 +14,7 @@ package org.jnetpcap.protocol.tcpip;
 
 import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.packet.analysis.AbstractAnalysis;
-import org.jnetpcap.packet.analysis.AnalyzerSupport;
 import org.jnetpcap.packet.analysis.JAnalysis;
-import org.jnetpcap.packet.analysis.JAnalyzer;
 import org.jnetpcap.protocol.tcpip.TcpAnalyzer.Stage;
 
 /**
@@ -116,15 +114,12 @@ public class TcpDuplexStream
 
 	private long processingTime;
 
-	private final TcpAnalyzer analyzer;
-
 	/**
 	 * @param type
 	 * @param size
 	 */
 	public TcpDuplexStream() {
 		super(JMemory.Type.POINTER);
-		this.analyzer = null;
 	}
 
 	/**
@@ -137,8 +132,6 @@ public class TcpDuplexStream
 	protected TcpDuplexStream(int hash, int client, int server,
 	    TcpAnalyzer analyzer) {
 		super(TITLE, Field.values());
-		this.analyzer = analyzer;
-
 		setClient(new TcpStream(client, Direction.CLIENT, this, analyzer));
 		setServer(new TcpStream(server, Direction.SERVER, this, analyzer));
 		setHashcode(hash);

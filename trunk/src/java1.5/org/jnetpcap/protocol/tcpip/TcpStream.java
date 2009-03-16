@@ -19,7 +19,6 @@ import java.util.concurrent.PriorityBlockingQueue;
 import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.analysis.AbstractAnalysis;
-import org.jnetpcap.packet.analysis.AnalyzerSupport;
 import org.jnetpcap.packet.analysis.JAnalysis;
 import org.jnetpcap.protocol.tcpip.TcpDuplexStream.Direction;
 import org.jnetpcap.util.JThreadLocal;
@@ -119,8 +118,6 @@ public class TcpStream
 
 	    });
 
-	private final Direction direction;
-
 	private final TcpDuplexStream duplex;
 
 	private final TcpAnalyzer analyzer;
@@ -131,7 +128,6 @@ public class TcpStream
 	 */
 	public TcpStream() {
 		super(JMemory.Type.POINTER);
-		this.direction = null;
 		this.duplex = null;
 		this.analyzer = null;
 	}
@@ -146,7 +142,6 @@ public class TcpStream
 	public TcpStream(int hash, Direction direction, TcpDuplexStream duplex,
 	    TcpAnalyzer analyzer) {
 		super(TITLE, Field.values());
-		this.direction = direction;
 		this.duplex = duplex;
 		this.analyzer = analyzer;
 
@@ -331,11 +326,6 @@ public class TcpStream
 	}
 
 	public void addToSequenceQueue(JPacket packet) {
-
-		Tcp tcp = new Tcp();
-		// System.out.printf("QUEUE:%s:add(#%d: %d)\n", direction,
-		// packet.getFrameNumber(),
-		// packet.getHeader(tcp).seq() - getSndStart());
 
 		bySequence.offer(packet);
 	}

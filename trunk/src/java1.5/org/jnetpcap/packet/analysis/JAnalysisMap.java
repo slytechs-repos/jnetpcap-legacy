@@ -85,7 +85,6 @@ public class JAnalysisMap
 	 * @see org.jnetpcap.packet.analysis.JPeerableAnalysis#hasAnalysis(org.jnetpcap.packet.analysis.JPeerableAnalysis)
 	 */
 	public <T extends JAnalysis> boolean hasAnalysis(T analysis) {
-		Map<Integer, JAnalysis> map = getMap();
 		if (getMap().containsKey(analysis.getType())) {
 			getAnalysis(analysis); // Do the peering
 

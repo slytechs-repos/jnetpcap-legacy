@@ -20,7 +20,8 @@ package org.jnetpcap.packet.analysis;
 public class HeaderAnalysis
     extends AbstractAnalysis<HeaderAnalysis, AnalyzerEvent> {
 	
-	private final static String NAME = "Header";
+	@SuppressWarnings("unused")
+  private final static String NAME = "Header";
 	
 	public enum Field implements JStructField {
 		;
