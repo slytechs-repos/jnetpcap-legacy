@@ -13,7 +13,7 @@
 package org.jnetpcap.header;
 
 import java.io.IOException;
-import java.util.Map;
+import java.util.Arrays;
 import java.util.logging.Level;
 
 import junit.framework.TestCase;
@@ -25,6 +25,7 @@ import org.jnetpcap.packet.TestUtils;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.protocol.application.Html;
+import org.jnetpcap.protocol.application.Html.HtmlTag;
 import org.jnetpcap.protocol.lan.Ethernet;
 import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.protocol.tcpip.Http;
@@ -37,7 +38,8 @@ import org.jnetpcap.util.resolver.Resolver;
  * @author Sly Technologies, Inc.
  */
 public class TestHttp
-    extends TestCase {
+    extends
+    TestCase {
 
 	// private final static Appendable OUT = TestUtils.DEV_NULL;
 	private final static Appendable OUT = System.out;
@@ -93,12 +95,16 @@ public class TestHttp
 
 		out.format(packet);
 
-		if (true && packet.hasHeader(http)) {
+		Html html = packet.getHeader(new Html());
+		System.out.printf("link related tags=%s\n", Arrays.asList(html.links())
+		    .toString());
 
-			for (String e : http.fieldArray()) {
-				System.out.println(e);
-			}
-		}
+		// if (true && packet.hasHeader(http)) {
+		//
+		// for (String e : http.fieldArray()) {
+		// System.out.println(e);
+		// }
+		// }
 	}
 
 	public void testHttpFormattingWithResolveAddressEnabled() throws IOException {
