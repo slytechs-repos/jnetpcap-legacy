@@ -841,6 +841,18 @@
 				<filter token="platform.os.name" value="${platform.os.name}" />
 			</filterset>
 		</copy>
+		<copy tofile="${deb.build.control.dir}/postinst" file="${deb.postinst.file}">
+			<filterset>
+				<filter token="pkg.version" value="${pkg.version}" />
+				<filter token="platform.os.name" value="${platform.os.name}" />
+			</filterset>
+		</copy>
+		<copy tofile="${deb.build.control.dir}/prerm" file="${deb.prerm.file}">
+			<filterset>
+				<filter token="pkg.version" value="${pkg.version}" />
+				<filter token="platform.os.name" value="${platform.os.name}" />
+			</filterset>
+		</copy>
 
 		<copy todir="${deb.build.lib.dir}" file="${build.lib.dir}/${lib.pcap.fullname}" />
 		<copy todir="${deb.build.java.dir}" file="${build.jnetpcap.jar}" />
