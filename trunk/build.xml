@@ -853,6 +853,8 @@
 				<filter token="platform.os.name" value="${platform.os.name}" />
 			</filterset>
 		</copy>
+		<chmod perm="755" file="${deb.build.control.dir}/postinst"></chmod>
+		<chmod perm="755" file="${deb.build.control.dir}/prerm"></chmod>
 
 		<copy todir="${deb.build.lib.dir}" file="${build.lib.dir}/${lib.pcap.fullname}" />
 		<copy todir="${deb.build.java.dir}" file="${build.jnetpcap.jar}" />
