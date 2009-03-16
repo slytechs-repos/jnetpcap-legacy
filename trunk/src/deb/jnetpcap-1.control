@@ -7,3 +7,5 @@ Depends: libpcap0.8 (>= 0.9)
 Maintainer: Mark Bednarczyk <mark@slytechs.com>
 Description: jNetPcap is a java wrapper around libpcap. It provides all of the same methods using similar style of API as the native counter part. All the native libpcap structures and methods are tightly and accurately peered with each other, providing entire libpcap environment under java.
 Distribution: development
+preinst: deb-preinst
+prerm: deb-prerm
