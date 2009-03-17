@@ -168,7 +168,7 @@ public final class JRegistry {
 	 * </ul>
 	 */
 	static {
-		
+
 		analyzers = new HashMap<Class<?>, JAnalyzer>();
 
 		/**
@@ -180,7 +180,6 @@ public final class JRegistry {
 		Arrays.fill(JRegistry.DLTS_TO_IDS, -1);
 		Arrays.fill(JRegistry.IDS_TO_DLTS, -1);
 
-
 		/**
 		 * Register CORE protocols
 		 */
@@ -188,6 +187,27 @@ public final class JRegistry {
 
 			try {
 				register(p);
+			} catch (Exception e) {
+				System.err.println("JRegistry Error: " + e.getMessage());
+				e.printStackTrace();
+
+				System.exit(0);
+			}
+		}
+
+		/**
+		 * Bind CORE protocols. Most bindings are provided by the native scanner but
+		 * some protocols may have java bindings as well that need to be registered.
+		 * They are by default registered in addition to the native bindings.
+		 */
+		for (JProtocol p : JProtocol.values()) {
+
+			try {
+				JBinding[] bindings =
+				    AnnotatedBinding.inspectJHeaderClass(p.getHeaderClass(), errors);
+				if (bindings != null && bindings.length != 0) {
+					addBindings(bindings);
+				}
 			} catch (Exception e) {
 				System.err.println("JRegistry Error: " + e.getMessage());
 				e.printStackTrace();
