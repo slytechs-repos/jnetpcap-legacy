@@ -126,4 +126,14 @@ public class HtmlParser {
 		return ht;
 	}
 
+	/**
+   * @param tagString
+   * @return
+   */
+  public String format(String str) {
+  	
+  	str = str.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t");
+  	return str;
+  }
+
 }

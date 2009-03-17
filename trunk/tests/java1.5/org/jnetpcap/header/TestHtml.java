@@ -17,12 +17,10 @@ import java.util.Arrays;
 
 import junit.framework.TestCase;
 
-import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.PcapPacket;
-import org.jnetpcap.packet.RegistryHeaderErrors;
 import org.jnetpcap.packet.TestUtils;
+import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.protocol.application.Html;
-import org.jnetpcap.protocol.tcpip.Http;
 
 /**
  * @author Mark Bednarczyk
@@ -31,18 +29,6 @@ import org.jnetpcap.protocol.tcpip.Http;
 public class TestHtml
     extends
     TestCase {
-
-	// private final static Appendable OUT = TestUtils.DEV_NULL;
-	private final static Appendable OUT = System.out;
-
-	static {
-		try {
-			JRegistry.register(Http.class);
-			JRegistry.register(Html.class);
-		} catch (RegistryHeaderErrors e) {
-			e.printStackTrace();
-		}
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -66,7 +52,10 @@ public class TestHtml
 
 		PcapPacket packet = TestUtils.getPcapPacket("tests/test-http-jpeg.pcap", 5);
 
+		assertTrue("Can't find HTTP header", packet.hasHeader(JProtocol.HTTP_ID));
+
 		Html html = packet.getHeader(new Html());
+		assertNotNull("Can't find HTML header", html);
 		System.out.printf("link related tags=%s\n", Arrays.asList(html.links())
 		    .toString());
 

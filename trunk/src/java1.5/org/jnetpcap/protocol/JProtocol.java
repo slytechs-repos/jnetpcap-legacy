@@ -16,6 +16,7 @@ import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapDLT;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.Payload;
+import org.jnetpcap.protocol.application.Html;
 import org.jnetpcap.protocol.lan.Ethernet;
 import org.jnetpcap.protocol.lan.IEEE802dot1q;
 import org.jnetpcap.protocol.lan.IEEE802dot2;
@@ -24,6 +25,7 @@ import org.jnetpcap.protocol.lan.IEEESnap;
 import org.jnetpcap.protocol.network.Icmp;
 import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.protocol.network.Ip6;
+import org.jnetpcap.protocol.tcpip.Http;
 import org.jnetpcap.protocol.tcpip.Tcp;
 import org.jnetpcap.protocol.tcpip.Udp;
 import org.jnetpcap.protocol.vpn.L2TP;
@@ -100,7 +102,17 @@ public enum JProtocol {
 	/**
 	 * Internet Control Message Protocol header
 	 */
-	ICMP(Icmp.class), ;
+	ICMP(Icmp.class),
+
+	/**
+	 * Hyper Text Transmission Protocol header
+	 */
+	HTTP(Http.class),
+
+	/**
+	 * Hyper Text Markup Language header
+	 */
+	HTML(Html.class), ;
 
 	/**
 	 * A protocol suite. Meta data interface that provides general category for
@@ -167,6 +179,10 @@ public enum JProtocol {
 	public final static int PPP_ID = 11;
 
 	public final static int ICMP_ID = 12;
+
+	public final static int HTTP_ID = 13;
+
+	public final static int HTML_ID = 14;
 
 	private JProtocol(String className) {
 		this(className, new PcapDLT[0]);
