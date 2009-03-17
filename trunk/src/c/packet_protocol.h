@@ -28,6 +28,8 @@ char *id2str(int id);
 #define L2TP_ID          org_jnetpcap_protocol_JProtocol_L2TP_ID
 #define PPP_ID           org_jnetpcap_protocol_JProtocol_PPP_ID
 #define ICMP_ID          org_jnetpcap_protocol_JProtocol_ICMP_ID
+#define HTTP_ID          org_jnetpcap_protocol_JProtocol_HTTP_ID
+#define HTML_ID          org_jnetpcap_protocol_JProtocol_HTML_ID
 
 
 typedef struct icmp_t {
