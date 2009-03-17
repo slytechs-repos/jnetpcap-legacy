@@ -50,6 +50,36 @@ void scan_not_implemented_yet(scan_t *scan) {
 }
 
 /*
+ * Scan Hyper Text Markup Language header
+ */
+void scan_html(scan_t *scan) {
+	
+	scan->length = scan->buf_len - scan->offset;
+}
+
+/*
+ * Scan Hyper Text Transmission Protocol header
+ */
+void scan_http(scan_t *scan) {
+	char *http = (char *)(scan->buf + scan->offset);
+	int size = scan->buf_len - scan->offset;
+	
+	scan->next_id = PAYLOAD_ID;
+	scan->length = size;
+	
+	for (int i = 0; i < size; i ++){
+		if (http[i] == '\r' && http[i + 1] == '\n' 
+			&& http[i + 2] == '\r' && http[i + 3] == '\n') {
+			
+			scan->length = i + 4;
+			break;
+		}
+	}
+	
+	
+}
+
+/*
  * Scan Internet Control Message Protocol header
  */
 void scan_icmp(scan_t *scan) {
@@ -219,6 +249,22 @@ void scan_tcp(scan_t *scan) {
 			);
 	fflush(stdout);
 #endif
+	}
+	
+	switch (BIG_ENDIAN16(tcp->dport)) {
+	case 80:
+	case 8080:
+	case 8081:
+		scan->next_id = HTTP_ID;
+		return;
+	}
+	
+	switch (BIG_ENDIAN16(tcp->sport)) {
+	case 80:
+	case 8080:
+	case 8081:
+		scan->next_id = HTTP_ID;
+		return;
 	}
 
 
@@ -539,6 +585,8 @@ void init_native_protocols() {
 	native_protocols[UDP_ID]      = &scan_udp;
 	native_protocols[TCP_ID]      = &scan_tcp;
 	native_protocols[ICMP_ID]     = &scan_icmp;
+	native_protocols[HTTP_ID]     = &scan_http;
+	native_protocols[HTML_ID]     = &scan_html;
 	
 	native_protocols[IEEE_802DOT3_ID]      = &scan_not_implemented_yet;
 	/*
