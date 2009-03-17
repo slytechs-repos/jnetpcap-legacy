@@ -148,12 +148,23 @@ public class Html
 		public String toString() {
 			StringBuilder b = new StringBuilder();
 
-			b.append(tag.name()).append('[').append(type.name()).append(']');
+			switch (type) {
+				case ATOMIC:
+					// b.append(tag.name()).append("<>");
+					break;
+				case CLOSE:
+					b.append(tag.name()).append("/>");
+					break;
+				case OPEN:
+					b.append(tag.name()).append('<');
+					break;
+			}
 
 			if (tag == Tag.TEXT) {
-				b.append('=').append('{');
-				b.append(tagString);
-				b.append('}');
+//				b.append(tag.toString()).append('=');
+				b.append('"');
+				b.append(parserLocal.get().format(tagString));
+				b.append('"');
 
 			} else if (params.isEmpty() == false) {
 				b.append('=');

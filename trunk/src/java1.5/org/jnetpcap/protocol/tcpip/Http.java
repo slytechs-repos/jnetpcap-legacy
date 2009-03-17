@@ -13,8 +13,6 @@
 package org.jnetpcap.protocol.tcpip;
 
 import org.jnetpcap.packet.AbstractMessageHeader;
-import org.jnetpcap.packet.JPacket;
-import org.jnetpcap.packet.annotate.Bind;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
@@ -110,14 +108,6 @@ public class Http
 		ResponseCodeMsg,
 	}
 
-	@Bind(to = Tcp.class, intValue = {
-	    80,
-	    8080 })
-	public static boolean bindToTcp(JPacket packet, Tcp tcp) {
-		return tcp.destination() == 80 || tcp.source() == 80
-		    || tcp.destination() == 8080 || tcp.source() == 8080;
-	}
-
 	/**
 	 * @return
 	 */
@@ -134,6 +124,10 @@ public class Http
 		// System.out.printf("#%d Http::decodeFirstLine line=%s\n", getPacket()
 		// .getFrameNumber(), line);
 		String[] c = line.split(" ");
+		if (c.length < 3) {
+			return; // Can't parse it
+		}
+		
 		if (c[0].startsWith("HTTP")) {
 			super.setMessageType(MessageType.RESPONSE);
 
