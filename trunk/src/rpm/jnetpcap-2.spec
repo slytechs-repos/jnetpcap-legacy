@@ -38,6 +38,8 @@ pwd
 
 %post
 ln -s /usr/lib/libjnetpcap.so.%{VERSION} /usr/lib/libjnetpcap.so
+ln -s /usr/share/java/jnetpcap-%{VERSION}.jar /usr/share/java/jnetpcap.jar
 
 %postun
 rm -f /usr/lib/libjnetpcap.so
+rm -f /usr/share/java/jnetpcap.jar
