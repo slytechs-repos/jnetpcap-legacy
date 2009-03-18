@@ -25,11 +25,15 @@ import org.jnetpcap.protocol.tcpip.Http.Response;
 import org.jnetpcap.util.JThreadLocal;
 
 /**
+ * Http protocol analyzer. Analyzes and maintains state for Http protocol.
+ * Requests reassembly of tcp stream.
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
 public class HttpAnalyzer
-    extends AbstractAnalyzer implements AnalyzerListener<FragmentAssemblyEvent> {
+    extends
+    AbstractAnalyzer implements AnalyzerListener<FragmentAssemblyEvent> {
 
 	private JThreadLocal<Http> httpLocal = new JThreadLocal<Http>(Http.class);
 
@@ -100,13 +104,14 @@ public class HttpAnalyzer
 				    http_len);
 			}
 
-//			System.out.printf(
-//			    "#%d HttpAnalyzer::hash=%d seq=%d tcp_len=%d http_len=%s frag=%b ",
-//			    packet.getFrameNumber(), tcp.uniHashCode(), tcp.seq(), http_len, http
-//			        .fieldValue(Response.Content_Length),
-//			    (tcp.getPayloadLength() < http_len));
-//			System.out.printf("src=%d -> dst->%d\n", tcp.source(), tcp.destination());
-//			System.out.printf("http=%s\n", http.toString());
+			// System.out.printf(
+			// "#%d HttpAnalyzer::hash=%d seq=%d tcp_len=%d http_len=%s frag=%b ",
+			// packet.getFrameNumber(), tcp.uniHashCode(), tcp.seq(), http_len, http
+			// .fieldValue(Response.Content_Length),
+			// (tcp.getPayloadLength() < http_len));
+			// System.out.printf("src=%d -> dst->%d\n", tcp.source(),
+			// tcp.destination());
+			// System.out.printf("http=%s\n", http.toString());
 
 		} else {
 			// support.fire(packet.getHeader(new Http()));
@@ -130,7 +135,7 @@ public class HttpAnalyzer
 		if (evt.getType() == FragmentAssemblyEvent.Type.COMPLETE_PDU) {
 			FragmentAssembly assembly = evt.getAssembly();
 			JPacket packet = assembly.getPacket();
-//			System.out.printf("packet=%s\n", packet.getState().toDebugString());
+			// System.out.printf("packet=%s\n", packet.getState().toDebugString());
 			Http http = new Http();
 			if (packet.hasHeader(http)) {
 				support.fire(http);

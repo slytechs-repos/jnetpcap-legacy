@@ -17,11 +17,14 @@ import org.jnetpcap.packet.analysis.AbstractAnalyzerEvent;
 import org.jnetpcap.packet.analysis.AnalyzerEvent.AnalyzerEventType;
 
 /**
+ * Tcp event dispatched from TcpAnalyzer.
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
 public class TcpStreamEvent
-    extends AbstractAnalyzerEvent<TcpStreamEvent.Type> {
+    extends
+    AbstractAnalyzerEvent<TcpStreamEvent.Type> {
 
 	private final TcpStream stream;
 
@@ -66,8 +69,12 @@ public class TcpStreamEvent
 
 	}
 
-	public TcpStreamEvent(TcpAnalyzer source, Type type, TcpDuplexStream duplex,
-	    TcpStream stream, JPacket packet) {
+	public TcpStreamEvent(
+	    TcpAnalyzer source,
+	    Type type,
+	    TcpDuplexStream duplex,
+	    TcpStream stream,
+	    JPacket packet) {
 		super(source, type);
 
 		this.duplex = duplex;
@@ -75,7 +82,10 @@ public class TcpStreamEvent
 		this.stream = stream;
 	}
 
-	public TcpStreamEvent(TcpAnalyzer source, Type type, TcpDuplexStream duplex,
+	public TcpStreamEvent(
+	    TcpAnalyzer source,
+	    Type type,
+	    TcpDuplexStream duplex,
 	    JPacket packet) {
 		super(source, type);
 
@@ -123,16 +133,15 @@ public class TcpStreamEvent
 	}
 
 	@Override
-  public int hashCode() {
+	public int hashCode() {
 		return this.duplex.hashCode();
-  }
+	}
 
 	/**
-   * @return
-   */
-  public int uniDirectionalHashCode() {
-  	return packet.getHeader(new Tcp()).uniHashCode();
-  }
-	
-	
+	 * @return
+	 */
+	public int uniDirectionalHashCode() {
+		return packet.getHeader(new Tcp()).uniHashCode();
+	}
+
 }

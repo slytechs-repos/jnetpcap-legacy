@@ -20,6 +20,8 @@ import org.jnetpcap.protocol.application.Html.Tag;
 import org.jnetpcap.util.JThreadLocal;
 
 /**
+ * Html header parser.
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
@@ -127,13 +129,13 @@ public class HtmlParser {
 	}
 
 	/**
-   * @param tagString
-   * @return
-   */
-  public String format(String str) {
-  	
-  	str = str.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t");
-  	return str;
-  }
+	 * @param tagString
+	 * @return
+	 */
+	public String format(String str) {
+
+		str = str.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t");
+		return str;
+	}
 
 }

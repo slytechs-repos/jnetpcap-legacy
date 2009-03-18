@@ -28,11 +28,16 @@ import org.jnetpcap.protocol.tcpip.TcpDuplexStream.Direction;
 import org.jnetpcap.util.JThreadLocal;
 
 /**
+ * Tcp protocol analyzer. Analyzes tcp protocol packet stream and maintains
+ * state. Provides the basis for TcpSequencer and TcpAssembler to further group
+ * related tcp segments into streams.
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
 public class TcpAnalyzer
-    extends AbstractAnalyzer {
+    extends
+    AbstractAnalyzer {
 
 	public enum Stage {
 		FIN_COMPLETE,
@@ -68,7 +73,7 @@ public class TcpAnalyzer
 	 */
 	public TcpAnalyzer() {
 		super(PRIORITY);
-		
+
 		JRegistry.getAnalyzer(JController.class).addAnalyzer(this, Tcp.ID);
 	}
 
@@ -154,7 +159,7 @@ public class TcpAnalyzer
 	}
 
 	@SuppressWarnings("unused")
-  private void printDebug(
+	private void printDebug(
 	    String pre,
 	    Direction printDir,
 	    JPacket packet,
@@ -174,8 +179,8 @@ public class TcpAnalyzer
 		long nseq = seq - sseq;
 		long ack = tcp.ack();
 		long nack = ack - rseq;
-//		long nxt = sender.getSndNXT();
-//		long una = sender.getSndUNA();
+		// long nxt = sender.getSndNXT();
+		// long una = sender.getSndUNA();
 
 		Direction dir = duplex.getDirection(tcp);
 
@@ -218,7 +223,7 @@ public class TcpAnalyzer
 	 * @throws TcpInvalidStreamHashcode
 	 */
 	@SuppressWarnings("unused")
-  private int processStream(JPacket packet, Tcp tcp, Ip4 ip4)
+	private int processStream(JPacket packet, Tcp tcp, Ip4 ip4)
 	    throws TcpInvalidStreamHashcode {
 
 		/*
@@ -232,10 +237,10 @@ public class TcpAnalyzer
 
 		// final int filter = 3179;
 		// final int filter = 3306;
-//		 final int filter = 3200;
-//		if (tcp.destination() != filter && tcp.source() != filter) {
-//			return duplexHash;
-//		}
+		// final int filter = 3200;
+		// if (tcp.destination() != filter && tcp.source() != filter) {
+		// return duplexHash;
+		// }
 
 		// System.out.printf("#%-2d ", packet.getFrameNumber() + 1);
 
@@ -321,14 +326,13 @@ public class TcpAnalyzer
 		/*
 		 * Segment data length
 		 */
-//		int len = ip4.length() - (ip4.hlen() + tcp.hlen()) * 4;
-
+		// int len = ip4.length() - (ip4.hlen() + tcp.hlen()) * 4;
 		Stage stage = duplex.getStage();
-//		TcpStream sender = duplex.getForward(tcp);
-//		TcpStream receiver = duplex.getReverse(tcp);
+		// TcpStream sender = duplex.getForward(tcp);
+		// TcpStream receiver = duplex.getReverse(tcp);
 
-//		long seq = tcp.seq();
-//		long ack = tcp.ack();
+		// long seq = tcp.seq();
+		// long ack = tcp.ack();
 
 		if (tcp.flags_FIN() && (stage == Stage.SYN_COMPLETE || stage == Stage.NULL)) {
 			duplex.setStage(Stage.FIN_WAIT1);
@@ -445,7 +449,7 @@ public class TcpAnalyzer
 		return false;
 	}
 
-//	private Direction display = Direction.NONE;
+	// private Direction display = Direction.NONE;
 
 	/**
 	 * Process a regular segment. We get window, ACK, SEQUENCE and data updates in
@@ -473,14 +477,14 @@ public class TcpAnalyzer
 			return false;
 		}
 
-//		long sseq = sender.getSndStart();
-//		long rseq = receiver.getSndStart();
-//		long seq = tcp.seq();
+		// long sseq = sender.getSndStart();
+		// long rseq = receiver.getSndStart();
+		// long seq = tcp.seq();
 		long ack = tcp.ack();
 
-//		Direction dir = duplex.getDirection(tcp);
+		// Direction dir = duplex.getDirection(tcp);
 
-//		printDebug("ACK:", display, packet, duplex, tcp, len);
+		// printDebug("ACK:", display, packet, duplex, tcp, len);
 
 		/*
 		 * Now handle the ACKs which signal to the tcp stream in reverse direction.
@@ -519,7 +523,7 @@ public class TcpAnalyzer
 			receiver.setSndUNA(ack, packet);
 			receiver.setRcvWIN(tcp.windowScaled());
 			if (support.hasListeners()) {
-				 support.fire(TcpStreamEvent.Type.ACK.create(this, duplex, packet));
+				support.fire(TcpStreamEvent.Type.ACK.create(this, duplex, packet));
 			}
 
 		}
@@ -551,18 +555,18 @@ public class TcpAnalyzer
 	    TcpStream receiver,
 	    int len) {
 
-//		long sseq = sender.getSndStart();
-//		long rseq = receiver.getSndStart();
+		// long sseq = sender.getSndStart();
+		// long rseq = receiver.getSndStart();
 		long seq = tcp.seq();
-//		long nseq = seq - sseq;
-//		long ack = tcp.ack();
-//		long nack = ack - rseq;
+		// long nseq = seq - sseq;
+		// long ack = tcp.ack();
+		// long nack = ack - rseq;
 		long nxt = sender.getSndNXT();
 		long una = sender.getSndUNA();
 
-//		Direction dir = duplex.getDirection(tcp);
+		// Direction dir = duplex.getDirection(tcp);
 
-//		printDebug("SEQ:", display, packet, duplex, tcp, len);
+		// printDebug("SEQ:", display, packet, duplex, tcp, len);
 
 		if (seq > nxt) {
 
@@ -631,9 +635,9 @@ public class TcpAnalyzer
 	}
 
 	/**
-   * @return
-   */
-  public AnalyzerSupport<TcpStreamEvent> getSupport() {
-  	return support;
-  }
+	 * @return
+	 */
+	public AnalyzerSupport<TcpStreamEvent> getSupport() {
+		return support;
+	}
 }

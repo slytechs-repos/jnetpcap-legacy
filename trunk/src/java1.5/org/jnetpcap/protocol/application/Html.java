@@ -29,6 +29,8 @@ import org.jnetpcap.protocol.tcpip.Http;
 import org.jnetpcap.util.JThreadLocal;
 
 /**
+ * Hyper Text Markup Language header definition.
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
@@ -161,7 +163,7 @@ public class Html
 			}
 
 			if (tag == Tag.TEXT) {
-//				b.append(tag.toString()).append('=');
+				// b.append(tag.toString()).append('=');
 				b.append('"');
 				b.append(parserLocal.get().format(tagString));
 				b.append('"');

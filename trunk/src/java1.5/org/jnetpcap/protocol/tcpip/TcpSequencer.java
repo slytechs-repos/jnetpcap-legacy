@@ -28,12 +28,18 @@ import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.util.JThreadLocal;
 
 /**
+ * Groups related tcp segments in contigues sequences. Sequences analyzes tcp
+ * segments, rearranges them and groups them into related segments. Notifies its
+ * listeners using events which can further process the grouped segments. For
+ * example TcpAssembler uses these sequences to reassemble the separate tcp
+ * segements into a single buffer.
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
 public class TcpSequencer
-    extends AbstractSequencer implements
-    AnalyzerListener<TcpStreamEvent> {
+    extends
+    AbstractSequencer implements AnalyzerListener<TcpStreamEvent> {
 
 	private final TcpAnalyzer analyzer;
 
@@ -104,7 +110,7 @@ public class TcpSequencer
 	 * @see org.jnetpcap.packet.analysis.AnalyzerListener#processAnalyzerEvent(org.jnetpcap.packet.analysis.AnalyzerEvent)
 	 */
 	public void processAnalyzerEvent(TcpStreamEvent evt) {
-		
+
 		if (evt.getType() == TcpStreamEvent.Type.ACKED_SEGMENT) {
 			final JPacket packet = evt.getPacket();
 			final TcpStream stream = evt.getStream();
@@ -144,8 +150,8 @@ public class TcpSequencer
 				sequence.addFragment(packet, (int) tcp.seq(), length);
 				// tcp.addAnalysis(sequence);
 
-//				long nseq = seq - start;
-//				long delta = sequence.getTotalLength() - nseq - length;
+				// long nseq = seq - start;
+				// long delta = sequence.getTotalLength() - nseq - length;
 				// System.out.printf("#%d seq=%d-%d::%5d seg.len=%d rcv.len=%d :: ",
 				// packet.getFrameNumber(), nseq, nseq + length, delta, length,
 				// sequence.getLen());
@@ -158,7 +164,7 @@ public class TcpSequencer
 					sequence.setHasAllFragments(true);
 					getTimeoutQueue().timeout(sequence);
 					super.removeSequence(hash);
-					
+
 					fragSupport.fire(FragmentSequenceEvent.sequenceComplete(this,
 					    sequence));
 
@@ -167,7 +173,6 @@ public class TcpSequencer
 			}
 		}
 	}
-
 
 	public boolean processPacket(JPacket packet) {
 
@@ -180,7 +185,7 @@ public class TcpSequencer
 		sequence.setTotalLength((int) length);
 		sequence.setStart(start);
 
-//		System.out.printf("map=%s\n", fragmentation.keySet());
+		// System.out.printf("map=%s\n", fragmentation.keySet());
 	}
 
 	public void setFragmentationBoundary(JPacket packet, long length) {
