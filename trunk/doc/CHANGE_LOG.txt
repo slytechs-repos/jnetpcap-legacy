@@ -21,6 +21,40 @@
                               jNetPcap Package
                                  Change Log
                                  
+== Release 1.2.rc5 (2009-3-18) ==
+
+* Fixes
+
+  - #2688877 - reported that debian package is missing .so soft link to .so.rc4 
+               main lib file. Will add that link in post-install to debian 
+               package control file
+  
+  - #2648427 - PcapDumper.dump() core-dumps. A patch is available upon request. 
+  
+  - #2557009 - LLC header problem  
+  
+* Added
+
+  - Pcap.loop() and Pcap.dispatch() variation to allow the user to supply 
+    JScanner. This allows JScanner internal buffer size to be changed by the 
+    user
+    
+  - Added JPacket.setMemoryPool(). This allows the user to change the default 
+    allocation block size of JMemoryPool for packets that are copied via the 
+    constructor and transferTo() methods
+    
+  - Added analyzer support for Tcp/Ip family of protocols. This includes Ip 
+    fragment reassembly, tcp segment sequencing and reassembly as well
+    
+  - Added Http and Html as CORE jnetpcap protocols supported by native scanner
+  
+* Changed
+
+  - Moved org.jnetpcap.packet.header package to new org.jnetpcap.protocol 
+    package. Protocols are grouped into families of protocols, which are stored
+    under appropriate protocol suite sub-packages.  
+  
+
 == Release 1.2.rc4 (2009-1-4) ==
 
 * Fixes
