@@ -20,14 +20,14 @@
 
 
                               jNetPcap Package
-                               Version 1.2 RC4
+                               Version 1.2 RC5
                                Release Notes
-                            Created on 2009-01-04
+                            Created on 2009-03-18
 
 INTRODUCTION:
 ============
 
-This is a release candidate #4 release of jNetPcap library. 
+This is a release candidate #5 release of jNetPcap library. 
 
 The API classes are compiled with Java 1.5.X compiler and require Java 1.5 
 compatibility. The package is platform dependent as there is a native library 
@@ -41,17 +41,12 @@ methods are implemented. Also various low level kernel buffer operations that
 are natively available through WinPcap extension library are implemented as 
 well, but only available on windows based platforms.
 
-This release adds support for packet decoding. No additional platforms are
-added to supported list. New function on PcapIf class allows retrieval of 
-hardware MAC addresses from any network interface. New utility methods named
-loopInBackground and dispatchInBackground simplify packet capture in multi
-threaded environment.
+This release adds support for protocol analysis. Ip4 and Tcp multi 
+segment/fragment reassembly and sequencing. Tracking of tcp acks and streams.
 
-This release adds a new feature that allows raw packets as received from libpcap
-to be decoded into more programmer and human friendly forms. The package
-provides several core protocol headers and a mechanism for extensions.
+This release also adds a new protocol headers, Http and Html.
 
-The release also addresses two known bugs as listed in the bugs and changes
+The release also addresses several known bugs as listed in the bugs and changes
 section of these release notes.
 
 The javadoc API documentation and a user guide is available at the project's 
@@ -228,40 +223,40 @@ you will need to included any version of 'jUnit' in the CLASSPATH.
 
 == General Notes ==
 
-This is a major feature release. Adds support for packet decoding, PcapUtils 
-class with new utility methods, fixes two bugs and deprecates and replaces
-several classes from the API.
+This is a major feature release. Adds support for high level protocol analysis, 
+fixes several bugs, adds Http and Html header support and moves header package 
+to new protocol package. 
 
 == Bugs Fixed ==
 
-  - #2219738 - WinPcap.sendQueue ignores its parameter.  
-               WinPcapSendQueue(int size) constructor was ignoring size 
-               parameter and using a constant.
-    
-  - #2219729 - Memory leak in Pcap.loop().
-               Memory leak in Pcap.loop method. Local JNI references were 
-               accumulating causing out of memory errors in Pcap.loop when it 
-               was set to loop forever.
+  - #2688877 - reported that debian package is missing .so soft link to .so.rc4 
+               main lib file. Will add that link in post-install to debian 
+               package control file
+  
+  - #2648427 - PcapDumper.dump() core-dumps. A patch is available upon request. 
+  
+  - #2557009 - LLC header problem  
 
 == Changes ==
 
 * Added
 
-  - #2292402 - Packet decoding framework
-  
-  - #2292455 - Memory management  
-  
-  - #2292464 - Add a function to acquire network interface MAC address
-  
-  - #2292515 - Simplify capturing packets in multi-threaded environment  
+  - Pcap.loop() and Pcap.dispatch() variation to allow the user to supply 
+    JScanner. This allows JScanner internal buffer size to be changed by the 
+    user
+    
+  - Added JPacket.setMemoryPool(). This allows the user to change the default 
+    allocation block size of JMemoryPool for packets that are copied via the 
+    constructor and transferTo() methods
+    
+  - Added analyzer support for Tcp/Ip family of protocols. This includes Ip 
+    fragment reassembly, tcp segment sequencing and reassembly as well
+    
+  - Added Http and Html as CORE jnetpcap protocols supported by native scanner
   
 == Deprecations ==
 
-  - #2321006 - Deprecate: PcapHandler  
-  
-  - #2321014 - Deprecate: PcapPktHdr  
-  
-  - #2321017 - Deprecate: PcapInteger
-  
-  - #2321024 - Deprecate: certain loop, dispatch functions  
+  - Moved org.jnetpcap.packet.header package to new org.jnetpcap.protocol 
+    package. Protocols are grouped into families of protocols, which are stored
+    under appropriate protocol suite sub-packages.  
 
