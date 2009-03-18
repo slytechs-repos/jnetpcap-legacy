@@ -30,11 +30,19 @@ import org.jnetpcap.packet.analysis.FragmentSequenceEvent;
 import org.jnetpcap.util.JThreadLocal;
 
 /**
+ * Tcp reassembler. Assembles sequences of tcp segments into a contigues stream
+ * of data. TcpAssembler works with TcpSequencer to reassemble portions of the
+ * tcp segments. Higher level protocol must specify which portions of the tcp
+ * stream to reassemble.
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
 public class TcpAssembler
-    extends AbstractAnalyzer implements FragmentAssembler,
+    extends
+    AbstractAnalyzer
+    implements
+    FragmentAssembler,
     AnalyzerListener<FragmentSequenceEvent> {
 
 	private final AnalyzerSupport<FragmentAssemblyEvent> support =
@@ -45,8 +53,7 @@ public class TcpAssembler
 	 */
 	public TcpAssembler() {
 
-		JRegistry.getAnalyzer(TcpSequencer.class)
-		    .addFragmentationListener(this);
+		JRegistry.getAnalyzer(TcpSequencer.class).addFragmentationListener(this);
 	}
 
 	/**
@@ -106,15 +113,16 @@ public class TcpAssembler
 
 	private final static JMemoryPool memory = new JMemoryPool();
 
-	private static final JThreadLocal<Tcp> tcpLocal = new JThreadLocal<Tcp>(Tcp.class);
+	private static final JThreadLocal<Tcp> tcpLocal =
+	    new JThreadLocal<Tcp>(Tcp.class);
 
-//	private final JThreadLocal<Ip4> ipLocal = new JThreadLocal<Ip4>(Ip4.class);
+	// private final JThreadLocal<Ip4> ipLocal = new JThreadLocal<Ip4>(Ip4.class);
 
 	private JPacket reassemble(FragmentSequence sequence) {
 		JBuffer buf = new JBuffer(JMemory.Type.POINTER);
 		memory.allocate(sequence.getTotalLength(), buf);
 		Tcp tcp = tcpLocal.get();
-//		Ip4 ip = ipLocal.get();
+		// Ip4 ip = ipLocal.get();
 		long start = sequence.getStart();
 
 		for (JPacket p : sequence.getPacketSequence()) {

@@ -17,11 +17,14 @@ import org.jnetpcap.packet.analysis.AbstractAnalysis;
 import org.jnetpcap.packet.analysis.JAnalysis;
 
 /**
+ * Tcp acknowledgement analysis.
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
 public class TcpAck
-    extends AbstractAnalysis<TcpAck, TcpStreamEvent> {
+    extends
+    AbstractAnalysis<TcpAck, TcpStreamEvent> {
 
 	private enum Field implements JStructField {
 		PACKET(REF), ;
@@ -59,21 +62,20 @@ public class TcpAck
 	 */
 	public TcpAck(JPacket packet) {
 		super(Field.values());
-		
+
 		setPacket(packet);
 	}
 
 	/**
-   * @param packet
-   */
-  public void setPacket(JPacket packet) {
-  	super.setObject(Field.PACKET.offset(), packet);
-  }
-  
-  public JPacket getPacket() {
-  	return super.getObject(JPacket.class, Field.PACKET.offset());
-  }
-  
+	 * @param packet
+	 */
+	public void setPacket(JPacket packet) {
+		super.setObject(Field.PACKET.offset(), packet);
+	}
+
+	public JPacket getPacket() {
+		return super.getObject(JPacket.class, Field.PACKET.offset());
+	}
 
 	/*
 	 * (non-Javadoc)

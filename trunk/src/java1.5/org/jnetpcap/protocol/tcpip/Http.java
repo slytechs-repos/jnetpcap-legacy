@@ -18,13 +18,22 @@ import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
 
 /**
+ * Hyper Text Transfer Protocol header definition.
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@Header(suite=ProtocolSuite.TCP_IP)
+@Header(suite = ProtocolSuite.TCP_IP)
 public class Http
-    extends AbstractMessageHeader {
+    extends
+    AbstractMessageHeader {
 
+	/**
+	 * Http content type table.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
 	public enum ContentType {
 		GIF("image/gif"),
 		HTML("text/html"),
@@ -36,7 +45,7 @@ public class Http
 				if (t.name().equalsIgnoreCase(type)) {
 					return t;
 				}
-				
+
 				for (String m : t.magic) {
 					if (type.startsWith(m)) {
 						return t;
@@ -127,7 +136,7 @@ public class Http
 		if (c.length < 3) {
 			return; // Can't parse it
 		}
-		
+
 		if (c[0].startsWith("HTTP")) {
 			super.setMessageType(MessageType.RESPONSE);
 
@@ -165,7 +174,7 @@ public class Http
 	public boolean hasContentType() {
 		return hasField(Response.Content_Type);
 	}
-	
+
 	public boolean hasField(Request field) {
 		return super.hasField(field);
 	}
