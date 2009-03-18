@@ -1,7 +1,5 @@
 #!/bin/sh
 
-echo deb-prerm $*
-
 rm -f /usr/lib/libjnetpcap.so
 rm -f /usr/share/java/jnetpcap.jar
 
