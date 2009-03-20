@@ -539,6 +539,12 @@ public abstract class AnnotatedFieldMethod
 			return name.replace("Mask", "");
 		} else if (name.endsWith("Value")) {
 			return name.replace("Value", "");
+		} else if (name.endsWith("Display")) {
+			return name.replace("Display", "");
+		} else if (name.endsWith("Units")) {
+			return name.replace("Units", "");
+		} else if (name.endsWith("Format")) {
+			return name.replace("Format", "");
 		} else {
 			return name;
 		}
