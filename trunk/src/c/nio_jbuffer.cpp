@@ -127,7 +127,7 @@ JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_nio_JBuffer_getByteArray__I_3B
 		return NULL;
 	}
 	
-	env->SetByteArrayRegion(jarray, jindex, jarraySize, mem);
+	env->SetByteArrayRegion(jarray, 0, jarraySize, mem + jindex);
 	
 	return jarray;
 }
