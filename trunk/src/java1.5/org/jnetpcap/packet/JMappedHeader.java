@@ -232,7 +232,12 @@ public class JMappedHeader
 	}
 
 	protected <V> V fieldValue(Class<V> c, Enum<? extends Enum<?>> field) {
-		return fieldMap.get(map(field)).getValue(c, this);
+		Entry entry = fieldMap.get(map(field));
+		if (entry == null) {
+			return null;
+		}
+		
+		return entry.getValue(c, this);
 	}
 
 	protected <V> V fieldValue(Class<V> c, String field) {
