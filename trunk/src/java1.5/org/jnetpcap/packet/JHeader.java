@@ -13,6 +13,7 @@
 package org.jnetpcap.packet;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import org.jnetpcap.nio.JBuffer;
@@ -32,7 +33,8 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Sly Technologies, Inc.
  */
 public abstract class JHeader
-    extends JBuffer {
+    extends
+    JBuffer implements JPayloadAccessor {
 
 	/**
 	 * This class is peered state of a header a native state structure
@@ -50,7 +52,8 @@ public abstract class JHeader
 	 * @author Sly Technologies, Inc.
 	 */
 	public static class State
-	    extends JStruct {
+	    extends
+	    JStruct {
 
 		public final static String STRUCT_NAME = "header_t";
 
@@ -497,10 +500,10 @@ public abstract class JHeader
 		JFormatter out = JPacket.getFormatter();
 		out.reset();
 		try {
-	    out.format(this);
-    } catch (IOException e) {
-	    throw new IllegalStateException("Unexpected StringBuilder IO error");
-    }
+			out.format(this);
+		} catch (IOException e) {
+			throw new IllegalStateException("Unexpected StringBuilder IO error");
+		}
 		return out.toString();
 	}
 
@@ -518,4 +521,84 @@ public abstract class JHeader
 		return AnalysisUtils.toIterable(state.getAnalysis());
 	}
 
+	/**
+	 * Retrieves the playload data portion of the packet right after the current
+	 * header.
+	 * 
+	 * @return newly allocated byte array containing copy of the contents of the
+	 *         header's payload from the packet.
+	 */
+	public byte[] getPayload() {
+		final JPacket packet = getPacket();
+		final int offset = getOffset() + size();
+
+		return packet.getByteArray(offset, packet.remaining(offset));
+	}
+
+	/**
+	 * Copies the payload data portion of the packet right after the current
+	 * header to user supplied buffer.
+	 * 
+	 * @param buffer
+	 *          buffer where the data will be written to
+	 * @return the same buffer that was passed in
+	 */
+	public byte[] transferPayloadTo(byte[] buffer) {
+		final JPacket packet = getPacket();
+		final int offset = getOffset() + size();
+
+		return packet.getByteArray(offset, buffer);
+	}
+
+	/**
+	 * Peers, without copy, the user supplied buffer with payload data portion of
+	 * the packet right after the current header.
+	 * 
+	 * @param buffer
+	 *          buffer to peer the data with
+	 * @return the same buffer that was passed in
+	 */
+	public JBuffer peerPayloadTo(JBuffer buffer) {
+		final JPacket packet = getPacket();
+		final int offset = getOffset() + size();
+
+		buffer.peer(packet, offset, packet.remaining(offset));
+
+		return buffer;
+	}
+
+	/**
+	 * Copies into the user supplied buffer, the payload data portion of the
+	 * packet right after the current header.
+	 * 
+	 * @param buffer
+	 *          buffer to copy the data to
+	 * @return the same buffer that was passed in
+	 */
+	public JBuffer transferPayloadTo(JBuffer buffer) {
+		final JPacket packet = getPacket();
+		final int offset = getOffset() + size();
+
+		packet.transferTo(buffer, offset, packet.remaining(offset), 0);
+
+		return buffer;
+	}
+
+	/**
+	 * Copies into the user supplied buffer, the payload data portion of the
+	 * packet right after the current header. The copy will start at the current
+	 * ByteBuffer position property.
+	 * 
+	 * @param buffer
+	 *          buffer to copy the data to
+	 * @return the same buffer that was passed in
+	 */
+	public ByteBuffer transferPayloadTo(ByteBuffer buffer) {
+		final JPacket packet = getPacket();
+		final int offset = getOffset() + size();
+
+		packet.transferTo(buffer, offset, packet.remaining(offset));
+
+		return buffer;
+	}
 }
