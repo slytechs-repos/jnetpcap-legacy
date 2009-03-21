@@ -53,7 +53,8 @@ import org.jnetpcap.packet.format.TextFormatter;
  * @author Sly Technologies, Inc.
  */
 public abstract class JPacket
-    extends JBuffer {
+    extends
+    JBuffer implements JHeaderAccessor {
 
 	/**
 	 * Class maintains the decoded packet state. The class is peered with
@@ -107,7 +108,8 @@ public abstract class JPacket
 	 * @author Sly Technologies, Inc.
 	 */
 	public static class State
-	    extends JStruct {
+	    extends
+	    JStruct {
 
 		public final static String STRUCT_NAME = "packet_state_t";
 
