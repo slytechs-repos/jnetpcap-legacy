@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <pcap.h>
 #include <jni.h>
 
@@ -62,21 +63,91 @@ void scan_html(scan_t *scan) {
  */
 void scan_http(scan_t *scan) {
 	char *http = (char *)(scan->buf + scan->offset);
-	int size = scan->buf_len - scan->offset;
+	packet_state_t *packet = scan->packet;
 	
-	scan->next_id = PAYLOAD_ID;
-	scan->length = size;
+	/*
+	 * To calculate length we need to take it from ip header - tcp header
+	 */
+	char *buf = scan->buf;
+	header_t iph  = packet->pkt_headers[packet->pkt_header_count -2];
+	header_t tcph = packet->pkt_headers[packet->pkt_header_count -1];
 	
-	for (int i = 0; i < size; i ++){
-		if (http[i] == '\r' && http[i + 1] == '\n' 
-			&& http[i + 2] == '\r' && http[i + 3] == '\n') {
-			
-			scan->length = i + 4;
-			break;
-		}
+	ip4_t *ip = (ip4_t *)(scan->buf + iph.hdr_offset);
+	tcp_t *tcp = (tcp_t *)(scan->buf + tcph.hdr_offset);
+	int size = BIG_ENDIAN16(ip->tot_len) - iph.hdr_length - tcph.hdr_length;
+	
+	/* First sanity check if we have printable chars */
+	if (size < 5 || 
+		(isprint(http[0]) && isprint(http[1]) && isprint(http[2])) == FALSE) {
+		
+		scan->id = PAYLOAD_ID;
+		scan->length = 0;
+		
+#ifdef DEBUG
+		char b[32];
+		b[0] = '\0';
+		b[31] = '\0';
+		strncpy(b, http, (size <= 31)? size : 31);
+		
+		printf("scan_http(): UNMATCHED size=%d http=%s\n", size, b);
+#endif 
+		return;
 	}
 	
-	
+	if (	/* HTTP Response */
+			strncmp(http, "HTTP", 4) == 0 ||
+			
+			/* HTTP Requests */
+			strncmp(http, "GET", 3) == 0 || 
+			strncmp(http, "OPTIONS", 7) == 0 || 
+			strncmp(http, "HEAD", 4) == 0 || 
+			strncmp(http, "POST", 4) == 0 || 
+			strncmp(http, "PUT", 3) == 0 || 
+			strncmp(http, "DELETE", 6) == 0 || 
+			strncmp(http, "TRACE", 5) == 0 || 
+			strncmp(http, "CONNECT", 7 == 0) ) {
+		
+		scan->length = size;
+		
+#ifndef DEBUG
+		char b[32];
+		b[0] = '\0';
+		b[31] = '\0';
+		strncpy(b, http, (size <= 31)? size : 31);
+		
+		if (size < 10)
+		printf("scan_http(): #%d INVALID size=%d http=%s\n", 
+				(int) scan->packet->pkt_frame_num, size, b);
+#endif 
+
+		
+		for (int i = 0; i < size; i ++){
+			if (http[i] == '\r' && http[i + 1] == '\n' 
+				&& http[i + 2] == '\r' && http[i + 3] == '\n') {
+				
+				scan->length = i + 4;
+				break;
+			}
+		}
+		
+		return;
+		
+	} else {
+#ifdef DEBUG
+		char b[32];
+		b[0] = '\0';
+		b[31] = '\0';
+		strncpy(b, http, (size <= 31)? size : 31);
+		
+		printf("scan_http(): UNMATCHED size=%d http=%s\n", size, b);
+#endif 
+		
+		scan->id = PAYLOAD_ID;
+		scan->length = 0;
+		return;
+		
+	}
+
 }
 
 /*
@@ -266,8 +337,6 @@ void scan_tcp(scan_t *scan) {
 		scan->next_id = HTTP_ID;
 		return;
 	}
-
-
 }
 
 /*
