@@ -169,6 +169,41 @@ JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_nio_JBuffer_getByteArray__II
 
 /*
  * Class:     org_jnetpcap_nio_JBuffer
+ * Method:    getByteArray
+ * Signature: (I[BII)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_nio_JBuffer_getByteArray__I_3BII
+  (JNIEnv *env, jobject obj, jint jindex, jbyteArray jarray, jint offset, jint length) {
+	
+	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
+	if (mem == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
+		return NULL;
+	}
+
+	size_t size =  (size_t) env->GetIntField(obj, jmemorySizeFID);
+	if (jindex < 0 || jindex >= size || offset < 0 || length < 0) {
+		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+		return NULL;
+	}
+	
+	size_t jarraySize = env->GetArrayLength(jarray);
+	
+	if (jindex + offset + length > size || offset + length > jarraySize) {
+		
+		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+		
+		return NULL;
+	}
+	
+	env->SetByteArrayRegion(jarray, offset, length, mem + jindex);
+	
+	return jarray;
+}
+
+
+/*
+ * Class:     org_jnetpcap_nio_JBuffer
  * Method:    getDouble
  * Signature: (I)D
  */
