@@ -215,13 +215,14 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getHeaderIdBy
 /*
  * Class:     org_jnetpcap_packet_JPacket_State
  * Method:    setAnalysis
- * Signature: (Lorg/jnetpcap/analysis/JAnalysis;)V
+ * Signature: (Lorg/jnetpcap/packet/analysis/JAnalysis;)V
  */
-JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JPacket_00024State_setAnalysis
+JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JPacket_00024State_setAnalysis__Lorg_jnetpcap_packet_analysis_JAnalysis_2
   (JNIEnv *env, jobject obj, jobject analysis) {
 	
 	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
 	if (packet == NULL) {
+		throwVoidException(env, NULL_PTR_EXCEPTION);
 		return;
 	}
 	
@@ -238,6 +239,44 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JPacket_00024State_setAnalysis
 	}
 }
 
+/*
+ * Class:     org_jnetpcap_packet_JPacket_State
+ * Method:    setAnalysis
+ * Signature: (ILorg/jnetpcap/packet/analysis/JAnalysis;)V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JPacket_00024State_setAnalysis__ILorg_jnetpcap_packet_analysis_JAnalysis_2
+  (JNIEnv *env, jobject obj, jint id, jobject analysis) {
+		
+	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	if (packet == NULL) {
+		throwVoidException(env, NULL_PTR_EXCEPTION);
+		return;
+	}
+	
+	if (id < 0 || id >= packet->pkt_header_count) {
+		throwException(env, INDEX_OUT_OF_BOUNDS_EXCEPTION, "header index out of range");
+		return;
+	}
+	
+	header_t *header = &packet->pkt_headers[id];
+	
+	if (header == NULL) {
+		throwVoidException(env, NULL_PTR_EXCEPTION);
+		return;
+	}
+
+	if (header->hdr_analysis != NULL) {
+		/* params: packet_state_t struct and analysis JNI global reference */
+		jmemoryRefRelease(env, obj, header->hdr_analysis);
+	}
+
+	if (analysis == NULL) {
+		header->hdr_analysis = NULL;
+	} else	{
+		/* params: packet_state_t struct and analysis JNI local reference */
+		header->hdr_analysis = jmemoryRefCreate(env, obj, analysis);
+	}
+}
 
 
 /*
