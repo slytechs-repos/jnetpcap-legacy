@@ -44,15 +44,6 @@ public class TestHttp
 	// private final static Appendable OUT = TestUtils.DEV_NULL;
 	private final static Appendable OUT = System.out;
 
-	static {
-		try {
-			JRegistry.register(Http.class);
-			JRegistry.register(Html.class);
-		} catch (RegistryHeaderErrors e) {
-			e.printStackTrace();
-		}
-	}
-
 	private Http http = new Http();
 
 	/*

@@ -71,4 +71,12 @@ public class AnalyzerSupport<E extends AnalyzerEvent> {
   public boolean hasListeners() {
   	return listeners.isEmpty() == false;
   }
+
+	/**
+   * @param listener
+   * @return
+   */
+  public boolean containsListener(AnalyzerListener<E> listener) {
+  	return listeners.contains(listener);
+  }
 }

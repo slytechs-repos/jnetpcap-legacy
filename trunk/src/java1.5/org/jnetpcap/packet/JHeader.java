@@ -534,6 +534,13 @@ public abstract class JHeader
 
 		return packet.getByteArray(offset, packet.remaining(offset));
 	}
+	
+	public int getPayloadLength() {
+		final JPacket packet = getPacket();
+		final int offset = getOffset() + size();
+
+		return packet.size() - offset;
+	}
 
 	/**
 	 * Copies the payload data portion of the packet right after the current

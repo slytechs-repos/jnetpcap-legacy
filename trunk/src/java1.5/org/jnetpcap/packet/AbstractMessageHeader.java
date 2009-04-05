@@ -87,6 +87,8 @@ public abstract class AbstractMessageHeader
 	private final JThreadLocal<StringBuilder> stringLocal =
 	    new JThreadLocal<StringBuilder>(StringBuilder.class);
 
+	protected String rawHeader;
+
 	protected abstract void decodeFirstLine(String line);
 
 	/**
@@ -107,8 +109,8 @@ public abstract class AbstractMessageHeader
 		int len = super.getLength();
 		super.getUTF8String(0, buf, len);
 
-		String s = buf.toString();
-		String lines[] = s.split("\r\n");
+		rawHeader = buf.toString();
+		String lines[] = rawHeader.split("\r\n");
 
 		// System.out.println("[" + s + "]");
 
@@ -123,10 +125,10 @@ public abstract class AbstractMessageHeader
 			// System.out.printf("[%s]=[%s]\n", c[0], c[1]);
 			String name = c[0];
 			String value = c[1];
-			int offset = s.indexOf(name + ":");
+			int offset = rawHeader.indexOf(name + ":");
 			int length = name.length() + value.length() + 1;
 
-			super.addField(name.trim(), value.trim(), offset, length);
+			super.addField(map(name.trim()), value.trim(), offset, length);
 		}
 	}
 

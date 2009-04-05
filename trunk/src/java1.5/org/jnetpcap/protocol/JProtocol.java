@@ -17,6 +17,7 @@ import org.jnetpcap.PcapDLT;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.Payload;
 import org.jnetpcap.protocol.application.Html;
+import org.jnetpcap.protocol.application.WebImage;
 import org.jnetpcap.protocol.lan.Ethernet;
 import org.jnetpcap.protocol.lan.IEEE802dot1q;
 import org.jnetpcap.protocol.lan.IEEE802dot2;
@@ -112,7 +113,10 @@ public enum JProtocol {
 	/**
 	 * Hyper Text Markup Language header
 	 */
-	HTML(Html.class), ;
+	HTML(Html.class),
+
+	WEB_IMAGE(WebImage.class)
+	;
 
 	/**
 	 * A protocol suite. Meta data interface that provides general category for
@@ -183,6 +187,8 @@ public enum JProtocol {
 	public final static int HTTP_ID = 13;
 
 	public final static int HTML_ID = 14;
+
+	public final static int WEB_IMAGE_ID = 15;
 
 	private JProtocol(String className) {
 		this(className, new PcapDLT[0]);
@@ -341,5 +347,9 @@ public enum JProtocol {
 	public int getId() {
 		return ID;
 	}
+
+	public final Class<? extends JHeader> getClazz() {
+  	return this.clazz;
+  }
 
 }

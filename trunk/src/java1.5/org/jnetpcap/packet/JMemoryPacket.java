@@ -241,7 +241,7 @@ public class JMemoryPacket
 	public JMemoryPacket(byte[] buffer) {
 		super(Type.POINTER);
 
-		transferStateAndDataFrom(buffer);
+		transferFrom(buffer);
 	}
 
 	/**
@@ -260,7 +260,7 @@ public class JMemoryPacket
 	public JMemoryPacket(ByteBuffer buffer) throws PeeringException {
 		super(Type.POINTER);
 
-		transferStateAndDataFrom(buffer);
+		transferFrom(buffer);
 	}
 
 	/**
@@ -338,9 +338,14 @@ public class JMemoryPacket
 	 * </pre>
 	 */
 	public JMemoryPacket(JBuffer buffer) {
-		super(Type.POINTER);
+		super(POINTER);
 
-		transferStateAndDataFrom(buffer);
+		final int len = buffer.size();
+		JBuffer b = getMemoryBuffer(len);
+
+		b.transferFrom(buffer); // Make a buffer to buffer copy
+
+		peer(b, 0, len);
 	}
 
 

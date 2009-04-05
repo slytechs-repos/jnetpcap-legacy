@@ -18,6 +18,7 @@ import org.jnetpcap.nio.JMemoryPool;
 import org.jnetpcap.packet.JMemoryPacket;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
+import org.jnetpcap.packet.JScanner;
 import org.jnetpcap.packet.analysis.AbstractAnalyzer;
 import org.jnetpcap.packet.analysis.AnalysisException;
 import org.jnetpcap.packet.analysis.AnalyzerListener;
@@ -141,10 +142,16 @@ public class TcpAssembler
 		JPacket packet = sequence.getPacketSequence().get(0);
 		int i = packet.getState().findHeaderIndex(Tcp.ID);
 		int nid = packet.getState().getHeaderIdByIndex(i + 1);
+		packet.addAnalysis(nid, sequence);
 
-		packet = new JMemoryPacket(nid, buf);
+		JPacket copy = new JMemoryPacket(buf);
+//		System.out.println(copy.toHexdump());
+		
+		JScanner.getThreadLocal().scan(copy, nid);
+//		packet.getScanner().scan(copy, nid);
+		
 
-		return packet;
+		return copy;
 	}
 
 	/*

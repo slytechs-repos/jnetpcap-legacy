@@ -43,25 +43,41 @@ public class TcpSequencer
 
 	private final TcpAnalyzer analyzer;
 
+	private boolean consume;
+
 	private JThreadLocal<Ip4> ipLocal = new JThreadLocal<Ip4>(Ip4.class);
-
-	private JThreadLocal<Tcp> tcpLocal = new JThreadLocal<Tcp>(Tcp.class);
-
-	public TcpSequencer() {
-		super(200, JRegistry.getAnalyzer(TcpAnalyzer.class));
-
-		this.analyzer = JRegistry.getAnalyzer(TcpAnalyzer.class);
-
-		this.analyzer.addTcpStreamListener(this, null);
-
-	}
 
 	private final Formatter out =
 	    new Formatter(outStringBuilder = new StringBuilder());
-
+	
 	private final StringBuilder outStringBuilder;
 
-	private boolean consume;
+	private JThreadLocal<Tcp> tcpLocal = new JThreadLocal<Tcp>(Tcp.class);
+	
+	public TcpSequencer() {
+		this(JRegistry.getAnalyzer(TcpAnalyzer.class));
+	}
+
+	public TcpSequencer(TcpAnalyzer analyzer) {
+		super(200, analyzer);
+		
+		this.analyzer = analyzer;
+
+		enable(true);
+	}
+
+	public boolean enable(boolean state) {
+		
+		final boolean old = this.analyzer.containsListener(this);
+
+		if (state == true &&  old == false) {
+			this.analyzer.addTcpStreamListener(this, null);
+		} else {
+			this.analyzer.removeListener(this);		
+		}
+		
+		return old;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -102,6 +118,10 @@ public class TcpSequencer
 
 		return list;
 
+	}
+
+	public boolean isEnabled() {
+		return this.analyzer.containsListener(this);
 	}
 
 	/*
@@ -179,6 +199,13 @@ public class TcpSequencer
 		return true;
 	}
 
+	/**
+	 * @param b
+	 */
+	public void setConsume(boolean consume) {
+		this.consume = consume;
+	}
+
 	public void setFragmentationBoundary(int hash, long start, long length) {
 
 		FragmentSequence sequence = getSequence(hash, true);
@@ -196,13 +223,6 @@ public class TcpSequencer
 		if (packet.hasHeader(ip) && packet.hasHeader(tcp)) {
 			setFragmentationBoundary(tcp.hashCode(), tcp.seq(), length);
 		}
-	}
-
-	/**
-	 * @param b
-	 */
-	public void setConsume(boolean consume) {
-		this.consume = consume;
 	}
 
 }

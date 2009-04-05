@@ -158,7 +158,7 @@ public abstract class JPacket
 		public native JAnalysis getAnalysis();
 
 		/**
-		 * Retrieves the analysis object htat is attached to the header at index.
+		 * Retrieves the analysis object that is attached to the header at index.
 		 * This method provides a way to retrive analysis object directly from a
 		 * header without having to have a reference to the header, only its index
 		 * in the packet state table of headers.
@@ -296,6 +296,16 @@ public abstract class JPacket
 		 * @param analysis
 		 */
 		public native void setAnalysis(JAnalysis analysis);
+
+		/**
+		 * Sets analysis information for header at index
+		 * 
+		 * @param index
+		 *          header index
+		 * @param analysis
+		 *          object to set
+		 */
+		public native void setAnalysis(int index, JAnalysis analysis);
 
 		/**
 		 * Dump packet_state_t structure and its sub structures to textual debug
@@ -472,11 +482,27 @@ public abstract class JPacket
 	}
 
 	/**
+	 * @param nid
+	 * @param sequence
+	 */
+	public <T extends JAnalysis> void addAnalysis(int id, T analysis) {
+		addAnalysis(id, 0, analysis);
+	}
+
+	/**
+	 * @param nid
+	 * @param sequence
+	 */
+	public <T extends JAnalysis> void addAnalysis(int id, int instance, T analysis) {
+		int index = state.findHeaderIndex(id, instance);
+		this.state.setAnalysis(index, analysis);
+	}
+
+	/**
 	 * @param sequence
 	 */
 	public <T extends JAnalysis> void addAnalysis(T analysis) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Not implemented yet");
+		this.state.setAnalysis(analysis);
 	}
 
 	/**
@@ -502,12 +528,10 @@ public abstract class JPacket
 		return memory.size();
 	}
 
-	public <T extends JAnalysis> T getAnalysis(T analysis) {
-		return this.state.getAnalysis().getAnalysis(analysis);
-	}
-
-	public <T extends JAnalysis> T getAnalysis(int id, T analysis) {
-		return getAnalysis(id, 0, analysis);
+	public <T extends JAnalysis> T getAnalysis(
+	    Class<? extends JHeader> c,
+	    T analysis) {
+		return getAnalysis(JRegistry.lookupId(c), 0, analysis);
 	}
 
 	public <T extends JAnalysis> T getAnalysis(int id, int instance, T analysis) {
@@ -515,10 +539,12 @@ public abstract class JPacket
 		return this.state.getAnalysis(index).getAnalysis(analysis);
 	}
 
-	public <T extends JAnalysis> T getAnalysis(
-	    Class<? extends JHeader> c,
-	    T analysis) {
-		return getAnalysis(JRegistry.lookupId(c), 0, analysis);
+	public <T extends JAnalysis> T getAnalysis(int id, T analysis) {
+		return getAnalysis(id, 0, analysis);
+	}
+
+	public <T extends JAnalysis> T getAnalysis(T analysis) {
+		return this.state.getAnalysis().getAnalysis(analysis);
 	}
 
 	/**
@@ -527,6 +553,16 @@ public abstract class JPacket
 	 * @return capture header
 	 */
 	public abstract JCaptureHeader getCaptureHeader();
+
+	/**
+	 * Returns the frame number as assigned by either the packet scanner or
+	 * analyzers.
+	 * 
+	 * @return zero based frame number
+	 */
+	public long getFrameNumber() {
+		return state.getFrameNumber() + 1;
+	}
 
 	/**
 	 * Peers the supplied header with the native header state structure and packet
@@ -689,6 +725,10 @@ public abstract class JPacket
 		return memory;
 	}
 
+	public JScanner getScanner() {
+		return scanner;
+	}
+
 	/**
 	 * Gets the peered packet state object
 	 * 
@@ -710,13 +750,13 @@ public abstract class JPacket
 		return AnalysisUtils.ROOT_TYPE;
 	}
 
-	public boolean hasAnalysis(int type) {
-		return state.getAnalysis() != null && state.getAnalysis().hasAnalysis(type);
-	}
-
 	public boolean hasAnalysis(Class<? extends JAnalysis> analysis) {
 		return state.getAnalysis() != null
 		    && state.getAnalysis().hasAnalysis(analysis);
+	}
+
+	public boolean hasAnalysis(int type) {
+		return state.getAnalysis() != null && state.getAnalysis().hasAnalysis(type);
 	}
 
 	public <T extends JAnalysis> boolean hasAnalysis(T analysis) {
@@ -859,15 +899,5 @@ public abstract class JPacket
 			throw new IllegalStateException(
 			    "internal error, StringBuilder threw IOException");
 		}
-	}
-
-	/**
-	 * Returns the frame number as assigned by either the packet scanner or
-	 * analyzers.
-	 * 
-	 * @return zero based frame number
-	 */
-	public long getFrameNumber() {
-		return state.getFrameNumber() + 1;
 	}
 }

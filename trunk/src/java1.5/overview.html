@@ -44,23 +44,6 @@
 	wrappers</a>
 </ul>
 
-<b>Note on JRE environments!</b>
-<br>
-Starting with version 1.2,
-<em>jNetPcap</em>
-provides support for both JRE 1.4 and JRE 1.5 in the same distribution
-package. This javadoc document describes the API under JRE 1.5
-environment which differs slightly from the other supplied JAR file for
-JRE 1.4. The differences with JRE 1.4 version are in Java syntax, such
-as no support for generics and various methods use
-<code>StringBuffer</code>
-instead of
-<code>StringBuilder</code>
-or
-<code>Appendable</code>
-which are found in the JRE 1.5 jar file. Functionality wise the two APIs
-and supplied jar files are identical in every other respect.
-
 <h1><a name="into">Introduction</a></h1>
 
 <p><em>jNetPcap</em> is a java wrapper around <em>libpcap</em> and <em>WinPcap</em>
@@ -78,6 +61,8 @@ this documentation describes.
 	<li>Provides some very low level functions previously not
 	available in Java space. i.e. <code>setBuffer</code> for changing
 	buffer size on windows platform and others.</li>
+	<li>Packet decoding and protocol analysis using stateful analyzers</li>
+	<li>An extensible library of protocols</li>
 </ul>
 The API follows the C
 <em>libpcap</em>

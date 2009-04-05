@@ -59,6 +59,13 @@ public abstract class JMemory {
 	public static final String JNETPCAP_LIBRARY_NAME = "jnetpcap";
 
 	/**
+	 * Convenience constant that is synonym as JMemory.Type.POINTER. Since this
+	 * type constant is used so often, it is made as a in-class constant to make
+	 * it easier to access.
+	 */
+	public static final JMemory.Type POINTER = JMemory.Type.POINTER;
+
+	/**
 	 * Load the native library and initialize JNI method and class IDs.
 	 */
 	static {

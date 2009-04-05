@@ -15,7 +15,6 @@ package org.jnetpcap.analysis;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.jnetpcap.newstuff.Image;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JPacketHandler;
@@ -27,6 +26,7 @@ import org.jnetpcap.packet.analysis.JController;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.protocol.JProtocol;
+import org.jnetpcap.protocol.application.WebImage;
 import org.jnetpcap.protocol.tcpip.Http;
 import org.jnetpcap.protocol.tcpip.Tcp;
 import org.jnetpcap.protocol.tcpip.TcpAnalyzer;
@@ -233,11 +233,11 @@ public class TestTcpAnalysis
 
 			Http http = new Http();
 
-			Image img = new Image();
+			WebImage img = new WebImage();
 
 			public void nextPacket(JPacket packet, Object user) {
 				try {
-					if (packet.hasHeader(img) && img.type() == Image.Type.JPEG) {
+					if (packet.hasHeader(img)) {
 
 						/*
 						 * Content can be reassembled completely into memory, depending how
@@ -247,8 +247,8 @@ public class TestTcpAnalysis
 						 * into a single buffer.
 						 */
 						if (img.length() < 1024 * 1024) {
-							JBuffer buf = img.getReassembledBuffer();
-							JPacket asPacket = img.getReassembledPacket();
+//							JBuffer buf = img.getReassembledBuffer();
+//							JPacket asPacket = img.getReassembledPacket();
 
 						} else {
 
@@ -269,7 +269,7 @@ public class TestTcpAnalysis
 							 * expire and be released. Both sequence analysis and reassembly
 							 * will be required.
 							 */
-							SlidingBuffer window = img.getSlidingBuffer();
+//							SlidingBuffer window = img.getSlidingBuffer();
 						}
 
 					}

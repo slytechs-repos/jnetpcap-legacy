@@ -18,16 +18,14 @@ import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.RegistryHeaderErrors;
 import org.jnetpcap.packet.TestUtils;
-import org.jnetpcap.packet.analysis.FragmentAssembly;
 import org.jnetpcap.packet.analysis.FragmentSequence;
 import org.jnetpcap.packet.analysis.JController;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
-import org.jnetpcap.protocol.application.Html;
+import org.jnetpcap.protocol.application.WebImage;
 import org.jnetpcap.protocol.tcpip.Http;
 import org.jnetpcap.protocol.tcpip.HttpAnalyzer;
 import org.jnetpcap.protocol.tcpip.HttpHandler;
-import org.jnetpcap.protocol.tcpip.Tcp;
 import org.jnetpcap.protocol.tcpip.Http.ContentType;
 
 /**
@@ -37,15 +35,6 @@ import org.jnetpcap.protocol.tcpip.Http.ContentType;
 public class TestHttp2
     extends
     TestUtils {
-
-	static {
-		try {
-			JRegistry.register(Http.class);
-			JRegistry.register(Html.class);
-		} catch (RegistryHeaderErrors e) {
-			e.printStackTrace();
-		}
-	}
 
 	private final JFormatter out = new TextFormatter(System.out);
 
@@ -77,13 +66,15 @@ public class TestHttp2
 
 	public void test2() throws IOException, RegistryHeaderErrors {
 		final FragmentSequence seq = new FragmentSequence();
-		JRegistry.register(Image.class);
+		JRegistry.register(WebImage.class);
 
 		HttpAnalyzer httpAnalyzer = JRegistry.getAnalyzer(HttpAnalyzer.class);
 		httpAnalyzer.add(new HttpHandler() {
 
 			public void processHttp(Http http) {
 				if (http.getMessageType() != Http.MessageType.RESPONSE) {
+					out.printf("\n\n#%d *** %s *** ", http.getPacket()
+					    .getFrameNumber(), http.getMessageType());
 					return;
 				}
 				out.printf("\n\n#%d *** %s len=%s *** ", http.getPacket()
@@ -97,7 +88,7 @@ public class TestHttp2
 
 				switch (type) {
 					case JPEG:
-						Image jpeg = http.getPacket().getHeader(new Image());
+						WebImage jpeg = http.getPacket().getHeader(new WebImage());
 						System.out.printf("\nJPEG reassembled lenth=%d\n", jpeg.size());
 						// printSequence(http.getPacket().getAnalysis(Tcp.ID, seq));
 						break;

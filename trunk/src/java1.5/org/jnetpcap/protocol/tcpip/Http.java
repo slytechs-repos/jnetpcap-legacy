@@ -12,6 +12,8 @@
  */
 package org.jnetpcap.protocol.tcpip;
 
+import org.jnetpcap.nio.JBuffer;
+import org.jnetpcap.nio.JMemory.Type;
 import org.jnetpcap.packet.AbstractMessageHeader;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
@@ -38,9 +40,14 @@ public class Http
 		GIF("image/gif"),
 		HTML("text/html"),
 		JPEG("image/jpeg"),
-		PNG("image/png"), ;
+		PNG("image/png"),
+		OTHER, ;
 
 		public static ContentType parseContentType(String type) {
+			if (type == null) {
+				return OTHER;
+			}
+
 			for (ContentType t : values()) {
 				if (t.name().equalsIgnoreCase(type)) {
 					return t;
@@ -53,7 +60,7 @@ public class Http
 				}
 			}
 
-			return null;
+			return OTHER;
 		}
 
 		private final String[] magic;
@@ -89,6 +96,9 @@ public class Http
 		RequestUrl,
 		RequestVersion,
 		User_Agent,
+
+		Content_Length,
+		Content_Type,
 	}
 
 	/**
@@ -128,6 +138,32 @@ public class Http
 		return ContentType.parseContentType(contentType());
 	}
 
+	/**
+	 * A http chunk that has been encoded during transfer as "Transfer-Encoding:
+	 * chuncked". 
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public static class Chunk extends JBuffer {
+
+		/**
+     * @param type
+     */
+    public Chunk(Type type) {
+	    super(type);
+    }
+
+	}
+	
+	public boolean hasChuncks() {
+		return false;
+	}
+	
+	public Chunk[] chunks() {
+		return new Chunk[0];
+	}
+
 	@Override
 	protected void decodeFirstLine(String line) {
 		// System.out.printf("#%d Http::decodeFirstLine line=%s\n", getPacket()
@@ -165,7 +201,7 @@ public class Http
 	 * @return
 	 */
 	public boolean hasContent() {
-		return hasField(Response.Content_Type);
+		return hasField(Response.Content_Type) || hasField(Request.Content_Type);
 	}
 
 	/**
@@ -188,5 +224,14 @@ public class Http
 	 */
 	public boolean isResponse() {
 		return getMessageType() == MessageType.RESPONSE;
+	}
+
+	/**
+	 * Gets the raw header instead of reconstructing it.
+	 * 
+	 * @return original raw header
+	 */
+	public String header() {
+		return super.rawHeader;
 	}
 }
