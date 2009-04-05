@@ -37,8 +37,9 @@ import org.jnetpcap.util.TimeoutQueue;
  */
 @SuppressWarnings("unchecked")
 public class JController
-    extends AbstractAnalyzer implements JPacketHandler<Pcap> {
-
+    extends
+    AbstractAnalyzer implements JPacketHandler<Pcap>, JControllerOptions {
+	
 	private final static Logger logger = JLogger.getLogger(JController.class);
 
 	private final static int INITIAL_CAPACITY = 1000;
@@ -102,16 +103,28 @@ public class JController
 	private long totalBuffered = 0;
 
 	public JController() {
-		dispatchWorker = 
-	    new BlockingQueuePump<JPacket>("out_queue_pump", 1000) {
+		dispatchWorker = new BlockingQueuePump<JPacket>("out_queue_pump", 1000) {
 
-	    @Override
-	    protected void dispatch(JPacket packet) {
-	    	support.fireNextPacket(packet);
-	    }
+			@Override
+			protected void dispatch(JPacket packet) {
+				support.fireNextPacket(packet);
+			}
 
-    };
+		};
 
+	}
+
+	public <T extends JProtocolHandler> void addHandler(
+	    T handler) {
+
+		return;
+	}
+
+	public static <T extends JProtocolHandler, E extends Enum<? extends E>> boolean addHandler(
+	    T handler,
+	    Set<E> options) {
+
+		return false;
 	}
 
 	public <T> boolean add(JPacketHandler<T> o, T user) {
@@ -280,16 +293,16 @@ public class JController
 			 * block here
 			 */
 			try {
-//				bq.put(packet);
+				// bq.put(packet);
 				dispatchWorker.put(packet);
-//				Thread.sleep(100);
+				// Thread.sleep(100);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-//			dispatchWorker.dispatchQueue.run();
+			// dispatchWorker.dispatchQueue.run();
 		}
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -330,5 +343,37 @@ public class JController
 			consumeQ.add(packet);
 		}
 	}
+
+	/* (non-Javadoc)
+   * @see org.jnetpcap.packet.analysis.JControllerOptions#consumePackets(boolean)
+   */
+  public boolean consumePackets(boolean enabled) {
+	  // TODO Auto-generated method stub
+	  throw new UnsupportedOperationException("Not implemented yet");
+  }
+
+	/* (non-Javadoc)
+   * @see org.jnetpcap.packet.analysis.JControllerOptions#enableAnalysis(boolean)
+   */
+  public boolean enableAnalysis(boolean state) {
+	  // TODO Auto-generated method stub
+	  throw new UnsupportedOperationException("Not implemented yet");
+  }
+
+	/* (non-Javadoc)
+   * @see org.jnetpcap.packet.analysis.JControllerOptions#enablePacketAnalysis(boolean)
+   */
+  public boolean enablePacketAnalysis(boolean state) {
+	  // TODO Auto-generated method stub
+	  throw new UnsupportedOperationException("Not implemented yet");
+  }
+
+	/* (non-Javadoc)
+   * @see org.jnetpcap.packet.analysis.JControllerOptions#enableProtocolAnalysis(boolean)
+   */
+  public boolean enableProtocolAnalysis(boolean state) {
+	  // TODO Auto-generated method stub
+	  throw new UnsupportedOperationException("Not implemented yet");
+  }
 
 }

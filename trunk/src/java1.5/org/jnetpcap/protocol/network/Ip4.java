@@ -29,9 +29,11 @@ import org.jnetpcap.packet.annotate.FieldSetter;
 import org.jnetpcap.packet.annotate.FlowKey;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
+import org.jnetpcap.packet.annotate.Protocol;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
 import org.jnetpcap.packet.annotate.BindingVariable.MatchType;
 import org.jnetpcap.packet.annotate.Header.Layer;
+import org.jnetpcap.packet.annotate.Protocol.Suite;
 import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.protocol.lan.Ethernet;
 import org.jnetpcap.protocol.lan.IEEESnap;
@@ -52,6 +54,9 @@ import org.jnetpcap.protocol.lan.IEEESnap;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@Protocol(suite = Suite.NETWORK, analyzers = {
+    Ip4Sequencer.class,
+    Ip4Assembler.class })
 @Header(name = "Ip4", nicname = "Ip", osi = Layer.NETWORK, suite = ProtocolSuite.NETWORK, spec = "RFC792", description = "ip version 4")
 public class Ip4
     extends

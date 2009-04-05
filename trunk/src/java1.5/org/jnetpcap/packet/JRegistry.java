@@ -745,7 +745,11 @@ public final class JRegistry {
 		mapByClassName.put(protocol.getHeaderClassName(), e);
 		MAP_BY_ID[protocol.getId()] = e;
 
-		scanners[protocol.getId()] = new JHeaderScanner(protocol);
+		try {
+			scanners[protocol.getId()] = new JHeaderScanner(protocol);
+		} catch (UnregisteredHeaderException ex) {
+			register(protocol.getClazz(), errors);
+		}
 
 		for (PcapDLT d : protocol.getDlt()) {
 			registerDLT(d, protocol.getId());

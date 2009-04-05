@@ -201,13 +201,13 @@ public class JMappedHeader
 	}
 	
 	protected String map(Enum<? extends Enum<?>> field) {
-		String s = field.name().replace('_', '-');
+		String s = field.name().replace('_', '-').toUpperCase();
 //		System.out.printf("JMappedHeader::map(%s)=%s\n", field.name(), s);
 		return s;
 	}
 	
 	protected String map(String field) {
-		String s = field;
+		String s = field.toUpperCase();
 //		System.out.printf("JMappedHeader::map(%s)=%s\n", field, s);
 		return s;
 	}

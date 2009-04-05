@@ -29,6 +29,7 @@ import org.jnetpcap.header.TestSubHeader;
 import org.jnetpcap.nio.TestJBuffer;
 import org.jnetpcap.nio.TestJMemory;
 import org.jnetpcap.packet.JHandlerTest;
+import org.jnetpcap.packet.TestJHeader;
 import org.jnetpcap.packet.TestJRegistry;
 import org.jnetpcap.packet.TestJScanner;
 import org.jnetpcap.packet.TestPcapPacket;
@@ -66,6 +67,7 @@ public class BuildTests {
 		suite.addTestSuite(TestExpandableString.class);
 		suite.addTestSuite(TestSearchPaths.class);
 		suite.addTestSuite(TestAnalysisAccessors.class);
+		suite.addTestSuite(TestJHeader.class);
 		//$JUnit-END$
 		return suite;
 	}

@@ -21,8 +21,11 @@ import org.jnetpcap.packet.analysis.FragmentAssembly;
 import org.jnetpcap.packet.analysis.FragmentAssemblyEvent;
 import org.jnetpcap.packet.analysis.JController;
 import org.jnetpcap.packet.analysis.ProtocolSupport;
+import org.jnetpcap.protocol.tcpip.Http.Request;
 import org.jnetpcap.protocol.tcpip.Http.Response;
 import org.jnetpcap.util.JThreadLocal;
+
+import sun.awt.image.ByteArrayImageSource;
 
 /**
  * Http protocol analyzer. Analyzes and maintains state for Http protocol.
@@ -87,8 +90,11 @@ public class HttpAnalyzer
 	 */
 	private void processHttp(JPacket packet, Http http) {
 		Tcp tcp = tcpLocal.get();
-		if (http.hasContent() && packet.hasHeader(tcp)
-		    && http.hasField(Response.Content_Length)) {
+		final long frame = packet.getFrameNumber();
+		if (http.hasContent()
+		    && packet.hasHeader(tcp)
+		    && (http.hasField(Response.Content_Length) || http
+		        .hasField(Request.Content_Length))) {
 
 			int tcp_len = tcp.getPayloadLength();
 			int content_len =
@@ -104,9 +110,9 @@ public class HttpAnalyzer
 				    http_len);
 			}
 
-			// System.out.printf(
-			// "#%d HttpAnalyzer::hash=%d seq=%d tcp_len=%d http_len=%s frag=%b ",
-			// packet.getFrameNumber(), tcp.uniHashCode(), tcp.seq(), http_len, http
+			// System.out.printf("#%d HttpAnalyzer::hash=%d"
+			// + " seq=%d tcp_len=%d http_len=%s frag=%b ", packet.getFrameNumber(),
+			// tcp.uniHashCode(), tcp.seq(), http_len, http
 			// .fieldValue(Response.Content_Length),
 			// (tcp.getPayloadLength() < http_len));
 			// System.out.printf("src=%d -> dst->%d\n", tcp.source(),
@@ -114,11 +120,12 @@ public class HttpAnalyzer
 			// System.out.printf("http=%s\n", http.toString());
 
 		} else {
-			// support.fire(packet.getHeader(new Http()));
+			support.fire(packet.getHeader(new Http()));
 		}
 	}
 
 	public boolean add(HttpHandler o) {
+		
 		return this.support.add(o);
 	}
 
@@ -140,6 +147,9 @@ public class HttpAnalyzer
 			if (packet.hasHeader(http)) {
 				support.fire(http);
 			} else {
+				System.out.printf("#%d %s\n%s\n", packet.getFrameNumber(), packet,
+				    packet.toHexdump());
+				System.out.flush();
 				throw new IllegalStateException("expected HTTP packet");
 			}
 		}

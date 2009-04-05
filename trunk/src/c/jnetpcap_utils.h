@@ -27,7 +27,7 @@ extern "C" {
 #define BUFFER_OVERFLOW_EXCEPTION "java/nio/BufferOverflowException"
 #define BUFFER_UNDERFLOW_EXCEPTION "java/nio/BufferUnderflowException"
 #define READ_ONLY_BUFFER_EXCETPION "java/nio/ReadOnlyBufferException"
-#define UNREGISTERED_SCANNER_EXCEPTION "org/jnetpcap/packet/UnregisteredScannerException"
+#define UNREGISTERED_SCANNER_EXCEPTION "org/jnetpcap/packet/UnregisteredHeaderException"
 #define IO_EXCEPTION "java/io/IOException"
 	
 extern	jclass pcapClass;

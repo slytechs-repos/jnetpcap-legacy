@@ -24,13 +24,14 @@ import org.jnetpcap.packet.analysis.FragmentSequence;
 import org.jnetpcap.packet.analysis.FragmentSequenceEvent;
 import org.jnetpcap.packet.analysis.FragmentSequencer;
 import org.jnetpcap.packet.analysis.JAnalysis;
+import org.jnetpcap.packet.analysis.JAnalyzer;
 
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
 public class Ip4Sequencer
-    extends AbstractSequencer implements FragmentSequencer {
+    extends AbstractSequencer implements FragmentSequencer, JAnalyzer {
 
 	private final Ip4 ip = new Ip4();
 

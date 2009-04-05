@@ -24,7 +24,8 @@ import org.jnetpcap.packet.PeeringException;
  * @author Sly Technologies, Inc.
  */
 public class JBuffer
-    extends JMemory implements JByteBuffer {
+    extends
+    JMemory implements JByteBuffer {
 
 	/**
 	 * 
@@ -92,6 +93,22 @@ public class JBuffer
 
 	public native byte[] getByteArray(int index, int size);
 
+	/**
+	 * Reads data from JBuffer into user supplied array.
+	 * 
+	 * @param index
+	 *          starting position in the JBuffer
+	 * @param array
+	 *          destination array
+	 * @param offset
+	 *          starting position in the destination array
+	 * @param length
+	 *          maximum number of bytes to copy
+	 * @return the actual number of bytes copied which could be less then
+	 *         requested due to size of the JBuffer
+	 */
+	public native byte[] getByteArray(int index, byte[] array, int offset, int length);
+
 	public native double getDouble(int index);
 
 	public native float getFloat(int index);
@@ -114,18 +131,18 @@ public class JBuffer
 
 		int searchedLength = 0;
 		int match = 0;
-		for (int i = index; i < size; i++) {		
+		for (int i = index; i < size; i++) {
 
 			char c = getUTF8Char(i);
 			char d = delimeter[match];
-			
+
 			if (Character.isDefined(c) == false) {
 				break;
 			}
 
 			if (d == c) {
 				match++;
-				
+
 				if (match == delimeter.length) {
 					searchedLength = i - index + 1;
 					break;
@@ -134,7 +151,7 @@ public class JBuffer
 				match = 0;
 			}
 		}
-		
+
 		return searchedLength;
 	}
 

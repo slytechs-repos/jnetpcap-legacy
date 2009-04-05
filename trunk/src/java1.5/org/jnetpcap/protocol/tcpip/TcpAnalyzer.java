@@ -37,7 +37,7 @@ import org.jnetpcap.util.JThreadLocal;
  */
 public class TcpAnalyzer
     extends
-    AbstractAnalyzer {
+    AbstractAnalyzer implements TcpOptions {
 
 	public enum Stage {
 		FIN_COMPLETE,
@@ -212,6 +212,7 @@ public class TcpAnalyzer
 		Ip4 ip4 = ip1Local.get();
 
 		if (packet.hasHeader(ip4) && packet.hasHeader(tcp)) {
+			processStream(packet, tcp, ip4);
 		}
 
 		return true;
@@ -634,10 +635,70 @@ public class TcpAnalyzer
 		return this.support.removeListener(listener);
 	}
 
+	public boolean containsListener(AnalyzerListener<TcpStreamEvent> listener) {
+		return this.support.containsListener(listener);
+	}
+
 	/**
 	 * @return
 	 */
 	public AnalyzerSupport<TcpStreamEvent> getSupport() {
 		return support;
 	}
+
+	/* (non-Javadoc)
+   * @see org.jnetpcap.protocol.tcpip.TcpOptions#enableAssembler(boolean)
+   */
+  public boolean enableAssembler(boolean state) {
+	  // TODO Auto-generated method stub
+	  throw new UnsupportedOperationException("Not implemented yet");
+  }
+
+	/* (non-Javadoc)
+   * @see org.jnetpcap.protocol.tcpip.TcpOptions#enableDispatchErrors(boolean)
+   */
+  public boolean enableDispatchErrors(boolean state) {
+	  // TODO Auto-generated method stub
+	  throw new UnsupportedOperationException("Not implemented yet");
+  }
+
+	/* (non-Javadoc)
+   * @see org.jnetpcap.protocol.tcpip.TcpOptions#enableDispatchWarnings(boolean)
+   */
+  public boolean enableDispatchWarnings(boolean state) {
+	  // TODO Auto-generated method stub
+	  throw new UnsupportedOperationException("Not implemented yet");
+  }
+
+	/* (non-Javadoc)
+   * @see org.jnetpcap.protocol.tcpip.TcpOptions#enableFinAnalysis(boolean)
+   */
+  public boolean enableFinAnalysis(boolean state) {
+	  // TODO Auto-generated method stub
+	  throw new UnsupportedOperationException("Not implemented yet");
+  }
+
+	/* (non-Javadoc)
+   * @see org.jnetpcap.protocol.tcpip.TcpOptions#enableSequencer(boolean)
+   */
+  public boolean enableSequencer(boolean state) {
+	  // TODO Auto-generated method stub
+	  throw new UnsupportedOperationException("Not implemented yet");
+  }
+
+	/* (non-Javadoc)
+   * @see org.jnetpcap.protocol.tcpip.TcpOptions#enableSynAnalysis(boolean)
+   */
+  public boolean enableSynAnalysis(boolean state) {
+	  // TODO Auto-generated method stub
+	  throw new UnsupportedOperationException("Not implemented yet");
+  }
+
+	/* (non-Javadoc)
+   * @see org.jnetpcap.protocol.tcpip.TcpOptions#sequenceAckedSegmentsOnly(boolean)
+   */
+  public boolean sequenceAckedSegmentsOnly(boolean state) {
+	  // TODO Auto-generated method stub
+	  throw new UnsupportedOperationException("Not implemented yet");
+  }
 }
