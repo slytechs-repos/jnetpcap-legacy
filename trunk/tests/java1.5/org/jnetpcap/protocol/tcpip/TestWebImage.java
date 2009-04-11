@@ -18,6 +18,7 @@ import org.jnetpcap.Pcap;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.TestUtils;
+import org.jnetpcap.packet.analysis.JController;
 import org.jnetpcap.protocol.application.WebImage;
 import org.jnetpcap.protocol.tcpip.Http.ContentType;
 import org.jnetpcap.protocol.tcpip.Http.Request;
@@ -87,8 +88,7 @@ public class TestWebImage
 				if ((code != null && code.equals("200") == false)) {
 					return; // Skip error messages
 				}
-				
-				
+
 				if (ct == null || cl == null) {
 					System.out.printf("#%d %s\n", frame, http.header());
 					System.out.println("----------------");
@@ -112,16 +112,9 @@ public class TestWebImage
 					case PNG:
 					case JPEG:
 						/*
-						 * WebImage header is already defined under tests source tree, but
-						 * we can't really use it for our example yet.
+						 * WebImage header has been integrated as a core protocol.
 						 */
 						WebImage image = packet.getHeader(web);
-						if (image == null) {
-							System.out.printf("#%d image=%s len=%s/%d\n", frame, ct, cl,
-							    payload);
-							System.out.flush();
-							return;
-						}
 						Image img = image.getAWTImage();
 
 						/*
@@ -142,24 +135,9 @@ public class TestWebImage
 		});
 
 		/*
-		 * Step 3 - normal open capture file stuff
+		 * TestUtils.openLive is a short cut method used by many jUnit tests during
+		 * testing, there others such as openOffline.
 		 */
-		 StringBuilder errbuf = new StringBuilder();
-		 Pcap pcap = Pcap.openOffline(HTTP_LARGE, errbuf);
-		 if (pcap == null) {
-		 System.err.println(errbuf.toString());
-		 System.exit(1);
-		 }
-//		openLive(JRegistry.getAnalyzer(JController.class));
-
-		/*
-		 * Step 4 - We enter our loop. This is a new method that utilizies the
-		 * anlayzers. There are different variations of this method.
-		 */
-		 pcap.analyze();
-		/*
-		 * Always close the pcap handle after we are done
-		 */
-		 pcap.close();
+		openLive(JRegistry.getAnalyzer(JController.class));
 	}
 }
