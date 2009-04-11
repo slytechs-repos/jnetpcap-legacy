@@ -193,7 +193,7 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 		}
 
 		thread.set(new Thread(dispatchQueue, name));
-
+		thread.get().setDaemon(true);
 		thread.get().start();
 	}
 
