@@ -1,0 +1,34 @@
+<project name="svn-build" default="all" basedir=".">
+
+	<target name="svn-status">
+		<svn username="${svn.username}" password="${svn.password}" >
+			<status 
+				path="${svn.status.path}" 
+				textStatusProperty="svn.status.textStatus" 
+				urlProperty="svn.status.url"
+				revisionProperty="svn.status.revision"
+				/>
+		</svn>		
+	</target>
+	
+	<target name="svn-commit">
+		<svn username="${svn.username}" password="${svn.password}" >
+			<status 
+				path="${svn.status.path}" 
+				textStatusProperty="svn.status.textStatus" 
+				urlProperty="svn.status.url"
+				revisionProperty="svn.status.revision"
+				/>
+		</svn>		
+	</target>
+	
+	
+	<target name="svn-echo">
+		<echo>
+url=${svn.status.url}
+status=${svn.status.textStatus}
+revision=${svn.status.revision}
+		</echo>
+	</target>
+
+</project>
