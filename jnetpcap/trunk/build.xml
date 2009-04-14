@@ -33,15 +33,7 @@
 	<!-- Get the enviroment collection from the OS -->
 	<property environment="env" />
 
-	<!-- 
-         Add the optional compiler task <cc></cc>, 
-         the JAR needs to be in the classpath or ANT_HOME 
-         Needed to compile JNI C++ source files and create shared library
-     -->
-
-	<taskdef resource="cpptasks.tasks" classpath="lib/cpptasks-1.0b4/cpptasks.jar" />
-	<typedef resource="cpptasks.types" classpath="lib/cpptasks-1.0b4/cpptasks.jar" />
-	<taskdef name="deb" classpath="lib/jdeb-0.6.jar" classname="org.vafer.jdeb.ant.DebAntTask"/>
+	<property file="build.number" />
 
 	<!-- Deployable packages and their structure -->
 	<property file="package.properties" />
@@ -58,6 +50,7 @@
 
 	<!-- Platform dependent properties -->
 	<property file="${os.name}.properties" />
+
 
 	<!--                        PREPARE PATHS SECTION  -->
 
@@ -88,9 +81,28 @@
 	<!-- =================================================================== -->
 	<!-- class path used for compiling Java classes using JavaDoc -->
 	<!-- =================================================================== -->
-	<path id="javadoc.classpath">
-		<path refid="compiler.classpath" />
+	<path id="javadoc.classpath" refid="compiler.classpath" />
+
+	<!-- =================================================================== -->
+	<!-- classpath for various ANT tasks                                     -->
+	<!-- =================================================================== -->
+	<path id="ant.svnant.classpath">
+		<pathelement location="${lib.dir}/svnant-1.2.1/svnant.jar" />
+		<pathelement location="${lib.dir}/svnant-1.2.1/svnClientAdapter.jar" />
+		<pathelement location="${lib.dir}/svnant-1.2.1/svnjavahl.jar" />
 	</path>
+	<path id="ant.cpptask.classpath" location="${lib.dir}/cpptasks-1.0b4/cpptasks.jar" />
+	<path id="ant.deb.classpath" location="${lib.dir}/jdeb-0.6.jar" />
+
+	<!-- 
+         Add the optional compiler task <cc></cc>, 
+         the JAR needs to be in the classpath or ANT_HOME 
+         Needed to compile JNI C++ source files and create shared library
+     -->
+	<taskdef resource="cpptasks.tasks" classpathref="ant.cpptask.classpath" />
+	<typedef resource="cpptasks.types" classpathref="ant.cpptask.classpath" />
+	<taskdef name="deb" classpathref="ant.deb.classpath" classname="org.vafer.jdeb.ant.DebAntTask" />
+	<typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpathref="ant.svnant.classpath" />
 
 
 	<!--                        PREPARE SECTION  -->
@@ -228,7 +240,7 @@
 		</zip>
 
 	</target>
-	
+
 	<!-- =================================================================== -->
 	<!-- Packages up the 'library' package -->
 	<!-- =================================================================== -->
@@ -244,11 +256,13 @@
 		<!-- ############################################################### -->
 		<!--       Now ZIP everything up into a distributable bundle  -->
 		<!-- ############################################################### -->
-		
-		<zip destfile="${pkg.dist.dir}/${pkg.base}-javadoc.zip">
+
+		<zip destfile="${pkg.doc-api.zip}">
 			<zipfileset dir="${build.javadoc.dir}" prefix="${pkg.base}-javadoc" />
 		</zip>
 		
+		<checksum forceoverwrite="true" file="${pkg.doc-api.zip}" />
+
 	</target>
 
 	<!-- =================================================================== -->
@@ -306,7 +320,7 @@
 		<!--       Copy native library.  -->
 		<!-- ############################################################### -->
 		<copy file="${jni.build.filepath}" tofile="${pkg.lib.jnetpcap.so}" />
-		
+
 		<!-- ############################################################### -->
 		<!--       Create JAR file containing all the java classes  -->
 		<!-- ############################################################### -->
@@ -322,6 +336,7 @@
 			<zipfileset dir="${pkg.lib.dir}" prefix="${pkg.lib}" />
 		</zip>
 
+		<checksum forceoverwrite="true" file="${pkg.lib.zip}" />
 
 	</target>
 
@@ -347,17 +362,8 @@
 	<target name="comp-java-jre" depends="prep-java">
 		<property name="compiler.debuglevel" value="lines,vars,source" />
 
-		<javac 
-			srcdir="${src.java.dir}${compiler.target}" 
-			destdir="${build.classes.dir}${compiler.target}" 
-			debug="${compiler.debug}" 
-			debuglevel="${compiler.debuglevel}" 
-			deprecation="${compiler.deprecate}" 
-			optimize="${compiler.optimize}" 
-			classpathref="compiler.classpath"
-			source="${compiler.target}"
-			target="${compiler.target}" />
-		
+		<javac srcdir="${src.java.dir}${compiler.target}" destdir="${build.classes.dir}${compiler.target}" debug="${compiler.debug}" debuglevel="${compiler.debuglevel}" deprecation="${compiler.deprecate}" optimize="${compiler.optimize}" classpathref="compiler.classpath" source="${compiler.target}" target="${compiler.target}" />
+
 		<copy todir="${build.classes.dir}${compiler.target}/resources">
 			<fileset dir="${src.java.dir}${compiler.target}/resources" />
 
@@ -369,12 +375,12 @@
 	<!-- Compiles java sources using javac -->
 	<!-- =================================================================== -->
 	<target name="comp-java" depends="release-settings">
-		
+
 		<antcall target="comp-java-jre">
 			<param name="jre" value="jre1.5" />
 			<param name="compiler.target" value="1.5" />
 		</antcall>
-		
+
 	</target>
 
 
@@ -397,7 +403,7 @@
 	<!-- =================================================================== -->
 	<target name="comp-javah" depends="prep-javah,comp-java">
 		<javah destdir="${build.include.dir}" classpathref="javah.classpath" force="${javah.force}" verbose="true">
-			
+
 			<class name="org.jnetpcap.Pcap" />
 			<class name="org.jnetpcap.PcapBpfProgram" />
 			<class name="org.jnetpcap.PcapDumper" />
@@ -413,19 +419,19 @@
 			<class name="org.jnetpcap.winpcap.WinPcapSamp" />
 			<class name="org.jnetpcap.winpcap.WinPcapRmtAuth" />
 			<class name="org.jnetpcap.winpcap.WinPcapSendQueue" />
-						
+
 			<class name="org.jnetpcap.PcapUtils" />
 			<class name="org.jnetpcap.PcapHeader" />
-			
+
 			<class name="org.jnetpcap.nio.JMemory" />
 			<class name="org.jnetpcap.nio.JReference" />
 			<class name="org.jnetpcap.nio.JNumber" />
 			<class name="org.jnetpcap.nio.JBuffer" />
 			<class name="org.jnetpcap.nio.JObjectBuffer" />
-			
+
 			<class name="org.jnetpcap.packet.analysis.JAnalysis" />
 			<class name="org.jnetpcap.packet.analysis.AnalysisUtils" />
-			
+
 			<class name="org.jnetpcap.packet.JScanner" />
 			<class name="org.jnetpcap.packet.JRegistry" />
 			<class name="org.jnetpcap.packet.JPacket$State" />
@@ -434,7 +440,7 @@
 			<class name="org.jnetpcap.protocol.JProtocol" />
 			<class name="org.jnetpcap.packet.JHeaderScanner" />
 			<class name="org.jnetpcap.packet.JScan" />
-			
+
 			<class name="org.jnetpcap.packet.JFlowKey" />
 
 		</javah>
@@ -490,7 +496,7 @@
 			<arg line="-L ${pcap.lib.dir}" />
 
 			<arg line="-l ${pcap.lib.name}" />
-			
+
 			<arg line="-l ${ms.lib.name}" />
 
 
@@ -556,34 +562,22 @@
 	<!-- Compiles java files using JavaDoc -->
 	<!-- =================================================================== -->
 	<target name="comp-javadoc-jre" depends="prep-javadoc">
-		<javadoc sourcepath="${src.java.dir}${compiler.target}" 
-			source="${compiler.target}"
-			destdir="${build.javadoc.dir}" 
-			doctitle="${doc.javadoc.title} (${pkg.version})" 
-			overview="${src.java.dir}${compiler.target}/${doc.javadoc.overview.html}" 
-			packagenames="org.jnetpcap.*" 
-			classpathref="javadoc.classpath" />
+		<javadoc sourcepath="${src.java.dir}${compiler.target}" source="${compiler.target}" destdir="${build.javadoc.dir}" doctitle="${doc.javadoc.title} (${pkg.version})" overview="${src.java.dir}${compiler.target}/${doc.javadoc.overview.html}" packagenames="org.jnetpcap.*" classpathref="javadoc.classpath" />
 	</target>
-	
+
 	<!-- =================================================================== -->
 	<!-- Compiles java files using JavaDoc -->
 	<!-- =================================================================== -->
 	<target name="comp-javadoc-betafeatures" depends="prep-javadoc">
-		<javadoc sourcepath="${src.beta.dir}${compiler.target}" 
-			source="${compiler.target}"
-			destdir="${build.javadoc.dir}-beta" 
-			doctitle="${doc.javadoc.title} (BETA Features)" 
-			overview="${src.beta.dir}/${doc.javadoc.overview.html}" 
-			packagenames="org.jnetpcap.*" 
-			classpathref="javadoc.classpath" />
+		<javadoc sourcepath="${src.beta.dir}${compiler.target}" source="${compiler.target}" destdir="${build.javadoc.dir}-beta" doctitle="${doc.javadoc.title} (BETA Features)" overview="${src.beta.dir}/${doc.javadoc.overview.html}" packagenames="org.jnetpcap.*" classpathref="javadoc.classpath" />
 	</target>
 
-	
+
 	<!-- =================================================================== -->
 	<!-- Compiles java files using JavaDoc -->
 	<!-- =================================================================== -->
 	<target name="comp-javadoc" depends="comp-java">
-				
+
 		<antcall target="comp-javadoc-jre">
 			<param name="jre" value="jre1.5" />
 			<param name="compiler.target" value="1.5" />
@@ -595,31 +589,16 @@
 	<!-- Compiles java files using JavaDoc -->
 	<!-- =================================================================== -->
 	<target name="comp-test" depends="prep-test,comp-java,comp-jni">
-		<javac srcdir="${test.dir}" 
-			destdir="${build.classes.dir}1.5" 
-			debug="${compiler.debug}" 
-			deprecation="${compiler.deprecate}" 
-			optimize="${compiler.optimize}" 
-			classpathref="test.classpath" />
+		<javac srcdir="${test.dir}" destdir="${build.classes.dir}1.5" debug="${compiler.debug}" deprecation="${compiler.deprecate}" optimize="${compiler.optimize}" classpathref="test.classpath" />
 	</target>
 
 	<!-- =================================================================== -->
 	<!-- Compiles java example files -->
 	<!-- =================================================================== -->
 	<target name="comp-examples" depends="comp-java,comp-jni">
-		<javac srcdir="${examples.java.dir}" 
-			destdir="${build.examples.dir}1.5" 
-			debug="${compiler.debug}" 
-			deprecation="${compiler.deprecate}" 
-			optimize="${compiler.optimize}" 
-			classpathref="compiler.classpath" />
-		
-		<javac srcdir="${examples.beta.dir}" 
-			destdir="${build.examples.dir}1.5" 
-			debug="${compiler.debug}" 
-			deprecation="${compiler.deprecate}" 
-			optimize="${compiler.optimize}" 
-			classpathref="compiler.classpath" />
+		<javac srcdir="${examples.java.dir}" destdir="${build.examples.dir}1.5" debug="${compiler.debug}" deprecation="${compiler.deprecate}" optimize="${compiler.optimize}" classpathref="compiler.classpath" />
+
+		<javac srcdir="${examples.beta.dir}" destdir="${build.examples.dir}1.5" debug="${compiler.debug}" deprecation="${compiler.deprecate}" optimize="${compiler.optimize}" classpathref="compiler.classpath" />
 
 	</target>
 
@@ -752,22 +731,12 @@
 	<!-- Uploads packaged javadoc zip file to homepage  -->
 	<!-- =================================================================== -->
 	<target name="deploy-javadoc-web" depends="package-doc-api">
-		
-		<scp 
-			trust="yes" 
-			verbose="yes" 
-			todir="${web.uri}" 
-			file="${pkg.dist.dir}/${pkg.base}-javadoc.zip" />
+
+		<scp trust="yes" verbose="yes" todir="${web.uri}" file="${pkg.dist.dir}/${pkg.base}-javadoc.zip" />
 
 
-		<sshexec 
-			trust="yes" 
-			host="${shell.host.name}" 
-			username="${shell.user.name}" 
-			password="${shell.user.pass}" 
-			command="rm -rf ${web.doc.dir}/${pkg.base}-javadoc; unzip ${web.doc.dir}/${pkg.base}-javadoc.zip -d ${web.doc.dir}; rm  ${web.doc.dir}/${pkg.base}-javadoc.zip" 
-		/>
-		
+		<sshexec trust="yes" host="${shell.host.name}" username="${shell.user.name}" password="${shell.user.pass}" command="rm -rf ${web.doc.dir}/${pkg.base}-javadoc; unzip ${web.doc.dir}/${pkg.base}-javadoc.zip -d ${web.doc.dir}; rm  ${web.doc.dir}/${pkg.base}-javadoc.zip" />
+
 	</target>
 
 
@@ -823,7 +792,8 @@
 	<!-- create  a RPM package -->
 	<!-- =================================================================== -->
 	<target name="package-rpm" depends="build-rpm,prep-dist" if="platform.linux">
-		<copy todir="${dist.dir}" file="${rpm.build.dir}/RPMS/i386/${rpm.name}" />
+		<copy todir="${dist.dir}" file="${rpm.build.file}" />
+		<checksum forceoverwrite="true" file="${rpm.dist.file}" />
 	</target>
 
 
@@ -853,8 +823,10 @@
 				<filter token="platform.os.name" value="${platform.os.name}" />
 			</filterset>
 		</copy>
-		<chmod perm="755" file="${deb.build.control.dir}/postinst"></chmod>
-		<chmod perm="755" file="${deb.build.control.dir}/prerm"></chmod>
+		<chmod perm="755" file="${deb.build.control.dir}/postinst">
+		</chmod>
+		<chmod perm="755" file="${deb.build.control.dir}/prerm">
+		</chmod>
 
 		<copy todir="${deb.build.lib.dir}" file="${build.lib.dir}/${lib.pcap.fullname}" />
 		<copy todir="${deb.build.java.dir}" file="${build.jnetpcap.jar}" />
@@ -879,5 +851,40 @@
 	<!-- =================================================================== -->
 	<target name="package-deb" depends="build-deb,prep-dist" if="platform.linux">
 		<copy todir="${dist.dir}" file="${deb.file}" />
+		<checksum forceoverwrite="true" file="${deb.dist.file}" />
+		
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Increment the build number and commit it to SVN                     -->
+	<!-- =================================================================== -->
+	<target name="buildnumber">
+		<tstamp />
+		<tstamp>
+			<format property="timestamp.isoformat" pattern="${format.timestamp.long}" locale="${format.timestamp.locale}" />
+		</tstamp>
+
+		<echo>BEFORE: build.number=${build.number}</echo>
+		<!-- Updates the version.properties file -->
+		<property name="build.id" value="${env.USER}" />
+
+		<propertyfile file="build.number">
+			<entry type="int" key="build.number" value="1" operation="+" pattern="0000" />
+			<entry key="build.tstamp" value="${DSTAMP}" />
+		</propertyfile>
+		
+		<echo>Build number incremented on ${timestamp.isoformat}</echo>
+		<svn username="${svn.username}" password="${svn.password}" >
+			<commit message="incremented the build number on ${timestamp.isoformat}" 
+				file="build.number" 
+			/>
+		</svn>		
+	</target>
+
+	<target name="svn-status">
+		<ant antfile="svn.xml" target="svn-status">
+			<property name="svn.status.path" value="build.xml" />
+			<property name="svn.status.verbose" value="true" />
+		</ant>
 	</target>
 </project>
