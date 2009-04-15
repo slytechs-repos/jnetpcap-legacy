@@ -142,6 +142,10 @@ public class HttpAnalyzer
 		if (evt.getType() == FragmentAssemblyEvent.Type.COMPLETE_PDU) {
 			FragmentAssembly assembly = evt.getAssembly();
 			JPacket packet = assembly.getPacket();
+			if (packet.hasHeader(Http.ID) == false) {
+				return;
+			}
+			
 			// System.out.printf("packet=%s\n", packet.getState().toDebugString());
 			Http http = new Http();
 			if (packet.hasHeader(http)) {
