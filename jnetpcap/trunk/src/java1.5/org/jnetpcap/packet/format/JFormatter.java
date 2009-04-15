@@ -157,7 +157,7 @@ public abstract class JFormatter {
 		LONG_HEX,
 		STRING,
 		STRING_TEXT_DUMP,
-		BOOLEAN,
+		BOOLEAN, STRING_ARRAY,
 	}
 
 	private static final Detail DEFAULT_DETAIL = Detail.MULTI_LINE_FULL_DETAIL;
