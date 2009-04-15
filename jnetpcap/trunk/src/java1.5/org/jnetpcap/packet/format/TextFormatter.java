@@ -162,6 +162,16 @@ public class TextFormatter
 			}
 
 			incLevel(0); // Inc for multi line fields
+		} else if (field.getStyle() == Style.STRING_ARRAY) {
+			String[] table = (String[]) field.getValue(header);
+
+			int i = 0;
+			for (String b : table) {
+				pad().format(FIELD_ARRAY_FORMAT + "%s", field.getDisplay(header), i++,
+				    b);
+			}
+
+			incLevel(0); // Inc for multi line fields
 		} else {
 
 			final String v = stylizeSingleLine(header, field, field.getValue(header));
