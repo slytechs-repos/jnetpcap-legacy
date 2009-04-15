@@ -13,11 +13,11 @@
 package org.jnetpcap.protocol.tcpip;
 
 import org.jnetpcap.nio.JBuffer;
-import org.jnetpcap.nio.JMemory.Type;
 import org.jnetpcap.packet.AbstractMessageHeader;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * Hyper Text Transfer Protocol header definition.
@@ -29,6 +29,11 @@ import org.jnetpcap.packet.annotate.ProtocolSuite;
 public class Http
     extends
     AbstractMessageHeader {
+
+	/**
+	 * Constant numerical ID assigned to this protocol
+	 */
+	public final static int ID = JProtocol.HTTP_ID;
 
 	/**
 	 * Http content type table.
@@ -140,26 +145,28 @@ public class Http
 
 	/**
 	 * A http chunk that has been encoded during transfer as "Transfer-Encoding:
-	 * chuncked". 
+	 * chuncked".
 	 * 
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
-	public static class Chunk extends JBuffer {
+	public static class Chunk
+	    extends
+	    JBuffer {
 
 		/**
-     * @param type
-     */
-    public Chunk(Type type) {
-	    super(type);
-    }
+		 * @param type
+		 */
+		public Chunk(Type type) {
+			super(type);
+		}
 
 	}
-	
+
 	public boolean hasChuncks() {
 		return false;
 	}
-	
+
 	public Chunk[] chunks() {
 		return new Chunk[0];
 	}
