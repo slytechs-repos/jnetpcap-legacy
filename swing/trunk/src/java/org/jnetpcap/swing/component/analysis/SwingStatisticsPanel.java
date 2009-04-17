@@ -89,7 +89,10 @@ public class SwingStatisticsPanel
 		JPanel panel = new JPanel();
 		panel.setLayout(new GridLayout(COUNT + 1, 4));
 
-		panel.setPreferredSize(new Dimension(WIDTH, 400));
+		/*
+		 * Give each row atleast 20 px in height
+		 */
+		panel.setPreferredSize(new Dimension(WIDTH, 50 + COUNT * 20));
 
 		panel.setBorder(BorderFactory.createTitledBorder(BorderFactory
 		    .createEtchedBorder(), "Captured Packets"));
