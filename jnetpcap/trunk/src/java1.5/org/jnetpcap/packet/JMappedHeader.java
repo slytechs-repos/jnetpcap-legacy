@@ -166,7 +166,7 @@ public class JMappedHeader
 
 	@Dynamic(Field.Property.CHECK)
 	protected boolean hasField(String field) {
-		return fieldMap.containsKey(field);
+		return fieldMap.containsKey(map(field));
 	}
 
 	protected String fieldDescription(Enum<? extends Enum<?>> field) {
