@@ -91,7 +91,9 @@ public class AnnotatedField {
 	}
 
 	private static Style mapFormatToStyle(String format) {
-		if (format.contains("%s")) {
+		if (format.contains("%s[]")) {
+			return Style.STRING_ARRAY;
+		} else if (format.contains("%s")) {
 			return Style.STRING;
 		} else if (format.contains("%b")) {
 			return Style.BOOLEAN;
@@ -143,8 +145,11 @@ public class AnnotatedField {
 	 * @param enumAnnotation
 	 * @param methods
 	 */
-	public AnnotatedField(String name, Field enumAnnotation,
-	    Map<Property, AnnotatedFieldMethod> methods, Class<?> declaringClass) {
+	public AnnotatedField(
+	    String name,
+	    Field enumAnnotation,
+	    Map<Property, AnnotatedFieldMethod> methods,
+	    Class<?> declaringClass) {
 
 		this.name = name;
 		this.method = methods.get(Property.VALUE).method;

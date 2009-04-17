@@ -47,6 +47,12 @@ public abstract class AbstractMessageHeader
 	    "TRA", // TRACE
 	    "SIP", // SIP
 	    "INV", // INVITE
+	    "REG", // REGISTER
+	    "ACK", // ACK
+	    "BYE", // BYE
+	    "REF", // REFER
+	    "NOT", // NOTIFY
+	    "INF", // INFO
 	};
 
 	private static boolean checkValidFirstChars(JBuffer buffer, int offset) {
@@ -114,7 +120,39 @@ public abstract class AbstractMessageHeader
 
 		// System.out.println("[" + s + "]");
 
-		for (String line : lines) {
+		buf.setLength(0);
+		for (int i = 0; i < lines.length; i ++) {
+			String line = lines[i];
+			
+			/*
+			 * First check if lines need to be combined if first character is a 
+			 * space or a tab. This indicates line continuation and all leading
+			 * white space is replaced with a single space.
+			 */
+			char firstChar = line.charAt(0);
+			if (firstChar == ' ' || firstChar == '\t') {
+				line = line.trim();
+				if (buf.length() != 0) {
+					buf.append(' ');
+				}
+				
+				buf.append(line);
+				continue;
+			} else {
+				
+				/*
+				 * Check if we have any buffered string in the buffer from the recombining
+				 * process. If yes, we make take the string out of the buffer and process
+				 * it, while we decrement i pointer, to rerun the lines[i] which was
+				 * just used as an indicator that no more lines are to be recombined.
+				 */
+				if (buf.length() != 0) {
+					line = buf.toString();
+					buf.setLength(0);
+					i --;
+				}
+			}
+			
 			String c[] = line.split(":", 2);
 
 			if (c.length == 1) {
