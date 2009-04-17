@@ -62,4 +62,12 @@ public interface Statistics {
 	 */
 	public abstract long total();
 
+	/**
+	 * Report the size of the snapshot table and size of the labels table returned
+	 * by this collector.
+	 * 
+	 * @return number of elements found in the snapshot and labels arrays
+	 */
+	public abstract int size();
+
 }
