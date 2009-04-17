@@ -18,14 +18,18 @@ import java.awt.GridLayout;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Formatter;
 
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JRadioButton;
 import javax.swing.SwingUtilities;
 
 import org.jnetpcap.packet.analysis.StatisticAnalyzer;
@@ -70,9 +74,9 @@ public class SwingStatisticsPanel
 	 */
 	public SwingStatisticsPanel(Statistics stats) {
 		this.stats = stats;
-		
+
 		this.COUNT = stats.size();
-		
+
 		this.table = new JComponent[COUNT][4];
 
 		createMainPanel();
@@ -113,7 +117,7 @@ public class SwingStatisticsPanel
 			table[i][1] = new JLabel("0", JLabel.CENTER);
 			table[i][2] = new JProgressBar(0, 100);
 			table[i][3] = new JLabel("0.0%", JLabel.RIGHT);
-			
+
 			panel.add(table[i][0]);
 			panel.add(table[i][1]);
 			panel.add(table[i][2]);
@@ -126,7 +130,7 @@ public class SwingStatisticsPanel
 
 	private JPanel createStatusPanel() {
 		JPanel panel = new JPanel();
-		panel.setPreferredSize(new Dimension(WIDTH, 60));
+		panel.setPreferredSize(new Dimension(WIDTH, 100));
 		panel.setLayout(new BorderLayout());
 		panel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 
@@ -138,27 +142,68 @@ public class SwingStatisticsPanel
 		panel.add(runningLabel, BorderLayout.WEST);
 		panel.add(timeLabel, BorderLayout.CENTER);
 		panel.add(stopButton, BorderLayout.SOUTH);
-		
+
+		JPanel optionPanel = new JPanel(new GridLayout(2, 1));
+		optionPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory
+		    .createEtchedBorder(), "Time display"));
+		JRadioButton relativeCheckbox = new JRadioButton("relative");
+		JRadioButton absoluteCheckbox = new JRadioButton("absolute");
+
+		if (timeMode == TimeMode.RELATIVE) {
+			relativeCheckbox.setSelected(true);
+		} else {
+			absoluteCheckbox.setSelected(true);
+		}
+
+		ButtonGroup group = new ButtonGroup();
+		group.add(relativeCheckbox);
+		group.add(absoluteCheckbox);
+
+		optionPanel.add(relativeCheckbox);
+		optionPanel.add(absoluteCheckbox);
+
+		panel.add(optionPanel, BorderLayout.EAST);
+
 		stopButton.addActionListener(defaultAction = new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				
+
 				stop();
-				
-				Window win = SwingUtilities.getWindowAncestor(SwingStatisticsPanel.this);
+
+				Window win =
+				    SwingUtilities.getWindowAncestor(SwingStatisticsPanel.this);
 				win.setVisible(false);
-      }
+			}
+
+		});
+		
+		absoluteCheckbox.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				timeMode = TimeMode.ABSOLUTE;
+				updateTimeLabel();
+     }
+			
+		});
+		
+		relativeCheckbox.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				timeMode = TimeMode.RELATIVE;
+				updateTimeLabel();
+     }
 			
 		});
 
+
 		return panel;
 	}
-	
+
 	public void addStopActionListener(ActionListener action) {
 		this.stopButton.removeActionListener(defaultAction);
 		this.stopButton.addActionListener(action);
 	}
-	
+
 	public void removeStopActionListener(ActionListener action) {
 		this.stopButton.removeActionListener(action);
 	}
@@ -170,46 +215,36 @@ public class SwingStatisticsPanel
 			 * Main task. Executed in background thread.
 			 */
 			public void run() {
-				
-				long startTime = System.currentTimeMillis();
-				StringBuilder buf;
-				Formatter formatter = new Formatter(buf = new StringBuilder());
+
+				startTime = System.currentTimeMillis(); // Reset start time to current
 				while (thread != null) {
 					// Sleep for one second.
 					try {
 						Thread.sleep(1000);
-						
-						int seconds = (int) (System.currentTimeMillis() - startTime) / 1000;
-						int minutes = seconds / 60 % 24;
-						int hours = seconds / 3600;
-						seconds %= 60;
-						
-						
-						buf.setLength(0);
-						formatter.format("%02d:%02d:%02d", hours, minutes, seconds);
-						timeLabel.setText(formatter.toString());
+
+						updateTimeLabel();
 
 						long[] snapshot = stats.snapshot();
 						long total = stats.total();
-						
+
 						totalCountLabel.setText(Long.toString(total));
 
 						for (int i = 0; i < COUNT; i++) {
 							int c = (int) snapshot[i];
 							int p = (total == 0) ? 0 : (int) (c * 100 / total);
-							
+
 							/*
 							 * Update packet counter for each protocol
 							 */
 							JLabel label = (JLabel) table[i][1];
 							label.setText(Integer.toString(c));
-							
+
 							/*
 							 * Update progress bar for each protocol
 							 */
 							JProgressBar bar = (JProgressBar) table[i][2];
 							bar.setValue(p);
-							
+
 							/*
 							 * Update packet capture percentage for each protocol
 							 */
@@ -224,10 +259,44 @@ public class SwingStatisticsPanel
 			}
 		});
 
-		thread.setDaemon(true); 
+		thread.setDaemon(true);
 		thread.start();
 	}
-	
+
+	public enum TimeMode {
+		RELATIVE,
+		ABSOLUTE,
+	}
+
+	private StringBuilder buf = new StringBuilder();
+
+	private Formatter formatter = new Formatter(buf);
+
+	private long startTime = System.currentTimeMillis();
+
+	private TimeMode timeMode = TimeMode.RELATIVE;
+
+	private SimpleDateFormat absoluteDate =  new SimpleDateFormat("HH:mm:ss");
+
+	public void updateTimeLabel() {
+
+		if (timeMode == TimeMode.RELATIVE) {
+
+			int delta = (int) (System.currentTimeMillis() - startTime) / 1000;
+			int minutes = delta / 60 % 24;
+			int hours = delta / 3600;
+			int seconds = delta % 60;
+
+			buf.setLength(0);
+			formatter.format("%02d:%02d:%02d", hours, minutes, seconds);
+			timeLabel.setText(formatter.toString());
+		} else {
+			String s = absoluteDate.format(new Date());
+			timeLabel.setText(s);
+		}
+
+	}
+
 	public void stop() {
 		thread = null;
 	}
