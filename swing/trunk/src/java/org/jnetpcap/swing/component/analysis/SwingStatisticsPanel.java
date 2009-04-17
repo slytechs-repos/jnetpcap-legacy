@@ -29,6 +29,7 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 
 import org.jnetpcap.packet.analysis.StatisticAnalyzer;
+import org.jnetpcap.packet.analysis.Statistics;
 import org.jnetpcap.protocol.JProtocol;
 
 /**
@@ -51,7 +52,7 @@ public class SwingStatisticsPanel
 
 	private int COUNT = JProtocol.values().length;
 
-	private final StatisticAnalyzer stats;
+	private final Statistics stats;
 
 	JComponent[][] table = new JComponent[COUNT][4];
 
@@ -68,7 +69,7 @@ public class SwingStatisticsPanel
 	/**
 	 * @param stats
 	 */
-	public SwingStatisticsPanel(StatisticAnalyzer stats) {
+	public SwingStatisticsPanel(Statistics stats) {
 		this.stats = stats;
 
 		createMainPanel();
