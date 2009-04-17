@@ -30,7 +30,6 @@ import javax.swing.SwingUtilities;
 
 import org.jnetpcap.packet.analysis.StatisticAnalyzer;
 import org.jnetpcap.packet.analysis.Statistics;
-import org.jnetpcap.protocol.JProtocol;
 
 /**
  * @author Mark Bednarczyk
@@ -50,11 +49,11 @@ public class SwingStatisticsPanel
 	 */
 	private static final int WIDTH = 400;
 
-	private int COUNT = JProtocol.values().length;
+	private final int COUNT;
 
 	private final Statistics stats;
 
-	JComponent[][] table = new JComponent[COUNT][4];
+	private final JComponent[][] table;
 
 	private Thread thread;
 
@@ -71,6 +70,10 @@ public class SwingStatisticsPanel
 	 */
 	public SwingStatisticsPanel(Statistics stats) {
 		this.stats = stats;
+		
+		this.COUNT = stats.size();
+		
+		this.table = new JComponent[COUNT][4];
 
 		createMainPanel();
 
