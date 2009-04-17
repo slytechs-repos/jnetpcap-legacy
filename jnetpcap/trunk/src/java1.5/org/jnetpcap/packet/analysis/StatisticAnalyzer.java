@@ -25,7 +25,7 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class StatisticAnalyzer {
+public class StatisticAnalyzer implements Statistics {
 
 	public static String[] allLabels() {
 		final String[] labels = new String[JRegistry.MAX_ID_COUNT];
@@ -67,6 +67,9 @@ public class StatisticAnalyzer {
 		}
 	}
 
+	/* (non-Javadoc)
+   * @see org.jnetpcap.packet.analysis.Statistics#labels()
+   */
 	public String[] labels() {
 		return allLabels();
 	}
@@ -89,6 +92,9 @@ public class StatisticAnalyzer {
 		}
 	}
 
+	/* (non-Javadoc)
+   * @see org.jnetpcap.packet.analysis.Statistics#reset()
+   */
 	public void reset() {
 		this.total.set(0L);
 
@@ -105,6 +111,9 @@ public class StatisticAnalyzer {
 		this.data = data;
 	}
 
+	/* (non-Javadoc)
+   * @see org.jnetpcap.packet.analysis.Statistics#snapshot()
+   */
 	public long[] snapshot() {
 		final long[] copy = new long[this.counters.length];
 
@@ -115,6 +124,9 @@ public class StatisticAnalyzer {
 		return copy;
 	}
 
+	/* (non-Javadoc)
+   * @see org.jnetpcap.packet.analysis.Statistics#total()
+   */
 	public long total() {
 		return this.total.get();
 	}
