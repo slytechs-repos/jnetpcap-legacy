@@ -53,10 +53,6 @@ public class SwingStatisticsPanel
 
 	private final StatisticAnalyzer stats;
 
-	private JPanel statsPanel;
-
-	private JPanel statusPanel;
-
 	JComponent[][] table = new JComponent[COUNT][4];
 
 	private Thread thread;
@@ -101,7 +97,7 @@ public class SwingStatisticsPanel
 		panel.add(new JLabel("Total"));
 		panel.add(totalCountLabel = new JLabel("0", JLabel.CENTER));
 		panel.add(new JLabel("% of total"));
-		panel.add(new JLabel());
+		panel.add(new JLabel()); // Needed as a place holder
 
 		String[] labels = StatisticAnalyzer.allLabels();
 
@@ -172,7 +168,7 @@ public class SwingStatisticsPanel
 				StringBuilder buf;
 				Formatter formatter = new Formatter(buf = new StringBuilder());
 				while (thread != null) {
-					// Sleep for up to one second.
+					// Sleep for one second.
 					try {
 						Thread.sleep(1000);
 						
@@ -208,7 +204,7 @@ public class SwingStatisticsPanel
 							bar.setValue(p);
 							
 							/*
-							 * Update packet counter for each protocol
+							 * Update packet capture percentage for each protocol
 							 */
 							label = (JLabel) table[i][3];
 							label.setText(Float.toString((float) p) + "%");
@@ -221,6 +217,7 @@ public class SwingStatisticsPanel
 			}
 		});
 
+		thread.setDaemon(true); 
 		thread.start();
 	}
 	
