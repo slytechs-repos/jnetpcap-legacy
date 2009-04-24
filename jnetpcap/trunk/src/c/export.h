@@ -15,4 +15,9 @@
 #undef __declspec
 #define __declspec(a) extern "C"
 
+#ifndef FALSE
+#define TRUE 1
+#define FALSE !TRUE
+#endif
+
 #endif
