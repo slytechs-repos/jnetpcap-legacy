@@ -617,7 +617,7 @@ JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_PcapUtils_getHardwareAddress
     close(sd);
 
     jba = env->NewByteArray((jsize) 6);
-    env->SetByteArrayRegion(jba, 0, 6, (const jbyte *)ifr.ifr_ifru.ifru_hwaddr.sa_data);
+    env->SetByteArrayRegion(jba, 0, 6, (jbyte *)ifr.ifr_ifru.ifru_hwaddr.sa_data);
 #endif
 	
 	return jba;
