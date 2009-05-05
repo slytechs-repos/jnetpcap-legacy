@@ -235,6 +235,11 @@ void throwVoidException(JNIEnv *env, const char *excClassName) {
  * Calls on StringBuilder.setLength(0) and StringBuilder.append(String)
  */
 void setString(JNIEnv *env, jobject buffer, const char *str) {
+	
+	if (str == NULL) {
+		str = "";
+	}
+	
 	jstring jstr = env->NewStringUTF(str);
 
 	env->CallVoidMethod(buffer, setLengthMID, 0); // Set buffer to 0 length
