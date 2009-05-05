@@ -1105,6 +1105,10 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_Pcap_datalinkValToName
 (JNIEnv *env, jclass clazz, jint jdlt) {
 
 	const char *name = pcap_datalink_val_to_name((int)jdlt);
+	
+	if (name == NULL) {
+		name = "";
+	}
 
 	jstring jname = env->NewStringUTF(name);
 
@@ -1120,6 +1124,10 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_Pcap_datalinkValToDescription
 (JNIEnv *env, jclass clazz, jint jdlt) {
 
 	const char *name = pcap_datalink_val_to_description((int)jdlt);
+	
+	if (name == NULL) {
+		name = "";
+	}
 
 	jstring jname = env->NewStringUTF(name);
 
@@ -1189,6 +1197,10 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_Pcap_getErr
 
 	const char *str = pcap_geterr(p);
 
+	if (str == NULL) {
+		str = "";
+	}
+	
 	jstring jstr = env->NewStringUTF(str);
 
 	return jstr;
@@ -1203,6 +1215,10 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_Pcap_libVersion
 (JNIEnv *env , jclass clazz) {
 
 	const char *str = pcap_lib_version();
+	
+	if (str == NULL) {
+		str = "";
+	}
 
 	jstring jstr = env->NewStringUTF(str);
 
