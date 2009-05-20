@@ -184,8 +184,6 @@ public class SLL
 	 */
 	@Field(offset = 48, format = "#mac#")
 	public byte[] address() {
-		int haLen = haLength();
-		System.out.println(this.toHexdump());
 		return super.getByteArray(6, haLength());
 	}
 
