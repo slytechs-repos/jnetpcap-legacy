@@ -628,7 +628,7 @@ void scan_ethernet(scan_t *scan) {
 }
 
 int lookup_ethertype(uint16_t type) {
-	printf("type=0x%x\n", BIG_ENDIAN16(type));
+//	printf("type=0x%x\n", BIG_ENDIAN16(type));
 	switch (BIG_ENDIAN16(type)) {
 	case 0x0800: return IP4_ID;
 	case 0x0806: return ARP_ID;
