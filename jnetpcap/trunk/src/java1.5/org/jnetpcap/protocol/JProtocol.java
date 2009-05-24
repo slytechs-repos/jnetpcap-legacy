@@ -23,6 +23,7 @@ import org.jnetpcap.protocol.lan.IEEE802dot1q;
 import org.jnetpcap.protocol.lan.IEEE802dot2;
 import org.jnetpcap.protocol.lan.IEEE802dot3;
 import org.jnetpcap.protocol.lan.IEEESnap;
+import org.jnetpcap.protocol.network.Arp;
 import org.jnetpcap.protocol.network.Icmp;
 import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.protocol.network.Ip6;
@@ -115,7 +116,9 @@ public enum JProtocol {
 	 */
 	HTML(Html.class),
 
-	WEB_IMAGE(WebImage.class)
+	WEB_IMAGE(WebImage.class),
+	
+	ARP(Arp.class),
 	;
 
 	/**
@@ -189,6 +192,8 @@ public enum JProtocol {
 	public final static int HTML_ID = 14;
 
 	public final static int WEB_IMAGE_ID = 15;
+	
+	public final static int ARP_ID = 16;
 
 	private JProtocol(String className) {
 		this(className, new PcapDLT[0]);
