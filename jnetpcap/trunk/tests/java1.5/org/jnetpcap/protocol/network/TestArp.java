@@ -32,11 +32,12 @@ public class TestArp
 
 
 	public void testArp() {
-		JPacket packet = super.getPcapPacket(VLAN, 173 - 1);
-		
-		System.out.println(packet.getState().toDebugString());
-		System.out.println(packet.toHexdump());
+		JPacket packet = super.getPcapPacket(VLAN, 189 - 1);
 		
 		assertTrue(packet.hasHeader(JProtocol.ARP_ID));
+		
+		Arp arp = new Arp();
+		assertTrue(packet.hasHeader(arp));
+		assertEquals(1, arp.operation());
 	}
 }
