@@ -20,6 +20,9 @@ import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
 
 /**
+ * Address Resolution Protocol header. ARP is used to translate protocol
+ * addresses to hardware interface addresses.
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
@@ -177,6 +180,11 @@ public class Arp
 		}
 	}
 
+	@Dynamic(Field.Property.DESCRIPTION)
+	public String hardwareTypeDescription() {
+		return hardwareTypeEnum().toString();
+	}
+
 	@Field(offset = 0, length = 16)
 	public int hardwareType() {
 		return super.getUShort(0);
@@ -186,26 +194,36 @@ public class Arp
 		return HardwareType.valueOf(hardwareType());
 	}
 
-	@Field(offset = 2 * 8, length = 16)
+	@Field(offset = 2 * 8, format = "%x", length = 16)
 	public int protocolType() {
 		return super.getUShort(2);
+	}
+
+	@Dynamic(Field.Property.DESCRIPTION)
+	public String protocolTypeDescription() {
+		return protocolTypeEnum().toString();
 	}
 
 	public ProtocolType protocolTypeEnum() {
 		return ProtocolType.valueOf(protocolType());
 	}
 
-	@Field(offset = 4 * 8, length = 8, description = "hardware address length")
+	@Field(offset = 4 * 8, length = 8, units = "bytes", display = "hardware size")
 	public int hlen() {
 		return super.getUByte(4);
 	}
 
-	@Field(offset = 5 * 8, length = 8, description = "protocol address length")
+	@Field(offset = 5 * 8, length = 8, units = "bytes", display = "protocol size")
 	public int plen() {
 		return super.getUByte(5);
 	}
 
-	@Field(offset = 6 * 8, length = 16)
+	@Dynamic(Field.Property.DESCRIPTION)
+	public String operationDescription() {
+		return operationEnum().toString();
+	}
+
+	@Field(offset = 6 * 8, length = 16, display = "op code")
 	public int operation() {
 		return super.getUShort(6);
 	}
@@ -214,7 +232,7 @@ public class Arp
 		return OpCode.valueOf(operation());
 	}
 
-	@Field(offset = 8 * 8, description = "source hardware address")
+	@Field(offset = 8 * 8, format = "#mac#", display = "sender MAC")
 	public byte[] sha() {
 		return super.getByteArray(this.shaOffset, hlen());
 	}
@@ -224,14 +242,14 @@ public class Arp
 		return hlen() * 8;
 	}
 
-	@Field(description = "source protocol address")
+	@Field(format = "#ip4#", display = "sender IP")
 	public byte[] spa() {
 		return super.getByteArray(this.spaOffset, plen());
 	}
 
 	@Dynamic(Field.Property.OFFSET)
 	public int spaOffset() {
-		return this.spaOffset;
+		return this.spaOffset * 8;
 	}
 
 	@Dynamic(Field.Property.LENGTH)
@@ -239,14 +257,14 @@ public class Arp
 		return plen() * 8;
 	}
 
-	@Field(description = "target hardware address")
+	@Field(format = "#mac#", display = "target MAC")
 	public byte[] tha() {
 		return super.getByteArray(this.thaOffset, hlen());
 	}
 
 	@Dynamic(Field.Property.OFFSET)
 	public int thaOffset() {
-		return this.thaOffset;
+		return this.thaOffset * 8;
 	}
 
 	@Dynamic(Field.Property.LENGTH)
@@ -254,14 +272,14 @@ public class Arp
 		return hlen() * 8;
 	}
 
-	@Field(description = "target protocol address")
+	@Field(format = "#ip4#", display = "target IP")
 	public byte[] tpa() {
 		return super.getByteArray(this.tpaOffset, plen());
 	}
 
 	@Dynamic(Field.Property.OFFSET)
 	public int tpaOffset() {
-		return this.tpaOffset;
+		return this.tpaOffset * 8;
 	}
 
 	@Dynamic(Field.Property.LENGTH)
