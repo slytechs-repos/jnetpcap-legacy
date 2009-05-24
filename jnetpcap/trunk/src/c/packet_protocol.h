@@ -30,6 +30,14 @@ char *id2str(int id);
 #define ICMP_ID          org_jnetpcap_protocol_JProtocol_ICMP_ID
 #define HTTP_ID          org_jnetpcap_protocol_JProtocol_HTTP_ID
 #define HTML_ID          org_jnetpcap_protocol_JProtocol_HTML_ID
+#define ARP_ID           org_jnetpcap_protocol_JProtocol_ARP_ID
+
+typedef struct arp_t {
+	uint16_t htype;
+	uint16_t ptype;
+	uint8_t  hlen;
+	uint8_t  plen;
+} arp_t;
 
 
 typedef struct icmp_t {
@@ -86,7 +94,7 @@ typedef struct vlan_t {
 typedef union snap_t {
 	uint32_t oui :24;
 	struct {
-		uint8_t reserved[3];
+		uint16_t reserved[1];
 		uint16_t pid;
 	};
 } snap_t;

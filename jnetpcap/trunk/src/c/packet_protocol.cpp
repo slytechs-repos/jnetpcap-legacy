@@ -53,6 +53,16 @@ void scan_not_implemented_yet(scan_t *scan) {
 /*
  * Scan Hyper Text Markup Language header
  */
+void scan_arp(scan_t *scan) {
+	arp_t *arp = (arp_t *)(scan->buf + scan->offset);
+	
+	scan->length = (arp->hlen + arp->plen) * 2 + 8;
+}
+
+
+/*
+ * Scan Hyper Text Markup Language header
+ */
 void scan_html(scan_t *scan) {
 	
 	scan->length = scan->buf_len - scan->offset;
@@ -256,6 +266,7 @@ void scan_llc(scan_t *scan) {
  */
 void scan_snap(scan_t *scan) {
 	snap_t *snap = (snap_t *) (scan->buf + scan->offset);
+	char *b = (char *) snap;
 	scan->length = 5;
 	
 	/*
@@ -277,8 +288,9 @@ void scan_snap(scan_t *scan) {
 		scan->packet->pkt_flow_key.id[1] = IEEE_SNAP_ID;
 	}
 	
-	switch (snap->oui) {
-	case 0: scan->next_id = lookup_ethertype(snap->pid); break;
+	switch (BIG_ENDIAN32(snap->oui)) {
+	case 0x0000f8: // OUI_CISCO_90
+	case 0: scan->next_id = lookup_ethertype(*(uint16_t *)(b + 3)); break;
 	}
 }
 
@@ -616,8 +628,10 @@ void scan_ethernet(scan_t *scan) {
 }
 
 int lookup_ethertype(uint16_t type) {
+	printf("type=0x%x\n", BIG_ENDIAN16(type));
 	switch (BIG_ENDIAN16(type)) {
 	case 0x0800: return IP4_ID;
+	case 0x0806: return ARP_ID;
 	case 0x86DD: return IP6_ID; 
 	case 0x8100: return IEEE_802DOT1Q_ID;
 	}
@@ -656,6 +670,7 @@ void init_native_protocols() {
 	native_protocols[ICMP_ID]     = &scan_icmp;
 	native_protocols[HTTP_ID]     = &scan_http;
 	native_protocols[HTML_ID]     = &scan_html;
+	native_protocols[ARP_ID]      = &scan_arp;
 	
 	native_protocols[IEEE_802DOT3_ID]      = &scan_not_implemented_yet;
 	/*
@@ -674,5 +689,8 @@ void init_native_protocols() {
 	native_protocol_names[L2TP_ID]          = "L2TP";
 	native_protocol_names[PPP_ID]           = "PPP";
 	native_protocol_names[ICMP_ID]          = "ICMP";
+	native_protocol_names[HTTP_ID]          = "HTTP";
+	native_protocol_names[HTML_ID]          = "HTML";
+	native_protocol_names[ARP_ID]           = "ARP";
 }
 
