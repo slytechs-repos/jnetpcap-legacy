@@ -25,14 +25,14 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class StatisticAnalyzer implements Statistics {
-	
+public class StatisticAnalyzer implements Statistics, JPacketHandler<Object> {
+
 	private final static int COUNT = JProtocol.values().length;
 
 	public static String[] allLabels() {
 		final String[] labels = new String[JRegistry.MAX_ID_COUNT];
 
-		for (int i = 0; i < JProtocol.WEB_IMAGE_ID; i++) {
+		for (int i = 0; i < JProtocol.LAST_ID; i++) {
 			labels[i] = JProtocol.valueOf(i).name();
 		}
 
@@ -44,7 +44,6 @@ public class StatisticAnalyzer implements Statistics {
 				final AnnotatedHeader a = JRegistry.lookupAnnotatedHeader(i);
 				labels[i] = a.getNicname();
 			} catch (final UnregisteredHeaderException e) {
-
 			}
 		}
 
@@ -69,9 +68,11 @@ public class StatisticAnalyzer implements Statistics {
 		}
 	}
 
-	/* (non-Javadoc)
-   * @see org.jnetpcap.packet.analysis.Statistics#labels()
-   */
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jnetpcap.packet.analysis.Statistics#labels()
+	 */
 	public String[] labels() {
 		return allLabels();
 	}
@@ -94,9 +95,11 @@ public class StatisticAnalyzer implements Statistics {
 		}
 	}
 
-	/* (non-Javadoc)
-   * @see org.jnetpcap.packet.analysis.Statistics#reset()
-   */
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jnetpcap.packet.analysis.Statistics#reset()
+	 */
 	public void reset() {
 		this.total.set(0L);
 
@@ -113,9 +116,11 @@ public class StatisticAnalyzer implements Statistics {
 		this.data = data;
 	}
 
-	/* (non-Javadoc)
-   * @see org.jnetpcap.packet.analysis.Statistics#snapshot()
-   */
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jnetpcap.packet.analysis.Statistics#snapshot()
+	 */
 	public long[] snapshot() {
 		final long[] copy = new long[COUNT];
 
@@ -126,18 +131,29 @@ public class StatisticAnalyzer implements Statistics {
 		return copy;
 	}
 
-	/* (non-Javadoc)
-   * @see org.jnetpcap.packet.analysis.Statistics#total()
-   */
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jnetpcap.packet.analysis.Statistics#total()
+	 */
 	public long total() {
 		return this.total.get();
 	}
 
-	/* (non-Javadoc)
-   * @see org.jnetpcap.packet.analysis.Statistics#size()
-   */
-  public int size() {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jnetpcap.packet.analysis.Statistics#size()
+	 */
+	public int size() {
 
-  	return COUNT;
+		return COUNT;
+	}
+
+	/* (non-Javadoc)
+   * @see org.jnetpcap.packet.JPacketHandler#nextPacket(org.jnetpcap.packet.JPacket, java.lang.Object)
+   */
+  public void nextPacket(JPacket packet, Object user) {
+  	processPacket(packet);
   }
 }
