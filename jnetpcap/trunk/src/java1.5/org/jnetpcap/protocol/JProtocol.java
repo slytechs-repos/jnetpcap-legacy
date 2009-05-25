@@ -194,6 +194,8 @@ public enum JProtocol {
 	public final static int WEB_IMAGE_ID = 15;
 	
 	public final static int ARP_ID = 16;
+	
+	public final static int LAST_ID = JProtocol.values().length;
 
 	private JProtocol(String className) {
 		this(className, new PcapDLT[0]);
