@@ -704,7 +704,6 @@ public final class JRegistry {
 	    List<HeaderDefinitionError> errors) {
 
 		AnnotatedHeader annotatedHeader = inspect(c, errors);
-		JBinding[] bindings = AnnotatedBinding.inspectJHeaderClass(c, errors);
 		if (errors.isEmpty() == false) {
 			return -1;
 		}
@@ -721,6 +720,10 @@ public final class JRegistry {
 
 		registerAnnotatedSubHeaders(annotatedHeader.getHeaders());
 
+		JBinding[] bindings = AnnotatedBinding.inspectJHeaderClass(c, errors);
+		if (errors.isEmpty() == false) {
+			return -1;
+		}
 		addBindings(bindings);
 
 		for (PcapDLT d : annotatedHeader.getDlt()) {
