@@ -87,6 +87,11 @@ public class Http
 		Accept_Charset,
 		Accept_Encoding,
 		Accept_Ranges,
+		Accept_Language,
+		
+		UA_CPU,
+		Proxy_Connection,
+		
 		Authorization,
 		Cache_Control,
 		Connection,
@@ -95,7 +100,7 @@ public class Http
 		Host,
 		If_Modified_Since,
 		If_None_Match,
-		Referrer,
+		Referer,
 		RequestMethod,
 
 		RequestUrl,
@@ -125,6 +130,10 @@ public class Http
 		Content_MD5,
 		Content_Range,
 		Content_Type,
+		
+		Expires,
+		Server,
+		Set_Cookie,
 
 		RequestUrl,
 		RequestVersion,
