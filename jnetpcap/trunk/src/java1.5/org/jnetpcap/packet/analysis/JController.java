@@ -32,6 +32,75 @@ import org.jnetpcap.util.JPacketSupport;
 import org.jnetpcap.util.TimeoutQueue;
 
 /**
+ * Main controller for an analyzer graph network. JController is the root of any
+ * analyzis hierarchy. Protocol analyzer register themselves with JController
+ * which control which analyzers receive events and packets. JController also
+ * manages several resources needed by sub-analyzers such as input and output
+ * packet queues.
+ * <p>
+ * A typical hierarchy of analyzers looks like the following tree:
+ * 
+ * <pre>
+ * JController
+ *  +-&gt; StatisticsAnalyzer
+ *  +-&gt; Ip4Analyzer
+ *  |    +-&gt; Ip4Sequencer
+ *  |    +-&gt; Ip4Assembler
+ *  |
+ *  +-&gt; TcpAnalyzer
+ *  |    +-&gt; TcpSequencer
+ *  |    +-&gt; TcpAssembler
+ *  |    
+ *  +-&gt; HttpAnalyzer
+ *  +-&gt; SipAnalyzer
+ * </pre>
+ * 
+ * </p>
+ * JController implements JPacketHandler interface and is typically setup to
+ * receive packets from <code>Pcap.loop</code> or <code>Pcap.dispatch</code>
+ * methods. The received packets flow through the controller and its
+ * sub-analyzers based on analyzer types.
+ * <p>
+ * There are 2 types of analyzers. Packet and protocol analyzers. Packet
+ * analyzer is interested in the entire packet such as
+ * <code>StatisticsAnalyzer</code> whereas protocol analyzer is interested in
+ * specific protocol headers within the packet. Packet analyzers always receive
+ * all packets and protocol analyzers receive only those packets that contain
+ * the specific headers they are interested in. For example
+ * <code>Ip4Analyzer</code> tells JController that its only interested in
+ * packets containing <code>ip4</code> header. JController will efficiently
+ * dispatch only those packets that contain Ip4 header to Ip4Analyzer.
+ * </p>
+ * <p>
+ * Packets flow within JController from an "input queue" to an "output queue".
+ * JController provides a register method for <code>JPacketHandler</code>
+ * listeners which would like to receive packets from JController's output
+ * queue. This queue may contain different set of packets then the one that
+ * JController received from packet dispatcher method. Analyzer's can intercept
+ * or inject packets onto the output queue. Also the timing of the packets
+ * received from JContoller may be altered. Most analyzers tell JController to
+ * buffer packets until certain conditions are met or until the analyzer that
+ * put a hold on the output queue releases it. This allows analyzers to analyze
+ * packets as they come in and report errors, perform reassembly and otherwise
+ * put a wait on the output queue until all the packets arrive. This ability to
+ * put the output queue on hold allows analyzers to handle incomplete, damaged,
+ * out of order streams of packets and many other types of protocol related
+ * conditions.
+ * </p>
+ * <p>
+ * JRegistry maintains a default analyzer hierarchy. This default hierachy is
+ * used for by default when using pcap's dispatcher methods. However this
+ * hierarchy can be modified globally or separate custom ones setup. For example
+ * you can setup your own private analyzer tree with analyzers which have been
+ * configured for a specific purpose. This private analyzer tree does not in any
+ * way affect the global default one maintained by JRegistry. You can even pass
+ * packets from one analyzer tree to another breaking up the sequence how
+ * analysis is applied to packets. Also you can disable the default analysis
+ * tree completely and through a custom packet handler dispatch various
+ * pre-screened analysis tasks to specific analyzer trees using multiple-threads
+ * for example.
+ * </p>
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
@@ -39,7 +108,7 @@ import org.jnetpcap.util.TimeoutQueue;
 public class JController
     extends
     AbstractAnalyzer implements JPacketHandler<Pcap>, JControllerOptions {
-	
+
 	private final static Logger logger = JLogger.getLogger(JController.class);
 
 	private final static int INITIAL_CAPACITY = 1000;
@@ -114,8 +183,7 @@ public class JController
 
 	}
 
-	public <T extends JProtocolHandler> void addHandler(
-	    T handler) {
+	public <T extends JProtocolHandler> void addHandler(T handler) {
 
 		return;
 	}
@@ -344,36 +412,44 @@ public class JController
 		}
 	}
 
-	/* (non-Javadoc)
-   * @see org.jnetpcap.packet.analysis.JControllerOptions#consumePackets(boolean)
-   */
-  public boolean consumePackets(boolean enabled) {
-	  // TODO Auto-generated method stub
-	  throw new UnsupportedOperationException("Not implemented yet");
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jnetpcap.packet.analysis.JControllerOptions#consumePackets(boolean)
+	 */
+	public boolean consumePackets(boolean enabled) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Not implemented yet");
+	}
 
-	/* (non-Javadoc)
-   * @see org.jnetpcap.packet.analysis.JControllerOptions#enableAnalysis(boolean)
-   */
-  public boolean enableAnalysis(boolean state) {
-	  // TODO Auto-generated method stub
-	  throw new UnsupportedOperationException("Not implemented yet");
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jnetpcap.packet.analysis.JControllerOptions#enableAnalysis(boolean)
+	 */
+	public boolean enableAnalysis(boolean state) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Not implemented yet");
+	}
 
-	/* (non-Javadoc)
-   * @see org.jnetpcap.packet.analysis.JControllerOptions#enablePacketAnalysis(boolean)
-   */
-  public boolean enablePacketAnalysis(boolean state) {
-	  // TODO Auto-generated method stub
-	  throw new UnsupportedOperationException("Not implemented yet");
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jnetpcap.packet.analysis.JControllerOptions#enablePacketAnalysis(boolean)
+	 */
+	public boolean enablePacketAnalysis(boolean state) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Not implemented yet");
+	}
 
-	/* (non-Javadoc)
-   * @see org.jnetpcap.packet.analysis.JControllerOptions#enableProtocolAnalysis(boolean)
-   */
-  public boolean enableProtocolAnalysis(boolean state) {
-	  // TODO Auto-generated method stub
-	  throw new UnsupportedOperationException("Not implemented yet");
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jnetpcap.packet.analysis.JControllerOptions#enableProtocolAnalysis(boolean)
+	 */
+	public boolean enableProtocolAnalysis(boolean state) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Not implemented yet");
+	}
 
 }
