@@ -240,8 +240,10 @@ public class JMemoryPacket
 	 */
 	public JMemoryPacket(byte[] buffer) {
 		super(Type.POINTER);
+		
+		final JBuffer mem = getMemoryBuffer(buffer);
 
-		transferFrom(buffer);
+		super.peer(mem);
 	}
 
 	/**
