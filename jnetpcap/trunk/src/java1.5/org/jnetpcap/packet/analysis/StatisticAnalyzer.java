@@ -22,6 +22,14 @@ import org.jnetpcap.packet.structure.AnnotatedHeader;
 import org.jnetpcap.protocol.JProtocol;
 
 /**
+ * Statics analyzer that keeps track of how many packets and how many headers of
+ * each protocol its seen. The analyzer maintains a table of per protocol header
+ * counters and a global packet counter. Since StatisticAnalyzer is multi-thread
+ * safe, it keeps track of data in thread safe structures and requires a user to
+ * take a snapshot of the current state of the statistics table. The snapshot is
+ * a copy of the table or a snapshot of the statistic information at a specific
+ * time which the working table may continue to be modified by other threads.
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
@@ -150,10 +158,13 @@ public class StatisticAnalyzer implements Statistics, JPacketHandler<Object> {
 		return COUNT;
 	}
 
-	/* (non-Javadoc)
-   * @see org.jnetpcap.packet.JPacketHandler#nextPacket(org.jnetpcap.packet.JPacket, java.lang.Object)
-   */
-  public void nextPacket(JPacket packet, Object user) {
-  	processPacket(packet);
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jnetpcap.packet.JPacketHandler#nextPacket(org.jnetpcap.packet.JPacket,
+	 *      java.lang.Object)
+	 */
+	public void nextPacket(JPacket packet, Object user) {
+		processPacket(packet);
+	}
 }
