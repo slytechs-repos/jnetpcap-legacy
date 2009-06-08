@@ -100,6 +100,20 @@ import org.jnetpcap.util.TimeoutQueue;
  * pre-screened analysis tasks to specific analyzer trees using multiple-threads
  * for example.
  * </p>
+ * <p>
+ * JController allows multiple analyzers to be registered for the same protocol
+ * header. Each analyzer being registered provides a priority number which is
+ * used to determine in which order the analyzers receive packets they need to
+ * handle from JController. Analyzers can be enabled and disabled at runtime without
+ * having to use the unregister method. 
+ * </p>
+ * <p>
+ * JController provides a vital property to all the analyzer's which is the
+ * processing timestamp. This timestamp by default is based on the timestamp
+ * extracted from the packet currently being processed. Optionally the packet's 
+ * timestamp can be overriden by current live time or custom time controller
+ * provided by the user. 
+ * </p>
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
