@@ -30,7 +30,7 @@ import org.jnetpcap.protocol.tcpip.Udp;
 public class Sip
     extends
     AbstractMessageHeader {
-	
+
 	public enum Code {
 		Address_Incomplete(484, "Address Incomplete"),
 		Alternative_Service(380, "Alternative Service"),
@@ -112,7 +112,7 @@ public class Sip
 		}
 
 	}
-	
+
 	public enum ContentType {
 		OTHER,
 		PKCS7_MIME("application/pkcs7-mime"),
@@ -145,7 +145,6 @@ public class Sip
 			this.magic = magic;
 		}
 	}
-
 
 	@Field
 	public enum Fields {
@@ -223,16 +222,33 @@ public class Sip
 		}
 	}
 
-	@Bind(to=Tcp.class)
+	@Bind(to = Tcp.class)
 	public static boolean bindToTcp(JPacket packet, Tcp tcp) {
 		return tcp.destination() == 5060 || tcp.source() == 5060;
 	}
 
-	@Bind(to=Udp.class)
+	@Bind(to = Udp.class)
 	public static boolean bindToUdp(JPacket packet, Udp udp) {
 		return udp.destination() == 5060 || udp.source() == 5060;
 	}
 
+/*
+ * TODO: uncomment when HEURISTIC binding types are supported
+ * 
+	@Bind(to = Tcp.class, type = Bind.Type.HEURISTIC)
+	public static boolean heuristicTcpCheck(JPacket packet, Tcp tcp) {
+		
+		 * Check first few characters for valid status-line method names or reponse
+		 
+		String first = packet.getUTF8String(tcp.getOffset() + tcp.size(), 8);
+
+		return first.startsWith("SIP") || first.startsWith("REGISTER")
+		    || first.startsWith("ACK") || first.startsWith("OPTIONS")
+		    || first.startsWith("BYE") || first.startsWith("CANCEL")
+		    || first.startsWith("INVITE");
+
+	}
+*/
 	public String contentType() {
 		return fieldValue(Fields.Content_Type);
 	}
@@ -240,7 +256,7 @@ public class Sip
 	public ContentType contentTypeEnum() {
 		return ContentType.parseContentType(contentType());
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -310,14 +326,15 @@ public class Sip
 	}
 
 	/**
-   * @return
-   */
-  public int contentLength() {
-  	if (hasField(Fields.Content_Length)) {
-  		return Integer.parseInt(super.fieldValue(String.class, Fields.Content_Length));
-  	} else {
-  		return 0;
-  	}
-  }
+	 * @return
+	 */
+	public int contentLength() {
+		if (hasField(Fields.Content_Length)) {
+			return Integer.parseInt(super.fieldValue(String.class,
+			    Fields.Content_Length));
+		} else {
+			return 0;
+		}
+	}
 
 }
