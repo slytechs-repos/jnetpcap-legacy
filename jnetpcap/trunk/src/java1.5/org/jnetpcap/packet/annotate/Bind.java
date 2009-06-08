@@ -121,6 +121,26 @@ import org.jnetpcap.packet.JHeader;
 public @interface Bind {
 
 	/**
+	 * Defines constants for various binding types that are possible.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public enum Type {
+		/**
+		 * This is the primary binding type that is always tried by the scanner
+		 */
+		PRIMARY,
+
+		/**
+		 * An optional binding type that provides heuristic discovery by scanning
+		 * potential header fields to make a best guess at what the next header
+		 * might be
+		 */
+		HEURISTIC
+	}
+
+	/**
 	 * (Optional) Constant value that can be used to bind one protocol to another
 	 * based on this value. The header specified using the "to" parameter must
 	 * supply methods or mark fields with <code>@BindValue</code> annotation.
@@ -186,4 +206,16 @@ public @interface Bind {
 	 * @return list of header classes that this binding is dependent on
 	 */
 	Class<? extends JHeader>[] dependencies() default {};
+
+	/**
+	 * Specifies binding types. A binding can be assigned a different type, which
+	 * through <code>JRegistry</code> and <code>JScanner</code> operations can
+	 * be utilitized under special circumstances. For example
+	 * <code>Type.HUERISTIC</code> is a way to define a binding that is only
+	 * utilized when heuristic scans (best guess at the binding) are enabled.
+	 * 
+	 * @return type of binding. The default binding type if none are specified is
+	 *         <code>Type.PRIMARY</code>
+	 */
+	Type type() default Type.PRIMARY;
 }
