@@ -14,12 +14,17 @@ package org.jnetpcap.protocol.voip;
 
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JHeader;
+import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.JSubHeader;
+import org.jnetpcap.packet.RegistryHeaderErrors;
+import org.jnetpcap.packet.annotate.Bind;
 import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
+import org.jnetpcap.protocol.tcpip.Udp;
 
 /**
  * <p>
@@ -43,6 +48,25 @@ import org.jnetpcap.packet.annotate.ProtocolSuite;
  * receiver to reconstruct the sender's packet sequence, but sequence numbers
  * might also be used to determine the proper location of a packet, for example
  * in video decoding, without necessarily decoding packets in sequence.
+ * </p>
+ * <p>
+ * The RTP header has the following format:
+ * 
+ * <pre>
+ *  0                   1                   2                   3
+ *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *  |V=2|P|X|  CC   |M|     PT      |       sequence number         |
+ *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *  |                           timestamp                           |
+ *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *  |           synchronization source (SSRC) identifier            |
+ *  +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+ *  |            contributing source (CSRC) identifiers             |
+ *  |                             ....                              |
+ *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * </pre>
+ * 
  * </p>
  * <p>
  * While RTP is primarily designed to satisfy the needs of multi- participant
@@ -74,73 +98,73 @@ public class Rtp
 	/**
 	 * Constant containing a short description of this protocol header
 	 */
-	public final static String DESCRIPTION = "read-time transfer protocol";
+	public final static String DESCRIPTION = "real-time transfer protocol";
 
 	/**
 	 * Bitmask applied to byte 0 in the header which masks off the version number
 	 * of the Rtp header within the packet.
 	 */
-	public final static int VERSION_MASK = 0x03;
+	public final static int VERSION_MASK = 0xC0;
 
 	/**
 	 * Bit offset into byte 0 of the header for VERSION field.
 	 */
-	public final static int VERSION_OFFSET = 0;
+	public final static int VERSION_OFFSET = 6;
 
 	/**
 	 * Bitmask applied to byte 0 in the header which masks off the padding bit
 	 * option flag.
 	 */
-	public final static int PADDING_MASK = 0x04;
+	public final static int PADDING_MASK = 0x20;
 
 	/**
 	 * Bit offset into byte 0 of the header for PADDING field.
 	 */
-	public final static int PADDING_OFFSET = 2;
+	public final static int PADDING_OFFSET = 5;
 
 	/**
 	 * Bitmask applied to byte 0 in the header which masks off the extension bit
 	 * option flag.
 	 */
-	public final static int EXTENSION_MASK = 0x08;
+	public final static int EXTENSION_MASK = 0x10;
 
 	/**
 	 * Bit offset into byte 0 of the header for EXTENSION field.
 	 */
-	public final static int EXTENSION_OFFSET = 3;
+	public final static int EXTENSION_OFFSET = 4;
 
 	/**
 	 * Bitmask applied to byte 0 in the header which masks off the CSRC COUNT
 	 * field.
 	 */
-	public final static int CC_MASK = 0xF0;
+	public final static int CC_MASK = 0x0F;
 
 	/**
 	 * Bit offset into byte 0 of the header for CSRC COUNT field.
 	 */
-	public final static int CC_OFFSET = 4;
+	public final static int CC_OFFSET = 0;
 
 	/**
 	 * Bitmask applied to byte 1 in the header which masks off the marker bit
 	 * option flag.
 	 */
-	public final static int MARKER_MASK = 0;
+	public final static int MARKER_MASK = 0x80;
 
 	/**
 	 * Bit offset into byte 1 of the header for MARKER field.
 	 */
-	public final static int MARKER_OFFSET = 0;
+	public final static int MARKER_OFFSET = 7;
 
 	/**
 	 * Bitmask applied to byte 1 in the header which masks off the payload type
 	 * field.
 	 */
-	public final static int TYPE_MASK = 0xFE;
+	public final static int TYPE_MASK = 0x7F;
 
 	/**
 	 * Bit offset into byte 1 of the header for PAYLOAD TYPE field.
 	 */
-	public final static int TYPE_OFFSET = 1;
+	public final static int TYPE_OFFSET = 0;
 
 	/**
 	 * Constant which defines the length of the static part of the header in bytes
@@ -151,6 +175,11 @@ public class Rtp
 	 * Constant which defines the length of a CSRC entry in CSRC table in bytes
 	 */
 	public final static int CSRC_LENGTH = 4;
+
+	/**
+	 * Default RTP port number
+	 */
+	public final static int RTP_UDP_PORT = 5004;
 
 	/**
 	 * An extension mechanism is provided to allow individual implementations to
@@ -213,6 +242,12 @@ public class Rtp
 	    JSubHeader<Rtp> {
 
 		/**
+		 * Constant which defines the length of the static part of the header in
+		 * bytes
+		 */
+		public final static int STATIC_HEADER_LENGTH = 4;
+
+		/**
 		 * Determines the length of the header in octets. The value is calculated by
 		 * use of a 16-bit length field that counts the number of 32-bit words in
 		 * the extension.
@@ -225,7 +260,7 @@ public class Rtp
 		 */
 		@HeaderLength
 		public static int headerLength(final JBuffer buffer, final int offset) {
-			return (buffer.getUShort(2) * 4) + 4;
+			return (buffer.getUShort(2) * 4) + STATIC_HEADER_LENGTH;
 		}
 
 		/**
@@ -254,6 +289,224 @@ public class Rtp
 	}
 
 	/**
+	 * Constant payload types that have been defined for type field.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public enum PayloadType {
+		/**
+		 * 0 - PCMU is specified in CCITT/ITU-T recommendation G.711
+		 */
+		G711,
+		/**
+		 * 1 -
+		 */
+		RESERVED1,
+
+		/**
+		 * 2 -
+		 */
+		G721,
+
+		/**
+		 * 3 -
+		 */
+		GSM,
+
+		/**
+		 * 4 -
+		 */
+		G723,
+
+		/**
+		 * 5 -
+		 */
+		DVI4_8K,
+
+		/**
+		 * 6 -
+		 */
+		DVI4_16K,
+
+		/**
+		 * 7 -
+		 */
+		LPC,
+
+		/**
+		 * 8 -
+		 */
+		PCMA,
+
+		/**
+		 * 9 -
+		 */
+		G722,
+
+		/**
+		 * 10 -
+		 */
+		L16_2CH,
+
+		/**
+		 * 11 -
+		 */
+		L16_1CH,
+
+		/**
+		 * 12 -
+		 */
+		QCELP,
+
+		/**
+		 * 13 -
+		 */
+		CN,
+
+		/**
+		 * 14 -
+		 */
+		MPA,
+
+		/**
+		 * 15 -
+		 */
+		G728,
+
+		/**
+		 * 16
+		 */
+		RESERVED2;
+
+		/**
+		 * Looks up the payload type as integer and returns a constant
+		 * 
+		 * @param type
+		 *          value of the payload field
+		 * @return constant representing the payload type
+		 */
+		public static PayloadType valueOf(final int type) {
+			return values()[type];
+		}
+	}
+
+	/**
+	 * Registry assigned header ID
+	 */
+	public static int ID;
+
+	static {
+		try {
+			ID = JRegistry.register(Rtp.class);
+		} catch (final RegistryHeaderErrors e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * A binding to Udp header.
+	 * 
+	 * @param packet
+	 *          packet for which we check the binding
+	 * @param udp
+	 *          udp parent header
+	 * @return true means that Rtp protocol is present, otherwise false
+	 */
+	@Bind(to = Udp.class)
+	public static boolean bindToUdp(JPacket packet, Udp udp) {
+
+		System.out.println("TESTING");
+		return udp.destination() == RTP_UDP_PORT
+		    || heuristicScan(packet, udp.getOffset() + udp.size());
+	}
+
+	/**
+	 * A method that uses heuristic algorithms, by validating expected values in
+	 * Rtp header, to determine if the header at specified offset within the
+	 * buffer is a Rtp header. Any invalid values in any of the header fields
+	 * automatically disqualify a Rtp header being present.
+	 * 
+	 * @param buffer
+	 *          buffer to check
+	 * @param offset
+	 *          offset into the buffer
+	 * @return true means that it is a valid Rtp header, otherwise false
+	 */
+	public static boolean heuristicScan(JBuffer buffer, int offset) {
+
+		/*
+		 * Pre-fetch a couple of bytes so we don't have to read them out for every
+		 * field
+		 */
+		final int b0 = buffer.getUByte(offset + 0);
+		final int b1 = buffer.getUByte(offset + 1);
+
+		int ver = (b0 & VERSION_MASK) >> VERSION_OFFSET;
+		int pad = (b0 & PADDING_MASK) >> PADDING_OFFSET;
+		int ex = (b0 & EXTENSION_MASK) >> EXTENSION_OFFSET;
+		int cc = (b0 & CC_MASK) >> CC_OFFSET;
+		int type = (b1 & TYPE_MASK) >> TYPE_OFFSET;
+
+		int seq = buffer.getUShort(offset + 2);
+		int ts = buffer.getInt(offset + 4);
+		int ssrc = buffer.getInt(offset + 8);
+
+		/*
+		 * 1st check - scan static fields for valid values Currently defined payload
+		 * types go upto about 34 (http://www.iana.org/assignments/rtp-parameters)
+		 */
+		if (ver != 2 || cc > 15 || type > 25 || seq == 0 || type > 50 || ts == 0
+		    || ssrc == 0) {
+			return false;
+		}
+
+		/**
+		 * Make sure CC table doesn't contain any ZEROed out CSRC entries
+		 */
+		for (int i = 0; i < cc; i++) {
+			if (buffer.getInt(STATIC_HEADER_LENGTH + (i * 4)) == 0) {
+				return false;
+			}
+		}
+
+		/*
+		 * Check if extension exists, and if it contains a valid header
+		 */
+		if (ex > 0) {
+			/* Extension header length */
+			int length =
+			    Extension.headerLength(buffer, baseHeaderLength(buffer, offset) + 2);
+
+			if (length == 4 || length > 1500) {
+				return false;
+			}
+		}
+
+		/*
+		 * Check if padding is defined, if padding value actually makes sense. All
+		 * padded values need to be set to zero, according to the spec
+		 */
+		if (pad > 0) {
+			final int length = buffer.getUByte(buffer.size() - 1);
+			if (length == 0 || buffer.size() < length) {
+				return false;
+			}
+
+			final int start = buffer.size() - length;
+			final int end = start + length - 1;
+
+			for (int i = start; i < end; i++) {
+				if (buffer.getByte(i) != 0) {
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * Determines the length of the header in octets. The value is calculated by
 	 * adding to the length of the static part of the header the length of the
 	 * CSRC table. The CC field contains number of 32-bit entries within the
@@ -267,9 +520,30 @@ public class Rtp
 	 */
 	@HeaderLength
 	public static int headerLength(final JBuffer buffer, final int offset) {
-		final int cc = (buffer.getByte(offset) & CC_MASK) >> CC_OFFSET;
+		final int rtpBaseHeader = baseHeaderLength(buffer, offset);
 
-		return STATIC_HEADER_LENGTH + (cc * CSRC_LENGTH);
+		if ((buffer.getByte(offset) & EXTENSION_MASK) > 0) {
+			return rtpBaseHeader
+			    + Rtp.Extension.headerLength(buffer, offset + rtpBaseHeader);
+		} else {
+			return rtpBaseHeader;
+		}
+	}
+
+	/**
+	 * Calculate the base header length (Rtp header without an extension).
+	 * 
+	 * @param buffer
+	 *          buffer with rtp header
+	 * @param offset
+	 *          offset into the buffer
+	 * @return dynamic length of the header with extension ignored
+	 */
+	private static int baseHeaderLength(final JBuffer buffer, final int offset) {
+		final byte b0 = buffer.getByte(offset);
+		final int cc = (b0 & CC_MASK) >> CC_OFFSET;
+
+		return Rtp.STATIC_HEADER_LENGTH + (cc * CSRC_LENGTH);
 	}
 
 	/**
@@ -296,8 +570,26 @@ public class Rtp
 	 * @return value of the padding field
 	 */
 	@Field(offset = 2, length = 1)
-	public int padding() {
-		return (super.getByte(0) & PADDING_MASK) >> PADDING_OFFSET;
+	public boolean hasPadding() {
+		return ((super.getByte(0) & PADDING_MASK) >> PADDING_OFFSET) > 0;
+	}
+
+	/**
+	 * Returns the number of padding bytes that were appended at the end of this
+	 * Rtp frame
+	 * 
+	 * @return number of padding bytes
+	 */
+	public int paddingLength() {
+		if (hasPadding() == false) {
+			return 0;
+		}
+
+		JPacket packet = getPacket();
+
+		final int length = packet.getUByte(packet.size() - 1);
+
+		return length;
 	}
 
 	/**
@@ -307,8 +599,8 @@ public class Rtp
 	 * @return value of the extension field
 	 */
 	@Field(offset = 3, length = 1)
-	public int extension() {
-		return (super.getByte(0) & EXTENSION_MASK) >> EXTENSION_OFFSET;
+	public boolean hasExtension() {
+		return ((super.getByte(0) & EXTENSION_MASK) >> EXTENSION_OFFSET) > 0;
 	}
 
 	/**
@@ -333,8 +625,8 @@ public class Rtp
 	 * @return value of the marker field
 	 */
 	@Field(offset = 8, length = 1)
-	public int marker() {
-		return (super.getByte(1) & MARKER_MASK) >> MARKER_OFFSET;
+	public boolean hasMarker() {
+		return ((super.getByte(1) & MARKER_MASK) >> MARKER_OFFSET) > 0;
 	}
 
 	/**
@@ -353,6 +645,23 @@ public class Rtp
 	@Field(offset = 9, length = 7)
 	public int type() {
 		return (super.getByte(1) & TYPE_MASK) >> TYPE_OFFSET;
+	}
+
+	/**
+	 * This field identifies the format of the RTP payload and determines its
+	 * interpretation by the application. A profile MAY specify a default static
+	 * mapping of payload type codes to payload formats. Additional payload type
+	 * codes MAY be defined dynamically through non-RTP means (see Section 3). A
+	 * set of default mappings for audio and video is specified in the companion
+	 * RFC 3551 [1]. An RTP source MAY change the payload type during a session,
+	 * but this field SHOULD NOT be used for multiplexing separate media streams
+	 * (see Section 5.2 of RFC3550). A receiver MUST ignore packets with payload
+	 * types that it does not understand.
+	 * 
+	 * @return value of the payload type field as a constant
+	 */
+	public PayloadType typeEnum() {
+		return PayloadType.valueOf(type());
 	}
 
 	/**
@@ -508,5 +817,17 @@ public class Rtp
 	@Dynamic(Field.Property.LENGTH)
 	public int csrcLength() {
 		return count() * CSRC_LENGTH * BYTE;
+	}
+
+	/**
+	 * Gets the Rtp packet's payload.
+	 * 
+	 * @return buffer containing payload that is right after this Rtp header
+	 */
+	public byte[] payload() {
+		final JPacket packet = super.getPacket();
+		final int start = getOffset() + size();
+		final int length = packet.remaining(start) - paddingLength();
+		return packet.getByteArray(start, length);
 	}
 }
