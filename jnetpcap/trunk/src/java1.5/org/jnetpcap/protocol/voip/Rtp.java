@@ -416,8 +416,7 @@ public class Rtp
 	@Bind(to = Udp.class)
 	public static boolean bindToUdp(JPacket packet, Udp udp) {
 
-		System.out.println("TESTING");
-		return udp.destination() == RTP_UDP_PORT
+		return udp.source() == RTP_UDP_PORT || udp.destination() == RTP_UDP_PORT
 		    || heuristicScan(packet, udp.getOffset() + udp.size());
 	}
 
