@@ -289,7 +289,7 @@ public class TestUtils
 					 ********************************************************************/
 					if (i++ == index) {
 						PcapPacket packet = new PcapPacket(header, buffer);
-						packet.scan(JProtocol.ETHERNET_ID);
+						packet.scan(JRegistry.mapDLTToId(pcap.datalink()));
 
 						packet.transferStateAndDataTo(result);
 

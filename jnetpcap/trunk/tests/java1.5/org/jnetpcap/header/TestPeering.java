@@ -15,29 +15,30 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.jnetpcap.protocol.network;
+package org.jnetpcap.header;
 
+import junit.framework.TestCase;
+
+import org.jnetpcap.packet.JMemoryPacket;
 import org.jnetpcap.packet.JPacket;
-import org.jnetpcap.packet.TestUtils;
-import org.jnetpcap.protocol.JProtocol;
+import org.jnetpcap.packet.VariousInMemoryPackets;
+import org.jnetpcap.protocol.lan.Ethernet;
 
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  *
  */
-public class TestArp
+public class TestPeering
     extends
-    TestUtils {
-
-
-	public void testArp() {
-		JPacket packet = super.getPcapPacket(VLAN, 189 - 1);
+    TestCase {
+	
+	public void testPeerToJBuffer() {
+		assertNotNull(VariousInMemoryPackets.PACKET_1);
+		JPacket packet = new JMemoryPacket(VariousInMemoryPackets.PACKET_1);
+		packet.scan(Ethernet.ID);
 		
-		assertTrue(packet.hasHeader(JProtocol.ARP_ID));
-		
-		Arp arp = new Arp();
-		assertTrue(packet.hasHeader(arp));
-		assertEquals(1, arp.operation());
+		System.out.println(packet);
 	}
+
 }
