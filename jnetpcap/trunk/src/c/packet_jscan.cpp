@@ -232,3 +232,24 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScan_scan_1offset__
 
 	return scan->offset;
 }
+
+/*
+ * Class:     org_jnetpcap_packet_JScan
+ * Method:    scan_set_lengths
+ * Signature: (IIIII)V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1set_1lengths
+  (JNIEnv *env, jobject obj, jint prefix, jint header, jint gap, jint payload, jint postfix) {
+
+	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	if (scan == NULL) {
+		return;
+	}
+
+	scan->header->hdr_prefix =  (uint8_t) prefix;
+	scan->length             =  (int) header;
+	scan->header->hdr_gap =     (uint8_t) gap;
+	scan->header->hdr_payload = (uint32_t) payload;
+	scan->header->hdr_postfix = (uint16_t) postfix;
+}
+

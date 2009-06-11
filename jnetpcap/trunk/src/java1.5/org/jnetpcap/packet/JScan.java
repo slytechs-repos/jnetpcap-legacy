@@ -25,7 +25,8 @@ import org.jnetpcap.nio.JStruct;
  * @author Sly Technologies, Inc.
  */
 public class JScan
-    extends JStruct {
+    extends
+    JStruct {
 
 	private static final String STRUCT_NAME = "scan_t";
 
@@ -64,8 +65,29 @@ public class JScan
 	public native void scan_next_id(int next_id);
 
 	public native void scan_length(int length);
-	
+
 	public native void record_header();
+
+	/**
+	 * Sets all the various lengths in the header structure all at once
+	 * 
+	 * @param prefix
+	 *          prefix length in bytes before the header
+	 * @param header
+	 *          length of the header (same as {@link #scan_length(int)})
+	 * @param gap
+	 *          length of the gap between header and payload
+	 * @param payload
+	 *          length of payload
+	 * @param postfix
+	 *          length of postfix after the payload
+	 */
+	public native void scan_set_lengths(
+	    int prefix,
+	    int header,
+	    int gap,
+	    int payload,
+	    int postfix);
 
 	/**
 	 * Size in bytes of the native scan_t structure on this particular platform

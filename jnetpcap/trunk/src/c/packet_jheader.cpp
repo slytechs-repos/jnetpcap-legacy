@@ -136,3 +136,84 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JHeader_00024State_setAnalysis
 	}
 }
 
+/*
+ * Class:     org_jnetpcap_packet_JHeader_State
+ * Method:    getPrefix
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getPrefix
+  (JNIEnv *env, jobject obj) {
+
+	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
+	if (header == NULL) {
+		return -1;
+	}
+	
+	return (jint)header->hdr_prefix;
+}
+
+/*
+ * Class:     org_jnetpcap_packet_JHeader_State
+ * Method:    getGap
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getGap
+(JNIEnv *env, jobject obj) {
+
+	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
+	if (header == NULL) {
+		return -1;
+	}
+	
+	return (jint)header->hdr_gap;
+}
+
+/*
+ * Class:     org_jnetpcap_packet_JHeader_State
+ * Method:    getPayload
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getPayload
+(JNIEnv *env, jobject obj) {
+
+	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
+	if (header == NULL) {
+		return -1;
+	}
+	
+	return (jint)header->hdr_payload;
+}
+
+/*
+ * Class:     org_jnetpcap_packet_JHeader_State
+ * Method:    getPostfix
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getPostfix
+(JNIEnv *env, jobject obj) {
+
+	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
+	if (header == NULL) {
+		return -1;
+	}
+	
+	return (jint)header->hdr_postfix;
+}
+
+/*
+ * Class:     org_jnetpcap_packet_JHeader_State
+ * Method:    getFlags
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getFlags
+(JNIEnv *env, jobject obj) {
+
+	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
+	if (header == NULL) {
+		return -1;
+	}
+	
+	return (jint)header->hdr_flags;
+}
+
+

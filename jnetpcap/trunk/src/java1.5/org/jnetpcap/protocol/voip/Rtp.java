@@ -517,6 +517,7 @@ public class Rtp
 	 *          offset within the buffer of the start of the header
 	 * @return length of the header in bytes
 	 */
+
 	@HeaderLength
 	public static int headerLength(final JBuffer buffer, final int offset) {
 		final int rtpBaseHeader = baseHeaderLength(buffer, offset);
@@ -526,6 +527,27 @@ public class Rtp
 			    + Rtp.Extension.headerLength(buffer, offset + rtpBaseHeader);
 		} else {
 			return rtpBaseHeader;
+		}
+	}
+
+	/**
+	 * Determines the length of Rtp padding if the header has been padded. If the
+	 * Rtp.P bit is set, that means that last byte within the frame contains the
+	 * number of bytes that were used to pad after the payload following this
+	 * header.
+	 * 
+	 * @param buffer
+	 *          buffer to read options and padding information from
+	 * @param offset
+	 *          offset to the start of the header
+	 * @return number of bytes padding rtp payload or 0 if no padding bytes
+	 */
+	@HeaderLength(HeaderLength.Type.POSTFIX)
+	public static int postfixLength(final JBuffer buffer, final int offset) {
+		if ((buffer.getByte(offset) & PADDING_MASK) > 0) {
+			return buffer.getUByte(buffer.size() - 1);
+		} else {
+			return 0;
 		}
 	}
 
@@ -580,13 +602,12 @@ public class Rtp
 	 * @return number of padding bytes
 	 */
 	public int paddingLength() {
-		if (hasPadding() == false) {
+		if (hasPostfix() == false) {
 			return 0;
 		}
 
-		JPacket packet = getPacket();
-
-		final int length = packet.getUByte(packet.size() - 1);
+		final int length =
+		    packet.getUByte(getPostfixOffset() + getPostfixLength() - 1);
 
 		return length;
 	}
@@ -823,10 +844,7 @@ public class Rtp
 	 * 
 	 * @return buffer containing payload that is right after this Rtp header
 	 */
-	public byte[] payload() {
-		final JPacket packet = super.getPacket();
-		final int start = getOffset() + size();
-		final int length = packet.remaining(start) - paddingLength();
-		return packet.getByteArray(start, length);
-	}
+//	public byte[] payload() {
+//		return packet.getByteArray(getPayloadOffset(), getPayloadLength());
+//	}
 }

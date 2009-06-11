@@ -18,6 +18,7 @@ import java.util.Formatter;
 import java.util.List;
 
 import org.jnetpcap.nio.JFunction;
+import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.packet.structure.AnnotatedHeaderLengthMethod;
 import org.jnetpcap.packet.structure.AnnotatedScannerMethod;
 import org.jnetpcap.protocol.JProtocol;
@@ -55,7 +56,8 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Sly Technologies, Inc.
  */
 public class JHeaderScanner
-    extends JFunction {
+    extends
+    JFunction {
 
 	private static final String FUNCT_NAME = "scan_";
 
@@ -69,7 +71,7 @@ public class JHeaderScanner
 
 	private final int id;
 
-	private AnnotatedHeaderLengthMethod lengthMethod;
+	private AnnotatedHeaderLengthMethod[] lengthMethods;
 
 	private AnnotatedScannerMethod scannerMethod;
 
@@ -84,7 +86,7 @@ public class JHeaderScanner
 		this.needJProtocolInitialization = false;
 		this.id = JRegistry.lookupId(c);
 
-		lengthMethod = AnnotatedHeaderLengthMethod.inspectClass(c);
+		lengthMethods = AnnotatedHeaderLengthMethod.inspectClass(c);
 
 		if (AnnotatedScannerMethod.inspectClass(c).length != 0) {
 			scannerMethod = AnnotatedScannerMethod.inspectClass(c)[0];
@@ -119,7 +121,7 @@ public class JHeaderScanner
 
 		Class<? extends JHeader> clazz = protocol.getHeaderClass();
 
-		lengthMethod = AnnotatedHeaderLengthMethod.inspectClass(clazz);
+		lengthMethods = AnnotatedHeaderLengthMethod.inspectClass(clazz);
 
 		if (AnnotatedScannerMethod.inspectClass(clazz).length != 0) {
 			scannerMethod = AnnotatedScannerMethod.inspectClass(clazz)[0];
@@ -130,11 +132,11 @@ public class JHeaderScanner
 		needJProtocolInitialization = false;
 	}
 
-	private AnnotatedHeaderLengthMethod getLengthMethod() {
+	private AnnotatedHeaderLengthMethod getLengthMethod(HeaderLength.Type type) {
 		if (needJProtocolInitialization) {
 			initFromJProtocol(protocol);
 		}
-		return lengthMethod;
+		return lengthMethods[type.ordinal()];
 	}
 
 	private AnnotatedScannerMethod getScannerMethod() {
@@ -184,7 +186,32 @@ public class JHeaderScanner
 	 *         buffer
 	 */
 	public int getHeaderLength(JPacket packet, int offset) {
-		return getLengthMethod().getHeaderLength(packet, offset);
+		return getLengthMethod(HeaderLength.Type.HEADER).getHeaderLength(packet,
+		    offset);
+	}
+
+	public int getPrefixLength(JPacket packet, int offset) {
+		return (getLengthMethod(HeaderLength.Type.PREFIX) == null) ? 0
+		    : getLengthMethod(HeaderLength.Type.PREFIX).getHeaderLength(packet,
+		        offset);
+	}
+
+	public int getGapLength(JPacket packet, int offset) {
+		return (getLengthMethod(HeaderLength.Type.GAP) == null) ? 0
+		    : getLengthMethod(HeaderLength.Type.GAP)
+		        .getHeaderLength(packet, offset);
+	}
+
+	public int getPayloadLength(JPacket packet, int offset) {
+		return (getLengthMethod(HeaderLength.Type.PAYLOAD) == null) ? 0
+		    : getLengthMethod(HeaderLength.Type.PAYLOAD).getHeaderLength(packet,
+		        offset);
+	}
+
+	public int getPostfixLength(JPacket packet, int offset) {
+		return (getLengthMethod(HeaderLength.Type.POSTFIX) == null) ? 0
+		    : getLengthMethod(HeaderLength.Type.POSTFIX).getHeaderLength(packet,
+		        offset);
 	}
 
 	/**
@@ -230,7 +257,7 @@ public class JHeaderScanner
 	 * @return numerical ID of the next header as assigned by JRegistry
 	 */
 	public int scanAllBindings(JPacket packet, int offset) {
- 		for (final JBinding b : getBindings()) {
+		for (final JBinding b : getBindings()) {
 			if (b == null) {
 				continue;
 			}
@@ -266,10 +293,12 @@ public class JHeaderScanner
 			final JPacket packet = scan.scan_packet();
 			final int offset = scan.scan_offset();
 
-			int len = getHeaderLength(packet, offset);
-			scan.scan_length(len);
+//			 int len = getHeaderLength(packet, offset);
+//			 scan.scan_length(len);
+
+			setAllLengths(scan, packet, offset);
 		}
-		
+
 		if (scan.scan_length() > 0) {
 			scan.record_header(); // Now we record info in the packet
 		}
@@ -283,6 +312,47 @@ public class JHeaderScanner
 		}
 	}
 
+	/**
+	 * @param packet
+	 * @param offset
+	 */
+	private void setAllLengths(JScan scan, JPacket packet, int offset) {
+		if (needJProtocolInitialization) {
+			initFromJProtocol(protocol);
+		}
+
+		final int prefix =
+		    (lengthMethods[HeaderLength.Type.PREFIX.ordinal()] == null) ? 0
+		        : lengthMethods[HeaderLength.Type.PREFIX.ordinal()]
+		            .getHeaderLength(packet, offset);
+
+		/* Length of header method is mandatory and always present */
+		final int header =
+		    lengthMethods[HeaderLength.Type.HEADER.ordinal()].getHeaderLength(
+		        packet, offset);
+
+		final int gap =
+		    (lengthMethods[HeaderLength.Type.GAP.ordinal()] == null) ? 0
+		        : lengthMethods[HeaderLength.Type.GAP.ordinal()].getHeaderLength(
+		            packet, offset);
+
+		final int payload =
+		    (lengthMethods[HeaderLength.Type.PAYLOAD.ordinal()] == null) ? 0
+		        : lengthMethods[HeaderLength.Type.PAYLOAD.ordinal()]
+		            .getHeaderLength(packet, offset);
+
+		final int postfix =
+		    (lengthMethods[HeaderLength.Type.POSTFIX.ordinal()] == null) ? 0
+		        : lengthMethods[HeaderLength.Type.POSTFIX.ordinal()]
+		            .getHeaderLength(packet, offset);
+
+		System.out.printf("%d: %d,%d,%d,%d,%d\n", this.id, prefix, header, gap,
+		    payload, postfix);
+
+		scan.scan_set_lengths(prefix, header, gap, payload, postfix);
+
+	}
+
 	public void setScannerMethod(AnnotatedScannerMethod method) {
 		this.scannerMethod = method;
 	}
@@ -291,7 +361,7 @@ public class JHeaderScanner
 		Formatter out = new Formatter();
 
 		out.format("id=%2d, wasClassLoaded=%s isDirect=%s, bindings=%d method=%s ",
-		    id, lengthMethod != null, isDirect(), bindingsList.size(),
+		    id, lengthMethods != null, isDirect(), bindingsList.size(),
 		    hasScanMethod());
 
 		return out.toString();

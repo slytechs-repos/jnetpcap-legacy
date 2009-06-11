@@ -881,7 +881,8 @@ public class Ip4
 		optionsBitmap = 0;
 		this.hashcode = (id() << 16) ^ sourceToInt() ^ destinationToInt() ^ type();
 
-		// System.out.printf("offset=%d, %s", getOffset(), toHexdump());
+//		System.out.printf("offset=%d, %s %s", getOffset(), getPacket().getState()
+//		    .toDebugString(), toHexdump());
 		final int hlen = hlen() * 4;
 
 		for (int i = 20; i < hlen; i++) {

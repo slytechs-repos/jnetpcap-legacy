@@ -80,7 +80,7 @@ public class AnnotatedBinding implements JBinding {
 				Class<? extends JHeader> source = bind.from();
 				Class<? extends JHeader>[] dependencies = bind.dependencies();
 
-				AnnotatedHeaderLengthMethod getLengthMethod =
+				AnnotatedHeaderLengthMethod[] getLengthMethod =
 				    AnnotatedHeaderLengthMethod.inspectClass(target);
 
 				list.add(new AnnotatedBinding(c, source, target, boundMethod,
@@ -121,7 +121,7 @@ public class AnnotatedBinding implements JBinding {
 				target = bind.to();
 				Class<? extends JHeader>[] dependencies = bind.dependencies();
 
-				AnnotatedHeaderLengthMethod getLengthMethod =
+				AnnotatedHeaderLengthMethod[] getLengthMethod =
 				    AnnotatedHeaderLengthMethod.inspectClass(target);
 
 				list.add(new AnnotatedBinding(c, source, target, boundMethod,
@@ -159,7 +159,7 @@ public class AnnotatedBinding implements JBinding {
 	private AnnotatedBinding(Class<?> definitionClass,
 	    Class<? extends JHeader> source, Class<? extends JHeader> target,
 	    AnnotatedBindMethod bindingMethod,
-	    AnnotatedHeaderLengthMethod lengthMethod,
+	    AnnotatedHeaderLengthMethod[] lengthMethods,
 	    Class<? extends JHeader>... dependencies) {
 
 		this.definitionClass = definitionClass;

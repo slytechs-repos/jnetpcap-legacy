@@ -12,7 +12,15 @@
  */
 package org.jnetpcap.protocol.voip;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.jnetpcap.Pcap;
+import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.TestUtils;
@@ -85,5 +93,58 @@ public class TestVoip
 		
 		pcap.analyze();
 	}
+	
+	public void testRtpHeuristics() {
+		Rtp rtp = new Rtp();
+		
+		JPacket packet = super.getPcapPacket(SIP_G711, 499 - 1);
+		
+//		System.out.println(JRegistry.toDebugString());
+		System.out.println(packet.getState().toDebugString());
+//		System.out.println(packet);
+		System.out.flush();
+		
+		assertNotNull(packet);
+		assertTrue(packet.hasHeader(Rtp.ID));
+	}
+	
+	public void testRtpAudioExtract() throws IOException {
+		Rtp rtp = new Rtp();
+				
+		for (PcapPacket packet: super.getIterable(SIP_G711)) {
+			if (packet.hasHeader(rtp)) {
+				
+				if (rtp.hasPostfix() || rtp.paddingLength() != 0) {
+					System.out.println(rtp);
+				}
+		
+				FileOutputStream out = getOutput(rtp.ssrc());
+				
+				out.write(rtp.getPayload());
+			}
+		}
+		
+		for (FileOutputStream o: map.values()) {
+			o.close();
+		}
+	}
+	
+	Map<Long, FileOutputStream> map = new HashMap<Long, FileOutputStream>();
+	private FileOutputStream getOutput(long id) throws FileNotFoundException {
+		if (map.containsKey(id)) {
+			return map.get(id);
+		} else {
+			File file = new File("C:\\temp\\" + id + ".au");
+			if (file.exists()) {
+				file.delete();
+			}
+			
+			FileOutputStream out = new FileOutputStream(file);
+			map.put(id, out);
+			
+			return out;
+		}
+	}
+
 
 }

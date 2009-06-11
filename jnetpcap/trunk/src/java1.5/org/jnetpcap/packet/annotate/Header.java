@@ -61,6 +61,14 @@ public @interface Header {
 	
 	int length() default -1;
 	
+	int prefix() default -1;
+	
+	int gap() default  -1;
+	
+	int payload() default -1;
+	
+	int postfix() default -1;
+	
 	String name() default "";
 	
 	String nicname() default "";

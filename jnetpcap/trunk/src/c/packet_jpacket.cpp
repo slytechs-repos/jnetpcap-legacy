@@ -345,7 +345,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_sizeof
 JNIEXPORT jstring JNICALL Java_org_jnetpcap_packet_JPacket_00024State_toDebugStringJPacketState
   (JNIEnv *env, jobject obj) {
 	
-	char buf[5 * 1024];
+	char buf[15 * 1024];
 	buf[0] = '\0';
 	
 	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
@@ -353,29 +353,46 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_packet_JPacket_00024State_toDebugStr
 		return NULL;
 	}
 	
+	int fr = packet->pkt_frame_num;
+	
 	sprintf(buf, 
-			"JPacket.State: sizeof(packet_state_t)=%d\n"
-			"JPacket.State: sizeof(header_t)=%d and *%d=%d\n"
-			"JPacket.State: pkt_header_map=0x%X\n"
-			"JPacket.State: pkt_header_count=%x\n",
-			sizeof(packet_state_t),
-			sizeof(header_t), 
-			packet->pkt_header_count, 
-			sizeof(header_t) * packet->pkt_header_count,
-			(int) packet->pkt_header_map,
-			packet->pkt_header_count);
+			"JPacket.State#%03d: sizeof(packet_state_t)=%d\n"
+			"JPacket.State#%03d: sizeof(header_t)=%d and *%d=%d\n"
+			"JPacket.State#%03d:   pkt_header_map=0x%X\n"
+			"JPacket.State#%03d: pkt_header_count=0x%x\n"
+			"JPacket.State#%03d:        pkt_flags=0x%x\n",
+			fr, sizeof(packet_state_t),
+			fr, sizeof(header_t), 
+				packet->pkt_header_count,	
+				sizeof(header_t) * packet->pkt_header_count,
+			fr, (int) packet->pkt_header_map,
+			fr, packet->pkt_header_count,
+			fr, packet->pkt_flags);
 	
 	char *p;
 	
 	for (int i = 0; i < packet->pkt_header_count; i ++) {
 		p = buf + strlen(buf);
 		sprintf(p, 
-				"JPacket.State: pkt_headers[%d]=[hdr_id=%-2d %-15s,hdr_offset=%-4d,hdr_length=%d]\n", 
-				i,
+				"JPacket.State#%03d[%d]: "
+				"[id=%-2d %-10s "
+				"flags=0x%x "
+				"pre=%d "
+				"hdr_offset=%-4d "
+				"hdr_length=%-3d "
+				"gap=%d "
+				"pay=%-3d "
+				"post=%d]\n", 
+				fr,	i,
 				packet->pkt_headers[i].hdr_id,
 				id2str(packet->pkt_headers[i].hdr_id),
+				packet->pkt_headers[i].hdr_flags,
+				packet->pkt_headers[i].hdr_prefix,
 				packet->pkt_headers[i].hdr_offset,
-				packet->pkt_headers[i].hdr_length
+				packet->pkt_headers[i].hdr_length,
+				packet->pkt_headers[i].hdr_gap,
+				packet->pkt_headers[i].hdr_payload,
+				packet->pkt_headers[i].hdr_postfix
 				);
 		
 	}

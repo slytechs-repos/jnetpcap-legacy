@@ -76,11 +76,15 @@ int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner,
 	scan.packet = p_packet;
 	scan.header = &p_packet->pkt_headers[0];
 	scan.buf = buf;
-	scan.buf_len = buf_len;
+	scan.buf_len = buf_len; // Changing buffer length, reduced by 'postfix'
+	scan.mem_len = buf_len; // Constant in memory buffer length
 	scan.offset = 0;
 	scan.length = 0;
 	scan.id = first_id;
 	scan.next_id = PAYLOAD_ID;
+	
+	memset(scan.header, 0, sizeof(header_t));
+
 
 	// Point jscan 
 	setJMemoryPhysical(env, scanner->sc_jscan, toLong(&scan));
@@ -200,6 +204,17 @@ void record_header(scan_t *scan) {
 	if (scan->id == -1) {
 		return;
 	}
+	
+	/*
+	 * If payload length hasn't explicitly been set to some length, set it
+	 * to the remainder of the packet.
+	 */
+	if (scan->header->hdr_payload == 0) {
+		scan->header->hdr_payload = 
+			scan->buf_len - (scan->offset + scan->length + scan->header->hdr_gap) 
+			- scan->header->hdr_postfix;
+	}
+	
 	/*
 	 * Initialize the header entry in our packet header array
 	 */
@@ -207,6 +222,7 @@ void record_header(scan_t *scan) {
 	scan->header->hdr_id = scan->id;
 	scan->header->hdr_offset = scan->offset;
 	scan->header->hdr_analysis = NULL;
+
 
 	/*
 	 * Adjust for truncated packets
@@ -217,11 +233,23 @@ void record_header(scan_t *scan) {
 					: scan->length);
 
 	scan->header->hdr_length = scan->length;
-	scan->offset += scan->length;
-	scan->header ++; /* point to next header entry *** ptr arithmatic */
+	scan->offset += scan->length + scan->header->hdr_gap;
 	scan->packet->pkt_header_count ++; /* number of entries */
 	
+	/* 
+	 * Reduce the size of the buffer by postfix amount. This ensures that next
+	 * header won't try to read data out of the 'postfix' area of the previous
+	 * header. The postfix belongs to the previous header. scan->mem_buf still
+	 * contains the original total buffer length in memory if its needed.
+	 */
+	scan->buf_len -= scan->header->hdr_postfix;
+	
 	scan->id = -1; // Indicates, that header is already recorded
+	
+	/* Initialize key fields in a new header */
+	scan->header ++; /* point to next header entry *** ptr arithmatic */
+	memset(scan->header, 0, sizeof(header_t));
+
 }
 
 /**
