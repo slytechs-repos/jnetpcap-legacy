@@ -388,8 +388,8 @@ public abstract class JMemory {
 		if (offset < 0 || length < 0
 		    || (!peer.owner && offset + length > peer.size) || peer.owner
 		    && offset + length > peer.physicalSize) {
-			throw new IllegalArgumentException(
-			    "Invalid [offset,offset + length) range.");
+			throw new IllegalArgumentException("Invalid [" + offset + ","
+			    + (offset + length) + "," + length + ") range.");
 		}
 
 		cleanup(); // Clean up any memory we own before we give it up

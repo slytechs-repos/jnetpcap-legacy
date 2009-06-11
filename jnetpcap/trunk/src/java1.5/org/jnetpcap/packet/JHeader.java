@@ -37,6 +37,15 @@ public abstract class JHeader
     JBuffer implements JPayloadAccessor {
 
 	/**
+	 * A constant that defines how many bits there are in a byte. This constant is
+	 * used in unit conversion from bytes to bits and visa-versa. To convert from
+	 * bytes to bit you multiple your number of bytes by the BYTE constant. To
+	 * convert from bits to bytes, you divide the number of bits by the BYTE
+	 * constant.
+	 */
+	public final static int BYTE = 8;
+
+	/**
 	 * This class is peered state of a header a native state structure
 	 * 
 	 * <pre>
@@ -79,6 +88,16 @@ public abstract class JHeader
 		public native int getLength();
 
 		public native int getOffset();
+		
+		public native int getPrefix();
+		
+		public native int getGap();
+		
+		public native int getPayload();
+		
+		public native int getPostfix();
+		
+		public native int getFlags();
 
 		public boolean isDirect() {
 			return true;
@@ -529,17 +548,7 @@ public abstract class JHeader
 	 *         header's payload from the packet.
 	 */
 	public byte[] getPayload() {
-		final JPacket packet = getPacket();
-		final int offset = getOffset() + size();
-
-		return packet.getByteArray(offset, packet.remaining(offset));
-	}
-	
-	public int getPayloadLength() {
-		final JPacket packet = getPacket();
-		final int offset = getOffset() + size();
-
-		return packet.size() - offset;
+		return packet.getByteArray(getPayloadOffset(), getPayloadLength());
 	}
 
 	/**
@@ -607,5 +616,77 @@ public abstract class JHeader
 		packet.transferTo(buffer, offset, packet.remaining(offset));
 
 		return buffer;
+	}
+	
+	public boolean hasPrefix() {
+		return getPrefixLength() != 0;
+	}
+	
+	public int getPrefixLength() {
+		return state.getPrefix();
+	}
+	
+	public int getPrefixOffset() {
+		return getOffset() - getPrefixLength();
+	}
+	
+	public byte[] getPrefix() {
+		return packet.getByteArray(getPrefixOffset(), getPrefixLength());
+	}
+	
+	public int getHeaderLength() {
+		return state.getLength();
+	}
+	
+	public int getHeaderOffset() {
+		return state.getOffset();
+	}
+	
+	public byte[] getHeader() {
+		return packet.getByteArray(getHeaderOffset(), getHeaderLength());
+	}
+	
+	public boolean hasGap() {
+		return getGapLength() != 0;
+	}
+	
+	public int getGapLength() {
+		return state.getGap();
+	}
+	
+	public int getGapOffset() {
+		return getOffset() + getHeaderLength();
+	}
+	
+	public byte[] getGap() {
+		return packet.getByteArray(getGapOffset(), getGapLength());
+	}
+	
+	public boolean hasPayload() {
+		return getPayloadLength() != 0;
+	}
+	
+	public int getPayloadLength() {
+		return state.getPayload();
+	}
+	
+	public int getPayloadOffset() {
+		return getGapOffset() + getGapLength();
+	}
+	
+	public boolean hasPostfix() {
+		return getPostfixLength() != 0;
+	}
+	
+	public int getPostfixLength() {
+		return state.getPostfix();
+	}
+	
+	public byte[] getPostfix() {
+		return packet.getByteArray(getPostfixOffset(), getPostfixLength());
+	}
+	
+	public int getPostfixOffset() {
+		return getPayloadOffset() + getPayloadLength();
 	}
 }

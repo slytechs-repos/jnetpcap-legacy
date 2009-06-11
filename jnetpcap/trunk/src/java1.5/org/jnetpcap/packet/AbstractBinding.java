@@ -12,9 +12,9 @@
  */
 package org.jnetpcap.packet;
 
+import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.packet.structure.AnnotatedHeaderLengthMethod;
 import org.jnetpcap.packet.structure.HeaderDefinitionError;
-
 
 /**
  * @author Mark Bednarczyk
@@ -27,10 +27,11 @@ public abstract class AbstractBinding<H extends JHeader> implements JBinding {
 	private final int sourceId;
 
 	private final H header;
-	
-	private AnnotatedHeaderLengthMethod length;
 
-	public AbstractBinding(Class<? extends JHeader> sourceClass,
+	private AnnotatedHeaderLengthMethod[] lengthMethods;
+
+	public AbstractBinding(
+	    Class<? extends JHeader> sourceClass,
 	    Class<H> targetClass) {
 
 		this.sourceId = JRegistry.lookupId(sourceClass);
@@ -43,11 +44,12 @@ public abstract class AbstractBinding<H extends JHeader> implements JBinding {
 		} catch (IllegalAccessException e) {
 			throw new IllegalStateException(e);
 		}
-		
+
 		try {
-			this.length = AnnotatedHeaderLengthMethod.inspectClass(targetClass);
+			this.lengthMethods =
+			    AnnotatedHeaderLengthMethod.inspectClass(targetClass);
 		} catch (HeaderDefinitionError e) {
-			this.length = null;
+			this.lengthMethods = null;
 		}
 	}
 
@@ -76,9 +78,10 @@ public abstract class AbstractBinding<H extends JHeader> implements JBinding {
 	 * @see org.jnetpcap.packet.JBinding#isBound(org.jnetpcap.packet.JPacket, int)
 	 */
 	public boolean isBound(JPacket packet, int offset) {
-		
-		if (this.length != null) {
-			packet.peer(header, offset, length.getHeaderLength(packet, offset));
+
+		if (this.lengthMethods != null) {
+			packet.peer(header, offset, lengthMethods[HeaderLength.Type.HEADER.ordinal()]
+			    .getHeaderLength(packet, offset));
 		} else {
 			packet.peer(header, offset, packet.remaining(offset));
 		}

@@ -22,18 +22,28 @@ import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
+import org.jnetpcap.packet.annotate.HeaderLength.Type;
 
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
 public class AnnotatedHeaderLengthMethod
-    extends AnnotatedMethod {
+    extends
+    AnnotatedMethod {
 
-	private final static Map<Class<?>, AnnotatedHeaderLengthMethod> cache =
-	    new HashMap<Class<?>, AnnotatedHeaderLengthMethod>();
+	private final static Map<Class<?>, AnnotatedHeaderLengthMethod[]> cache =
+	    new HashMap<Class<?>, AnnotatedHeaderLengthMethod[]>();
 
-	public static AnnotatedHeaderLengthMethod inspectClass(
+	/**
+	 * Inspect annotations within the class for length methods.
+	 * 
+	 * @param c
+	 *          class to inspect
+	 * @return array containing length methods for various header "record"
+	 *         sub-structures
+	 */
+	public static AnnotatedHeaderLengthMethod[] inspectClass(
 	    Class<? extends JHeader> c) {
 
 		/*
@@ -43,48 +53,86 @@ public class AnnotatedHeaderLengthMethod
 			return cache.get(c);
 		}
 
-		AnnotatedHeaderLengthMethod lengthMethod = null;
+		AnnotatedHeaderLengthMethod[] methods =
+		    new AnnotatedHeaderLengthMethod[HeaderLength.Type.values().length];
 
 		Header header = c.getAnnotation(Header.class);
 		if (header != null && header.length() != -1) {
-			lengthMethod = new AnnotatedHeaderLengthMethod(c, header.length());
+			methods[HeaderLength.Type.HEADER.ordinal()] =
+			    new AnnotatedHeaderLengthMethod(c, header.length(),
+			        HeaderLength.Type.HEADER);
+		}
+
+		if (header != null && header.prefix() != -1) {
+			methods[HeaderLength.Type.PREFIX.ordinal()] =
+			    new AnnotatedHeaderLengthMethod(c, header.prefix(),
+			        HeaderLength.Type.PREFIX);
+		}
+
+		if (header != null && header.gap() != -1) {
+			methods[HeaderLength.Type.GAP.ordinal()] =
+			    new AnnotatedHeaderLengthMethod(c, header.gap(),
+			        HeaderLength.Type.GAP);
+		}
+
+		if (header != null && header.payload() != -1) {
+			methods[HeaderLength.Type.PAYLOAD.ordinal()] =
+			    new AnnotatedHeaderLengthMethod(c, header.payload(),
+			        HeaderLength.Type.PAYLOAD);
+		}
+
+		if (header != null && header.postfix() != -1) {
+			methods[HeaderLength.Type.POSTFIX.ordinal()] =
+			    new AnnotatedHeaderLengthMethod(c, header.postfix(),
+			        HeaderLength.Type.POSTFIX);
 		}
 
 		for (Method method : getMethods(c, HeaderLength.class)) {
 
-			if (lengthMethod != null) {
-				throw new AnnotatedMethodException(c, "duplicate: " + lengthMethod
-				    + " and " + method.getName() + "()");
+			HeaderLength hl = method.getAnnotation(HeaderLength.class);
+
+			if (methods[hl.value().ordinal()] != null) {
+				throw new AnnotatedMethodException(c, "duplicate: "
+				    + methods[hl.value().ordinal()] + " property and " + method.getName()
+				    + "() method");
 			}
 
 			checkSignature(method);
 
-			lengthMethod = new AnnotatedHeaderLengthMethod(method);
+			methods[hl.value().ordinal()] =
+			    new AnnotatedHeaderLengthMethod(method, hl.value());
 		}
 
-		if (lengthMethod == null) {
+		if (methods[HeaderLength.Type.HEADER.ordinal()] == null) {
 			throw new AnnotatedMethodException(c,
 			    "@HeaderLength annotated method not found");
 		}
 
-		cache.put(c, lengthMethod);
-		return lengthMethod;
+		cache.put(c, methods);
+		return methods;
 	}
 
 	private int staticLength;
 
-	private AnnotatedHeaderLengthMethod(Method method) {
+	private final Type type;
+
+	private AnnotatedHeaderLengthMethod(Method method, HeaderLength.Type type) {
 		super(method);
+		this.type = type;
 
 		HeaderLength a = method.getAnnotation(HeaderLength.class);
-		this.staticLength = a.value();
+		this.staticLength = -1;
 	}
 
 	/**
 	 * @param length
 	 */
-	public AnnotatedHeaderLengthMethod(Class<? extends JHeader> c, int length) {
+	public AnnotatedHeaderLengthMethod(
+	    Class<? extends JHeader> c,
+	    int length,
+	    HeaderLength.Type type) {
 		this.staticLength = length;
+		this.type = type;
 	}
 
 	public int getHeaderLength(JBuffer buffer, int offset) {
@@ -157,7 +205,10 @@ public class AnnotatedHeaderLengthMethod
 
 	public String toString() {
 		if (method == null) {
-			return "@Header(length=" + staticLength + ")";
+			String property =
+			    (type == HeaderLength.Type.HEADER) ? "length" : type.toString()
+			        .toLowerCase();
+			return "@Header(" + property + "=" + staticLength + ")";
 		} else {
 			return super.toString();
 		}
