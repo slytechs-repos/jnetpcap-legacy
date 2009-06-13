@@ -100,7 +100,8 @@ import org.jnetpcap.nio.JStruct;
  * @author Sly Technologies, Inc.
  */
 public class JScanner
-    extends JStruct {
+    extends
+    JStruct {
 
 	/**
 	 * Default allocation for memory block/buffer
@@ -201,7 +202,7 @@ public class JScanner
 	 */
 	public JScanner(int blocksize) {
 		super(STRUCT_NAME + "#" + count++, blocksize + sizeof()); // Allocate memory
-																															// block in
+		// block in
 		// JMemory
 		init(new JScan());
 		reloadAll();
@@ -255,7 +256,8 @@ public class JScanner
 
 			if (scanners[i].hasBindings() || scanners[i].hasScanMethod()
 			    || scanners[i].isDirect() == false) {
-//				System.out.printf("%s, Downloading scanner [%s]\n", this, scanners[i]);
+				// System.out.printf("%s, Downloading scanner [%s]\n", this,
+				// scanners[i]);
 			} else {
 				scanners[i] = null;
 			}
@@ -277,11 +279,29 @@ public class JScanner
 	 * @return number of bytes processed
 	 */
 	public int scan(JPacket packet, int id) {
+		return scan(packet, id, packet.getPacketWirelen());
+	}
+
+	/**
+	 * Performs a scan on a packet that has been peered with a packet data buffer.
+	 * The state structure o the packet is filled in and peered at the time of the
+	 * packet scan.
+	 * 
+	 * @param packet
+	 *          packet to process
+	 * @param id
+	 *          numerical ID of the data link protocol, or first header within the
+	 *          data buffer
+	 * @param wirelen
+	 *          original packet length
+	 * @return number of bytes processed
+	 */
+	public int scan(JPacket packet, int id, int wirelen) {
 		final JPacket.State state = packet.getState();
 
 		reloadAll();
 
-		return scan(packet, state, id);
+		return scan(packet, state, id, wirelen);
 	}
 
 	/**
@@ -291,7 +311,13 @@ public class JScanner
 	 *          packet to scan
 	 * @param id
 	 *          id of dlt protocol
+	 * @param original
+	 *          packet length
 	 * @return number of bytes processed
 	 */
-	private native int scan(JPacket packet, JPacket.State state, int id);
+	private native int scan(
+	    JPacket packet,
+	    JPacket.State state,
+	    int id,
+	    int wirelen);
 }

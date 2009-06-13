@@ -33,8 +33,12 @@ import org.jnetpcap.protocol.network.Ip6;
  * @author Sly Technologies, Inc.
  */
 public class JHandlerTest
-    extends TestCase implements ByteBufferHandler<String>,
-    JBufferHandler<String>, JPacketHandler<String> {
+    extends
+    TestCase
+    implements
+    ByteBufferHandler<String>,
+    JBufferHandler<String>,
+    JPacketHandler<String> {
 
 	private Ethernet ethernet = new Ethernet();
 
@@ -83,8 +87,13 @@ public class JHandlerTest
 	 */
 	public void nextPacket(PcapHeader pcapHdr, JBuffer jbuf, String user) {
 
-		packet.peer(jbuf);
+		packet.peerHeaderAndData(pcapHdr, jbuf);
 		scanner.scan(packet, Ethernet.ID);
+
+		assertTrue(packet.getPacketWirelen() > 0);
+
+		System.out.printf("JHandlerTest::nextPacket() - %s\n", packet.getState()
+		    .toDebugString());
 
 		if (packet.hasHeader(ethernet)) {
 			System.out.println("ethernet.dst=" + ethernet.destination());
@@ -106,7 +115,7 @@ public class JHandlerTest
 	 *      org.jnetpcap.packet.JPacket, java.lang.Object)
 	 */
 	public void nextPacket(JPacket packet, String user) {
-		
+
 		System.out.printf("state=%s", packet.getState().toDebugString());
 
 		if (packet.hasHeader(ethernet)) {
@@ -132,7 +141,7 @@ public class JHandlerTest
 	public void nextPacket(PcapHeader header, ByteBuffer bytebuffer, String user) {
 
 		try {
-			packet.peer(bytebuffer);
+			packet.peerHeaderAndData(header, bytebuffer);
 		} catch (PeeringException e) {
 			e.printStackTrace();
 		}

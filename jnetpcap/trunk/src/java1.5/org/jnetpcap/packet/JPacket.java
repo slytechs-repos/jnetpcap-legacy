@@ -111,6 +111,12 @@ public abstract class JPacket
 	    extends
 	    JStruct {
 
+		/**
+		 * Flag which is set when the packet that was decoded was truncated and not
+		 * the original length seen on the wire.
+		 */
+		public final static int FLAG_TRUNCATED = 0x01;
+
 		public final static String STRUCT_NAME = "packet_state_t";
 
 		/**
@@ -186,6 +192,37 @@ public abstract class JPacket
 		public native int getHeaderIdByIndex(int index);
 
 		public native int getInstanceCount(int id);
+
+		/**
+		 * Gets the 32-bit counter that contains packet's flags in packet_state_t
+		 * structure
+		 * 
+		 * @return bit flags for this packet
+		 */
+		public native int getFlags();
+
+		/**
+		 * Sets the 32-bit counter with packet flags
+		 * 
+		 * @param flags
+		 *          bit flags for this packet
+		 */
+		public native void setFlags(int flags);
+
+		/**
+		 * Gets the packet's wire length
+		 * 
+		 * @return original length of the packet
+		 */
+		public native int getWirelen();
+
+		/**
+		 * Sets the packet's wire length.
+		 * 
+		 * @param length
+		 *          the original length of the packet before truncation
+		 */
+		public native void setWirelen(int length);
 
 		public int peer(ByteBuffer peer) throws PeeringException {
 			int r = super.peer(peer);
@@ -725,6 +762,17 @@ public abstract class JPacket
 		return memory;
 	}
 
+	/**
+	 * Gets the wire length of the packet. This is the original length as seen on
+	 * the wire. This length may different JPacket.size() length, as the packet
+	 * may have been truncated at the time of the capture.
+	 * 
+	 * @return original packet length
+	 */
+	public int getPacketWirelen() {
+		return getCaptureHeader().wirelen();
+	}
+
 	public JScanner getScanner() {
 		return scanner;
 	}
@@ -880,7 +928,7 @@ public abstract class JPacket
 	 *          to be found in the packet, the DLT
 	 */
 	public void scan(int id) {
-		scanner.scan(this, id);
+		scanner.scan(this, id, getCaptureHeader().wirelen());
 	}
 
 	/**

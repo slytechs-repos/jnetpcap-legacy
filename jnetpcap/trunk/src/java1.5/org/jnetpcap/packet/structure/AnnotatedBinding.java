@@ -22,6 +22,7 @@ import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.annotate.Bind;
+import org.jnetpcap.packet.annotate.HeaderLength;
 
 /**
  * @author Mark Bednarczyk
@@ -80,11 +81,8 @@ public class AnnotatedBinding implements JBinding {
 				Class<? extends JHeader> source = bind.from();
 				Class<? extends JHeader>[] dependencies = bind.dependencies();
 
-				AnnotatedHeaderLengthMethod[] getLengthMethod =
-				    AnnotatedHeaderLengthMethod.inspectClass(target);
-
 				list.add(new AnnotatedBinding(c, source, target, boundMethod,
-				    getLengthMethod, dependencies));
+				    dependencies));
 
 			} catch (AnnotatedMethodException e) {
 				errors.add(e);
@@ -121,11 +119,8 @@ public class AnnotatedBinding implements JBinding {
 				target = bind.to();
 				Class<? extends JHeader>[] dependencies = bind.dependencies();
 
-				AnnotatedHeaderLengthMethod[] getLengthMethod =
-				    AnnotatedHeaderLengthMethod.inspectClass(target);
-
 				list.add(new AnnotatedBinding(c, source, target, boundMethod,
-				    getLengthMethod, dependencies));
+				    dependencies));
 
 			} catch (AnnotatedMethodException e) {
 				errors.add(e);
@@ -156,10 +151,11 @@ public class AnnotatedBinding implements JBinding {
 
 	private final int targetId;
 
-	private AnnotatedBinding(Class<?> definitionClass,
-	    Class<? extends JHeader> source, Class<? extends JHeader> target,
+	private AnnotatedBinding(
+	    Class<?> definitionClass,
+	    Class<? extends JHeader> source,
+	    Class<? extends JHeader> target,
 	    AnnotatedBindMethod bindingMethod,
-	    AnnotatedHeaderLengthMethod[] lengthMethods,
 	    Class<? extends JHeader>... dependencies) {
 
 		this.definitionClass = definitionClass;
@@ -208,7 +204,7 @@ public class AnnotatedBinding implements JBinding {
 	 * @see org.jnetpcap.packet.JBinding#isBound(org.jnetpcap.packet.JPacket, int)
 	 */
 	public boolean isBound(JPacket packet, int offset) {
-		
+
 		packet.getHeader(header);
 
 		return annotatedBound.isBound(packet, offset, header);

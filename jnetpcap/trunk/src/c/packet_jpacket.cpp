@@ -174,6 +174,72 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getInstanceCo
 
 /*
  * Class:     org_jnetpcap_packet_JPacket_State
+ * Method:    getFlags
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getFlags
+  (JNIEnv *env, jobject obj) {
+
+	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	if (packet == NULL) {
+		return -1;
+	}
+	
+	return (jint) packet->pkt_flags;
+}
+
+/*
+ * Class:     org_jnetpcap_packet_JPacket_State
+ * Method:    setFlags
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JPacket_00024State_setFlags
+  (JNIEnv *env, jobject obj, jint jflags) {
+	
+	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	if (packet == NULL) {
+		return;
+	}
+	
+	packet->pkt_flags = (uint8_t) jflags;
+}
+
+/*
+ * Class:     org_jnetpcap_packet_JPacket_State
+ * Method:    getWirelen
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getWirelen
+  (JNIEnv *env, jobject obj) {
+	
+	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	if (packet == NULL) {
+		return -1;
+	}
+	
+	return (jint) packet->pkt_wirelen;
+}
+
+/*
+ * Class:     org_jnetpcap_packet_JPacket_State
+ * Method:    setWirelen
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JPacket_00024State_setWirelen
+  (JNIEnv *env, jobject obj, jint jwirelen) {
+	
+	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	if (packet == NULL) {
+		return;
+	}
+	
+	packet->pkt_wirelen = (uint32_t) jwirelen;
+}
+
+
+
+/*
+ * Class:     org_jnetpcap_packet_JPacket_State
  * Method:    getFrameNumber
  * Signature: ()J
  */
@@ -359,15 +425,17 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_packet_JPacket_00024State_toDebugStr
 			"JPacket.State#%03d: sizeof(packet_state_t)=%d\n"
 			"JPacket.State#%03d: sizeof(header_t)=%d and *%d=%d\n"
 			"JPacket.State#%03d:   pkt_header_map=0x%X\n"
-			"JPacket.State#%03d: pkt_header_count=0x%x\n"
-			"JPacket.State#%03d:        pkt_flags=0x%x\n",
+			"JPacket.State#%03d:        pkt_flags=0x%x\n"
+			"JPacket.State#%03d: pkt_header_count=%d\n"
+			"JPacket.State#%03d:      pkt_wirelen=%d\n",
 			fr, sizeof(packet_state_t),
 			fr, sizeof(header_t), 
 				packet->pkt_header_count,	
 				sizeof(header_t) * packet->pkt_header_count,
 			fr, (int) packet->pkt_header_map,
+			fr, packet->pkt_flags,
 			fr, packet->pkt_header_count,
-			fr, packet->pkt_flags);
+			fr, packet->pkt_wirelen);
 	
 	char *p;
 	

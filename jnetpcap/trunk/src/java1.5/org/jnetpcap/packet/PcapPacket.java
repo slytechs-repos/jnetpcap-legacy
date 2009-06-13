@@ -346,7 +346,8 @@ import org.jnetpcap.nio.JMemoryPool;
  * @see JMemoryPool
  */
 public class PcapPacket
-    extends JPacket {
+    extends
+    JPacket {
 
 	private final static int STATE_SIZE =
 	    PcapHeader.sizeof() + JPacket.State.sizeof(DEFAULT_STATE_HEADER_COUNT);
@@ -466,39 +467,6 @@ public class PcapPacket
 	}
 
 	/**
-	 * Allocates memory for new packet and copies both the header and packet
-	 * buffer to newly allocated memory. Packet state is uninitialized and needs
-	 * to be decoded.
-	 * 
-	 * @param header
-	 *          capture header
-	 * @param buffer
-	 *          packet data buffer
-	 */
-	public PcapPacket(PcapHeader header, JBuffer buffer) {
-		super(Type.POINTER);
-
-		transferHeaderAndDataFrom(header, buffer);
-	}
-	
-	/**
-	 * Allocates memory for new packet and copies both the header and packet
-	 * buffer to newly allocated memory. Packet state is uninitialized and needs
-	 * to be decoded.
-	 * 
-	 * @param header
-	 *          capture header
-	 * @param buffer
-	 *          packet data buffer
-	 */
-	public PcapPacket(PcapHeader header, ByteBuffer buffer) {
-		super(Type.POINTER);
-
-		transferHeaderAndDataFrom(header, buffer);
-	}
-
-
-	/**
 	 * Does a deep copy of the source packet into newly allocated native memory
 	 * location
 	 * 
@@ -515,6 +483,38 @@ public class PcapPacket
 			throw new UnsupportedOperationException(
 			    "Unsupported packet type for this constructor");
 		}
+	}
+
+	/**
+	 * Allocates memory for new packet and copies both the header and packet
+	 * buffer to newly allocated memory. Packet state is uninitialized and needs
+	 * to be decoded.
+	 * 
+	 * @param header
+	 *          capture header
+	 * @param buffer
+	 *          packet data buffer
+	 */
+	public PcapPacket(PcapHeader header, ByteBuffer buffer) {
+		super(Type.POINTER);
+
+		transferHeaderAndDataFrom(header, buffer);
+	}
+
+	/**
+	 * Allocates memory for new packet and copies both the header and packet
+	 * buffer to newly allocated memory. Packet state is uninitialized and needs
+	 * to be decoded.
+	 * 
+	 * @param header
+	 *          capture header
+	 * @param buffer
+	 *          packet data buffer
+	 */
+	public PcapPacket(PcapHeader header, JBuffer buffer) {
+		super(Type.POINTER);
+
+		transferHeaderAndDataFrom(header, buffer);
 	}
 
 	/**
@@ -562,6 +562,39 @@ public class PcapPacket
 	 */
 	public int getTotalSize() {
 		return super.size() + state.size() + header.size();
+	}
+
+	/**
+	 * Peers both header and data to buffer. The buffer must contain first header
+	 * then packet data layout in its memory. Packet state is uninitialized.
+	 * 
+	 * @param buffer
+	 * @return number of bytes peered
+	 */
+	public int peerHeaderAndData(JBuffer buffer) {
+		int o = header.peer(buffer, 0);
+		o += super.peer(buffer, o, buffer.size() - header.size());
+
+		return o;
+	}
+
+	/**
+	 * @param header
+	 * @param buffer
+	 * @throws PeeringException
+	 */
+	public int peerHeaderAndData(PcapHeader header, ByteBuffer buffer) throws PeeringException {
+		int o = this.header.peerTo(header, 0);
+		o += super.peer(buffer);
+
+		return o;
+	}
+
+	public int peerHeaderAndData(PcapHeader header, JBuffer buffer) {
+		int o = this.header.peerTo(header, 0);
+		o += super.peer(buffer);
+
+		return o;
 	}
 
 	/**
@@ -617,33 +650,57 @@ public class PcapPacket
 		return peerStateAndData(getMemoryBuffer(buffer), 0);
 	}
 
-	public int peerHeaderAndData(PcapHeader header, JBuffer buffer) {
-		int o = this.header.peerTo(header, 0);
-		o += super.peer(buffer);
-
-		return o;
-	}
-
-	/**
-	 * Peers both header and data to buffer. The buffer must contain first header
-	 * then packet data layout in its memory. Packet state is uninitialized.
-	 * 
-	 * @param buffer
-	 * @return number of bytes peered
-	 */
-	public int peerHeaderAndData(JBuffer buffer) {
-		int o = header.peer(buffer, 0);
-		o += super.peer(buffer, o, buffer.size() - header.size());
-
-		return o;
-	}
-
 	private int peerStateAndData(JBuffer memory, int offset) {
 
 		int o = header.peer(memory, offset);
 		state.peerTo(memory, offset + o, State.sizeof(0));
 		o += state.peerTo(memory, offset + o, State.sizeof(state.getHeaderCount()));
 		o += super.peer(memory, offset + o, header.caplen());
+
+		return o;
+	}
+
+	/**
+	 * Copies contents of header and packet buffer to a single newly allocated
+	 * buffer. State is uninitialized. The packet's header and buffer's are peered
+	 * with newly allocated buffer.
+	 * 
+	 * @param header
+	 *          source header
+	 * @param buffer
+	 *          source packet data buffer
+	 * @return number of bytes copied.
+	 */
+	public int transferHeaderAndDataFrom(PcapHeader header, ByteBuffer buffer) {
+		final int len = buffer.limit() - buffer.position();
+		JBuffer b = getMemoryBuffer(header.size() + len);
+
+		int o = header.transferTo(b, 0);
+		o += b.transferFrom(buffer, o);
+
+		peerHeaderAndData(b);
+
+		return o;
+	}
+
+	/**
+	 * Copies contents of header and packet buffer to a single newly allocated
+	 * buffer. State is uninitialized. The packet's header and buffer's are peered
+	 * with newly allocated buffer.
+	 * 
+	 * @param header
+	 *          source header
+	 * @param buffer
+	 *          source packet data buffer
+	 * @return number of bytes copied.
+	 */
+	public int transferHeaderAndDataFrom(PcapHeader header, JBuffer buffer) {
+		JBuffer b = getMemoryBuffer(header.size() + buffer.size());
+
+		int o = header.transferTo(b, 0);
+		o += buffer.transferTo(b, 0, buffer.size(), o);
+
+		peerHeaderAndData(b);
 
 		return o;
 	}
@@ -744,52 +801,6 @@ public class PcapPacket
 		buffer.transferTo(b);
 
 		return peerStateAndData(b, 0);
-	}
-	
-	/**
-	 * Copies contents of header and packet buffer to a single newly allocated
-	 * buffer. State is uninitialized. The packet's header and buffer's are peered
-	 * with newly allocated buffer.
-	 * 
-	 * @param header
-	 *          source header
-	 * @param buffer
-	 *          source packet data buffer
-	 * @return number of bytes copied.
-	 */
-	public int transferHeaderAndDataFrom(PcapHeader header, ByteBuffer buffer) {
-		final int len = buffer.limit() - buffer.position();
-		JBuffer b = getMemoryBuffer(header.size() + len);
-
-		int o = header.transferTo(b, 0);
-		o += b.transferFrom(buffer, o);
-
-		peerHeaderAndData(b);
-
-		return o;
-	}
-
-
-	/**
-	 * Copies contents of header and packet buffer to a single newly allocated
-	 * buffer. State is uninitialized. The packet's header and buffer's are peered
-	 * with newly allocated buffer.
-	 * 
-	 * @param header
-	 *          source header
-	 * @param buffer
-	 *          source packet data buffer
-	 * @return number of bytes copied.
-	 */
-	public int transferHeaderAndDataFrom(PcapHeader header, JBuffer buffer) {
-		JBuffer b = getMemoryBuffer(header.size() + buffer.size());
-
-		int o = header.transferTo(b, 0);
-		o += buffer.transferTo(b, 0, buffer.size(), o);
-
-		peerHeaderAndData(b);
-
-		return o;
 	}
 
 	/**

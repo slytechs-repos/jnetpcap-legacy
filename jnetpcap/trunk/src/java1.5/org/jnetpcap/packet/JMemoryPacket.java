@@ -26,7 +26,8 @@ import org.jnetpcap.packet.format.FormatUtils;
  * @author Sly Technologies, Inc.
  */
 public class JMemoryPacket
-    extends JPacket {
+    extends
+    JPacket {
 
 	/**
 	 * A capture header that stores information about the creation of the packet.
@@ -82,12 +83,14 @@ public class JMemoryPacket
 			return caplen;
 		}
 
-		/* (non-Javadoc)
-     * @see org.jnetpcap.JCaptureHeader#caplen(int)
-     */
-    public void caplen(int caplen) {
-    	this.caplen = caplen;
-    }
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.jnetpcap.JCaptureHeader#caplen(int)
+		 */
+		public void caplen(int caplen) {
+			this.caplen = caplen;
+		}
 
 		/**
 		 * Gets the wire length
@@ -118,20 +121,22 @@ public class JMemoryPacket
 
 			initCompound();
 		}
-		
+
 		private void initCompound() {
 			this.inMillis = seconds * 1000 + nanos / 1000000;
 			this.inMicros = seconds * 1000000 + nanos / 1000;
 			this.inNanos = seconds * 1000000000 + nanos;
-		
+
 		}
 
-		/* (non-Javadoc)
-     * @see org.jnetpcap.JCaptureHeader#initFrom(org.jnetpcap.JCaptureHeader)
-     */
-    public void initFrom(JCaptureHeader header) {
-    	init(header.caplen(), header.wirelen(), header.nanos(), header.seconds());
-    }
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.jnetpcap.JCaptureHeader#initFrom(org.jnetpcap.JCaptureHeader)
+		 */
+		public void initFrom(JCaptureHeader header) {
+			init(header.caplen(), header.wirelen(), header.nanos(), header.seconds());
+		}
 
 		/**
 		 * Gets the timestamp fraction in nanos
@@ -142,14 +147,16 @@ public class JMemoryPacket
 			return nanos;
 		}
 
-		/* (non-Javadoc)
-     * @see org.jnetpcap.JCaptureHeader#nanos(long)
-     */
-    public void nanos(long nanos) {
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.jnetpcap.JCaptureHeader#nanos(long)
+		 */
+		public void nanos(long nanos) {
 			this.nanos = nanos;
-			
+
 			initCompound();
-   }
+		}
 
 		/**
 		 * Gets the timestamp in seconds
@@ -160,14 +167,16 @@ public class JMemoryPacket
 			return seconds;
 		}
 
-		/* (non-Javadoc)
-     * @see org.jnetpcap.JCaptureHeader#seconds(long)
-     */
-    public void seconds(long seconds) {
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.jnetpcap.JCaptureHeader#seconds(long)
+		 */
+		public void seconds(long seconds) {
 			this.seconds = seconds;
-			
+
 			initCompound();
-   }
+		}
 
 		/**
 		 * Sets the states wire length
@@ -187,7 +196,7 @@ public class JMemoryPacket
 		public long timestampInMillis() {
 			return inMillis;
 		}
-		
+
 		/**
 		 * Gets the timestamp in micro seconds
 		 * 
@@ -197,13 +206,14 @@ public class JMemoryPacket
 			return inMicros;
 		}
 
-
-		/* (non-Javadoc)
-     * @see org.jnetpcap.JCaptureHeader#timestampInNanos()
-     */
-    public long timestampInNanos() {
-    	return this.inNanos;
-    }
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.jnetpcap.JCaptureHeader#timestampInNanos()
+		 */
+		public long timestampInNanos() {
+			return this.inNanos;
+		}
 
 		/**
 		 * Gets the wire length
@@ -214,12 +224,14 @@ public class JMemoryPacket
 			return wirelen;
 		}
 
-		/* (non-Javadoc)
-     * @see org.jnetpcap.JCaptureHeader#wirelen(int)
-     */
-    public void wirelen(int wirelen) {
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.jnetpcap.JCaptureHeader#wirelen(int)
+		 */
+		public void wirelen(int wirelen) {
 			this.wirelen = wirelen;
-    }
+		}
 
 	}
 
@@ -240,7 +252,7 @@ public class JMemoryPacket
 	 */
 	public JMemoryPacket(byte[] buffer) {
 		super(Type.POINTER);
-		
+
 		final JBuffer mem = getMemoryBuffer(buffer);
 
 		super.peer(mem);
@@ -296,6 +308,17 @@ public class JMemoryPacket
 	}
 
 	/**
+	 * The wirelen for a memory packet is always the length of the buffer.
+	 * 
+	 * @return length of the buffer
+	 */
+
+	@Override
+	public int getPacketWirelen() {
+		return size();
+	}
+
+	/**
 	 * Creates a new fully decoded packet from data provides in the buffer. The
 	 * buffer contains raw packet data. The packet is peered with the buffer,
 	 * allocating new memory if neccessary, and scanned using internal scanner.
@@ -325,7 +348,7 @@ public class JMemoryPacket
 	public JMemoryPacket(int id, String hexdump) {
 		this(id, FormatUtils.toByteArray(hexdump));
 	}
-	
+
 	/**
 	 * Initializes the packet's state and data by doing a deep copy of the
 	 * contents of the buffer
@@ -349,7 +372,6 @@ public class JMemoryPacket
 
 		peer(b, 0, len);
 	}
-
 
 	/**
 	 * Copies both state and data from supplied packet to this packet by

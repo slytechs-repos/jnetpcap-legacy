@@ -65,8 +65,9 @@ char *id2str(int id) {
 /**
  * Scan packet buffer
  */
-int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner,
-		packet_state_t *p_packet, int first_id, char *buf, int buf_len) {
+int scan(JNIEnv *env, jobject obj, 
+		jobject jpacket, scanner_t *scanner, packet_state_t *p_packet, int first_id, 
+		char *buf, int buf_len, uint32_t wirelen) {
 
 	scan_t scan; // Our current in progress scan's state information
 	scan.env = env;
@@ -78,13 +79,19 @@ int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner,
 	scan.buf = buf;
 	scan.buf_len = buf_len; // Changing buffer length, reduced by 'postfix'
 	scan.mem_len = buf_len; // Constant in memory buffer length
+	scan.wire_len = wirelen;
 	scan.offset = 0;
 	scan.length = 0;
 	scan.id = first_id;
 	scan.next_id = PAYLOAD_ID;
 	
+	scan.hdr_flags = 0;
+	scan.hdr_prefix = 0;
+	scan.hdr_gap = 0;
+	scan.hdr_payload = 0;
+	scan.hdr_postfix = 0;
+	
 	memset(scan.header, 0, sizeof(header_t));
-
 
 	// Point jscan 
 	setJMemoryPhysical(env, scanner->sc_jscan, toLong(&scan));
@@ -205,51 +212,136 @@ void record_header(scan_t *scan) {
 		return;
 	}
 	
+	register int offset = scan->offset;
+	register header_t *header = scan->header;
+	register int buf_len = scan->buf_len;
+	packet_state_t *packet = scan->packet;
+	
+	/*
+	 * Decrease wire-length by postfix amount so that next header's payload
+	 * will be reduced and won't go over this header's postfix
+	 */
+	scan->wire_len -= scan->hdr_postfix;
+	if (buf_len > scan->wire_len) {
+		buf_len = scan->buf_len = scan->wire_len; // Make sure that buf_len and wire_len sync up
+	}
+	
 	/*
 	 * If payload length hasn't explicitly been set to some length, set it
 	 * to the remainder of the packet.
 	 */
-	if (scan->header->hdr_payload == 0) {
-		scan->header->hdr_payload = 
-			scan->buf_len - (scan->offset + scan->length + scan->header->hdr_gap) 
-			- scan->header->hdr_postfix;
+	if (scan->hdr_payload == 0 && scan->id != PAYLOAD_ID) {
+		scan->hdr_payload = scan->wire_len - 
+			(offset + scan->hdr_prefix + scan->length + scan->hdr_gap);
 	}
+
+	adjustForTruncatedPacket(scan);
+	register int length = scan->length;
 	
 	/*
 	 * Initialize the header entry in our packet header array
 	 */
-	scan->packet->pkt_header_map |= (1 << scan->id);
-	scan->header->hdr_id = scan->id;
-	scan->header->hdr_offset = scan->offset;
-	scan->header->hdr_analysis = NULL;
+	packet->pkt_header_map |= (1 << scan->id);
+	header->hdr_id = scan->id;
+	header->hdr_offset = offset + scan->hdr_prefix;
+	header->hdr_analysis = NULL;
 
-
-	/*
-	 * Adjust for truncated packets
-	 */
-	scan->length
-			= ((scan->length > scan->buf_len - scan->offset) ? scan->buf_len
-					- scan->offset
-					: scan->length);
-
-	scan->header->hdr_length = scan->length;
-	scan->offset += scan->length + scan->header->hdr_gap;
-	scan->packet->pkt_header_count ++; /* number of entries */
 	
-	/* 
-	 * Reduce the size of the buffer by postfix amount. This ensures that next
-	 * header won't try to read data out of the 'postfix' area of the previous
-	 * header. The postfix belongs to the previous header. scan->mem_buf still
-	 * contains the original total buffer length in memory if its needed.
-	 */
-	scan->buf_len -= scan->header->hdr_postfix;
+	header->hdr_flags = scan->hdr_flags;
+	header->hdr_prefix = scan->hdr_prefix;
+	header->hdr_gap = scan->hdr_gap;
+	header->hdr_payload = scan->hdr_payload;
+	header->hdr_postfix = scan->hdr_postfix;
+	header->hdr_length = length;
+	
+	scan->hdr_flags = 0;
+	scan->hdr_prefix = 0;
+	scan->hdr_gap = 0;
+	scan->hdr_payload = 0;
+	scan->hdr_postfix = 0;
+	
+	scan->offset += length + scan->hdr_gap;
+	packet->pkt_header_count ++; /* number of entries */
 	
 	scan->id = -1; // Indicates, that header is already recorded
 	
 	/* Initialize key fields in a new header */
-	scan->header ++; /* point to next header entry *** ptr arithmatic */
-	memset(scan->header, 0, sizeof(header_t));
+	header = ++ scan->header; /* point to next header entry *** ptr arithmatic */
+	memset(header, 0, sizeof(header_t));
+}
 
+/**
+ * Adjusts for a packet that has been truncated. Sets appropriate flags in the
+ * header flags field, resets lengths of prefix, header, gap, payload and 
+ * postfix appropriately to account for shortened packet.
+ */
+void adjustForTruncatedPacket(scan_t *scan) {
+	/*
+	 * Adjust for truncated packets. We check the end of the header record
+	 * against the buf_len. If the end is past the buf_len, that means that we
+	 * need to start trucating in the following order: 
+	 * postfix, payload, gap, header, prefix
+	 * 
+	 * +-------------------------------------------+
+	 * | prefix | header | gap | payload | postfix |
+	 * +-------------------------------------------+
+	 * 
+	 */
+	register int start = scan->offset + scan->hdr_prefix + scan->length + 
+		scan->hdr_gap + scan->hdr_payload; 
+	
+	register int end = start + scan->hdr_postfix;
+	register int buf_len = scan->buf_len;
+	
+	if (end > buf_len) { // Check if postfix extends past the end of packet
+		
+		/*
+		 * Because postfix is at the end, whenever the packet is truncated
+		 * postfix is always truncated, unless it wasn't set
+		 */
+		if (scan->hdr_postfix > 0) {
+			scan->hdr_flags |= HEADER_FLAG_PREFIX_TRUNCATED;			
+			scan->hdr_postfix = (start > buf_len) ? 0 : buf_len - start;
+		}
+		
+		/* Position at payload and process */
+		start -= scan->hdr_payload;
+		end = start + scan->hdr_payload;
+		
+		if (end > buf_len) {
+			scan->hdr_flags |= HEADER_FLAG_PAYLOAD_TRUNCATED;	
+			scan->hdr_payload = (start > buf_len) ? 0 : buf_len - start;
+
+			
+			/* Position at gap and process */
+			start -= scan->hdr_gap;
+			end = start + scan->hdr_gap;
+			if (scan->hdr_gap > 0 && end > buf_len) {
+				
+				scan->hdr_flags |= HEADER_FLAG_GAP_TRUNCATED;	
+				scan->hdr_gap = (start > buf_len) ? 0 : buf_len - start;
+			}
+			
+			/* Position at header and process */
+			start -= scan->length;
+			end = start + scan->length;
+
+			if (end > buf_len) {
+				scan->hdr_flags |= HEADER_FLAG_HEADER_TRUNCATED;	
+				scan->length = (start > buf_len) ? 0 : buf_len - start;
+
+				/* Position at prefix and process */
+				start -= scan->hdr_prefix;
+				end = start + scan->hdr_prefix;
+				
+				if (0 && scan->hdr_prefix > 0 && end > buf_len) {
+					scan->hdr_flags |= HEADER_FLAG_PREFIX_TRUNCATED;	
+					scan->hdr_prefix = (start > buf_len) ? 0 : buf_len - start;
+				
+				}
+			}
+		}
+	}	
 }
 
 /**
@@ -278,7 +370,7 @@ void callJavaHeaderScanner(scan_t *scan) {
  * Prepares a scan of packet buffer
  */
 int scanJPacket(JNIEnv *env, jobject obj, jobject jpacket, jobject jstate,
-		scanner_t *scanner, int first_id, char *buf, int buf_length) {
+		scanner_t *scanner, int first_id, char *buf, int buf_length, uint32_t wirelen) {
 
 	/* Check if we need to wrap our entry buffer around */
 	if (scanner->sc_offset > scanner->sc_len - sizeof(header_t)
@@ -308,9 +400,17 @@ int scanJPacket(JNIEnv *env, jobject obj, jobject jpacket, jobject jstate,
 	packet->pkt_header_map = 0;
 	packet->pkt_header_count = 0;
 	packet->pkt_frame_num = scanner->sc_cur_frame_num ++;
+	packet->pkt_wirelen = (uint32_t)wirelen;
+	packet->pkt_flags = 0;
+	
+	if (buf_length != wirelen) {
+		packet->pkt_flags |= PACKET_FLAG_TRUNCATED;
+	}
+	
+	fflush(stdout);
 
 	scanner->sc_offset +=scan(env, obj, jpacket, scanner, packet, first_id,
-			buf, buf_length);
+			buf, buf_length, wirelen);
 
 	env->SetIntField(jstate, jmemorySizeFID, (jsize) sizeof(packet_state_t)
 			+ sizeof(header_t) * packet->pkt_header_count);
@@ -473,10 +573,10 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_loadScanners
 /*
  * Class:     org_jnetpcap_packet_JScanner
  * Method:    scan
- * Signature: (Lorg/jnetpcap/packet/JPacket;Lorg/jnetpcap/packet/JPacket$State;I)I
+ * Signature: (Lorg/jnetpcap/packet/JPacket;Lorg/jnetpcap/packet/JPacket$State;II)I
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScanner_scan
-(JNIEnv *env, jobject obj, jobject jpacket, jobject jstate, jint id) {
+(JNIEnv *env, jobject obj, jobject jpacket, jobject jstate, jint id, jint wirelen) {
 
 	scanner_t *scanner = (scanner_t *)getJMemoryPhysical(env, obj);
 	if (scanner == NULL) {
@@ -490,6 +590,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScanner_scan
 
 	int size = (int)env->GetIntField(jpacket, jmemorySizeFID);
 
-	return scanJPacket(env, obj, jpacket, jstate, scanner, id, buf, size);
+	return scanJPacket(env, obj, jpacket, jstate, scanner, id, buf, 
+			size, (uint32_t) wirelen);
 }
 

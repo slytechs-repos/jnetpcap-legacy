@@ -706,7 +706,7 @@ void cb_byte_buffer_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
  */
 void cb_jbuffer_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 		const u_char *pkt_data) {
-
+	
 	cb_jbuffer_t *data = (cb_jbuffer_t *)user;
 
 	JNIEnv *env = data->env;
@@ -756,7 +756,8 @@ void cb_jpacket_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 			data->scanner, 
 			data->packet,
 			data->state,
-			data->id) < 0) {
+			data->id,
+			pkt_header->len) < 0) {
 		return;
 	}
 
@@ -795,7 +796,8 @@ void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 			data->scanner, 
 			data->packet,
 			data->state,
-			data->id) < 0) {
+			data->id,
+			pkt_header->len) < 0) {
 		return;
 	}
 

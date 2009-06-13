@@ -65,8 +65,27 @@ public class JScan
 	public native void scan_next_id(int next_id);
 
 	public native void scan_length(int length);
+	
+	public native int scan_prefix();
+	
+	public native int scan_gap();
+	
+	public native int scan_payload();
+	
+	public native int scan_postix();
 
-	public native void record_header();
+	public native int record_header();
+
+	
+	public native void scan_prefix(int value);
+	
+	public native void scan_gap(int value);
+	
+	public native void scan_payload(int value);
+	
+	public native void scan_postix(int value);
+
+	public native void record_header(int value);
 
 	/**
 	 * Sets all the various lengths in the header structure all at once

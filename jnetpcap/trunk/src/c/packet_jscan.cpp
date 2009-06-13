@@ -246,10 +246,138 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1set_1lengths
 		return;
 	}
 
-	scan->header->hdr_prefix =  (uint8_t) prefix;
-	scan->length             =  (int) header;
-	scan->header->hdr_gap =     (uint8_t) gap;
-	scan->header->hdr_payload = (uint32_t) payload;
-	scan->header->hdr_postfix = (uint16_t) postfix;
+	scan->hdr_prefix =  (uint8_t) prefix;
+	scan->length     =  (int) header;
+	scan->hdr_gap    =  (uint8_t) gap;
+	scan->hdr_payload = (uint32_t) payload;
+	scan->hdr_postfix = (uint16_t) postfix;
+}
+
+/*
+ * Class:     org_jnetpcap_packet_JScan
+ * Method:    scan_prefix
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScan_scan_1prefix__
+  (JNIEnv *env, jobject obj) {
+	
+	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	if (scan == NULL) {
+		return -1;
+	}
+	
+	return (jint) scan->hdr_prefix;
+}
+
+/*
+ * Class:     org_jnetpcap_packet_JScan
+ * Method:    scan_gap
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScan_scan_1gap__
+(JNIEnv *env, jobject obj) {
+	
+	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	if (scan == NULL) {
+		return -1;
+	}
+	
+	return (jint) scan->hdr_gap;
+}
+
+/*
+ * Class:     org_jnetpcap_packet_JScan
+ * Method:    scan_payload
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScan_scan_1payload__
+(JNIEnv *env, jobject obj) {
+	
+	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	if (scan == NULL) {
+		return -1;
+	}
+	
+	return (jint) scan->hdr_payload;
+}
+
+/*
+ * Class:     org_jnetpcap_packet_JScan
+ * Method:    scan_postix
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScan_scan_1postix__
+(JNIEnv *env, jobject obj) {
+	
+	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	if (scan == NULL) {
+		return -1;
+	}
+	
+	return (jint) scan->hdr_postfix;
+}
+
+/*
+ * Class:     org_jnetpcap_packet_JScan
+ * Method:    scan_prefix
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1prefix__I
+  (JNIEnv *env, jobject obj, jint jvalue) {
+	
+	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	if (scan == NULL) {
+		return;
+	}
+
+	scan->hdr_prefix = (int) jvalue;
+}
+
+/*
+ * Class:     org_jnetpcap_packet_JScan
+ * Method:    scan_gap
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1gap__I
+(JNIEnv *env, jobject obj, jint jvalue) {
+	
+	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	if (scan == NULL) {
+		return;
+	}
+
+	scan->hdr_gap = (int) jvalue;
+}
+
+/*
+ * Class:     org_jnetpcap_packet_JScan
+ * Method:    scan_payload
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1payload__I
+(JNIEnv *env, jobject obj, jint jvalue) {
+	
+	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	if (scan == NULL) {
+		return;
+	}
+
+	scan->hdr_payload = (int) jvalue;
+}
+
+/*
+ * Class:     org_jnetpcap_packet_JScan
+ * Method:    scan_postix
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1postix__I
+(JNIEnv *env, jobject obj, jint jvalue) {
+	
+	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	if (scan == NULL) {
+		return;
+	}
+
+	scan->hdr_postfix = (int) jvalue;
 }
 

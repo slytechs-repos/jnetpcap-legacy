@@ -293,9 +293,6 @@ public class JHeaderScanner
 			final JPacket packet = scan.scan_packet();
 			final int offset = scan.scan_offset();
 
-//			 int len = getHeaderLength(packet, offset);
-//			 scan.scan_length(len);
-
 			setAllLengths(scan, packet, offset);
 		}
 
@@ -306,6 +303,8 @@ public class JHeaderScanner
 		if (scan.scan_next_id() == JProtocol.PAYLOAD_ID) {
 			final JPacket packet = scan.scan_packet();
 			final int offset = scan.scan_offset();
+			
+			scan.scan_offset(offset);
 
 			int next = scanAllBindings(packet, offset);
 			scan.scan_next_id(next);
@@ -325,6 +324,8 @@ public class JHeaderScanner
 		    (lengthMethods[HeaderLength.Type.PREFIX.ordinal()] == null) ? 0
 		        : lengthMethods[HeaderLength.Type.PREFIX.ordinal()]
 		            .getHeaderLength(packet, offset);
+
+		offset += prefix; // Adjust for prefix before the header
 
 		/* Length of header method is mandatory and always present */
 		final int header =
@@ -346,8 +347,8 @@ public class JHeaderScanner
 		        : lengthMethods[HeaderLength.Type.POSTFIX.ordinal()]
 		            .getHeaderLength(packet, offset);
 
-		System.out.printf("%d: %d,%d,%d,%d,%d\n", this.id, prefix, header, gap,
-		    payload, postfix);
+//		System.out.printf("JHeaderScanner::setAllLengths() - %d: %d,%d,%d,%d,%d\n",
+//		    this.id, prefix, header, gap, payload, postfix);
 
 		scan.scan_set_lengths(prefix, header, gap, payload, postfix);
 
