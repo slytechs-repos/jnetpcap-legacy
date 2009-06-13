@@ -101,7 +101,7 @@ public class TestVoip
 		
 //		System.out.println(JRegistry.toDebugString());
 		System.out.println(packet.getState().toDebugString());
-//		System.out.println(packet);
+		System.out.println(packet);
 		System.out.flush();
 		
 		assertNotNull(packet);

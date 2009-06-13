@@ -80,8 +80,12 @@ public abstract class AbstractBinding<H extends JHeader> implements JBinding {
 	public boolean isBound(JPacket packet, int offset) {
 
 		if (this.lengthMethods != null) {
-			packet.peer(header, offset, lengthMethods[HeaderLength.Type.HEADER.ordinal()]
-			    .getHeaderLength(packet, offset));
+			final int prefix =
+			    lengthMethods[HeaderLength.Type.PREFIX.ordinal()].getHeaderLength(
+			        packet, offset);
+			
+			packet.peer(header, offset + prefix, lengthMethods[HeaderLength.Type.HEADER
+			    .ordinal()].getHeaderLength(packet, offset));
 		} else {
 			packet.peer(header, offset, packet.remaining(offset));
 		}

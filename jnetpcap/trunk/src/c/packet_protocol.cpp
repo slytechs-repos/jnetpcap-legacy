@@ -463,6 +463,7 @@ again:
 void scan_ip4(scan_t *scan) {
 	ip4_t *ip4 = (ip4_t *) (scan->buf + scan->offset);
 	scan->length = ip4->ihl * 4;
+	scan->hdr_payload = BIG_ENDIAN16(ip4->tot_len) - scan->length;
 	
 	/*
 	 * Set the flow key pair for Ip4.

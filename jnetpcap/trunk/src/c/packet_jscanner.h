@@ -9,6 +9,8 @@
 #include "export.h"
 #include "org_jnetpcap_packet_JScanner.h"
 #include "org_jnetpcap_packet_JRegistry.h"
+#include "org_jnetpcap_packet_JPacket_State.h"
+#include "org_jnetpcap_packet_JHeader_State.h"
 #include "org_jnetpcap_protocol_JProtocol.h"
 #include "packet_flow.h"
 #include <jni.h>
@@ -23,6 +25,18 @@
 #define FLAG_OVERRIDE_BINDING org_jnetpcap_packet_JRegistry_FLAG_OVERRIDE_BINDING
 
 #define PAYLOAD_ID org_jnetpcap_protocol_JProtocol_PAYLOAD_ID
+
+#define PACKET_FLAG_TRUNCATED org_jnetpcap_packet_JPacket_State_FLAG_TRUNCATED
+
+#define HEADER_FLAG_PREFIX_TRUNCATED org_jnetpcap_packet_JHeader_State_FLAG_PREFIX_TRUNCATED
+#define HEADER_FLAG_HEADER_TRUNCATED org_jnetpcap_packet_JHeader_State_FLAG_HEADER_TRUNCATED
+#define HEADER_FLAG_PAYLOAD_TRUNCATED org_jnetpcap_packet_JHeader_State_FLAG_PAYLOAD_TRUNCATED
+#define HEADER_FLAG_GAP_TRUNCATED org_jnetpcap_packet_JHeader_State_FLAG_GAP_TRUNCATED
+#define HEADER_FLAG_POSTFIX_TRUNCATED org_jnetpcap_packet_JHeader_State_FLAG_POSTFIX_TRUNCATED
+#define HEADER_FLAG_HEURISTIC_BINDING org_jnetpcap_packet_JHeader_State_FLAG_HEURISTIC_BINDING
+#define HEADER_FLAG_CRC_PERFORMED org_jnetpcap_packet_JHeader_State_FLAG_CRC_PERFORMED
+#define HEADER_FLAG_CRC_INVALID org_jnetpcap_packet_JHeader_State_FLAG_CRC_INVALID
+
 
 /******************************
  ******************************
@@ -54,6 +68,7 @@ extern native_protocol_func_t native_protocols[];
 extern char *native_protocol_names[];
 void callJavaHeaderScanner(scan_t *scan);
 void record_header(scan_t *scan);
+void adjustForTruncatedPacket(scan_t *scan);
 
 extern char str_buf[1024];
 
@@ -89,7 +104,13 @@ typedef struct scan_t {
 	int offset;
 	int length;
 	int id;
-	int next_id;	
+	int next_id;
+	
+	int hdr_prefix;
+	int hdr_gap;
+	int hdr_payload;
+	int hdr_postfix;
+	int hdr_flags;
 } scan_t;
 
 /*
@@ -128,14 +149,14 @@ typedef struct scan_t {
  */
 typedef struct header_t {
 	uint8_t  hdr_id;         // header ID
-	uint8_t  hdr_flags;      // flags for this header
 	
 	uint8_t  hdr_prefix;     // length of the prefix (preamble) before the header 
+	uint8_t  hdr_gap;        // length of the gap between header and payload
+	uint16_t  hdr_flags;      // flags for this header
+	uint16_t hdr_postfix;    // length of the postfix (trailer) after the payload
 	uint32_t hdr_offset;     // offset into the packet_t->data buffer
 	uint32_t hdr_length;     // length of the header in packet_t->data buffer
-	uint8_t  hdr_gap;        // length of the gap between header and payload
 	uint32_t hdr_payload;    // length of the payload
-	uint16_t hdr_postfix;    // length of the postfix (trailer) after the payload
 	
 	jobject  hdr_analysis;   // Java JAnalysis based object if not null
 } header_t;
@@ -147,6 +168,7 @@ typedef struct packet_state_t {
 	uint64_t pkt_frame_num;  // Packet's frame number assigned by scanner
 	uint64_t pkt_header_map; // bit map of presence of headers
 	int8_t pkt_header_count; // total number of headers found
+	uint32_t pkt_wirelen;    // Original packet size
 
 	header_t pkt_headers[];  // One per header + 1 more for payload
 } packet_state_t;
@@ -180,10 +202,10 @@ typedef struct scanner_t {
  */
 
 int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner, packet_state_t *packet,
-		int first_id, char *buf, int buf_length);
+		int first_id, char *buf, int buf_length, uint32_t wirelen);
 
 int scanJPacket(JNIEnv *env, jobject obj, jobject jpacket, jobject jstate, scanner_t *scanner, int first_id, char *buf,
-		int buf_length);
+		int buf_length, uint32_t wirelen);
 
 int scanJavaBinding(scan_t *scan);
 

@@ -37,22 +37,21 @@ public abstract class JHeader
     JBuffer implements JPayloadAccessor {
 
 	/**
-	 * A constant that defines how many bits there are in a byte. This constant is
-	 * used in unit conversion from bytes to bits and visa-versa. To convert from
-	 * bytes to bit you multiple your number of bytes by the BYTE constant. To
-	 * convert from bits to bytes, you divide the number of bits by the BYTE
-	 * constant.
-	 */
-	public final static int BYTE = 8;
-
-	/**
 	 * This class is peered state of a header a native state structure
 	 * 
 	 * <pre>
 	 * typedef struct header_t {
-	 * 	int32_t hdr_id; // header ID
-	 * 	uint32_t hdr_offset; // offset into the packet_t-&gt;data buffer
-	 * 	int32_t hdr_length; // length of the header in packet_t-&gt;data buffer
+	 * 	uint8_t  hdr_id;         // header ID
+	 * 	
+	 * 	uint8_t  hdr_prefix;     // length of the prefix (preamble) before the header 
+	 * 	uint8_t  hdr_gap;        // length of the gap between header and payload
+	 * 	uint16_t hdr_flags;      // flags for this header
+	 * 	uint16_t hdr_postfix;    // length of the postfix (trailer) after the payload
+	 * 	uint32_t hdr_offset;     // offset into the packet_t-&gt;data buffer
+	 * 	uint32_t hdr_length;     // length of the header in packet_t-&gt;data buffer
+	 * 	uint32_t hdr_payload;    // length of the payload
+	 * 	
+	 * 	jobject  hdr_analysis;   // Java JAnalysis based object if not null
 	 * } header_t;
 	 * 
 	 * </pre>
@@ -64,6 +63,66 @@ public abstract class JHeader
 	    extends
 	    JStruct {
 
+		/**
+		 * Flag set in the header_t structure, tells if the CRC, if performed, was
+		 * valid or invalid. Invalid CRC means that computed CRC did not match the
+		 * protocol specific CRC stored within the header.
+		 */
+		public final static int FLAG_CRC_INVALID = 0x0080;
+
+		/**
+		 * Flag set in the header_t structure, a protocol specific CRC had been
+		 * performed on the frame, header or its payload.
+		 */
+		public final static int FLAG_CRC_PERFORMED = 0x0040;
+
+		/**
+		 * Flag set in the header_t structure, which tells if the postifx is
+		 * incomplete due to packet truncation at the time of the capture.
+		 */
+		public final static int FLAG_GAP_TRUNCATED = 0x0008;
+
+		/**
+		 * Flag set in the header_t structure, which tells if the header is
+		 * incomplete due to packet truncation at the time of the capture.
+		 */
+		public final static int FLAG_HEADER_TRUNCATED = 0x0002;
+
+		/**
+		 * Flag set in the header_t structure, which tells if this header was bound
+		 * due to a heuristic binding. If set, this means that the header was found
+		 * heuristically (guessed based on correctness of the field values within
+		 * the header). It is always possible, that heuristic binding may be
+		 * incorrect and this flag, provides a way to determine how trust worthy the
+		 * binding is.
+		 */
+		public final static int FLAG_HEURISTIC_BINDING = 0x0020;
+
+		/**
+		 * Flag set in the header_t structure, which tells if the payload is
+		 * incomplete due to packet truncation at the time of the capture. Only
+		 * protocols with a payload buffer of static length would set this flag or
+		 * if the payload buffer is at the end of the packet and a calculation can
+		 * determine based on over-all packet trancation, if the payload was
+		 * affected as well.
+		 */
+		public final static int FLAG_PAYLOAD_TRUNCATED = 0x0004;
+
+		/**
+		 * Flag set in the header_t structure, which tells if the postifx is
+		 * incomplete due to packet truncation at the time of the capture.
+		 */
+		public final static int FLAG_POSTFIX_TRUNCATED = 0x0010;
+
+		/**
+		 * Flag set in the header_t structure, which tells if the prefix is
+		 * incomplete due to packet truncation at the time of the capture.
+		 */
+		public final static int FLAG_PREFIX_TRUNCATED = 0x0001;
+
+		/**
+		 * Name of the native structure backing this peer class
+		 */
 		public final static String STRUCT_NAME = "header_t";
 
 		/**
@@ -83,26 +142,128 @@ public abstract class JHeader
 		 */
 		public native JAnalysis getAnalysis();
 
-		public native int getId();
-
-		public native int getLength();
-
-		public native int getOffset();
-		
-		public native int getPrefix();
-		
-		public native int getGap();
-		
-		public native int getPayload();
-		
-		public native int getPostfix();
-		
+		/**
+		 * Every header "record" keeps int-bit-flags that describe certain
+		 * additional information about the header. Most commonly use flags are
+		 * {@link #FLAG_PAYLOAD_TRUNCATED} and other like it.
+		 * 
+		 * @return unsigned integer contains bit-flags for this header
+		 */
 		public native int getFlags();
 
+		/**
+		 * Gets the length in bytes of a gap (padding) between the header and the
+		 * protocol 'records' payload:
+		 * 
+		 * <pre>
+		 * +------------------=====--------------------+
+		 * | prefix | header | GAP | payload | postfix |
+		 * +------------------=====--------------------+
+		 * </pre>
+		 * 
+		 * @return length in bytes of the gap or 0 if not set
+		 */
+		public native int getGap();
+
+		/**
+		 * Gets the numerical ID of the header this structure describes as defined
+		 * by <code>JRegistry</code>.
+		 * 
+		 * @return numerical ID of this header
+		 * @see JRegistry
+		 */
+		public native int getId();
+
+		/**
+		 * Gets the length of the protocol's header in bytes within the protocol's
+		 * 'record':
+		 * 
+		 * <pre>
+		 * +---------========--------------------------+
+		 * | prefix | HEADER | gap | payload | postfix |
+		 * +---------========--------------------------+
+		 * </pre>
+		 * 
+		 * @return length in bytes of the header
+		 */
+		public native int getLength();
+
+		/**
+		 * Gets the offset into the packet buffer of the actual protocol header
+		 * header in bytes of protocols 'record':
+		 * 
+		 * <pre>
+		 * +---------========--------------------------+
+		 * | prefix | HEADER | gap | payload | postfix |
+		 * +---------========--------------------------+
+		 * </pre>
+		 * 
+		 * @return offset in bytes of the header
+		 */
+		public native int getOffset();
+
+		/**
+		 * Gets the length of the payload that follows a protocol header in bytes
+		 * within the protocol's 'record':
+		 * 
+		 * <pre>
+		 * +------------------------=========----------+
+		 * | prefix | header | gap | PAYLOAD | postfix |
+		 * +------------------------=========----------+
+		 * </pre>
+		 * 
+		 * @return length in bytes of the payload or 0 if not set
+		 */
+		public native int getPayload();
+
+		/**
+		 * Gets the length of the postfix that follows a protocol's payload in bytes
+		 * within the protocol's 'record':
+		 * 
+		 * <pre>
+		 * +----------------------------------=========+
+		 * | prefix | header | gap | payload | POSTFIX |
+		 * +----------------------------------=========+
+		 * </pre>
+		 * 
+		 * @return length in bytes of the postfix or 0 if not set
+		 */
+		public native int getPostfix();
+
+		/**
+		 * Gets the length of the prefix that precedes a protocol's header in bytes
+		 * within the protocol's 'record':
+		 * 
+		 * <pre>
+		 * +========-----------------------------------+
+		 * | PREFIX | header | gap | payload | postfix |
+		 * +========-----------------------------------+
+		 * </pre>
+		 * 
+		 * @return length in bytes of the postfix or 0 if not set
+		 */
+		public native int getPrefix();
+
+		/**
+		 * Checks if this state object is reading for native structures or has a
+		 * java implementation backing it.
+		 * 
+		 * @return true if the implementation is native, otherwise false
+		 */
 		public boolean isDirect() {
 			return true;
 		}
 
+		/**
+		 * Peers this state object with the native structures of another. No copies
+		 * are done, only references are changed.
+		 * 
+		 * @param peer
+		 *          destination object holding the native memory reference we need
+		 *          to peer to
+		 * @return number of bytes that actually were part of the operation even
+		 *         though non were physically copied during the peering process
+		 */
 		public int peer(State peer) {
 			if (peer.isDirect() == false) {
 				throw new IllegalStateException(
@@ -121,11 +282,34 @@ public abstract class JHeader
 		 */
 		public native void setAnalysis(JPacket.State state, JAnalysis analysis);
 
+		/**
+		 * Sets the header flags to new values.
+		 * 
+		 * @param flags
+		 *          unsinged integer containing the bit-flags to set for this header
+		 */
+		public native void setFlags(int flags);
+
+		/**
+		 * Creates a string containing light debug information about this state
+		 * class and underlying header it belongs to.
+		 * 
+		 * @return light debug string for this object and header
+		 */
 		public String toString() {
 			return "(id=" + getId() + ", offset=" + getOffset() + ", length="
 			    + getLength() + ")";
 		}
 	}
+
+	/**
+	 * A constant that defines how many bits there are in a byte. This constant is
+	 * used in unit conversion from bytes to bits and visa-versa. To convert from
+	 * bytes to bit you multiple your number of bytes by the BYTE constant. To
+	 * convert from bits to bytes, you divide the number of bits by the BYTE
+	 * constant.
+	 */
+	public final static int BYTE = 8;
 
 	/**
 	 * No fields
@@ -253,6 +437,12 @@ public abstract class JHeader
 		this(id, DEFAULT_FIELDS, name, nicname);
 	}
 
+	/**
+	 * Constructs a header for a CORE protocol.
+	 * 
+	 * @param protocol
+	 *          the CORE protocol constant
+	 */
 	public JHeader(JProtocol protocol) {
 		super(Type.POINTER);
 		order(ByteOrder.BIG_ENDIAN); // network byte order by default
@@ -288,6 +478,16 @@ public abstract class JHeader
 	}
 
 	/**
+	 * Attaches an analysis object to this header.
+	 * 
+	 * @param analysis
+	 *          analysis object to attach to this header
+	 */
+	public void addAnalysis(JAnalysis analysis) {
+		AnalysisUtils.addToRoot(getPacket().getState(), this.state, analysis);
+	}
+
+	/**
 	 * Method that gets called everytime a header is successfully peered with new
 	 * buffer and/or state structure. This method in JHeader is empty and is
 	 * expected to be overriden by subclasses of JHeader that require special
@@ -303,14 +503,22 @@ public abstract class JHeader
 	 * Allows a header to decode its complex fields
 	 */
 	protected void decodeHeader() {
-
+		// Empty
 	}
 
-	public void addAnalysis(JAnalysis analysis) {
-
-		AnalysisUtils.addToRoot(getPacket().getState(), this.state, analysis);
-	}
-
+	/**
+	 * Retrieves an analysis object that has been attached to this header. The
+	 * attached analysis object may be a compound object which provides a list of
+	 * additional analysis information.
+	 * 
+	 * @param <T>
+	 *          type of the analysis object retrieve
+	 * @param analysis
+	 *          the analysis object to peer without copying with the analysis
+	 *          information attached to this header
+	 * @return the analysis object that was passed after its been peered with
+	 *         analysis information attached to this header
+	 */
 	public <T extends JAnalysis> T getAnalysis(T analysis) {
 		JAnalysis a = state.getAnalysis();
 		if (a == null) {
@@ -332,14 +540,32 @@ public abstract class JHeader
 	}
 
 	/**
-	 * @return
+	 * Provides a convenient way to iterate through a list of analysis objects
+	 * attached to this header.
+	 * 
+	 * @return iterator that will iterate over all analysis objects attached to
+	 *         this header
+	 */
+	public Iterable<JAnalysis> getAnalysisIterable() {
+		return AnalysisUtils.toIterable(state.getAnalysis());
+	}
+
+	/**
+	 * Retrieves the cached annotation of the header definition file. The
+	 * AT-Header annotation is a class that contains all of the annotation
+	 * parameters that were set in the definition file or its defaults.
+	 * 
+	 * @return annotation class for the source header definition
 	 */
 	public AnnotatedHeader getAnnotatedHeader() {
 		return this.annotatedHeader;
 	}
 
 	/**
-	 * @return
+	 * Retrives the description property for this header as defined in the source
+	 * definition.
+	 * 
+	 * @return a short description of this protocol and the header
 	 */
 	public String getDescription() {
 		return annotatedHeader.getDescription();
@@ -357,6 +583,98 @@ public abstract class JHeader
 		JField.sortFieldByOffset(fields, this, true);
 
 		return this.fields;
+	}
+
+	/**
+	 * Reads the contents of the protocol's 'record' gap property as a byte array.
+	 * 
+	 * <pre>
+	 * +------------------=====--------------------+
+	 * | prefix | header | GAP | payload | postfix |
+	 * +------------------=====--------------------+
+	 * </pre>
+	 * 
+	 * @return contents of the gap or zero length byte[] if not set
+	 */
+	public byte[] getGap() {
+		return packet.getByteArray(getGapOffset(), getGapLength());
+	}
+
+	/**
+	 * Reads the length of the gap between the header and payload: *
+	 * 
+	 * <pre>
+	 * +------------------=====--------------------+
+	 * | prefix | header | GAP | payload | postfix |
+	 * +------------------=====--------------------+
+	 * </pre>
+	 * 
+	 * @return length of the gap in bytes or 0 if not set
+	 */
+	public int getGapLength() {
+		return state.getGap();
+	}
+
+	/**
+	 * Gets the offset into the packet, not the header, where the gap starts. Even
+	 * if the gap is zero length or not set, the offset is still calculated and
+	 * will always be the first byte past the header.
+	 * 
+	 * <pre>
+	 * +------------------=====--------------------+
+	 * | prefix | header | GAP | payload | postfix |
+	 * +------------------=====--------------------+
+	 * </pre>
+	 * 
+	 * @return offset in bytes into the packet's buffer
+	 */
+	public int getGapOffset() {
+		return getOffset() + getHeaderLength();
+	}
+
+	/**
+	 * Convenience method that retrieves the contents of the header as a byte are
+	 * 
+	 * <pre>
+	 * +---------========--------------------------+
+	 * | prefix | HEADER | gap | payload | postfix |
+	 * +---------========--------------------------+
+	 * </pre>
+	 * 
+	 * @return the contents of the header
+	 */
+	public byte[] getHeader() {
+		return packet.getByteArray(getHeaderOffset(), getHeaderLength());
+	}
+
+	/**
+	 * Length of the header in bytes. *
+	 * 
+	 * <pre>
+	 * +---------========--------------------------+
+	 * | prefix | HEADER | gap | payload | postfix |
+	 * +---------========--------------------------+
+	 * </pre>
+	 * 
+	 * @return the length in bytes fo the header
+	 */
+	public int getHeaderLength() {
+		return state.getLength();
+	}
+
+	/**
+	 * Gets the offset in bytes into the packet, of the start of the header. *
+	 * 
+	 * <pre>
+	 * +---------========--------------------------+
+	 * | prefix | HEADER | gap | payload | postfix |
+	 * +---------========--------------------------+
+	 * </pre>
+	 * 
+	 * @return offset in bytes into the packet buffer
+	 */
+	public int getHeaderOffset() {
+		return state.getOffset();
 	}
 
 	/**
@@ -414,8 +732,135 @@ public abstract class JHeader
 		return this.packet;
 	}
 
+	/**
+	 * If this is a sub-header of another header, gets the reference to the parent
+	 * header.
+	 * 
+	 * @return the parent header if sub-header, otherwise returns a reference to
+	 *         itself
+	 */
 	public JHeader getParent() {
 		return this;
+	}
+
+	/**
+	 * Retrieves the playload data portion of the packet right after the current
+	 * header.
+	 * 
+	 * <pre>
+	 * +------------------------=========----------+
+	 * | prefix | header | gap | PAYLOAD | postfix |
+	 * +------------------------=========----------+
+	 * </pre>
+	 * 
+	 * @return newly allocated byte array containing copy of the contents of the
+	 *         header's payload from the packet.
+	 */
+	public byte[] getPayload() {
+		return packet.getByteArray(getPayloadOffset(), getPayloadLength());
+	}
+
+	/**
+	 * Gets the length in bytes of the payload that follows the header and the
+	 * gap. The length reflects the actual data that resides in the captured
+	 * packet, not neccessarily all of the data that was originaly transmited if
+	 * the packet has been trucated during capture.
+	 * 
+	 * <pre>
+	 * +------------------------=========----------+
+	 * | prefix | header | gap | PAYLOAD | postfix |
+	 * +------------------------=========----------+
+	 * </pre>
+	 * 
+	 * @return length of the payload in bytes
+	 */
+	public int getPayloadLength() {
+		return state.getPayload();
+	}
+
+	/**
+	 * Gets the offset of the payload into the packet buffer.
+	 * 
+	 * <pre>
+	 * +------------------------=========----------+
+	 * | prefix | header | gap | PAYLOAD | postfix |
+	 * +------------------------=========----------+
+	 * </pre>
+	 * 
+	 * @return the start of the payload within the packet buffer
+	 */
+	public int getPayloadOffset() {
+		return getGapOffset() + getGapLength();
+	}
+
+	/**
+	 * Gets the contents of the postfix as a byte array.
+	 * 
+	 * @return the contents of the postfix as a byte array or zero length byte
+	 *         array if no postfix set
+	 */
+	public byte[] getPostfix() {
+		return packet.getByteArray(getPostfixOffset(), getPostfixLength());
+	}
+
+	/**
+	 * Gets the length of the postfix.
+	 * 
+	 * <pre>
+	 * +----------------------------------=========+
+	 * | prefix | header | gap | payload | POSTFIX |
+	 * +----------------------------------=========+
+	 * </pre>
+	 * 
+	 * @return the length of the postfix in bytes or zero if not set
+	 */
+	public int getPostfixLength() {
+		return state.getPostfix();
+	}
+
+	/**
+	 * Gets the offset in bytes into the packet buffer of the start of the
+	 * postfix, even if not set or zero length.
+	 * 
+	 * @return the offeset into the packet buffer in bytes
+	 */
+	public int getPostfixOffset() {
+		return getPayloadOffset() + getPayloadLength();
+	}
+
+	/**
+	 * Gets the contents of the prefix in a byte array.
+	 * 
+	 * <pre>
+	 * +========-----------------------------------+
+	 * | PREFIX | header | gap | payload | postfix |
+	 * +========-----------------------------------+
+	 * </pre>
+	 * 
+	 * @return the contents of the prefix or zero length byte array if not set
+	 */
+	public byte[] getPrefix() {
+		return packet.getByteArray(getPrefixOffset(), getPrefixLength());
+	}
+
+	/**
+	 * The length in bytes of the prefix within the packet buffer. Zero if not
+	 * set.
+	 * 
+	 * @return the length in bytes within the packet buffer
+	 */
+	public int getPrefixLength() {
+		return state.getPrefix();
+	}
+
+	/**
+	 * The offset in bytes into the packet buffer where the prefix starts, even if
+	 * prefix is not set or zero in length.
+	 * 
+	 * @return offset in bytes into the packet buffer
+	 */
+	public int getPrefixOffset() {
+		return getOffset() - getPrefixLength();
 	}
 
 	/**
@@ -436,35 +881,114 @@ public abstract class JHeader
 		return EMPTY_HEADER_ARRAY;
 	}
 
+	/**
+	 * Gets the type of analysis this is.
+	 * 
+	 * @return type of analysis.
+	 */
 	public int getType() {
 		return AnalysisUtils.ROOT_TYPE;
 	}
 
-	public boolean hasAnalysis(int type) {
-		return state.getAnalysis() != null && state.getAnalysis().hasAnalysis(type);
-	}
-
+	/**
+	 * Checks if analysis has been attached to this header.
+	 * 
+	 * @param analysis
+	 *          analysis class to check for if analysis is set
+	 * @return true if analysis has been found, otherwise false
+	 */
 	public boolean hasAnalysis(Class<? extends JAnalysis> analysis) {
 		return state.getAnalysis() != null
 		    && state.getAnalysis().hasAnalysis(analysis);
 	}
 
+	/**
+	 * Checks if analysis has been attached of specific types to this header.
+	 * 
+	 * @param type
+	 *          the type of analysis to check for
+	 * @return true of analysis has been found, otherwise false
+	 */
+	public boolean hasAnalysis(int type) {
+		return state.getAnalysis() != null && state.getAnalysis().hasAnalysis(type);
+	}
+
+	/**
+	 * Checks if analysis object has been attached to this header and if true,
+	 * also peers that analysis with the user object passed in.
+	 * 
+	 * @param <T>
+	 *          type of analysis object
+	 * @param analysis
+	 *          analysis object to check for if analysis is set
+	 * @return true if analysis has been found, otherwise false
+	 */
 	public <T extends JAnalysis> boolean hasAnalysis(T analysis) {
 		return (state.getAnalysis() == null) ? false : state.getAnalysis()
 		    .hasAnalysis(analysis);
 	}
 
 	/**
-	 * @return
+	 * Checks if description header property has been set that provides a short
+	 * description of this header.
+	 * 
+	 * @return true if header description has been set in Header annotation
 	 */
 	public boolean hasDescription() {
 		return annotatedHeader.getDescription() != null;
 	}
 
+	/**
+	 * Checks if gap has been set.
+	 * 
+	 * @return true if set, otherwise false
+	 */
+	public boolean hasGap() {
+		return getGapLength() != 0;
+	}
+
+	/**
+	 * Checks if payload has been set.
+	 * 
+	 * @return true if set, otherwise false
+	 */
+	public boolean hasPayload() {
+		return getPayloadLength() != 0;
+	}
+
+	/**
+	 * Checks if postfix has been set.
+	 * 
+	 * @return true if set, otherwise false
+	 */
+	public boolean hasPostfix() {
+		return getPostfixLength() != 0;
+	}
+
+	/**
+	 * Checks if prefix has been set.
+	 * 
+	 * @return true if set, otherwise false
+	 */
+	public boolean hasPrefix() {
+		return getPrefixLength() != 0;
+	}
+
+	/**
+	 * Checks if header has any sub-headers.
+	 * 
+	 * @return true if set, otherwise false
+	 */
 	public boolean hasSubHeaders() {
 		return false;
 	}
 
+	/**
+	 * Initialize this header directly from annotated header definition class
+	 * 
+	 * @param header
+	 *          annotation to initialize from
+	 */
 	private void initFromAnnotatedHeader(AnnotatedHeader header) {
 		this.annotatedHeader = header;
 
@@ -474,6 +998,73 @@ public abstract class JHeader
 		this.fields = DefaultField.fromAnnotatedFields(header.getFields());
 	}
 
+	/**
+	 * Checks if gap has been truncated due to truncation at the time of the
+	 * capture. If the gap was never set (initially set to zero) and then
+	 * completely removed because of packet truncation, this method will return
+	 * false, since the gap never existed in the first place.
+	 * 
+	 * @return true if truncated, otherwise false
+	 */
+	public boolean isGapTruncated() {
+		return (state.getFlags() & State.FLAG_GAP_TRUNCATED) != 0;
+	}
+
+	/**
+	 * Checks if header has been truncated due to truncation at the time of the
+	 * capture.
+	 * 
+	 * @return true if truncated, otherwise false
+	 */
+	public boolean isHeaderTruncated() {
+		return (state.getFlags() & State.FLAG_HEADER_TRUNCATED) != 0;
+	}
+
+	/**
+	 * Checks if payload has been truncated due to truncation at the time of the
+	 * capture. If the payload was never set (initially set to zero) and then
+	 * completely removed because of packet truncation, this method will return
+	 * false, since the payload never existed in the first place.
+	 * 
+	 * @return true if truncated, otherwise false
+	 */
+	public boolean isPayloadTruncated() {
+		return (state.getFlags() & State.FLAG_PAYLOAD_TRUNCATED) != 0;
+	}
+
+	/**
+	 * Checks if postifx has been truncated due to truncation at the time of the
+	 * capture. If the postifx was never set (initially set to zero) and then
+	 * completely removed because of packet truncation, this method will return
+	 * false, since the postfix never existed in the first place.
+	 * 
+	 * @return true if truncated, otherwise false
+	 */
+	public boolean isPostfixTruncated() {
+		return (state.getFlags() & State.FLAG_POSTFIX_TRUNCATED) != 0;
+	}
+
+	/**
+	 * Checks if prefix has been truncated due to truncation at the time of the
+	 * capture. If the prefix was never set (initially set to zero) and then
+	 * completely removed because of packet truncation, this method will return
+	 * false, since the gap never existed in the first place.
+	 * 
+	 * @return true if truncated, otherwise false
+	 */
+	public boolean isPrefixTruncated() {
+		return (state.getFlags() & State.FLAG_PREFIX_TRUNCATED) != 0;
+	}
+
+	/**
+	 * Peers this state object with the buffer at specified offset
+	 * 
+	 * @param buffer
+	 *          buffer to peer to
+	 * @param offset
+	 *          offset into the buffer
+	 * @return number of bytes that were peered, not copied
+	 */
 	public int peer(JBuffer buffer, int offset) {
 		// int length = this.lengthMethod.getHeaderLength(buffer, offset);
 		//
@@ -498,6 +1089,23 @@ public abstract class JHeader
 	}
 
 	/**
+	 * Peers, without copy, the user supplied buffer with payload data portion of
+	 * the packet right after the current header.
+	 * 
+	 * @param buffer
+	 *          buffer to peer the data with
+	 * @return the same buffer that was passed in
+	 */
+	public JBuffer peerPayloadTo(JBuffer buffer) {
+		final JPacket packet = getPacket();
+		final int offset = getOffset() + size();
+
+		buffer.peer(packet, offset, packet.remaining(offset));
+
+		return buffer;
+	}
+
+	/**
 	 * Sets the packet that this header should be associated with
 	 * 
 	 * @param packet
@@ -507,6 +1115,12 @@ public abstract class JHeader
 		this.packet = packet;
 	}
 
+	/**
+	 * Allows sub-headers to be set
+	 * 
+	 * @param headers
+	 *          array of sub header
+	 */
 	public void setSubHeaders(JHeader[] headers) {
 	}
 
@@ -527,31 +1141,6 @@ public abstract class JHeader
 	}
 
 	/**
-	 * Allows a header to validate its values
-	 */
-	protected void validateHeader() {
-
-	}
-
-	/**
-	 * @return
-	 */
-	public Iterable<JAnalysis> getAnalysisIterable() {
-		return AnalysisUtils.toIterable(state.getAnalysis());
-	}
-
-	/**
-	 * Retrieves the playload data portion of the packet right after the current
-	 * header.
-	 * 
-	 * @return newly allocated byte array containing copy of the contents of the
-	 *         header's payload from the packet.
-	 */
-	public byte[] getPayload() {
-		return packet.getByteArray(getPayloadOffset(), getPayloadLength());
-	}
-
-	/**
 	 * Copies the payload data portion of the packet right after the current
 	 * header to user supplied buffer.
 	 * 
@@ -567,18 +1156,19 @@ public abstract class JHeader
 	}
 
 	/**
-	 * Peers, without copy, the user supplied buffer with payload data portion of
-	 * the packet right after the current header.
+	 * Copies into the user supplied buffer, the payload data portion of the
+	 * packet right after the current header. The copy will start at the current
+	 * ByteBuffer position property.
 	 * 
 	 * @param buffer
-	 *          buffer to peer the data with
+	 *          buffer to copy the data to
 	 * @return the same buffer that was passed in
 	 */
-	public JBuffer peerPayloadTo(JBuffer buffer) {
+	public ByteBuffer transferPayloadTo(ByteBuffer buffer) {
 		final JPacket packet = getPacket();
 		final int offset = getOffset() + size();
 
-		buffer.peer(packet, offset, packet.remaining(offset));
+		packet.transferTo(buffer, offset, packet.remaining(offset));
 
 		return buffer;
 	}
@@ -601,92 +1191,9 @@ public abstract class JHeader
 	}
 
 	/**
-	 * Copies into the user supplied buffer, the payload data portion of the
-	 * packet right after the current header. The copy will start at the current
-	 * ByteBuffer position property.
-	 * 
-	 * @param buffer
-	 *          buffer to copy the data to
-	 * @return the same buffer that was passed in
+	 * Allows a header to validate its values
 	 */
-	public ByteBuffer transferPayloadTo(ByteBuffer buffer) {
-		final JPacket packet = getPacket();
-		final int offset = getOffset() + size();
+	protected void validateHeader() {
 
-		packet.transferTo(buffer, offset, packet.remaining(offset));
-
-		return buffer;
-	}
-	
-	public boolean hasPrefix() {
-		return getPrefixLength() != 0;
-	}
-	
-	public int getPrefixLength() {
-		return state.getPrefix();
-	}
-	
-	public int getPrefixOffset() {
-		return getOffset() - getPrefixLength();
-	}
-	
-	public byte[] getPrefix() {
-		return packet.getByteArray(getPrefixOffset(), getPrefixLength());
-	}
-	
-	public int getHeaderLength() {
-		return state.getLength();
-	}
-	
-	public int getHeaderOffset() {
-		return state.getOffset();
-	}
-	
-	public byte[] getHeader() {
-		return packet.getByteArray(getHeaderOffset(), getHeaderLength());
-	}
-	
-	public boolean hasGap() {
-		return getGapLength() != 0;
-	}
-	
-	public int getGapLength() {
-		return state.getGap();
-	}
-	
-	public int getGapOffset() {
-		return getOffset() + getHeaderLength();
-	}
-	
-	public byte[] getGap() {
-		return packet.getByteArray(getGapOffset(), getGapLength());
-	}
-	
-	public boolean hasPayload() {
-		return getPayloadLength() != 0;
-	}
-	
-	public int getPayloadLength() {
-		return state.getPayload();
-	}
-	
-	public int getPayloadOffset() {
-		return getGapOffset() + getGapLength();
-	}
-	
-	public boolean hasPostfix() {
-		return getPostfixLength() != 0;
-	}
-	
-	public int getPostfixLength() {
-		return state.getPostfix();
-	}
-	
-	public byte[] getPostfix() {
-		return packet.getByteArray(getPostfixOffset(), getPostfixLength());
-	}
-	
-	public int getPostfixOffset() {
-		return getPayloadOffset() + getPayloadLength();
 	}
 }

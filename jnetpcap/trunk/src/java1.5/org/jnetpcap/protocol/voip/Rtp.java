@@ -417,7 +417,7 @@ public class Rtp
 	public static boolean bindToUdp(JPacket packet, Udp udp) {
 
 		return udp.source() == RTP_UDP_PORT || udp.destination() == RTP_UDP_PORT
-		    || heuristicScan(packet, udp.getOffset() + udp.size());
+		    || heuristicScan(packet, udp.getPayloadOffset());
 	}
 
 	/**
@@ -547,7 +547,7 @@ public class Rtp
 		if ((buffer.getByte(offset) & PADDING_MASK) > 0) {
 			return buffer.getUByte(buffer.size() - 1);
 		} else {
-			return 0;
+			return 5;
 		}
 	}
 
