@@ -400,7 +400,8 @@ void scan_payload(scan_t *scan) {
  */
 void scan_ip6(scan_t *scan) {
 	ip6_t *ip6 = (ip6_t *)(scan->buf + scan->offset);
-	scan->length = sizeof(ip6_t);
+	scan->length = IP6_HEADER_LENGTH;
+	scan->hdr_payload = BIG_ENDIAN16(ip6->ip6_plen);
 	uint8_t *buf = (uint8_t *)(scan->buf + scan->offset + sizeof(ip6_t));
 	
 	/*
@@ -440,19 +441,72 @@ void scan_ip6(scan_t *scan) {
 	}
 
 	int type = ip6->ip6_nxt;
+	int len;
+	
+//#define DEBUG
+#ifdef DEBUG
+	printf("#%d scan_ip6() type=%d (0x%x)\n", 
+			(int)scan->packet->pkt_frame_num, 
+			type, 
+			type);
+	fflush(stdout);
+#endif
+		
 again:
 	switch (type) {
 	case 1: scan->next_id = ICMP_ID; break;
 	case 4: scan->next_id = IP4_ID;  break;
 	case 6: scan->next_id = TCP_ID;  break;
 	case 17:scan->next_id = UDP_ID;  break;
-	default:
+	case 58:scan->next_id = PAYLOAD_ID; break; // ICMPv6 not implemented yet
+	
+	/* Ip6 Options - see RFC2460 */
+	case 0:   // Hop-by-hop options (has special processing)
+	case 60:  // Destination Options (with routing options)
+	case 43:  // Routing header
+	case 44:  // Fragment Header
+	case 51:  // Authentication Header
+	case 50:  // Encapsulation Security Payload Header
+	case 135: // Mobility Header
 		/* Skips over all option headers */
 		type = (int) *(buf + 0); // Option type
-		int len = (int) *(buf + 1); // Option length
+		len = ((int) *(buf + 1)) * 8 + 8; // Option length
+		if ((scan->offset + len) > scan->buf_len) { // Catch all just in case
+			
+#ifdef DEBUG
+	printf("#%ld scan_ip6() infinite loop detected. Option type=%d len=%d offset=%d\n", 
+			scan->packet->pkt_frame_num,
+			type,
+			len,
+			scan->offset);
+	fflush(stdout);
+#endif
+			scan->next_id = PAYLOAD_ID;
+			break;
+		}
 		scan->length += len;
+		scan->hdr_payload -= len; // Options are part of the main payload length
 		buf += len;
+		
+#ifdef DEBUG
+	printf("#%d scan_ip6() OPTION type=%d (0x%x) len=%d\n", 
+			(int)scan->packet->pkt_frame_num, 
+			type, 
+			type,
+			len);
+	fflush(stdout);
+#endif
+
 		goto again;
+	
+	case 59:  // No next header
+	default:
+		if (scan->hdr_payload == 0) {
+			scan->next_id = END_OF_HEADERS;
+		} else {
+			scan->next_id = PAYLOAD_ID;
+		}
+		break;
 	}
 }
 
