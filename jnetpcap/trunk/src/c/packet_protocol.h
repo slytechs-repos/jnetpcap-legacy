@@ -192,6 +192,16 @@ typedef struct ip6 {
 #define ip6_hlim	ip6_ctlun.ip6_un1.ip6_un1_hlim
 #define ip6_hops	ip6_ctlun.ip6_un1.ip6_un1_hlim
 
+#define IP6_HEADER_LENGTH 40
+
+#define IP6_OPT_HOP_BY_HOP 		0
+#define IP6_OPT_DEST_OPTIONS	60
+#define IP6_OPT_ROUTING_HEADER	43
+#define IP6_OPT_FRAGMENT_HEADER	44
+#define IP6_OPT_AUTH_HEADER		51
+#define IP6_OPT_SECURITY_HEADER	50
+#define IP6_OPT_MOBILITY_HEADER	135
+#define IP6_OPT_NO_NEXT_HEADER	59
 
 /**
  * IP v4 structure
