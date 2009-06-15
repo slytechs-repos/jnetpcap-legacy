@@ -54,8 +54,12 @@ public class TestFormatter
 		JFormatter out = new TextFormatter(OUT);
 		
 		JPacket packet = TestUtils.getPcapPacket("tests/test-vlan.pcap", 0);
-
-		out.format(packet);
+		try {
+			out.format(packet);
+	    
+    } catch (Exception e) {
+    	e.printStackTrace();
+    }
 	}
 
 	public void testXmlFormatter() throws IOException {

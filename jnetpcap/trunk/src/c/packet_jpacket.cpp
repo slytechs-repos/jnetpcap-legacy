@@ -267,6 +267,12 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getHeaderIdBy
 		return -1;
 	}
 	
+	if (index < 0 || index >= packet->pkt_header_count) {
+		throwException(env, INDEX_OUT_OF_BOUNDS_EXCEPTION, "header index out of range");
+		return -1;
+	}
+
+	
 //	printf("state=%p, index=%d, value=%d, delta=%d\n", 
 //			packet,
 //			(int) index,
@@ -277,6 +283,49 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getHeaderIdBy
 	return (jint) packet->pkt_headers[index].hdr_id;
 
 }
+
+/*
+ * Class:     org_jnetpcap_packet_JPacket_State
+ * Method:    getHeaderLengthByIndex
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getHeaderLengthByIndex
+  (JNIEnv *env, jobject obj, jint index) {
+	
+	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	if (packet == NULL) {
+		return -1;
+	}
+	
+	if (index < 0 || index >= packet->pkt_header_count) {
+		throwException(env, INDEX_OUT_OF_BOUNDS_EXCEPTION, "header index out of range");
+		return -1;
+	}
+
+	return (jint) packet->pkt_headers[index].hdr_length;
+}
+
+/*
+ * Class:     org_jnetpcap_packet_JPacket_State
+ * Method:    getHeaderOffsetByIndex
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getHeaderOffsetByIndex
+  (JNIEnv *env, jobject obj, jint index) {
+	
+	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	if (packet == NULL) {
+		return -1;
+	}
+	
+	if (index < 0 || index >= packet->pkt_header_count) {
+		throwException(env, INDEX_OUT_OF_BOUNDS_EXCEPTION, "header index out of range");
+		return -1;
+	}
+
+	return (jint) packet->pkt_headers[index].hdr_offset;
+}
+
 
 /*
  * Class:     org_jnetpcap_packet_JPacket_State

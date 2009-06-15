@@ -347,6 +347,8 @@ public abstract class JHeader
 	 */
 	protected final State state;
 
+	private int index = -1;
+
 	/**
 	 * Calls on the header defintion's static annotated \@HeaderLength method to
 	 * get header's length. The method is given a buffer and offset as the start
@@ -1190,10 +1192,49 @@ public abstract class JHeader
 		return buffer;
 	}
 
+	void setIndex(int index) {
+		this.index = index;
+	}
+
+	/**
+	 * Gets the header's index into the packet state structure. Various pieces of
+	 * information in packet state structure can be looked up using this index.
+	 * 
+	 * @return header index in Packet.State structure
+	 */
+	public int getIndex() {
+		return this.index;
+	}
+
 	/**
 	 * Allows a header to validate its values
 	 */
 	protected void validateHeader() {
 
 	}
+	
+	public boolean hasNextHeader() {
+		return this.index + 1 < packet.getState().getHeaderCount();
+	}
+	
+	public int getNextHeaderId() {
+		return packet.getState().getHeaderIdByIndex(index + 1);
+	}
+	
+	public int getNextHeaderOffset() {
+		return packet.getState().getHeaderOffsetByIndex(index + 1);
+	}
+	
+	public boolean hasPreviousHeader() {
+		return this.index > 0;
+	}
+	
+	public int getPreviousHeaderId() {
+		return packet.getState().getHeaderIdByIndex(index - 1);
+	}
+	
+	public int getPreviousHeaderOffset() {
+		return packet.getState().getHeaderOffsetByIndex(index - 1);
+	}
+
 }

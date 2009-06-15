@@ -37,6 +37,7 @@ import org.jnetpcap.packet.annotate.Protocol.Suite;
 import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.protocol.lan.Ethernet;
 import org.jnetpcap.protocol.lan.IEEESnap;
+import org.jnetpcap.util.checksum.Checksum;
 
 /**
  * IP version 4. Network layer internet protocol version 4. This is the main
@@ -848,6 +849,16 @@ public class Ip4
 	}
 
 	private int hashcode;
+	
+	@Dynamic(Field.Property.DESCRIPTION)
+	public String checksumDescription() {
+		final int crc16 = calculateChecksum();
+		if (checksum() == crc16) {
+			return "correct";
+		} else {
+			return "incorrect: " + crc16;
+		}
+	}
 
 	@Field(offset = 10 * 8, length = 16, format = "%x")
 	public int checksum() {
@@ -881,8 +892,8 @@ public class Ip4
 		optionsBitmap = 0;
 		this.hashcode = (id() << 16) ^ sourceToInt() ^ destinationToInt() ^ type();
 
-//		System.out.printf("offset=%d, %s %s", getOffset(), getPacket().getState()
-//		    .toDebugString(), toHexdump());
+		// System.out.printf("offset=%d, %s %s", getOffset(), getPacket().getState()
+		// .toDebugString(), toHexdump());
 		final int hlen = hlen() * 4;
 
 		for (int i = 20; i < hlen; i++) {
@@ -1220,4 +1231,12 @@ public class Ip4
 		setUByte(0, hlen() | value << 4);
 	}
 
+	public int calculateChecksum() {
+		return Checksum.ip2Chunk(this, 0, 10, 12, this.size() - 12);
+	}
+	
+	public boolean isChecksumValid() {
+		return Checksum.ip1Chunk(this, 0, this.size()) == 0;
+		
+	}
 }

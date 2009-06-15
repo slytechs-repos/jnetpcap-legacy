@@ -20,6 +20,7 @@ import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.protocol.JProtocol;
+import org.jnetpcap.util.checksum.Checksum;
 
 /**
  * ICMP header definition
@@ -29,7 +30,8 @@ import org.jnetpcap.protocol.JProtocol;
  */
 @Header
 public class Icmp
-    extends JHeaderMap<Icmp> {
+    extends
+    JHeaderMap<Icmp> {
 
 	/**
 	 * ICMP Destination Unreachable header definition
@@ -39,7 +41,8 @@ public class Icmp
 	 */
 	@Header(length = 4, id = IcmpType.DESTINATION_UNREACHABLE_ID, nicname = "unreach")
 	public static class DestinationUnreachable
-	    extends Reserved {
+	    extends
+	    Reserved {
 	}
 
 	/**
@@ -49,7 +52,8 @@ public class Icmp
 	 * @author Sly Technologies, Inc.
 	 */
 	public static abstract class Echo
-	    extends JSubHeader<Icmp> {
+	    extends
+	    JSubHeader<Icmp> {
 
 		@Field(offset = 0, length = 16, format = "%x")
 		public int id() {
@@ -70,7 +74,8 @@ public class Icmp
 	 */
 	@Header(id = IcmpType.ECHO_REPLY_ID, length = 4, nicname = "reply")
 	public static class EchoReply
-	    extends Echo {
+	    extends
+	    Echo {
 
 	}
 
@@ -82,7 +87,8 @@ public class Icmp
 	 */
 	@Header(id = IcmpType.ECHO_REQUEST_ID, length = 4, nicname = "request")
 	public static class EchoRequest
-	    extends Echo {
+	    extends
+	    Echo {
 
 	}
 
@@ -271,7 +277,8 @@ public class Icmp
 	 */
 	@Header(length = 4, id = IcmpType.PARAM_PROBLEM_ID)
 	public static class ParamProblem
-	    extends JSubHeader<Icmp> {
+	    extends
+	    JSubHeader<Icmp> {
 
 		@Field(offset = 0, length = 8)
 		public int pointer() {
@@ -292,7 +299,8 @@ public class Icmp
 	 */
 	@Header(length = 4, id = IcmpType.REDIRECT_ID)
 	public static class Redirect
-	    extends JSubHeader<Icmp> {
+	    extends
+	    JSubHeader<Icmp> {
 
 		public byte[] gateway() {
 			return getByteArray(0, 4);
@@ -306,7 +314,8 @@ public class Icmp
 	 * @author Sly Technologies, Inc.
 	 */
 	public static abstract class Reserved
-	    extends JSubHeader<Icmp> {
+	    extends
+	    JSubHeader<Icmp> {
 
 		public long reserved() {
 			return getUInt(0);
@@ -321,7 +330,8 @@ public class Icmp
 	 */
 	@Header(length = 4, id = IcmpType.SOURCE_QUENCH_ID)
 	public static class SourceQuench
-	    extends Reserved {
+	    extends
+	    Reserved {
 
 	}
 
@@ -339,6 +349,16 @@ public class Icmp
 			case 11: // Timestamp
 			default:
 				return 4;
+		}
+	}
+
+	@Dynamic(Field.Property.DESCRIPTION)
+	public String checksumDescription() {
+		final int crc16 = calculateChecksum();
+		if (checksum() == crc16) {
+			return "correct";
+		} else {
+			return "incorrect: 0x" + Integer.toHexString(crc16).toUpperCase();
 		}
 	}
 
@@ -382,6 +402,17 @@ public class Icmp
 
 	public IcmpType typeEnum() {
 		return IcmpType.valueOf(type());
+	}
+
+	public int calculateChecksum() {
+
+		if (getIndex() == -1) {
+			throw new IllegalStateException("Oops index not set");
+		}
+
+		final int ipOffset = getPreviousHeaderOffset();
+
+		return Checksum.icmp(packet, ipOffset, this.getOffset());
 	}
 
 }

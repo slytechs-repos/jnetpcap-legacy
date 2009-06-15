@@ -18,12 +18,14 @@ import java.util.Set;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.annotate.BindingVariable;
+import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FlowKey;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.protocol.network.Ip4;
+import org.jnetpcap.util.checksum.Checksum;
 
 /**
  * Tcp/Ip header definition
@@ -34,7 +36,8 @@ import org.jnetpcap.protocol.network.Ip4;
 @Header
 @SuppressWarnings("unused")
 public class Tcp
-    extends JHeader {
+    extends
+    JHeader {
 
 	/**
 	 * Constants for each TCP flag
@@ -48,10 +51,9 @@ public class Tcp
 		RST,
 		PSH,
 		ACK,
-		URG, 
+		URG,
 		ECE,
-		CWR,
-		;
+		CWR, ;
 		public static Set<Flag> asSet(int flags) {
 			Set<Flag> set = EnumSet.noneOf(Tcp.Flag.class);
 			final int len = values().length;
@@ -121,7 +123,7 @@ public class Tcp
 	 */
 	private int uniDirectionalHashcode;
 
-	@Field(offset = 8 * 8, length = 16, format = "%x")
+	@Field(offset = 8 * BYTE, length = 16, format = "%x")
 	public long ack() {
 		return getUInt(8);
 	}
@@ -133,7 +135,18 @@ public class Tcp
 		super.setUInt(8, ack);
 	}
 
-	@Field(offset = 16 * 8, length = 16, format = "%x")
+	@Dynamic(Field.Property.DESCRIPTION)
+	public String checksumDescription() {
+		
+		final int crc16 = calculateChecksum();
+		if (checksum() == crc16) {
+			return "correct";
+		} else {
+			return "incorrect: 0x" + Integer.toHexString(crc16).toUpperCase();
+		}
+	}
+
+	@Field(offset = 16 * BYTE, length = 16, format = "%x")
 	public int checksum() {
 		return getUShort(16);
 	}
@@ -178,7 +191,7 @@ public class Tcp
 		super.setUShort(2, dst);
 	}
 
-	@Field(offset = 13 * 8, length = 8, format = "%x")
+	@Field(offset = 13 * BYTE, length = 8, format = "%x")
 	public int flags() {
 		return getUByte(13);
 	}
@@ -303,7 +316,7 @@ public class Tcp
 		return this.biDirectionalHashcode;
 	}
 
-	@Field(offset = 12 * 8, length = 4)
+	@Field(offset = 12 * BYTE, length = 4)
 	public int hlen() {
 		return (getUByte(12) & 0xF0) >> 4;
 	}
@@ -316,12 +329,12 @@ public class Tcp
 		super.setUByte(12, ((getUByte(12) & 0x0F) | (length << 4)));
 	}
 
-	@Field(offset = 12 * 8 + 4, length = 4)
+	@Field(offset = 12 * BYTE + 4, length = 4)
 	public int reserved() {
 		return getUByte(12) & 0x0F;
 	}
 
-	@Field(offset = 4 * 8, length = 16, format = "%x")
+	@Field(offset = 4 * BYTE, length = 16, format = "%x")
 	public long seq() {
 		return getUInt(4);
 	}
@@ -367,7 +380,7 @@ public class Tcp
 		return this.uniDirectionalHashcode;
 	}
 
-	@Field(offset = 18 * 8, length = 16)
+	@Field(offset = 18 * BYTE, length = 16)
 	public int urgent() {
 		return getUShort(18);
 	}
@@ -379,7 +392,7 @@ public class Tcp
 		super.setUShort(18, urg);
 	}
 
-	@Field(offset = 14 * 8, length = 16)
+	@Field(offset = 14 * BYTE, length = 16)
 	public int window() {
 		return getUShort(14);
 	}
@@ -390,5 +403,16 @@ public class Tcp
 
 	public int windowScaled() {
 		return window() << 6;
+	}
+
+	public int calculateChecksum() {
+
+		if (getIndex() == -1) {
+			throw new IllegalStateException("Oops index not set");
+		}
+
+		final int ipOffset = getPreviousHeaderOffset();
+
+		return Checksum.pseudoTcp(packet, ipOffset, this.getOffset());
 	}
 }

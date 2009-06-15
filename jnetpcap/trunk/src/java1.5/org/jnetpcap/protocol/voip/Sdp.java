@@ -34,101 +34,104 @@ import org.jnetpcap.packet.annotate.HeaderLength;
 public class Sdp
     extends
     JMappedHeader {
-	
+
 	public static int ID;
 
 	static {
 		try {
-	    ID = JRegistry.register(Sdp.class);
-    } catch (RegistryHeaderErrors e) {
-	    e.printStackTrace();
-    }
+			ID = JRegistry.register(Sdp.class);
+		} catch (RegistryHeaderErrors e) {
+			e.printStackTrace();
+		}
 	}
 
-	
 	private String text;
+
 	private String[] attributes;
+
 	private int attributesOffset;
+
 	private int attributesLength;
 
 	@HeaderLength
 	public static int headerLength(JBuffer buffer, int offset) {
 		return buffer.size() - offset;
 	}
-	
-	@Bind(to=Sip.class)
+
+	@Bind(to = Sip.class)
 	public static boolean bindToSip(JPacket packet, Sip sip) {
-//		System.out.printf("bind: contentType=%s\n", sip.contentType());
-		return sip.contentType().startsWith("application/sdp");
+		// System.out.printf("bind: contentType=%s\n", sip.contentType());
+		return (sip.contentType() == null) ? false : sip.contentType().startsWith(
+		    "application/sdp");
 	}
 
 	@Override
 	protected void decodeHeader() {
 		text = super.getUTF8String(0, size());
-		
+
 		final String[] lines = text.split("\r\n");
 		final List<String> list = new ArrayList<String>(10);
-		
+
 		int offset = 0;
-		for (String line: lines) {
+		for (String line : lines) {
 			char firstChar = line.charAt(0);
 			line = line.substring(2).trim();
 			int length = line.length() * 8;
-			
-//			System.out.printf("line='%s'\n", line);
-			
+
+			// System.out.printf("line='%s'\n", line);
+
 			switch (firstChar) {
 				case 'v':
 					super.addField(Fields.Version, line, offset, length);
 					break;
-					
+
 				case 'o':
 					super.addField(Fields.Owner, line, offset, length);
 					break;
-					
+
 				case 's':
 					super.addField(Fields.SessionName, line, offset, length);
 					break;
-					
+
 				case 'c':
 					super.addField(Fields.ConnectionInfo, line, offset, length);
 					break;
-					
+
 				case 't':
 					super.addField(Fields.Time, line, offset, length);
 					break;
-					
+
 				case 'm':
 					super.addField(Fields.Media, line, offset, length);
 					break;
-					
+
 				case 'a':
 					list.add(line);
 					break;
 			}
-			
+
 			offset += (line.length() + 2) * 8;
 		}
 		this.attributesOffset = offset;
 		this.attributesLength = (size() - offset / 8) * 8;
 		this.attributes = list.toArray(new String[list.size()]);
 	}
-	
+
 	@Dynamic(Field.Property.OFFSET)
 	public int attributesOffset() {
 		return this.attributesOffset;
 	}
-	
+
 	@Dynamic(Field.Property.LENGTH)
 	public int attributesLength() {
 		return this.attributesLength;
 	}
-	
-	@Field(offset = 0, length = 10, format="%s[]")
+
+	@Field(offset = 0, length = 10, format = "%s[]")
 	public String[] attributes() {
 		return this.attributes;
 	}
-	
+
 	@Field
 	public enum Fields {
 		Version,
@@ -138,13 +141,13 @@ public class Sdp
 		Time,
 		Media
 	}
-	
-//	@Dynamic(Field.Property.LENGTH)
+
+	// @Dynamic(Field.Property.LENGTH)
 	public int textLength() {
 		return size() * 8;
 	}
-	
-//	@Field(offset = 0, format="#textdump#")
+
+	// @Field(offset = 0, format="#textdump#")
 	public String text() {
 		return this.text;
 	}

@@ -33,6 +33,8 @@
 #include "org_jnetpcap_protocol_JProtocol.h"
 #include "export.h"
 
+//#define DEBUG
+
 /****************************************************************
  * **************************************************************
  * 
@@ -69,6 +71,10 @@ int scan(JNIEnv *env, jobject obj,
 		jobject jpacket, scanner_t *scanner, packet_state_t *p_packet, int first_id, 
 		char *buf, int buf_len, uint32_t wirelen) {
 
+#ifdef DEBUG
+	printf("scan() enter\n");
+	fflush(stdout);
+#endif
 	scan_t scan; // Our current in progress scan's state information
 	scan.env = env;
 	scan.jscanner = obj;
@@ -91,7 +97,11 @@ int scan(JNIEnv *env, jobject obj,
 	scan.hdr_payload = 0;
 	scan.hdr_postfix = 0;
 	
-	memset(scan.header, 0, sizeof(header_t));
+#ifdef DEBUG
+	printf("scan() memset - scan.id=%d\n\n", scan.id);
+	fflush(stdout);
+#endif
+	memset(scan.header, 0, sizeof(header_t)); 
 
 	// Point jscan 
 	setJMemoryPhysical(env, scanner->sc_jscan, toLong(&scan));
@@ -102,7 +112,8 @@ int scan(JNIEnv *env, jobject obj,
 //#define DEBUG
 
 #ifdef DEBUG
-	printf("\n\n");
+	printf("scan() - scan.id=%d\n\n", scan.id);
+	fflush(stdout);
 #endif
 
 	/*
@@ -113,6 +124,7 @@ int scan(JNIEnv *env, jobject obj,
 #ifdef DEBUG
 		printf("scan() loop-top   : id=%-16s offset=%-4d flags=%d\n",
 				id2str(scan.id), scan.offset, scanner->sc_flags[scan.id]);
+		fflush(stdout);
 #endif
 
 		/* 
@@ -142,11 +154,13 @@ int scan(JNIEnv *env, jobject obj,
 #ifdef DEBUG
 		printf("scan() loop-middle: id=%-16s offset=%-4d nid=%s length=%d\n",
 				id2str(scan.id), scan.offset, id2str(scan.next_id), scan.length);
+		fflush(stdout);
 #endif
 
 		if (scan.length == 0) {
 #ifdef DEBUG
 			printf("scan() loop-length==0\n");
+			fflush(stdout);
 #endif
 			if (scan.id == PAYLOAD_ID) {
 				scan.next_id = END_OF_HEADERS;
@@ -158,6 +172,7 @@ int scan(JNIEnv *env, jobject obj,
 
 #ifdef DEBUG
 			printf("scan() loop-length: %d\n", scan.length);
+			fflush(stdout);
 #endif
 
 			/******************************************************
@@ -171,6 +186,7 @@ int scan(JNIEnv *env, jobject obj,
 #ifdef DEBUG
 		printf("scan() loop-bottom: id=%-16s offset=%-4d nid=%s length=%d\n",
 				id2str(scan.id), scan.offset, id2str(scan.next_id), scan.length);
+		fflush(stdout);
 #endif
 
 		scan.id = scan.next_id;
@@ -201,8 +217,9 @@ void record_header(scan_t *scan) {
 #ifdef DEBUG
 	printf(
 			"scan() loop-record: id=%-16s offset=%-4d nid=%s length=%d\n",
-			id2str(scan.id), scan.offset, id2str(scan.next_id),
-			scan.length);
+			id2str(scan->id), scan->offset, id2str(scan->next_id),
+			scan->length);
+	fflush(stdout);
 #endif
 	
 	/*
@@ -407,11 +424,18 @@ int scanJPacket(JNIEnv *env, jobject obj, jobject jpacket, jobject jstate,
 		packet->pkt_flags |= PACKET_FLAG_TRUNCATED;
 	}
 	
+#ifdef DEBUG
+	printf("scanJPacket() before scan - buf_len=%d wire_len=%d\n", buf_length, wirelen);
 	fflush(stdout);
+#endif
 
 	scanner->sc_offset +=scan(env, obj, jpacket, scanner, packet, first_id,
 			buf, buf_length, wirelen);
 
+#ifdef DEBUG
+	printf("scanJPacket() after scan - buf_len=%d wire_len=%d\n", buf_length, wirelen);
+	fflush(stdout);
+#endif
 	env->SetIntField(jstate, jmemorySizeFID, (jsize) sizeof(packet_state_t)
 			+ sizeof(header_t) * packet->pkt_header_count);
 }
