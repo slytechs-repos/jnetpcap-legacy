@@ -461,10 +461,14 @@ again:
 	case 58:scan->next_id = PAYLOAD_ID; break; // ICMPv6 not implemented yet
 	
 	/* Ip6 Options - see RFC2460 */
+	
+	case 44:  // Fragment Header
+		/* If we are a fragment, we just set the FRAG flag and pass through */
+		scan->flags |= CUMULATIVE_FLAG_HEADER_FRAGMENTED;
+		
 	case 0:   // Hop-by-hop options (has special processing)
 	case 60:  // Destination Options (with routing options)
 	case 43:  // Routing header
-	case 44:  // Fragment Header
 	case 51:  // Authentication Header
 	case 50:  // Encapsulation Security Payload Header
 	case 135: // Mobility Header
