@@ -13,10 +13,12 @@
 package org.jnetpcap.protocol;
 
 import org.jnetpcap.Pcap;
+import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.PcapPacketHandler;
 import org.jnetpcap.packet.TestUtils;
+import org.jnetpcap.protocol.lan.Ethernet;
 import org.jnetpcap.protocol.network.Icmp;
 import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.protocol.network.Ip6;
@@ -281,6 +283,55 @@ public class TestTcpIp
 			}
 
 		}, null);
+	}
+
+	public void testIp4FragmentFlagDirectly() {
+		JPacket packet = TestUtils.getPcapPacket(TestUtils.REASEMBLY, 1 - 1);
+		Ethernet eth = new Ethernet();
+		
+		if (packet.hasHeader(eth)) {
+//			System.out.println(eth);
+//			System.out.printf("flags=%x\n", eth.getState().getFlags());
+			assertNotSame(JHeader.State.FLAG_HEADER_FRAGMENTED, (eth.getState()
+			    .getFlags() & JHeader.State.FLAG_HEADER_FRAGMENTED));
+		}
+
+		Ip4 ip = new Ip4();
+		if (packet.hasHeader(ip)) {
+//			System.out.println(ip);
+//			System.out.printf("flags=%x\n", ip.getState().getFlags());
+			assertEquals(JHeader.State.FLAG_HEADER_FRAGMENTED, (ip.getState()
+			    .getFlags() & JHeader.State.FLAG_HEADER_FRAGMENTED));
+		}
+		
+		Icmp icmp = new Icmp();
+		if (packet.hasHeader(icmp)) {
+//			System.out.println(icmp);
+//			System.out.printf("flags=%x\n", icmp.getState().getFlags());
+			assertEquals(JHeader.State.FLAG_HEADER_FRAGMENTED, (icmp.getState()
+			    .getFlags() & JHeader.State.FLAG_HEADER_FRAGMENTED));
+		}
+
+	}
+	
+	public void testJHeaderIsFragmented() {
+		JPacket packet = TestUtils.getPcapPacket(TestUtils.REASEMBLY, 1 - 1);
+		Ethernet eth = new Ethernet();
+		
+		if (packet.hasHeader(eth)) {
+			assertFalse(eth.isFragmented());
+		}
+
+		Ip4 ip = new Ip4();
+		if (packet.hasHeader(ip)) {
+			assertTrue(ip.isFragmented());
+		}
+		
+		Icmp icmp = new Icmp();
+		if (packet.hasHeader(icmp)) {
+			assertTrue(ip.isFragmented());
+		}
+
 	}
 
 }

@@ -514,10 +514,21 @@ again:
 /*
  * Scan IP version 4
  */
-void scan_ip4(scan_t *scan) {
-	ip4_t *ip4 = (ip4_t *) (scan->buf + scan->offset);
+void scan_ip4(register scan_t *scan) {
+	register ip4_t *ip4 = (ip4_t *) (scan->buf + scan->offset);
 	scan->length = ip4->ihl * 4;
 	scan->hdr_payload = BIG_ENDIAN16(ip4->tot_len) - scan->length;
+	
+	/* Check if this IP packet is a fragment and record in flags */
+	int frag = BIG_ENDIAN16(ip4->frag_off);
+	if (frag & IP4_FLAG_MF || (frag & IP4_FRAG_OFF_MASK > 0)) {
+		scan->flags |= CUMULATIVE_FLAG_HEADER_FRAGMENTED;
+	}
+//#define DEBUG
+#ifdef DEBUG
+		printf("ip4->frag_off=%x\n", frag);
+		fflush(stdout);
+#endif
 	
 	/*
 	 * Set the flow key pair for Ip4.
