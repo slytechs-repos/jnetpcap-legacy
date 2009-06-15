@@ -442,6 +442,7 @@
 			<class name="org.jnetpcap.packet.JScan" />
 
 			<class name="org.jnetpcap.packet.JFlowKey" />
+			<class name="org.jnetpcap.util.checksum.Checksum" />
 
 		</javah>
 	</target>

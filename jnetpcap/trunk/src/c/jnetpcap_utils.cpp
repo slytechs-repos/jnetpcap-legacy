@@ -791,6 +791,12 @@ void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 	env->SetObjectField(data->header, jmemoryKeeperFID, data->pcap);
 	env->SetObjectField(data->packet, jmemoryKeeperFID, data->pcap);
 
+//#define DEBUG
+#ifdef DEBUG
+	printf("cb_pcap_packet_dispatch() scan - %d\n", data->id);
+	fflush(stdout);
+#endif
+
 	if (Java_org_jnetpcap_packet_JScanner_scan(
 			data->env, 
 			data->scanner, 
@@ -800,12 +806,22 @@ void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 			pkt_header->len) < 0) {
 		return;
 	}
+	
+#ifdef DEBUG
+	printf("cb_pcap_packet_dispatch() handler - %d\n", data->id);
+	fflush(stdout);
+#endif
 
 	env->CallVoidMethod(
 			data->obj,
 			data->mid, 
 			data->packet,
 			data->user);
+	
+#ifdef DEBUG
+	printf("cb_pcap_packet_dispatch() handler_done - %d\n", data->id);
+	fflush(stdout);
+#endif
 	
 	if (env->ExceptionCheck() == JNI_TRUE) {
 		data->exception = env->ExceptionOccurred();

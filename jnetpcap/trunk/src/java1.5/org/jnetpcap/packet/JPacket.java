@@ -175,6 +175,14 @@ public abstract class JPacket
 		 */
 		public native JAnalysis getAnalysis(int index);
 
+		/**
+		 * Gets the 32-bit counter that contains packet's flags in packet_state_t
+		 * structure
+		 * 
+		 * @return bit flags for this packet
+		 */
+		public native int getFlags();
+
 		public JFlowKey getFlowKey() {
 			return this.flowKey;
 		}
@@ -191,23 +199,31 @@ public abstract class JPacket
 
 		public native int getHeaderIdByIndex(int index);
 
+		/**
+		 * A convenience method that gets the length in the packet buffer of the
+		 * header at specified index. Typically header information is retrieved
+		 * using JHeader.State structure which can access all available header
+		 * information.
+		 * 
+		 * @param index
+		 *          header index
+		 * @return length in bytes of the header
+		 */
+		public native int getHeaderLengthByIndex(int index);
+
+		/**
+		 * A convenience method that gets the offset into the packet buffer of the
+		 * header at specified index. Typically header information is retrieved
+		 * using JHeader.State structure which can access all available header
+		 * information.
+		 * 
+		 * @param index
+		 *          header index
+		 * @return offset in bytes of the start of the header
+		 */
+		public native int getHeaderOffsetByIndex(int index);
+
 		public native int getInstanceCount(int id);
-
-		/**
-		 * Gets the 32-bit counter that contains packet's flags in packet_state_t
-		 * structure
-		 * 
-		 * @return bit flags for this packet
-		 */
-		public native int getFlags();
-
-		/**
-		 * Sets the 32-bit counter with packet flags
-		 * 
-		 * @param flags
-		 *          bit flags for this packet
-		 */
-		public native void setFlags(int flags);
 
 		/**
 		 * Gets the packet's wire length
@@ -215,14 +231,6 @@ public abstract class JPacket
 		 * @return original length of the packet
 		 */
 		public native int getWirelen();
-
-		/**
-		 * Sets the packet's wire length.
-		 * 
-		 * @param length
-		 *          the original length of the packet before truncation
-		 */
-		public native void setWirelen(int length);
 
 		public int peer(ByteBuffer peer) throws PeeringException {
 			int r = super.peer(peer);
@@ -328,13 +336,6 @@ public abstract class JPacket
 		}
 
 		/**
-		 * Sets the analysis object for this packet.
-		 * 
-		 * @param analysis
-		 */
-		public native void setAnalysis(JAnalysis analysis);
-
-		/**
 		 * Sets analysis information for header at index
 		 * 
 		 * @param index
@@ -343,6 +344,29 @@ public abstract class JPacket
 		 *          object to set
 		 */
 		public native void setAnalysis(int index, JAnalysis analysis);
+
+		/**
+		 * Sets the analysis object for this packet.
+		 * 
+		 * @param analysis
+		 */
+		public native void setAnalysis(JAnalysis analysis);
+
+		/**
+		 * Sets the 32-bit counter with packet flags
+		 * 
+		 * @param flags
+		 *          bit flags for this packet
+		 */
+		public native void setFlags(int flags);
+
+		/**
+		 * Sets the packet's wire length.
+		 * 
+		 * @param length
+		 *          the original length of the packet before truncation
+		 */
+		public native void setWirelen(int length);
 
 		/**
 		 * Dump packet_state_t structure and its sub structures to textual debug
@@ -522,17 +546,17 @@ public abstract class JPacket
 	 * @param nid
 	 * @param sequence
 	 */
-	public <T extends JAnalysis> void addAnalysis(int id, T analysis) {
-		addAnalysis(id, 0, analysis);
+	public <T extends JAnalysis> void addAnalysis(int id, int instance, T analysis) {
+		int index = state.findHeaderIndex(id, instance);
+		this.state.setAnalysis(index, analysis);
 	}
 
 	/**
 	 * @param nid
 	 * @param sequence
 	 */
-	public <T extends JAnalysis> void addAnalysis(int id, int instance, T analysis) {
-		int index = state.findHeaderIndex(id, instance);
-		this.state.setAnalysis(index, analysis);
+	public <T extends JAnalysis> void addAnalysis(int id, T analysis) {
+		addAnalysis(id, 0, analysis);
 	}
 
 	/**
@@ -661,6 +685,7 @@ public abstract class JPacket
 
 		header.peer(this, hstate.getOffset(), hstate.getLength());
 		header.setPacket(this); // Set the header's parent
+		header.setIndex(index); // Set the header's index into packet structure
 		header.decode(); // Call its decode routine if defined
 
 		return header;

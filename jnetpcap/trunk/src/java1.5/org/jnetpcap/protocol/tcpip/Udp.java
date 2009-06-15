@@ -13,10 +13,12 @@
 package org.jnetpcap.protocol.tcpip;
 
 import org.jnetpcap.packet.JHeader;
+import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FlowKey;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.protocol.JProtocol;
+import org.jnetpcap.util.checksum.Checksum;
 
 /**
  * Udp/Ip header definition
@@ -46,10 +48,32 @@ public class Udp
 	public int length() {
 		return getUShort(4);
 	}
+	
+	@Dynamic(Field.Property.DESCRIPTION)
+	public String checksumDescription() {
+		
+		final int crc16 = calculateChecksum();
+		if (checksum() == crc16) {
+			return "correct";
+		} else {
+			return "incorrect: 0x" + Integer.toHexString(crc16).toUpperCase();
+		}
+	}
 
-	@Field(offset = 6 * 8, length = 16)
+	@Field(offset = 6 * 8, length = 16, format = "%x")
 	public int checksum() {
 		return getUShort(6);
+	}
+
+	public int calculateChecksum() {
+
+		if (getIndex() == -1) {
+			throw new IllegalStateException("Oops index not set");
+		}
+
+		final int ipOffset = getPreviousHeaderOffset();
+
+		return Checksum.pseudoUdp(packet, ipOffset, this.getOffset());
 	}
 
 }

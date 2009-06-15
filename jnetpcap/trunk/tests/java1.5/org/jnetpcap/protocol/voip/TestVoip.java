@@ -111,6 +111,7 @@ public class TestVoip
 	public void testRtpAudioExtract() throws IOException {
 		Rtp rtp = new Rtp();
 				
+		try {
 		for (PcapPacket packet: super.getIterable(SIP_G711)) {
 			if (packet.hasHeader(rtp)) {
 				
@@ -122,6 +123,9 @@ public class TestVoip
 				
 				out.write(rtp.getPayload());
 			}
+		}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		
 		for (FileOutputStream o: map.values()) {
