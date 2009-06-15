@@ -230,6 +230,9 @@ typedef struct ip4 {
 
 #define IP4_FLAGS_MASK 0xE000
 #define IP4_FRAG_OFF_MASK ~IP4_FLAGS_MASK
+#define IP4_FLAG_MF 0x2000
+#define IP4_FLAG_DF 0x4000
+#define IP4_FLAG_RESERVED 0x8000
 
 
 /****************************************************************

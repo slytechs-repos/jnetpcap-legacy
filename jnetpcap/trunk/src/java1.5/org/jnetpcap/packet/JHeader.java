@@ -121,6 +121,14 @@ public abstract class JHeader
 		public final static int FLAG_PREFIX_TRUNCATED = 0x0001;
 
 		/**
+		 * Flag set in the header_t structure, which indicates that the current
+		 * header and/or payload are fragmented. The header fragmentation could have
+		 * been determined by the scanner of this protocol or the flag could have
+		 * been inherited from encapsulating header.
+		 */
+		public final static int FLAG_HEADER_FRAGMENTED = 0x0100;
+
+		/**
 		 * Name of the native structure backing this peer class
 		 */
 		public final static String STRUCT_NAME = "header_t";
@@ -1212,29 +1220,41 @@ public abstract class JHeader
 	protected void validateHeader() {
 
 	}
-	
+
 	public boolean hasNextHeader() {
 		return this.index + 1 < packet.getState().getHeaderCount();
 	}
-	
+
 	public int getNextHeaderId() {
 		return packet.getState().getHeaderIdByIndex(index + 1);
 	}
-	
+
 	public int getNextHeaderOffset() {
 		return packet.getState().getHeaderOffsetByIndex(index + 1);
 	}
-	
+
 	public boolean hasPreviousHeader() {
 		return this.index > 0;
 	}
-	
+
 	public int getPreviousHeaderId() {
 		return packet.getState().getHeaderIdByIndex(index - 1);
 	}
-	
+
 	public int getPreviousHeaderOffset() {
 		return packet.getState().getHeaderOffsetByIndex(index - 1);
+	}
+
+	/**
+	 * Checks if this entire header "record" which includes prefix, header, gap,
+	 * payload and post is fragmented. The fragmentation may have happened in
+	 * encapsulating protocol such as Ip. This property may be inherited from
+	 * encapsulating headers.
+	 * 
+	 * @return true if this header is believed to be a fragment, otherwise false
+	 */
+	public boolean isFragmented() {
+		return ((getState().getFlags() & JHeader.State.FLAG_HEADER_FRAGMENTED) > 0);
 	}
 
 }

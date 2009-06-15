@@ -36,6 +36,12 @@
 #define HEADER_FLAG_HEURISTIC_BINDING org_jnetpcap_packet_JHeader_State_FLAG_HEURISTIC_BINDING
 #define HEADER_FLAG_CRC_PERFORMED org_jnetpcap_packet_JHeader_State_FLAG_CRC_PERFORMED
 #define HEADER_FLAG_CRC_INVALID org_jnetpcap_packet_JHeader_State_FLAG_CRC_INVALID
+#define HEADER_FLAG_FRAGMENTED org_jnetpcap_packet_JHeader_State_FLAG_HEADER_FRAGMENTED
+
+/* Cumulative flags. Flags which are passed to subsequent encapsulated headers */
+#define CUMULATIVE_FLAG_HEADER_FRAGMENTED org_jnetpcap_packet_JHeader_State_FLAG_HEADER_FRAGMENTED
+
+#define CUMULATIVE_FLAG_MASK CUMULATIVE_FLAG_HEADER_FRAGMENTED
 
 
 /******************************
@@ -105,6 +111,7 @@ typedef struct scan_t {
 	int length;
 	int id;
 	int next_id;
+	int flags;
 	
 	int hdr_prefix;
 	int hdr_gap;

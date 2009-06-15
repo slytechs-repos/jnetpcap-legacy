@@ -90,6 +90,7 @@ int scan(JNIEnv *env, jobject obj,
 	scan.length = 0;
 	scan.id = first_id;
 	scan.next_id = PAYLOAD_ID;
+	scan.flags = 0;
 	
 	scan.hdr_flags = 0;
 	scan.hdr_prefix = 0;
@@ -264,7 +265,14 @@ void record_header(scan_t *scan) {
 	header->hdr_analysis = NULL;
 
 	
-	header->hdr_flags = scan->hdr_flags;
+	/*
+	 * This is a combination of regular header flags with cumulative flags
+	 * which are accumulated by subsequent pass to the next header and pass on
+	 * to their encapsulated headers. This is a way to pass flags such as 
+	 * the remaining header's are fragmented.
+	 */
+	header->hdr_flags = scan->hdr_flags | (scan->flags & CUMULATIVE_FLAG_MASK);
+	
 	header->hdr_prefix = scan->hdr_prefix;
 	header->hdr_gap = scan->hdr_gap;
 	header->hdr_payload = scan->hdr_payload;
