@@ -52,6 +52,14 @@ public class Udp
 	@Dynamic(Field.Property.DESCRIPTION)
 	public String checksumDescription() {
 		
+		if (isFragmented()) {
+			return "supressed for fragments";
+		}
+		
+		if (isPayloadTruncated()) {
+			return "supressed for truncated packets";
+		}
+		
 		final int crc16 = calculateChecksum();
 		if (checksum() == crc16) {
 			return "correct";

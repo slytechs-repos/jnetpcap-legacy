@@ -26,6 +26,7 @@ import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.util.checksum.Checksum;
+import org.omg.CosNaming.IstringHelper;
 
 /**
  * Tcp/Ip header definition
@@ -137,6 +138,14 @@ public class Tcp
 
 	@Dynamic(Field.Property.DESCRIPTION)
 	public String checksumDescription() {
+		
+		if (isFragmented()) {
+			return "supressed for fragments";
+		}
+		
+		if (isPayloadTruncated()) {
+			return "supressed for truncated packets";
+		}
 		
 		final int crc16 = calculateChecksum();
 		if (checksum() == crc16) {
