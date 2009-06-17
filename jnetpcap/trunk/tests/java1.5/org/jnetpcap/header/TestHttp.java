@@ -86,7 +86,8 @@ public class TestHttp
 
 		out.format(packet);
 
-		Html html = packet.getHeader(new Html());
+		Html html = new Html();
+		assertTrue("html header not found", packet.hasHeader(html));
 		System.out.printf("link related tags=%s\n", Arrays.asList(html.links())
 		    .toString());
 
