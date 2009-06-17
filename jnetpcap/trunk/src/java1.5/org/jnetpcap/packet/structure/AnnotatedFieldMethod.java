@@ -336,7 +336,7 @@ public abstract class AnnotatedFieldMethod
 			} catch (IllegalAccessException e) {
 				throw new IllegalStateException(e);
 			} catch (InvocationTargetException e) {
-				throw new AnnotatedMethodException(declaringClass, e);
+				throw new AnnotatedMethodException(declaringClass, e.getMessage(), e);
 			}
 		}
 

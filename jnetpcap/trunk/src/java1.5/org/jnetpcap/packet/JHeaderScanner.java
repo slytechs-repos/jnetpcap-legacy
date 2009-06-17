@@ -340,7 +340,7 @@ public class JHeaderScanner
 			scan.scan_next_id(next);
 
 			/*
-			 * Natative main scan loop implements heuristics. Both post and pre
+			 * Native main scan loop implements heuristics. Both post and pre
 			 * heuristic checks are supported. Post heuristic checks are done only
 			 * after the direct binding checks fail. The above is a "direct binding
 			 * check", inkoked through normally registered bindings. For pre, we still

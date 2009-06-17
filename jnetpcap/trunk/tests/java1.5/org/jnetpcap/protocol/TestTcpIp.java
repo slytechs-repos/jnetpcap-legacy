@@ -79,7 +79,13 @@ public class TestTcpIp
 			    .ip2Chunk(ip, 0, 10, 12, ip.size() - 12));
 
 			if (ip.checksum() != crc) {
-				System.out.println(packet);
+				try {
+					System.out.println(packet.getState().toDebugString());
+					System.out.println(packet);
+				} catch (Exception e) {
+					System.out.println(packet.getState().toDebugString());
+					e.printStackTrace();
+				}
 				System.out
 				    .printf("#%d: ip.crc=%x computed=%x\n", f, ip.checksum(), crc);
 				System.out.println(ip.toHexdump());
@@ -288,36 +294,36 @@ public class TestTcpIp
 	public void testIp4FragmentFlagDirectly() {
 		JPacket packet = TestUtils.getPcapPacket(TestUtils.REASEMBLY, 1 - 1);
 		Ethernet eth = new Ethernet();
-		
+
 		if (packet.hasHeader(eth)) {
-//			System.out.println(eth);
-//			System.out.printf("flags=%x\n", eth.getState().getFlags());
+			// System.out.println(eth);
+			// System.out.printf("flags=%x\n", eth.getState().getFlags());
 			assertNotSame(JHeader.State.FLAG_HEADER_FRAGMENTED, (eth.getState()
 			    .getFlags() & JHeader.State.FLAG_HEADER_FRAGMENTED));
 		}
 
 		Ip4 ip = new Ip4();
 		if (packet.hasHeader(ip)) {
-//			System.out.println(ip);
-//			System.out.printf("flags=%x\n", ip.getState().getFlags());
+			// System.out.println(ip);
+			// System.out.printf("flags=%x\n", ip.getState().getFlags());
 			assertEquals(JHeader.State.FLAG_HEADER_FRAGMENTED, (ip.getState()
 			    .getFlags() & JHeader.State.FLAG_HEADER_FRAGMENTED));
 		}
-		
+
 		Icmp icmp = new Icmp();
 		if (packet.hasHeader(icmp)) {
-//			System.out.println(icmp);
-//			System.out.printf("flags=%x\n", icmp.getState().getFlags());
+			// System.out.println(icmp);
+			// System.out.printf("flags=%x\n", icmp.getState().getFlags());
 			assertEquals(JHeader.State.FLAG_HEADER_FRAGMENTED, (icmp.getState()
 			    .getFlags() & JHeader.State.FLAG_HEADER_FRAGMENTED));
 		}
 
 	}
-	
+
 	public void testJHeaderIsFragmented() {
 		JPacket packet = TestUtils.getPcapPacket(TestUtils.REASEMBLY, 1 - 1);
 		Ethernet eth = new Ethernet();
-		
+
 		if (packet.hasHeader(eth)) {
 			assertFalse(eth.isFragmented());
 		}
@@ -326,7 +332,7 @@ public class TestTcpIp
 		if (packet.hasHeader(ip)) {
 			assertTrue(ip.isFragmented());
 		}
-		
+
 		Icmp icmp = new Icmp();
 		if (packet.hasHeader(icmp)) {
 			assertTrue(ip.isFragmented());
