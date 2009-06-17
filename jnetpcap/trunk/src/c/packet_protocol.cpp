@@ -41,7 +41,8 @@
  * New protocols are added in the init_native_protocol() in this file.
  */
 native_protocol_func_t native_protocols[MAX_ID_COUNT];
-native_protocol_func_t native_heuristics[MAX_ID_COUNT][MAX_ID_COUNT];
+native_validate_func_t native_hueristics[MAX_ID_COUNT][MAX_ID_COUNT];
+native_validate_func_t validate_table[MAX_ID_COUNT];
 
 char *native_protocol_names[MAX_ID_COUNT];
 
@@ -74,7 +75,7 @@ void scan_html(scan_t *scan) {
  * Scan Hyper Text Transmission Protocol header
  */
 void scan_http(scan_t *scan) {
-	char *http = (char *)(scan->buf + scan->offset);
+	register char *http = (char *)(scan->buf + scan->offset);
 	packet_state_t *packet = scan->packet;
 	
 	/*
@@ -83,90 +84,41 @@ void scan_http(scan_t *scan) {
 	char *buf = scan->buf;
 	header_t tcph = packet->pkt_headers[packet->pkt_header_count -1];
 	
-	int size = tcph.hdr_payload;
-	
-	/* First sanity check if we have printable chars */
-	if (size < 5 || 
-		(isprint(http[0]) && isprint(http[1]) && isprint(http[2])) == FALSE) {
+	register int size = tcph.hdr_payload;
 		
-		scan->id = PAYLOAD_ID;
-		scan->length = 0;
+	scan->length = size;
 		
 #ifdef DEBUG
-		char b[32];
-		b[0] = '\0';
-		b[31] = '\0';
-		strncpy(b, http, (size <= 31)? size : 31);
+	char b[32];
+	b[0] = '\0';
+	b[31] = '\0';
+	strncpy(b, http, (size <= 31)? size : 31);
 		
-		printf("scan_http(): UNMATCHED size=%d http=%s\n", size, b);
-#endif 
-		return;
-	}
-	
-	if (	/* HTTP Response */
-			strncmp(http, "HTTP", 4) == 0 ||
-			
-			/* HTTP Requests */
-			strncmp(http, "GET", 3) == 0 || 
-			strncmp(http, "OPTIONS", 7) == 0 || 
-			strncmp(http, "HEAD", 4) == 0 || 
-			strncmp(http, "POST", 4) == 0 || 
-			strncmp(http, "PUT", 3) == 0 || 
-			strncmp(http, "DELETE", 6) == 0 || 
-			strncmp(http, "TRACE", 5) == 0 || 
-			strncmp(http, "CONNECT", 7 == 0) ) {
-		
-		scan->length = size;
-		
-#ifdef DEBUG
-		char b[32];
-		b[0] = '\0';
-		b[31] = '\0';
-		strncpy(b, http, (size <= 31)? size : 31);
-		
-		if (size < 10)
-		printf("scan_http(): #%d INVALID size=%d http=%s\n", 
-				(int) scan->packet->pkt_frame_num, size, b);
+	if (size < 10)
+	printf("scan_http(): #%d INVALID size=%d http=%s\n", 
+			(int) scan->packet->pkt_frame_num, size, b);
 #endif 
 
 		
-		for (int i = 0; i < size; i ++){
-			if (http[i] == '\r' && http[i + 1] == '\n' 
-				&& http[i + 2] == '\r' && http[i + 3] == '\n') {
+	for (int i = 0; i < size; i ++){
+		if (http[i] == '\r' && http[i + 1] == '\n' 
+			&& http[i + 2] == '\r' && http[i + 3] == '\n') {
 				
-				scan->length = i + 4;
-				break;
-			}
+			scan->length = i + 4;
+			break;
 		}
-		
-		return;
-		
-	} else {
-#ifdef DEBUG
-		char b[32];
-		b[0] = '\0';
-		b[31] = '\0';
-		strncpy(b, http, (size <= 31)? size : 31);
-		
-		printf("scan_http(): UNMATCHED size=%d http=%s\n", size, b);
-#endif 
-		
-		scan->id = PAYLOAD_ID;
-		scan->length = 0;
-		return;
-		
 	}
-
+		
+	return;
 }
 
 /**
  * http heuristic scan that looks for HTTP protocol current offset
- * This method only has to set scan.next_id as its return value. 
  * 
- * DO NOT CHANGE THE SCAN.LENGTH as we are scanning the next protocol, 
- * not the current one.
+ * DO NOT CHANGE any scan properties. This is a completely passive method, only
+ * the return value determines if validation passed or not.
  */
-void heuristic_http(scan_t *scan) {
+int validate_http(scan_t *scan) {
 	char *http = (char *)(scan->buf + scan->offset);
 	packet_state_t *packet = scan->packet;
 	
@@ -182,8 +134,6 @@ void heuristic_http(scan_t *scan) {
 	if (size < 5 || 
 		(isprint(http[0]) && isprint(http[1]) && isprint(http[2])) == FALSE) {
 		
-		scan->next_id = PAYLOAD_ID;
-		
 #ifdef DEBUG
 		char b[32];
 		b[0] = '\0';
@@ -192,7 +142,7 @@ void heuristic_http(scan_t *scan) {
 		
 		printf("scan_http(): UNMATCHED size=%d http=%s\n", size, b);
 #endif 
-		return;
+		return INVALID;
 	}
 	
 	if (	/* HTTP Response */
@@ -219,21 +169,9 @@ void heuristic_http(scan_t *scan) {
 				(int) scan->packet->pkt_frame_num, size, b);
 #endif 
 
-		scan->next_id = HTTP_ID;		
-	} else {
-#ifdef DEBUG
-		char b[32];
-		b[0] = '\0';
-		b[31] = '\0';
-		strncpy(b, http, (size <= 31)? size : 31);
-		
-		printf("scan_http(): UNMATCHED size=%d http=%s\n", size, b);
-#endif 
-		
-		scan->next_id = PAYLOAD_ID;
-	}
+	} 
 	
-	return;
+	return HTTP_ID;
 }
 
 /*
@@ -247,7 +185,7 @@ void scan_icmp(scan_t *scan) {
 	case 3: // UNREACHABLE
 	case 12: // PARAM PROBLEM
 		scan->length = sizeof(icmp_t) + 4;
-		scan->next_id = IP4_ID;
+		scan->next_id = validate_next(IP4_ID, scan);
 		break;
 		
 	case 0:  // Echo Reply
@@ -275,7 +213,8 @@ void scan_ppp(scan_t *scan) {
 	scan->length = sizeof(ppp_t);
 	
 	switch (BIG_ENDIAN16(ppp->protocol)) {
-	case 0x0021: scan->next_id = IP4_ID; break;
+	case 0x0021: scan->next_id = validate_next(IP4_ID, scan); break;
+	case 0x0057: scan->next_id = validate_next(IP6_ID, scan); break;
 	}
 }
 
@@ -303,7 +242,7 @@ void scan_l2tp(scan_t *scan) {
 #endif
 	
 	if (l2tp->t == 0) {
-		scan->next_id = PPP_ID;
+		scan->next_id = validate_next(PPP_ID, scan);
 	}
 }
 
@@ -314,10 +253,10 @@ void scan_vlan(scan_t *scan) {
 	vlan_t *vlan = (vlan_t *)(scan->buf + scan->offset);
 	scan->length = sizeof(vlan_t);
 	
-	scan->next_id = lookup_ethertype(vlan->type);
+	scan->next_id = validate_next(lookup_ethertype(vlan->type), scan);
 	
 	if (scan->next_id == PAYLOAD_ID) {
-		scan->next_id = IEEE_802DOT2_ID;
+		scan->next_id = validate_next(IEEE_802DOT2_ID, scan);
 	}
 }
 
@@ -333,7 +272,7 @@ void scan_llc(scan_t *scan) {
 	}
 
 	switch (llc->dsap) {
-	case 0xaa: scan->next_id = IEEE_SNAP_ID; break;
+	case 0xaa: scan->next_id = validate_next(IEEE_SNAP_ID, scan); break;
 	}
 }
 
@@ -366,7 +305,8 @@ void scan_snap(scan_t *scan) {
 	
 	switch (BIG_ENDIAN32(snap->oui)) {
 	case 0x0000f8: // OUI_CISCO_90
-	case 0: scan->next_id = lookup_ethertype(*(uint16_t *)(b + 3)); break;
+	case 0: scan->next_id = 
+		validate_next(lookup_ethertype(*(uint16_t *)(b + 3)), scan); break;
 	}
 }
 
@@ -414,7 +354,7 @@ void scan_tcp(scan_t *scan) {
 	case 80:
 	case 8080:
 	case 8081:
-		scan->next_id = HTTP_ID;
+		scan->next_id = validate_next(HTTP_ID, scan);
 		return;
 	}
 	
@@ -422,7 +362,7 @@ void scan_tcp(scan_t *scan) {
 	case 80:
 	case 8080:
 	case 8081:
-		scan->next_id = HTTP_ID;
+		scan->next_id = validate_next(HTTP_ID, scan);
 		return;
 	}
 }
@@ -456,20 +396,10 @@ void scan_udp(scan_t *scan) {
 	}
 	
 	switch (BIG_ENDIAN16(udp->dport)) {
-	case 1701: scan->next_id = L2TP_ID;	break;
+	case 1701: scan->next_id = validate_next(L2TP_ID, scan);	break;
 	}
 }
 
-
-/*
- * Payload is what's left over in the packet when no more header can be 
- * identified.
- */
-void scan_payload(scan_t *scan) {
-	scan->id = PAYLOAD_ID;
-	scan->next_id = END_OF_HEADERS;
-	scan->length = scan->buf_len - scan->offset;
-}
 
 /*
  * Scan IP version 6
@@ -530,11 +460,11 @@ void scan_ip6(scan_t *scan) {
 		
 again:
 	switch (type) {
-	case 1: scan->next_id = ICMP_ID; break;
-	case 4: scan->next_id = IP4_ID;  break;
-	case 6: scan->next_id = TCP_ID;  break;
-	case 17:scan->next_id = UDP_ID;  break;
-	case 58:scan->next_id = PAYLOAD_ID; break; // ICMPv6 not implemented yet
+	case 1: scan->next_id = validate_next(ICMP_ID, scan); break;
+	case 4: scan->next_id = validate_next(IP4_ID, scan);  break;
+	case 6: scan->next_id = validate_next(TCP_ID, scan);  break;
+	case 17:scan->next_id = validate_next(UDP_ID, scan);  break;
+	case 58:scan->next_id = validate_next(PAYLOAD_ID, scan); break; // ICMPv6 not implemented yet
 	
 	/* Ip6 Options - see RFC2460 */
 	
@@ -647,11 +577,11 @@ void scan_ip4(register scan_t *scan) {
 	}
 
 	switch (ip4->protocol) {
-		case 1: scan->next_id = ICMP_ID; break;
-		case 4: scan->next_id = IP4_ID;  break;
-		case 6: scan->next_id = TCP_ID;  break;
-		case 17:scan->next_id = UDP_ID;  break;
-		case 115: scan->next_id = L2TP_ID; break;
+		case 1: scan->next_id = validate_next(ICMP_ID, scan); break;
+		case 4: scan->next_id = validate_next(IP4_ID, scan);  break;
+		case 6: scan->next_id = validate_next(TCP_ID, scan);  break;
+		case 17:scan->next_id = validate_next(UDP_ID, scan);  break;
+		case 115: scan->next_id = validate_next(L2TP_ID, scan); break;
 
 		//			case 1: // ICMP
 		//			case 2: // IGMP
@@ -686,12 +616,12 @@ void scan_802dot3(scan_t *scan) {
 
 	if (BIG_ENDIAN16(eth->type) >= 0x600) { // We have an Ethernet frame
 		scan->id      = ETHERNET_ID;
-		scan->next_id = lookup_ethertype(eth->type);
+		scan->next_id = validate_next(lookup_ethertype(eth->type), scan);
 		
 		return;
 		
 	} else {
-		scan->next_id = IEEE_802DOT2_ID; // LLC v2
+		scan->next_id = validate_next(IEEE_802DOT2_ID, scan); // LLC v2
 	}
 	
 	/*
@@ -766,12 +696,59 @@ void scan_ethernet(scan_t *scan) {
 
 	if (BIG_ENDIAN16(eth->type) < 0x600) { // We have an IEEE 802.3 frame
 		scan->id      = IEEE_802DOT3_ID;
-		scan->next_id = IEEE_802DOT2_ID; // LLC v2
+		scan->next_id = validate_next(IEEE_802DOT2_ID, scan); // LLC v2
 		
 	} else {
-		scan->next_id = lookup_ethertype(eth->type);
+		scan->next_id = validate_next(lookup_ethertype(eth->type), scan);
 	}
 }
+
+/*
+ * Payload is what's left over in the packet when no more header can be 
+ * identified.
+ */
+void scan_payload(scan_t *scan) {
+	scan->id = PAYLOAD_ID;
+	scan->next_id = END_OF_HEADERS;
+	scan->length = scan->buf_len - scan->offset;
+}
+
+/**
+ * Validates the protocol with ID by advancing offset to next header. 
+ * If a validation function is not found, INVALID is returned. Offset is 
+ * restored to original value before this method retuns.
+ */
+int validate_next(register int id, register scan_t *scan) {
+	
+	register native_validate_func_t validate_func = validate_table[id];
+	if (validate_func == NULL) {
+		return id; 
+	}
+
+	int saved_offset = scan->offset;
+	scan->offset += scan->length + scan->hdr_gap;
+	
+	int result = validate_func(scan);
+	
+	scan->offset = saved_offset;
+	
+	return result;
+}
+
+/**
+ * Validates the protocol with ID. If a validation function is not found,
+ * INVALID is returned.
+ */
+int validate(register int id, register scan_t *scan) {
+	
+	register native_validate_func_t validate_func = validate_table[id];
+	if (validate_func == NULL) {
+		return id; 
+	}
+		
+	return validate_func(scan);
+}
+
 
 int lookup_ethertype(uint16_t type) {
 //	printf("type=0x%x\n", BIG_ENDIAN16(type));
@@ -801,8 +778,8 @@ void init_native_protocols() {
 	 * Initialize the inmemory table
 	 */
 	memset(native_protocols, 0, MAX_ID_COUNT * sizeof(native_protocol_func_t));
-	memset(native_heuristics, 0, 
-			MAX_ID_COUNT * MAX_ID_COUNT * sizeof(native_protocol_func_t));
+	memset(native_hueristics, 0, 
+			MAX_ID_COUNT * MAX_ID_COUNT * sizeof(native_validate_func_t));
 	
 	// Builtin families
 	native_protocols[PAYLOAD_ID]  = &scan_payload;
@@ -826,11 +803,18 @@ void init_native_protocols() {
 	native_protocols[HTML_ID]     			= &scan_html;
 	native_protocols[ARP_ID]      			= &scan_arp;
 	
+	/*
+	 * Validation function table. This isn't the list of bindings, but 1 per
+	 * protocol. Used by validate(scan) function.
+	 */ 
+	validate_table[HTTP_ID] = &validate_http;
+	
 	
 	/*
-	 * Heuristic bindings (guesses) to protocols
+	 * Heuristic bindings (guesses) to protocols. Used by main scan loop to
+	 * check heuristic bindings.
 	 */
-	native_heuristics[TCP_ID][0] = &heuristic_http;
+	native_hueristics[TCP_ID][0] = &validate_http;
 	
 	/*
 	 * Now store the names of each header, used for debuggin purposes

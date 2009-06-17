@@ -45,6 +45,8 @@
 
 #define CUMULATIVE_FLAG_MASK CUMULATIVE_FLAG_HEADER_FRAGMENTED
 
+#define INVALID PAYLOAD_ID
+
 
 /******************************
  ******************************
@@ -71,9 +73,10 @@ struct scan_t;
  */
 void init_native_protocols();
 typedef void (*native_protocol_func_t)(scan_t *scan);
+typedef int (*native_validate_func_t)(scan_t *scan);
 
 extern native_protocol_func_t native_protocols[];
-extern native_protocol_func_t native_heuristics[MAX_ID_COUNT][MAX_ID_COUNT];
+extern native_validate_func_t native_hueristics[MAX_ID_COUNT][MAX_ID_COUNT];
 extern char *native_protocol_names[];
 void callJavaHeaderScanner(scan_t *scan);
 void record_header(scan_t *scan);
@@ -202,7 +205,7 @@ typedef struct scanner_t {
 	 * java scanners at the same time.
 	 */
 	native_protocol_func_t sc_scan_table[MAX_ID_COUNT];
-	native_protocol_func_t sc_heuristic_table[MAX_ID_COUNT][MAX_ID_COUNT]; // Huristic
+	native_validate_func_t sc_heuristics_table[MAX_ID_COUNT][MAX_ID_COUNT]; // Huristic
 	
 	packet_state_t *sc_packet; // ptr into scanner_t where the first packet begins
 } scanner_t;
@@ -226,6 +229,9 @@ uint64_t toUlong64(JNIEnv *env, jintArray ja);
 jint findHeaderById(packet_state_t *packet, jint id, jint instance);
 
 char *id2str(int id);
+
+int validate(int id, scan_t *);
+int validate_next(int id, scan_t *);
 
 #endif
 #endif

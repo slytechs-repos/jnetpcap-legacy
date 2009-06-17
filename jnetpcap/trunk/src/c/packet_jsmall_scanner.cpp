@@ -236,20 +236,24 @@ int scan(JNIEnv *env, jobject obj,
 					(int)p_packet->pkt_frame_num,
 					id2str(scan.id), 
 					scanner->sc_flags[scan.id],
-					scanner->sc_heuristic_table[scan.id][0]); 
+					scanner->sc_heuristics_table[scan.id][0]); 
 			fflush(stdout);
 #endif
 			
 					int saved_next_id = scan.next_id;
 					scan.next_id = PAYLOAD_ID;
 					
+					
 					for (int i = 0; i < MAX_ID_COUNT; i ++) {
-						if (scanner->sc_heuristic_table[scan.id][i] == NULL) {
-							break;
+						native_validate_func_t validate_func;
+						validate_func = scanner->sc_heuristics_table[scan.id][i];
+						
+						if (validate_func == NULL) {
+							break; 
 						}
 						
-						scanner->sc_heuristic_table[scan.id][i](&scan);
-						if (scan.next_id != PAYLOAD_ID) {
+
+						if ((scan.next_id = validate_func(&scan)) != INVALID) {
 							break;
 						}
 					}
@@ -264,22 +268,27 @@ int scan(JNIEnv *env, jobject obj,
 							(int)p_packet->pkt_frame_num,
 							id2str(scan.id), 
 							scanner->sc_flags[scan.id],
-							scanner->sc_heuristic_table[scan.id][0]); 
+							scanner->sc_heuristics_table[scan.id][0]); 
 					fflush(stdout);
 #endif
 					for (int i = 0; i < MAX_ID_COUNT; i ++) {
-						if (scanner->sc_heuristic_table[scan.id][i] == NULL) {
-							break;
+						native_validate_func_t validate_func;
+						validate_func = scanner->sc_heuristics_table[scan.id][i];
+						
+						if (validate_func == NULL) {
+							break; 
 						}
 						
-						scanner->sc_heuristic_table[scan.id][i](&scan);
-						if (scan.next_id != PAYLOAD_ID) {
+
+						if ((scan.next_id = validate_func(&scan)) != INVALID) {
+							
 #ifdef DEBUG
 					printf("#%d scan() - heuristic_post found=%s\n",
 							(int)p_packet->pkt_frame_num,
 							id2str(scan.next_id)); 
 					fflush(stdout);
 #endif
+
 							break;
 						}
 					}
@@ -672,7 +681,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_init
 	
 	for (int i = 0; i < MAX_ID_COUNT; i++) {
 		for (int j = 0; j < MAX_ID_COUNT; j++) {
-			scanner->sc_heuristic_table[i][j] = native_heuristics[i][j];
+			scanner->sc_heuristics_table[i][j] = native_hueristics[i][j];
 		}
 	}
 
