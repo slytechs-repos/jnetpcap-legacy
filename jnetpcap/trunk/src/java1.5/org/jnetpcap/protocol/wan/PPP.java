@@ -30,24 +30,24 @@ public class PPP
 
 	public static final int ID = JProtocol.PPP_ID;
 	
-	@Field(offset = 0, length = 8) 
-	public int flags() {
+//	@Field(offset = 0, length = 8) 
+//	public int flags() {
+//		return getUByte(0);
+//	}
+
+	@Field(offset = 0, length = 8)
+	public int address() {
 		return getUByte(0);
 	}
 
 	@Field(offset = 8, length = 8)
-	public int address() {
+	public int control() {
 		return getUByte(1);
 	}
 
-	@Field(offset = 16, length = 8)
-	public int control() {
-		return getUByte(2);
-	}
-
-	@Field(offset = 24, length = 16)
+	@Field(offset = 16, length = 16, format = "%x")
 	public int protocol() {
-		return getUShort(3);
+		return getUShort(2);
 	}
 
 }
