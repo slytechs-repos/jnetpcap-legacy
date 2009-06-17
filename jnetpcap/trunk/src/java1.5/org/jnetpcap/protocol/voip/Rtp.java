@@ -24,6 +24,8 @@ import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
+import org.jnetpcap.packet.annotate.Validate;
+import org.jnetpcap.protocol.tcpip.Tcp;
 import org.jnetpcap.protocol.tcpip.Udp;
 
 /**
@@ -418,6 +420,64 @@ public class Rtp
 
 		return udp.source() == RTP_UDP_PORT || udp.destination() == RTP_UDP_PORT
 		    || heuristicScan(packet, udp.getPayloadOffset());
+	}
+
+	@Validate(min = STATIC_HEADER_LENGTH, hueristics = {
+	    Udp.class,
+	    Tcp.class })
+	public boolean validate() {
+
+		JBuffer buffer = this;
+
+		int ver = version();
+		int pad = paddingLength();
+		boolean ex = hasExtension();
+		int cc = count();
+		int type = type();
+
+		int seq = sequence();
+		long ts = timestamp();
+		long ssrc = ssrc();
+
+		/*
+		 * 1st check - scan static fields for valid values Currently defined payload
+		 * types go upto about 34 (http://www.iana.org/assignments/rtp-parameters)
+		 */
+		if (ver != 2 || cc > 15 || type > 25 || seq == 0 || type > 50 || ts == 0
+		    || ssrc == 0) {
+			return false;
+		}
+
+		/**
+		 * Make sure CC table doesn't contain any ZEROed out CSRC entries
+		 */
+		for (int i = 0; i < cc; i++) {
+			if (buffer.getInt(STATIC_HEADER_LENGTH + (i * 4)) == 0) {
+				return false;
+			}
+		}
+
+		/*
+		 * Check if padding is defined, if padding value actually makes sense. All
+		 * padded values need to be set to zero, according to the spec
+		 */
+		if (pad > 0) {
+			final int length = buffer.getUByte(buffer.size() - 1);
+			if (length == 0 || buffer.size() < length) {
+				return false;
+			}
+
+			final int start = buffer.size() - length;
+			final int end = start + length - 1;
+
+			for (int i = start; i < end; i++) {
+				if (buffer.getByte(i) != 0) {
+					return false;
+				}
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -844,7 +904,7 @@ public class Rtp
 	 * 
 	 * @return buffer containing payload that is right after this Rtp header
 	 */
-//	public byte[] payload() {
-//		return packet.getByteArray(getPayloadOffset(), getPayloadLength());
-//	}
+	// public byte[] payload() {
+	// return packet.getByteArray(getPayloadOffset(), getPayloadLength());
+	// }
 }

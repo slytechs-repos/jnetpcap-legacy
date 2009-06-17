@@ -856,7 +856,7 @@ public class Ip4
 		if (checksum() == crc16) {
 			return "correct";
 		} else {
-			return "incorrect: " + crc16;
+			return "incorrect: 0x" + Integer.toHexString(crc16).toUpperCase();
 		}
 	}
 
