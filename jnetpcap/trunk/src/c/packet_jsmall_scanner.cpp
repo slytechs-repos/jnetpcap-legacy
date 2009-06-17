@@ -71,10 +71,6 @@ int scan(JNIEnv *env, jobject obj,
 		jobject jpacket, scanner_t *scanner, packet_state_t *p_packet, int first_id, 
 		char *buf, int buf_len, uint32_t wirelen) {
 
-#ifdef DEBUG
-	printf("scan() enter\n");
-	fflush(stdout);
-#endif
 	scan_t scan; // Our current in progress scan's state information
 	scan.env = env;
 	scan.jscanner = obj;
@@ -98,10 +94,6 @@ int scan(JNIEnv *env, jobject obj,
 	scan.hdr_payload = 0;
 	scan.hdr_postfix = 0;
 	
-#ifdef DEBUG
-	printf("scan() memset - scan.id=%d\n\n", scan.id);
-	fflush(stdout);
-#endif
 	memset(scan.header, 0, sizeof(header_t)); 
 
 	// Point jscan 
@@ -113,7 +105,7 @@ int scan(JNIEnv *env, jobject obj,
 //#define DEBUG
 
 #ifdef DEBUG
-	printf("scan() - scan.id=%d\n\n", scan.id);
+	printf("scan() - scan.id=%s\n\n", id2str(scan.id));
 	fflush(stdout);
 #endif
 
@@ -123,11 +115,14 @@ int scan(JNIEnv *env, jobject obj,
 	 */
 	while (scan.id != END_OF_HEADERS) {
 #ifdef DEBUG
-		printf("scan() loop-top   : id=%-16s offset=%-4d flags=%d\n",
+		printf("\nscan() loop-top   : id=%-16s offset=%-4d flags=%d\n",
 				id2str(scan.id), scan.offset, scanner->sc_flags[scan.id]);
 		fflush(stdout);
 #endif
 
+		/* A flag that keeps track of header recording. Set in record_header()*/
+		scan.is_recorded = 0;
+		
 		/* 
 		 * Scan of each protocol is done through a dispatch function table.
 		 * Each protocol that has a protocol header scanner attached, a scanner
@@ -178,10 +173,130 @@ int scan(JNIEnv *env, jobject obj,
 
 			/******************************************************
 			 * ****************************************************
+			 * * If override flag is set, then we reset the
+			 * * discovered next protocol. If that is what the user 
+			 * * wants then that is what he gets.
+			 * ****************************************************
+			 ******************************************************/
+			if (scanner->sc_flags[scan.id] & FLAG_OVERRIDE_BINDING) {
+#ifdef DEBUG
+			printf("#%d scan() - TCP OVERRIDE flag[%s]=%x\n",
+					(int)p_packet->pkt_frame_num,
+					id2str(scan.id), 
+					scanner->sc_flags[scan.id]); 
+			fflush(stdout);
+#endif
+				scan.next_id = PAYLOAD_ID;
+			}
+			
+			
+			/******************************************************
+			 * ****************************************************
+			 * * Now do HEURISTIC discovery scans if the appropriate
+			 * * flags are set. Heuristics allow us to provide nxt
+			 * * protocol binding, using discovery (an educated 
+			 * * guess). 
+			 * ****************************************************
+			 ******************************************************/
+			if (scanner->sc_flags[scan.id] & FLAG_HEURISTIC_BINDING) { 
+				
+				/* 
+				 * Save these critical properties, incase heuristic changes them
+				 * for this current header, not the next one its supposed to
+				 * check for.
+				 */
+				int saved_offset = scan.offset;
+				int saved_length = scan.length;
+				
+				/* Advance offset to next header, so that heuristics can get a 
+				 * peek. It will be restored at the end of heuristics block.
+				 */
+				scan.offset += scan.length + scan.hdr_gap;
+				
+				/*
+				 * 2 types of heuristic bindings. Pre and post.
+				 * Pre - heuristics are run before the direct discovery method
+				 *       in scanner. Only after the pre-heuristic fail do we
+				 *       utilize the directly discovered binding.
+				 * 
+				 * Post - heuristics are run after the direct discovery method
+				 *        didn't produce a binding.
+				 *
+				 * ------------------------------------------------------------
+				 * 
+				 * In our case, since we have already ran the direct discovery
+				 * in the header scanner, we save scan.next_id value, reset it,
+				 * call the heuristic function, check its scan.next_id if it
+				 * was set, if it was, then use that instead. Otherwise if it
+				 * wasn't restore the original next_id and continue on normally.
+				 */ 
+				if (scanner->sc_flags[scan.id] & FLAG_HEURISTIC_PRE_BINDING) {
+#ifdef DEBUG
+			printf("#%d scan() - heuristic_pre flag[%s]=%x ht[0]=%p\n",
+					(int)p_packet->pkt_frame_num,
+					id2str(scan.id), 
+					scanner->sc_flags[scan.id],
+					scanner->sc_heuristic_table[scan.id][0]); 
+			fflush(stdout);
+#endif
+			
+					int saved_next_id = scan.next_id;
+					scan.next_id = PAYLOAD_ID;
+					
+					for (int i = 0; i < MAX_ID_COUNT; i ++) {
+						if (scanner->sc_heuristic_table[scan.id][i] == NULL) {
+							break;
+						}
+						
+						scanner->sc_heuristic_table[scan.id][i](&scan);
+						if (scan.next_id != PAYLOAD_ID) {
+							break;
+						}
+					}
+					
+					if (scan.next_id == PAYLOAD_ID) {
+						scan.next_id = saved_next_id;
+					}
+					
+				} else if (scan.next_id == PAYLOAD_ID){
+#ifdef DEBUG
+					printf("#%d scan() - heuristic_post flag[%s]=%x ht[0]=%p\n",
+							(int)p_packet->pkt_frame_num,
+							id2str(scan.id), 
+							scanner->sc_flags[scan.id],
+							scanner->sc_heuristic_table[scan.id][0]); 
+					fflush(stdout);
+#endif
+					for (int i = 0; i < MAX_ID_COUNT; i ++) {
+						if (scanner->sc_heuristic_table[scan.id][i] == NULL) {
+							break;
+						}
+						
+						scanner->sc_heuristic_table[scan.id][i](&scan);
+						if (scan.next_id != PAYLOAD_ID) {
+#ifdef DEBUG
+					printf("#%d scan() - heuristic_post found=%s\n",
+							(int)p_packet->pkt_frame_num,
+							id2str(scan.next_id)); 
+					fflush(stdout);
+#endif
+							break;
+						}
+					}
+				}
+				
+				/* Restore these 2 critical properties */
+				scan.offset = saved_offset;
+				scan.length = saved_length;
+			}
+			
+			/******************************************************
+			 * ****************************************************
 			 * * Now record discovered information in structures
 			 * ****************************************************
 			 ******************************************************/
 			record_header(&scan);
+			
 		} // End if len != 0
 
 #ifdef DEBUG
@@ -191,8 +306,9 @@ int scan(JNIEnv *env, jobject obj,
 #endif
 
 		scan.id = scan.next_id;
-		scan.next_id = PAYLOAD_ID;
+		scan.offset += scan.length + scan.hdr_gap;
 		scan.length = 0;
+		scan.next_id = PAYLOAD_ID;
 	} // End for loop
 
 	/* record number of header entries found */
@@ -217,16 +333,18 @@ int scan(JNIEnv *env, jobject obj,
 void record_header(scan_t *scan) {
 #ifdef DEBUG
 	printf(
-			"scan() loop-record: id=%-16s offset=%-4d nid=%s length=%d\n",
+			"scan() record_header: id=%-16s "
+			"offset=%-4d nid=%s length=%d is_recorded=%d\n",
 			id2str(scan->id), scan->offset, id2str(scan->next_id),
-			scan->length);
+			scan->length,
+			scan->is_recorded);
 	fflush(stdout);
 #endif
 	
 	/*
 	 * Check if already recorded
 	 */
-	if (scan->id == -1) {
+	if (scan->is_recorded) {
 		return;
 	}
 	
@@ -284,11 +402,11 @@ void record_header(scan_t *scan) {
 	scan->hdr_gap = 0;
 	scan->hdr_payload = 0;
 	scan->hdr_postfix = 0;
+	scan->is_recorded = 1;
 	
-	scan->offset += length + scan->hdr_gap;
 	packet->pkt_header_count ++; /* number of entries */
 	
-	scan->id = -1; // Indicates, that header is already recorded
+//	scan->id = -1; // Indicates, that header is already recorded
 	
 	/* Initialize key fields in a new header */
 	header = ++ scan->header; /* point to next header entry *** ptr arithmatic */
@@ -551,6 +669,13 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_init
 	for (int i = 0; i < MAX_ID_COUNT; i++) {
 		scanner->sc_scan_table[i] = native_protocols[i];
 	}
+	
+	for (int i = 0; i < MAX_ID_COUNT; i++) {
+		for (int j = 0; j < MAX_ID_COUNT; j++) {
+			scanner->sc_heuristic_table[i][j] = native_heuristics[i][j];
+		}
+	}
+
 }
 
 /*
@@ -601,6 +726,40 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_loadScanners
 		}
 	}
 }
+
+/*
+ * Class:     org_jnetpcap_packet_JScanner
+ * Method:    loadFlags
+ * Signature: ([I)V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_loadFlags
+  (JNIEnv *env, jobject obj, jintArray jflags) {
+	
+	scanner_t *scanner = (scanner_t *)getJMemoryPhysical(env, obj);
+	if (scanner == NULL) {
+		return;
+	}
+
+	jsize size = env->GetArrayLength(jflags);
+
+#ifdef DEBUG
+	printf("loadFlags(): loaded %d flags\n", (int)size);
+#endif
+
+	if (size != MAX_ID_COUNT) {
+		throwException(env,
+				ILLEGAL_ARGUMENT_EXCEPTION,
+				"size of array must be MAX_ID_COUNT size");
+		return;
+	}
+	
+	env->GetIntArrayRegion(jflags, 0, size, (jint *)scanner->sc_flags);
+#ifdef DEBUG
+	printf("loadFlags(): tcp=%x\n", (int) 
+			scanner->sc_flags[TCP_ID]);
+#endif
+}
+
 
 /*
  * Class:     org_jnetpcap_packet_JScanner

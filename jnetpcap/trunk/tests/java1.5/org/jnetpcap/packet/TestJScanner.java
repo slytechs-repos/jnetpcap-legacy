@@ -15,8 +15,6 @@ package org.jnetpcap.packet;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import junit.framework.TestCase;
-
 import org.jnetpcap.ByteBufferHandler;
 import org.jnetpcap.JBufferHandler;
 import org.jnetpcap.Pcap;
@@ -33,7 +31,8 @@ import org.jnetpcap.protocol.lan.Ethernet;
  * @author Sly Technologies, Inc.
  */
 public class TestJScanner
-    extends TestCase {
+    extends
+    TestUtils {
 
 	/*
 	 * (non-Javadoc)
@@ -41,7 +40,6 @@ public class TestJScanner
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
-		super.setUp();
 	}
 
 	/*
@@ -50,7 +48,7 @@ public class TestJScanner
 	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
-		super.tearDown();
+		JScanner.resetToDefaults();
 	}
 
 	public void _testJScannerInit() {
@@ -121,7 +119,7 @@ public class TestJScanner
 				// try {
 				out.setFrameIndex(i++);
 				// out.format(packet);
-//				System.out.println(packet.toString());
+				// System.out.println(packet.toString());
 				// } catch (IOException e) {
 				// // TODO Auto-generated catch block
 				// e.printStackTrace();
@@ -165,7 +163,7 @@ public class TestJScanner
 				// try {
 				out.setFrameIndex(i++);
 				// out.format(packet);
-//				System.out.println(packet.toString());
+				// System.out.println(packet.toString());
 				// } catch (IOException e) {
 				// // TODO Auto-generated catch block
 				// e.printStackTrace();
@@ -187,24 +185,24 @@ public class TestJScanner
 
 		// long start = System.currentTimeMillis();
 		@SuppressWarnings("unused")
-    final TextFormatter out = new TextFormatter();
+		final TextFormatter out = new TextFormatter();
 		@SuppressWarnings("unused")
 		final JScanner scanner = new JScanner();
 
 		pcap.loop(Pcap.LOOP_INFINATE, JProtocol.ETHERNET_ID,
 		    new JPacketHandler<String>() {
 			    @SuppressWarnings("unused")
-          int i = 0;
+			    int i = 0;
 
 			    public void nextPacket(JPacket packet, String user) {
 
 				    // scanner.scan(packet, JProtocol.ETHERNET_ID);
-//				    try {
-//					    out.setFrameIndex(i++);
-//					    out.format(packet);
-//				    } catch (IOException e) {
-//					    e.printStackTrace();
-//				    }
+				    // try {
+				    // out.setFrameIndex(i++);
+				    // out.format(packet);
+				    // } catch (IOException e) {
+				    // e.printStackTrace();
+				    // }
 			    }
 
 		    }, "");
@@ -235,6 +233,39 @@ public class TestJScanner
 
 		System.out.printf("length=%d %d\n", scanner.getHeaderLength(packet,
 		    Ethernet.LENGTH), packet.getUByte(Ethernet.LENGTH) & 0x0F);
+	}
+	
+	public void testFlagNonOverride() {
+		PcapPacket packet = getPcapPacket(HTTP, 5);
+		
+		assertTrue(packet.hasHeader(JProtocol.ETHERNET_ID));
+		assertTrue(packet.hasHeader(JProtocol.IP4_ID));
+		assertTrue(packet.hasHeader(JProtocol.TCP_ID));
+		assertTrue(packet.hasHeader(JProtocol.HTTP_ID));
+	}
+
+
+	public void testFlagOverride() {
+		JScanner.bindingOverride(JProtocol.TCP_ID, true);
+
+		PcapPacket packet = getPcapPacket(HTTP, 5);
+		
+		assertTrue(packet.hasHeader(JProtocol.ETHERNET_ID));
+		assertTrue(packet.hasHeader(JProtocol.IP4_ID));
+		assertTrue(packet.hasHeader(JProtocol.TCP_ID));
+		assertFalse(packet.hasHeader(JProtocol.HTTP_ID));
+	}
+	
+	public void testFlagPostHeuristics() {
+		JScanner.bindingOverride(JProtocol.TCP_ID, true);
+		JScanner.heuristicPostCheck(JProtocol.TCP_ID, true);
+
+		PcapPacket packet = getPcapPacket(HTTP, 5);
+		
+		assertTrue(packet.hasHeader(JProtocol.ETHERNET_ID));
+		assertTrue(packet.hasHeader(JProtocol.IP4_ID));
+		assertTrue(packet.hasHeader(JProtocol.TCP_ID));
+		assertTrue(packet.hasHeader(JProtocol.HTTP_ID));		
 	}
 
 }

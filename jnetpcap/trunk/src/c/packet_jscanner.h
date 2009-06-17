@@ -23,6 +23,8 @@
 #define MAX_ENTRY_COUNT org_jnetpcap_packet_JScanner_MAX_ENTRY_COUNT
 #define FLAG_OVERRIDE_LENGTH org_jnetpcap_packet_JRegistry_FLAG_OVERRIDE_LENGTH
 #define FLAG_OVERRIDE_BINDING org_jnetpcap_packet_JRegistry_FLAG_OVERRIDE_BINDING
+#define FLAG_HEURISTIC_BINDING org_jnetpcap_packet_JRegistry_FLAG_HEURISTIC_BINDING
+#define FLAG_HEURISTIC_PRE_BINDING org_jnetpcap_packet_JRegistry_FLAG_HEURISTIC_PRE_BINDING
 
 #define PAYLOAD_ID org_jnetpcap_protocol_JProtocol_PAYLOAD_ID
 
@@ -71,6 +73,7 @@ void init_native_protocols();
 typedef void (*native_protocol_func_t)(scan_t *scan);
 
 extern native_protocol_func_t native_protocols[];
+extern native_protocol_func_t native_heuristics[MAX_ID_COUNT][MAX_ID_COUNT];
 extern char *native_protocol_names[];
 void callJavaHeaderScanner(scan_t *scan);
 void record_header(scan_t *scan);
@@ -118,6 +121,7 @@ typedef struct scan_t {
 	int hdr_payload;
 	int hdr_postfix;
 	int hdr_flags;
+	int is_recorded;
 } scan_t;
 
 /*
@@ -198,6 +202,7 @@ typedef struct scanner_t {
 	 * java scanners at the same time.
 	 */
 	native_protocol_func_t sc_scan_table[MAX_ID_COUNT];
+	native_protocol_func_t sc_heuristic_table[MAX_ID_COUNT][MAX_ID_COUNT]; // Huristic
 	
 	packet_state_t *sc_packet; // ptr into scanner_t where the first packet begins
 } scanner_t;

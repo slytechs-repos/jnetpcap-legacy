@@ -105,6 +105,18 @@ public final class JRegistry {
 	 * A flag that allows tells that a java scanner's process bindings method has
 	 * been overriden
 	 */
+	public final static int FLAG_HEURISTIC_BINDING = 0x00000010;
+
+	/**
+	 * A flag that allows tells that a java scanner's process bindings method has
+	 * been overriden
+	 */
+	public final static int FLAG_HEURISTIC_PRE_BINDING = 0x00000020;
+
+	/**
+	 * A flag that allows tells that a java scanner's process bindings method has
+	 * been overriden
+	 */
 	public final static int FLAG_OVERRIDE_BINDING = 0x00000002;
 
 	/**
@@ -415,6 +427,15 @@ public final class JRegistry {
 	 */
 	public static int getFlags(int id) {
 		return headerFlags[id];
+	}
+
+	/**
+	 * Retrives all the flags for all of the protocols
+	 * 
+	 * @return array of flags, one element for each protocol
+	 */
+	public static int[] getAllFlags() {
+		return headerFlags;
 	}
 
 	/**

@@ -103,6 +103,8 @@ public class JScanner
     extends
     JStruct {
 
+	private static int count = 0;
+
 	/**
 	 * Default allocation for memory block/buffer
 	 */
@@ -147,6 +149,14 @@ public class JScanner
 		}
 	}
 
+	public static void bindingOverride(int id, boolean enable) {
+		if (enable) {
+			JRegistry.setFlags(id, JRegistry.FLAG_OVERRIDE_BINDING);
+		} else {
+			JRegistry.clearFlags(id, JRegistry.FLAG_OVERRIDE_BINDING);
+		}
+	}
+
 	/**
 	 * Maintains and allocates a pool of packet scanners.
 	 * 
@@ -158,11 +168,45 @@ public class JScanner
 
 		return s;
 	}
+	
+	public static void heuristicCheck(int id, boolean enable) {
+		if (enable) {
+			JRegistry.setFlags(id, JRegistry.FLAG_HEURISTIC_BINDING);
+		} else {
+			JRegistry.clearFlags(id, JRegistry.FLAG_HEURISTIC_BINDING);
+		}
+	}
+
+	public static void heuristicPostCheck(int id, boolean enable) {
+		if (enable) {
+			JRegistry.setFlags(id, JRegistry.FLAG_HEURISTIC_BINDING);
+			JRegistry.clearFlags(id, JRegistry.FLAG_HEURISTIC_PRE_BINDING);
+		} else {
+			JRegistry.clearFlags(id, JRegistry.FLAG_HEURISTIC_BINDING);
+			JRegistry.clearFlags(id, JRegistry.FLAG_HEURISTIC_PRE_BINDING);
+		}
+	}
+
+	public static void heuristicPreCheck(int id, boolean enable) {
+		if (enable) {
+			JRegistry.setFlags(id, JRegistry.FLAG_HEURISTIC_BINDING);
+			JRegistry.setFlags(id, JRegistry.FLAG_HEURISTIC_PRE_BINDING);
+		} else {
+			JRegistry.clearFlags(id, JRegistry.FLAG_HEURISTIC_BINDING);
+			JRegistry.clearFlags(id, JRegistry.FLAG_HEURISTIC_PRE_BINDING);
+		}
+	}
 
 	/**
 	 * Initialized JNI method and fields IDs
 	 */
 	private native static void initIds();
+
+	public static void resetToDefaults() {
+		for (int id = 0; id < JRegistry.MAX_ID_COUNT; id++) {
+			JRegistry.clearFlags(id, 0xFFFFFFFF);
+		}
+	}
 
 	/**
 	 * Size of the entire scanner_t structure. Does not include the entire
@@ -193,8 +237,6 @@ public class JScanner
 		this(DEFAULT_BLOCKSIZE);
 	}
 
-	private static int count = 0;
-
 	/**
 	 * Allocates the requested blocksize of memory + the sizeof(scanner_t)
 	 * 
@@ -207,6 +249,13 @@ public class JScanner
 		init(new JScan());
 		reloadAll();
 	}
+
+	/**
+	 * Clean up the scanner_t structure and release any held resources. For one
+	 * all the JHeaderScanners that are kept as global references need to be
+	 * released.
+	 */
+	private native void cleanup_jscanner();
 
 	/*
 	 * (non-Javadoc)
@@ -221,13 +270,6 @@ public class JScanner
 	}
 
 	/**
-	 * Clean up the scanner_t structure and release any held resources. For one
-	 * all the JHeaderScanners that are kept as global references need to be
-	 * released.
-	 */
-	private native void cleanup_jscanner();
-
-	/**
 	 * Initializes the scanner_t structure within the allocated block.
 	 * 
 	 * @param scan
@@ -235,6 +277,14 @@ public class JScanner
 	 *          its interaction with java space.
 	 */
 	private native void init(JScan scan);
+
+	/**
+	 * Downloads flags for each protocol to the scanner's native implementation
+	 * 
+	 * @param flags
+	 *          array of flags, one for each protocol ID
+	 */
+	private native void loadFlags(int[] flags);
 
 	/**
 	 * @param id
@@ -264,6 +314,9 @@ public class JScanner
 		}
 
 		loadScanners(scanners);
+
+		int[] flags = JRegistry.getAllFlags();
+		loadFlags(flags);
 	}
 
 	/**

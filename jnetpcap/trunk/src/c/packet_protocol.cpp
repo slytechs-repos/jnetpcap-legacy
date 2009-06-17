@@ -41,6 +41,8 @@
  * New protocols are added in the init_native_protocol() in this file.
  */
 native_protocol_func_t native_protocols[MAX_ID_COUNT];
+native_protocol_func_t native_heuristics[MAX_ID_COUNT][MAX_ID_COUNT];
+
 char *native_protocol_names[MAX_ID_COUNT];
 
 void scan_not_implemented_yet(scan_t *scan) {
@@ -79,12 +81,9 @@ void scan_http(scan_t *scan) {
 	 * To calculate length we need to take it from ip header - tcp header
 	 */
 	char *buf = scan->buf;
-	header_t iph  = packet->pkt_headers[packet->pkt_header_count -2];
 	header_t tcph = packet->pkt_headers[packet->pkt_header_count -1];
 	
-	ip4_t *ip = (ip4_t *)(scan->buf + iph.hdr_offset);
-	tcp_t *tcp = (tcp_t *)(scan->buf + tcph.hdr_offset);
-	int size = BIG_ENDIAN16(ip->tot_len) - iph.hdr_length - tcph.hdr_length;
+	int size = tcph.hdr_payload;
 	
 	/* First sanity check if we have printable chars */
 	if (size < 5 || 
@@ -119,7 +118,7 @@ void scan_http(scan_t *scan) {
 		
 		scan->length = size;
 		
-#ifndef DEBUG
+#ifdef DEBUG
 		char b[32];
 		b[0] = '\0';
 		b[31] = '\0';
@@ -158,6 +157,83 @@ void scan_http(scan_t *scan) {
 		
 	}
 
+}
+
+/**
+ * http heuristic scan that looks for HTTP protocol current offset
+ * This method only has to set scan.next_id as its return value. 
+ * 
+ * DO NOT CHANGE THE SCAN.LENGTH as we are scanning the next protocol, 
+ * not the current one.
+ */
+void heuristic_http(scan_t *scan) {
+	char *http = (char *)(scan->buf + scan->offset);
+	packet_state_t *packet = scan->packet;
+	
+	/*
+	 * To calculate length we need to take it from ip header - tcp header
+	 */
+	char *buf = scan->buf;
+	header_t tcph = packet->pkt_headers[packet->pkt_header_count -1];
+	
+	int size = tcph.hdr_payload;
+	
+	/* First sanity check if we have printable chars */
+	if (size < 5 || 
+		(isprint(http[0]) && isprint(http[1]) && isprint(http[2])) == FALSE) {
+		
+		scan->next_id = PAYLOAD_ID;
+		
+#ifdef DEBUG
+		char b[32];
+		b[0] = '\0';
+		b[31] = '\0';
+		strncpy(b, http, (size <= 31)? size : 31);
+		
+		printf("scan_http(): UNMATCHED size=%d http=%s\n", size, b);
+#endif 
+		return;
+	}
+	
+	if (	/* HTTP Response */
+			strncmp(http, "HTTP", 4) == 0 ||
+			
+			/* HTTP Requests */
+			strncmp(http, "GET", 3) == 0 || 
+			strncmp(http, "OPTIONS", 7) == 0 || 
+			strncmp(http, "HEAD", 4) == 0 || 
+			strncmp(http, "POST", 4) == 0 || 
+			strncmp(http, "PUT", 3) == 0 || 
+			strncmp(http, "DELETE", 6) == 0 || 
+			strncmp(http, "TRACE", 5) == 0 || 
+			strncmp(http, "CONNECT", 7 == 0) ) {
+		
+#ifndef DEBUG
+		char b[32];
+		b[0] = '\0';
+		b[31] = '\0';
+		strncpy(b, http, (size <= 31)? size : 31);
+		
+		if (size < 10)
+		printf("scan_http(): #%d INVALID size=%d http=%s\n", 
+				(int) scan->packet->pkt_frame_num, size, b);
+#endif 
+
+		scan->next_id = HTTP_ID;		
+	} else {
+#ifdef DEBUG
+		char b[32];
+		b[0] = '\0';
+		b[31] = '\0';
+		strncpy(b, http, (size <= 31)? size : 31);
+		
+		printf("scan_http(): UNMATCHED size=%d http=%s\n", size, b);
+#endif 
+		
+		scan->next_id = PAYLOAD_ID;
+	}
+	
+	return;
 }
 
 /*
@@ -721,28 +797,41 @@ int lookup_ethertype(uint16_t type) {
 
 void init_native_protocols() {
 	
+	/*
+	 * Initialize the inmemory table
+	 */
+	memset(native_protocols, 0, MAX_ID_COUNT * sizeof(native_protocol_func_t));
+	memset(native_heuristics, 0, 
+			MAX_ID_COUNT * MAX_ID_COUNT * sizeof(native_protocol_func_t));
+	
 	// Builtin families
 	native_protocols[PAYLOAD_ID]  = &scan_payload;
 	
 	// Datalink families
-	native_protocols[ETHERNET_ID]      = &scan_ethernet;
-	native_protocols[IEEE_802DOT2_ID]  = &scan_llc;
-	native_protocols[IEEE_SNAP_ID]     = &scan_snap;
-	native_protocols[IEEE_802DOT1Q_ID] = &scan_vlan;
-	native_protocols[L2TP_ID]          = &scan_l2tp;
-	native_protocols[PPP_ID]           = &scan_ppp;
+	native_protocols[ETHERNET_ID]      		= &scan_ethernet;
+	native_protocols[IEEE_802DOT2_ID]  		= &scan_llc;
+	native_protocols[IEEE_SNAP_ID]     		= &scan_snap;
+	native_protocols[IEEE_802DOT1Q_ID] 		= &scan_vlan;
+	native_protocols[L2TP_ID]          		= &scan_l2tp;
+	native_protocols[PPP_ID]           		= &scan_ppp;
+	native_protocols[IEEE_802DOT3_ID]		= &scan_802dot3;
 	
 	// TCP/IP families
-	native_protocols[IP4_ID]      = &scan_ip4;
-	native_protocols[IP6_ID]      = &scan_ip6;
-	native_protocols[UDP_ID]      = &scan_udp;
-	native_protocols[TCP_ID]      = &scan_tcp;
-	native_protocols[ICMP_ID]     = &scan_icmp;
-	native_protocols[HTTP_ID]     = &scan_http;
-	native_protocols[HTML_ID]     = &scan_html;
-	native_protocols[ARP_ID]      = &scan_arp;
+	native_protocols[IP4_ID]      			= &scan_ip4;
+	native_protocols[IP6_ID]      			= &scan_ip6;
+	native_protocols[UDP_ID]      			= &scan_udp;
+	native_protocols[TCP_ID]      			= &scan_tcp;
+	native_protocols[ICMP_ID]     			= &scan_icmp;
+	native_protocols[HTTP_ID]     			= &scan_http;
+	native_protocols[HTML_ID]     			= &scan_html;
+	native_protocols[ARP_ID]      			= &scan_arp;
 	
-	native_protocols[IEEE_802DOT3_ID]      = &scan_not_implemented_yet;
+	
+	/*
+	 * Heuristic bindings (guesses) to protocols
+	 */
+	native_heuristics[TCP_ID][0] = &heuristic_http;
+	
 	/*
 	 * Now store the names of each header, used for debuggin purposes
 	 */
@@ -750,12 +839,12 @@ void init_native_protocols() {
 	native_protocol_names[ETHERNET_ID]      = "ETHERNET";
 	native_protocol_names[TCP_ID]           = "TCP";
 	native_protocol_names[UDP_ID]           = "UDP";
-	native_protocol_names[IEEE_802DOT3_ID]  = "IEEE_802DOT3";
-	native_protocol_names[IEEE_802DOT2_ID]  = "IEEE_802DOT2";
-	native_protocol_names[IEEE_SNAP_ID]     = "IEEE_SNAP";
+	native_protocol_names[IEEE_802DOT3_ID]  = "802DOT3";
+	native_protocol_names[IEEE_802DOT2_ID]  = "802DOT2";
+	native_protocol_names[IEEE_SNAP_ID]     = "SNAP";
 	native_protocol_names[IP4_ID]           = "IP4";
 	native_protocol_names[IP6_ID]           = "IP6";
-	native_protocol_names[IEEE_802DOT1Q_ID] = "IEEE_802DOT1Q";
+	native_protocol_names[IEEE_802DOT1Q_ID] = "802DOT1Q";
 	native_protocol_names[L2TP_ID]          = "L2TP";
 	native_protocol_names[PPP_ID]           = "PPP";
 	native_protocol_names[ICMP_ID]          = "ICMP";
