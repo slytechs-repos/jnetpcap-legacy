@@ -23,6 +23,7 @@ import org.jnetpcap.protocol.lan.IEEE802dot1q;
 import org.jnetpcap.protocol.lan.IEEE802dot2;
 import org.jnetpcap.protocol.lan.IEEE802dot3;
 import org.jnetpcap.protocol.lan.IEEESnap;
+import org.jnetpcap.protocol.lan.SLL;
 import org.jnetpcap.protocol.network.Arp;
 import org.jnetpcap.protocol.network.Icmp;
 import org.jnetpcap.protocol.network.Ip4;
@@ -144,6 +145,11 @@ public enum JProtocol {
 	 */
 	RTP(Rtp.class),
 	
+	/**
+	 *  Linux cooked sockets
+	 */
+	SLL(SLL.class, PcapDLT.LINUX_SLL),
+	
 	;
 
 	/**
@@ -225,6 +231,8 @@ public enum JProtocol {
 	public final static int SDP_ID = 18;
 
 	public final static int RTP_ID = 19;
+	
+	public final static int SLL_ID = 20;
 	
 	public final static int LAST_ID = JProtocol.values().length;
 

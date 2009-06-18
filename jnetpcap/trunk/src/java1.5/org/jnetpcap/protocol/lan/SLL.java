@@ -62,7 +62,7 @@ import org.jnetpcap.protocol.JProtocol;
  * 
  * </pre>
  */
-@Header(dlt = PcapDLT.LINUX_SLL, length = SLL.SLL_HDR_LEN, suite = ProtocolSuite.LAN, description = "Linux Cooked Capture")
+@Header(length = SLL.SLL_HDR_LEN, suite = ProtocolSuite.LAN, description = "Linux Cooked Capture")
 public class SLL
     extends
     JHeader {
@@ -79,51 +79,10 @@ public class SLL
 
 	public final static int LINUX_SLL_OUTGOING = 4;
 
-	public static int ID;
-
-	static {
-		ID = register();
-	}
-
 	/**
-	 * Register our header dynamicly the first time its referenced. Report syntax
-	 * errors if there is a problem.
-	 * 
-	 * @return ID assigned by the registry.
+	 * Constant numerial ID for this protocol's header
 	 */
-	private static int register() {
-		try {
-			return (JRegistry.register(SLL.class));
-		} catch (Exception e) {
-			e.printStackTrace();
-			return -1;
-		}
-
-	}
-	
-	public SLL() {
-		super.order(ByteOrder.BIG_ENDIAN);
-	}
-
-//	 @Bind(from = Ip4.class, to = SLL.class)
-//	 public static boolean bindIp4ToSLL(JPacket packet, SLL sll) {
-//	 return sll.type() == 0x800;
-//	 }
-
-	@Scanner
-	public static void scanner(JScan scan) {
-
-		JBuffer buf = scan.scan_packet();
-		buf.order(ByteOrder.BIG_ENDIAN);
-		int offset = scan.scan_offset();
-
-		switch (buf.getUShort(offset + 14)) {
-			case 0x800: // Ip4
-				scan.scan_length(16);
-				scan.scan_next_id(JProtocol.IP4_ID);
-				break;
-		}
-	}
+	public static int ID = JProtocol.SLL_ID;
 
 	/**
 	 * Packet type

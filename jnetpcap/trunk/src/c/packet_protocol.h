@@ -34,7 +34,26 @@ char *id2str(int id);
 #define SIP_ID           org_jnetpcap_protocol_JProtocol_SIP_ID
 #define SDP_ID           org_jnetpcap_protocol_JProtocol_SDP_ID
 #define RTP_ID           org_jnetpcap_protocol_JProtocol_RTP_ID
+#define SLL_ID           org_jnetpcap_protocol_JProtocol_SLL_ID
 
+
+/*
+ * Linux Socket Cooked Capture header - a pseudo header as DL substitute
+ */
+#define SLL_LEN	16		          // total header length
+#define SLL_ADDR_LEN	8		      // length of address field
+
+typedef struct sll_t {
+	u_int16_t	sll_pkttype;	          // packet type
+	u_int16_t	sll_hatype;	            // link-layer address type
+	u_int16_t	sll_halen;	            // link-layer address length
+	u_int8_t	sll_addr[SLL_ADDR_LEN];	// link-layer address
+	u_int16_t	sll_protocol;         	// protocol
+} sll_t;
+
+/*
+ * Realtime Transfer Protocol and extension
+ */
 #define RTP_LENGTH	12
 #define RTPX_LENGTH	4
 
@@ -77,6 +96,9 @@ typedef struct rtp_t {
 } rtp_t;
 
 
+/*
+ * Address Resulution Protocol
+ */
 typedef struct arp_t {
 	uint16_t htype;
 	uint16_t ptype;
@@ -85,6 +107,9 @@ typedef struct arp_t {
 } arp_t;
 
 
+/*
+ * Internet Control Message Protocol
+ */
 typedef struct icmp_t {
 	uint8_t type;
 	uint8_t code;
@@ -92,12 +117,18 @@ typedef struct icmp_t {
 
 } icmp_t;
 
+/*
+ * Point to Point Protocol
+ */
 typedef struct ppp_t {
 	uint8_t addr;
 	uint8_t control;
 	uint16_t protocol;
 };
 
+/*
+ * Layer 2 tunneling protocol
+ */
 typedef struct l2tp_t {
 #  if __BYTE_ORDER == __LITTLE_ENDIAN
 	uint16_t p :1;
@@ -125,6 +156,9 @@ typedef struct l2tp_t {
 
 } l2tp_t;
 
+/*
+ * IEEE 802.1q VLAN header
+ */
 typedef struct vlan_t {
 	uint16_t priority :3;
 	uint16_t cfi :1;

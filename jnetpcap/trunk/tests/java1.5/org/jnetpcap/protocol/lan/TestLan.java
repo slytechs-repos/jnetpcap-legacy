@@ -12,11 +12,7 @@
  */
 package org.jnetpcap.protocol.lan;
 
-import org.jnetpcap.packet.JPacket;
-import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.TestUtils;
-import org.jnetpcap.packet.annotate.Bind;
-import org.jnetpcap.protocol.network.Ip4;
 
 /**
  * @author Mark Bednarczyk
@@ -31,14 +27,6 @@ public class TestLan
 	    "\\My Documents\\Downloads\\CaptureDemo.cap";
 
 	public void testSLL() {
-		SLL sll = new SLL();
-//		JRegistry.addBindings(new Object() {
-//			 @Bind(from = Ip4.class, to = SLL.class)
-//			 public boolean bindIp4ToSLL(JPacket packet, SLL sll) {
-//			 return sll.type() == 0x800;
-//			 }
-//
-//		});
 		System.out.println(super.getPcapPacket(SLL, 1 - 1));
 	}
 
