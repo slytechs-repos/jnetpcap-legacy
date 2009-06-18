@@ -34,6 +34,8 @@ import org.jnetpcap.packet.TestJRegistry;
 import org.jnetpcap.packet.TestJScanner;
 import org.jnetpcap.packet.TestPcapPacket;
 import org.jnetpcap.packet.TestPcapUtils;
+import org.jnetpcap.protocol.TestTcpIp;
+import org.jnetpcap.protocol.TestVoip;
 import org.jnetpcap.util.TestExpandableString;
 import org.jnetpcap.util.TestSearchPaths;
 
@@ -68,6 +70,7 @@ public class BuildTests {
 		suite.addTestSuite(TestSearchPaths.class);
 		suite.addTestSuite(TestAnalysisAccessors.class);
 		suite.addTestSuite(TestJHeader.class);
+		suite.addTestSuite(TestVoip.class);
 		//$JUnit-END$
 		return suite;
 	}
