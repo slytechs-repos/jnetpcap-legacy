@@ -22,6 +22,7 @@ import java.util.Map;
 import org.jnetpcap.Pcap;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
+import org.jnetpcap.packet.JScanner;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.TestUtils;
 import org.jnetpcap.packet.analysis.JController;
@@ -100,6 +101,7 @@ public class TestVoip
 	}
 	
 	public void testRtpHeuristics() {
+		
 		Rtp rtp = new Rtp();
 		
 		JPacket packet = super.getPcapPacket(SIP_G711, 499 - 1);

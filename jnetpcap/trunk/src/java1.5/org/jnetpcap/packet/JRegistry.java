@@ -254,6 +254,13 @@ public final class JRegistry {
 		addAnalyzer(new TcpSequencer());
 		addAnalyzer(new TcpAssembler());
 		addAnalyzer(new HttpAnalyzer());
+		
+		/**
+		 * Enable heuristics by default for TCP and UDP protocols
+		 */
+		setFlags(JProtocol.TCP_ID, FLAG_HEURISTIC_BINDING);
+		setFlags(JProtocol.UDP_ID, FLAG_HEURISTIC_BINDING);
+		
 	}
 
 	/**
