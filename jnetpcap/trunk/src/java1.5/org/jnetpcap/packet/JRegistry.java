@@ -254,13 +254,13 @@ public final class JRegistry {
 		addAnalyzer(new TcpSequencer());
 		addAnalyzer(new TcpAssembler());
 		addAnalyzer(new HttpAnalyzer());
-		
+
 		/**
 		 * Enable heuristics by default for TCP and UDP protocols
 		 */
 		setFlags(JProtocol.TCP_ID, FLAG_HEURISTIC_BINDING);
 		setFlags(JProtocol.UDP_ID, FLAG_HEURISTIC_BINDING);
-		
+
 	}
 
 	/**
@@ -442,7 +442,20 @@ public final class JRegistry {
 	 * @return array of flags, one element for each protocol
 	 */
 	public static int[] getAllFlags() {
-		return headerFlags;
+		final int[] copy = new int[headerFlags.length];
+		System.arraycopy(headerFlags, 0, copy, 0, copy.length);
+		return copy;
+	}
+
+	/**
+	 * Sets all flags to the values in the array supplied. Flags are copied, into
+	 * the JRegistry flags database.
+	 * 
+	 * @param flags
+	 *          flags to be copied.
+	 */
+	public static void setAllFlags(int[] flags) {
+		System.arraycopy(flags, 0, headerFlags, 0, flags.length);
 	}
 
 	/**
