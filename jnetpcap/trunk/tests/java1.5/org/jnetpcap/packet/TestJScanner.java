@@ -34,12 +34,15 @@ public class TestJScanner
     extends
     TestUtils {
 
+	private int[] flags;
+
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
+		flags = JRegistry.getAllFlags();
 	}
 
 	/*
@@ -48,7 +51,12 @@ public class TestJScanner
 	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
-		JScanner.resetToDefaults();
+
+		for (int i = 0; i < flags.length; i++) {
+			int f = flags[i];
+
+			JRegistry.setFlags(i, f);
+		}
 	}
 
 	public void _testJScannerInit() {
@@ -234,38 +242,38 @@ public class TestJScanner
 		System.out.printf("length=%d %d\n", scanner.getHeaderLength(packet,
 		    Ethernet.LENGTH), packet.getUByte(Ethernet.LENGTH) & 0x0F);
 	}
-	
+
 	public void testFlagNonOverride() {
 		PcapPacket packet = getPcapPacket(HTTP, 5);
-		
+
 		assertTrue(packet.hasHeader(JProtocol.ETHERNET_ID));
 		assertTrue(packet.hasHeader(JProtocol.IP4_ID));
 		assertTrue(packet.hasHeader(JProtocol.TCP_ID));
 		assertTrue(packet.hasHeader(JProtocol.HTTP_ID));
 	}
 
-
 	public void testFlagOverride() {
 		JScanner.bindingOverride(JProtocol.TCP_ID, true);
+		JScanner.heuristicCheck(JProtocol.TCP_ID, false);
 
 		PcapPacket packet = getPcapPacket(HTTP, 5);
-		
+
 		assertTrue(packet.hasHeader(JProtocol.ETHERNET_ID));
 		assertTrue(packet.hasHeader(JProtocol.IP4_ID));
 		assertTrue(packet.hasHeader(JProtocol.TCP_ID));
 		assertFalse(packet.hasHeader(JProtocol.HTTP_ID));
 	}
-	
+
 	public void testFlagPostHeuristics() {
 		JScanner.bindingOverride(JProtocol.TCP_ID, true);
 		JScanner.heuristicPostCheck(JProtocol.TCP_ID, true);
 
 		PcapPacket packet = getPcapPacket(HTTP, 5);
-		
+
 		assertTrue(packet.hasHeader(JProtocol.ETHERNET_ID));
 		assertTrue(packet.hasHeader(JProtocol.IP4_ID));
 		assertTrue(packet.hasHeader(JProtocol.TCP_ID));
-		assertTrue(packet.hasHeader(JProtocol.HTTP_ID));		
+		assertTrue(packet.hasHeader(JProtocol.HTTP_ID));
 	}
 
 }

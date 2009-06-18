@@ -101,9 +101,7 @@ public class TestVoip
 	}
 	
 	public void testRtpHeuristics() {
-		
-		Rtp rtp = new Rtp();
-		
+				
 		JPacket packet = super.getPcapPacket(SIP_G711, 499 - 1);
 		
 //		System.out.println(JRegistry.toDebugString());
@@ -112,7 +110,7 @@ public class TestVoip
 		System.out.flush();
 		
 		assertNotNull(packet);
-		assertTrue(packet.hasHeader(Rtp.ID));
+		assertTrue(packet.hasHeader(JProtocol.RTP_ID));
 	}
 	
 	public void testRtpAudioExtract() throws IOException {
