@@ -52,11 +52,7 @@ public class TestJScanner
 	 */
 	protected void tearDown() throws Exception {
 
-		for (int i = 0; i < flags.length; i++) {
-			int f = flags[i];
-
-			JRegistry.setFlags(i, f);
-		}
+		JRegistry.setAllFlags(flags);
 	}
 
 	public void _testJScannerInit() {
