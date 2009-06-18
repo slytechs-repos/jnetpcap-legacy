@@ -10,7 +10,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-package org.jnetpcap.protocol.voip;
+package org.jnetpcap.protocol;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,6 +25,11 @@ import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.TestUtils;
 import org.jnetpcap.packet.analysis.JController;
+import org.jnetpcap.protocol.voip.Rtp;
+import org.jnetpcap.protocol.voip.Sdp;
+import org.jnetpcap.protocol.voip.Sip;
+import org.jnetpcap.protocol.voip.SipAnalyzer;
+import org.jnetpcap.protocol.voip.SipHandler;
 
 /**
  * @author Mark Bednarczyk
