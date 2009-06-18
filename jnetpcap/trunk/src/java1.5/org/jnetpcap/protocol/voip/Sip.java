@@ -13,8 +13,6 @@
 package org.jnetpcap.protocol.voip;
 
 import org.jnetpcap.packet.AbstractMessageHeader;
-import org.jnetpcap.packet.JRegistry;
-import org.jnetpcap.packet.RegistryHeaderErrors;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.protocol.JProtocol;
@@ -209,25 +207,11 @@ public class Sip
 		ResponseCodeMsg,
 	}
 
+	/**
+	 * Constant numerial ID for this protocol's header
+	 */
 	public static int ID = JProtocol.SIP_ID;
 
-/*
- * TODO: uncomment when HEURISTIC binding types are supported
- * 
-	@Bind(to = Tcp.class, type = Bind.Type.HEURISTIC)
-	public static boolean heuristicTcpCheck(JPacket packet, Tcp tcp) {
-		
-		 * Check first few characters for valid status-line method names or reponse
-		 
-		String first = packet.getUTF8String(tcp.getOffset() + tcp.size(), 8);
-
-		return first.startsWith("SIP") || first.startsWith("REGISTER")
-		    || first.startsWith("ACK") || first.startsWith("OPTIONS")
-		    || first.startsWith("BYE") || first.startsWith("CANCEL")
-		    || first.startsWith("INVITE");
-
-	}
-*/
 	public String contentType() {
 		return fieldValue(Fields.Content_Type);
 	}

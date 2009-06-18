@@ -25,6 +25,7 @@ import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * @author Mark Bednarczyk
@@ -35,7 +36,10 @@ public class Sdp
     extends
     JMappedHeader {
 
-	public static int ID;
+	/**
+	 * Constant numerial ID for this protocol's header
+	 */
+	public static int ID = JProtocol.SDP_ID;
 
 	static {
 		try {
@@ -56,13 +60,6 @@ public class Sdp
 	@HeaderLength
 	public static int headerLength(JBuffer buffer, int offset) {
 		return buffer.size() - offset;
-	}
-
-	@Bind(to = Sip.class)
-	public static boolean bindToSip(JPacket packet, Sip sip) {
-		// System.out.printf("bind: contentType=%s\n", sip.contentType());
-		return (sip.contentType() == null) ? false : sip.contentType().startsWith(
-		    "application/sdp");
 	}
 
 	@Override

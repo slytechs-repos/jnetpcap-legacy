@@ -97,6 +97,15 @@ void scan_not_implemented_yet(scan_t *scan) {
 	throwException(scan->env, ILLEGAL_STATE_EXCEPTION, str_buf);
 }
 
+/*
+ * Scan Session Data Protocol header
+ */
+void scan_sdp(scan_t *scan) {
+	register char *sdp = (char *)(scan->buf + scan->offset);
+	
+	scan->length = scan->buf_len - scan->offset;
+}
+
 
 /*
  * Scan Session Initiation Protocol header
@@ -126,14 +135,39 @@ void scan_sip(scan_t *scan) {
 			(int) scan->packet->pkt_frame_num, size, b);
 #endif 
 
-		
+	char * content_type = NULL;
+	/*
+	 * We could use strstr(), but for efficiency and since we need to lookup
+	 * multiple sub-strings in the text header, we use our own loop.
+	 */
 	for (int i = 0; i < size; i ++){
+		if ((sip[i] == 'c' || sip[i] == 'C') && 
+				strncmp(&sip[i], "Content-Type:", 13)) {
+			content_type = &sip[i + 13];
+		}
+			
 		if (sip[i] == '\r' && sip[i + 1] == '\n' 
 			&& sip[i + 2] == '\r' && sip[i + 3] == '\n') {
 				
 			scan->length = i + 4;
 			break;
 		}
+	}
+	
+	if (content_type == NULL) {
+		scan->next_id = PAYLOAD_ID;
+		return;
+	}
+	
+	char *end = &sip[scan->length - 15];
+	
+	/* Skip whitespace and prevent runaway search */
+	while (isspace(*content_type) && (content_type < end)) {
+		content_type ++;
+	}
+	
+	if (strncmp(content_type, "application/sdp", 15)) {
+		scan->next_id = validate_next(SDP_ID, scan);	return;
 	}
 		
 	return;
@@ -957,6 +991,7 @@ void init_native_protocols() {
 	
 	// Voice and Video
 	native_protocols[SIP_ID]     			= &scan_sip;
+	native_protocols[SDP_ID]     			= &scan_sdp;
 	
 	
 	/*
@@ -994,6 +1029,7 @@ void init_native_protocols() {
 	native_protocol_names[HTML_ID]          = "HTML";
 	native_protocol_names[ARP_ID]           = "ARP";
 	native_protocol_names[SIP_ID]           = "SIP";
+	native_protocol_names[SDP_ID]           = "SDP";
 //	native_protocol_names[RTP_ID]           = "RTP";
 }
 
