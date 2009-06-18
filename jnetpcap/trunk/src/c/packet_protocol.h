@@ -12,7 +12,7 @@
 #include "org_jnetpcap_protocol_JProtocol.h"
 #include "org_jnetpcap_packet_JScan.h"
 
-// Proto types
+// Prototypes
 char *id2str(int id);
 
 #define END_OF_HEADERS   org_jnetpcap_packet_JScan_END_OF_HEADERS_ID
@@ -31,6 +31,8 @@ char *id2str(int id);
 #define HTTP_ID          org_jnetpcap_protocol_JProtocol_HTTP_ID
 #define HTML_ID          org_jnetpcap_protocol_JProtocol_HTML_ID
 #define ARP_ID           org_jnetpcap_protocol_JProtocol_ARP_ID
+#define SIP_ID           org_jnetpcap_protocol_JProtocol_SIP_ID
+#define RTP_ID           org_jnetpcap_protocol_JProtocol_RTP_ID
 
 typedef struct arp_t {
 	uint16_t htype;

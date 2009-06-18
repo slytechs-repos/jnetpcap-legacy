@@ -13,14 +13,11 @@
 package org.jnetpcap.protocol.voip;
 
 import org.jnetpcap.packet.AbstractMessageHeader;
-import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.RegistryHeaderErrors;
-import org.jnetpcap.packet.annotate.Bind;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
-import org.jnetpcap.protocol.tcpip.Tcp;
-import org.jnetpcap.protocol.tcpip.Udp;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * @author Mark Bednarczyk
@@ -212,25 +209,7 @@ public class Sip
 		ResponseCodeMsg,
 	}
 
-	public static int ID;
-
-	static {
-		try {
-			ID = JRegistry.register(Sip.class);
-		} catch (final RegistryHeaderErrors e) {
-			e.printStackTrace();
-		}
-	}
-
-	@Bind(to = Tcp.class)
-	public static boolean bindToTcp(JPacket packet, Tcp tcp) {
-		return tcp.destination() == 5060 || tcp.source() == 5060;
-	}
-
-	@Bind(to = Udp.class)
-	public static boolean bindToUdp(JPacket packet, Udp udp) {
-		return udp.destination() == 5060 || udp.source() == 5060;
-	}
+	public static int ID = JProtocol.SIP_ID;
 
 /*
  * TODO: uncomment when HEURISTIC binding types are supported
