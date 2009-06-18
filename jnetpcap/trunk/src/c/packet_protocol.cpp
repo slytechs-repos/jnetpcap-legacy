@@ -1,6 +1,50 @@
 /***************************************************************************
  * Copyright (C) 2007, Sly Technologies, Inc                               *
  * Distributed under the Lesser GNU Public License  (LGPL)                 *
+ * 
+ * This file contains functions for dissecting and scanning packets. 
+ * First  it defines some global tables that are used to initialize 
+ * packet_scanner. Second, two types of functions are defined in this file,
+ * where the first scan_* is used as a scanner (wireshark term dissector),
+ * and the second as validator of the header in validate_* function.
+ * 
+ * The scanner function is a void function which returns its findings
+ * by modifying the scan_t structure passed to it. The most critical
+ * parameter being scan.length which holds the length of the header. 
+ * 
+ * The validator function is completely passive and does not modify scan_t
+ * structure passed to it. The return value determines if validation 
+ * succeeded or failed. The validator function (validate_*) returns either
+ * the numerical header ID of the header its validating if its a valid 
+ * header, or the constant INVALID. A table lookup is provided using 2 
+ * functions validate and validate_next. The validate function assumes the
+ * header is at the current offset, while validate_next validates the
+ * header at offset + length + gap (gap is another property that determines
+ * the number of bytes between the header and its payload, a padding of 
+ * sorts.) The result from validate_next can be directly assigned to
+ * scan.next_id is typically how this function was designed to work. 
+ * The INVALID constant is mapped to PAYLOAD_ID constant which is a valid
+ * catch-all header when validation failes.
+ * 
+ * Validator function (validate_*) is also used as a heuristic determinant
+ * for the next possible header. The main scanner loop, using 
+ * native_heuristics table (defined in this file), maintains a list of 
+ * validate functions as a heuristic check if port/type number lookup for 
+ * next header in packet fails.
+ * 
+ * Note the function signature differences between a scan_* and validate_*
+ * functions:
+ *  typedef void (*native_protocol_func_t)(scan_t *scan);
+ *  typedef int (*native_validate_func_t)(scan_t *scan);
+ * 
+ * Lastly the file contains a init_native_protocols function which is
+ * called only once during initialization phase. This is where all the
+ * defined scan_* and validate_* functions are referenced for storage in 
+ * the lookup tables. Also a numerical ID to text lookup table is uset up
+ * so that numerical header IDs can be mapped to text. This table is only
+ * used for debug purposes, but none the less it is an important table 
+ * and any new protocol added must be defined in it.
+ * 
  ***************************************************************************/
 
 /*
@@ -53,14 +97,109 @@ void scan_not_implemented_yet(scan_t *scan) {
 	throwException(scan->env, ILLEGAL_STATE_EXCEPTION, str_buf);
 }
 
+
 /*
- * Scan Hyper Text Markup Language header
+ * Scan Session Initiation Protocol header
  */
-void scan_arp(scan_t *scan) {
-	arp_t *arp = (arp_t *)(scan->buf + scan->offset);
+void scan_sip(scan_t *scan) {
+	register char *sip = (char *)(scan->buf + scan->offset);
+	packet_state_t *packet = scan->packet;
 	
-	scan->length = (arp->hlen + arp->plen) * 2 + 8;
+	/*
+	 * To calculate length we need to take it from ip header - tcp header
+	 */
+	char *buf = scan->buf;
+	header_t tcph = packet->pkt_headers[packet->pkt_header_count -1];
+	
+	register int size = tcph.hdr_payload;
+		
+	scan->length = size;
+		
+#ifdef DEBUG
+	char b[32];
+	b[0] = '\0';
+	b[31] = '\0';
+	strncpy(b, http, (size <= 31)? size : 31);
+		
+	if (size < 10)
+	printf("scan_sip(): #%d INVALID size=%d sip=%s\n", 
+			(int) scan->packet->pkt_frame_num, size, b);
+#endif 
+
+		
+	for (int i = 0; i < size; i ++){
+		if (sip[i] == '\r' && sip[i + 1] == '\n' 
+			&& sip[i + 2] == '\r' && sip[i + 3] == '\n') {
+				
+			scan->length = i + 4;
+			break;
+		}
+	}
+		
+	return;
 }
+
+/**
+ * validate_sip validates values for SIP header at current scan.offset.
+ * 
+ * DO NOT CHANGE any scan properties. This is a completely passive method, only
+ * the return value determines if validation passed or not. Return either
+ * constant INVALID or header ID constant.
+ */
+int validate_sip(scan_t *scan) {
+	char *sip = (char *)(scan->buf + scan->offset);
+	packet_state_t *packet = scan->packet;
+	
+	/*
+	 * To calculate length we need to take it from ip header - tcp header
+	 */
+	char *buf = scan->buf;
+	header_t tcph = packet->pkt_headers[packet->pkt_header_count -1];
+	
+	int size = tcph.hdr_payload;
+	
+	/* First sanity check if we have printable chars */
+	if (size < 5 || 
+		(isprint(sip[0]) && isprint(sip[1]) && isprint(sip[2])) == FALSE) {
+		
+#ifdef DEBUG
+		char b[32];
+		b[0] = '\0';
+		b[31] = '\0';
+		strncpy(b, sip, (size <= 31)? size : 31);
+		
+		printf("validate_sip(): UNMATCHED size=%d sip=%s\n", size, b);
+#endif 
+		return INVALID;
+	}
+	
+	if (	/* SIP Response */
+			strncmp(sip, "SIP", 3) == 0 ||
+			
+			/* SIP Requests */
+			strncmp(sip, "REGISTER", 8) == 0 || 
+			strncmp(sip, "INVITE", 6) == 0 || 
+			strncmp(sip, "ACK", 3) == 0 || 
+			strncmp(sip, "CANCEL", 6) == 0 || 
+			strncmp(sip, "BYE", 3) == 0 || 
+			strncmp(sip, "OPTIONS", 7) == 0 ) {
+		
+#ifndef DEBUG
+		char b[32];
+		b[0] = '\0';
+		b[31] = '\0';
+		strncpy(b, sip, (size <= 31)? size : 31);
+		
+		if (size < 10)
+		printf("validate_sip(): #%d INVALID size=%d sip=%s\n", 
+				(int) scan->packet->pkt_frame_num, size, b);
+#endif 
+
+	} 
+	
+	return SIP_ID;
+}
+
 
 
 /*
@@ -113,10 +252,11 @@ void scan_http(scan_t *scan) {
 }
 
 /**
- * http heuristic scan that looks for HTTP protocol current offset
+ * Validate HTTP  header values at current scan.offset.
  * 
  * DO NOT CHANGE any scan properties. This is a completely passive method, only
- * the return value determines if validation passed or not.
+ * the return value determines if validation passed or not. Return either
+ * constant INVALID or header ID constant.
  */
 int validate_http(scan_t *scan) {
 	char *http = (char *)(scan->buf + scan->offset);
@@ -353,17 +493,15 @@ void scan_tcp(scan_t *scan) {
 	switch (BIG_ENDIAN16(tcp->dport)) {
 	case 80:
 	case 8080:
-	case 8081:
-		scan->next_id = validate_next(HTTP_ID, scan);
-		return;
+	case 8081:	scan->next_id = validate_next(HTTP_ID, scan);		return;
+	case 5060:	scan->next_id = validate_next(SIP_ID, scan);		return;
 	}
 	
 	switch (BIG_ENDIAN16(tcp->sport)) {
 	case 80:
 	case 8080:
-	case 8081:
-		scan->next_id = validate_next(HTTP_ID, scan);
-		return;
+	case 8081:	scan->next_id = validate_next(HTTP_ID, scan);		return;
+	case 5060:	scan->next_id = validate_next(SIP_ID, scan);		return;
 	}
 }
 
@@ -396,10 +534,24 @@ void scan_udp(scan_t *scan) {
 	}
 	
 	switch (BIG_ENDIAN16(udp->dport)) {
-	case 1701: scan->next_id = validate_next(L2TP_ID, scan);	break;
+	case 1701: scan->next_id = validate_next(L2TP_ID, scan);	return;
+	case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;
 	}
+	
+	switch (BIG_ENDIAN16(udp->sport)) {
+	case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;
+	}
+
 }
 
+/*
+ * Scan Address Resolution Protocol header
+ */
+void scan_arp(scan_t *scan) {
+	arp_t *arp = (arp_t *)(scan->buf + scan->offset);
+	
+	scan->length = (arp->hlen + arp->plen) * 2 + 8;
+}
 
 /*
  * Scan IP version 6
@@ -803,18 +955,24 @@ void init_native_protocols() {
 	native_protocols[HTML_ID]     			= &scan_html;
 	native_protocols[ARP_ID]      			= &scan_arp;
 	
+	// Voice and Video
+	native_protocols[SIP_ID]     			= &scan_sip;
+	
+	
 	/*
 	 * Validation function table. This isn't the list of bindings, but 1 per
 	 * protocol. Used by validate(scan) function.
 	 */ 
-	validate_table[HTTP_ID] = &validate_http;
+	validate_table[HTTP_ID] 				= &validate_http;
+	validate_table[SIP_ID]					= &validate_sip;
 	
 	
 	/*
 	 * Heuristic bindings (guesses) to protocols. Used by main scan loop to
 	 * check heuristic bindings.
 	 */
-	native_heuristics[TCP_ID][0] = &validate_http;
+	native_heuristics[TCP_ID][0]			= &validate_http;
+	native_heuristics[TCP_ID][1]			= &validate_sip;
 	
 	/*
 	 * Now store the names of each header, used for debuggin purposes
@@ -835,5 +993,7 @@ void init_native_protocols() {
 	native_protocol_names[HTTP_ID]          = "HTTP";
 	native_protocol_names[HTML_ID]          = "HTML";
 	native_protocol_names[ARP_ID]           = "ARP";
+	native_protocol_names[SIP_ID]           = "SIP";
+//	native_protocol_names[RTP_ID]           = "RTP";
 }
 

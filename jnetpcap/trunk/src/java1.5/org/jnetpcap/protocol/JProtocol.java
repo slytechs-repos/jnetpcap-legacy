@@ -30,6 +30,7 @@ import org.jnetpcap.protocol.network.Ip6;
 import org.jnetpcap.protocol.tcpip.Http;
 import org.jnetpcap.protocol.tcpip.Tcp;
 import org.jnetpcap.protocol.tcpip.Udp;
+import org.jnetpcap.protocol.voip.Sip;
 import org.jnetpcap.protocol.vpn.L2TP;
 import org.jnetpcap.protocol.wan.PPP;
 
@@ -116,9 +117,20 @@ public enum JProtocol {
 	 */
 	HTML(Html.class),
 
+	/**
+	 * An Image header transmitted via http
+	 */
 	WEB_IMAGE(WebImage.class),
 	
+	/**
+	 * Address Resolution Protocol
+	 */
 	ARP(Arp.class),
+	
+	/**
+	 * Session Intiation Protocol
+	 */
+	SIP(Sip.class),
 	;
 
 	/**
@@ -194,6 +206,10 @@ public enum JProtocol {
 	public final static int WEB_IMAGE_ID = 15;
 	
 	public final static int ARP_ID = 16;
+	
+	public final static int SIP_ID = 17;
+	
+	public final static int RTP_ID = 18;
 	
 	public final static int LAST_ID = JProtocol.values().length;
 
