@@ -97,6 +97,23 @@ void scan_not_implemented_yet(scan_t *scan) {
 	throwException(scan->env, ILLEGAL_STATE_EXCEPTION, str_buf);
 }
 
+
+/*
+ * Scan SLL (Linux Cooked Capture) header
+ */
+void scan_sll(scan_t *scan) {
+	register sll_t *sll = (sll_t *)(scan->buf + scan->offset);
+	scan->length = SLL_LEN;
+	
+	switch(BIG_ENDIAN16(sll->sll_protocol)) {
+	case 0x800:	scan->next_id = validate_next(IP4_ID, scan);	return;
+	}
+	
+//	printf("scan_sll() next_id=%d\n", scan->next_id);
+//	fflush(stdout);
+}
+
+
 /**
  * validate_rtp validates values for RTP header at current scan.offset.
  * 
@@ -1107,6 +1124,7 @@ void init_native_protocols() {
 	native_protocols[L2TP_ID]          		= &scan_l2tp;
 	native_protocols[PPP_ID]           		= &scan_ppp;
 	native_protocols[IEEE_802DOT3_ID]		= &scan_802dot3;
+	native_protocols[SLL_ID]				= &scan_sll;
 	
 	// TCP/IP families
 	native_protocols[IP4_ID]      			= &scan_ip4;
@@ -1164,5 +1182,6 @@ void init_native_protocols() {
 	native_protocol_names[SIP_ID]           = "SIP";
 	native_protocol_names[SDP_ID]           = "SDP";
 	native_protocol_names[RTP_ID]           = "RTP";
+	native_protocol_names[SLL_ID]           = "SLL";
 }
 
