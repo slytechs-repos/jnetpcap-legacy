@@ -30,6 +30,7 @@ import org.jnetpcap.protocol.network.Ip6;
 import org.jnetpcap.protocol.tcpip.Http;
 import org.jnetpcap.protocol.tcpip.Tcp;
 import org.jnetpcap.protocol.tcpip.Udp;
+import org.jnetpcap.protocol.voip.Sdp;
 import org.jnetpcap.protocol.voip.Sip;
 import org.jnetpcap.protocol.vpn.L2TP;
 import org.jnetpcap.protocol.wan.PPP;
@@ -131,6 +132,12 @@ public enum JProtocol {
 	 * Session Intiation Protocol
 	 */
 	SIP(Sip.class),
+	
+	/**
+	 * Session Data Protocol
+	 */
+	SDP(Sdp.class),
+	
 	;
 
 	/**
@@ -208,8 +215,10 @@ public enum JProtocol {
 	public final static int ARP_ID = 16;
 	
 	public final static int SIP_ID = 17;
-	
-	public final static int RTP_ID = 18;
+
+	public final static int SDP_ID = 18;
+
+	public final static int RTP_ID = 19;
 	
 	public final static int LAST_ID = JProtocol.values().length;
 

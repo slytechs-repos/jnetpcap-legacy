@@ -32,6 +32,7 @@ char *id2str(int id);
 #define HTML_ID          org_jnetpcap_protocol_JProtocol_HTML_ID
 #define ARP_ID           org_jnetpcap_protocol_JProtocol_ARP_ID
 #define SIP_ID           org_jnetpcap_protocol_JProtocol_SIP_ID
+#define SDP_ID           org_jnetpcap_protocol_JProtocol_SDP_ID
 #define RTP_ID           org_jnetpcap_protocol_JProtocol_RTP_ID
 
 typedef struct arp_t {
