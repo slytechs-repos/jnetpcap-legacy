@@ -41,7 +41,7 @@
  * New protocols are added in the init_native_protocol() in this file.
  */
 native_protocol_func_t native_protocols[MAX_ID_COUNT];
-native_validate_func_t native_hueristics[MAX_ID_COUNT][MAX_ID_COUNT];
+native_validate_func_t native_heuristics[MAX_ID_COUNT][MAX_ID_COUNT];
 native_validate_func_t validate_table[MAX_ID_COUNT];
 
 char *native_protocol_names[MAX_ID_COUNT];
@@ -778,7 +778,7 @@ void init_native_protocols() {
 	 * Initialize the inmemory table
 	 */
 	memset(native_protocols, 0, MAX_ID_COUNT * sizeof(native_protocol_func_t));
-	memset(native_hueristics, 0, 
+	memset(native_heuristics, 0, 
 			MAX_ID_COUNT * MAX_ID_COUNT * sizeof(native_validate_func_t));
 	
 	// Builtin families
@@ -814,7 +814,7 @@ void init_native_protocols() {
 	 * Heuristic bindings (guesses) to protocols. Used by main scan loop to
 	 * check heuristic bindings.
 	 */
-	native_hueristics[TCP_ID][0] = &validate_http;
+	native_heuristics[TCP_ID][0] = &validate_http;
 	
 	/*
 	 * Now store the names of each header, used for debuggin purposes

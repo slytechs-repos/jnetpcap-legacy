@@ -76,7 +76,7 @@ typedef void (*native_protocol_func_t)(scan_t *scan);
 typedef int (*native_validate_func_t)(scan_t *scan);
 
 extern native_protocol_func_t native_protocols[];
-extern native_validate_func_t native_hueristics[MAX_ID_COUNT][MAX_ID_COUNT];
+extern native_validate_func_t native_heuristics[MAX_ID_COUNT][MAX_ID_COUNT];
 extern char *native_protocol_names[];
 void callJavaHeaderScanner(scan_t *scan);
 void record_header(scan_t *scan);
