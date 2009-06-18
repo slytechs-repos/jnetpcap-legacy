@@ -35,6 +35,48 @@ char *id2str(int id);
 #define SDP_ID           org_jnetpcap_protocol_JProtocol_SDP_ID
 #define RTP_ID           org_jnetpcap_protocol_JProtocol_RTP_ID
 
+#define RTP_LENGTH	12
+#define RTPX_LENGTH	4
+
+typedef struct rtpx_t {
+	
+	uint16_t	rtpx_profile; 	// Profile specific
+	uint16_t	rtpx_len;		// Length of extension header
+	
+} rtpx_t;
+
+typedef struct rtp_t {
+
+#  if __BYTE_ORDER == __LITTLE_ENDIAN
+	uint8_t 	rtp_cc:4;
+	uint8_t 	rtp_ext:1;
+	uint8_t 	rtp_pad:1;
+	uint8_t		rtp_ver:2;
+	
+	uint8_t		rtp_type:7;
+	uint8_t		rtp_marker:1;
+	
+#  elif __BYTE_ORDER == __BIG_ENDIAN
+	uint8_t		rtp_ver:2;
+	uint8_t 	rtp_pad:1;
+	uint8_t 	rtp_ext:1;
+	uint8_t 	rtp_cc:4;
+	
+	uint8_t		rtp_marker:1;
+	uint8_t		rtp_type:7;
+	
+#  else
+#   error "Adjust your <bits/endian.h> defines"
+#  endif
+	
+	uint16_t	rtp_seq;
+	uint32_t	rtp_ts;
+	uint32_t	rtp_ssrc;
+
+
+} rtp_t;
+
+
 typedef struct arp_t {
 	uint16_t htype;
 	uint16_t ptype;

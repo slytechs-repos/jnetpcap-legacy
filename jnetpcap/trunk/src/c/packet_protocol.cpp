@@ -97,6 +97,132 @@ void scan_not_implemented_yet(scan_t *scan) {
 	throwException(scan->env, ILLEGAL_STATE_EXCEPTION, str_buf);
 }
 
+/**
+ * validate_rtp validates values for RTP header at current scan.offset.
+ * 
+ * DO NOT CHANGE any scan properties. This is a completely passive method, only
+ * the return value determines if validation passed or not. Return either
+ * constant INVALID or header ID constant.
+ */
+int validate_rtp(scan_t *scan) {
+	register rtp_t *rtp = (rtp_t *)(scan->buf + scan->offset);
+	
+	
+	if (rtp->rtp_ver != 2 || 
+			rtp->rtp_cc > 15 || 
+			rtp->rtp_type > 25 || 
+			rtp->rtp_seq == 0 || 
+			rtp->rtp_ts == 0 ||
+			rtp->rtp_ssrc == 0
+			) {
+		
+#ifdef DEBUG
+		printf("validate_rtp() INVALID 1 offset=%d raw=0x%x\n", scan->offset,
+				(int) (*(uint8_t *)rtp));
+		printf("validate_rtp() "
+				"v=%d, p=%d, x=%d, cc=%d, m=%d, pt=%d seq=%d, ts=%d\n",
+				(int) rtp->rtp_ver,
+				(int) rtp->rtp_pad,
+				(int) rtp->rtp_ext,
+				(int) rtp->rtp_cc,
+				(int) rtp->rtp_marker,
+				(int) rtp->rtp_type,
+				(int) BIG_ENDIAN16(rtp->rtp_seq),
+				(int) BIG_ENDIAN32(rtp->rtp_ts)
+				);
+		fflush(stdout);
+#endif	
+	
+		return INVALID;
+	}
+	
+	uint32_t *c = (uint32_t *)(scan->buf + scan->offset + RTP_LENGTH);
+	for (int i = 0; i < rtp->rtp_cc; i ++) {
+		if (c[i] == 0) {
+			
+#ifdef DEBUG
+			printf("validate_rtp() INVALID 2\n"); fflush(stdout);
+#endif
+			
+			return INVALID;
+		}
+	}
+	
+	if (rtp->rtp_ext) {
+		rtpx_t * rtpx = (rtpx_t *)(scan->buf + scan->offset + scan->length);
+		
+		if (BIG_ENDIAN16(rtpx->rtpx_len) > (1500 / 4)) {
+			printf("validate_rtp() INVALID 3\n"); fflush(stdout);
+			return INVALID;
+		}
+	}
+	
+#ifdef DEBUG
+	printf("validate_rtp() OK\n"); fflush(stdout);
+#endif
+	
+	return RTP_ID;
+}
+
+/*
+ * Scan Session Data Protocol header
+ */
+void scan_rtp(scan_t *scan) {
+	register rtp_t *rtp = (rtp_t *)(scan->buf + scan->offset);
+	
+	scan->length += RTP_LENGTH + rtp->rtp_cc * 4;
+	
+	/*
+	 * Check for extension. We don't care here what it is, just want to add up
+	 * all the lengths
+	 */
+	if (rtp->rtp_ext) {
+		rtpx_t * rtpx = (rtpx_t *)(scan->buf + scan->offset + scan->length);
+		
+		scan->length += (BIG_ENDIAN16(rtpx->rtpx_len) * 4) + RTPX_LENGTH;
+	}
+	
+	/* If RTP payload is padded, the last byte contains number of pad bytes
+	 * used.
+	 */
+	if (rtp->rtp_pad) {
+		scan->hdr_postfix = scan->buf[scan->buf_len -1];
+	}
+
+/*************************
+	switch (rtp->type)) {
+	case 0:  // PCMU 8K
+	case 1:  // 1016 8K
+	case 2:  // G721 8K
+	case 3:  // GSM 8K
+	case 4:  // G723 8K
+	case 5:  // DVI4 8K
+	case 6:  // DVI4 16K
+	case 7:  // LPC 8K
+	case 8:  // PCMA 8K
+	case 9:  // G722 8K
+	case 10: // L16 44K 2CH
+	case 11: // l16 44K 1CH
+	case 12: // QCELP 8K
+	case 13: // CN 8K
+	case 14: // MPA 90K
+	case 15: // G728 8K
+	case 16: // DVI4 11K
+	case 17: // DVI4 22K
+	case 18: // G729 8K
+	case 25: // CellB 90K
+	case 26: // JPEG 90K
+	case 28: // NV 90K
+	case 31: // H261 90K
+	case 32: // MPV 90K
+	case 33: // MP2T 90K
+	case 34: // H263 90K
+	}
+****************/
+
+}
+
+
 /*
  * Scan Session Data Protocol header
  */
@@ -527,15 +653,15 @@ void scan_tcp(scan_t *scan) {
 	switch (BIG_ENDIAN16(tcp->dport)) {
 	case 80:
 	case 8080:
-	case 8081:	scan->next_id = validate_next(HTTP_ID, scan);		return;
-	case 5060:	scan->next_id = validate_next(SIP_ID, scan);		return;
+	case 8081: scan->next_id = validate_next(HTTP_ID, scan);	return;
+	case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;		
 	}
 	
 	switch (BIG_ENDIAN16(tcp->sport)) {
 	case 80:
 	case 8080:
-	case 8081:	scan->next_id = validate_next(HTTP_ID, scan);		return;
-	case 5060:	scan->next_id = validate_next(SIP_ID, scan);		return;
+	case 8081: scan->next_id = validate_next(HTTP_ID, scan);	return;
+	case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;
 	}
 }
 
@@ -570,10 +696,13 @@ void scan_udp(scan_t *scan) {
 	switch (BIG_ENDIAN16(udp->dport)) {
 	case 1701: scan->next_id = validate_next(L2TP_ID, scan);	return;
 	case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;
+	case 5004: scan->next_id = validate_next(RTP_ID, scan);		return;
 	}
 	
 	switch (BIG_ENDIAN16(udp->sport)) {
+	case 1701: scan->next_id = validate_next(L2TP_ID, scan);	return;
 	case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;
+	case 5004: scan->next_id = validate_next(RTP_ID, scan);		return;
 	}
 
 }
@@ -992,6 +1121,7 @@ void init_native_protocols() {
 	// Voice and Video
 	native_protocols[SIP_ID]     			= &scan_sip;
 	native_protocols[SDP_ID]     			= &scan_sdp;
+	native_protocols[RTP_ID]     			= &scan_rtp;
 	
 	
 	/*
@@ -1000,6 +1130,7 @@ void init_native_protocols() {
 	 */ 
 	validate_table[HTTP_ID] 				= &validate_http;
 	validate_table[SIP_ID]					= &validate_sip;
+	validate_table[RTP_ID]					= &validate_rtp;
 	
 	
 	/*
@@ -1008,6 +1139,8 @@ void init_native_protocols() {
 	 */
 	native_heuristics[TCP_ID][0]			= &validate_http;
 	native_heuristics[TCP_ID][1]			= &validate_sip;
+
+	native_heuristics[UDP_ID][0]			= &validate_rtp;
 	
 	/*
 	 * Now store the names of each header, used for debuggin purposes
@@ -1030,6 +1163,6 @@ void init_native_protocols() {
 	native_protocol_names[ARP_ID]           = "ARP";
 	native_protocol_names[SIP_ID]           = "SIP";
 	native_protocol_names[SDP_ID]           = "SDP";
-//	native_protocol_names[RTP_ID]           = "RTP";
+	native_protocol_names[RTP_ID]           = "RTP";
 }
 

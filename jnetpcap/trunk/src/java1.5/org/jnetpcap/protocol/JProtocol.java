@@ -30,6 +30,7 @@ import org.jnetpcap.protocol.network.Ip6;
 import org.jnetpcap.protocol.tcpip.Http;
 import org.jnetpcap.protocol.tcpip.Tcp;
 import org.jnetpcap.protocol.tcpip.Udp;
+import org.jnetpcap.protocol.voip.Rtp;
 import org.jnetpcap.protocol.voip.Sdp;
 import org.jnetpcap.protocol.voip.Sip;
 import org.jnetpcap.protocol.vpn.L2TP;
@@ -137,6 +138,11 @@ public enum JProtocol {
 	 * Session Data Protocol
 	 */
 	SDP(Sdp.class),
+	
+	/**
+	 * Realtime Transfer Protocol
+	 */
+	RTP(Rtp.class),
 	
 	;
 
