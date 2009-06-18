@@ -681,7 +681,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_init
 	
 	for (int i = 0; i < MAX_ID_COUNT; i++) {
 		for (int j = 0; j < MAX_ID_COUNT; j++) {
-			scanner->sc_heuristics_table[i][j] = native_hueristics[i][j];
+			scanner->sc_heuristics_table[i][j] = native_heuristics[i][j];
 		}
 	}
 
