@@ -29,31 +29,31 @@ extern jfieldID jbufferReadonlyFID;
  * **************************************************************
  ****************************************************************/
 #define ENDIAN16_ATOM_SWAP(data) (\
-	((((u_int16_t)data) >> 8)  & 0x00FF) | ((((u_int16_t)data) << 8) &  0xFF00))
+	((((uint16_t)data) >> 8)  & 0x00FF) | ((((uint16_t)data) << 8) &  0xFF00))
 
 #define ENDIAN32_ATOM_SWAP(data) (\
-	( (((u_int32_t)data) >> 24) & 0x000000FF) | ((((u_int32_t)data) >> 8)   & 0x0000FF00) |\
-	( (((u_int32_t)data) << 8)  &  0x00FF0000) | ((((u_int32_t)data) << 24) & 0xFF000000))
+	( (((uint32_t)data) >> 24) & 0x000000FF) | ((((uint32_t)data) >> 8)   & 0x0000FF00) |\
+	( (((uint32_t)data) << 8)  &  0x00FF0000) | ((((uint32_t)data) << 24) & 0xFF000000))
 
 #define ENDIAN64_ATOM_SWAP(data) (\
-	( (((u_int64_t)data) >> 56) & 0x00000000000000FFLLU) | ((((u_int64_t)data) >> 40) & 0x000000000000FF00LLU) |\
-	( (((u_int64_t)data) >> 24) & 0x0000000000FF0000LLU) | ((((u_int64_t)data) >> 8)  & 0x00000000FF000000LLU) |\
-	( (((u_int64_t)data) << 8)  & 0x000000FF00000000LLU) | ((((u_int64_t)data) << 24) & 0x0000FF0000000000LLU) |\
-	( (((u_int64_t)data) << 40) & 0x00FF000000000000LLU) | ((((u_int64_t)data) << 56) & 0xFF00000000000000LLU) \
+	( (((uint64_t)data) >> 56) & 0x00000000000000FFLLU) | ((((uint64_t)data) >> 40) & 0x000000000000FF00LLU) |\
+	( (((uint64_t)data) >> 24) & 0x0000000000FF0000LLU) | ((((uint64_t)data) >> 8)  & 0x00000000FF000000LLU) |\
+	( (((uint64_t)data) << 8)  & 0x000000FF00000000LLU) | ((((uint64_t)data) << 24) & 0x0000FF0000000000LLU) |\
+	( (((uint64_t)data) << 40) & 0x00FF000000000000LLU) | ((((uint64_t)data) << 56) & 0xFF00000000000000LLU) \
 	)
 
 #define ENDIAN16_PTR_SWAP(data) \
-	((u_int16_t)*(data + 0) << 8) | ((u_int16_t)*(data + 1))
+	((uint)*(data + 0) << 8) | ((uint)*(data + 1))
 
 #define ENDIAN32_PTR_SWAP(data) \
-	((u_int32_t)*(data + 0) << 24) | ((u_int32_t)*(data + 3)     ) |\
-	((u_int32_t)*(data + 1) << 16) | ((u_int32_t)*(data + 2) << 8)
+	((uint32_t)*(data + 0) << 24) | ((uint32_t)*(data + 3)     ) |\
+	((uint32_t)*(data + 1) << 16) | ((uint32_t)*(data + 2) << 8)
 
 #define ENDIAN64_PTR_SWAP(data) \
-	((u_int64_t)*(data + 0) << 56) | ((u_int64_t)*(data + 7)      ) |\
-	((u_int64_t)*(data + 1) << 48) | ((u_int64_t)*(data + 6) <<  8) |\
-	((u_int64_t)*(data + 2) << 40) | ((u_int64_t)*(data + 5) << 16) |\
-	((u_int64_t)*(data + 3) << 32) | ((u_int64_t)*(data + 4) << 24)
+	((uint64_t)*(data + 0) << 56) | ((uint64_t)*(data + 7)      ) |\
+	((uint64_t)*(data + 1) << 48) | ((uint64_t)*(data + 6) <<  8) |\
+	((uint64_t)*(data + 2) << 40) | ((uint64_t)*(data + 5) << 16) |\
+	((uint64_t)*(data + 3) << 32) | ((uint64_t)*(data + 4) << 24)
 
 /*
  * These macros test for requested BIG ENDIAN condition and appropriately define
