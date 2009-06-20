@@ -43,7 +43,7 @@ extern jfieldID jbufferReadonlyFID;
 	)
 
 #define ENDIAN16_PTR_SWAP(data) \
-	((uint)*(data + 0) << 8) | ((uint)*(data + 1))
+	((uint16_t)*(data + 0) << 8) | ((uint16_t)*(data + 1))
 
 #define ENDIAN32_PTR_SWAP(data) \
 	((uint32_t)*(data + 0) << 24) | ((uint32_t)*(data + 3)     ) |\
