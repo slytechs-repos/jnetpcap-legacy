@@ -15,6 +15,8 @@ package org.jnetpcap.packet.format;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jnetpcap.packet.JPacket;
+
 /**
  * Various static formatting utilities
  * 
@@ -38,7 +40,9 @@ public class FormatUtils {
 	 */
 	private final static int SECOND_MILLIS = 1000;
 
-	private static final String SPACE_CHAR = " ";
+	private static String SPACE_CHAR = " ";
+
+	private static String MARKER_CHAR = "*";
 
 	static String[] table = new String[256];
 
@@ -62,7 +66,7 @@ public class FormatUtils {
 	}
 
 	@SuppressWarnings("unused")
-  private static void initTable3chars() {
+	private static void initTable3chars() {
 		for (int i = 0; i < 31; i++) {
 			table[i] = "\\" + Integer.toHexString(i);
 			if (table[i].length() == 2)
@@ -334,14 +338,94 @@ public class FormatUtils {
 	    boolean doText,
 	    boolean doData) {
 
+		return hexdump(array, addressOffset, dataOffset, doAddress, doText, doData,
+		    null);
+	}
+
+	public static int[][] markers(JPacket.State state) {
+		int[][] markers = new int[state.getHeaderCount() + 1][2];
+		markers[0][0] = -1;
+		markers[0][1] = -1;
+
+		for (int i = 0; i < state.getHeaderCount(); i++) {
+			markers[i + 1][0] = state.getHeaderOffsetByIndex(i);
+			markers[i + 1][1] = state.getHeaderLengthByIndex(i);
+		}
+
+		return markers;
+	}
+
+	/**
+	 * Formats a byte array to a hexdump string
+	 * 
+	 * @param array
+	 *          array to convert
+	 * @param addressOffset
+	 *          offset of the address space reported
+	 * @param dataOffset
+	 *          offset of the data space reported
+	 * @param doAddress
+	 *          flag which specifies if address should be printed
+	 * @param doText
+	 *          flag which specifies if text should printed
+	 * @param doData
+	 *          flag which specifies if data should printed
+	 * @return converted string array, one array element per line of output
+	 */
+	public static String[] hexdump(
+	    byte[] array,
+	    int addressOffset,
+	    int dataOffset,
+	    boolean doAddress,
+	    boolean doText,
+	    boolean doData,
+	    int[][] markers) {
+
 		multiLineStringList.clear();
 
 		for (int i = 0; i + dataOffset < array.length; i += 16) {
 			multiLineStringList.add(hexLine(array, i + addressOffset, i + dataOffset,
-			    doAddress, doText, doData));
+			    doAddress, doText, doData, markers));
 		}
 
 		return multiLineStringList.toArray(new String[multiLineStringList.size()]);
+	}
+
+	/**
+	 * Formats the supplied array for single line combined hexdump output using
+	 * all possible options turned on.
+	 * 
+	 * @param array
+	 *          source array
+	 * @return a multi-line string containing verbose hexdump
+	 */
+	public static String hexdump(byte[] array) {
+		return hexdumpCombined(array, 0, 0, true, true, true);
+	}
+
+	/**
+	 * Formats the supplied packet for single line combined hexdump output using
+	 * all possible options turned on. Also displays markers which mark boundaries
+	 * between each header.
+	 * 
+	 * @param packet
+	 *          source of data
+	 * @return a multi-line string containing verbose hexdump
+	 */
+	public static String hexdump(JPacket packet) {
+		return hexdump(packet.getByteArray(0, packet.size()), packet.getState());
+	}
+
+	/**
+	 * Formats the supplied array for single line combined hexdump output using
+	 * all possible options turned on.
+	 * 
+	 * @param array
+	 *          source array
+	 * @return a multi-line string containing verbose hexdump
+	 */
+	public static String hexdump(byte[] array, JPacket.State state) {
+		return hexdumpCombined(array, 0, 0, true, true, true, markers(state));
 	}
 
 	/**
@@ -368,9 +452,39 @@ public class FormatUtils {
 	    boolean doAddress,
 	    boolean doText,
 	    boolean doData) {
+
+		return hexdumpCombined(array, addressOffset, dataOffset, doAddress, doText,
+		    doData, null);
+	}
+
+	/**
+	 * Converts the byte arra to hexdump string
+	 * 
+	 * @param array
+	 *          array to convert
+	 * @param addressOffset
+	 *          offset of the address space reported
+	 * @param dataOffset
+	 *          offset of the data space reported
+	 * @param doAddress
+	 *          flag which specifies if address should be printed
+	 * @param doText
+	 *          flag which specifies if text should printed
+	 * @param doData
+	 *          flag which specifies if data should printed
+	 * @return converted string
+	 */
+	public static String hexdumpCombined(
+	    byte[] array,
+	    int addressOffset,
+	    int dataOffset,
+	    boolean doAddress,
+	    boolean doText,
+	    boolean doData,
+	    int[][] markers) {
 		StringBuilder b = new StringBuilder();
 		for (String s : hexdump(array, addressOffset, dataOffset, doAddress,
-		    doText, doData)) {
+		    doText, doData, markers)) {
 			b.append(s).append('\n');
 		}
 
@@ -400,15 +514,18 @@ public class FormatUtils {
 	    int dataOffset,
 	    boolean doAddress,
 	    boolean doText,
-	    boolean doData) {
+	    boolean doData,
+	    int[][] markers) {
+
 		String s = "";
+
 		if (doAddress) {
 			s += hexLineAddress(addressOffset);
-			s += ":" + SPACE_CHAR;
+			s += ":";
 		}
 
 		if (doData) {
-			s += hexLineData(array, dataOffset);
+			s += hexLineData(array, dataOffset, markers);
 		}
 
 		if (doText) {
@@ -454,14 +571,20 @@ public class FormatUtils {
 
 		int i = 0;
 		for (i = 0; i + offset < data.length && i < 16; i++) {
+			final int o = i + offset;
+			if (i == 0) {
+				s += SPACE_CHAR;
+			}
 
 			/**
 			 * Insert a space every 4 characaters.
 			 */
-			if (i % 4 == 0 && i != 0)
+			if (i % 4 == 0 && i != 0) {
 				s += SPACE_CHAR;
+			}
 
-			s += toHexString(data[i + offset]) + SPACE_CHAR;
+			s += toHexString(data[o]) + SPACE_CHAR;
+
 		}
 
 		/**
@@ -474,10 +597,93 @@ public class FormatUtils {
 			if (i % 4 == 0 && i != 0)
 				s += SPACE_CHAR;
 
-			s += SPACE_CHAR + SPACE_CHAR;
+			s += SPACE_CHAR + SPACE_CHAR + SPACE_CHAR;
 		}
 
 		return (s);
+	}
+
+	/**
+	 * Formats the data array as a hexdump
+	 * 
+	 * @param data
+	 *          data array
+	 * @param offset
+	 *          offset into the array
+	 * @return formatted string
+	 */
+	public static String hexLineData(byte[] data, int offset, int[][] markers) {
+
+		if (markers == null) {
+			return hexLineData(data, offset);
+		}
+		
+		final StringBuilder b = new StringBuilder();
+
+		final String m[] = {
+				"*",
+				"*"
+		};
+
+		int marker = findMarker(markers, offset);
+		int start = markers[marker][0];
+		int end = start + markers[marker][1] - 1;
+
+		int i = 0;
+		for (i = 0; i + offset < data.length && i < 16; i++) {
+			final int o = i + offset;
+			if (o == 0 && o == start) {
+				b.append(m[marker%2]);
+			} else if (i == 0) {
+				b.append(SPACE_CHAR);
+			}
+
+			/**
+			 * Insert a space every 4 characaters.
+			 */
+			if (i % 4 == 0 && i != 0)
+				b.append(SPACE_CHAR);
+
+			if (o == end) {
+				marker = findMarker(markers, o + 1);
+				start = markers[marker][0];
+				end = start + markers[marker][1] - 1;
+				
+				b.append(toHexString(data[o])).append(m[marker%2]);
+
+			} else {
+				b.append(toHexString(data[o])).append(SPACE_CHAR);
+
+			}
+		}
+
+		/**
+		 * Continue the loop and append spaces to fill in the missing data.
+		 */
+		for (; i < 16; i++) {
+			/**
+			 * Insert a space every 4 characaters.
+			 */
+			if (i % 4 == 0 && i != 0)
+				b.append(SPACE_CHAR);
+
+			b.append(SPACE_CHAR).append(SPACE_CHAR).append(SPACE_CHAR);
+		}
+
+		return b.toString();
+	}
+
+	private static int findMarker(int[][] markers, int offset) {
+		for (int i = 0; i < markers.length; i++) {
+			final int start = markers[i][0];
+			final int end = start + markers[i][1] - 1;
+			if (offset >= start && offset < end) {
+				return i;
+			}
+
+		}
+
+		return 0;
 	}
 
 	/**
