@@ -71,6 +71,7 @@ public class BuildTests {
 		suite.addTestSuite(TestAnalysisAccessors.class);
 		suite.addTestSuite(TestJHeader.class);
 		suite.addTestSuite(TestVoip.class);
+		suite.addTestSuite(TestTcpIp.class);
 		//$JUnit-END$
 		return suite;
 	}

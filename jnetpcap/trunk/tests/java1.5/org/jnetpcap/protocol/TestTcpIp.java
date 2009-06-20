@@ -12,18 +12,27 @@
  */
 package org.jnetpcap.protocol;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jnetpcap.Pcap;
+import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.PcapPacketHandler;
 import org.jnetpcap.packet.TestUtils;
+import org.jnetpcap.packet.format.FormatUtils;
 import org.jnetpcap.protocol.lan.Ethernet;
 import org.jnetpcap.protocol.network.Icmp;
 import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.protocol.network.Ip6;
 import org.jnetpcap.protocol.tcpip.Tcp;
 import org.jnetpcap.protocol.tcpip.Udp;
+import org.jnetpcap.util.DataUtils;
+import org.jnetpcap.util.PcapPacketArrayList;
 import org.jnetpcap.util.checksum.Checksum;
 
 /**
@@ -41,8 +50,13 @@ public class TestTcpIp
 		JPacket packet = super.getPcapPacket(TestUtils.L2TP, 0);
 		Ip4 ip = packet.getHeader(new Ip4());
 
-		assertEquals(Checksum.ip2Chunk(ip, 0, 10, 12, ip.size() - 12), ip
-		    .checksum());
+		int computed = Checksum.inChecksum(ip, 0, ip.size());
+
+		System.out.printf("1chunk=%x\n", computed);
+		System.out.printf("shoudbe=%x checksum=%x\n", Checksum.inChecksumShouldBe(
+		    ip.checksum(), computed), ip.checksum());
+
+		assertTrue(ip.isChecksumValid());
 	}
 
 	public void testIp4CRC16Pkt2() {
@@ -50,8 +64,7 @@ public class TestTcpIp
 		JPacket packet = super.getPcapPacket(TestUtils.L2TP, 1);
 		Ip4 ip = packet.getHeader(new Ip4());
 
-		assertEquals(Checksum.ip2Chunk(ip, 0, 10, 12, ip.size() - 12), ip
-		    .checksum());
+		assertEquals(ip.calculateChecksum(), ip.checksum());
 	}
 
 	public void testIp4CRC16Pkt50() {
@@ -60,10 +73,9 @@ public class TestTcpIp
 		Ip4 ip = packet.getHeader(new Ip4());
 
 		int crc;
-		assertEquals(crc = Checksum.ip2Chunk(ip, 0, 10, 12, ip.size() - 12), ip
-		    .checksum());
+		assertEquals(ip.checksum(), ip.calculateChecksum());
 
-		System.out.printf("ip.crc=%x computed=%x\n", ip.checksum(), crc);
+		// System.out.printf("ip.crc=%x computed=%x\n", ip.checksum(), crc);
 	}
 
 	public void testIp4CRC16EntireFile() throws InterruptedException {
@@ -74,9 +86,7 @@ public class TestTcpIp
 			assertTrue(packet.hasHeader(ip));
 
 			assertEquals(20, ip.size());
-			final int crc = Checksum.ip2Chunk(ip, 0, 10, 12, ip.size() - 12);
-			assertEquals(Checksum.ip2Chunk(ip, 0, 10, 12, ip.size() - 12), Checksum
-			    .ip2Chunk(ip, 0, 10, 12, ip.size() - 12));
+			final int crc = ip.calculateChecksum();
 
 			if (ip.checksum() != crc) {
 				try {
@@ -101,33 +111,227 @@ public class TestTcpIp
 
 		assertNotNull(pcap);
 
-		pcap.loop(Pcap.LOOP_INFINATE, new PcapPacketHandler<String>() {
-			Ip4 ip = new Ip4();
+		pcap.dispatch(Pcap.DISPATCH_BUFFER_FULL, JProtocol.ETHERNET_ID,
+		    new PcapPacketHandler<Pcap>() {
+			    Ip4 ip = new Ip4();
 
-			// public void nextPacket(PcapHeader header, JBuffer buffer, String user)
-			// {
-			public void nextPacket(PcapPacket packet, String user) {
+			    int i = 0, j = 0;
 
-				// PcapPacket packet = new PcapPacket(header, buffer);
+			    // public void nextPacket(PcapHeader header, JBuffer buffer, String
+			    // user)
+			    // {
+			    public void nextPacket(PcapPacket packet, Pcap pcap) {
 
-				long f = packet.getFrameNumber();
-				assertTrue("#" + f, packet.hasHeader(ip));
+				    // if (i++ % 1 == 0) {
+				    packet = new PcapPacket(packet);
+				    j++;
+				    // }
 
-				final int crc = Checksum.ip2Chunk(ip, 0, 10, 12, ip.size() - 12);
-				// final int crc = Checksum.ip1Chunk(ip, 0, ip.size());
+				    long f = packet.getFrameNumber();
+				    assertTrue("#" + f, packet.hasHeader(ip));
 
-				if (crc != 0 && ip.checksum() != crc) {
-					System.out.println(packet);
-					System.out.printf("#%d: ip.crc=%x computed=%x\n", f, ip.checksum(),
-					    crc);
-					System.out.println(ip.toHexdump());
-				}
-				// assertEquals("Frame #" + f, 0, crc);
+				    assertTrue("Frame #" + f, ip.isChecksumValid());
+			    }
 
-				assertEquals("Frame #" + f, ip.checksum(), crc);
+		    }, null);
+	}
+
+	public void testCompare2SetsOfPackets() throws IOException {
+		List<PcapPacket> l1 = getPacketList(L2TP);
+		List<PcapPacket> l2 = getPacketList(L2TP);
+
+		assertEquals(l1.size(), l2.size());
+
+		for (int i = 0; i < l1.size(); i++) {
+			PcapPacket p1 = l1.get(i);
+			PcapPacket p2 = l2.get(i);
+
+			if (p1.size() != p2.size()) {
+				System.out.printf("#%d p1=%d p2=%d\n%s\n%s\n", i, l1.size(), l2.size(),
+				    p1.toHexdump(), p2.toHexdump());
+
+				System.out.println(p1.toString());
+				System.out.println(p2.toString());
 			}
 
-		}, null);
+			assertEquals(p1.size(), p2.size());
+			assertTrue(compareJBuffer(p1, p2));
+
+		}
+
+	}
+
+	public void testCompareChecksumOf2Sets() throws IOException {
+		List<PcapPacket> l1 = getPacketList(L2TP);
+		List<PcapPacket> l2 = getPacketList(L2TP);
+
+		assertEquals(l1.size(), l2.size());
+
+		Ip4 ip1 = new Ip4();
+		Ip4 ip2 = new Ip4();
+
+		for (int i = 0; i < l1.size(); i++) {
+			PcapPacket p1 = l1.get(i);
+			PcapPacket p2 = l2.get(i);
+
+			int c1 = p1.getHeader(ip1).calculateChecksum();
+			int c2 = p2.getHeader(ip2).calculateChecksum();
+
+			assertEquals(c1, ip1.checksum());
+			assertEquals(c2, ip2.checksum());
+
+			assertEquals(c1, c2);
+		}
+
+	}
+
+	private boolean compareJBuffer(JBuffer b1, JBuffer b2) {
+		if (b1.size() != b2.size()) {
+			return false;
+		}
+
+		for (int i = 0; i < b1.size(); i++) {
+			if (b1.getByte(i) != b2.getByte(i)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	List<Integer> checksums = new ArrayList<Integer>();
+
+	List<Integer> saved = new ArrayList<Integer>();
+
+	List<byte[]> data = new ArrayList<byte[]>();
+
+	private List<PcapPacket> getPacketList(String file) throws IOException {
+		StringBuilder errbuf = new StringBuilder();
+		Pcap pcap = Pcap.openOffline(file, errbuf);
+		if (pcap == null) {
+			throw new IOException(errbuf.toString());
+		}
+
+		final PcapPacketArrayList list =
+		    new PcapPacketArrayList((int) new File(file).length() / 100);
+
+		pcap.loop(Pcap.LOOP_INFINATE, list, null);
+
+		pcap.close();
+
+		return list;
+	}
+
+	public void testIpChecksum() throws IOException {
+		StringBuilder errbuf = new StringBuilder();
+		Pcap pcap = Pcap.openOffline(L2TP, errbuf);
+		if (pcap == null) {
+			throw new IOException(errbuf.toString());
+		}
+
+		pcap.loop(Pcap.LOOP_INFINATE, new PcapPacketHandler<Pcap>() {
+			Ip4 ip1 = new Ip4();
+
+			Ip4 ip2 = new Ip4();
+
+			int i = 0;
+
+			public void nextPacket(PcapPacket p1, Pcap user) {
+				i++;
+				p1.getHeader(ip1);
+				int c1 = ip1.calculateChecksum();
+
+				PcapPacket p2 = new PcapPacket(p1);
+				p2.getHeader(ip2);
+
+				int c2 = ip2.calculateChecksum();
+
+				if (c1 != c2) {
+					System.out.printf("#%d crc_before=%x crc_after=%x\n", i, c1, c2);
+					System.out.printf(
+					    "P1: %s\nheader1=%s\n\nstate1=%s\npacket1=%s\n\nip1=%s\n", p1
+					        .toHexdump(), p1.getCaptureHeader().toDebugString(), p1
+					        .getState().toDebugString(), p1.toDebugString(), ip1
+					        .toDebugString());
+
+					System.out.println("---------------------------");
+
+					System.out.printf(
+					    "P2: %s\nheader2=%s\n\nstate2=%s\npacket2=%s\n\nip2=%s\n\n", p2
+					        .toHexdump(), p2.getCaptureHeader().toDebugString(), p2
+					        .getState().toDebugString(), p2.toDebugString(), ip2
+					        .toDebugString());
+
+					System.out.println("p1-p2.memory.diff=\n"
+					    + FormatUtils.hexdump(DataUtils.diff(p1, p2)));
+
+					System.out.println("ip1-ip2.memory.diff=\n"
+					    + FormatUtils.hexdump(DataUtils.diff(ip1, ip2)));
+
+					System.exit(0);
+				}
+
+				i++;
+			}
+
+		}, pcap);
+
+		pcap.close();
+	}
+
+	public void testCompare2SetsOfPackets2() throws IOException {
+		List<PcapPacket> l1 = getPacketList(L2TP);
+		List<PcapPacket> l2 = getPacketList(L2TP);
+		Ip4 ip1 = new Ip4();
+		Ip4 ip2 = new Ip4();
+
+		assertEquals(l1.size(), l2.size());
+
+		System.out.println("------------------------------\n");
+
+		for (int i = 0; i < l1.size(); i++) {
+			PcapPacket p1 = l1.get(i);
+			PcapPacket p2 = l2.get(i);
+			p1.getHeader(ip1);
+			p2.getHeader(ip2);
+
+			if (p1.size() != p2.size() || !ip1.isChecksumValid()
+			    || !ip2.isChecksumValid() || !compareJBuffer(p1, p2)) {
+
+				System.out.printf("#%d crc=%x saved=%x calc=%x p1=%d p2=%d\n%s\n%s\n",
+				    i, checksums.get(i), saved.get(i), ip1.calculateChecksum(), l1
+				        .size(), l2.size(), ip1.toHexdump(), ip2.toHexdump());
+
+				System.out.println("header=" + p1.getCaptureHeader().toDebugString());
+				System.out.println("state=" + p1.getState().toDebugString());
+				System.out.println("packet1=" + p1.toDebugString());
+				System.out.println("ip1=" + ip1.toDebugString());
+				System.out.println();
+				System.out.println("ip.copy=\n" + p1.toHexdump());
+				System.out.println("packet.orig=\n"
+				    + FormatUtils.hexdump(data.get(i + 168), p2.getState()));
+
+				System.out.println("packet.diff=\n"
+				    + FormatUtils.hexdump(DataUtils.diff(data.get(i), p2)));
+
+				// System.out.println(p1);
+				// System.out.println(p2);
+
+				// System.out.println(ip1);
+				// System.out.println(ip2);
+
+				for (int j = 0; j < 100; j++) {
+					System.out.printf("%x ", ip1.calculateChecksum());
+
+					if (ip1.isChecksumValid()) {
+						System.out.println("CHANGED");
+					}
+				}
+				System.exit(0);
+			}
+
+		}
+
 	}
 
 	public void testTcpIp4CRC16UsingHandler() {
@@ -194,19 +398,7 @@ public class TestTcpIp
 				long f = packet.getFrameNumber();
 				assertTrue("#" + f, packet.hasHeader(ip));
 
-				final int crc =
-				    Checksum.pseudoTcp(packet, ip.getOffset(), tcp.getOffset());
-
-				if (crc != 0 && tcp.checksum() != crc) {
-					System.out.println(tcp);
-					System.out.printf("#%d: tcp.crc=%x computed=%x\n", f, tcp.checksum(),
-					    crc);
-					// System.out.println(ip.toHexdump());
-					// System.out.println(tcp.toHexdump());
-					System.exit(0);
-				}
-
-				assertEquals("Frame #" + f, tcp.checksum(), crc);
+				assertTrue("Frame #" + f, tcp.isChecksumValid());
 			}
 
 		}, null);
@@ -234,19 +426,7 @@ public class TestTcpIp
 				long f = packet.getFrameNumber();
 				assertTrue("#" + f, packet.hasHeader(ip));
 
-				final int crc =
-				    Checksum.pseudoUdp(packet, ip.getOffset(), udp.getOffset());
-
-				if (crc != 0 && udp.checksum() != crc) {
-					System.out.println(udp);
-					System.out.printf("#%d: udp.crc=%x computed=%x\n", f, udp.checksum(),
-					    crc);
-					// System.out.println(ip.toHexdump());
-					// System.out.println(tcp.toHexdump());
-					System.exit(0);
-				}
-
-				assertEquals("Frame #" + f, udp.checksum(), crc);
+				assertTrue("Frame #" + f, udp.isChecksumValid());
 			}
 
 		}, null);
@@ -274,18 +454,12 @@ public class TestTcpIp
 				long f = packet.getFrameNumber();
 				assertTrue("#" + f, packet.hasHeader(ip));
 
-				final int crc = Checksum.icmp(packet, ip.getOffset(), icmp.getOffset());
-
-				if (ip.isFragment() == false && crc != 0 && icmp.checksum() != crc) {
-					System.out.println(packet);
-					System.out.printf("#%d: udp.crc=%x computed=%x\n", f,
-					    icmp.checksum(), crc);
-					// System.out.println(ip.toHexdump());
-					// System.out.println(tcp.toHexdump());
-
-					System.out.flush();
-					System.exit(0);
+				if (icmp.isChecksumValid() == false) {
+					System.out.printf("#%d shouldbe=%x checksum=%x\n", f, icmp
+					    .calculateChecksum(), icmp.checksum());
 				}
+
+				assertTrue("#" + f, icmp.isChecksumValid());
 			}
 
 		}, null);

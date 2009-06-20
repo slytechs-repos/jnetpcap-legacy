@@ -182,26 +182,26 @@ public class Checksum {
 	 *          number of bytes to include in calculation
 	 * @return computed CRC16
 	 */
-	public static native int ip1Chunk(JBuffer buffer, int offset, int length);
+	public static native int inChecksum(JBuffer buffer, int offset, int length);
 
-	public static native int ip2Chunk(
-	    JBuffer buffer,
-	    int offset1,
-	    int length1,
-	    int offset2,
-	    int length2);
-
-	public static native int ip3Chunk(
-	    JBuffer buffer,
-	    int offset1,
-	    int length1,
-	    int offset2,
-	    int length2,
-	    int offset3,
-	    int length3);
+	/**
+	 * Computes what the checksum should be based on calculated checksum and the
+	 * checksum in the header's checksum field.
+	 * 
+	 * @param checksum
+	 *          checksum within the header's field
+	 * @param calculateChecksum
+	 *          checksum that was calculated
+	 * @return resulting checksum of the combination of the 2
+	 */
+	public static native int inChecksumShouldBe(
+	    int checksum,
+	    int calculateChecksum);
 
 	public static native int pseudoTcp(JBuffer buffer, int ipOffset, int tcpOffset);
+
 	public static native int pseudoUdp(JBuffer buffer, int ipOffset, int udpOffset);
+
 	public static native int icmp(JBuffer buffer, int ipOffset, int icmpOffset);
 
 }
