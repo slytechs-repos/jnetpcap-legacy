@@ -36,7 +36,7 @@ import org.jnetpcap.nio.JMemory.Type;
  * garbage collected. When that happens the original memory block is deallocated
  * with a native C free() call. The user does not have to do anything special,
  * the memory management is done completely behind the scene, very efficiently
- * and automatically using.
+ * and automatically using java's garbage collection mechanism.
  * </p>
  * 
  * @author Mark Bednarczyk
@@ -55,65 +55,128 @@ public class JMemoryPool {
 	    extends
 	    JMemory {
 
+		/**
+		 * How many bytes are available for allocation in this current block
+		 */
 		private int available = 0;
 
+		/**
+		 * Position into the block where the next available byte resides
+		 */
 		private int current = 0;
 
 		/**
-		 * The size of the native integer which is also the bus-size in bytes of the
-		 * hardware architecture. We use the BUS_WIDTH to align our allocated memory
-		 * on that boundary.
-		 */
-		private final static int BUS_WIDTH = JNumber.Type.INT.size;
-
-		/**
+		 * Constructor for allocating a block of a requested size
+		 * 
 		 * @param size
+		 *          number of bytes to allocate for this block
 		 */
-		Block(int size) {
+		Block(final int size) {
 			super(size);
-			available = size;
+			this.available = size;
 		}
 
 		/**
+		 * Peers this block with another memory object
+		 * 
 		 * @param peer
+		 *          memory object to peer with
 		 */
-		Block(JMemory peer) {
+		Block(final JMemory peer) {
 			super(peer);
 		}
 
+		/**
+		 * Allocates requested size number of bytes from existing memory block
+		 * 
+		 * @param size
+		 *          number of bytes
+		 * @return offset into the buffer where the allocated memory begins
+		 */
 		public int allocate(int size) {
 
 			/* Align to an even boundary */
 			size += (size % BUS_WIDTH);
 
-			if (size > available) {
+			if (size > this.available) {
 				return -1;
 			}
-			final int allocated = current;
-			available -= size;
-			current += size;
+			final int allocated = this.current;
+			this.available -= size;
+			this.current += size;
 
 			return allocated;
 		}
 
-		public void free(int offset, int length) {
+		/**
+		 * Frees the existing memory to be put back in the memory pool.
+		 * 
+		 * @param offset
+		 * @param length
+		 */
+		public void free(final int offset, final int length) {
 			// Do nothing for now
 		}
 
 	}
 
 	/**
+	 * The size of the native integer which is also the bus-size in bytes of the
+	 * hardware architecture. We use the BUS_WIDTH to align our allocated memory
+	 * on that boundary.
+	 */
+	private final static int BUS_WIDTH = JNumber.Type.INT.size;
+
+	/**
 	 * Default block size. JMemoryPool allocates memory in a large block which
 	 * then further sub allocates per individual requests. The is the default
 	 * size.
 	 */
-	public static final int DEFAULT_BLOCK_SIZE = 1024 * 100;
+	public static final int DEFAULT_BLOCK_SIZE = 1024 * 10;
 
+	private final static JMemoryPool global = new JMemoryPool();
+
+	/**
+	 * Allocates requested size of memory from the global memory pool.
+	 * 
+	 * @param size
+	 *          allocation size in bytes
+	 * @return buffer which references the allocated memory
+	 */
+	public static JBuffer buffer(final int size) {
+		final JBuffer buffer = new JBuffer(Type.POINTER);
+		global.allocate(size, buffer);
+
+		return buffer;
+	}
+
+	/**
+	 * @param size
+	 * @param storage
+	 */
+	public static void malloc(final int size, final JMemory storage) {
+		global.allocate(size, storage);
+	}
+
+	/**
+	 * Currently active block from which memory allocations take place if its big
+	 * enough to fullfil the requests
+	 */
 	private Block block;
 
-	private List<Reference<Block>> pool = new LinkedList<Reference<Block>>();
-
+	/**
+	 * Current default block size when creating new memory blocks. This is user
+	 * modifiable.
+	 */
 	private int blockSize = DEFAULT_BLOCK_SIZE;
+
+	/**
+	 * A pool of blocks that is maintained when a block becomes to small to
+	 * fullful an allocation request and a new block is allocated. The too small
+	 * block is put in the pool to possibly be reused to fullfil smaller requests
+	 */
+	private final List<Reference<Block>> pool =
+	    new LinkedList<Reference<Block>>();
 
 	/**
 	 * Uses default allocation size and strategy.
@@ -128,8 +191,25 @@ public class JMemoryPool {
 	 * @param defaultBlockSize
 	 *          minimum memory block allocation size
 	 */
-	public JMemoryPool(int defaultBlockSize) {
+	public JMemoryPool(final int defaultBlockSize) {
 		this.blockSize = defaultBlockSize;
+	}
+
+	/**
+	 * Allocates size bytes of memroy and initializes the supplied memory pointer
+	 * class.
+	 * 
+	 * @param size
+	 *          number of bytes
+	 * @param memory
+	 *          memory pointer
+	 */
+	public void allocate(final int size, final JMemory memory) {
+
+		final Block block = getBlock(size);
+		final int offset = block.allocate(size);
+
+		memory.peer(block, offset, size);
 	}
 
 	/**
@@ -137,7 +217,10 @@ public class JMemoryPool {
 	 * bytes. The user must further request from the block
 	 * {@link Block#allocate(int)} the size of memory needed. The block will then
 	 * return an offset into the memory which has been reserved for this
-	 * allocation
+	 * allocation. The pool of used blocks with potential of some available memory
+	 * in them is maintained using a WeakReference. This allows the blocks to be
+	 * GCed when no references to them exist, even if there is still a bit of
+	 * available memory left in them.
 	 * 
 	 * @see Block#allocate(int)
 	 * @param size
@@ -145,27 +228,34 @@ public class JMemoryPool {
 	 * @return block big enough to hold size number of bytes
 	 */
 	public Block getBlock(int size) {
-		if (block == null) {
-			if ((block = getFromPool(size)) == null) {
-				block = newBlock(size);
-			}
-		} else if (block.available < size) {
-			pool.add(new WeakReference<Block>(block));
 
-			if ((block = getFromPool(size)) == null) {
-				block = newBlock(size);
+		/* Align to an even boundary */
+		size += (size % BUS_WIDTH);
+
+		if (this.block == null) {
+			if ((this.block = getFromPool(size)) == null) {
+				this.block = newBlock(size);
+			}
+		} else if (this.block.available < size) {
+			this.pool.add(new WeakReference<Block>(this.block));
+
+			if ((this.block = getFromPool(size)) == null) {
+				this.block = newBlock(size);
 			}
 		}
 
-		return block;
+		return this.block;
 	}
 
 	/**
+	 * Checks if a block resides in the pool that has atleast minimumSize number
+	 * of bytes still available.
+	 * 
 	 * @param minimumSize
 	 * @return
 	 */
-	private Block getFromPool(int minimumSize) {
-		Iterator<Reference<Block>> i = pool.iterator();
+	private Block getFromPool(final int minimumSize) {
+		final Iterator<Reference<Block>> i = this.pool.iterator();
 		while (i.hasNext()) {
 			final Reference<Block> r = i.next();
 			if (r == null) {
@@ -186,49 +276,17 @@ public class JMemoryPool {
 	}
 
 	/**
-	 * @param atLeastInSize
-	 * @return
-	 */
-	private Block newBlock(int atLeastInSize) {
-		return new Block((atLeastInSize > blockSize) ? atLeastInSize : blockSize);
-
-	}
-
-	/**
-	 * Allocates size bytes of memroy and initializes the supplied memory pointer
-	 * class.
+	 * Creates a new block to be used for memory allocations of atLeast the size
+	 * supplied or possibly bigger.
 	 * 
-	 * @param size
-	 *          number of bytes
-	 * @param memory
-	 *          memory pointer
+	 * @param atLeastInSize
+	 *          minimum number of bytes to allocate
+	 * @return a new block to be used for allocations
 	 */
-	public void allocate(int size, JMemory memory) {
-		final Block block = getBlock(size);
-		final int offset = block.allocate(size);
+	private Block newBlock(final int atLeastInSize) {
+		return new Block((atLeastInSize > this.blockSize) ? atLeastInSize
+		    : this.blockSize);
 
-		memory.peer(block, offset, size);
-	}
-
-	private final static JMemoryPool global = new JMemoryPool();
-
-	/**
-	 * @param size
-	 * @param storage
-	 */
-	public static void malloc(int size, JMemory storage) {
-		global.allocate(size, storage);
-	}
-
-	/**
-	 * @param size
-	 * @param storage
-	 */
-	public static JBuffer buffer(int size) {
-		final JBuffer buffer = new JBuffer(Type.POINTER);
-		global.allocate(size, buffer);
-
-		return buffer;
 	}
 
 }
