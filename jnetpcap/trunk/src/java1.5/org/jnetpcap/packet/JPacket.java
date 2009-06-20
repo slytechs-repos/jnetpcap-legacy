@@ -22,6 +22,7 @@ import org.jnetpcap.nio.JMemoryPool;
 import org.jnetpcap.nio.JStruct;
 import org.jnetpcap.packet.analysis.AnalysisUtils;
 import org.jnetpcap.packet.analysis.JAnalysis;
+import org.jnetpcap.packet.format.FormatUtils;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
 
@@ -954,6 +955,15 @@ public abstract class JPacket
 	 */
 	public void scan(int id) {
 		scanner.scan(this, id, getCaptureHeader().wirelen());
+	}
+
+	/**
+	 * Formats packet raw data as a hexdump output and marks header boundaries
+	 * with special characters.
+	 */
+	@Override
+	public String toHexdump() {
+		return FormatUtils.hexdump(this);
 	}
 
 	/**
