@@ -52,11 +52,19 @@ public class JMemoryPool {
 	 * @author Sly Technologies, Inc.
 	 */
 	public static class Block
-	    extends JMemory {
+	    extends
+	    JMemory {
 
 		private int available = 0;
 
 		private int current = 0;
+
+		/**
+		 * The size of the native integer which is also the bus-size in bytes of the
+		 * hardware architecture. We use the BUS_WIDTH to align our allocated memory
+		 * on that boundary.
+		 */
+		private final static int BUS_WIDTH = JNumber.Type.INT.size;
 
 		/**
 		 * @param size
@@ -74,6 +82,10 @@ public class JMemoryPool {
 		}
 
 		public int allocate(int size) {
+
+			/* Align to an even boundary */
+			size += (size % BUS_WIDTH);
+
 			if (size > available) {
 				return -1;
 			}
@@ -95,7 +107,7 @@ public class JMemoryPool {
 	 * then further sub allocates per individual requests. The is the default
 	 * size.
 	 */
-	public static final int DEFAULT_BLOCK_SIZE = 1024 * 10;
+	public static final int DEFAULT_BLOCK_SIZE = 1024 * 100;
 
 	private Block block;
 
@@ -207,7 +219,7 @@ public class JMemoryPool {
 	public static void malloc(int size, JMemory storage) {
 		global.allocate(size, storage);
 	}
-	
+
 	/**
 	 * @param size
 	 * @param storage
@@ -215,9 +227,8 @@ public class JMemoryPool {
 	public static JBuffer buffer(int size) {
 		final JBuffer buffer = new JBuffer(Type.POINTER);
 		global.allocate(size, buffer);
-		
+
 		return buffer;
 	}
-
 
 }
