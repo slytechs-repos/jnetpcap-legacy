@@ -17,6 +17,7 @@ import java.util.Set;
 
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JHeader;
+import org.jnetpcap.packet.JHeaderChecksum;
 import org.jnetpcap.packet.annotate.BindingVariable;
 import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
@@ -26,7 +27,6 @@ import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.util.checksum.Checksum;
-import org.omg.CosNaming.IstringHelper;
 
 /**
  * Tcp/Ip header definition
@@ -38,7 +38,7 @@ import org.omg.CosNaming.IstringHelper;
 @SuppressWarnings("unused")
 public class Tcp
     extends
-    JHeader {
+    JHeader implements JHeaderChecksum {
 
 	/**
 	 * Constants for each TCP flag
@@ -138,15 +138,15 @@ public class Tcp
 
 	@Dynamic(Field.Property.DESCRIPTION)
 	public String checksumDescription() {
-		
+
 		if (isFragmented()) {
 			return "supressed for fragments";
 		}
-		
+
 		if (isPayloadTruncated()) {
 			return "supressed for truncated packets";
 		}
-		
+
 		final int crc16 = calculateChecksum();
 		if (checksum() == crc16) {
 			return "correct";
@@ -155,6 +155,11 @@ public class Tcp
 		}
 	}
 
+	/**
+	 * Retrieves the header's checksum.
+	 * 
+	 * @return header's stored checksum
+	 */
 	@Field(offset = 16 * BYTE, length = 16, format = "%x")
 	public int checksum() {
 		return getUShort(16);
@@ -414,6 +419,13 @@ public class Tcp
 		return window() << 6;
 	}
 
+	/**
+	 * Calculates a checksum using protocol specification for a header. Checksums
+	 * for partial headers or fragmented packets (unless the protocol alows it)
+	 * are not calculated.
+	 * 
+	 * @return header's calculated checksum
+	 */
 	public int calculateChecksum() {
 
 		if (getIndex() == -1) {
@@ -422,6 +434,31 @@ public class Tcp
 
 		final int ipOffset = getPreviousHeaderOffset();
 
-		return Checksum.pseudoTcp(packet, ipOffset, this.getOffset());
+		return Checksum.inChecksumShouldBe(checksum(), Checksum.pseudoTcp(packet,
+		    ipOffset, this.getOffset()));
+	}
+
+	/**
+	 * Checks if the checksum is valid, for un-fragmented packets. If a packet is
+	 * fragmented, the checksum is not verified as data to is incomplete, but the
+	 * method returns true none the less.
+	 * 
+	 * @return true if checksum checks out or if this is a fragment, otherwise if
+	 *         the computed checksum does not match the stored checksum false is
+	 *         returned
+	 */
+	public boolean isChecksumValid() {
+
+		if (isFragmented()) {
+			return true;
+		}
+
+		if (getIndex() == -1) {
+			throw new IllegalStateException("Oops index not set");
+		}
+
+		final int ipOffset = getPreviousHeaderOffset();
+
+		return Checksum.pseudoTcp(packet, ipOffset, this.getOffset()) == 0;
 	}
 }

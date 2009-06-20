@@ -169,7 +169,11 @@ int validate_rtp(scan_t *scan) {
 		rtpx_t * rtpx = (rtpx_t *)(scan->buf + scan->offset + scan->length);
 		
 		if (BIG_ENDIAN16(rtpx->rtpx_len) > (1500 / 4)) {
+			
+#ifdef DEBUG
 			printf("validate_rtp() INVALID 3\n"); fflush(stdout);
+#endif
+			
 			return INVALID;
 		}
 	}

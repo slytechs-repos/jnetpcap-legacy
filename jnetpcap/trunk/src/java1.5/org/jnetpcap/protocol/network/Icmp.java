@@ -13,6 +13,7 @@
 package org.jnetpcap.protocol.network;
 
 import org.jnetpcap.nio.JBuffer;
+import org.jnetpcap.packet.JHeaderChecksum;
 import org.jnetpcap.packet.JHeaderMap;
 import org.jnetpcap.packet.JSubHeader;
 import org.jnetpcap.packet.annotate.Dynamic;
@@ -31,7 +32,7 @@ import org.jnetpcap.util.checksum.Checksum;
 @Header
 public class Icmp
     extends
-    JHeaderMap<Icmp> {
+    JHeaderMap<Icmp> implements JHeaderChecksum {
 
 	/**
 	 * ICMP Destination Unreachable header definition
@@ -371,6 +372,11 @@ public class Icmp
 		}
 	}
 
+	/**
+	 * Retrieves the header's checksum.
+	 * 
+	 * @return header's stored checksum
+	 */
 	@Field(offset = 2 * 8, length = 16, format = "%x")
 	public int checksum() {
 		return super.getUShort(2);
@@ -413,6 +419,13 @@ public class Icmp
 		return IcmpType.valueOf(type());
 	}
 
+	/**
+	 * Calculates a checksum using protocol specification for a header. Checksums
+	 * for partial headers or fragmented packets (unless the protocol alows it)
+	 * are not calculated.
+	 * 
+	 * @return header's calculated checksum
+	 */
 	public int calculateChecksum() {
 
 		if (getIndex() == -1) {
@@ -421,7 +434,32 @@ public class Icmp
 
 		final int ipOffset = getPreviousHeaderOffset();
 
-		return Checksum.icmp(packet, ipOffset, this.getOffset());
+		return Checksum.inChecksumShouldBe(checksum(), Checksum.icmp(packet,
+		    ipOffset, this.getOffset()));
+	}
+
+	/**
+	 * Checks if the checksum is valid, for un-fragmented packets. If a packet is
+	 * fragmented, the checksum is not verified as data to is incomplete, but the
+	 * method returns true none the less.
+	 * 
+	 * @return true if checksum checks out or if this is a fragment, otherwise if
+	 *         the computed checksum does not match the stored checksum false is
+	 *         returned
+	 */
+	public boolean isChecksumValid() {
+
+		if (isFragmented()) {
+			return true;
+		}
+
+		if (getIndex() == -1) {
+			throw new IllegalStateException("Oops index not set");
+		}
+
+		final int ipOffset = getPreviousHeaderOffset();
+
+		return Checksum.icmp(packet, ipOffset, this.getOffset()) == 0;
 	}
 
 }

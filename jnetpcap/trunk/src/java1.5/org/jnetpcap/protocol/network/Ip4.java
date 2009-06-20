@@ -16,6 +16,7 @@ import java.util.EnumSet;
 import java.util.Set;
 
 import org.jnetpcap.nio.JBuffer;
+import org.jnetpcap.packet.JHeaderChecksum;
 import org.jnetpcap.packet.JHeaderMap;
 import org.jnetpcap.packet.JHeaderType;
 import org.jnetpcap.packet.JPacket;
@@ -61,7 +62,7 @@ import org.jnetpcap.util.checksum.Checksum;
 @Header(name = "Ip4", nicname = "Ip", osi = Layer.NETWORK, suite = ProtocolSuite.NETWORK, spec = "RFC792", description = "ip version 4")
 public class Ip4
     extends
-    JHeaderMap<Ip4> {
+    JHeaderMap<Ip4> implements JHeaderChecksum {
 
 	/**
 	 * Enum table for Ip4.flags field.
@@ -849,7 +850,7 @@ public class Ip4
 	}
 
 	private int hashcode;
-	
+
 	@Dynamic(Field.Property.DESCRIPTION)
 	public String checksumDescription() {
 		final int crc16 = calculateChecksum();
@@ -860,6 +861,11 @@ public class Ip4
 		}
 	}
 
+	/**
+	 * Retrieves the header's checksum.
+	 * 
+	 * @return header's stored checksum
+	 */
 	@Field(offset = 10 * 8, length = 16, format = "%x")
 	public int checksum() {
 		return getUShort(10);
@@ -1231,12 +1237,26 @@ public class Ip4
 		setUByte(0, hlen() | value << 4);
 	}
 
+	/**
+	 * Calculates a checksum using protocol specification for a header. Checksums
+	 * for partial headers or fragmented packets (unless the protocol alows it)
+	 * are not calculated.
+	 * 
+	 * @return header's calculated checksum
+	 */
 	public int calculateChecksum() {
-		return Checksum.ip2Chunk(this, 0, 10, 12, this.size() - 12);
+		return Checksum.inChecksumShouldBe(this.checksum(), Checksum.inChecksum(
+		    this, 0, this.size()));
 	}
-	
+
+	/**
+	 * Checks if the checksum is valid, even for fragmented packets.
+	 * 
+	 * @return true if checksum checks out, otherwise if the computed checksum
+	 *         does not match the stored checksum false is returned
+	 */
 	public boolean isChecksumValid() {
-		return Checksum.ip1Chunk(this, 0, this.size()) == 0;
-		
+
+		return Checksum.inChecksum(this, 0, this.size()) == 0;
 	}
 }

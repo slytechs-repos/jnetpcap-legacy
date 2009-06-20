@@ -18,6 +18,7 @@ typedef struct {
 } vec_t;
 
 extern uint16_t in_cksum(const vec_t *vec, int veclen);
+extern uint16_t in_cksum_shouldbe(uint16_t sum, uint16_t computed_sum);
 
 typedef union {
 	uint8_t c[2];

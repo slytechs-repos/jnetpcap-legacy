@@ -273,10 +273,23 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_crc32c
 
 /*
  * Class:     org_jnetpcap_util_checksum_Checksum
- * Method:    ip1Chunk
+ * Method:    inChecksumShouldBe
+ * Signature: (II)I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_inChecksumShouldBe
+  (JNIEnv *env, jclass clazz, jint checksum, jint calculated) {
+
+	
+	return (jint) in_cksum_shouldbe((uint16_t) checksum, (uint16_t) calculated);
+}
+
+
+/*
+ * Class:     org_jnetpcap_util_checksum_Checksum
+ * Method:    inChecksum
  * Signature: (Lorg/jnetpcap/nio/JBuffer;II)I
  */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_ip1Chunk
+JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_inChecksum
 (JNIEnv *env, jclass clazz, jobject buf, jint offset, jint length) {
 
 	uint8_t *mem = (uint8_t *)getJMemoryPhysical(env, buf);
@@ -294,68 +307,6 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_ip1Chunk
 	vec_t vec[] = {(mem + offset), length};
 
 	return (jint) in_cksum(&vec[0], 1);
-}
-/*
- * Class:     org_jnetpcap_util_checksum_Checksum
- * Method:    ip2Chunk
- * Signature: (Lorg/jnetpcap/nio/JBuffer;IIII)I
- */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_ip2Chunk
-(JNIEnv *env, jclass clazz, jobject buf, jint o1, jint l1, jint o2, jint l2) {
-
-	uint8_t *mem = (uint8_t *)getJMemoryPhysical(env, buf);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
-		return -1;
-	}
-
-	size_t size = (size_t) env->GetIntField(buf, jmemorySizeFID);
-	if (o1 < 0 || o2 < 0 ||
-			(o1 + l1)> (jint) size || (o2 + l2)> (jint) size) {
-
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
-		return -1;
-	}
-
-	const vec_t vec[] = {
-		{	(mem + o1), l1},
-		{	(mem + o2), l2}
-	};
-
-	return (jint) in_cksum(&vec[0], 2);
-}
-
-/*
- * Class:     org_jnetpcap_util_checksum_Checksum
- * Method:    ip3Chunk
- * Signature: (Lorg/jnetpcap/nio/JBuffer;IIIIII)I
- */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_ip3Chunk
-(JNIEnv *env, jclass clazz, jobject buf, jint o1, jint l1, jint o2, jint l2, jint o3, jint l3) {
-
-	uint8_t *mem = (uint8_t *)getJMemoryPhysical(env, buf);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
-		return -1;
-	}
-
-	size_t size = (size_t) env->GetIntField(buf, jmemorySizeFID);
-	if (o1 < 0 || o2 < 0 || o3 < 0 ||
-			(o1 + l1)> (jint) size ||
-			(o2 + l2)> (jint) size ||
-			(o3 + l3)> (jint) size) {
-
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
-		return -1;
-	}
-
-	vec_t vec[] = {
-		{	(mem + o1), l1},
-		{	(mem + o2), l2},
-		{	(mem + o3), l3}
-	};
-
-	return (jint) in_cksum(&vec[0], 3);
 }
 
 /*
@@ -407,9 +358,11 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_pseudoTcp
 	}
 
 	in_checksum_add_ip_pseudo_header(buf + ip, &vec[0], 6, len, phdr);
-	in_checksum_skip_crc16_field(buf + tcp, &vec[2], len, 16);	
+//	in_checksum_skip_crc16_field(buf + tcp, &vec[2], len, 16);	
+	vec[2].ptr = (buf + tcp);
+	vec[2].len = len;
 	
-	return (jint) in_cksum(vec, 4 + in_checksum_pad_to_even(vec, 4, &pad));
+	return (jint) in_cksum(vec, 3 + in_checksum_pad_to_even(vec, 3, &pad));
 }
 
 /*
@@ -447,9 +400,10 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_pseudoUdp
 	}
 
 	in_checksum_add_ip_pseudo_header(buf + ip, &vec[0], 17, len, phdr);
-	in_checksum_skip_crc16_field(buf + udp, &vec[2], len, 6);
+	vec[2].ptr = (buf + udp);
+	vec[2].len = len;
 	
-	return (jint) in_cksum(vec, 4 + in_checksum_pad_to_even(vec, 4, &pad));
+	return (jint) in_cksum(vec, 3 + in_checksum_pad_to_even(vec, 3, &pad));
 }
 
 /*
@@ -500,8 +454,10 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_icmp
 		return 0;
 	}
 
-	in_checksum_skip_crc16_field(buf + icmp, &vec[0], len, 2);
+//	in_checksum_skip_crc16_field(buf + icmp, &vec[0], len, 2);
+	vec[0].ptr = (buf + icmp);
+	vec[0].len = len;
 	
-	return (jint) in_cksum(vec, 2 + in_checksum_pad_to_even(vec, 2, &pad));
+	return (jint) in_cksum(vec, 1 + in_checksum_pad_to_even(vec, 1, &pad));
 }
 
