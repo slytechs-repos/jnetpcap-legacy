@@ -15,13 +15,14 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.jnetpcap.protocol.network;
+package org.jnetpcap.protocol;
 
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.RegistryHeaderErrors;
 import org.jnetpcap.packet.TestUtils;
-import org.jnetpcap.protocol.JProtocol;
+import org.jnetpcap.protocol.network.Arp;
+import org.jnetpcap.protocol.network.Rip1;
 
 /**
  * @author Mark Bednarczyk
