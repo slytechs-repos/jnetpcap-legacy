@@ -710,15 +710,10 @@ void cb_jbuffer_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 	cb_jbuffer_t *data = (cb_jbuffer_t *)user;
 
 	JNIEnv *env = data->env;
-	
-	setJMemoryPhysical(env, data->header, toLong((void*)pkt_header));
-	setJMemoryPhysical(env, data->buffer, toLong((void*)pkt_data));
+		
+	jmemoryPeer(env, data->header, pkt_header, sizeof(pcap_pkthdr), data->pcap);
+	jmemoryPeer(env, data->buffer, pkt_data, pkt_header->caplen, data->pcap);
 
-	env->SetIntField(data->header, jmemorySizeFID, (jsize) sizeof(pcap_pkthdr));
-	env->SetIntField(data->buffer, jmemorySizeFID, (jsize) pkt_header->caplen);
-
-	env->SetObjectField(data->header, jmemoryKeeperFID, data->pcap);
-	env->SetObjectField(data->buffer, jmemoryKeeperFID, data->pcap);
 	
 	env->CallVoidMethod(
 			data->obj, 
@@ -742,17 +737,11 @@ void cb_jpacket_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 
 	JNIEnv *env = data->env;
 	
-	setJMemoryPhysical(env, data->header, toLong((void*)pkt_header));
-	setJMemoryPhysical(env, data->packet, toLong((void*)pkt_data));
-	
-	env->SetIntField(data->header, jmemorySizeFID, (jsize) sizeof(pcap_pkthdr));
-	env->SetIntField(data->packet, jmemorySizeFID, (jsize) pkt_header->caplen);
-
-	env->SetObjectField(data->header, jmemoryKeeperFID, data->pcap);
-	env->SetObjectField(data->packet, jmemoryKeeperFID, data->pcap);
+	jmemoryPeer(env, data->header, pkt_header, sizeof(pcap_pkthdr), data->pcap);
+	jmemoryPeer(env, data->packet, pkt_data, pkt_header->caplen, data->pcap);
 
 	if (Java_org_jnetpcap_packet_JScanner_scan(
-			data->env, 
+			env, 
 			data->scanner, 
 			data->packet,
 			data->state,
@@ -782,14 +771,8 @@ void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 
 	JNIEnv *env = data->env;
 	
-	setJMemoryPhysical(env, data->header, toLong((void*)pkt_header));
-	setJMemoryPhysical(env, data->packet, toLong((void*)pkt_data));
-	
-	env->SetIntField(data->header, jmemorySizeFID, (jsize) sizeof(pcap_pkthdr));
-	env->SetIntField(data->packet, jmemorySizeFID, (jsize) pkt_header->caplen);
-
-	env->SetObjectField(data->header, jmemoryKeeperFID, data->pcap);
-	env->SetObjectField(data->packet, jmemoryKeeperFID, data->pcap);
+	jmemoryPeer(env, data->header, pkt_header, sizeof(pcap_pkthdr), data->pcap);
+	jmemoryPeer(env, data->packet, pkt_data, pkt_header->caplen, data->pcap);
 
 //#define DEBUG
 #ifdef DEBUG
@@ -798,7 +781,7 @@ void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 #endif
 
 	if (Java_org_jnetpcap_packet_JScanner_scan(
-			data->env, 
+			env, 
 			data->scanner, 
 			data->packet,
 			data->state,
