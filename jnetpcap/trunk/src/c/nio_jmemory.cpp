@@ -60,6 +60,28 @@ void jmemoryCleanup(JNIEnv *env, jobject obj) {
 	Java_org_jnetpcap_nio_JMemory_cleanup(env, obj);	
 }
 
+/**
+ * Provides a flexible peer method that can be called from JNI code
+ */ 
+jint jmemoryPeer(JNIEnv *env, jobject obj, const void *ptr, size_t length, jobject owner) {
+	
+	/*
+	 * Make sure we release any previously held resources
+	 */
+	void *mem = getJMemoryPhysical(env, obj);
+	if (mem != NULL) {
+		jmemoryCleanup(env, obj);
+	}
+
+	setJMemoryPhysical(env, obj, toLong((void *)ptr));
+	env->SetIntField(obj, jmemorySizeFID, (jsize) length);
+	env->SetObjectField(obj, jmemoryKeeperFID, owner);
+
+	return (jint) length;
+}
+
+
+
 /****************************************************************
  * **************************************************************
  * 
@@ -671,5 +693,4 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JReference_getCapacity
 
 	return refs->count;
 }
-
 
