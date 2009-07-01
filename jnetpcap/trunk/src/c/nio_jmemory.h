@@ -41,6 +41,8 @@ extern	jfieldID jmemorySizeFID;
 extern	jfieldID jmemoryOwnerFID;
 extern	jfieldID jmemoryKeeperFID;
 extern	jfieldID jmemoryReferencesFID;
+extern	jobject  jmemoryPOINTER_CONST; // JMemory.POINTER constant reference
+
 
 extern memory_usage_t memory_usage;
 
