@@ -52,19 +52,20 @@ void setJMemoryPhysical(JNIEnv *env, jobject obj, jlong value) {
 	 * makes all JMemory.peer functions call JMemory.cleanup ;)
 	 */
 	jmemoryCleanup(env, obj);
-	
+
 	env->SetLongField(obj, jmemoryPhysicalFID, value);
 }
 
 void jmemoryCleanup(JNIEnv *env, jobject obj) {
-	Java_org_jnetpcap_nio_JMemory_cleanup(env, obj);	
+	Java_org_jnetpcap_nio_JMemory_cleanup(env, obj);
 }
 
 /**
  * Provides a flexible peer method that can be called from JNI code
- */ 
-jint jmemoryPeer(JNIEnv *env, jobject obj, const void *ptr, size_t length, jobject owner) {
-	
+ */
+jint jmemoryPeer(JNIEnv *env, jobject obj, const void *ptr, size_t length,
+		jobject owner) {
+
 	/*
 	 * Make sure we release any previously held resources
 	 */
@@ -77,10 +78,11 @@ jint jmemoryPeer(JNIEnv *env, jobject obj, const void *ptr, size_t length, jobje
 	env->SetIntField(obj, jmemorySizeFID, (jsize) length);
 	env->SetObjectField(obj, jmemoryKeeperFID, owner);
 
+	env->SetBooleanField(obj, jmemoryOwnerFID, (owner == obj) ? JNI_TRUE
+			: JNI_FALSE);
+
 	return (jint) length;
 }
-
-
 
 /****************************************************************
  * **************************************************************
@@ -101,6 +103,9 @@ jfieldID jmemorySizeFID = 0;
 jfieldID jmemoryOwnerFID = 0;
 jfieldID jmemoryKeeperFID = 0;
 jfieldID jmemoryReferencesFID = 0;
+jfieldID jmemoryPOINTERFID = 0;
+
+jobject jmemoryPOINTER_CONST;
 
 /*
  * Global memory usage statistics for jmemory class
@@ -114,11 +119,11 @@ memory_usage_t memory_usage;
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_initIDs
 (JNIEnv *env, jclass clazz) {
-	
+
 	memset(&memory_usage, 0, sizeof(memory_usage_t));
 
 	jclass c;
-	
+
 	if ( (jmemoryClass = c = findClass(env, "org/jnetpcap/nio/JMemory")) == NULL) {
 		throwException(env, CLASS_NOT_FOUND_EXCEPTION,
 				"Unable to initialize class org.jnetpcap.JMemory");
@@ -136,13 +141,12 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_initIDs
 				"Unable to initialize field JMemory.size:int");
 		return;
 	}
-	
+
 	if ( ( jmemoryPhysicalSizeFID = env->GetFieldID(c, "physicalSize", "I")) == NULL) {
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
 				"Unable to initialize field JMemory.physicalSize:int");
 		return;
 	}
-
 
 	if ( ( jmemoryOwnerFID = env->GetFieldID(c, "owner", "Z")) == NULL) {
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
@@ -155,21 +159,21 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_initIDs
 				"Unable to initialize field JMemory.keeper:Object");
 		return;
 	}
-	
+
 	if ( ( jmemoryReferencesFID = env->GetFieldID(c, "references", "Lorg/jnetpcap/nio/JReference;")) == NULL) {
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
 				"Unable to initialize field JMemory.references:JReference");
 		fprintf(stderr, "Unable to initialize field JMemory.references:JReference");
 		return;
 	}
-	
+
 	if ( (jreferenceClass = c = findClass(env, "org/jnetpcap/nio/JReference")) == NULL) {
 		throwException(env, CLASS_NOT_FOUND_EXCEPTION,
 				"Unable to initialize class org.jnetpcap.JReference");
 		fprintf(stderr, "Unable to initialize class org.jnetpcap.JReference");
 		return;
 	}
-	
+
 	if ( ( jreferenceConstVoidMID = env->GetMethodID(jreferenceClass, "<init>", "()V")) == NULL) {
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
 				"Unable to initialize method JReference.<init>():void");
@@ -177,9 +181,27 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_initIDs
 		return;
 	}
 
+	jclass typeClass;
+	if ( (typeClass = findClass(env, "org/jnetpcap/nio/JMemory$Type")) == NULL) {
+		throwException(env, CLASS_NOT_FOUND_EXCEPTION,
+				"Unable to find class JMemory.Type");
+		fprintf(stderr, "Unable to find class JMemory.Type");
+		return;
+	}
 
+	if ( ( jmemoryPOINTERFID = env->GetStaticFieldID(
+							typeClass, "POINTER",
+							"Lorg/jnetpcap/nio/JMemory$Type;")) == NULL) {
 
-	
+		throwException(env, NO_SUCH_FIELD_EXCEPTION,
+				"Unable to initialize field JMemory.Type.POINTER:JMemory.Type");
+		fprintf(stderr, "Unable to initialize field JMemory.Type.POINTER:JMemory.Type");
+		return;
+	}
+
+	jmemoryPOINTER_CONST = env->NewGlobalRef(
+			env->GetStaticObjectField(typeClass, jmemoryPOINTERFID));
+
 #ifdef DEBUG
 	printf("initIds() - SUCCESS");
 #endif
@@ -192,7 +214,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_initIDs
  * Signature: ()J
  */
 JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JMemory_totalAllocateCalls
-  (JNIEnv *obj, jclass clazz) {
+(JNIEnv *obj, jclass clazz) {
 	return (jlong) memory_usage.total_allocate_calls;
 }
 
@@ -269,10 +291,10 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_allocate
 	env->SetBooleanField(obj, jmemoryOwnerFID, JNI_TRUE);
 	env->SetIntField(obj, jmemorySizeFID, jsize);
 	env->SetIntField(obj, jmemoryPhysicalSizeFID, jsize);
-	
+
 	memory_usage.total_allocated += jsize;
 	memory_usage.total_allocate_calls ++;
-		
+
 	if (jsize <= 255) {
 		memory_usage.seg_0_255_bytes ++;
 	} else {
@@ -294,10 +316,10 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_cleanup
 		/*
 		 * Record statistics
 		 */
-		memory_usage.total_deallocated += 
-			env->GetIntField(obj, jmemoryPhysicalSizeFID);
+		memory_usage.total_deallocated +=
+		env->GetIntField(obj, jmemoryPhysicalSizeFID);
 		memory_usage.total_deallocate_calls ++;
-		
+
 		/*
 		 * Release the main structure
 		 */
@@ -323,14 +345,13 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_peer
 		throwException(env, NULL_PTR_EXCEPTION, "");
 		return -1;
 	}
-	
+
 	if (env->CallBooleanMethod(jbytebuffer, byteBufferIsDirectMID) == JNI_FALSE) {
 		throwException(env, ILLEGAL_ARGUMENT_EXCEPTION,
 				"Can only peer with direct ByteBuffer objects");
 		return -1;
 	}
 
-	
 	void *mem = getJMemoryPhysical(env, obj);
 	if (mem != NULL) {
 		Java_org_jnetpcap_nio_JMemory_cleanup(env, obj);
@@ -352,8 +373,8 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_peer
  * Signature: ([BIII)I
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferFrom___3BIII
-  (JNIEnv *env, jobject obj, jbyteArray sa, jint soffset, jint len, jint doffset) {
-	
+(JNIEnv *env, jobject obj, jbyteArray sa, jint soffset, jint len, jint doffset) {
+
 	jbyte *src = (jbyte *)getJMemoryPhysical(env, obj);
 	if (src == NULL || sa == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, "");
@@ -361,7 +382,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferFrom___3BIII
 	}
 
 	env->GetByteArrayRegion(sa, soffset, len, (src + doffset));
-	
+
 	return len;
 }
 
@@ -371,38 +392,37 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferFrom___3BIII
  * Signature: (Ljava/nio/ByteBuffer;I)I
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferFromDirect
-  (JNIEnv *env, jobject obj, jobject jbytebuffer, jint offset) {
-	
+(JNIEnv *env, jobject obj, jobject jbytebuffer, jint offset) {
+
 	char *dst = (char *)getJMemoryPhysical(env, obj);
 	if (dst == NULL || jbytebuffer == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, "");
 		return -1;
 	}
-	
+
 	jint position = env->CallIntMethod(jbytebuffer, bufferGetPositionMID);
 	jint limit = env->CallIntMethod(jbytebuffer, bufferGetLimitMID);
 	jsize len = limit - position;
-	
+
 	size_t size = env->GetIntField(obj, jmemorySizeFID);
-	
+
 #ifdef DEBUG
-	printf("JMemory.transferFrom(ByteBuffer): position=%d limit=%d len=%d\n", 
+	printf("JMemory.transferFrom(ByteBuffer): position=%d limit=%d len=%d\n",
 			position, limit, len);
 	fflush(stdout);
 #endif
-	
+
 	if (size < len) {
 		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
 		return -1;
 	}
 
-
 	char *b = (char *)env->GetDirectBufferAddress(jbytebuffer);
-	
+
 	memcpy((void *)(dst + offset), b + position, len);
-	
+
 	env->CallObjectMethod(jbytebuffer, bufferSetPositionMID, position + len);
-	
+
 	return len;
 }
 
@@ -412,19 +432,18 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferFromDirect
  * Signature: ([BIII)I
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferTo___3BIII
-  (JNIEnv *env, jobject obj, jbyteArray da, jint soffset, jint len, jint doffset) {
-	
+(JNIEnv *env, jobject obj, jbyteArray da, jint soffset, jint len, jint doffset) {
+
 	jbyte *src = (jbyte *)getJMemoryPhysical(env, obj);
 	if (src == NULL || da == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, "");
 		return -1;
 	}
-	
+
 	env->SetByteArrayRegion(da, doffset, len, (src + soffset));
-	
+
 	return len;
 }
-
 
 /*
  * Class:     org_jnetpcap_nio_JMemory
@@ -449,19 +468,19 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferTo__Lorg_jnetpcap_n
 	size_t srcLen = env->GetIntField(obj, jmemorySizeFID);
 	size_t dstLen = env->GetIntField(jdst, jmemorySizeFID);
 
-	if (jsrcOffset < 0 
-			|| jdstOffset < 0 
-			|| jsrcOffset + jlen > srcLen 
-			|| jdstOffset + jlen > dstLen) {
+	if (jsrcOffset < 0
+			|| jdstOffset < 0
+			|| jsrcOffset + jlen> srcLen
+			|| jdstOffset + jlen> dstLen) {
 
 		throwException(env, INDEX_OUT_OF_BOUNDS_EXCEPTION, "");
 		return -1;
 	}
-	
+
 	jlen = (dstLen < jlen)?dstLen:jlen;
 
 	memcpy((void *)(dst + jdstOffset), (void *)(src + jsrcOffset), jlen);
-	
+
 	return jlen;
 }
 
@@ -478,35 +497,34 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferToDirect__Ljava_nio
 		throwException(env, NULL_PTR_EXCEPTION, "");
 		return -1;
 	}
-	
-//	jint capacity = env->CallIntMethod(jbytebuffer, bufferGetCapacityMID);
+
+	//	jint capacity = env->CallIntMethod(jbytebuffer, bufferGetCapacityMID);
 	jint limit = env->CallIntMethod(jbytebuffer, bufferGetLimitMID);
 	jint position = env->CallIntMethod(jbytebuffer, bufferGetPositionMID);
 	jsize dstLen = limit - position;
-	
+
 	size_t srcLen = env->GetIntField(obj, jmemorySizeFID);
-	if (jsrcOffset < 0 || len > srcLen) {
+	if (jsrcOffset < 0 || len> srcLen) {
 		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
-		
+
 		return -1;
 	}
-	
+
 	if (dstLen < len) {
 		throwVoidException(env, BUFFER_OVERFLOW_EXCEPTION);
 		return -1;
 	}
 
-
 	char *b = (char *)env->GetDirectBufferAddress(jbytebuffer);
-	
+
 	memcpy(b + position, (void *)(src + jsrcOffset), len);
 #ifdef DEBUG
-	printf("JMemory.transferTo(ByteBuffer): position=%d limit=%d len=%d\n", 
+	printf("JMemory.transferTo(ByteBuffer): position=%d limit=%d len=%d\n",
 			position, limit, len);
 #endif
-	
+
 	env->CallObjectMethod(jbytebuffer, bufferSetPositionMID, position + len);
-	
+
 	return len;
 }
 
@@ -524,14 +542,13 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferToDirect__Ljava_nio
  * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JReference_cleanupReferences
-  (JNIEnv *env, jobject obj) {
-	
+(JNIEnv *env, jobject obj) {
+
 	jni_global_ref_t *refs = (jni_global_ref_t *)getJMemoryPhysical(env, obj);
 	if (refs == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, "");
 		return;
 	}
-	
 
 	for (int i = 0; i < refs->count; i ++) {
 		if (refs->reference[i] != NULL) {
@@ -539,12 +556,12 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JReference_cleanupReferences
 			refs->reference[i] = NULL;
 		}
 	}
-	
+
 	refs->count = 0;
 }
 
 jobject jmemoryRefCreate(JNIEnv *env, jobject jmemory, jobject local_ref) {
-	
+
 	jobject jref = env->GetObjectField(jmemory, jmemoryReferencesFID);
 	if (jref == NULL) {
 		/* Create the native structure with default values */
@@ -559,31 +576,31 @@ jobject jmemoryRefCreate(JNIEnv *env, jobject jmemory, jobject local_ref) {
 		for (int i = 0; i < REF_COUNT; i ++) {
 			refs->reference[i] = NULL;
 		}
-		
+
 		/* Create the JReference object and initialize it to our structure */
 		jref = env->NewObject(jreferenceClass, jreferenceConstVoidMID);
 		if (jref == NULL) {
 			return NULL; // Out of memory
 		}
-		
+
 		env->SetLongField(jref, jmemoryPhysicalFID, toLong(refs));
 		env->SetIntField(jref, jmemorySizeFID, REF_SIZE);
-		
-		/* Set the JReference object in parent JMemory object */ 
-		env->SetObjectField(jmemory, jmemoryReferencesFID, jref);	
+
+		/* Set the JReference object in parent JMemory object */
+		env->SetObjectField(jmemory, jmemoryReferencesFID, jref);
 	}
-	
+
 	return jreferenceCreate(env, jref, local_ref);
 }
 
 jobject jreferenceCreate(JNIEnv *env, jobject obj, jobject local_ref) {
-	
+
 	jni_global_ref_t *refs = (jni_global_ref_t *)getJMemoryPhysical(env, obj);
 	if (refs == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, "");
 		return NULL;
 	}
-		
+
 	/*
 	 * Lets see if we can reuse any previously cleared slots 
 	 */
@@ -593,13 +610,13 @@ jobject jreferenceCreate(JNIEnv *env, jobject obj, jobject local_ref) {
 			if (global_ref == NULL) {
 				return NULL; // Out of memory
 			}
-			
+
 			refs->reference[i] = global_ref;
-			
+
 			return global_ref; // We're done
 		}
 	}
-	
+
 	/*
 	 * We didn't find an empty slot so we have to resize and all some
 	 */
@@ -611,20 +628,19 @@ jobject jreferenceCreate(JNIEnv *env, jobject obj, jobject local_ref) {
 		throwVoidException(env, OUT_OF_MEMORY_ERROR);
 		return NULL; // Out of memory
 	}
-	
+
 	refs = (jni_global_ref_t *) memcpy(new_mem, old_mem, old_size);
 	free(old_mem);
-	
+
 	env->SetLongField(obj, jmemoryPhysicalFID, toLong(refs));
 	env->SetIntField(obj, jmemorySizeFID, new_size);
-	
+
 	for (int i = refs->count; i < refs->count + REF_COUNT; i++) {
 		refs->reference[i] = NULL; // Initialize
 	}
-	
+
 	refs->count += REF_COUNT;
 
-	
 	/*
 	 * Lets try it again, this time with room to spare.
 	 */
@@ -641,21 +657,21 @@ void jmemoryRefRelease(JNIEnv *env, jobject jmemory, jobject global_ref) {
 }
 
 void jreferenceRelease(JNIEnv *env, jobject jref, jobject global_ref) {
-	
+
 	jni_global_ref_t *refs = (jni_global_ref_t *)getJMemoryPhysical(env, jref);
 	if (refs == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, "JReference NULL ptr");
 		return;
 	}
-	
+
 	env->DeleteGlobalRef(global_ref);
-	
+
 	for (int i = 0; i < refs->count; i ++) {
 		if (refs->reference[i] == global_ref) {
 			refs->reference[i] = NULL;
 		}
 	}
-	
+
 }
 
 /*
@@ -664,7 +680,7 @@ void jreferenceRelease(JNIEnv *env, jobject jref, jobject global_ref) {
  * Signature: ()Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_org_jnetpcap_nio_JReference_toDebugString
-  (JNIEnv *env, jobject obj) {
+(JNIEnv *env, jobject obj) {
 	jni_global_ref_t *refs = (jni_global_ref_t *)getJMemoryPhysical(env, obj);
 	if (refs == NULL) {
 		return NULL;
@@ -675,7 +691,7 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_nio_JReference_toDebugString
 	for (int i = 0; i < refs->count; i ++) {
 		c += sprintf(c, ", [%d]@%x", i, refs->reference[i]);
 	}
-	
+
 	return env->NewStringUTF(str_buf); // Return local reference
 }
 
@@ -685,7 +701,7 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_nio_JReference_toDebugString
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JReference_getCapacity
-  (JNIEnv *env, jobject obj) {
+(JNIEnv *env, jobject obj) {
 	jni_global_ref_t *refs = (jni_global_ref_t *)getJMemoryPhysical(env, obj);
 	if (refs == NULL) {
 		return -1;
