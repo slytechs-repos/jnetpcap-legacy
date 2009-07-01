@@ -39,6 +39,8 @@
 #define HEADER_FLAG_CRC_PERFORMED org_jnetpcap_packet_JHeader_State_FLAG_CRC_PERFORMED
 #define HEADER_FLAG_CRC_INVALID org_jnetpcap_packet_JHeader_State_FLAG_CRC_INVALID
 #define HEADER_FLAG_FRAGMENTED org_jnetpcap_packet_JHeader_State_FLAG_HEADER_FRAGMENTED
+#define HEADER_FLAG_SUBHEADERS_DISSECTED org_jnetpcap_packet_JHeader_State_FLAG_SUBHEADERS_DISSECTED
+#define HEADER_FLAG_FIELDS_DISSECTED org_jnetpcap_packet_JHeader_State_FLAG_FIELDS_DISSECTED
 
 /* Cumulative flags. Flags which are passed to subsequent encapsulated headers */
 #define CUMULATIVE_FLAG_HEADER_FRAGMENTED org_jnetpcap_packet_JHeader_State_FLAG_HEADER_FRAGMENTED
@@ -65,6 +67,7 @@ struct scanner_t;
 struct packet_state_t;
 struct header_t;
 struct scan_t;
+struct dissect_t;
 
 /*
  * Array of function pointers. These functions perform a per protocol scan
@@ -74,6 +77,7 @@ struct scan_t;
 void init_native_protocols();
 typedef void (*native_protocol_func_t)(scan_t *scan);
 typedef int (*native_validate_func_t)(scan_t *scan);
+typedef void (*native_dissect_func_t)(dissect_t *dissect);
 
 extern native_protocol_func_t native_protocols[];
 extern native_validate_func_t native_heuristics[MAX_ID_COUNT][MAX_ID_COUNT];
@@ -85,6 +89,47 @@ void adjustForTruncatedPacket(scan_t *scan);
 extern char str_buf[1024];
 
 
+
+/**
+ * Experimental structures to be used in header dissection, that is complete header
+ * structural breakdown. dissected_t records individual field information within
+ * the header. Also record information about sub-headers which are within the
+ * main header. Structure within the header is bitbased not byte based since
+ * any field within a header might occur at any particular bit offset into the
+ * header.
+ * 
+ * Dissectors only record information about non-static fields headers. Static
+ * fields don't need description since they are always at the same offset and
+ * length.
+ */
+
+//#define DISSECTOR_TYPE_FIELD	1
+//#define DISSECTOR_TYPE_HEADER	2
+//
+#define DISSECTOR_FLAG_FIELDS	0x0001
+#define DISSECTOR_FLAG_HEADERS	0x0002
+//
+//typedef union dfield_t {
+//	uint8_t		dt_id;
+//	uint16_t	dt_flags;
+//	uint16_t	dt_offset;		// in bits
+//	uint16_t	dt_length;		// in bits
+//} dfield_t;
+
+/*
+ * Structure maintains state for the duration of a header dissection.
+ */
+typedef struct dissect_t {
+	JNIEnv *env;
+	
+	packet_state_t 	*d_packet;
+	header_t 		*d_header;
+	scanner_t 		*d_scanner;
+	
+	uint8_t			*d_buf;
+	int   			d_buf_len;  
+	int 			d_offset;
+};
 
 /*
  * Structure maintains state for the duration of the scan in progress
@@ -125,6 +170,9 @@ typedef struct scan_t {
 	int hdr_postfix;
 	int hdr_flags;
 	int is_recorded;
+	
+	int hdr_count;
+	int hdr_index;
 } scan_t;
 
 /*
@@ -172,6 +220,9 @@ typedef struct header_t {
 	uint32_t hdr_length;     // length of the header in packet_t->data buffer
 	uint32_t hdr_payload;    // length of the payload
 	
+	uint8_t	  hdr_subcount;	 // number of sub-headers
+	header_t  *hdr_subheader;   // Index of the first subheader in packet_t
+	
 	jobject  hdr_analysis;   // Java JAnalysis based object if not null
 } header_t;
 
@@ -181,16 +232,19 @@ typedef struct packet_state_t {
 	jobject pkt_analysis;    // Java JAnalysis based object if not null
 	uint64_t pkt_frame_num;  // Packet's frame number assigned by scanner
 	uint64_t pkt_header_map; // bit map of presence of headers
-	int8_t pkt_header_count; // total number of headers found
+	
 	uint32_t pkt_wirelen;    // Original packet size
 
+	int8_t pkt_header_count; // total number of main headers found
 	header_t pkt_headers[];  // One per header + 1 more for payload
+	
+	int8_t pkt_subheader_count;  // total number of sub headers found
+	header_t pkt_subheaders[];  // One per header + 1 more for payload
 } packet_state_t;
 
 typedef struct scanner_t {
 	int32_t sc_len; // bytes allocated for sc_packets buffer
 	
-	int32_t sc_offset; // offset into sc_packets for next packet
 	uint64_t sc_cur_frame_num; // Current frame number
 
 	uint32_t sc_flags[MAX_ID_COUNT]; // protocol flags
@@ -206,8 +260,22 @@ typedef struct scanner_t {
 	 */
 	native_protocol_func_t sc_scan_table[MAX_ID_COUNT];
 	native_validate_func_t sc_heuristics_table[MAX_ID_COUNT][MAX_ID_COUNT]; // Huristic
+
 	
-	packet_state_t *sc_packet; // ptr into scanner_t where the first packet begins
+	/* Packet and main header ring-buffer */
+	int			 	sc_offset; // offset into sc_packets for next packet
+	packet_state_t *sc_packet; 	// ptr into scanner_t where the first packet begins
+	
+	/* Sub-header ring buffer */
+	int			sc_sublen;		// Length of the sub-header ring-buffer
+	int 		sc_subindex; 	// sub-header offset
+	header_t 	*sc_subheader; // ptr where first sub-headers begin
+	
+	int			sc_heap_len;
+	int			sc_heap_offset;
+	jobject		sc_heap_owner;
+	uint8_t		*sc_heap;
+	
 } scanner_t;
 
 

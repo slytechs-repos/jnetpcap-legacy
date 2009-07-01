@@ -648,6 +648,11 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_cleanup_1jscanner
 			scanner->sc_java_header_scanners[i] = NULL;
 		}
 	}
+	
+	if (scanner->sc_subheader != NULL) {
+		free(scanner->sc_subheader);
+	}
+
 }
 
 /*
@@ -684,6 +689,12 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_init
 			scanner->sc_heuristics_table[i][j] = native_heuristics[i][j];
 		}
 	}
+	
+	/* Initialize sub-header area - allocate 1/10th */
+	scanner->sc_sublen = size / 10;
+	scanner->sc_subindex = 0;
+	scanner->sc_subheader = (header_t *)malloc(scanner->sc_sublen);
+
 
 }
 

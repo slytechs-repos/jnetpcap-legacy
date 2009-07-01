@@ -88,6 +88,9 @@ native_protocol_func_t native_protocols[MAX_ID_COUNT];
 native_validate_func_t native_heuristics[MAX_ID_COUNT][MAX_ID_COUNT];
 native_validate_func_t validate_table[MAX_ID_COUNT];
 
+native_dissect_func_t  subheader_dissectors[MAX_ID_COUNT];
+native_dissect_func_t  field_dissectors[MAX_ID_COUNT];
+
 char *native_protocol_names[MAX_ID_COUNT];
 
 void scan_not_implemented_yet(scan_t *scan) {
@@ -716,13 +719,13 @@ void scan_udp(scan_t *scan) {
 	
 	switch (BIG_ENDIAN16(udp->dport)) {
 	case 1701: scan->next_id = validate_next(L2TP_ID, scan);	return;
-	case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;
+//	case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;
 	case 5004: scan->next_id = validate_next(RTP_ID, scan);		return;
 	}
 	
 	switch (BIG_ENDIAN16(udp->sport)) {
 	case 1701: scan->next_id = validate_next(L2TP_ID, scan);	return;
-	case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;
+//	case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;
 	case 5004: scan->next_id = validate_next(RTP_ID, scan);		return;
 	}
 
@@ -856,6 +859,71 @@ again:
 	}
 }
 
+inline
+header_t *get_subheader_storage(scanner_t *scanner, int min) {
+	
+	/* Check if we need to wrap */
+	if ((scanner->sc_subindex + min) * sizeof(header_t) >= scanner->sc_sublen) {
+		scanner->sc_subindex = 0;
+	}
+	
+	return &scanner->sc_subheader[scanner->sc_subindex];
+}
+
+
+void dissect_ip4_headers(dissect_t *dissect) {
+	uint8_t *buf = (dissect->d_buf + dissect->d_offset);
+	
+	ip4_t *ip = (ip4_t *) buf;
+	
+	
+	if (ip->ihl == 5) {
+		return; // No options
+	}
+	
+	header_t *header = dissect->d_header;
+	header->hdr_flags |= HEADER_FLAG_SUBHEADERS_DISSECTED;
+	scanner_t *scanner = dissect->d_scanner;
+	
+	int end = ip->ihl * 4; // End of IP header
+	int len = 0; // Length of curren option
+	
+	header_t *sub;
+	sub = header->hdr_subheader = get_subheader_storage(scanner, 10);
+	
+	for (int offset = 20; offset < end;) {
+		int id = buf[offset] & 0x1F;
+		sub->hdr_id = id; // Id is same as Ip4 spec
+	
+		switch (id) {
+		case 0: // End of Option List - setup as header gap
+			len = end - offset;
+			header->hdr_gap = len;
+			header->hdr_length -= len;
+			break;
+			
+		case 1: // NoOp
+			offset ++;
+			break;
+			
+		case 2: // Security
+		case 3: // Loose Source Route
+		case 4: // Timestamp
+		case 7: // Record Route
+		case 8: // Stream ID
+		case 9: // Strick Source Route
+			len = buf[offset + 1];
+			
+			/* Use offset into the Ip4 header not the packetoffset */
+			sub = &scanner->sc_subheader[scanner->sc_subindex++]; // Our subheader
+			sub->hdr_offset = offset;
+			sub->hdr_length = len;
+			sub->hdr_subcount = 0;
+			sub->hdr_subheader = NULL;
+			break;
+		}
+	}
+}
 
 /*
  * Scan IP version 4
@@ -1163,6 +1231,13 @@ void init_native_protocols() {
 	native_heuristics[TCP_ID][1]			= &validate_sip;
 
 	native_heuristics[UDP_ID][0]			= &validate_rtp;
+	
+	/*
+	 * Dissector tables. Dissection == discovery of optional fields and 
+	 * sub-headers.
+	 */
+	subheader_dissectors[IP4_ID]			= &dissect_ip4_headers;
+//	field_dissectors[IP4_ID]				= &dissect_ip4_fields;
 	
 	/*
 	 * Now store the names of each header, used for debuggin purposes
