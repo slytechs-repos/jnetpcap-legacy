@@ -41,6 +41,13 @@ extern	jmethodID pcapConstructorMID;
 extern	jmethodID pcapHandlerMID;
 extern	jmethodID appendMID;
 extern	jmethodID setLengthMID;
+
+/* IDs for packet_jpacket.cpp file */
+extern jclass		pcapPacketClass; 
+extern jmethodID	pcapPacketConstructorMID; 
+extern jfieldID		pcapStateFID;
+extern jfieldID		pcapHeaderFID;
+
 	
 // GENERIC utilities
 const char *toCharArray(JNIEnv *env, jstring jstr, char *buf);
@@ -141,6 +148,17 @@ void setPcapStat(JNIEnv *env, jobject jstats, pcap_stat *stats);
 
 void throwException(JNIEnv *env, const char *exception, char *message);
 void throwVoidException(JNIEnv *env, const char *exception);
+
+/*
+ * Creates a new PcapPacket object, allocates a new memory block and copies
+ * header, state and packet data into the buffer. Then peers all the packet
+ * structures to point at the buffer.
+ */
+jobject transferToNewBuffer(
+		JNIEnv *env,
+		const pcap_pkthdr *pkt_header, 
+		const u_char *pkt_data, 
+		jobject state);
 
 #ifdef __cplusplus
 }

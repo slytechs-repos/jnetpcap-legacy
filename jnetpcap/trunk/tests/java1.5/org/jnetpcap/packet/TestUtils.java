@@ -157,10 +157,7 @@ public class TestUtils
 		StringBuilder errbuf = new StringBuilder();
 
 		final Pcap pcap = Pcap.openOffline(file, errbuf);
-		if (pcap == null) {
-			System.err.println(errbuf.toString());
-			return null;
-		}
+		assertNotNull(errbuf.toString());
 
 		final BlockingQueue<PcapPacket> queue =
 		    new ArrayBlockingQueue<PcapPacket>(100);
@@ -171,18 +168,17 @@ public class TestUtils
 		 **************************************************************************/
 
 		final PcapTask<Pcap> task =
-		    PcapUtils.loopInBackground(pcap, end, new JBufferHandler<Pcap>() {
+			new PcapTask<Pcap>(pcap, end, pcap) {
+
+			public void run() {
+				this.result = pcap.loop(end, new PcapPacketHandler<Pcap>() {
 			    int i = 0;
 
-			    public void nextPacket(PcapHeader header, JBuffer buffer, Pcap pcap) {
+			    public void nextPacket(PcapPacket packet, Pcap pcap) {
+			    	
+			    	assertNotNull(packet);
 
 				    if (i >= start) {
-					    PcapPacket packet = new PcapPacket(header, buffer);
-					    // packet.scan(JRegistry.mapDLTToId(pcap.datalink()));
-					    /*
-							 * Put the packet on the queue. No scan, scan is delayed for
-							 * maximum performance in this thread.
-							 */
 					    queue.offer(packet);
 				    }
 
@@ -190,6 +186,10 @@ public class TestUtils
 			    }
 
 		    }, pcap);
+			}
+
+		};
+		
 		try {
 			task.start();
 		} catch (InterruptedException e1) {
@@ -219,7 +219,6 @@ public class TestUtils
 					 * backlog on the queue.
 					 */
 					PcapPacket packet = queue.take();
-					packet.scan(id);
 					return packet;
 				} catch (InterruptedException e) {
 					throw new IllegalStateException(e);

@@ -351,6 +351,23 @@ public class PcapPacket
 
 	private final static int STATE_SIZE =
 	    PcapHeader.sizeof() + JPacket.State.sizeof(DEFAULT_STATE_HEADER_COUNT);
+	
+	/**
+	 * 
+	 */
+	static {
+		try {
+			initIds();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * JNI Ids
+	 */
+	private native static void initIds();
+
 
 	private final PcapHeader header = new PcapHeader(Type.POINTER);
 

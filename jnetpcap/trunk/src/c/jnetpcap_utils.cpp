@@ -753,14 +753,14 @@ void cb_jpacket_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 	env->CallVoidMethod(
 			data->obj,
 			data->mid, 
-			data->packet,
+//			data->packet,
+			transferToNewBuffer(env, pkt_header, pkt_data, data->state),
 			data->user);
 	
 	if (env->ExceptionCheck() == JNI_TRUE) {
 		data->exception = env->ExceptionOccurred();
 	}
 }
-
 /**
  * JPacket dispatcher that dispatches decoded java packets
  */
@@ -798,7 +798,8 @@ void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 	env->CallVoidMethod(
 			data->obj,
 			data->mid, 
-			data->packet,
+//			data->packet,
+			transferToNewBuffer(env, pkt_header, pkt_data, data->state),
 			data->user);
 	
 #ifdef DEBUG
@@ -811,4 +812,69 @@ void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 	}
 }
 
+/**
+ * Copies contents of a libpcap capture header, scanner packet_t structure and
+ * libpcap provided packet data buffer into a single newly allocated memory block
+ * peered to brand new PcapPacket.
+ * 
+ * @param env 
+ *        JNI environment
+ * @param pkt_header
+ *        libpcap provided capture header
+ * @param pkt_data
+ *        libpcap provided data buffer containing captured packet
+ * @param state
+ *        a java object reference to JPacket.State which was initialized by
+ *        the scanner
+ * @return 
+ *        A new packet object owner of a newly malloced block of memory which
+ *        contains a copy of pcap header, packet state and packet data buffer
+ *        and is fully initialized.
+ */
+jobject transferToNewBuffer(
+		JNIEnv *env,
+		const pcap_pkthdr *pkt_header, 
+		const u_char *pkt_data, 
+		jobject state) {
+	
+	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, state);
+	size_t state_size = 		
+		packet->pkt_header_count * sizeof(header_t) + 
+		sizeof(packet_state_t);
+
+	size_t size = pkt_header->caplen + state_size + sizeof(pcap_pkthdr); 
+	
+	char *ptr = (char *)malloc(size);
+	
+	jobject pcap_packet = env->NewObject(
+			pcapPacketClass, 
+			pcapPacketConstructorMID, 
+			jmemoryPOINTER_CONST);
+	if (pcap_packet == NULL) {
+		return NULL;
+	}
+	
+	jobject jheader = env->GetObjectField(pcap_packet, pcapHeaderFID);
+	jobject jstate = env->GetObjectField(pcap_packet, pcapStateFID);
+	if (jheader == NULL || jstate == NULL) {
+		return NULL;
+	}
+
+	memcpy(ptr, pkt_header, sizeof(pcap_pkthdr));
+	jmemoryPeer(env, jheader, ptr, sizeof(pcap_pkthdr), jheader); // Owner
+	ptr += sizeof(pcap_pkthdr);
+	
+	memcpy(ptr, packet, state_size);
+	jmemoryPeer(env, jstate, ptr, state_size, jheader);
+	ptr += state_size;
+	
+	memcpy(ptr, pkt_data, pkt_header->caplen);
+	jmemoryPeer(env, pcap_packet, ptr, pkt_header->caplen, jheader);
+	ptr += pkt_header->caplen;
+	
+	/* Local reference is good enough for return value. If this is returned from
+	 * JNI code upto java, JNI turns them into globs.
+	 */
+	return pcap_packet;
+}
 

@@ -72,6 +72,56 @@ jint findHeaderById(packet_state_t *packet, jint id, jint instance) {
  * **************************************************************
  ****************************************************************/
 
+jclass    pcapPacketClass = 0;
+jmethodID pcapPacketConstructorMID = 0;
+
+jfieldID pcapStateFID = 0;
+jfieldID pcapHeaderFID = 0;
+
+
+/*
+ * Class:     org_jnetpcap_packet_PcapPacket
+ * Method:    initIds
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_packet_PcapPacket_initIds
+  (JNIEnv *env, jclass clazz) {
+	
+	pcapPacketClass = (jclass) env->NewGlobalRef(clazz);
+	
+	if ( (pcapPacketConstructorMID = env->GetMethodID(clazz, 
+			"<init>", "(Lorg/jnetpcap/nio/JMemory$Type;)V")) == NULL) {
+		
+		throwException(env, NO_SUCH_METHOD_EXCEPTION,
+				"Unable to initialize method PcapPacket(Type)");
+		fprintf(stderr, "Unable to initialize method PcapPacket(Type)");
+		return;
+	}
+
+	if ( ( pcapStateFID = env->GetFieldID(
+			clazz, 
+			"state", 
+			"Lorg/jnetpcap/packet/JPacket$State;")) == NULL) {
+		
+		throwException(env, NO_SUCH_FIELD_EXCEPTION,
+				"Unable to initialize field PcapPacket.State:JPacket.State");
+		return;
+	}
+	
+	if ( ( pcapHeaderFID = env->GetFieldID(
+			clazz, 
+			"header", 
+			"Lorg/jnetpcap/PcapHeader;")) == NULL) {
+		
+		throwException(env, NO_SUCH_FIELD_EXCEPTION,
+				"Unable to initialize field PcapPacket.header:PcapHeader");
+		return;
+	}
+
+
+}
+
+
 /*
  * Class:     org_jnetpcap_packet_JPacket_State
  * Method:    sizeof
@@ -488,8 +538,18 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_packet_JPacket_00024State_toDebugStr
 	
 	char *p;
 	
+	if (packet->pkt_header_count> 32) {
+		sprintf(buf + strlen(buf), 
+				"JPacket.State#%03d: TOO MANY HEADERS (more than 32)",
+				fr);
+		
+		return env->NewStringUTF(buf);
+	}
+
+	
 	for (int i = 0; i < packet->pkt_header_count; i ++) {
 		p = buf + strlen(buf);
+		
 		sprintf(p, 
 				"JPacket.State#%03d[%d]: "
 				"[id=%-2d %-10s "
