@@ -129,6 +129,20 @@ public abstract class JHeader
 		public final static int FLAG_HEADER_FRAGMENTED = 0x0100;
 
 		/**
+		 * Flag set in the header_t structure, which indicates that the current
+		 * header was dissected for optional fields. All optional fields were
+		 * recorded.
+		 */
+		public final static int FLAG_FIELDS_DISSECTED = 0x0200;
+
+		/**
+		 * Flag set in the header_t structure, which indicates that the current
+		 * header was dissected for optional sub-headers. All optional sub-headers
+		 * were recorded.
+		 */
+		public final static int FLAG_SUBHEADERS_DISSECTED = 0x0400;
+
+		/**
 		 * Name of the native structure backing this peer class
 		 */
 		public final static String STRUCT_NAME = "header_t";

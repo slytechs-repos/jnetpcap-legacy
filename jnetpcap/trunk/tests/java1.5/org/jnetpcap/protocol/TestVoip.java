@@ -118,6 +118,7 @@ public class TestVoip
 				
 		try {
 		for (PcapPacket packet: super.getIterable(SIP_G711)) {
+			assertNotNull(packet);
 			if (packet.hasHeader(rtp)) {
 				
 				if (rtp.hasPostfix() || rtp.paddingLength() != 0) {

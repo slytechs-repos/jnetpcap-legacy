@@ -268,7 +268,7 @@ public class JController
 
 	public void nextPacket(JPacket packet, Pcap pcap) {
 
-		packet = new PcapPacket(packet);
+//		packet = new PcapPacket(packet);
 
 		/*
 		 * Set the curren time from the packet stream

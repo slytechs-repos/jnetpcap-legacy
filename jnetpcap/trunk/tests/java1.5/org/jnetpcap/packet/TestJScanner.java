@@ -271,5 +271,14 @@ public class TestJScanner
 		assertTrue(packet.hasHeader(JProtocol.TCP_ID));
 		assertTrue(packet.hasHeader(JProtocol.HTTP_ID));
 	}
+	
+	public void testPacketState() {
+
+		PcapPacket packet = getPcapPacket(HTTP, 5);
+		assertNotNull(packet);
+		
+		System.out.println(packet.getState().toDebugString());
+	}
+
 
 }
