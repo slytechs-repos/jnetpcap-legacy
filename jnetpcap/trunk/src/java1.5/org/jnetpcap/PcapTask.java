@@ -106,7 +106,14 @@ public abstract class PcapTask<T> implements Runnable {
 		 * done.
 		 */
 		thread =
-	    new Thread(this, (user != null) ? user.toString() : pcap.toString());
+	    new Thread(new Runnable() {
+
+				public void run() {
+					PcapTask.this.run();
+					thread = null; // Cleanup
+        }
+	    	
+	    }, (user != null) ? user.toString() : pcap.toString());
 
 		thread.start();
 	}
