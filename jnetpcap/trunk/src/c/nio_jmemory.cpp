@@ -504,7 +504,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferToDirect__Ljava_nio
 	jsize dstLen = limit - position;
 
 	size_t srcLen = env->GetIntField(obj, jmemorySizeFID);
-	if (jsrcOffset < 0 || len> srcLen) {
+	if (jsrcOffset < 0 || (jsrcOffset + len) > srcLen) {
 		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
 
 		return -1;
