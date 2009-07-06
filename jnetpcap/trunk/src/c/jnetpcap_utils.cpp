@@ -665,6 +665,7 @@ void pcap_callback(u_char *user, const pcap_pkthdr *pkt_header,
 	env->DeleteLocalRef(buffer);
 	if (env->ExceptionCheck() == JNI_TRUE) {
 		data->exception = env->ExceptionOccurred();
+		pcap_breakloop(data->p);
 	}
 }
 
@@ -698,6 +699,7 @@ void cb_byte_buffer_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 	
 	if (env->ExceptionCheck() == JNI_TRUE) {
 		data->exception = env->ExceptionOccurred();
+		pcap_breakloop(data->p);
 	}
 }
 
@@ -724,6 +726,7 @@ void cb_jbuffer_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 	
 	if (env->ExceptionCheck() == JNI_TRUE) {
 		data->exception = env->ExceptionOccurred();
+		pcap_breakloop(data->p);
 	}
 }
 
@@ -759,6 +762,7 @@ void cb_jpacket_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 	
 	if (env->ExceptionCheck() == JNI_TRUE) {
 		data->exception = env->ExceptionOccurred();
+		pcap_breakloop(data->p);
 	}
 }
 /**
@@ -809,6 +813,7 @@ void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 	
 	if (env->ExceptionCheck() == JNI_TRUE) {
 		data->exception = env->ExceptionOccurred();
+		pcap_breakloop(data->p);
 	}
 }
 
