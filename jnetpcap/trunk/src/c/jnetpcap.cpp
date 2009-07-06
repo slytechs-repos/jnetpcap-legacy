@@ -451,6 +451,66 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__IILorg_jnetpcap_packet_P
 	return r;
 }
 
+/*
+ * Class:     org_jnetpcap_Pcap
+ * Method:    dispatch
+ * Signature: (ILorg/jnetpcap/PcapDumper;)I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__ILorg_jnetpcap_PcapDumper_2
+  (JNIEnv *env, jobject obj, jint jcnt, jobject dumper) {
+	
+	if (dumper == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return -1;
+	}
+	
+	u_char *d = (u_char *)getJMemoryPhysical(env, dumper);
+	if (d == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return -1;		
+	}
+
+	pcap_t *p = getPcap(env, obj);
+	if (p == NULL) {
+		return -1; // Exception already thrown
+	}
+
+	return (jint) pcap_dispatch(
+			p, // Pcap
+			(int) jcnt, // int count
+			cb_pcap_dumper_handler, // Specialized handler CB function
+			d); // PcapDumper
+}
+
+/*
+ * Class:     org_jnetpcap_Pcap
+ * Method:    loop
+ * Signature: (ILorg/jnetpcap/PcapDumper;)I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__ILorg_jnetpcap_PcapDumper_2
+  (JNIEnv *env, jobject obj, jint jcnt, jobject dumper) {
+	if (dumper == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return -1;
+	}
+	
+	u_char *d = (u_char *)getJMemoryPhysical(env, dumper);
+	if (d == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return -1;		
+	}
+
+	pcap_t *p = getPcap(env, obj);
+	if (p == NULL) {
+		return -1; // Exception already thrown
+	}
+
+	return (jint) pcap_loop(
+			p, // Pcap
+			(int) jcnt, // int count
+			cb_pcap_dumper_handler, // Specialized handler CB function
+			d); // PcapDumper
+}
 
 
 /*
