@@ -34,30 +34,13 @@ import org.jnetpcap.nio.JNumber.Type;
  */
 @SuppressWarnings("deprecation")
 public class TestPcapJNI
-    extends TestCase {
+    extends
+    TestCase {
 
 	// private final static String device =
 	// "\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
 
-	private final static String win =
-	    "\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
-
-	private final static String linux = "any";
-
-	private final static boolean isWindows =
-	    "Windows XP".equals(System.getProperty("os.name"));
-
-	private final static String device = (isWindows) ? win : linux;
-
 	private final static String fname = "tests/test-l2tp.pcap";
-
-	private static final int OK = 0;
-
-	private static final int snaplen = 64 * 1024;
-
-	private static final int promisc = 1;
-
-	private static final int oneSecond = 1000;
 
 	/**
 	 * Will generate HTTP traffic to a website. Use start() to start in a test
@@ -66,8 +49,26 @@ public class TestPcapJNI
 	 */
 	private static final HttpTrafficGenerator gen = new HttpTrafficGenerator();
 
-	private static File tmpFile;
+	private final static boolean isWindows =
+	    "Windows XP".equals(System.getProperty("os.name"));
 
+	private final static String linux = "any";
+
+	private static final int OK = 0;
+
+	private static final int oneSecond = 1000;
+
+	private static final int promisc = 1;
+
+	private static final int snaplen = 64 * 1024;
+
+	  private static File tmpFile;
+
+	private final static String win =
+	    "\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
+
+	private final static String device = (isWindows) ? win : linux;
+	
 	static {
 		try {
 			tmpFile = File.createTempFile("temp-", "-TestPcapJNI");
@@ -129,15 +130,37 @@ public class TestPcapJNI
 
 	}
 
-	private StringBuilder errbuf = new StringBuilder();
-
 	private final PcapHandler<?> doNothingHandler = new PcapHandler<Object>() {
 
-		public void nextPacket(Object userObject, long seconds, int useconds,
-		    int caplen, int len, ByteBuffer buffer) {
+		public void nextPacket(
+		    Object userObject,
+		    long seconds,
+		    int useconds,
+		    int caplen,
+		    int len,
+		    ByteBuffer buffer) {
 			// Do nothing handler
 		}
 	};
+
+	private StringBuilder errbuf = new StringBuilder();
+
+	public void _testStats() {
+		PcapStat stats = new PcapStat();
+
+		Pcap pcap = Pcap.openLive(device, snaplen, promisc, oneSecond, errbuf);
+		assertNotNull(errbuf.toString(), pcap);
+
+		pcap.loop(5, doNothingHandler, null);
+		pcap.stats(stats);
+		// System.out.printf("stats=%s\n", stats.toString());
+
+		pcap.loop(5, doNothingHandler, null);
+		pcap.stats(stats);
+		// System.out.printf("stats=%s\n", stats.toString());
+
+		pcap.close();
+	}
 
 	/**
 	 * @throws java.lang.Exception
@@ -149,6 +172,42 @@ public class TestPcapJNI
 		if (tmpFile.exists()) {
 			assertTrue(tmpFile.delete());
 		}
+
+	}
+
+	public void SKIPtestDumper() {
+
+		gen.start(); // Generate network traffic - async method
+
+		System.out.printf("tmpFile=%s\n", tmpFile.getAbsoluteFile());
+
+		Pcap pcap = Pcap.openLive(device, snaplen, promisc, oneSecond, errbuf);
+		assertNotNull(errbuf.toString(), pcap);
+
+		PcapDumper dumper = pcap.dumpOpen(tmpFile.getAbsolutePath());
+		assertNotNull(pcap.getErr(), dumper);
+
+		PcapHandler<PcapDumper> dumpHandler = new PcapHandler<PcapDumper>() {
+
+			public void nextPacket(
+			    PcapDumper dumper,
+			    long seconds,
+			    int useconds,
+			    int caplen,
+			    int len,
+			    ByteBuffer buffer) {
+
+				dumper.dump(seconds, useconds, caplen, len, buffer);
+			}
+		};
+
+		pcap.loop(10, dumpHandler, dumper);
+
+		assertTrue("Empty dump file " + tmpFile.getAbsolutePath(),
+		    tmpFile.length() > 0);
+
+		// System.out.printf("Temp dumpfile size=%s\n", tmpFile.length());
+		pcap.close();
 
 	}
 
@@ -164,8 +223,13 @@ public class TestPcapJNI
 
 		PcapHandler<String> handler = new PcapHandler<String>() {
 
-			public void nextPacket(String user, long seconds, int useconds,
-			    int caplen, int len, ByteBuffer buffer) {
+			public void nextPacket(
+			    String user,
+			    long seconds,
+			    int useconds,
+			    int caplen,
+			    int len,
+			    ByteBuffer buffer) {
 
 				// System.out.printf("%s, ts=%s caplen=%d len=%d capacity=%d\n", user
 				// .toString(), new Date(seconds * 1000).toString(), caplen, len,
@@ -227,18 +291,6 @@ public class TestPcapJNI
 		}
 	}
 
-	public void testPcapClosedExceptionHandling() {
-		Pcap pcap = Pcap.openOffline(fname, errbuf);
-		pcap.close();
-
-		try {
-			pcap.breakloop();
-			fail("Expected PcapClosedException");
-		} catch (PcapClosedException e) {
-			// Success
-		}
-	}
-
 	public void testDatalinkNameToValue() {
 		assertEquals(1, Pcap.datalinkNameToVal("EN10MB"));
 	}
@@ -263,6 +315,26 @@ public class TestPcapJNI
 		} finally {
 			pcap.close();
 		}
+	}
+
+	public void testDispatchPcapDumper() {
+		Pcap pcap = Pcap.openOffline(fname, errbuf);
+		assertNotNull(pcap.getErr(), pcap);
+
+		PcapDumper dumper = pcap.dumpOpen(tmpFile.getPath());
+		assertNotNull(pcap.getErr(), dumper);
+
+		try {
+			int r = pcap.loop(Pcap.LOOP_INFINATE, dumper);
+			assertEquals(pcap.getErr(), Pcap.OK, r);
+
+			assertEquals("dumped file and source file lengths don't match", tmpFile
+			    .length(), new File(fname).length());
+		} finally {
+			pcap.close();
+			dumper.close();
+		}
+
 	}
 
 	public void testErrbuf() throws SocketException, InterruptedException {
@@ -293,8 +365,13 @@ public class TestPcapJNI
 		assertEquals(pcap.getErr(), 0, r);
 
 		PcapHandler<String> handler = new PcapHandler<String>() {
-			public void nextPacket(String user, long seconds, int useconds,
-			    int caplen, int len, ByteBuffer buffer) {
+			public void nextPacket(
+			    String user,
+			    long seconds,
+			    int useconds,
+			    int caplen,
+			    int len,
+			    ByteBuffer buffer) {
 
 				// System.out.printf("%s, ts=%s caplen=%d len=%d capacity=%d\n", user
 				// .toString(), new Date(seconds * 1000).toString(), caplen, len,
@@ -381,6 +458,21 @@ public class TestPcapJNI
 		}
 	}
 
+	public void testGetHardwareAddress() throws IOException {
+		List<PcapIf> alldevs = new ArrayList<PcapIf>();
+
+		Pcap.findAllDevs(alldevs, errbuf);
+
+		for (PcapIf p : alldevs) {
+			byte[] mac = p.getHardwareAddress();
+			if (mac != null && mac.length == 6) {
+				return; // Found atleast 1 interface with MAC address
+			}
+		}
+
+		fail("Unable to find any interfaces with MAC address");
+	}
+
 	public void testGetNonBlockNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
@@ -393,8 +485,42 @@ public class TestPcapJNI
 		}
 	}
 
+	/**
+	 * Bug#1855589
+	 */
+	public void testIsInjectSupportedWin32() {
+		if (System.getProperty("os.name").toLowerCase().contains("win")) {
+			assertFalse(Pcap.isInjectSupported());
+		} else {
+			assertTrue(true); // Be explicit
+		}
+	}
+
+	public void testIsSendpacketSupportedWin32() {
+		if (System.getProperty("os.name").toLowerCase().contains("win")) {
+			assertTrue(Pcap.isSendPacketSupported());
+		} else {
+			assertTrue(true); // Be explicit
+		}
+	}
+
 	public void testLibVersion() {
 		assertNotNull(Pcap.libVersion());
+	}
+
+	@SuppressWarnings("deprecation")
+	public void testLookupDevAndLookupNetDeprecatedAPI() {
+		String device = Pcap.lookupDev(errbuf);
+		assertNotNull(errbuf.toString(), device);
+
+		JNumber netp = new JNumber(Type.INT);
+		JNumber maskp = new JNumber(Type.INT);
+
+		int r = Pcap.lookupNet(device, netp, maskp, errbuf);
+		assertEquals(errbuf.toString(), 0, r);
+
+		System.out.printf("device=%s netp=%X maskp=%X errbuf=%s\n", device, netp
+		    .intValue(), maskp.intValue(), errbuf.toString());
 	}
 
 	public void testLoopNullPtrHandling() {
@@ -404,6 +530,58 @@ public class TestPcapJNI
 			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
+		} finally {
+			pcap.close();
+		}
+	}
+
+	public void testLoopPcapDumper() {
+		Pcap pcap = Pcap.openOffline(fname, errbuf);
+		assertNotNull(pcap.getErr(), pcap);
+
+		PcapDumper dumper = pcap.dumpOpen(tmpFile.getPath());
+		assertNotNull(pcap.getErr(), dumper);
+
+		try {
+			int r = pcap.loop(Pcap.LOOP_INFINATE, dumper);
+			assertEquals(pcap.getErr(), Pcap.OK, r);
+
+			assertEquals("dumped file and source file lengths don't match", tmpFile
+			    .length(), new File(fname).length());
+		} finally {
+			pcap.close();
+			dumper.close();
+		}
+
+	}
+
+	public void testNext() {
+		Pcap pcap = Pcap.openOffline(fname, errbuf);
+		try {
+			PcapHeader header = new PcapHeader(); // allocated memory
+			JBuffer buffer = new JBuffer(JMemory.Type.POINTER);
+
+			buffer = pcap.next(header, buffer);
+
+			assertNotNull(buffer);
+			assertEquals(114, header.caplen());
+			assertEquals(114, buffer.size());
+		} finally {
+			pcap.close();
+		}
+	}
+
+	public void testNextEx() {
+		Pcap pcap = Pcap.openOffline(fname, errbuf);
+		try {
+			PcapHeader header = new PcapHeader(JMemory.Type.POINTER);
+			JBuffer buffer = new JBuffer(JMemory.Type.POINTER);
+
+			assertEquals(1, pcap.nextEx(header, buffer));
+
+			assertEquals(114, header.caplen());
+			assertEquals(114, buffer.size());
+
 		} finally {
 			pcap.close();
 		}
@@ -428,38 +606,6 @@ public class TestPcapJNI
 			fail("Expected a NULL pointer exception.");
 		} catch (NullPointerException e) {
 			// OK
-		} finally {
-			pcap.close();
-		}
-	}
-
-	public void testNextEx() {
-		Pcap pcap = Pcap.openOffline(fname, errbuf);
-		try {
-			PcapHeader header = new PcapHeader(JMemory.Type.POINTER);
-			JBuffer buffer = new JBuffer(JMemory.Type.POINTER);
-
-			assertEquals(1, pcap.nextEx(header, buffer));
-
-			assertEquals(114, header.caplen());
-			assertEquals(114, buffer.size());
-
-		} finally {
-			pcap.close();
-		}
-	}
-
-	public void testNext() {
-		Pcap pcap = Pcap.openOffline(fname, errbuf);
-		try {
-			PcapHeader header = new PcapHeader(); // allocated memory
-			JBuffer buffer = new JBuffer(JMemory.Type.POINTER);
-
-			buffer = pcap.next(header, buffer);
-			
-			assertNotNull(buffer);
-			assertEquals(114, header.caplen());
-			assertEquals(114, buffer.size());
 		} finally {
 			pcap.close();
 		}
@@ -503,8 +649,13 @@ public class TestPcapJNI
 
 		PcapHandler<String> handler = new PcapHandler<String>() {
 
-			public void nextPacket(String user, long seconds, int useconds,
-			    int caplen, int len, ByteBuffer buffer) {
+			public void nextPacket(
+			    String user,
+			    long seconds,
+			    int useconds,
+			    int caplen,
+			    int len,
+			    ByteBuffer buffer) {
 
 				// System.out.printf("%s, ts=%s caplen=%d len=%d capacity=%d\n", user
 				// .toString(), new Date(seconds * 1000).toString(), caplen, len,
@@ -529,8 +680,13 @@ public class TestPcapJNI
 
 		PcapHandler<String> handler = new PcapHandler<String>() {
 
-			public void nextPacket(String user, long seconds, int useconds,
-			    int caplen, int len, ByteBuffer buffer) {
+			public void nextPacket(
+			    String user,
+			    long seconds,
+			    int useconds,
+			    int caplen,
+			    int len,
+			    ByteBuffer buffer) {
 
 				// System.out.printf("%s, ts=%s caplen=%d len=%d capacity=%d\n", user
 				// .toString(), new Date(seconds * 1000).toString(), caplen, len,
@@ -552,8 +708,13 @@ public class TestPcapJNI
 
 		PcapHandler<String> handler = new PcapHandler<String>() {
 
-			public void nextPacket(String user, long seconds, int useconds,
-			    int caplen, int len, ByteBuffer buffer) {
+			public void nextPacket(
+			    String user,
+			    long seconds,
+			    int useconds,
+			    int caplen,
+			    int len,
+			    ByteBuffer buffer) {
 
 				// System.out.printf("%s, ts=%s caplen=%d len=%d capacity=%d\n", user
 				// .toString(), new Date(seconds * 1000).toString(), caplen, len,
@@ -606,6 +767,18 @@ public class TestPcapJNI
 		pcap.close();
 	}
 
+	public void testPcapClosedExceptionHandling() {
+		Pcap pcap = Pcap.openOffline(fname, errbuf);
+		pcap.close();
+
+		try {
+			pcap.breakloop();
+			fail("Expected PcapClosedException");
+		} catch (PcapClosedException e) {
+			// Success
+		}
+	}
+
 	public void testPcapDLTAndDoNameToValueComparison() {
 		int match = 0; // counts how many constants compared OK
 
@@ -644,6 +817,232 @@ public class TestPcapJNI
 		// System.out.printf("We don't have dlt=%d pcap=%s\n", dlt, libName);
 		// }
 		// }
+	}
+
+	public void testPcapDumperUsingDispatch() {
+
+		Pcap pcap = Pcap.openOffline(fname, errbuf);
+		assertNotNull(errbuf.toString(), pcap);
+
+		PcapDumper dumper = pcap.dumpOpen(tmpFile.getPath());
+		assertNotNull(pcap.getErr(), dumper);
+
+		PcapHandler<PcapDumper> handler = new PcapHandler<PcapDumper>() {
+
+			public void nextPacket(
+			    PcapDumper dumper,
+			    long seconds,
+			    int useconds,
+			    int caplen,
+			    int len,
+			    ByteBuffer buffer) {
+
+				dumper.dump(seconds, useconds, caplen, len, buffer);
+			}
+		};
+
+		/*
+		 * Our test file is small, about 24K bytes in size, should fit inside a
+		 * buffer full.
+		 */
+		int r = pcap.dispatch(Pcap.DISPATCH_BUFFER_FULL, handler, dumper);
+		assertTrue("Something happened in dispatch", r == Pcap.OK);
+
+		dumper.close();
+		pcap.close();
+
+		// System.out.printf("%s: tmp=%d, source=%d\n", tmpFile.getName(), tmpFile
+		// .length(), new File(fname).length());
+		//
+		assertEquals("dumped file and source file lengths don't match", tmpFile
+		    .length(), new File(fname).length());
+	}
+
+	public void testPcapDumperUsingLoop() {
+
+		Pcap pcap = Pcap.openOffline(fname, errbuf);
+		assertNotNull(errbuf.toString(), pcap);
+
+		PcapDumper dumper = pcap.dumpOpen(tmpFile.getPath());
+		assertNotNull(pcap.getErr(), dumper);
+
+		PcapHandler<PcapDumper> handler = new PcapHandler<PcapDumper>() {
+
+			public void nextPacket(
+			    PcapDumper dumper,
+			    long seconds,
+			    int useconds,
+			    int caplen,
+			    int len,
+			    ByteBuffer buffer) {
+
+				dumper.dump(seconds, useconds, caplen, len, buffer);
+			}
+		};
+
+		int r = pcap.loop(Pcap.LOOP_INFINATE, handler, dumper);
+		assertTrue("Something happened in the loop", r == Pcap.OK);
+
+		dumper.close();
+		pcap.close();
+
+		// System.out.printf("%s: tmp=%d, source=%d\n", tmpFile.getName(), tmpFile
+		// .length(), new File(fname).length());
+		//
+		assertEquals("dumped file and source file lengths don't match", tmpFile
+		    .length(), new File(fname).length());
+	}
+
+	/**
+	 * <p>
+	 * Test case in response to
+	 * <code>Bug #1767744 - PcapHandler object ptr error in loop() and dispatch()</code>.
+	 * The bug was that PcapHandler jobject ptr in JNI jnetpcap.cpp, was set
+	 * incorrectly to jobject of the parent which is the Pcap object itself. The
+	 * neccessary method "nextPacket" was looked up correctly using the proper
+	 * object but method execution was based on the parent Pcap object not the
+	 * PcapHandler object passed in. Therefore Java code when it was setting and
+	 * accessing properties within the PcapHandler sub-class, it was actually
+	 * clobering data within the Pcap object. Both object's states were terribly
+	 * incosinstent, private fields had bogus values, that changed for no reason,
+	 * etc... Very easy fix, the jobject for 'jhandler' was substituted for
+	 * jobject 'obj' that was used to fix this problem. The problem was both in
+	 * dispatch() and loop() methods since they are nearly an identical copy of
+	 * each other.
+	 * </p>
+	 * <p>
+	 * To test this we have to create a PcapHandler object set private fields
+	 * within it, we'll use an anonymous class, then read in the contents of the
+	 * entire contents of a test datafile, while updating the value of the field.
+	 * Then at the end we should have consitent value in that private field. Since
+	 * the problem seemed complex, but was actually a very easy fix, this should
+	 * never really break again, but we will check for it anyhow.
+	 * </p>
+	 */
+	public void testPcapHandlerParentOverrideBugUsingDispatch() {
+
+		Pcap pcap = Pcap.openOffline(fname, errbuf);
+		if (pcap == null) {
+			fail("Unable to open test data file because " + errbuf.toString());
+		}
+		final Pcap parent = pcap;
+
+		// Tracking variable #1
+		final AtomicInteger pcapCount = new AtomicInteger();
+
+		final PcapHandler<?> handler = new PcapHandler<Object>() {
+
+			// Tracking variable #2
+			private int count = 0;
+
+			public void nextPacket(
+			    Object userObject,
+			    long seconds,
+			    int useconds,
+			    int caplen,
+			    int len,
+			    ByteBuffer buffer) {
+
+				pcapCount.addAndGet(1);
+				count++;
+
+				if (pcapCount.get() != count) {
+					parent.breakloop(); // We exit with breakloop which means FAIL
+				}
+			}
+		};
+
+		int r = pcap.dispatch(Pcap.DISPATCH_BUFFER_FULL, handler, null);
+		if (r == Pcap.LOOP_INTERRUPTED) {
+
+			/*
+			 * Tracking variables are used to make sure they can sustain their
+			 * assigned values. The bug caused fields and object state to be overriden
+			 * by object of PcapHandler type.
+			 */
+			fail("Handler indicates that 2 tracking variables in 2 objects, "
+			    + "did not match");
+		} else if (r != Pcap.OK) {
+			fail("Error occured: " + pcap.getErr());
+		}
+
+		pcap.close();
+	}
+
+	/**
+	 * <p>
+	 * Test case in response to
+	 * <code>Bug #1767744 - PcapHandler object ptr error in loop() and dispatch()</code>.
+	 * The bug was that PcapHandler jobject ptr in JNI jnetpcap.cpp, was set
+	 * incorrectly to jobject of the parent which is the Pcap object itself. The
+	 * neccessary method "nextPacket" was looked up correctly using the proper
+	 * object but method execution was based on the parent Pcap object not the
+	 * PcapHandler object passed in. Therefore Java code when it was setting and
+	 * accessing properties within the PcapHandler sub-class, it was actually
+	 * clobering data within the Pcap object. Both object's states were terribly
+	 * incosinstent, private fields had bogus values, that changed for no reason,
+	 * etc... Very easy fix, the jobject for 'jhandler' was substituted for
+	 * jobject 'obj' that was used to fix this problem. The problem was both in
+	 * dispatch() and loop() methods since they are nearly an identical copy of
+	 * each other.
+	 * </p>
+	 * <p>
+	 * To test this we have to create a PcapHandler object set private fields
+	 * within it, we'll use an anonymous class, then read in the contents of the
+	 * entire contents of a test datafile, while updating the value of the field.
+	 * Then at the end we should have consitent value in that private field. Since
+	 * the problem seemed complex, but was actually a very easy fix, this should
+	 * never really break again, but we will check for it anyhow.
+	 * </p>
+	 */
+	public void testPcapHandlerParentOverrideBugUsingLoop() {
+
+		Pcap pcap = Pcap.openOffline(fname, errbuf);
+		if (pcap == null) {
+			fail("Unable to open test data file because " + errbuf.toString());
+		}
+		final Pcap parent = pcap;
+
+		// Tracking variable #1
+		final AtomicInteger pcapCount = new AtomicInteger();
+
+		final PcapHandler<?> handler = new PcapHandler<Object>() {
+
+			// Tracking variable #2
+			private int count = 0;
+
+			public void nextPacket(
+			    Object userObject,
+			    long seconds,
+			    int useconds,
+			    int caplen,
+			    int len,
+			    ByteBuffer buffer) {
+
+				pcapCount.addAndGet(1);
+				count++;
+
+				if (pcapCount.get() != count) {
+					parent.breakloop(); // We exit with breakloop which means FAIL
+				}
+			}
+		};
+
+		int r = pcap.loop(Pcap.LOOP_INFINATE, handler, null);
+		if (r == Pcap.LOOP_INTERRUPTED) {
+
+			/*
+			 * Tracking variables are used to make sure they can sustain their
+			 * assigned values. The bug caused fields and object state to be overriden
+			 * by object of PcapHandler type.
+			 */
+			fail("Handler indicates that 2 tracking variables in 2 objects, "
+			    + "did not match");
+		} else if (r != Pcap.OK) {
+			fail("Error occured: " + pcap.getErr());
+		}
+
+		pcap.close();
 	}
 
 	public void testPcapOpenLiveNullPtrHandling() {
@@ -695,308 +1094,5 @@ public class TestPcapJNI
 		} finally {
 			pcap.close();
 		}
-	}
-
-	/**
-	 * <p>
-	 * Test case in response to
-	 * <code>Bug #1767744 - PcapHandler object ptr error in loop() and dispatch()</code>.
-	 * The bug was that PcapHandler jobject ptr in JNI jnetpcap.cpp, was set
-	 * incorrectly to jobject of the parent which is the Pcap object itself. The
-	 * neccessary method "nextPacket" was looked up correctly using the proper
-	 * object but method execution was based on the parent Pcap object not the
-	 * PcapHandler object passed in. Therefore Java code when it was setting and
-	 * accessing properties within the PcapHandler sub-class, it was actually
-	 * clobering data within the Pcap object. Both object's states were terribly
-	 * incosinstent, private fields had bogus values, that changed for no reason,
-	 * etc... Very easy fix, the jobject for 'jhandler' was substituted for
-	 * jobject 'obj' that was used to fix this problem. The problem was both in
-	 * dispatch() and loop() methods since they are nearly an identical copy of
-	 * each other.
-	 * </p>
-	 * <p>
-	 * To test this we have to create a PcapHandler object set private fields
-	 * within it, we'll use an anonymous class, then read in the contents of the
-	 * entire contents of a test datafile, while updating the value of the field.
-	 * Then at the end we should have consitent value in that private field. Since
-	 * the problem seemed complex, but was actually a very easy fix, this should
-	 * never really break again, but we will check for it anyhow.
-	 * </p>
-	 */
-	public void testPcapHandlerParentOverrideBugUsingLoop() {
-
-		Pcap pcap = Pcap.openOffline(fname, errbuf);
-		if (pcap == null) {
-			fail("Unable to open test data file because " + errbuf.toString());
-		}
-		final Pcap parent = pcap;
-
-		// Tracking variable #1
-		final AtomicInteger pcapCount = new AtomicInteger();
-
-		final PcapHandler<?> handler = new PcapHandler<Object>() {
-
-			// Tracking variable #2
-			private int count = 0;
-
-			public void nextPacket(Object userObject, long seconds, int useconds,
-			    int caplen, int len, ByteBuffer buffer) {
-
-				pcapCount.addAndGet(1);
-				count++;
-
-				if (pcapCount.get() != count) {
-					parent.breakloop(); // We exit with breakloop which means FAIL
-				}
-			}
-		};
-
-		int r = pcap.loop(Pcap.LOOP_INFINATE, handler, null);
-		if (r == Pcap.LOOP_INTERRUPTED) {
-
-			/*
-			 * Tracking variables are used to make sure they can sustain their
-			 * assigned values. The bug caused fields and object state to be overriden
-			 * by object of PcapHandler type.
-			 */
-			fail("Handler indicates that 2 tracking variables in 2 objects, "
-			    + "did not match");
-		} else if (r != Pcap.OK) {
-			fail("Error occured: " + pcap.getErr());
-		}
-
-		pcap.close();
-	}
-
-	/**
-	 * <p>
-	 * Test case in response to
-	 * <code>Bug #1767744 - PcapHandler object ptr error in loop() and dispatch()</code>.
-	 * The bug was that PcapHandler jobject ptr in JNI jnetpcap.cpp, was set
-	 * incorrectly to jobject of the parent which is the Pcap object itself. The
-	 * neccessary method "nextPacket" was looked up correctly using the proper
-	 * object but method execution was based on the parent Pcap object not the
-	 * PcapHandler object passed in. Therefore Java code when it was setting and
-	 * accessing properties within the PcapHandler sub-class, it was actually
-	 * clobering data within the Pcap object. Both object's states were terribly
-	 * incosinstent, private fields had bogus values, that changed for no reason,
-	 * etc... Very easy fix, the jobject for 'jhandler' was substituted for
-	 * jobject 'obj' that was used to fix this problem. The problem was both in
-	 * dispatch() and loop() methods since they are nearly an identical copy of
-	 * each other.
-	 * </p>
-	 * <p>
-	 * To test this we have to create a PcapHandler object set private fields
-	 * within it, we'll use an anonymous class, then read in the contents of the
-	 * entire contents of a test datafile, while updating the value of the field.
-	 * Then at the end we should have consitent value in that private field. Since
-	 * the problem seemed complex, but was actually a very easy fix, this should
-	 * never really break again, but we will check for it anyhow.
-	 * </p>
-	 */
-	public void testPcapHandlerParentOverrideBugUsingDispatch() {
-
-		Pcap pcap = Pcap.openOffline(fname, errbuf);
-		if (pcap == null) {
-			fail("Unable to open test data file because " + errbuf.toString());
-		}
-		final Pcap parent = pcap;
-
-		// Tracking variable #1
-		final AtomicInteger pcapCount = new AtomicInteger();
-
-		final PcapHandler<?> handler = new PcapHandler<Object>() {
-
-			// Tracking variable #2
-			private int count = 0;
-
-			public void nextPacket(Object userObject, long seconds, int useconds,
-			    int caplen, int len, ByteBuffer buffer) {
-
-				pcapCount.addAndGet(1);
-				count++;
-
-				if (pcapCount.get() != count) {
-					parent.breakloop(); // We exit with breakloop which means FAIL
-				}
-			}
-		};
-
-		int r = pcap.dispatch(Pcap.DISPATCH_BUFFER_FULL, handler, null);
-		if (r == Pcap.LOOP_INTERRUPTED) {
-
-			/*
-			 * Tracking variables are used to make sure they can sustain their
-			 * assigned values. The bug caused fields and object state to be overriden
-			 * by object of PcapHandler type.
-			 */
-			fail("Handler indicates that 2 tracking variables in 2 objects, "
-			    + "did not match");
-		} else if (r != Pcap.OK) {
-			fail("Error occured: " + pcap.getErr());
-		}
-
-		pcap.close();
-	}
-
-	public void testPcapDumperUsingLoop() {
-
-		Pcap pcap = Pcap.openOffline(fname, errbuf);
-		assertNotNull(errbuf.toString(), pcap);
-
-		PcapDumper dumper = pcap.dumpOpen(tmpFile.getPath());
-		assertNotNull(pcap.getErr(), dumper);
-
-		PcapHandler<PcapDumper> handler = new PcapHandler<PcapDumper>() {
-
-			public void nextPacket(PcapDumper dumper, long seconds, int useconds,
-			    int caplen, int len, ByteBuffer buffer) {
-
-				dumper.dump(seconds, useconds, caplen, len, buffer);
-			}
-		};
-
-		int r = pcap.loop(Pcap.LOOP_INFINATE, handler, dumper);
-		assertTrue("Something happened in the loop", r == Pcap.OK);
-
-		dumper.close();
-		pcap.close();
-
-		// System.out.printf("%s: tmp=%d, source=%d\n", tmpFile.getName(), tmpFile
-		// .length(), new File(fname).length());
-		//
-		assertEquals("dumped file and source file lengths don't match", tmpFile
-		    .length(), new File(fname).length());
-	}
-
-	public void testPcapDumperUsingDispatch() {
-
-		Pcap pcap = Pcap.openOffline(fname, errbuf);
-		assertNotNull(errbuf.toString(), pcap);
-
-		PcapDumper dumper = pcap.dumpOpen(tmpFile.getPath());
-		assertNotNull(pcap.getErr(), dumper);
-
-		PcapHandler<PcapDumper> handler = new PcapHandler<PcapDumper>() {
-
-			public void nextPacket(PcapDumper dumper, long seconds, int useconds,
-			    int caplen, int len, ByteBuffer buffer) {
-
-				dumper.dump(seconds, useconds, caplen, len, buffer);
-			}
-		};
-
-		/*
-		 * Our test file is small, about 24K bytes in size, should fit inside a
-		 * buffer full.
-		 */
-		int r = pcap.dispatch(Pcap.DISPATCH_BUFFER_FULL, handler, dumper);
-		assertTrue("Something happened in dispatch", r == Pcap.OK);
-
-		dumper.close();
-		pcap.close();
-
-		// System.out.printf("%s: tmp=%d, source=%d\n", tmpFile.getName(), tmpFile
-		// .length(), new File(fname).length());
-		//
-		assertEquals("dumped file and source file lengths don't match", tmpFile
-		    .length(), new File(fname).length());
-	}
-
-	public void _testStats() {
-		PcapStat stats = new PcapStat();
-
-		Pcap pcap = Pcap.openLive(device, snaplen, promisc, oneSecond, errbuf);
-		assertNotNull(errbuf.toString(), pcap);
-
-		pcap.loop(5, doNothingHandler, null);
-		pcap.stats(stats);
-		// System.out.printf("stats=%s\n", stats.toString());
-
-		pcap.loop(5, doNothingHandler, null);
-		pcap.stats(stats);
-		// System.out.printf("stats=%s\n", stats.toString());
-
-		pcap.close();
-	}
-
-	public void SKIPtestDumper() {
-
-		gen.start(); // Generate network traffic - async method
-
-		System.out.printf("tmpFile=%s\n", tmpFile.getAbsoluteFile());
-
-		Pcap pcap = Pcap.openLive(device, snaplen, promisc, oneSecond, errbuf);
-		assertNotNull(errbuf.toString(), pcap);
-
-		PcapDumper dumper = pcap.dumpOpen(tmpFile.getAbsolutePath());
-		assertNotNull(pcap.getErr(), dumper);
-
-		PcapHandler<PcapDumper> dumpHandler = new PcapHandler<PcapDumper>() {
-
-			public void nextPacket(PcapDumper dumper, long seconds, int useconds,
-			    int caplen, int len, ByteBuffer buffer) {
-
-				dumper.dump(seconds, useconds, caplen, len, buffer);
-			}
-		};
-
-		pcap.loop(10, dumpHandler, dumper);
-
-		assertTrue("Empty dump file " + tmpFile.getAbsolutePath(),
-		    tmpFile.length() > 0);
-
-		// System.out.printf("Temp dumpfile size=%s\n", tmpFile.length());
-		pcap.close();
-
-	}
-
-	@SuppressWarnings("deprecation")
-	public void testLookupDevAndLookupNetDeprecatedAPI() {
-		String device = Pcap.lookupDev(errbuf);
-		assertNotNull(errbuf.toString(), device);
-
-		JNumber netp = new JNumber(Type.INT);
-		JNumber maskp = new JNumber(Type.INT);
-
-		int r = Pcap.lookupNet(device, netp, maskp, errbuf);
-		assertEquals(errbuf.toString(), 0, r);
-
-		System.out.printf("device=%s netp=%X maskp=%X errbuf=%s\n", device, netp
-		    .intValue(), maskp.intValue(), errbuf.toString());
-	}
-
-	/**
-	 * Bug#1855589
-	 */
-	public void testIsInjectSupportedWin32() {
-		if (System.getProperty("os.name").toLowerCase().contains("win")) {
-			assertFalse(Pcap.isInjectSupported());
-		} else {
-			assertTrue(true); // Be explicit
-		}
-	}
-
-	public void testIsSendpacketSupportedWin32() {
-		if (System.getProperty("os.name").toLowerCase().contains("win")) {
-			assertTrue(Pcap.isSendPacketSupported());
-		} else {
-			assertTrue(true); // Be explicit
-		}
-	}
-	
-	public void testGetHardwareAddress() throws IOException {
-		List<PcapIf> alldevs = new ArrayList<PcapIf>();
-		
-		Pcap.findAllDevs(alldevs, errbuf);
-	
-		for (PcapIf p: alldevs) {
-			byte[] mac = p.getHardwareAddress();
-			if (mac != null && mac.length == 6) {
-				return; // Found atleast 1 interface with MAC address
-			}
-		}
-		
-		fail("Unable to find any interfaces with MAC address");
 	}
 }
