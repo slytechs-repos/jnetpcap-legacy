@@ -168,10 +168,10 @@ public class TestUtils
 		 **************************************************************************/
 
 		final PcapTask<Pcap> task =
-			new PcapTask<Pcap>(pcap, end, pcap) {
+			new PcapTask<Pcap>(pcap, end - start, pcap) {
 
 			public void run() {
-				this.result = pcap.loop(end, new PcapPacketHandler<Pcap>() {
+				this.result = pcap.loop(end - start, new PcapPacketHandler<Pcap>() {
 			    int i = 0;
 
 			    public void nextPacket(PcapPacket packet, Pcap pcap) {
