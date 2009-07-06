@@ -463,8 +463,8 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__ILorg_jnetpcap_PcapDumpe
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
 	}
-	
-	u_char *d = (u_char *)getJMemoryPhysical(env, dumper);
+
+	u_char *d = (u_char *)getPcapDumper(env, dumper);
 	if (d == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;		
@@ -494,7 +494,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__ILorg_jnetpcap_PcapDumper_2
 		return -1;
 	}
 	
-	u_char *d = (u_char *)getJMemoryPhysical(env, dumper);
+	u_char *d = (u_char *)getPcapDumper(env, dumper);
 	if (d == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;		
