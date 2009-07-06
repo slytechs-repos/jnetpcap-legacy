@@ -813,6 +813,17 @@ void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 }
 
 /**
+ * Specialized handler that natively dumps to a dump handle without entering
+ * java environment.
+ */
+void cb_pcap_dumper_handler(u_char *dump_handle, const pcap_pkthdr *pkt_header,
+		const u_char *pkt_data) {
+	
+	pcap_dump(dump_handle, pkt_header, pkt_data);
+}
+
+
+/**
  * Copies contents of a libpcap capture header, scanner packet_t structure and
  * libpcap provided packet data buffer into a single newly allocated memory block
  * peered to brand new PcapPacket.
