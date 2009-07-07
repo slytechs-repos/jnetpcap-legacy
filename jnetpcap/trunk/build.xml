@@ -195,154 +195,12 @@
 		<mkdir dir="${build.tests.dir}" />
 	</target>
 
-	<!--                  PACKAGING SECTION -->
-
 	<!-- =================================================================== -->
 	<!-- Creates top level dist/ directory -->
 	<!-- =================================================================== -->
 	<target name="prep-dist">
 		<mkdir dir="${dist.dir}" />
 	</target>
-
-	<!-- =================================================================== -->
-	<!-- Packages up the 'library' package -->
-	<!-- =================================================================== -->
-	<target name="package-doc-jre">
-
-		<mkdir dir="${pkg.doc.dir}" />
-		<mkdir dir="${pkg.doc.javadoc.dir}" />
-
-		<!-- ############################################################### -->
-		<!--       Copy, license, readme, release notes, etc..  -->
-		<!-- ############################################################### -->
-		<copy file="${doc.LICENSE}" tofile="${pkg.doc.LICENSE}" />
-		<copy file="${doc.CHANGE_LOG}" tofile="${pkg.doc.CHANGE_LOG}" />
-		<copy file="${doc.RELEASE_NOTES}" tofile="${pkg.doc.RELEASE_NOTES}">
-			<filterset>
-				<filter token="DSTAMP" value="${DSTAMP}" />
-				<filter token="TSTAMP" value="${TSTAMP}" />
-				<filter token="TIMESTAMP.SHORT" value="${timestamp.short}" />
-			</filterset>
-		</copy>
-
-		<!-- ############################################################### -->
-		<!--       Copy all API javadoc   -->
-		<!-- ############################################################### -->
-		<copy todir="${pkg.doc.javadoc.dir}">
-			<fileset dir="${build.javadoc.dir}" />
-		</copy>
-
-		<!-- ############################################################### -->
-		<!--       Now ZIP everything up into a distributable bundle  -->
-		<!-- ############################################################### -->
-		<zip destfile="${pkg.doc.zip}">
-			<zipfileset dir="${pkg.doc.dir}" prefix="${pkg.doc}" />
-		</zip>
-
-	</target>
-
-	<!-- =================================================================== -->
-	<!-- Packages up the 'library' package -->
-	<!-- =================================================================== -->
-	<target name="package-doc" depends="prep-dist,comp-javadoc">
-	</target>
-
-
-	<!-- =================================================================== -->
-	<!-- Packages up the javadoc as a simple deployable zip package -->
-	<!-- =================================================================== -->
-	<target name="package-doc-api" depends="prep-dist,comp-javadoc">
-
-		<!-- ############################################################### -->
-		<!--       Now ZIP everything up into a distributable bundle  -->
-		<!-- ############################################################### -->
-
-		<zip destfile="${pkg.doc-api.zip}">
-			<zipfileset dir="${build.javadoc.dir}" prefix="${pkg.base}-javadoc" />
-		</zip>
-
-		<checksum forceoverwrite="true" file="${pkg.doc-api.zip}" />
-
-	</target>
-
-	<!-- =================================================================== -->
-	<!-- Packages up the 'library' package -->
-	<!-- =================================================================== -->
-	<target name="package-lib" depends="prep-dist,comp-jni,comp-manifest">
-
-		<mkdir dir="${pkg.lib.dir}" />
-
-		<!-- ############################################################### -->
-		<!--                  Distribute sources -->
-		<!-- ############################################################### -->
-		<mkdir dir="${pkg.lib.src.dir}" />
-		<copy todir="${pkg.lib.src.dir}">
-			<fileset dir="${src.dir}">
-				<include name="**/*.java" />
-				<include name="**/*.properties" />
-				<include name="**/*.html" />
-				<include name="**/*.cpp" />
-				<include name="**/*.h" />
-			</fileset>
-		</copy>
-
-		<!-- ############################################################### -->
-		<!--       Copy, license, readme, release notes, etc..  -->
-		<!-- ############################################################### -->
-		<copy file="${doc.LICENSE}" tofile="${pkg.lib.LICENSE}" />
-		<copy file="${doc.CHANGE_LOG}" tofile="${pkg.lib.CHANGE_LOG}" />
-		<copy file="${doc.RELEASE_NOTES}" tofile="${pkg.lib.RELEASE_NOTES}">
-			<filterset>
-				<filter token="DSTAMP" value="${DSTAMP}" />
-				<filter token="TSTAMP" value="${TSTAMP}" />
-				<filter token="TIMESTAMP.SHORT" value="${timestamp.short}" />
-			</filterset>
-		</copy>
-
-		<!-- ############################################################### -->
-		<!--       Copy tests suite in source only  -->
-		<!-- ############################################################### -->
-		<copy todir="${pkg.lib.tests.dir}">
-			<fileset dir="${test.dir}" />
-		</copy>
-
-		<!-- ############################################################### -->
-		<!--       Copy build file and its properties  -->
-		<!-- ############################################################### -->
-		<copy file="${build.xml}" todir="${pkg.lib.build.dir}" />
-		<copy todir="${pkg.lib.build.dir}">
-			<fileset dir="${build.properties.dir}">
-				<include name="*.properties" />
-			</fileset>
-		</copy>
-
-		<!-- ############################################################### -->
-		<!--       Copy native library.  -->
-		<!-- ############################################################### -->
-		<copy file="${jni.build.filepath}" tofile="${pkg.lib.jnetpcap.so}" />
-
-		<!-- ############################################################### -->
-		<!--       Create JAR file containing all the java classes  -->
-		<!-- ############################################################### -->
-		<jar destfile="${pkg.lib.jnetpcap.jar}.jar" manifest="${build.classes.inf}">
-			<fileset dir="${build.classes.dir}1.5" />
-		</jar>
-
-
-		<!-- ############################################################### -->
-		<!--       Now ZIP everything up into a distributable bundle  -->
-		<!-- ############################################################### -->
-		<zip destfile="${pkg.lib.zip}">
-			<zipfileset dir="${pkg.lib.dir}" prefix="${pkg.lib}" />
-		</zip>
-
-		<checksum forceoverwrite="true" file="${pkg.lib.zip}" />
-
-		<!-- Export the final name of the distribution file to distro.upfile property -->
-		<property name="distro.upfile" value="${pkg.lib.zip}" />
-
-	</target>
-
 
 	<!-- =================================================================== -->
 	<!-- Sets certain properties for a "release.build" -->
@@ -357,10 +215,10 @@
 	<target name="prep-checks">
 	</target>
 
-	<!--                        COMPILE SECTION  -->
+	<!--                        COMPILE SECTION                              -->
 
 	<!-- =================================================================== -->
-	<!-- Compiles java sources using javac -->
+	<!-- Compiles java sources using javac                                   -->
 	<!-- =================================================================== -->
 	<target name="comp-java-jre" depends="prep-java">
 		<property name="compiler.debuglevel" value="lines,vars,source" />
@@ -375,7 +233,7 @@
 	</target>
 
 	<!-- =================================================================== -->
-	<!-- Compiles java sources using javac -->
+	<!-- Compiles java sources using javac                                   -->
 	<!-- =================================================================== -->
 	<target name="comp-java" depends="release-settings">
 
@@ -386,11 +244,10 @@
 
 	</target>
 
-
 	<!-- =================================================================== -->
 	<!-- Compiles a manifest file for deployable jar file                    -->
 	<!-- =================================================================== -->
-	<target name="comp-manifest" depends="prep-meta-inf,comp-java" description="Create manifest file">
+	<target name="comp-manifest" depends="prep-meta-inf" description="Create manifest file">
 
 		<!-- Create manifest -->
 		<manifest file="${build.classes.inf}">
@@ -402,7 +259,7 @@
 	</target>
 
 	<!-- =================================================================== -->
-	<!-- Compiles java binary classes, not sources, using javah -->
+	<!-- Compiles java binary classes, not sources, using javah              -->
 	<!-- =================================================================== -->
 	<target name="comp-javah" depends="prep-javah,comp-java">
 		<javah destdir="${build.include.dir}" classpathref="javah.classpath" force="${javah.force}" verbose="true">
@@ -452,7 +309,7 @@
 	</target>
 
 	<!-- =================================================================== -->
-	<!-- Generates shared JNI library file from C++ sources -->
+	<!-- Generates shared JNI library file from C++ sources                  -->
 	<!-- =================================================================== -->
 	<target name="comp-jni-win32" depends="prep-checks,prep-jni,prep-lib,comp-javah" if="platform.win32">
 
@@ -485,7 +342,6 @@
 
 		</cc>
 
-
 		<echo message="linking object files" />
 		<echo message="using ${compiler.ld.cmd} linker found at ${compiler.ld.bin.dir}" />
 		<exec executable="${compiler.ld.cmd}">
@@ -507,12 +363,10 @@
 
 		</exec>
 		<echo message="Created shared JNI libary: ${jni.build.filepath}" />
-
-
 	</target>
 
 	<!-- =================================================================== -->
-	<!-- Generates shared JNI library file from C++ sources -->
+	<!-- Generates shared JNI library file from C++ sources                  -->
 	<!-- =================================================================== -->
 	<target name="comp-jni-linux" depends="prep-checks,prep-jni,prep-lib,comp-javah" if="platform.linux">
 
@@ -557,21 +411,21 @@
 
 
 	<!-- =================================================================== -->
-	<!-- Compiles java files using JavaDoc -->
+	<!-- Compiles java files using JavaDoc                                   -->
 	<!-- =================================================================== -->
 	<target name="comp-jni" depends="comp-jni-linux,comp-jni-win32">
 	</target>
 
 
 	<!-- =================================================================== -->
-	<!-- Compiles java files using JavaDoc -->
+	<!-- Compiles java files using JavaDoc                                   -->
 	<!-- =================================================================== -->
 	<target name="comp-javadoc-jre" depends="prep-javadoc">
 		<javadoc sourcepath="${src.java.dir}${compiler.target}" source="${compiler.target}" destdir="${build.javadoc.dir}" doctitle="${doc.javadoc.title} (${pkg.version})" overview="${src.java.dir}${compiler.target}/${doc.javadoc.overview.html}" packagenames="org.jnetpcap.*" classpathref="javadoc.classpath" />
 	</target>
 
 	<!-- =================================================================== -->
-	<!-- Compiles java files using JavaDoc -->
+	<!-- Compiles java files using JavaDoc                                   -->
 	<!-- =================================================================== -->
 	<target name="comp-javadoc-betafeatures" depends="prep-javadoc">
 		<javadoc sourcepath="${src.beta.dir}${compiler.target}" source="${compiler.target}" destdir="${build.javadoc.dir}-beta" doctitle="${doc.javadoc.title} (BETA Features)" overview="${src.beta.dir}/${doc.javadoc.overview.html}" packagenames="org.jnetpcap.*" classpathref="javadoc.classpath" />
@@ -579,7 +433,7 @@
 
 
 	<!-- =================================================================== -->
-	<!-- Compiles java files using JavaDoc -->
+	<!-- Compiles java files using JavaDoc                                   -->
 	<!-- =================================================================== -->
 	<target name="comp-javadoc" depends="comp-java">
 
@@ -591,14 +445,14 @@
 	</target>
 
 	<!-- =================================================================== -->
-	<!-- Compiles java files using JavaDoc -->
+	<!-- Compiles java files using JavaDoc                                   -->
 	<!-- =================================================================== -->
 	<target name="comp-test" depends="prep-test,comp-java,comp-jni">
 		<javac srcdir="${test.dir}" destdir="${build.classes.dir}1.5" debug="${compiler.debug}" deprecation="${compiler.deprecate}" optimize="${compiler.optimize}" classpathref="test.classpath" />
 	</target>
 
 	<!-- =================================================================== -->
-	<!-- Compiles java example files -->
+	<!-- Compiles java example files                                         -->
 	<!-- =================================================================== -->
 	<target name="comp-examples" depends="comp-java,comp-jni">
 		<javac srcdir="${examples.java.dir}" destdir="${build.examples.dir}1.5" debug="${compiler.debug}" deprecation="${compiler.deprecate}" optimize="${compiler.optimize}" classpathref="compiler.classpath" />
@@ -607,7 +461,352 @@
 
 	</target>
 
+	<!-- =================================================================== -->
+	<!-- Creates a JAR file                                                  -->
+	<!-- =================================================================== -->
+	<target name="build-jar" depends="prep-lib,comp-java,comp-manifest">
 
+		<mkdir dir="${pkg.lib.subdir}" />
+
+		<!-- ############################################################### -->
+		<!--       Create JAR file containing all the java classes  -->
+		<!-- ############################################################### -->
+		<jar destfile="${build.jnetpcap.jar}" manifest="${build.classes.inf}">
+			<fileset dir="${build.classes.dir}1.5" />
+		</jar>
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- build a DEB (A debian package)                                      -->
+	<!-- =================================================================== -->
+	<target name="build-deb" depends="comp-jni,build-jar,prep-deb,comp-javadoc" if="platform.linux">
+
+		<copy tofile="${deb.build.control.dir}/control" file="${deb.spec.file}">
+			<filterset>
+				<filter token="pkg.version" value="${pkg.version}" />
+				<filter token="platform.os.name" value="${platform.os.name}" />
+			</filterset>
+		</copy>
+		<copy tofile="${deb.build.control.dir}/postinst" file="${deb.postinst.file}">
+			<filterset>
+				<filter token="pkg.version" value="${pkg.version}" />
+				<filter token="platform.os.name" value="${platform.os.name}" />
+			</filterset>
+		</copy>
+		<copy tofile="${deb.build.control.dir}/prerm" file="${deb.prerm.file}">
+			<filterset>
+				<filter token="pkg.version" value="${pkg.version}" />
+				<filter token="platform.os.name" value="${platform.os.name}" />
+			</filterset>
+		</copy>
+		<chmod perm="755" file="${deb.build.control.dir}/postinst">
+		</chmod>
+		<chmod perm="755" file="${deb.build.control.dir}/prerm">
+		</chmod>
+
+		<copy todir="${deb.build.lib.dir}" file="${build.lib.dir}/${lib.pcap.fullname}" />
+		<copy todir="${deb.build.java.dir}" file="${build.jnetpcap.jar}" />
+		<copy todir="${deb.build.doc.dir}" file="${doc.dir}/RELEASE_NOTES.txt" />
+		<copy todir="${deb.build.doc.dir}" file="${doc.dir}/CHANGE_LOG.txt" />
+		<copy todir="${deb.build.doc.dir}" file="${doc.dir}/LICENSE.txt" />
+
+		<copy todir="${deb.build.javadocs.dir}">
+			<fileset dir="${build.javadoc.dir}" />
+		</copy>
+
+		<echo message="control=${deb.build.control.dir}/${deb.spec.name}" />
+		<echo message="src=${deb.buildroot.dir}" />
+		<deb destfile="${deb.file}" control="${deb.build.control.dir}">
+			<data src="${deb.build.root.dir}" />
+		</deb>
+
+		<!-- Export the final name of the distribution file to distro.upfile property -->
+		<property name="distro.upfile" value="${deb.dist.file}" />
+
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- build a RPM                                                         -->
+	<!-- =================================================================== -->
+	<target name="build-rpm" depends="comp-jni,build-jar,prep-rpm,comp-javadoc" if="platform.linux">
+
+		<copy todir="${rpm.build.dir}/SPECS" file="${rpm.spec.file}">
+			<filterset>
+				<filter token="pkg.version" value="${pkg.version}" />
+				<filter token="platform.os.name" value="${platform.os.name}" />
+			</filterset>
+		</copy>
+
+		<copy todir="${rpm.build.dir}/INSTALL/usr/lib" file="${build.lib.dir}/${lib.pcap.fullname}" />
+		<copy todir="${rpm.build.dir}/INSTALL/usr/share/java" file="${build.jnetpcap.jar}" />
+		<copy todir="${rpm.build.dir}/BUILD" file="${doc.dir}/RELEASE_NOTES.txt" />
+		<copy todir="${rpm.build.dir}/BUILD" file="${doc.dir}/CHANGE_LOG.txt" />
+		<copy todir="${rpm.build.dir}/BUILD" file="${doc.dir}/LICENSE.txt" />
+
+		<copy todir="${rpm.build.dir}/BUILD/javadoc">
+			<fileset dir="${build.javadoc.dir}" />
+		</copy>
+
+		<rpm specfile="${rpm.spec.name}" topdir="${rpm.build.dir}" command="-bb --buildroot=${rpm.buildroot.dir}" />
+
+	</target>
+
+	<!--                  PACKAGING SECTION                                  -->
+
+	<!-- =================================================================== -->
+	<!-- Packages up the javadoc as a simple deployable zip package -->
+	<!-- =================================================================== -->
+	<target name="package-javadoc" depends="prep-dist,comp-javadoc">
+
+		<!-- ############################################################### -->
+		<!--       Now ZIP everything up into a distributable bundle  -->
+		<!-- ############################################################### -->
+
+		<zip destfile="${pkg.javadoc.zip}">
+			<zipfileset dir="${build.javadoc.dir}" prefix="${pkg.javadoc.prefix}" />
+		</zip>
+
+		<checksum forceoverwrite="true" file="${pkg.javadoc.zip}" />
+
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Packages up the 'library' package -->
+	<!-- =================================================================== -->
+	<target name="package-win" depends="prep-dist,comp-jni,comp-manifest">
+
+		<mkdir dir="${pkg.lib.dir}" />
+
+		<!-- ############################################################### -->
+		<!--       Copy, license, readme, release notes, etc..  -->
+		<!-- ############################################################### -->
+		<copy file="${doc.LICENSE}" tofile="${pkg.lib.LICENSE}" />
+		<copy file="${doc.CHANGE_LOG}" tofile="${pkg.lib.CHANGE_LOG}" />
+		<copy file="${doc.RELEASE_NOTES}" tofile="${pkg.lib.RELEASE_NOTES}">
+			<filterset>
+				<filter token="DSTAMP" value="${DSTAMP}" />
+				<filter token="TSTAMP" value="${TSTAMP}" />
+				<filter token="TIMESTAMP.SHORT" value="${timestamp.short}" />
+			</filterset>
+		</copy>
+
+		<!-- ############################################################### -->
+		<!--       Copy native library.  -->
+		<!-- ############################################################### -->
+		<copy file="${jni.build.filepath}" tofile="${pkg.lib.jnetpcap.so}" />
+
+		<!-- ############################################################### -->
+		<!--       Create JAR file containing all the java classes  -->
+		<!-- ############################################################### -->
+		<jar destfile="${pkg.lib.jnetpcap.jar}.jar" manifest="${build.classes.inf}">
+			<fileset dir="${build.classes.dir}1.5" />
+		</jar>
+
+
+		<!-- ############################################################### -->
+		<!--       Now ZIP everything up into a distributable bundle  -->
+		<!-- ############################################################### -->
+		<zip destfile="${pkg.lib.zip}">
+			<zipfileset dir="${pkg.lib.dir}" prefix="${pkg.lib.prefix}" />
+		</zip>
+
+		<checksum forceoverwrite="true" file="${pkg.lib.zip}" />
+
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Packages up the 'library' package -->
+	<!-- =================================================================== -->
+	<target name="package-src" depends="prep-dist,comp-manifest">
+
+		<mkdir dir="${pkg.src.dir}" />
+
+		<!-- ############################################################### -->
+		<!--                  Distribute sources -->
+		<!-- ############################################################### -->
+		<mkdir dir="${pkg.lib.src.dir}" />
+		<copy todir="${pkg.lib.src.dir}">
+			<fileset dir="${src.dir}">
+				<include name="**/*.java" />
+				<include name="**/*.properties" />
+				<include name="**/*.html" />
+				<include name="**/*.cpp" />
+				<include name="**/*.h" />
+			</fileset>
+		</copy>
+
+		<!-- ############################################################### -->
+		<!--       Copy, license, readme, release notes, etc..  -->
+		<!-- ############################################################### -->
+		<copy file="${doc.LICENSE}" tofile="${pkg.src.LICENSE}" />
+		<copy file="${doc.CHANGE_LOG}" tofile="${pkg.src.CHANGE_LOG}" />
+		<copy file="${doc.RELEASE_NOTES}" tofile="${pkg.src.RELEASE_NOTES}">
+			<filterset>
+				<filter token="DSTAMP" value="${DSTAMP}" />
+				<filter token="TSTAMP" value="${TSTAMP}" />
+				<filter token="TIMESTAMP.SHORT" value="${timestamp.short}" />
+			</filterset>
+		</copy>
+
+		<!-- ############################################################### -->
+		<!--       Copy tests suite in source only  -->
+		<!-- ############################################################### -->
+		<copy todir="${pkg.lib.tests.dir}">
+			<fileset dir="${test.dir}" />
+		</copy>
+
+		<!-- ############################################################### -->
+		<!--       Copy build file and its properties  -->
+		<!-- ############################################################### -->
+		<copy file="${build.xml}" todir="${pkg.lib.build.dir}" />
+		<copy todir="${pkg.lib.build.dir}">
+			<fileset dir="${build.properties.dir}">
+				<include name="*.properties" />
+			</fileset>
+		</copy>
+
+		<!-- ############################################################### -->
+		<!--       Now ZIP everything up into a distributable bundle  -->
+		<!-- ############################################################### -->
+		<zip destfile="${pkg.src.zip}">
+			<zipfileset dir="${pkg.src.dir}" prefix="${pkg.src.prefix}" />
+		</zip>
+
+		<checksum forceoverwrite="true" file="${pkg.src.zip}" />
+
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- create  a RPM package -->
+	<!-- =================================================================== -->
+	<target name="package-rpm" depends="build-rpm,prep-dist" if="platform.linux">
+		<copy todir="${dist.dir}" file="${rpm.build.file}" />
+		<checksum forceoverwrite="true" file="${rpm.dist.file}" />
+
+		<!-- Export the final name of the distribution file to distro.upfile property -->
+		<property name="distro.upfile" value="${rpm.dist.file}" />
+
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- create  a DEB package -->
+	<!-- =================================================================== -->
+	<target name="package-deb" depends="build-deb,prep-dist" if="platform.linux">
+		<copy todir="${dist.dir}" file="${deb.file}" />
+		<checksum forceoverwrite="true" file="${deb.dist.file}" />
+
+	</target>
+	
+	<!--                  UPLOAD SECTION                                     -->
+
+	<!-- =================================================================== -->
+	<!-- Uploads a package to sourceforge.net  -->
+	<!-- =================================================================== -->
+	<target name="upload-dist-rpm" if="rpm.dist.file">
+
+		<scp trust="yes" verbose="${distro.verbose}" todir="${distro.url}" file="${rpm.dist.file}" />
+
+		<echo>
+			To finish making release visit:
+			https://sourceforge.net/project/admin/editpackages.php?group_id=164277 
+		</echo>
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Uploads a package to sourceforge.net  -->
+	<!-- =================================================================== -->
+	<target name="upload-dist-deb" if="deb.dist.file">
+
+		<scp trust="yes" verbose="${distro.verbose}" todir="${distro.url}" file="${deb.dist.file}" />
+
+		<echo>
+			To finish making release visit:
+			https://sourceforge.net/project/admin/editpackages.php?group_id=164277 
+		</echo>
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Uploads a package to sourceforge.net  -->
+	<!-- =================================================================== -->
+	<target name="upload-dist-win" if="pkg.lib.zip">
+
+		<scp trust="yes" verbose="${distro.verbose}" todir="${distro.url}" file="${pkg.lib.zip}" />
+
+		<echo>To finish making release visit:
+https://sourceforge.net/project/admin/editpackages.php?group_id=164277 
+		</echo>
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Uploads a package to sourceforge.net  -->
+	<!-- =================================================================== -->
+	<target name="upload-dist-javadoc">
+
+		<scp trust="yes" verbose="${distro.verbose}" todir="${distro.url}" file="${pkg.dist.dir}/${pkg.base}-javadoc.zip" />
+
+		<echo>
+			To finish making release visit:
+			https://sourceforge.net/project/admin/editpackages.php?group_id=164277 
+		</echo>
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Uploads packaged javadoc zip file to homepage  -->
+	<!-- =================================================================== -->
+	<target name="upload-web-javadoc">
+
+		<property name="latest" value="${web.doc.dir}/latest" />
+		<property name="javadoc" value="${pkg.base}-javadoc" />
+
+		<echo message="uploading ${javadoc}" />
+		<scp trust="yes" verbose="yes" todir="${web.uri}" file="${pkg.dist.dir}/${pkg.base}-javadoc.zip" />
+
+		<echo message="unpacking ${javadoc}" />
+		<sshexec trust="yes" host="${shell.host.name}" username="${shell.user.name}" password="${shell.user.pass}" command="rm -rf ${web.doc.dir}/${pkg.base}-javadoc; unzip ${web.doc.dir}/${pkg.base}-javadoc.zip -d ${web.doc.dir}; rm  ${web.doc.dir}/${pkg.base}-javadoc.zip" />
+
+
+		<echo message="linking latest -> ${javadoc}" />
+		<sshexec trust="yes" host="${shell.host.name}" username="${shell.user.name}" password="${shell.user.pass}" command="rm -f ${latest}; ln -s ${javadoc} ${latest}" />
+
+		<echo message="Completed: http://jnetpcap.com/docs/javadoc/latest/index.html" />
+	</target>
+
+	<!--                  SVN SECTION                                        -->
+
+	<!-- =================================================================== -->
+	<!-- Increment the build number and commit it to SVN                     -->
+	<!-- =================================================================== -->
+	<target name="buildnumber">
+		<tstamp />
+		<tstamp>
+			<format property="timestamp.isoformat" pattern="${format.timestamp.long}" locale="${format.timestamp.locale}" />
+		</tstamp>
+
+		<echo>BEFORE: build.number=${build.number}</echo>
+		<!-- Updates the version.properties file -->
+		<property name="build.id" value="${env.USER}" />
+
+		<propertyfile file="build.number">
+			<entry type="int" key="build.number" value="1" operation="+" pattern="0000" />
+			<entry key="build.tstamp" value="${DSTAMP}" />
+		</propertyfile>
+
+		<echo>Build number incremented on ${timestamp.isoformat}</echo>
+		<svn username="${svn.username}" password="${svn.password}">
+			<commit message="incremented the build number on ${timestamp.isoformat}" file="build.number" />
+		</svn>
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Execute SVN status on the working directory                         -->
+	<!-- =================================================================== -->
+	<target name="svn-status">
+		<ant antfile="svn.xml" target="svn-status">
+			<property name="svn.status.path" value="build.xml" />
+			<property name="svn.status.verbose" value="true" />
+		</ant>
+	</target>
+			
 	<!--                        MAIN CONTROL SECTION  -->
 
 	<!-- =================================================================== -->
@@ -663,12 +862,6 @@
 	</target>
 
 	<!-- =================================================================== -->
-	<!-- Build all -->
-	<!-- =================================================================== -->
-	<target name="all" depends="clean,doc,comp-test,test">
-	</target>
-
-	<!-- =================================================================== -->
 	<!-- Cleans the build -->
 	<!-- =================================================================== -->
 	<target name="clean">
@@ -715,235 +908,37 @@
 	<!-- Help on all the targets -->
 	<!-- =================================================================== -->
 	<target name="help">
+		<echo message="all             - invokes clean, doc, test" />
+		<echo message="clean           - cleans any builds or distributions in cache" />
+		<echo message="compile         - compiles both native JNI and java code" />
+		<echo message="test            - compiles and runs jUnit test cases - needs root privilege" />
+		<echo message=" " />
+		<echo message="package-src     - generates a dist ZIP file containing library source, test cases and examples" />
+		<echo message="package-javadoc - generates a dist ZIP file containing library source, test cases and examples" />
+		<echo message="package-rpm     - generates a dist RPM file containing library binaries on Red Hat compatible OSes" />
+		<echo message="package-deb     - generates a dist Debian file containing library binaries on Debian compatible OSes" />
+		<echo message="package-javadoc - generates a dist ZIP file containing library source, test cases and examples" />
+		<echo message=" " />
+		<echo message="build-jar       - compiles java source code and generates a JAR file in build directory" />
+		<echo message="build-rpm       - compiles native JNI and java code and generates a RPM file in build directory" />
+		<echo message="build-deb       - compiles native JNI and java code and generates a Debain file in build directory" />
+		<echo message=" " />
+		<echo message="comp-java       - compiles java source code and outputs classes to build/classes1.5 directory" />
+		<echo message="comp-jni        - compiles native JNI code and outputs shared library under build/lib directory" />
+		<echo message=" " />
+		<echo message="The following targets require priviliged access: " />
+		<echo message="upload-dist-rpm      - upload rpm package to distribution server" />
+		<echo message="upload-dist-deb      - upload debian package to distribution server" />
+		<echo message="upload-dist-win      - upload windows package to distribution server" />
+		<echo message="upload-dist-javadoc  - upload javadoc package to distribution server" />
+		<echo message="upload-web-javadoc   - upload javadoc package to web hosting server (http://jnetpcap.com)" />
+	</target>
+	
+	<!-- =================================================================== -->
+	<!-- Build all -->
+	<!-- =================================================================== -->
+	<target name="all" depends="clean,doc,test">
 	</target>
 
-	<!-- =================================================================== -->
-	<!-- Uploads a package to sourceforge.net  -->
-	<!-- =================================================================== -->
-	<target name="upload-dist-rpm" if="rpm.dist.file">
-
-		<scp trust="yes" verbose="${distro.verbose}" todir="${distro.url}" file="${rpm.dist.file}" />
-
-		<echo>
-			To finish making release visit:
-			https://sourceforge.net/project/admin/editpackages.php?group_id=164277 
-		</echo>
-	</target>
-
-	<!-- =================================================================== -->
-	<!-- Uploads a package to sourceforge.net  -->
-	<!-- =================================================================== -->
-	<target name="upload-dist-deb" if="deb.dist.file">
-
-		<scp trust="yes" verbose="${distro.verbose}" todir="${distro.url}" file="${deb.dist.file}" />
-
-		<echo>
-			To finish making release visit:
-			https://sourceforge.net/project/admin/editpackages.php?group_id=164277 
-		</echo>
-	</target>
-
-	<!-- =================================================================== -->
-	<!-- Uploads a package to sourceforge.net  -->
-	<!-- =================================================================== -->
-	<target name="upload-dist-win32-zip" if="pkg.lib.zip">
-
-		<scp trust="yes" verbose="${distro.verbose}" todir="${distro.url}" file="${pkg.lib.zip}" />
-
-		<echo>To finish making release visit:
-https://sourceforge.net/project/admin/editpackages.php?group_id=164277 
-		</echo>
-	</target>
-
-
-	<!-- =================================================================== -->
-	<!-- Uploads a package to sourceforge.net  -->
-	<!-- =================================================================== -->
-	<target name="upload-dist-javadoc">
-
-		<scp trust="yes" verbose="${distro.verbose}" todir="${distro.url}" file="${pkg.dist.dir}/${pkg.base}-javadoc.zip" />
-
-		<echo>
-			To finish making release visit:
-			https://sourceforge.net/project/admin/editpackages.php?group_id=164277 
-		</echo>
-	</target>
-
-
-
-	<!-- =================================================================== -->
-	<!-- Uploads packaged javadoc zip file to homepage  -->
-	<!-- =================================================================== -->
-	<target name="upload-web-javadoc">
-
-		<property name="latest" value="${web.doc.dir}/latest" />
-		<property name="javadoc" value="${pkg.base}-javadoc" />
-
-		<echo message="uploading ${javadoc}" />
-		<scp trust="yes" verbose="yes" todir="${web.uri}" file="${pkg.dist.dir}/${pkg.base}-javadoc.zip" />
-
-		<echo message="unpacking ${javadoc}" />
-		<sshexec trust="yes" host="${shell.host.name}" username="${shell.user.name}" password="${shell.user.pass}" command="rm -rf ${web.doc.dir}/${pkg.base}-javadoc; unzip ${web.doc.dir}/${pkg.base}-javadoc.zip -d ${web.doc.dir}; rm  ${web.doc.dir}/${pkg.base}-javadoc.zip" />
-
-
-		<echo message="linking latest -> ${javadoc}" />
-		<sshexec trust="yes" host="${shell.host.name}" username="${shell.user.name}" password="${shell.user.pass}" command="rm -f ${latest}; ln -s ${javadoc} ${latest}" />
-
-		<echo message="Completed: http://jnetpcap.com/docs/javadoc/latest/index.html" />
-	</target>
-
-
-
-	<!-- =================================================================== -->
-	<!-- Creates a JAR file -->
-	<!-- =================================================================== -->
-	<target name="build-jar" depends="prep-lib,comp-java,comp-manifest">
-
-		<mkdir dir="${pkg.lib.subdir}" />
-
-		<!-- ############################################################### -->
-		<!--       Create JAR file containing all the java classes  -->
-		<!-- ############################################################### -->
-		<jar destfile="${build.jnetpcap.jar}" manifest="${build.classes.inf}">
-			<fileset dir="${build.classes.dir}1.5" />
-		</jar>
-	</target>
-
-
-
-
-	<!-- =================================================================== -->
-	<!-- build a RPM -->
-	<!-- =================================================================== -->
-	<target name="build-rpm" depends="comp-jni,build-jar,prep-rpm,comp-javadoc" if="platform.linux">
-
-		<copy todir="${rpm.build.dir}/SPECS" file="${rpm.spec.file}">
-			<filterset>
-				<filter token="pkg.version" value="${pkg.version}" />
-				<filter token="platform.os.name" value="${platform.os.name}" />
-			</filterset>
-		</copy>
-
-		<copy todir="${rpm.build.dir}/INSTALL/usr/lib" file="${build.lib.dir}/${lib.pcap.fullname}" />
-		<copy todir="${rpm.build.dir}/INSTALL/usr/share/java" file="${build.jnetpcap.jar}" />
-		<copy todir="${rpm.build.dir}/BUILD" file="${doc.dir}/RELEASE_NOTES.txt" />
-		<copy todir="${rpm.build.dir}/BUILD" file="${doc.dir}/CHANGE_LOG.txt" />
-		<copy todir="${rpm.build.dir}/BUILD" file="${doc.dir}/LICENSE.txt" />
-
-		<copy todir="${rpm.build.dir}/BUILD/javadoc">
-			<fileset dir="${build.javadoc.dir}" />
-		</copy>
-
-		<rpm specfile="${rpm.spec.name}" topdir="${rpm.build.dir}" command="-bb --buildroot=${rpm.buildroot.dir}" />
-
-	</target>
-
-
-
-
-	<!-- =================================================================== -->
-	<!-- create  a RPM package -->
-	<!-- =================================================================== -->
-	<target name="package-rpm" depends="build-rpm,prep-dist" if="platform.linux">
-		<copy todir="${dist.dir}" file="${rpm.build.file}" />
-		<checksum forceoverwrite="true" file="${rpm.dist.file}" />
-
-		<!-- Export the final name of the distribution file to distro.upfile property -->
-		<property name="distro.upfile" value="${rpm.dist.file}" />
-
-	</target>
-
-
-
-
-
-	<!-- =================================================================== -->
-	<!-- build a DEB (A debian package) -->
-	<!-- =================================================================== -->
-	<target name="build-deb" depends="comp-jni,build-jar,prep-deb,comp-javadoc" if="platform.linux">
-
-		<copy tofile="${deb.build.control.dir}/control" file="${deb.spec.file}">
-			<filterset>
-				<filter token="pkg.version" value="${pkg.version}" />
-				<filter token="platform.os.name" value="${platform.os.name}" />
-			</filterset>
-		</copy>
-		<copy tofile="${deb.build.control.dir}/postinst" file="${deb.postinst.file}">
-			<filterset>
-				<filter token="pkg.version" value="${pkg.version}" />
-				<filter token="platform.os.name" value="${platform.os.name}" />
-			</filterset>
-		</copy>
-		<copy tofile="${deb.build.control.dir}/prerm" file="${deb.prerm.file}">
-			<filterset>
-				<filter token="pkg.version" value="${pkg.version}" />
-				<filter token="platform.os.name" value="${platform.os.name}" />
-			</filterset>
-		</copy>
-		<chmod perm="755" file="${deb.build.control.dir}/postinst">
-		</chmod>
-		<chmod perm="755" file="${deb.build.control.dir}/prerm">
-		</chmod>
-
-		<copy todir="${deb.build.lib.dir}" file="${build.lib.dir}/${lib.pcap.fullname}" />
-		<copy todir="${deb.build.java.dir}" file="${build.jnetpcap.jar}" />
-		<copy todir="${deb.build.doc.dir}" file="${doc.dir}/RELEASE_NOTES.txt" />
-		<copy todir="${deb.build.doc.dir}" file="${doc.dir}/CHANGE_LOG.txt" />
-		<copy todir="${deb.build.doc.dir}" file="${doc.dir}/LICENSE.txt" />
-
-		<copy todir="${deb.build.javadocs.dir}">
-			<fileset dir="${build.javadoc.dir}" />
-		</copy>
-
-		<echo message="control=${deb.build.control.dir}/${deb.spec.name}" />
-		<echo message="src=${deb.buildroot.dir}" />
-		<deb destfile="${deb.file}" control="${deb.build.control.dir}">
-			<data src="${deb.build.root.dir}" />
-		</deb>
-
-		<!-- Export the final name of the distribution file to distro.upfile property -->
-		<property name="distro.upfile" value="${deb.dist.file}" />
-
-	</target>
-
-	<!-- =================================================================== -->
-	<!-- create  a DEB package -->
-	<!-- =================================================================== -->
-	<target name="package-deb" depends="build-deb,prep-dist" if="platform.linux">
-		<copy todir="${dist.dir}" file="${deb.file}" />
-		<checksum forceoverwrite="true" file="${deb.dist.file}" />
-
-	</target>
-
-	<!-- =================================================================== -->
-	<!-- Increment the build number and commit it to SVN                     -->
-	<!-- =================================================================== -->
-	<target name="buildnumber">
-		<tstamp />
-		<tstamp>
-			<format property="timestamp.isoformat" pattern="${format.timestamp.long}" locale="${format.timestamp.locale}" />
-		</tstamp>
-
-		<echo>BEFORE: build.number=${build.number}</echo>
-		<!-- Updates the version.properties file -->
-		<property name="build.id" value="${env.USER}" />
-
-		<propertyfile file="build.number">
-			<entry type="int" key="build.number" value="1" operation="+" pattern="0000" />
-			<entry key="build.tstamp" value="${DSTAMP}" />
-		</propertyfile>
-
-		<echo>Build number incremented on ${timestamp.isoformat}</echo>
-		<svn username="${svn.username}" password="${svn.password}">
-			<commit message="incremented the build number on ${timestamp.isoformat}" file="build.number" />
-		</svn>
-	</target>
-
-	<target name="svn-status">
-		<ant antfile="svn.xml" target="svn-status">
-			<property name="svn.status.path" value="build.xml" />
-			<property name="svn.status.verbose" value="true" />
-		</ant>
-	</target>
 </project>
 
