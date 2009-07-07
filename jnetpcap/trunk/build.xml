@@ -260,7 +260,7 @@
 		<zip destfile="${pkg.doc-api.zip}">
 			<zipfileset dir="${build.javadoc.dir}" prefix="${pkg.base}-javadoc" />
 		</zip>
-		
+
 		<checksum forceoverwrite="true" file="${pkg.doc-api.zip}" />
 
 	</target>
@@ -337,6 +337,9 @@
 		</zip>
 
 		<checksum forceoverwrite="true" file="${pkg.lib.zip}" />
+
+		<!-- Export the final name of the distribution file to distro.upfile property -->
+		<property name="distro.upfile" value="${pkg.lib.zip}" />
 
 	</target>
 
@@ -715,30 +718,78 @@
 	</target>
 
 	<!-- =================================================================== -->
-	<!-- Uploads packaged zip files to sourceforge.net  -->
+	<!-- Uploads a package to sourceforge.net  -->
 	<!-- =================================================================== -->
-	<target name="ftp-to-sourceforge">
+	<target name="upload-dist-rpm" if="rpm.dist.file">
 
-		<ftp server="upload.sourceforge.net" remotedir="incoming" userid="ftp" password="nobody@" depends="true" binary="true" verbose="true">
+		<scp trust="yes" verbose="${distro.verbose}" todir="${distro.url}" file="${rpm.dist.file}" />
 
-			<fileset dir="${dist.dir}" includes="${pkg.lib.zip},${pkg.doc.zip}" />
-		</ftp>
-
-		<echo>go to
-			https://sourceforge.net/projects/jnetpcap
-			and make a new release </echo>
+		<echo>
+			To finish making release visit:
+			https://sourceforge.net/project/admin/editpackages.php?group_id=164277 
+		</echo>
 	</target>
+
+	<!-- =================================================================== -->
+	<!-- Uploads a package to sourceforge.net  -->
+	<!-- =================================================================== -->
+	<target name="upload-dist-deb" if="deb.dist.file">
+
+		<scp trust="yes" verbose="${distro.verbose}" todir="${distro.url}" file="${deb.dist.file}" />
+
+		<echo>
+			To finish making release visit:
+			https://sourceforge.net/project/admin/editpackages.php?group_id=164277 
+		</echo>
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Uploads a package to sourceforge.net  -->
+	<!-- =================================================================== -->
+	<target name="upload-dist-win32-zip" if="pkg.lib.zip">
+
+		<scp trust="yes" verbose="${distro.verbose}" todir="${distro.url}" file="${pkg.lib.zip}" />
+
+		<echo>To finish making release visit:
+https://sourceforge.net/project/admin/editpackages.php?group_id=164277 
+		</echo>
+	</target>
+
+
+	<!-- =================================================================== -->
+	<!-- Uploads a package to sourceforge.net  -->
+	<!-- =================================================================== -->
+	<target name="upload-dist-javadoc">
+
+		<scp trust="yes" verbose="${distro.verbose}" todir="${distro.url}" file="${pkg.dist.dir}/${pkg.base}-javadoc.zip" />
+
+		<echo>
+			To finish making release visit:
+			https://sourceforge.net/project/admin/editpackages.php?group_id=164277 
+		</echo>
+	</target>
+
+
 
 	<!-- =================================================================== -->
 	<!-- Uploads packaged javadoc zip file to homepage  -->
 	<!-- =================================================================== -->
-	<target name="deploy-javadoc-web" depends="package-doc-api">
+	<target name="upload-web-javadoc">
 
+		<property name="latest" value="${web.doc.dir}/latest" />
+		<property name="javadoc" value="${pkg.base}-javadoc" />
+
+		<echo message="uploading ${javadoc}" />
 		<scp trust="yes" verbose="yes" todir="${web.uri}" file="${pkg.dist.dir}/${pkg.base}-javadoc.zip" />
 
-
+		<echo message="unpacking ${javadoc}" />
 		<sshexec trust="yes" host="${shell.host.name}" username="${shell.user.name}" password="${shell.user.pass}" command="rm -rf ${web.doc.dir}/${pkg.base}-javadoc; unzip ${web.doc.dir}/${pkg.base}-javadoc.zip -d ${web.doc.dir}; rm  ${web.doc.dir}/${pkg.base}-javadoc.zip" />
 
+
+		<echo message="linking latest -> ${javadoc}" />
+		<sshexec trust="yes" host="${shell.host.name}" username="${shell.user.name}" password="${shell.user.pass}" command="rm -f ${latest}; ln -s ${javadoc} ${latest}" />
+
+		<echo message="Completed: http://jnetpcap.com/docs/javadoc/latest/index.html" />
 	</target>
 
 
@@ -796,6 +847,10 @@
 	<target name="package-rpm" depends="build-rpm,prep-dist" if="platform.linux">
 		<copy todir="${dist.dir}" file="${rpm.build.file}" />
 		<checksum forceoverwrite="true" file="${rpm.dist.file}" />
+
+		<!-- Export the final name of the distribution file to distro.upfile property -->
+		<property name="distro.upfile" value="${rpm.dist.file}" />
+
 	</target>
 
 
@@ -846,6 +901,9 @@
 			<data src="${deb.build.root.dir}" />
 		</deb>
 
+		<!-- Export the final name of the distribution file to distro.upfile property -->
+		<property name="distro.upfile" value="${deb.dist.file}" />
+
 	</target>
 
 	<!-- =================================================================== -->
@@ -854,7 +912,7 @@
 	<target name="package-deb" depends="build-deb,prep-dist" if="platform.linux">
 		<copy todir="${dist.dir}" file="${deb.file}" />
 		<checksum forceoverwrite="true" file="${deb.dist.file}" />
-		
+
 	</target>
 
 	<!-- =================================================================== -->
@@ -874,13 +932,11 @@
 			<entry type="int" key="build.number" value="1" operation="+" pattern="0000" />
 			<entry key="build.tstamp" value="${DSTAMP}" />
 		</propertyfile>
-		
+
 		<echo>Build number incremented on ${timestamp.isoformat}</echo>
-		<svn username="${svn.username}" password="${svn.password}" >
-			<commit message="incremented the build number on ${timestamp.isoformat}" 
-				file="build.number" 
-			/>
-		</svn>		
+		<svn username="${svn.username}" password="${svn.password}">
+			<commit message="incremented the build number on ${timestamp.isoformat}" file="build.number" />
+		</svn>
 	</target>
 
 	<target name="svn-status">
@@ -890,3 +946,4 @@
 		</ant>
 	</target>
 </project>
+
