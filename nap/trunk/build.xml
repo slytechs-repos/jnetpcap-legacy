@@ -58,16 +58,18 @@
 	<!-- class path used for compiling                                       -->
 	<!-- =================================================================== -->
 	<path id="compiler.classpath">
-		<pathelement location="${build.classes.dir}${compiler.target}" />
+		<pathelement location="${build.classes.dir}" />
 		<pathelement location="${build.classpath.dir}" />
 		<pathelement location="${build.tests.dir}" />
+		<pathelement location="${jnetpcap.jar}" />
 	</path>
 
 	<!-- =================================================================== -->
 	<!-- class path used for compiling javah classes into C++ headers -->
 	<!-- =================================================================== -->
 	<path id="javah.classpath">
-		<pathelement location="${build.classes.dir}1.5" />
+		<pathelement location="${build.classes.dir}" />
+		<pathelement location="${jnetpcap.jar}" />
 	</path>
 
 	<!-- =================================================================== -->
@@ -76,6 +78,7 @@
 	<path id="test.classpath">
 		<path refid="compiler.classpath" />
 		<pathelement location="${junit.jar}" />
+		<pathelement location="${jnetpcap.jar}" />
 	</path>
 
 	<!-- =================================================================== -->
@@ -128,7 +131,7 @@
 	<!-- Creates classes/ directory -->
 	<!-- =================================================================== -->
 	<target name="prep-java" depends="prep-build">
-		<mkdir dir="${build.classes.dir}${compiler.target}" />
+		<mkdir dir="${build.classes.dir}" />
 	</target>
 
 	<!-- =================================================================== -->
@@ -223,12 +226,7 @@
 	<target name="comp-java-jre" depends="prep-java">
 		<property name="compiler.debuglevel" value="lines,vars,source" />
 
-		<javac srcdir="${src.java.dir}${compiler.target}" destdir="${build.classes.dir}${compiler.target}" debug="${compiler.debug}" debuglevel="${compiler.debuglevel}" deprecation="${compiler.deprecate}" optimize="${compiler.optimize}" classpathref="compiler.classpath" source="${compiler.target}" target="${compiler.target}" />
-
-		<copy todir="${build.classes.dir}${compiler.target}/resources">
-			<fileset dir="${src.java.dir}${compiler.target}/resources" />
-
-		</copy>
+		<javac srcdir="${src.java.dir}" destdir="${build.classes.dir}" debug="${compiler.debug}" debuglevel="${compiler.debuglevel}" deprecation="${compiler.deprecate}" optimize="${compiler.optimize}" classpathref="compiler.classpath" source="${compiler.target}" target="${compiler.target}" />
 
 	</target>
 
@@ -262,49 +260,8 @@
 	<!-- Compiles java binary classes, not sources, using javah              -->
 	<!-- =================================================================== -->
 	<target name="comp-javah" depends="prep-javah,comp-java">
-		<javah destdir="${build.include.dir}" classpathref="javah.classpath" force="${javah.force}" verbose="true">
-
-			<class name="org.jnetpcap.Pcap" />
-			<class name="org.jnetpcap.PcapBpfProgram" />
-			<class name="org.jnetpcap.PcapDumper" />
-			<class name="org.jnetpcap.PcapPktHdr" />
-			<class name="org.jnetpcap.PcapPktBuffer" />
-			<class name="org.jnetpcap.PcapStat" />
-			<class name="org.jnetpcap.PcapIf" />
-			<class name="org.jnetpcap.PcapAddr" />
-			<class name="org.jnetpcap.PcapSockAddr" />
-
-			<class name="org.jnetpcap.winpcap.WinPcap" />
-			<class name="org.jnetpcap.winpcap.WinPcapStat" />
-			<class name="org.jnetpcap.winpcap.WinPcapSamp" />
-			<class name="org.jnetpcap.winpcap.WinPcapRmtAuth" />
-			<class name="org.jnetpcap.winpcap.WinPcapSendQueue" />
-
-			<class name="org.jnetpcap.PcapUtils" />
-			<class name="org.jnetpcap.PcapHeader" />
-
-			<class name="org.jnetpcap.nio.JMemory" />
-			<class name="org.jnetpcap.nio.JReference" />
-			<class name="org.jnetpcap.nio.JNumber" />
-			<class name="org.jnetpcap.nio.JBuffer" />
-			<class name="org.jnetpcap.nio.JObjectBuffer" />
-
-			<class name="org.jnetpcap.packet.analysis.JAnalysis" />
-			<class name="org.jnetpcap.packet.analysis.AnalysisUtils" />
-
-			<class name="org.jnetpcap.packet.JScanner" />
-			<class name="org.jnetpcap.packet.JRegistry" />
-			<class name="org.jnetpcap.packet.JPacket$State" />
-			<class name="org.jnetpcap.packet.PcapPacket" />
-			<class name="org.jnetpcap.packet.JHeader" />
-			<class name="org.jnetpcap.packet.JHeader$State" />
-			<class name="org.jnetpcap.protocol.JProtocol" />
-			<class name="org.jnetpcap.packet.JHeaderScanner" />
-			<class name="org.jnetpcap.packet.JScan" />
-
-			<class name="org.jnetpcap.packet.JFlowKey" />
-			<class name="org.jnetpcap.util.checksum.Checksum" />
-
+		<javah destdir="${build.include.dir}" classpathref="javah.classpath" force="${javah.force}" verbose="true">	
+			<class name="org.jnetpcap.nap.Nap" />
 		</javah>
 	</target>
 
@@ -353,10 +310,6 @@
 			<arg line="-o ${jni.build.filepath}" />
 
 			<arg line="${jni.obj.files}" />
-
-			<arg line="-L ${pcap.lib.dir}" />
-
-			<arg line="-l ${pcap.lib.name}" />
 
 			<arg line="-l ${ms.lib.name}" />
 
@@ -421,16 +374,8 @@
 	<!-- Compiles java files using JavaDoc                                   -->
 	<!-- =================================================================== -->
 	<target name="comp-javadoc-jre" depends="prep-javadoc">
-		<javadoc sourcepath="${src.java.dir}${compiler.target}" source="${compiler.target}" destdir="${build.javadoc.dir}" doctitle="${doc.javadoc.title} (${pkg.version})" overview="${src.java.dir}${compiler.target}/${doc.javadoc.overview.html}" packagenames="org.jnetpcap.*" classpathref="javadoc.classpath" />
+		<javadoc sourcepath="${src.java.dir}" source="${compiler.target}" destdir="${build.javadoc.dir}" doctitle="${doc.javadoc.title} (${pkg.version})" overview="${src.java.dir}/${doc.javadoc.overview.html}" packagenames="org.jnetpcap.*" classpathref="javadoc.classpath" />
 	</target>
-
-	<!-- =================================================================== -->
-	<!-- Compiles java files using JavaDoc                                   -->
-	<!-- =================================================================== -->
-	<target name="comp-javadoc-betafeatures" depends="prep-javadoc">
-		<javadoc sourcepath="${src.beta.dir}${compiler.target}" source="${compiler.target}" destdir="${build.javadoc.dir}-beta" doctitle="${doc.javadoc.title} (BETA Features)" overview="${src.beta.dir}/${doc.javadoc.overview.html}" packagenames="org.jnetpcap.*" classpathref="javadoc.classpath" />
-	</target>
-
 
 	<!-- =================================================================== -->
 	<!-- Compiles java files using JavaDoc                                   -->
