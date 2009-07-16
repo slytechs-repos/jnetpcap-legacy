@@ -304,6 +304,7 @@
 
 			<class name="org.jnetpcap.packet.JFlowKey" />
 			<class name="org.jnetpcap.util.checksum.Checksum" />
+			<class name="org.jnetpcap.util.Debug" />
 
 		</javah>
 	</target>
@@ -576,6 +577,17 @@
 	<target name="package-win" depends="prep-dist,comp-jni,comp-manifest">
 
 		<mkdir dir="${pkg.lib.dir}" />
+		
+		<!-- ############################################################### -->
+		<!--                  Distribute header files                        -->
+		<!-- ############################################################### -->
+		<mkdir dir="${pkg.include.dir}" />
+		<copy todir="${pkg.include.dir}">
+			<fileset dir="${src.c.dir}">
+				<include name="**/*.h" />
+			</fileset>
+		</copy>
+
 
 		<!-- ############################################################### -->
 		<!--       Copy, license, readme, release notes, etc..  -->
