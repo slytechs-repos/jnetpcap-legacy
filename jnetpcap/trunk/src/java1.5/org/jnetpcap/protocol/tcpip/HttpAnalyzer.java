@@ -25,8 +25,6 @@ import org.jnetpcap.protocol.tcpip.Http.Request;
 import org.jnetpcap.protocol.tcpip.Http.Response;
 import org.jnetpcap.util.JThreadLocal;
 
-import sun.awt.image.ByteArrayImageSource;
-
 /**
  * Http protocol analyzer. Analyzes and maintains state for Http protocol.
  * Requests reassembly of tcp stream.
