@@ -13,22 +13,17 @@
 package org.jnetpcap.protocol.application;
 
 import java.awt.Image;
-import java.awt.image.ImageProducer;
+import java.awt.Toolkit;
 import java.io.InputStream;
 
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JBufferInputStream;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JPacket;
-import org.jnetpcap.packet.JRegistry;
-import org.jnetpcap.packet.RegistryHeaderErrors;
 import org.jnetpcap.packet.annotate.Bind;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.protocol.tcpip.Http;
-
-import sun.awt.image.ByteArrayImageSource;
-import sun.awt.image.ToolkitImage;
 
 /**
  * @author Mark Bednarczyk
@@ -74,17 +69,10 @@ public class WebImage
 	}
 
 	public Image getAWTImage() {
-		return new ToolkitImage(getImageProducer());
-	}
-
-	public ImageProducer getImageProducer() {
 		if (data == null) {
 			data = super.getByteArray(0, this.size());
 		}
-
-		final ImageProducer ip = new ByteArrayImageSource(data);
-
-		return ip;
+		return Toolkit.getDefaultToolkit().createImage(data);
 	}
 
 	/**
