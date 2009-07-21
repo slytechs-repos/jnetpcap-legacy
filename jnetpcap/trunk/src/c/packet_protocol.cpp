@@ -77,6 +77,7 @@
 #include "nio_jbuffer.h"
 #include "org_jnetpcap_protocol_JProtocol.h"
 #include "export.h"
+#include "util_debug.h"
 
 /*
  * Array of function pointers. These functions perform a per protocol scan
@@ -84,15 +85,42 @@
  * 
  * New protocols are added in the init_native_protocol() in this file.
  */
-native_protocol_func_t native_protocols[MAX_ID_COUNT];
-native_validate_func_t native_heuristics[MAX_ID_COUNT][MAX_ID_COUNT];
-native_validate_func_t validate_table[MAX_ID_COUNT];
+native_protocol_func_t	native_protocols      [MAX_ID_COUNT];
+native_validate_func_t	native_heuristics     [MAX_ID_COUNT][MAX_ID_COUNT];
+native_validate_func_t	validate_table        [MAX_ID_COUNT];
+native_debug_func_t   	native_debug          [MAX_ID_COUNT];
+native_dissect_func_t 	subheader_dissectors  [MAX_ID_COUNT];
+native_dissect_func_t 	field_dissectors      [MAX_ID_COUNT];
 
-native_dissect_func_t  subheader_dissectors[MAX_ID_COUNT];
-native_dissect_func_t  field_dissectors[MAX_ID_COUNT];
+char                  	*native_protocol_names[MAX_ID_COUNT];
 
-char *native_protocol_names[MAX_ID_COUNT];
+#ifdef DEBUG
+/* Only if debug is compiled in, we keep a table of loggers, one for each
+ * protocol so we can single them out.
+ */
+Debug		*protocol_loggers[MAX_ID_COUNT];
+int 		last_id[DEBUG_MAX_LEVEL];
+const char 	*last_msg[DEBUG_MAX_LEVEL];
+int 		dl = -1;
 
+#define ENTER(id, msg) last_id[++dl] = id; \
+	last_msg[dl] = msg; \
+	protocol_loggers[id]->enter(msg)
+
+#define EXIT() protocol_loggers[(last_id[--dl])]->exit((char *)(last_msg[dl]) )
+#define TRACE(frmt...)	protocol_loggers[last_id[dl]]->trace((char *)last_msg[dl], ## frmt)
+#define CALL(name)	name
+#else 
+#define ENTER(id, msg)
+#define EXIT()
+#define TRACE(frmt...)
+#define CALL(name)
+#endif
+
+
+/*
+ * Catch all
+ */
 void scan_not_implemented_yet(scan_t *scan) {
 	
 	sprintf(str_buf, "scanner (native or java) for protocol %s(%d) undefined",
@@ -100,22 +128,23 @@ void scan_not_implemented_yet(scan_t *scan) {
 	throwException(scan->env, ILLEGAL_STATE_EXCEPTION, str_buf);
 }
 
-
 /*
  * Scan SLL (Linux Cooked Capture) header
  */
 void scan_sll(scan_t *scan) {
+ENTER(SLL_ID, "scan_sll");
 	register sll_t *sll = (sll_t *)(scan->buf + scan->offset);
 	scan->length = SLL_LEN;
 	
 	switch(BIG_ENDIAN16(sll->sll_protocol)) {
-	case 0x800:	scan->next_id = validate_next(IP4_ID, scan);	return;
+	case 0x800:	scan->next_id = validate_next(IP4_ID, scan); EXIT(); return;
 	}
 	
 //	printf("scan_sll() next_id=%d\n", scan->next_id);
 //	fflush(stdout);
 }
 
+extern void debug_rtp(rtp_t *rtp);
 
 /**
  * validate_rtp validates values for RTP header at current scan.offset.
@@ -125,8 +154,10 @@ void scan_sll(scan_t *scan) {
  * constant INVALID or header ID constant.
  */
 int validate_rtp(scan_t *scan) {
-	register rtp_t *rtp = (rtp_t *)(scan->buf + scan->offset);
 	
+ENTER(RTP_ID, "validate_rtp");
+	
+	register rtp_t *rtp = (rtp_t *)(scan->buf + scan->offset);	
 	
 	if (rtp->rtp_ver != 2 || 
 			rtp->rtp_cc > 15 || 
@@ -135,57 +166,92 @@ int validate_rtp(scan_t *scan) {
 			rtp->rtp_ts == 0 ||
 			rtp->rtp_ssrc == 0
 			) {
-		
-#ifdef DEBUG
-		printf("validate_rtp() INVALID 1 offset=%d raw=0x%x\n", scan->offset,
-				(int) (*(uint8_t *)rtp));
-		printf("validate_rtp() "
-				"v=%d, p=%d, x=%d, cc=%d, m=%d, pt=%d seq=%d, ts=%d\n",
-				(int) rtp->rtp_ver,
-				(int) rtp->rtp_pad,
-				(int) rtp->rtp_ext,
-				(int) rtp->rtp_cc,
-				(int) rtp->rtp_marker,
-				(int) rtp->rtp_type,
-				(int) BIG_ENDIAN16(rtp->rtp_seq),
-				(int) BIG_ENDIAN32(rtp->rtp_ts)
-				);
-		fflush(stdout);
-#endif	
-	
+TRACE("INVALID header flad");
+CALL(debug_rtp(rtp));
+EXIT();
+
 		return INVALID;
 	}
 	
-	uint32_t *c = (uint32_t *)(scan->buf + scan->offset + RTP_LENGTH);
+	uint32_t *c = (uint32_t *)(rtp + 1);
 	for (int i = 0; i < rtp->rtp_cc; i ++) {
-		if (c[i] == 0) {
-			
-#ifdef DEBUG
-			printf("validate_rtp() INVALID 2\n"); fflush(stdout);
-#endif
+		TRACE("CSRC[%d]=0x%x", i, BIG_ENDIAN32(c[i]));
+		if (BIG_ENDIAN32(c[i]) == 0) {
+
+			TRACE("INVALID CSRC entry is 0");
+			EXIT();
 			
 			return INVALID;
+			
+		}
+		
+		/*
+		 * Check for any duplicates CSRC ids within the table. Normally there
+		 * can't be any duplicates.
+		 */
+		for (int j = i + 1; j < rtp->rtp_cc; j ++) {
+			if (BIG_ENDIAN32(c[i]) == BIG_ENDIAN32(c[j])) {
+			
+TRACE("INVALID duplicates CSRC entries");
+EXIT();
+				return INVALID;
+			}
 		}
 	}
 	
 	if (rtp->rtp_ext) {
-		rtpx_t * rtpx = (rtpx_t *)(scan->buf + scan->offset + scan->length);
-		
-		if (BIG_ENDIAN16(rtpx->rtpx_len) > (1500 / 4)) {
+		rtpx_t * rtpx = (rtpx_t *)(
+					scan->buf + 
+					scan->offset + 
+					RTP_LENGTH + 
+					(rtp->rtp_cc * 4));
+		register int xlen = BIG_ENDIAN16(rtpx->rtpx_len) * 4;
+		if ((!SCAN_IS_FRAGMENT(scan) && 
+				(scan->offset + xlen > scan->wire_len))	|| 
+				(xlen > 1500) ) {
 			
-#ifdef DEBUG
-			printf("validate_rtp() INVALID 3\n"); fflush(stdout);
-#endif
-			
+TRACE("INVALID rtpx_len > %d bytes (wire_len) in extension header", 
+		scan->wire_len);
+EXIT();
 			return INVALID;
 		}
 	}
 	
-#ifdef DEBUG
-	printf("validate_rtp() OK\n"); fflush(stdout);
-#endif
-	
+TRACE("OK");
+EXIT();
+CALL(debug_rtp(rtp));
+
 	return RTP_ID;
+}
+
+void debug_rtp(rtp_t *rtp) {
+	ENTER(RTP_ID, "debug_rtp");
+	
+	TRACE("struct rtp_t::" "ver=%d pad=%d ext=%d cc=%d marker=%d type=%d seq=%d ts=%d",
+			(int) rtp->rtp_ver,
+			(int) rtp->rtp_pad,
+			(int) rtp->rtp_ext,
+			(int) rtp->rtp_cc,
+			(int) rtp->rtp_marker,
+			(int) rtp->rtp_type,
+			(int) BIG_ENDIAN16(rtp->rtp_seq),
+			(int) BIG_ENDIAN32(rtp->rtp_ts)
+			);
+	
+	if (rtp->rtp_cc) {
+		int *csrc = (int *) (rtp + 1);
+		for (int i = 0; i < rtp->rtp_cc; i ++) {
+			TRACE("uin32[]::" "CSRC[%d] = 0x%x", i, BIG_ENDIAN32(csrc[i])); 
+		}
+	}
+	
+	if (rtp->rtp_ext) {	
+		rtpx_t *rtpx = (rtpx_t *) ((char *)(rtp + 1) + (rtp->rtp_cc * 4)); // At the end of main RTP header
+		TRACE("struct rtpx_t::" "profile=0x%x len=%d",
+				BIG_ENDIAN16(rtpx->rtpx_profile),
+				BIG_ENDIAN16(rtpx->rtpx_len));
+	}
+	EXIT();
 }
 
 /*
@@ -278,7 +344,7 @@ void scan_sip(scan_t *scan) {
 	char b[32];
 	b[0] = '\0';
 	b[31] = '\0';
-	strncpy(b, http, (size <= 31)? size : 31);
+	strncpy(b, sip, (size <= 31)? size : 31);
 		
 	if (size < 10)
 	printf("scan_sip(): #%d INVALID size=%d sip=%s\n", 
@@ -510,6 +576,7 @@ void scan_icmp(scan_t *scan) {
 	case 12: // PARAM PROBLEM
 		scan->length = sizeof(icmp_t) + 4;
 		scan->next_id = validate_next(IP4_ID, scan);
+		scan->flags |= HEADER_FLAG_IGNORE_BOUNDS; // Needed for encapsulated Ip4
 		break;
 		
 	case 0:  // Echo Reply
@@ -664,7 +731,6 @@ void scan_tcp(scan_t *scan) {
 
 		scan->packet->pkt_flow_key.flags |= FLOW_KEY_FLAG_REVERSABLE_PAIRS;
 		
-//#define DEBUG
 #ifdef DEBUG
 	printf("scan_tcp(): count=%d map=0x%lx\n", 
 			scan->packet->pkt_flow_key.pair_count,
@@ -687,6 +753,20 @@ void scan_tcp(scan_t *scan) {
 	case 8081: scan->next_id = validate_next(HTTP_ID, scan);	return;
 	case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;
 	}
+}
+
+
+void debug_udp(udp_t *udp) {
+	debug_enter("debug_udp");
+	
+	debug_trace("struct udp_t", "sport=%d dport=%d len=%d crc=0x%x",
+			(int) BIG_ENDIAN16(udp->sport),
+			(int) BIG_ENDIAN16(udp->dport),
+			(int) BIG_ENDIAN16(udp->length),
+			(int) BIG_ENDIAN16(udp->checksum)
+			);
+	
+	debug_exit("debug_udp");
 }
 
 /*
@@ -788,7 +868,6 @@ void scan_ip6(scan_t *scan) {
 	int type = ip6->ip6_nxt;
 	int len;
 	
-//#define DEBUG
 #ifdef DEBUG
 	printf("#%d scan_ip6() type=%d (0x%x)\n", 
 			(int)scan->packet->pkt_frame_num, 
@@ -870,6 +949,24 @@ header_t *get_subheader_storage(scanner_t *scanner, int min) {
 	return &scanner->sc_subheader[scanner->sc_subindex];
 }
 
+void debug_ip4(ip4_t *ip) {
+	debug_enter("debug_ip4");
+	
+	int flags = BIG_ENDIAN16(ip->frag_off);
+	
+	debug_trace("struct ip4_t", 
+			"ver=%d hlen=%d tot_len=%d flags=0x%x(%s%s%s) protocol=%d",
+			(int) ip->version,
+			(int) ip->ihl,
+			(int) BIG_ENDIAN16(ip->tot_len),
+			(int) flags >> 13,
+			(int) ((flags & IP4_FLAG_RESERVED)?"R":""),
+			(int) ((flags & IP4_FLAG_DF)?"D":""),
+			(int) ((flags & IP4_FLAG_MF)?"M":""),
+			(int) ip->protocol);
+	
+	debug_exit("debug_ip4");
+}
 
 void dissect_ip4_headers(dissect_t *dissect) {
 	uint8_t *buf = (dissect->d_buf + dissect->d_offset);
@@ -937,8 +1034,10 @@ void scan_ip4(register scan_t *scan) {
 	int frag = BIG_ENDIAN16(ip4->frag_off);
 	if (frag & IP4_FLAG_MF || (frag & IP4_FRAG_OFF_MASK > 0)) {
 		scan->flags |= CUMULATIVE_FLAG_HEADER_FRAGMENTED;
+		/* Adjust payload length for a fragment */
+		scan->hdr_payload = scan->buf_len - scan->length - scan->offset; 
 	}
-//#define DEBUG
+
 #ifdef DEBUG
 		printf("ip4->frag_off=%x\n", frag);
 		fflush(stdout);
@@ -1179,12 +1278,14 @@ int lookup_ethertype(uint16_t type) {
 void init_native_protocols() {
 	
 	/*
-	 * Initialize the inmemory table
+	 * Initialize the inmemory tables
 	 */
 	memset(native_protocols, 0, MAX_ID_COUNT * sizeof(native_protocol_func_t));
 	memset(native_heuristics, 0, 
 			MAX_ID_COUNT * MAX_ID_COUNT * sizeof(native_validate_func_t));
-	
+	memset(validate_table, 0, MAX_ID_COUNT * sizeof(native_validate_func_t));
+	memset(native_debug, 0, MAX_ID_COUNT * sizeof(native_debug_func_t));
+		
 	// Builtin families
 	native_protocols[PAYLOAD_ID]  = &scan_payload;
 	
@@ -1239,6 +1340,17 @@ void init_native_protocols() {
 	subheader_dissectors[IP4_ID]			= &dissect_ip4_headers;
 //	field_dissectors[IP4_ID]				= &dissect_ip4_fields;
 	
+	
+	/*
+	 * Debug trace functions for some protocols. Debug trace functions are
+	 * optional and provide a low-level dump of the header values and possibly
+	 * other related information used for debugging. The dump is performed using
+	 * debug_trace() calls.
+	 */
+	native_debug[IP4_ID] = (native_debug_func_t) debug_ip4;
+	native_debug[UDP_ID] = (native_debug_func_t) debug_udp;
+	native_debug[RTP_ID] = (native_debug_func_t) debug_rtp;
+	
 	/*
 	 * Now store the names of each header, used for debuggin purposes
 	 */
@@ -1262,5 +1374,14 @@ void init_native_protocols() {
 	native_protocol_names[SDP_ID]           = "SDP";
 	native_protocol_names[RTP_ID]           = "RTP";
 	native_protocol_names[SLL_ID]           = "SLL";
+	
+	
+	// Initialize debug loggers
+#ifdef DEBUG
+	for (int i = 0; i < MAX_ID_COUNT; i ++) {
+		protocol_loggers[i] = new Debug(id2str(i), &protocol_logger);
+	}
+#endif
+
 }
 

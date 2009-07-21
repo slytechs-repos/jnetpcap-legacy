@@ -14,36 +14,47 @@
 #include "org_jnetpcap_protocol_JProtocol.h"
 #include "packet_flow.h"
 #include <jni.h>
+#include "util_debug.h"
 
 /******************************
  ******************************
  */
 
-#define MAX_ID_COUNT org_jnetpcap_packet_JRegistry_MAX_ID_COUNT
-#define MAX_ENTRY_COUNT org_jnetpcap_packet_JScanner_MAX_ENTRY_COUNT
-#define FLAG_OVERRIDE_LENGTH org_jnetpcap_packet_JRegistry_FLAG_OVERRIDE_LENGTH
-#define FLAG_OVERRIDE_BINDING org_jnetpcap_packet_JRegistry_FLAG_OVERRIDE_BINDING
-#define FLAG_HEURISTIC_BINDING org_jnetpcap_packet_JRegistry_FLAG_HEURISTIC_BINDING
-#define FLAG_HEURISTIC_PRE_BINDING org_jnetpcap_packet_JRegistry_FLAG_HEURISTIC_PRE_BINDING
+#define JREGISTRY(a) org_jnetpcap_packet_JRegistry_##a
+#define MAX_ID_COUNT 					JREGISTRY(MAX_ID_COUNT)
+#define FLAG_OVERRIDE_LENGTH 			JREGISTRY(FLAG_OVERRIDE_LENGTH)
+#define FLAG_OVERRIDE_BINDING 			JREGISTRY(FLAG_OVERRIDE_BINDING)
+#define FLAG_HEURISTIC_BINDING 			JREGISTRY(FLAG_HEURISTIC_BINDING)
+#define FLAG_HEURISTIC_PRE_BINDING 		JREGISTRY(FLAG_HEURISTIC_PRE_BINDING)
 
-#define PAYLOAD_ID org_jnetpcap_protocol_JProtocol_PAYLOAD_ID
+#define JSCANNER(a) org_jnetpcap_packet_JScanner_##a
+#define MAX_ENTRY_COUNT 				JSCANNER(MAX_ENTRY_COUNT)
 
-#define PACKET_FLAG_TRUNCATED org_jnetpcap_packet_JPacket_State_FLAG_TRUNCATED
+#define JPROTOCOL(a) org_jnetpcap_protocol_JProtocol_##a
+#define PAYLOAD_ID 						JPROTOCOL(PAYLOAD_ID)
 
-#define HEADER_FLAG_PREFIX_TRUNCATED org_jnetpcap_packet_JHeader_State_FLAG_PREFIX_TRUNCATED
-#define HEADER_FLAG_HEADER_TRUNCATED org_jnetpcap_packet_JHeader_State_FLAG_HEADER_TRUNCATED
-#define HEADER_FLAG_PAYLOAD_TRUNCATED org_jnetpcap_packet_JHeader_State_FLAG_PAYLOAD_TRUNCATED
-#define HEADER_FLAG_GAP_TRUNCATED org_jnetpcap_packet_JHeader_State_FLAG_GAP_TRUNCATED
-#define HEADER_FLAG_POSTFIX_TRUNCATED org_jnetpcap_packet_JHeader_State_FLAG_POSTFIX_TRUNCATED
-#define HEADER_FLAG_HEURISTIC_BINDING org_jnetpcap_packet_JHeader_State_FLAG_HEURISTIC_BINDING
-#define HEADER_FLAG_CRC_PERFORMED org_jnetpcap_packet_JHeader_State_FLAG_CRC_PERFORMED
-#define HEADER_FLAG_CRC_INVALID org_jnetpcap_packet_JHeader_State_FLAG_CRC_INVALID
-#define HEADER_FLAG_FRAGMENTED org_jnetpcap_packet_JHeader_State_FLAG_HEADER_FRAGMENTED
-#define HEADER_FLAG_SUBHEADERS_DISSECTED org_jnetpcap_packet_JHeader_State_FLAG_SUBHEADERS_DISSECTED
-#define HEADER_FLAG_FIELDS_DISSECTED org_jnetpcap_packet_JHeader_State_FLAG_FIELDS_DISSECTED
+#define JPACKET(a) org_jnetpcap_packet_JPacket_State_##a
+#define PACKET_FLAG_TRUNCATED 			JPACKET(FLAG_TRUNCATED)
+
+#define JHEADER(a) org_jnetpcap_packet_JHeader_State_##a
+#define HEADER_FLAG_PREFIX_TRUNCATED 		JHEADER(FLAG_PREFIX_TRUNCATED)
+#define HEADER_FLAG_HEADER_TRUNCATED 		JHEADER(FLAG_HEADER_TRUNCATED)
+#define HEADER_FLAG_PAYLOAD_TRUNCATED 		JHEADER(FLAG_PAYLOAD_TRUNCATED)
+#define HEADER_FLAG_GAP_TRUNCATED 			JHEADER(FLAG_GAP_TRUNCATED)
+#define HEADER_FLAG_POSTFIX_TRUNCATED 		JHEADER(FLAG_POSTFIX_TRUNCATED)
+#define HEADER_FLAG_HEURISTIC_BINDING 		JHEADER(FLAG_HEURISTIC_BINDING)
+#define HEADER_FLAG_CRC_PERFORMED 			JHEADER(FLAG_CRC_PERFORMED)
+#define HEADER_FLAG_CRC_INVALID 			JHEADER(FLAG_CRC_INVALID)
+#define HEADER_FLAG_FRAGMENTED 				JHEADER(FLAG_HEADER_FRAGMENTED)
+#define HEADER_FLAG_SUBHEADERS_DISSECTED 	JHEADER(FLAG_SUBHEADERS_DISSECTED)
+#define HEADER_FLAG_FIELDS_DISSECTED 		JHEADER(FLAG_FIELDS_DISSECTED)
+#define HEADER_FLAG_IGNORE_BOUNDS			JHEADER(FLAG_IGNORE_BOUNDS)
+#define HEADER_FLAG_HEADER_FRAGMENTED		JHEADER(FLAG_HEADER_FRAGMENTED)
 
 /* Cumulative flags. Flags which are passed to subsequent encapsulated headers */
-#define CUMULATIVE_FLAG_HEADER_FRAGMENTED org_jnetpcap_packet_JHeader_State_FLAG_HEADER_FRAGMENTED
+#define CUMULATIVE_FLAG_HEADER_FRAGMENTED \
+	JHEADER(FLAG_HEADER_FRAGMENTED) | \
+	JHEADER(FLAG_IGNORE_BOUNDS)
 
 #define CUMULATIVE_FLAG_MASK CUMULATIVE_FLAG_HEADER_FRAGMENTED
 
@@ -78,10 +89,13 @@ void init_native_protocols();
 typedef void (*native_protocol_func_t)(scan_t *scan);
 typedef int (*native_validate_func_t)(scan_t *scan);
 typedef void (*native_dissect_func_t)(dissect_t *dissect);
+typedef void (*native_debug_func_t)(void *hdr);
 
 extern native_protocol_func_t native_protocols[];
 extern native_validate_func_t native_heuristics[MAX_ID_COUNT][MAX_ID_COUNT];
+extern native_debug_func_t native_debug[];
 extern char *native_protocol_names[];
+
 void callJavaHeaderScanner(scan_t *scan);
 void record_header(scan_t *scan);
 void adjustForTruncatedPacket(scan_t *scan);
@@ -174,6 +188,14 @@ typedef struct scan_t {
 	int hdr_count;
 	int hdr_index;
 } scan_t;
+
+#define SCAN_IS_FRAGMENT(scan) (scan->flags & HEADER_FLAG_FRAGMENTED)
+#define SCAN_IGNORE_BOUNDS(scan) (scan->flags & HEADER_FLAG_IGNORE_BOUNDS)
+#define SCAN_IS_PREFIX_TRUNCATED(scan) (scan->flags & HEADER_FLAG_PREFIX_TRUNCATED)
+#define SCAN_IS_HEADER_TRUNCATED(scan) (scan->flags & HEADER_FLAG_HEADER_TRUNCATED)
+#define SCAN_IS_GAP_TRUNCATED(scan) (scan->flags & HEADER_FLAG_GAP_TRUNCATED)
+#define SCAN_IS_PAYLOAD_TRUNCATED(scan) (scan->flags & HEADER_FLAG_PAYLOAD_TRUNCATED)
+#define SCAN_IS_POSTFIX_TRUNCATED(scan) (scan->flags & HEADER_FLAG_POSTFIX_TRUNCATED)
 
 /*
  * Each header "record" may have the following physical structure:
@@ -300,6 +322,9 @@ char *id2str(int id);
 
 int validate(int id, scan_t *);
 int validate_next(int id, scan_t *);
+
+extern Debug scanner_logger;
+extern Debug protocol_logger;
 
 #endif
 #endif
