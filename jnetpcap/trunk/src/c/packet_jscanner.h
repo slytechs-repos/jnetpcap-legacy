@@ -19,7 +19,7 @@
 /******************************
  ******************************
  */
-
+extern "C" {
 #define JREGISTRY(a) org_jnetpcap_packet_JRegistry_##a
 #define MAX_ID_COUNT 					JREGISTRY(MAX_ID_COUNT)
 #define FLAG_OVERRIDE_LENGTH 			JREGISTRY(FLAG_OVERRIDE_LENGTH)
@@ -59,7 +59,7 @@
 #define CUMULATIVE_FLAG_MASK CUMULATIVE_FLAG_HEADER_FRAGMENTED
 
 #define INVALID PAYLOAD_ID
-
+}
 
 /******************************
  ******************************
