@@ -86,7 +86,7 @@ void *toPtr(jlong lp) {
  */
 
 
-jmethodID findMethod(JNIEnv *env, jobject obj, char *name, char *signature) {
+jmethodID findMethod(JNIEnv *env, jobject obj, const char *name, const char *signature) {
 	jclass clazz = (jclass)env->GetObjectClass(obj);
 	if (clazz == NULL) {
 		return 0; // Out of memory exception already thrown
@@ -110,7 +110,7 @@ jmethodID findMethod(JNIEnv *env, jobject obj, char *name, char *signature) {
  * @return global reference to class that needs to be freed manually before
  *         library exit
  */
-jclass findClass(JNIEnv *env, char *name) {
+jclass findClass(JNIEnv *env, const char *name) {
 	// List class
 	jclass local;
 	if ( (local = env->FindClass(name)) == NULL) {

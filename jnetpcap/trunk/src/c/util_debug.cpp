@@ -34,7 +34,7 @@
 /*
  * Some debug functionality
  */
-char *indent_template = "                            ";
+const char *indent_template = "                            ";
 char indent_buffer[1024] = {'\0'};
 int indent = -1;
 char indent_char = DEFAULT_INDENT_CHAR;
