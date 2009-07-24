@@ -138,8 +138,8 @@ jmethodID getPcapConstructorMID(JNIEnv *env, jclass clazz);
 pcap_pkthdr *getPktHeader(JNIEnv *env, jobject jpkt_header, pcap_pkthdr *pkt_header);
 void setPktHeader(JNIEnv *env, jobject jpkt_header, pcap_pkthdr *pkt_header);
 void setPktBuffer(JNIEnv *env, jobject jpkt_buffer, jobject jbuffer);
-jclass findClass(JNIEnv *env, char *name);
-jmethodID findMethod(JNIEnv *env, jobject obj, char *name, char *signature);
+jclass findClass(JNIEnv *env, const char *name);
+jmethodID findMethod(JNIEnv *env, jobject obj, const char *name, const char *signature);
 
 jobject newPcapAddr(JNIEnv *env, jobject jlist, jmethodID MID_add, pcap_addr *addr);
 jobject newPcapIf(JNIEnv *env, jobject jlist, jmethodID MID_add, pcap_if_t *ifp);
