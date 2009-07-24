@@ -326,7 +326,12 @@
 		<echo message="compiling JNI C++ files to object code" />
 		<echo message="using ${compiler.cc.cmd} compiler" />
 		<echo message="system include = ${java.sdk.include.dir}" />
-		<cc runtime="dynamic" debug="${compiler.debug}" objdir="${build.obj.dir}" multithreaded="${compiler.multithreaded}" exceptions="${compiler.exceptions}">
+		<cc runtime="dynamic" 
+			debug="${compiler.debug}" 
+			objdir="${build.obj.dir}" 
+			multithreaded="${compiler.multithreaded}" 
+			exceptions="${compiler.exceptions}"
+			warnings="${compiler.warnings}">
 
 			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
 
@@ -383,7 +388,13 @@
 		<echo message="compiling JNI C++ files to object code" />
 		<echo message="using ${compiler.cc.cmd} compiler" />
 		<echo message="system include = ${java.sdk.include.dir}" />
-		<cc runtime="dynamic" outtype="shared" outfile="${build.lib.dir}/${lib.pcap.basename}" debug="${compiler.debug}" objdir="${build.obj.dir}" multithreaded="compiler.multithreaded" exceptions="compiler.exceptions">
+		<cc runtime="dynamic" 
+			outtype="shared" 
+			outfile="${build.lib.dir}/${lib.pcap.basename}" 
+			debug="${compiler.debug}" objdir="${build.obj.dir}" 
+			multithreaded="compiler.multithreaded" 
+			exceptions="compiler.exceptions"
+			warnings="${compiler.warnings}">
 
 			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
 
