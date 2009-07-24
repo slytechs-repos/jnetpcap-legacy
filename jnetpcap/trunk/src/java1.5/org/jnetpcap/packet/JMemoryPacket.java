@@ -285,6 +285,8 @@ public class JMemoryPacket
 	 */
 	public JMemoryPacket(int size) {
 		super(size, State.sizeof(DEFAULT_STATE_HEADER_COUNT));
+		
+		header.setWirelen(size);
 	}
 
 	/**
@@ -303,19 +305,9 @@ public class JMemoryPacket
 		final JBuffer mem = getMemoryBuffer(buffer);
 
 		super.peer(mem);
+		header.setWirelen(buffer.length);
 
 		scan(id);
-	}
-
-	/**
-	 * The wirelen for a memory packet is always the length of the buffer.
-	 * 
-	 * @return length of the buffer
-	 */
-
-	@Override
-	public int getPacketWirelen() {
-		return size();
 	}
 
 	/**
@@ -332,6 +324,7 @@ public class JMemoryPacket
 		super(Type.POINTER);
 
 		super.peer(buffer);
+		header.setWirelen(buffer.size());
 
 		scan(id);
 	}
@@ -365,6 +358,8 @@ public class JMemoryPacket
 	public JMemoryPacket(JBuffer buffer) {
 		super(POINTER);
 
+		header.setWirelen(buffer.size());
+		
 		final int len = buffer.size();
 		JBuffer b = getMemoryBuffer(len);
 
