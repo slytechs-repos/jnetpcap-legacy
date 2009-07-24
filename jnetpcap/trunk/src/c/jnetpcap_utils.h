@@ -88,7 +88,7 @@ typedef struct cb_byte_buffer_t {
 	jthrowable  exception; // Any exceptions to rethrow
 	jobject user;
 	jobject header; // PcapHeader
-};
+} cb_byte_buffer_t;
 
 typedef struct cb_jbuffer_t {
 	pcap_t *p;
@@ -100,7 +100,7 @@ typedef struct cb_jbuffer_t {
 	jobject user;
 	jobject header; // PcapHeader
 	jobject buffer; // JBuffer
-};
+} cb_jbuffer_t;
 
 typedef struct cb_jpacket_t {
 	pcap_t *p;
@@ -116,7 +116,7 @@ typedef struct cb_jpacket_t {
 	jint id;           // Header ID
 	jobject scanner;   // JScanner
 	
-};
+} cb_jpacket_t;
 
 
 
@@ -147,7 +147,7 @@ jobject newPcapSockAddr(JNIEnv *env, sockaddr *a);
 
 void setPcapStat(JNIEnv *env, jobject jstats, pcap_stat *stats);
 
-void throwException(JNIEnv *env, const char *exception, char *message);
+void throwException(JNIEnv *env, const char *exception, const char *message);
 void throwVoidException(JNIEnv *env, const char *exception);
 
 /*

@@ -200,7 +200,7 @@ void setPktBuffer(JNIEnv *env, jobject jpkt_buffer, jobject jbuffer) {
  * not transfer control to back to java like it is in Java language, but returns
  * immediately.
  */
-void throwException(JNIEnv *env, const char *excClassName, char *message) {
+void throwException(JNIEnv *env, const char *excClassName, const char *message) {
 	jclass exception = env->FindClass(excClassName);
 
 	if (exception != NULL) {
