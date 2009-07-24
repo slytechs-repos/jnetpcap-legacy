@@ -19,21 +19,16 @@
 /******************************
  ******************************
  */
-extern "C" {
-#define JREGISTRY org_jnetpcap_packet_JRegistry_
 #define MAX_ID_COUNT 					org_jnetpcap_packet_JRegistry_MAX_ID_COUNT
 #define FLAG_OVERRIDE_LENGTH 			org_jnetpcap_packet_JRegistry_FLAG_OVERRIDE_LENGTH
 #define FLAG_OVERRIDE_BINDING 			org_jnetpcap_packet_JRegistry_FLAG_OVERRIDE_BINDING
 #define FLAG_HEURISTIC_BINDING 			org_jnetpcap_packet_JRegistry_FLAG_HEURISTIC_BINDING
 #define FLAG_HEURISTIC_PRE_BINDING 		org_jnetpcap_packet_JRegistry_FLAG_HEURISTIC_PRE_BINDING
 
-#define JSCANNER org_jnetpcap_packet_JScanner_
 #define MAX_ENTRY_COUNT 				org_jnetpcap_packet_JScanner_MAX_ENTRY_COUNT
 
-#define JPROTOCOL org_jnetpcap_protocol_JProtocol_
 #define PAYLOAD_ID 						org_jnetpcap_protocol_JProtocol_PAYLOAD_ID
 
-#define JPACKET org_jnetpcap_packet_JPacket_State_
 #define PACKET_FLAG_TRUNCATED 			org_jnetpcap_packet_JPacket_State_FLAG_TRUNCATED
 
 #define JHEADER org_jnetpcap_packet_JHeader_State_
@@ -59,7 +54,7 @@ extern "C" {
 #define CUMULATIVE_FLAG_MASK CUMULATIVE_FLAG_HEADER_FRAGMENTED
 
 #define INVALID PAYLOAD_ID
-}
+
 
 /******************************
  ******************************
