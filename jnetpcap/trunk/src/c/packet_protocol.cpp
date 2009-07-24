@@ -94,28 +94,11 @@ native_dissect_func_t 	field_dissectors      [MAX_ID_COUNT];
 
 char                  	*native_protocol_names[MAX_ID_COUNT];
 
-#ifdef DEBUG
-/* Only if debug is compiled in, we keep a table of loggers, one for each
- * protocol so we can single them out.
- */
-Debug		*protocol_loggers[MAX_ID_COUNT];
-int 		last_id[DEBUG_MAX_LEVEL];
-const char 	*last_msg[DEBUG_MAX_LEVEL];
-int 		dl = -1;
-
-#define ENTER(id, msg) last_id[++dl] = id; \
-	last_msg[dl] = msg; \
-	protocol_loggers[id]->enter(msg)
-
-#define EXIT() protocol_loggers[(last_id[--dl])]->exit((char *)(last_msg[dl]) )
-#define TRACE(frmt...)	protocol_loggers[last_id[dl]]->trace((char *)last_msg[dl], ## frmt)
-#define CALL(name)	name
-#else 
 #define ENTER(id, msg)
 #define EXIT()
 #define TRACE(frmt...)
 #define CALL(name)
-#endif
+
 
 
 /*
