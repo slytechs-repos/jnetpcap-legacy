@@ -46,11 +46,16 @@
 char str_buf[1024];
 char id_str_buf[256];
 
+/*****
+ * Temporarily backout of C++ Debug class and g++ compiler
+ * 
 Debug scanner_logger("jscanner");
 Debug protocol_logger("jprotocol", &scanner_logger);
+ ************/
 
+/* scanner specific debug_ trace functions */
 void debug_header(char *msg, header_t *header) {
-	scanner_logger.trace(msg, 
+	debug_trace(msg, 
 			"id=%s prefix=%-3d header=%-3d gap=%-3d payload=%-3d post=%-3d", 
 			id2str(header->hdr_id),
 			header->hdr_prefix,
@@ -62,7 +67,7 @@ void debug_header(char *msg, header_t *header) {
 }
 
 void debug_scan(char *msg,scan_t *scan) {
-	scanner_logger.trace(msg, 
+	debug_trace(msg, 
 			"id=%s off=%d prefix=%-3d header=%-3d gap=%-3d payload=%-3d post=%-3d "
 			"nid=%s buf_len=%-3d wire_len=%-3d flags=%0x",
 			id2str(scan->id),
@@ -139,8 +144,8 @@ int scan(JNIEnv *env, jobject obj,
 	register uint64_t mask;
 
 #ifdef DEBUG
-scanner_logger.enter("scan");
-scanner_logger.trace("processing packet", "#%d", p_packet->pkt_frame_num);
+debug_enter("scan");
+debug_trace("processing packet", "#%d", p_packet->pkt_frame_num);
 #endif
 
 	/*
@@ -149,8 +154,8 @@ scanner_logger.trace("processing packet", "#%d", p_packet->pkt_frame_num);
 	 */
 	while (scan.id != END_OF_HEADERS) {
 #ifdef DEBUG
-scanner_logger.trace("", "");
-scanner_logger.trace("processing header", id2str(scan.id));
+debug_trace("", "");
+debug_trace("processing header", id2str(scan.id));
 debug_scan("loop-top", &scan);
 #endif
 
@@ -224,7 +229,7 @@ debug_scan("loop-length==0", &scan);
 				throwException(scan.env, ILLEGAL_STATE_EXCEPTION, 
 						id2str(scan.id));
 #ifdef DEBUG
-scanner_logger.error("assert", "header length (%d) greater then packet wire-length (%d)",
+debug_error("assert", "header length (%d) greater then packet wire-length (%d)",
 		scan.length,
 		scan.wire_len);
 debug_scan("assert", &scan);
@@ -375,11 +380,11 @@ debug_scan("loop-bottom", &scan);
 	process_flow_key(&scan);
 
 #ifdef DEBUG
-scanner_logger.trace("loop-finished", 
+debug_trace("loop-finished", 
 		"header_count=%d offset=%d header_map=0x%X",
 		scan.packet->pkt_header_count, scan.offset,
 		scan.packet->pkt_header_map);
-scanner_logger.exit("scan()");
+debug_exit("scan()");
 #endif
 
 	return scan.offset;
@@ -391,7 +396,7 @@ scanner_logger.exit("scan()");
 void record_header(scan_t *scan) {
 	
 #ifdef DEBUG
-scanner_logger.enter("record_header");
+debug_enter("record_header");
 debug_scan("top", scan);
 #endif
 	
@@ -400,7 +405,7 @@ debug_scan("top", scan);
 	 */
 	if (scan->is_recorded) {
 #ifdef DEBUG
-		scanner_logger.exit("record_header");
+		debug_exit("record_header");
 #endif
 		return;
 	}
@@ -477,7 +482,7 @@ debug_scan("adj payload", scan);
 	
 #ifdef DEBUG
 debug_scan("bottom", scan);
-scanner_logger.exit("record_header");
+debug_exit("record_header");
 #endif
 
 }
@@ -490,7 +495,7 @@ scanner_logger.exit("record_header");
 void adjustForTruncatedPacket(scan_t *scan) {
 	
 #ifdef DEBUG
-scanner_logger.enter("adjustForTruncatedPacket");
+debug_enter("adjustForTruncatedPacket");
 #endif
 
 	/*
@@ -576,7 +581,7 @@ debug_scan("adjust prefix", scan);
 	}	
 	
 #ifdef DEBUG
-scanner_logger.exit("adjustForTruncatedPacket");
+debug_exit("adjustForTruncatedPacket");
 #endif
 }
 
@@ -586,7 +591,7 @@ scanner_logger.exit("adjustForTruncatedPacket");
 void callJavaHeaderScanner(scan_t *scan) {
 	
 #ifdef DEBUG
-scanner_logger.enter("callJavaHeaderScanner");
+debug_enter("callJavaHeaderScanner");
 #endif
 
 	JNIEnv *env = scan->env;
@@ -596,7 +601,7 @@ scanner_logger.enter("callJavaHeaderScanner");
 		sprintf(str_buf, "java header scanner not set for ID=%d (%s)",
 				scan->id, id2str(scan->id));
 #ifdef DEBUG
-scanner_logger.error("callJavaHeaderScanner()", str_buf);
+debug_error("callJavaHeaderScanner()", str_buf);
 #endif
 		throwException(scan->env, NULL_PTR_EXCEPTION, str_buf);
 		return;
@@ -605,7 +610,7 @@ scanner_logger.error("callJavaHeaderScanner()", str_buf);
 	env->CallVoidMethod(jscanner, scanHeaderMID, scan->scanner->sc_jscan);
 	
 #ifdef DEBUG
-scanner_logger.exit("callJavaHeaderScanner");
+debug_exit("callJavaHeaderScanner");
 #endif
 }
 
@@ -616,7 +621,7 @@ int scanJPacket(JNIEnv *env, jobject obj, jobject jpacket, jobject jstate,
 		scanner_t *scanner, int first_id, char *buf, int buf_length, uint32_t wirelen) {
 	
 #ifdef DEBUG
-scanner_logger.enter("scanJPacket");
+debug_enter("scanJPacket");
 #endif
 
 	/* Check if we need to wrap our entry buffer around */
@@ -655,21 +660,21 @@ scanner_logger.enter("scanJPacket");
 	}
 	
 #ifdef DEBUG
-scanner_logger.trace("before scan", "buf_len=%d wire_len=%d", buf_length, wirelen);
+debug_trace("before scan", "buf_len=%d wire_len=%d", buf_length, wirelen);
 #endif
 
 	scanner->sc_offset +=scan(env, obj, jpacket, scanner, packet, first_id,
 			buf, buf_length, wirelen);
 
 #ifdef DEBUG
-scanner_logger.trace("after scan",	"buf_len=%d wire_len=%d", buf_length, wirelen);
+debug_trace("after scan",	"buf_len=%d wire_len=%d", buf_length, wirelen);
 #endif
 		
 	env->SetIntField(jstate, jmemorySizeFID, (jsize) sizeof(packet_state_t)
 			+ sizeof(header_t) * packet->pkt_header_count);
 	
 #ifdef DEBUG
-scanner_logger.exit("scanJPacket");
+debug_exit("scanJPacket");
 #endif
 
 }
@@ -806,7 +811,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_loadScanners
 (JNIEnv *env, jobject obj, jobjectArray jascanners) {
 
 #ifdef DEBUG
-scanner_logger.enter("loadScanners");
+debug_enter("loadScanners");
 #endif
 	
 	scanner_t *scanner = (scanner_t *)getJMemoryPhysical(env, obj);
@@ -817,7 +822,7 @@ scanner_logger.enter("loadScanners");
 	jsize size = env->GetArrayLength(jascanners);
 
 #ifdef DEBUG
-scanner_logger.trace("load", "loaded %d scanners", (int)size);
+debug_trace("load", "loaded %d scanners", (int)size);
 #endif
 
 	if (size != MAX_ID_COUNT) {
@@ -825,7 +830,7 @@ scanner_logger.trace("load", "loaded %d scanners", (int)size);
 				ILLEGAL_ARGUMENT_EXCEPTION,
 				"size of array must be MAX_ID_COUNT size");
 #ifdef DEBUG
-scanner_logger.error("IllegalArgumentException", 
+debug_error("IllegalArgumentException", 
 		"size of array must be MAX_ID_COUNT size");
 #endif
 		return;
@@ -855,7 +860,7 @@ scanner_logger.error("IllegalArgumentException",
 	}
 	
 #ifdef DEBUG
-scanner_logger.exit("loadScanners");
+debug_exit("loadScanners");
 #endif
 
 }
@@ -868,7 +873,7 @@ scanner_logger.exit("loadScanners");
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_loadFlags
   (JNIEnv *env, jobject obj, jintArray jflags) {
 #ifdef DEBUG
-scanner_logger.enter("loadFlags");
+debug_enter("loadFlags");
 #endif
 	
 	scanner_t *scanner = (scanner_t *)getJMemoryPhysical(env, obj);
@@ -879,7 +884,7 @@ scanner_logger.enter("loadFlags");
 	jsize size = env->GetArrayLength(jflags);
 
 #ifdef DEBUG
-scanner_logger.trace("load", "loaded %d flags", (int)size);
+debug_trace("load", "loaded %d flags", (int)size);
 #endif
 
 	if (size != MAX_ID_COUNT) {
@@ -887,7 +892,7 @@ scanner_logger.trace("load", "loaded %d flags", (int)size);
 				ILLEGAL_ARGUMENT_EXCEPTION,
 				"size of array must be MAX_ID_COUNT size");
 #ifdef DEBUG
-scanner_logger.error("IllegalArgumentException", 
+debug_error("IllegalArgumentException", 
 		"size of array must be MAX_ID_COUNT size");
 #endif
 		return;
@@ -896,7 +901,7 @@ scanner_logger.error("IllegalArgumentException",
 	env->GetIntArrayRegion(jflags, 0, size, (jint *)scanner->sc_flags);
 	
 #ifdef DEBUG
-scanner_logger.exit("loadFlags");
+debug_exit("loadFlags");
 #endif
 }
 

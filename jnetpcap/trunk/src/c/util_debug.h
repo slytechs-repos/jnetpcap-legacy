@@ -10,6 +10,8 @@
 #undef __declspec
 #define __declspec(a) extern "C"
 
+#include <stdarg.h>
+
 #define DEBUG_MAX_LEVEL	10
 
 #define DEBUG_TRACE 10
@@ -37,6 +39,8 @@ extern void debug_exit(char *method);
 #define DEBUG_MAX_NAME			256
 #define DEBUG_DEFAULT_LEVEL 	TRACE
 
+/*** 
+ ********  Temporarily backedout
 class Debug {
 public:
 	enum Level {
@@ -87,5 +91,6 @@ private:
 	static Debug null_logger;
 };
 
+****************/
 
 #endif

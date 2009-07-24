@@ -12,7 +12,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+/******
+ ** Temporarily backed out of C++
+ *
 #include <cstdarg> // C++ declares varargs here
+ ******/
 
 #ifndef WIN32
 #include <errno.h>
@@ -161,6 +165,10 @@ void debug_exit(char *method) {
 }
 
 
+
+/******
+ ** Temporarily backed out of C++
+ *
 
 
 Debug Debug::global_logger("global", ERR);
@@ -343,3 +351,6 @@ void Debug::exit(char *method) {
 	trace("exit", "<<< %s() <<<", method);
 	dec();
 }
+
+
+***********/

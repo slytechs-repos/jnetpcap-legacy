@@ -323,8 +323,12 @@ char *id2str(int id);
 int validate(int id, scan_t *);
 int validate_next(int id, scan_t *);
 
+/****
+ * Temporarily backed out of C++ Debug class and G++ compiler
+ *
 extern Debug scanner_logger;
 extern Debug protocol_logger;
+*****/
 
 #endif
 #endif
