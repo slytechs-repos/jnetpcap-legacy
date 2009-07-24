@@ -143,6 +143,14 @@ public abstract class JHeader
 		public final static int FLAG_SUBHEADERS_DISSECTED = 0x0400;
 
 		/**
+		 * A flag that is set for headers that should not strictly enforce their
+		 * header boundaries. This is used in cases such as encapsulated IP and ICMP
+		 * header, where the original IP packet was truncated before encapsulating
+		 * in ICMP, yet its header tot_length was not adjusted.
+		 */
+		public final static int FLAG_IGNORE_BOUNDS = 0x0800;
+
+		/**
 		 * Name of the native structure backing this peer class
 		 */
 		public final static String STRUCT_NAME = "header_t";
