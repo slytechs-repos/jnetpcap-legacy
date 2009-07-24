@@ -79,7 +79,7 @@ char *debug_indent() {
 	return indent_buffer;
 }
 
-void debug_vmsg(char *type, char *msg, char *fmt, va_list ap) {
+void debug_vmsg(const char *type, const char *msg, const char *fmt, va_list ap) {
 	char buf[1024];
 		
 	vsprintf(buf, fmt, ap);
@@ -92,7 +92,7 @@ void debug_vmsg(char *type, char *msg, char *fmt, va_list ap) {
 	fflush(stdout);
 }
 
-void debug_msg(char *type, char *msg, char *fmt, ...) {
+void debug_msg(const char *type, const char *msg, const char *fmt, ...) {
 	
 	va_list ap;
 	va_start(ap, fmt);
@@ -102,7 +102,7 @@ void debug_msg(char *type, char *msg, char *fmt, ...) {
 	va_end(ap);
 }
 
-void debug_trace(char *msg, char *fmt, ...) {
+void debug_trace(const char *msg, const char *fmt, ...) {
 	if (debug_level < DEBUG_TRACE) {
 		return;
 	}
@@ -115,7 +115,7 @@ void debug_trace(char *msg, char *fmt, ...) {
 	va_end(ap);
 }
 
-void debug_warn(char *msg, char *fmt, ...) {
+void debug_warn(const char *msg, const char *fmt, ...) {
 	if (debug_level < DEBUG_WARN) {
 		return;
 	}
@@ -128,7 +128,7 @@ void debug_warn(char *msg, char *fmt, ...) {
 	va_end(ap);
 }
 
-void debug_error(char *msg, char *fmt, ...) {
+void debug_error(const char *msg, const char *fmt, ...) {
 	if (debug_level < DEBUG_ERROR) {
 		return;
 	}
@@ -141,7 +141,7 @@ void debug_error(char *msg, char *fmt, ...) {
 	va_end(ap);
 }
 
-void debug_info(char *msg, char *fmt, ...) {
+void debug_info(const char *msg, const char *fmt, ...) {
 	if (debug_level < DEBUG_INFO) {
 		return;
 	}
@@ -154,12 +154,12 @@ void debug_info(char *msg, char *fmt, ...) {
 	va_end(ap);
 }
 
-void debug_enter(char *method) {
+void debug_enter(const char *method) {
 	debug_inc();
 	debug_trace("enter", ">>> %s() >>>", method);
 }
 
-void debug_exit(char *method) {
+void debug_exit(const char *method) {
 	debug_trace("exit", "<<< %s() <<<", method);
 	debug_dec();
 }

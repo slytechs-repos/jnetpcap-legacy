@@ -12,9 +12,6 @@
 #include "org_jnetpcap_protocol_JProtocol.h"
 #include "org_jnetpcap_packet_JScan.h"
 
-// Prototypes
-char *id2str(int id);
-
 #define END_OF_HEADERS   org_jnetpcap_packet_JScan_END_OF_HEADERS_ID
 #define ETHERNET_ID      org_jnetpcap_protocol_JProtocol_ETHERNET_ID
 #define TCP_ID           org_jnetpcap_protocol_JProtocol_TCP_ID
@@ -124,7 +121,7 @@ typedef struct ppp_t {
 	uint8_t addr;
 	uint8_t control;
 	uint16_t protocol;
-};
+} ppt_t;
 
 /*
  * Layer 2 tunneling protocol

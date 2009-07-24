@@ -94,7 +94,7 @@ typedef void (*native_debug_func_t)(void *hdr);
 extern native_protocol_func_t native_protocols[];
 extern native_validate_func_t native_heuristics[MAX_ID_COUNT][MAX_ID_COUNT];
 extern native_debug_func_t native_debug[];
-extern char *native_protocol_names[];
+extern const char *native_protocol_names[];
 
 void callJavaHeaderScanner(scan_t *scan);
 void record_header(scan_t *scan);
@@ -318,7 +318,7 @@ uint64_t toUlong64(JNIEnv *env, jintArray ja);
 
 jint findHeaderById(packet_state_t *packet, jint id, jint instance);
 
-char *id2str(int id);
+const char *id2str(int id);
 
 int validate(int id, scan_t *);
 int validate_next(int id, scan_t *);
