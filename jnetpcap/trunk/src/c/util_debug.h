@@ -27,14 +27,14 @@ extern void debug_set_level(int level);
 extern void debug_inc();
 extern void debug_dec();
 extern void debug_reset();
-extern void debug_vmsg(char *type, char *msg, char *fmt, va_list ap);
-extern void debug_msg(char *type, char *msg, char *fmt, ...);
-extern void debug_trace(char *msg, char *fmt, ...);
-extern void debug_warn(char *msg, char *fmt, ...);
-extern void debug_error(char *msg, char *fmt, ...);
-extern void debug_info(char *msg, char *fmt, ...);
-extern void debug_enter(char *method);
-extern void debug_exit(char *method);
+extern void debug_vmsg(const char *type, const char *msg, const char *fmt, va_list ap);
+extern void debug_msg(const char *type, const char *msg, const char *fmt, ...);
+extern void debug_trace(const char *msg, const char *fmt, ...);
+extern void debug_warn(const char *msg, const char *fmt, ...);
+extern void debug_error(const char *msg, const char *fmt, ...);
+extern void debug_info(const char *msg, const char *fmt, ...);
+extern void debug_enter(const char *method);
+extern void debug_exit(const char *method);
 
 #define DEBUG_MAX_NAME			256
 #define DEBUG_DEFAULT_LEVEL 	TRACE

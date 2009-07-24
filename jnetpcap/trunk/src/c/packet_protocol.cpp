@@ -92,7 +92,7 @@ native_debug_func_t   	native_debug          [MAX_ID_COUNT];
 native_dissect_func_t 	subheader_dissectors  [MAX_ID_COUNT];
 native_dissect_func_t 	field_dissectors      [MAX_ID_COUNT];
 
-char                  	*native_protocol_names[MAX_ID_COUNT];
+const char             	*native_protocol_names[MAX_ID_COUNT];
 
 #define ENTER(id, msg)
 #define EXIT()

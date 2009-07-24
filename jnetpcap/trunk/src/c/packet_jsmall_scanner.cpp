@@ -89,7 +89,7 @@ void debug_scan(char *msg,scan_t *scan) {
  * Converts our numerical header ID to a string, which is better suited for
  * debugging.
  */
-char *id2str(int id) {
+const char *id2str(int id) {
 
 	if (id == END_OF_HEADERS) {
 		return "END_OF_HEADERS";
