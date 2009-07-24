@@ -16,7 +16,7 @@ extern "C" {
 	
 #define FLOW_KEY_PAIR_COUNT org_jnetpcap_packet_JFlowKey_FLOW_KEY_PAIR_COUNT
 
-typedef struct scan_t; // Forward reference
+struct scan_t; // Forward reference
 
 /*
  * Flow key is made up of several key pairs. In order for a flow key to be
@@ -34,7 +34,7 @@ typedef struct flow_key_t {
 	uint8_t id[FLOW_KEY_PAIR_COUNT];
 	uint32_t forward_pair[FLOW_KEY_PAIR_COUNT][2];
 	uint32_t reverse_pair[FLOW_KEY_PAIR_COUNT][2];
-};
+} flow_key_t;
 
 /**
  * Based on the first part of the key, it sets the second part of the key

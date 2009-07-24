@@ -143,7 +143,7 @@ typedef struct dissect_t {
 	uint8_t			*d_buf;
 	int   			d_buf_len;  
 	int 			d_offset;
-};
+} dissect_t;
 
 /*
  * Structure maintains state for the duration of the scan in progress
