@@ -926,7 +926,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_nextEx__Lorg_jnetpcap_PcapPktHdr_2
 JNIEXPORT jboolean JNICALL Java_org_jnetpcap_Pcap_isInjectSupported
 (JNIEnv *env, jclass clazz) {
 
-#ifdef WIN32
+#if defined(WIN32) || (LIBPCAP_VERSION < 0x097)
 	return JNI_FALSE;
 #else
 	return JNI_TRUE;
@@ -941,9 +941,9 @@ JNIEXPORT jboolean JNICALL Java_org_jnetpcap_Pcap_isInjectSupported
  */
 JNIEXPORT jboolean JNICALL Java_org_jnetpcap_Pcap_isSendPacketSupported
 (JNIEnv *env, jclass clazz) {
-#ifdef WIN32
-	return JNI_TRUE;
-#else
+#if (LIBPCAP_VERSION < 0x097)
+	return JNI_FALSE;
+#elif 
 	return JNI_TRUE;
 #endif	
 }
@@ -955,7 +955,7 @@ JNIEXPORT jboolean JNICALL Java_org_jnetpcap_Pcap_isSendPacketSupported
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_injectPrivate
 (JNIEnv *env, jobject obj, jobject jbytebuffer, jint jstart, jint jlength) {
-#ifdef WIN32
+#if defined(WIN32) || (LIBPCAP_VERSION < 0x097)
 	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
 	return -1;
 #else
@@ -989,6 +989,10 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_injectPrivate
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_sendPacketPrivate
 (JNIEnv *env, jobject obj, jobject jbytebuffer, jint jstart, jint jlength) {
+#if (LIBPCAP_VERSION < 0x097)
+	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
+	return -1;
+#else
  
 	if (jbytebuffer == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION,
@@ -1010,6 +1014,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_sendPacketPrivate
 	int r = pcap_sendpacket(p, b + (int) jstart, (int) jlength);
 	return r;
 
+#endif
 }
 
 /*
