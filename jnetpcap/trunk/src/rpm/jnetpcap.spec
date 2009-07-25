@@ -14,7 +14,8 @@ Group: Development/Java
 Packager: Sly Technologies, Inc. <http://www.slytechs.com>
 Vendor: Sly Technologies, Inc <http://www.slytechs.com>
 Distribution: jnetpcap <http://jnetpcap.org>
-PreReq: libpcap >= 9.7
+Requires: libpcap >= 0.8.0
+Provides: java-libpcap, java-packet-capture
 
 
 %description
@@ -31,7 +32,7 @@ pwd
 %install
 
 %files
-%doc LICENSE.txt RELEASE_NOTES.txt CHANGE_LOG.txt javadoc
+%doc LICENSE.txt RELEASE_NOTES.txt CHANGE_LOG.txt
 
 /usr/lib/libjnetpcap.so.%{VERSION}
 /usr/share/java/%{JNETPCAP}.jar
