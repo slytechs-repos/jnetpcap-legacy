@@ -59,7 +59,6 @@
 	<!-- =================================================================== -->
 	<path id="compiler.classpath">
 		<pathelement location="${build.classes.dir}${compiler.target}" />
-		<pathelement location="${build.classpath.dir}" />
 		<pathelement location="${build.tests.dir}" />
 	</path>
 
@@ -122,6 +121,7 @@
 		<tstamp />
 
 		<mkdir dir="${build.dir}" />
+		<mkdir dir="${report.dir}" />
 	</target>
 
 	<!-- =================================================================== -->
@@ -372,9 +372,61 @@
 	</target>
 
 	<!-- =================================================================== -->
+	<!-- Checks for libpcap version on platforms running RPM.                -->
+	<!-- The version number is set in  "${compiler.LIBPCAP_VERSION}"         -->
+	<!-- property.                                                           -->
+	<!-- =================================================================== -->
+	<target name="check-libpcap-version-rpm" depends="check-packager-type" if="packager.rpm">
+
+		<exec executable="rpm" outputproperty="result.rpm.version" >
+			<arg value="-q" />
+			<arg value="--queryformat" />
+			<arg value="%{VERSION}" />
+			<arg value="libpcap" />
+		</exec>
+
+		<exec executable="sed" inputstring="${result.rpm.version}" outputproperty="compiler.LIBPCAP_VERSION" >
+			<arg value="s/\.//g" />
+		</exec>
+
+
+		<echo message="Libpcap rpm version = ${compiler.LIBPCAP_VERSION}" />
+
+
+	</target>
+
+	<target name="check-libpcap-version" depends="check-libpcap-version-rpm">
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Determines packager type on linux systems.                          -->
+	<!-- Sets the property "packager.*" for the appropriate packager type    -->
+	<!-- =================================================================== -->
+	<target name="check-packager-type">
+		<exec executable="which" resultproperty="result.rpm" outputproperty="devnull" errorproperty="devnull" >
+			<arg value="rpm" />
+		</exec>
+
+		<condition property="packager.rpm" >
+			<equals arg1="${result.rpm}" arg2="0" />
+		</condition>
+		<echo message="rpm = ${packager.rpm}" />
+
+
+		<exec executable="which" resultproperty="result.apt" outputproperty="devnull" errorproperty="devnull" > 
+			<arg value="apt-get" />
+		</exec>
+
+		<condition property="packager.apt" >
+			<equals arg1="${result.apt}" arg2="0" />
+		</condition>
+		<echo message="apt = ${packager.apt}" />
+	</target>
+
+	<!-- =================================================================== -->
 	<!-- Generates shared JNI library file from C++ sources                  -->
 	<!-- =================================================================== -->
-	<target name="comp-jni-linux" depends="prep-checks,prep-jni,prep-lib,comp-javah" if="platform.linux">
+	<target name="comp-jni-linux" depends="check-libpcap-version,prep-checks,prep-jni,prep-lib,comp-javah" if="platform.linux">
 
 		<!-- Not supplying "outtype", disables the LINKER in CC tag
      		outtype="shared"
@@ -384,7 +436,7 @@
 		<echo>arch=${os.arch}</echo>
 		<echo>name=${os.name}</echo>
 
-		<echo message="Using WinPcap version ${pcap.version}" />
+		<echo message="Using pcap version ${pcap.version}" />
 		<echo message="compiling JNI C++ files to object code" />
 		<echo message="using ${compiler.cc.cmd} compiler" />
 		<echo message="system include = ${java.sdk.include.dir}" />
@@ -403,6 +455,8 @@
 			<includepath location="${src.c.dir}" />
 			<sysincludepath location="${java.sdk.include.dir}" />
 			<sysincludepath location="${java.sdk.include.dir}/linux" />
+			<defineset define="LIBPCAP_VERSION=0x${compiler.LIBPCAP_VERSION}" if="compiler.LIBPCAP_VERSION" />
+			<defineset define="DEBUG" if="DEBUG" />
 
 
 			<linker name="${compiler.ld.cmd}">
@@ -478,8 +532,6 @@
 	<!-- =================================================================== -->
 	<target name="build-jar" depends="prep-lib,comp-java,comp-manifest">
 
-		<mkdir dir="${pkg.lib.subdir}" />
-
 		<!-- ############################################################### -->
 		<!--       Create JAR file containing all the java classes  -->
 		<!-- ############################################################### -->
@@ -540,7 +592,7 @@
 	<!-- =================================================================== -->
 	<!-- build a RPM                                                         -->
 	<!-- =================================================================== -->
-	<target name="build-rpm" depends="comp-jni,build-jar,prep-rpm,comp-javadoc" if="platform.linux">
+	<target name="build-rpm" depends="comp-jni,build-jar,prep-rpm" if="platform.linux">
 
 		<copy todir="${rpm.build.dir}/SPECS" file="${rpm.spec.file}">
 			<filterset>
@@ -554,10 +606,6 @@
 		<copy todir="${rpm.build.dir}/BUILD" file="${doc.dir}/RELEASE_NOTES.txt" />
 		<copy todir="${rpm.build.dir}/BUILD" file="${doc.dir}/CHANGE_LOG.txt" />
 		<copy todir="${rpm.build.dir}/BUILD" file="${doc.dir}/LICENSE.txt" />
-
-		<copy todir="${rpm.build.dir}/BUILD/javadoc">
-			<fileset dir="${build.javadoc.dir}" />
-		</copy>
 
 		<rpm specfile="${rpm.spec.name}" topdir="${rpm.build.dir}" command="-bb --buildroot=${rpm.buildroot.dir}" />
 
@@ -836,6 +884,7 @@ https://sourceforge.net/project/admin/editpackages.php?group_id=164277
 	<!-- Echo certain properties for debugging purposes -->
 	<!-- =================================================================== -->
 	<target name="echo-properties" depends="prep-build">
+		<echoproperties/>
 		<echo message="timestamp.isoformat=${timestamp.isoformat}" />
 		<echo message="timestamp.short=${timestamp.short}" />
 		<echo message="" />
@@ -909,7 +958,7 @@ https://sourceforge.net/project/admin/editpackages.php?group_id=164277
 			<formatter type="plain" usefile="false" />
 			<sysproperty key="java.library.path" value="${jni.build.dir}" />
 
-			<test name="org.jnetpcap.BuildTests" todir="${report.dir}" />
+			<test name="org.jnetpcap.TestClassicExample" todir="${report.dir}" />
 
 			<!-- test 
 				name="org.jnetpcap.winpcap.TestWinPcapExtensions" 
