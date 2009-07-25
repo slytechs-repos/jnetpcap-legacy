@@ -943,7 +943,7 @@ JNIEXPORT jboolean JNICALL Java_org_jnetpcap_Pcap_isSendPacketSupported
 (JNIEnv *env, jclass clazz) {
 #if (LIBPCAP_VERSION < 0x097)
 	return JNI_FALSE;
-#elif 
+#else 
 	return JNI_TRUE;
 #endif	
 }
