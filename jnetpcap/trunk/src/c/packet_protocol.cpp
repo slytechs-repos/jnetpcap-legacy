@@ -428,9 +428,10 @@ int validate_sip(scan_t *scan) {
 				(int) scan->packet->pkt_frame_num, size, b);
 #endif 
 
+		return SIP_ID;
 	} 
 	
-	return SIP_ID;
+	return INVALID;
 }
 
 
