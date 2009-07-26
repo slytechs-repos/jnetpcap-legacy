@@ -115,6 +115,7 @@ public abstract class PcapTask<T> implements Runnable {
 	    	
 	    }, (user != null) ? user.toString() : pcap.toString());
 
+		thread.setDaemon(true);
 		thread.start();
 	}
 

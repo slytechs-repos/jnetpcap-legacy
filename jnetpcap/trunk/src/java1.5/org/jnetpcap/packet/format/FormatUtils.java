@@ -177,7 +177,7 @@ public class FormatUtils {
 	}
 
 	public static String mac(byte[] address) {
-		return asString(address, '-');
+		return asString(address, ':');
 	}
 
 	/**
