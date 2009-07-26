@@ -338,6 +338,8 @@
 
 			<compiler name="${compiler.cc.cmd}">
 				<compilerarg value="-DHAVE_REMOTE" />
+				<defineset define="LIBPCAP_VERSION=0x${compiler.LIBPCAP_VERSION}" if="compiler.LIBPCAP_VERSION" />
+				<defineset define="DEBUG" if="DEBUG" />
 			</compiler>
 
 			<fileset dir="${src.c.dir}" />
