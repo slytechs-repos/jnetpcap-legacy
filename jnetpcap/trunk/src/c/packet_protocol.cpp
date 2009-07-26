@@ -542,9 +542,10 @@ int validate_http(scan_t *scan) {
 				(int) scan->packet->pkt_frame_num, size, b);
 #endif 
 
+		return HTTP_ID;
 	} 
 	
-	return HTTP_ID;
+	return INVALID;
 }
 
 /*
