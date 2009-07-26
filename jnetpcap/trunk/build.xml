@@ -33,6 +33,7 @@
 	<!-- Get the enviroment collection from the OS -->
 	<property environment="env" />
 
+	<!-- Incremented with each development build - SVN maintained -->
 	<property file="build.number" />
 
 	<!-- Deployable packages and their structure -->
@@ -369,6 +370,8 @@
 
 		</exec>
 		<echo message="Created shared JNI libary: ${jni.build.filepath}" />
+		
+		<property name="lib.pcap.fullname" value="${jni.build.filepath}" />
 	</target>
 
 	<!-- =================================================================== -->
@@ -428,7 +431,11 @@
 	<!-- Sets the property "packager.*" for the appropriate packager type    -->
 	<!-- =================================================================== -->
 	<target name="check-packager-type">
-		<exec executable="which" resultproperty="result.rpm" outputproperty="devnull" errorproperty="devnull" >
+		<exec executable="which" 
+			resultproperty="result.rpm" 
+			outputproperty="devnull" 
+			errorproperty="devnull" 
+			failifexecutionfails="false" >
 			<arg value="rpm" />
 		</exec>
 
@@ -438,7 +445,11 @@
 		<echo message="rpm = ${packager.rpm}" />
 
 
-		<exec executable="which" resultproperty="result.dpkg" outputproperty="devnull" errorproperty="devnull" > 
+		<exec executable="which" 
+			resultproperty="result.dpkg" 
+			outputproperty="devnull" 
+			errorproperty="devnull"
+			failifexecutionfails="false"> 
 			<arg value="dpkg-query" />
 		</exec>
 
@@ -495,7 +506,7 @@
 
 		<copy tofile="${build.lib.dir}/${lib.pcap.fullname}" file="${build.lib.dir}/${lib.pcap.name}" />
 
-		<echo message="Created shared JNI libary: ${jni.build.filepath}" />
+		<echo message="Created shared JNI libary: ${build.lib.dir}/${lib.pcap.fullname}" />
 
 
 	</target>
@@ -630,6 +641,36 @@
 		<rpm specfile="${rpm.spec.name}" topdir="${rpm.build.dir}" command="-bb --buildroot=${rpm.buildroot.dir}" />
 
 	</target>
+	
+	<!-- =================================================================== -->
+	<!-- build a tar file                                                    -->
+	<!-- =================================================================== -->
+	<target name="build-tar" depends="comp-jni,build-jar,prep-dist">
+
+		<!-- ############################################################### -->
+		<!--                  Distribute header files                        -->
+		<!-- ############################################################### -->
+		<mkdir dir="${tar.include.dir}" />
+		<copy todir="${tar.include.dir}">
+			<fileset dir="${src.c.dir}">
+				<include name="**/*.h" />
+			</fileset>
+		</copy>
+
+
+		<copy todir="${tar.build.pkg.dir}" file="${lib.pcap.fullname}" />
+		<copy todir="${tar.build.pkg.dir}" file="${build.jnetpcap.jar}" />
+		<copy todir="${tar.build.pkg.dir}" file="${doc.dir}/RELEASE_NOTES.txt" />
+		<copy todir="${tar.build.pkg.dir}" file="${doc.dir}/CHANGE_LOG.txt" />
+		<copy todir="${tar.build.pkg.dir}" file="${doc.dir}/LICENSE.txt" />
+
+		<tar destfile="${tar.build.file}"
+			basedir="${tar.build.dir}" 
+			compression="gzip" 
+			casesensitive="true" />
+
+	</target>
+
 
 	<!--                  PACKAGING SECTION                                  -->
 
@@ -709,6 +750,7 @@
 	<!-- Packages up the 'library' package -->
 	<!-- =================================================================== -->
 	<target name="package-src" depends="prep-dist,comp-manifest">
+		
 
 		<mkdir dir="${pkg.src.dir}" />
 
@@ -766,7 +808,7 @@
 		<checksum forceoverwrite="true" file="${pkg.src.zip}" />
 
 	</target>
-
+	
 	<!-- =================================================================== -->
 	<!-- create  a RPM package -->
 	<!-- =================================================================== -->
@@ -776,6 +818,18 @@
 
 		<!-- Export the final name of the distribution file to distro.upfile property -->
 		<property name="distro.upfile" value="${rpm.dist.file}" />
+
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- create  a tar package -->
+	<!-- =================================================================== -->
+	<target name="package-tar" depends="build-tar,prep-dist">
+		<copy todir="${dist.dir}" file="${tar.build.file}" />
+		<checksum forceoverwrite="true" file="${tar.dist.file}" />
+
+		<!-- Export the final name of the distribution file to distro.upfile property -->
+		<property name="distro.upfile" value="${tar.dist.file}" />
 
 	</target>
 
