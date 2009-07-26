@@ -12,6 +12,17 @@ extern "C" {
 #include <jni.h>
 #include "packet_jscanner.h"
 
+/*
+ * LIBPCAP versions that specify when each feature or function was first 
+ * introduced. The format of the value is a collapsed version number. That is
+ * Actual libpcap version number 0.9.3 is first collapsed to 093 and then a
+ * 0x prefixed otherwise compiler complains that its a out-of-range octal value.
+ * So 0.9.3 becomes 0x093 and for our comparison purposes is sufficient to ensure
+ * correct libpcap version level.
+ */
+#define LIBPCAP_PCAP_SENDPACKET	0x093
+#define LIBPCAP_PCAP_INJECT     0x097
+
 	
 #define ILLEGAL_STATE_EXCEPTION "java/lang/IllegalStateException"
 #define ILLEGAL_ARGUMENT_EXCEPTION "java/lang/IllegalArgumentException"
