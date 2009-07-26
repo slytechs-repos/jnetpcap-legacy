@@ -752,12 +752,19 @@ void cb_jpacket_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 			pkt_header->len) < 0) {
 		return;
 	}
+	
+	jobject pcap_packet = 
+		transferToNewBuffer(env, pkt_header, pkt_data, data->state);
+	if (pcap_packet == NULL) {
+		pcap_breakloop(data->p);
+		return;
+	}
 
 	env->CallVoidMethod(
 			data->obj,
 			data->mid, 
 //			data->packet,
-			transferToNewBuffer(env, pkt_header, pkt_data, data->state),
+			pcap_packet,
 			data->user);
 	
 	if (env->ExceptionCheck() == JNI_TRUE) {
@@ -798,16 +805,26 @@ void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 	printf("cb_pcap_packet_dispatch() handler - %d\n", data->id);
 	fflush(stdout);
 #endif
+	
+	jobject pcap_packet = 
+		transferToNewBuffer(env, pkt_header, pkt_data, data->state);
+	if (pcap_packet == NULL) {
+		pcap_breakloop(data->p);
+		return;
+	}
 
 	env->CallVoidMethod(
 			data->obj,
 			data->mid, 
 //			data->packet,
-			transferToNewBuffer(env, pkt_header, pkt_data, data->state),
+			pcap_packet,
 			data->user);
 	
 #ifdef DEBUG
 	printf("cb_pcap_packet_dispatch() handler_done - %d\n", data->id);
+	jobject o = transferToNewBuffer(env, pkt_header, pkt_data, data->state);
+	printf("cb_pcap_packet_dispatch() packet=%p\n",o);
+
 	fflush(stdout);
 #endif
 	
@@ -859,20 +876,33 @@ jobject transferToNewBuffer(
 		sizeof(packet_state_t);
 
 	size_t size = pkt_header->caplen + state_size + sizeof(pcap_pkthdr); 
+	if (size > (1024 * 1024)) {
+		throwException(env, ILLEGAL_STATE_EXCEPTION, 
+				"packet size over 1MB\n");
+		return NULL;		
+	}
 	
 	char *ptr = (char *)malloc(size);
+	if (ptr == NULL) {
+		throwVoidException(env, OUT_OF_MEMORY_ERROR);
+		return NULL;
+	}
 	
 	jobject pcap_packet = env->NewObject(
 			pcapPacketClass, 
 			pcapPacketConstructorMID, 
 			jmemoryPOINTER_CONST);
 	if (pcap_packet == NULL) {
+		throwException(env, ILLEGAL_STATE_EXCEPTION, 
+				"unable to allocate PcapPacket object");
 		return NULL;
 	}
 	
 	jobject jheader = env->GetObjectField(pcap_packet, pcapHeaderFID);
 	jobject jstate = env->GetObjectField(pcap_packet, pcapStateFID);
 	if (jheader == NULL || jstate == NULL) {
+		throwException(env, ILLEGAL_STATE_EXCEPTION, 
+				"unable to allocate PcapHeader object");
 		return NULL;
 	}
 
