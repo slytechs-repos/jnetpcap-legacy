@@ -376,6 +376,30 @@
 	<!-- The version number is set in  "${compiler.LIBPCAP_VERSION}"         -->
 	<!-- property.                                                           -->
 	<!-- =================================================================== -->
+	<target name="check-libpcap-version-dpkg" depends="check-packager-type" if="packager.dpkg">
+
+		<exec executable="dpkg-query" outputproperty="result.dpkg.version" >
+			<arg value="--show" />
+			<arg value="--showformat" />
+			<arg value="$${Version}" />
+			<arg value="libpcap0.8" />
+		</exec>
+
+		<exec executable="sed" inputstring="${result.dpkg.version}" outputproperty="compiler.LIBPCAP_VERSION" >
+			<arg value="s/[\.-]//g" />
+		</exec>
+
+
+		<echo message="Libpcap dpkg version = ${compiler.LIBPCAP_VERSION}" />
+
+
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Checks for libpcap version on platforms running RPM.                -->
+	<!-- The version number is set in  "${compiler.LIBPCAP_VERSION}"         -->
+	<!-- property.                                                           -->
+	<!-- =================================================================== -->
 	<target name="check-libpcap-version-rpm" depends="check-packager-type" if="packager.rpm">
 
 		<exec executable="rpm" outputproperty="result.rpm.version" >
@@ -386,7 +410,7 @@
 		</exec>
 
 		<exec executable="sed" inputstring="${result.rpm.version}" outputproperty="compiler.LIBPCAP_VERSION" >
-			<arg value="s/\.//g" />
+			<arg value="s/[\.-]//g" />
 		</exec>
 
 
@@ -395,7 +419,8 @@
 
 	</target>
 
-	<target name="check-libpcap-version" depends="check-libpcap-version-rpm">
+	<target name="check-libpcap-version" depends="check-libpcap-version-rpm,check-libpcap-version-dpkg">
+		<echo message="compiler.LIBPCAP_VERSION = ${compiler.LIBPCAP_VERSION}" />
 	</target>
 
 	<!-- =================================================================== -->
@@ -413,14 +438,14 @@
 		<echo message="rpm = ${packager.rpm}" />
 
 
-		<exec executable="which" resultproperty="result.apt" outputproperty="devnull" errorproperty="devnull" > 
-			<arg value="apt-get" />
+		<exec executable="which" resultproperty="result.dpkg" outputproperty="devnull" errorproperty="devnull" > 
+			<arg value="dpkg-query" />
 		</exec>
 
-		<condition property="packager.apt" >
-			<equals arg1="${result.apt}" arg2="0" />
+		<condition property="packager.dpkg" >
+			<equals arg1="${result.dpkg}" arg2="0" />
 		</condition>
-		<echo message="apt = ${packager.apt}" />
+		<echo message="dpkg = ${packager.dpkg}" />
 	</target>
 
 	<!-- =================================================================== -->
@@ -543,7 +568,7 @@
 	<!-- =================================================================== -->
 	<!-- build a DEB (A debian package)                                      -->
 	<!-- =================================================================== -->
-	<target name="build-deb" depends="comp-jni,build-jar,prep-deb,comp-javadoc" if="platform.linux">
+	<target name="build-deb" depends="check-libpcap-version,comp-jni,build-jar,prep-deb" if="platform.linux">
 
 		<copy tofile="${deb.build.control.dir}/control" file="${deb.spec.file}">
 			<filterset>
@@ -573,11 +598,6 @@
 		<copy todir="${deb.build.doc.dir}" file="${doc.dir}/RELEASE_NOTES.txt" />
 		<copy todir="${deb.build.doc.dir}" file="${doc.dir}/CHANGE_LOG.txt" />
 		<copy todir="${deb.build.doc.dir}" file="${doc.dir}/LICENSE.txt" />
-
-		<copy todir="${deb.build.javadocs.dir}">
-			<fileset dir="${build.javadoc.dir}" />
-		</copy>
-
 		<echo message="control=${deb.build.control.dir}/${deb.spec.name}" />
 		<echo message="src=${deb.buildroot.dir}" />
 		<deb destfile="${deb.file}" control="${deb.build.control.dir}">
