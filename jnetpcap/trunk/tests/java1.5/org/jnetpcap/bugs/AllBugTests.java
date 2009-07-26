@@ -21,13 +21,18 @@ import junit.framework.TestSuite;
  */
 public class AllBugTests {
 
+	/**
+	 * Run all the bugs
+	 * 
+	 * @return test
+	 */
 	public static Test suite() {
 
 		TestSuite suite = new TestSuite("Test for org.jnetpcap.bugs");
 		// $JUnit-BEGIN$
 		suite.addTestSuite(Bug2827356_PcapPacketHandler_Fails.class);
+		suite.addTestSuite(Bug2818101_RtpHeaderLength_Invalid.class);
 		// $JUnit-END$
 		return suite;
 	}
-
 }
