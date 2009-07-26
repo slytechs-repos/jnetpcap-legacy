@@ -1,9 +1,11 @@
 #
 #   RPM package specification for JNETPCAP
 #
-%define VERSION @pkg.version@
-%define RELEASE @platform.os.name@
-%define JNETPCAP jnetpcap-%{VERSION}
+%define VERSION		@pkg.version@
+%define PKG_RELEASE	@pkg.release@
+%define OPERATING_SYS	@platform.os.name@
+%define JNETPCAP	jnetpcap-%{VERSION}
+%define RELEASE		%{PKG_RELEASE}.%{OPERATING_SYS}
 
 Summary: A libpcap java wrapper
 Name: jnetpcap
