@@ -371,7 +371,7 @@
 		</exec>
 		<echo message="Created shared JNI libary: ${jni.build.filepath}" />
 		
-		<property name="lib.pcap.fullname" value="${jni.build.filepath}" />
+		<property name="jni.lib.file" value="${jni.build.filepath}" />
 	</target>
 
 	<!-- =================================================================== -->
@@ -507,6 +507,8 @@
 		<copy tofile="${build.lib.dir}/${lib.pcap.fullname}" file="${build.lib.dir}/${lib.pcap.name}" />
 
 		<echo message="Created shared JNI libary: ${build.lib.dir}/${lib.pcap.fullname}" />
+
+		<property name="jni.lib.file" value="${build.lib.dir}/${lib.pcap.fullname}" />
 
 
 	</target>
@@ -658,7 +660,7 @@
 		</copy>
 
 
-		<copy todir="${tar.build.pkg.dir}" file="${lib.pcap.fullname}" />
+		<copy todir="${tar.build.pkg.dir}" file="${jni.lib.file}" />
 		<copy todir="${tar.build.pkg.dir}" file="${build.jnetpcap.jar}" />
 		<copy todir="${tar.build.pkg.dir}" file="${doc.dir}/RELEASE_NOTES.txt" />
 		<copy todir="${tar.build.pkg.dir}" file="${doc.dir}/CHANGE_LOG.txt" />
