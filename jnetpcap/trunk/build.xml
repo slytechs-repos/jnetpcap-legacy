@@ -632,6 +632,7 @@
 		<copy todir="${rpm.build.dir}/SPECS" file="${rpm.spec.file}">
 			<filterset>
 				<filter token="pkg.version" value="${pkg.version}" />
+				<filter token="pkg.release" value="${pkg.release}" />
 				<filter token="platform.os.name" value="${platform.os.name}" />
 			</filterset>
 		</copy>
