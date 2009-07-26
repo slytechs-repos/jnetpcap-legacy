@@ -45,35 +45,14 @@ import org.jnetpcap.util.TestSearchPaths;
  * @author Sly Technologies, Inc.
  *
  */
-public class BuildTests {
+public class PrivilegedBuildTests {
 
 	public static Test suite() {
 				
-		TestSuite suite = new TestSuite("Test for org.jnetpcap");
+		TestSuite suite = new TestSuite("Test for org.jnetpcap requiring super user privileges");
 		//$JUnit-BEGIN$
-		suite.addTestSuite(TestPcapUtils.class);
-		suite.addTestSuite(TestPcapPacket.class);
-		suite.addTestSuite(JHandlerTest.class);
-		suite.addTestSuite(TestJRegistry.class);
-		suite.addTestSuite(TestJScanner.class);
-		suite.addTestSuite(TestPcapUtils.class);
-		suite.addTestSuite(TestSubHeader.class);
-		suite.addTestSuite(TestIcmp.class);
-		suite.addTestSuite(TestJBuffer.class);
-		suite.addTestSuite(TestJMemory.class);
-		suite.addTestSuite(TestFormatter.class);
-/*
-		suite.addTestSuite(TestPcapDispatchers.class);
-*/
-		suite.addTestSuite(TestHttp.class);
-		suite.addTestSuite(TestIpv6.class);
-		suite.addTestSuite(TestExpandableString.class);
-		suite.addTestSuite(TestSearchPaths.class);
-		suite.addTestSuite(TestAnalysisAccessors.class);
-		suite.addTestSuite(TestJHeader.class);
-		suite.addTestSuite(TestVoip.class);
-		suite.addTestSuite(TestTcpIp.class);
-		suite.addTestSuite(TestNetwork.class);
+		suite.addTestSuite(TestPcapJNI.class);
+                suite.addTestSuite(TestPcapBetaJNI.class);
 		//$JUnit-END$
 		return suite;
 	}
