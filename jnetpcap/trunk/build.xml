@@ -1037,7 +1037,30 @@ https://sourceforge.net/project/admin/editpackages.php?group_id=164277
 			<formatter type="plain" usefile="false" />
 			<sysproperty key="java.library.path" value="${jni.build.dir}" />
 
-			<test name="org.jnetpcap.TestClassicExample" todir="${report.dir}" />
+			<test name="org.jnetpcap.BuildTests" todir="${report.dir}" />
+
+			<!-- test 
+				name="org.jnetpcap.winpcap.TestWinPcapExtensions" 
+				todir="${report.dir}" /-->
+
+			<classpath refid="test.classpath" />
+
+		</junit>
+
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Execute jUnit test cases requiring super user privileges            -->
+	<!-- =================================================================== -->
+	<target name="test-privileged" depends="comp-test">
+		<junit printsummary="withOutAndErr" fork="yes" failureproperty="test.failed">
+
+			<!-- jvmarg value="-verbose:jni" /-->
+
+			<formatter type="plain" usefile="false" />
+			<sysproperty key="java.library.path" value="${jni.build.dir}" />
+
+			<test name="org.jnetpcap.PrivilegedBuildTests" todir="${report.dir}" />
 
 			<!-- test 
 				name="org.jnetpcap.winpcap.TestWinPcapExtensions" 
@@ -1062,7 +1085,8 @@ https://sourceforge.net/project/admin/editpackages.php?group_id=164277
 		<echo message="all             - invokes clean, doc, test" />
 		<echo message="clean           - cleans any builds or distributions in cache" />
 		<echo message="compile         - compiles both native JNI and java code" />
-		<echo message="test            - compiles and runs jUnit test cases - needs root privilege" />
+		<echo message="test            - compiles and runs jUnit test cases" />
+		<echo message="test-privileged - addition tests requiring root privilege" />
 		<echo message=" " />
 		<echo message="package-src     - generates a dist ZIP file containing library source, test cases and examples" />
 		<echo message="package-javadoc - generates a dist ZIP file containing library source, test cases and examples" />
