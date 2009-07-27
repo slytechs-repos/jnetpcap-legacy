@@ -35,13 +35,31 @@ public class Bug2828030_wirelen_not_set_in_JMemoryPacket
     extends
     TestUtils {
 
+	private byte[] data;
+
+	/* (non-Javadoc)
+   * @see junit.framework.TestCase#setUp()
+   */
+  @Override
+  protected void setUp() throws Exception {
+		PcapPacket packet = getPcapPacket(L2TP, 0);
+
+		data = packet.getByteArray(0, packet.size());
+  }
+
+	/* (non-Javadoc)
+   * @see junit.framework.TestCase#tearDown()
+   */
+  @Override
+  protected void tearDown() throws Exception {
+  	data = null;
+  }
+
 	/**
 	 * 
 	 */
 	public void testScannerExceptionWithByteArray() {
-		PcapPacket packet = getPcapPacket(L2TP, 0);
-
-		byte[] data = packet.getByteArray(0, packet.size());
+		
 		JMemoryPacket mem = new JMemoryPacket(data);
 
 		assertNotNull(mem);
@@ -53,9 +71,7 @@ public class Bug2828030_wirelen_not_set_in_JMemoryPacket
 	 * 
 	 */
 	public void testScannerExceptionWithIByteArray() {
-		PcapPacket packet = getPcapPacket(L2TP, 0);
-
-		byte[] data = packet.getByteArray(0, packet.size());
+		
 		JMemoryPacket mem = new JMemoryPacket(JProtocol.ETHERNET_ID, data);
 
 		assertNotNull(mem);
@@ -65,9 +81,7 @@ public class Bug2828030_wirelen_not_set_in_JMemoryPacket
 	 * 
 	 */
 	public void testScannerExceptionWithJBuffer() {
-		PcapPacket packet = getPcapPacket(L2TP, 0);
-
-		byte[] data = packet.getByteArray(0, packet.size());
+		
 		JBuffer buf = new JBuffer(data);
 		JMemoryPacket mem = new JMemoryPacket(buf);
 
@@ -80,9 +94,7 @@ public class Bug2828030_wirelen_not_set_in_JMemoryPacket
 	 * 
 	 */
 	public void testScannerExceptionWithIJBuffer() {
-		PcapPacket packet = getPcapPacket(L2TP, 0);
-
-		byte[] data = packet.getByteArray(0, packet.size());
+		
 		JBuffer buf = new JBuffer(data);
 		JMemoryPacket mem = new JMemoryPacket(JProtocol.ETHERNET_ID, buf);
 
@@ -93,9 +105,7 @@ public class Bug2828030_wirelen_not_set_in_JMemoryPacket
 	 * @throws PeeringException
 	 */
 	public void testScannerExceptionWithByteBuffer() throws PeeringException {
-		PcapPacket packet = getPcapPacket(L2TP, 0);
-
-		byte[] data = packet.getByteArray(0, packet.size());
+		
 		ByteBuffer buf = ByteBuffer.allocateDirect(data.length);
 		buf.put(data).clear();
 
@@ -110,9 +120,7 @@ public class Bug2828030_wirelen_not_set_in_JMemoryPacket
 	 * @throws PeeringException
 	 */
 	public void testScannerExceptionWithIByteBuffer() throws PeeringException {
-		PcapPacket packet = getPcapPacket(L2TP, 0);
-
-		byte[] data = packet.getByteArray(0, packet.size());
+		
 		ByteBuffer buf = ByteBuffer.allocateDirect(data.length);
 		buf.put(data).clear();
 
