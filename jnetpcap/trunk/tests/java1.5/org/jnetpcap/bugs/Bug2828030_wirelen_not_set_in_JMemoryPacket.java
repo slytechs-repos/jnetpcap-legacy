@@ -102,6 +102,8 @@ public class Bug2828030_wirelen_not_set_in_JMemoryPacket
 		JMemoryPacket mem = new JMemoryPacket(buf);
 
 		assertNotNull(mem);
+		
+		mem.scan(JProtocol.ETHERNET_ID);
 	}
 
 	/**
