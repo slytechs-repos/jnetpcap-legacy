@@ -689,7 +689,7 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_nio_JReference_toDebugString
 	char *c = str_buf;
 	c += sprintf(c, "capacity=%d", refs->count);
 	for (int i = 0; i < refs->count; i ++) {
-		c += sprintf(c, ", [%d]@%x", i, refs->reference[i]);
+		c += sprintf(c, ", [%d]@%p", i, refs->reference[i]);
 	}
 
 	return env->NewStringUTF(str_buf); // Return local reference
