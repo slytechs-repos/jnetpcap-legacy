@@ -1317,6 +1317,7 @@ void init_native_protocols() {
 	native_heuristics[TCP_ID][1]			= &validate_sip;
 
 	native_heuristics[UDP_ID][0]			= &validate_rtp;
+	native_heuristics[UDP_ID][1]			= &validate_sip;
 	
 	/*
 	 * Dissector tables. Dissection == discovery of optional fields and 
