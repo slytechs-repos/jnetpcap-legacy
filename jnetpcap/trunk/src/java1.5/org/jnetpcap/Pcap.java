@@ -2008,7 +2008,8 @@ public class Pcap implements JAnalyze {
 	 *          user supplied packet handler
 	 * @param user
 	 *          a custom opaque user object
-	 * @return number of packet captured
+	 * @return 0 on success, -1 on error and -2 if breakloop was used interrupt
+	 *         the captue
 	 */
 	public <T> int loop(int cnt, int id, JPacketHandler<T> handler, T user) {
 		final PcapPacket packet = new PcapPacket(Type.POINTER);
@@ -2104,7 +2105,8 @@ public class Pcap implements JAnalyze {
 	 *          user supplied packet handler
 	 * @param user
 	 *          a custom opaque user object
-	 * @return number of packet captured
+	 * @return 0 on success, -1 on error and -2 if breakloop was used interrupt
+	 *         the captue
 	 */
 	public <T> int loop(int cnt, int id, PcapPacketHandler<T> handler, T user) {
 		final PcapPacket packet = new PcapPacket(Type.POINTER);
@@ -2229,7 +2231,8 @@ public class Pcap implements JAnalyze {
 	 *          user supplied packet handler
 	 * @param user
 	 *          a custom opaque user object
-	 * @return number of packet captured
+	 * @return 0 on success, -1 on error and -2 if breakloop was used interrupt
+	 *         the captue
 	 */
 	public <T> int loop(int cnt, JPacketHandler<T> handler, T user) {
 		final PcapPacket packet = new PcapPacket(Type.POINTER);
@@ -2295,7 +2298,8 @@ public class Pcap implements JAnalyze {
 	 *          a custom opaque user object
 	 * @param scanner
 	 *          user supplied custom packet scanner
-	 * @return number of packet captured
+	 * @return 0 on success, -1 on error and -2 if breakloop was used interrupt
+	 *         the captue
 	 */
 	public <T> int loop(
 	    int cnt,
@@ -2316,7 +2320,8 @@ public class Pcap implements JAnalyze {
 	 *          number of packets to read
 	 * @param dumper
 	 *          open pcap dumper to dump all packets to
-	 * @return number of packets processed
+	 * @return 0 on success, -1 on error and -2 if breakloop was used interrupt
+	 *         the captue
 	 */
 	public native int loop(int cnt, PcapDumper dumper);
 
@@ -2404,7 +2409,8 @@ public class Pcap implements JAnalyze {
 	 *          user supplied packet handler
 	 * @param user
 	 *          a custom opaque user object
-	 * @return number of packet captured
+	 * @return 0 on success, -1 on error and -2 if breakloop was used interrupt
+	 *         the captue
 	 */
 	public <T> int loop(int cnt, PcapPacketHandler<T> handler, T user) {
 		final PcapPacket packet = new PcapPacket(Type.POINTER);
@@ -2470,7 +2476,8 @@ public class Pcap implements JAnalyze {
 	 *          a custom opaque user object
 	 * @param scanner
 	 *          user supplied custom packet scanner
-	 * @return number of packet captured
+	 * @return 0 on success, -1 on error and -2 if breakloop was used interrupt
+	 *         the captue
 	 */
 	public <T> int loop(
 	    int cnt,
