@@ -39,6 +39,8 @@ public class JMemoryPacket
 
 		private int caplen;
 
+		private long inMicros;
+
 		private long inMillis;
 
 		private long inNanos;
@@ -48,8 +50,6 @@ public class JMemoryPacket
 		private long seconds;
 
 		private int wirelen;
-
-		private long inMicros;
 
 		/**
 		 * Creates an empty capture header
@@ -189,21 +189,21 @@ public class JMemoryPacket
 		}
 
 		/**
-		 * Gets the timestamp in millis
-		 * 
-		 * @return timestamp in millis
-		 */
-		public long timestampInMillis() {
-			return inMillis;
-		}
-
-		/**
 		 * Gets the timestamp in micro seconds
 		 * 
 		 * @return timestamp in micros
 		 */
 		public long timestampInMicros() {
 			return inMicros;
+		}
+
+		/**
+		 * Gets the timestamp in millis
+		 * 
+		 * @return timestamp in millis
+		 */
+		public long timestampInMillis() {
+			return inMillis;
 		}
 
 		/*
@@ -254,8 +254,9 @@ public class JMemoryPacket
 		super(Type.POINTER);
 
 		final JBuffer mem = getMemoryBuffer(buffer);
-
 		super.peer(mem);
+
+		header.setWirelen(buffer.length);
 	}
 
 	/**
@@ -270,11 +271,21 @@ public class JMemoryPacket
 	 *          | packet state | packet data |
 	 *          +--------------+-------------+
 	 * </pre>
+	 * 
+	 * @throws PeeringException
+	 *           if there is a problem peering with the buffer
 	 */
 	public JMemoryPacket(ByteBuffer buffer) throws PeeringException {
 		super(Type.POINTER);
+		
+		final int size = buffer.limit() - buffer.position();
 
+		final JBuffer mem = getMemoryBuffer(size);
+		super.peer(mem);
+		
 		transferFrom(buffer);
+
+		header.setWirelen(size);
 	}
 
 	/**
@@ -285,7 +296,7 @@ public class JMemoryPacket
 	 */
 	public JMemoryPacket(int size) {
 		super(size, State.sizeof(DEFAULT_STATE_HEADER_COUNT));
-		
+
 		header.setWirelen(size);
 	}
 
@@ -300,12 +311,31 @@ public class JMemoryPacket
 	 *          buffer containing raw packet data
 	 */
 	public JMemoryPacket(int id, byte[] buffer) {
-		super(Type.POINTER);
+		this(buffer);
 
-		final JBuffer mem = getMemoryBuffer(buffer);
+		scan(id);
+	}
 
-		super.peer(mem);
-		header.setWirelen(buffer.length);
+	/**
+	 * Initializes the packet's state and data by doing a deep copy of the
+	 * contents of the buffer. This constructor also performs a scan of the
+	 * packet.
+	 * 
+	 * @param buffer
+	 *          buffer containing both state and data in the form
+	 * 
+	 * <pre>
+	 *          +--------------+-------------+
+	 *          | packet state | packet data |
+	 *          +--------------+-------------+
+	 * </pre>
+	 * 
+	 * @param id
+	 *          ID of the DLT protocol
+	 * @throws PeeringException
+	 */
+	public JMemoryPacket(int id, ByteBuffer buffer) throws PeeringException {
+		this(buffer);
 
 		scan(id);
 	}
@@ -321,10 +351,7 @@ public class JMemoryPacket
 	 *          buffer containing raw packet data
 	 */
 	public JMemoryPacket(int id, JBuffer buffer) {
-		super(Type.POINTER);
-
-		super.peer(buffer);
-		header.setWirelen(buffer.size());
+		this(buffer);
 
 		scan(id);
 	}
@@ -359,13 +386,15 @@ public class JMemoryPacket
 		super(POINTER);
 
 		header.setWirelen(buffer.size());
-		
+
 		final int len = buffer.size();
 		JBuffer b = getMemoryBuffer(len);
 
 		b.transferFrom(buffer); // Make a buffer to buffer copy
 
 		peer(b, 0, len);
+		
+		header.setWirelen(len);
 	}
 
 	/**
@@ -514,6 +543,16 @@ public class JMemoryPacket
 		o += super.peer(buffer, offset + o, header.caplen());
 
 		return o;
+	}
+
+	/**
+	 * Changes the wirelen of this packet.
+	 * 
+	 * @param wirelen
+	 *          new wirelen for this packet
+	 */
+	public void setWirelen(int wirelen) {
+		header.setWirelen(wirelen);
 	}
 
 	/**
