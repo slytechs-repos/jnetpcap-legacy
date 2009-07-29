@@ -2578,6 +2578,51 @@ public class Pcap implements JAnalyze {
 	public native int nextEx(PcapHeader pkt_header, JBuffer buffer);
 
 	/**
+	 * <p>
+	 * Read a packet from an interface or from an offline capture. This function
+	 * is used to retrieve the next available packet, bypassing the callback
+	 * method traditionally provided by libpcap. The packet that is supplied as
+	 * formal parameter, is used to peer, not copy, with the header and buffer of
+	 * the next packet returned from libpcap. The supplied packet's PcapHeader is
+	 * used to peer with the libpcap provided header and the packet object itself
+	 * is used to peer with the libpcap provided packet buffer.
+	 * </p>
+	 * <p>
+	 * The packet contents will point at libpcap buffer space which is not
+	 * permanent. If packet contents are to be referenced on more permanent basis,
+	 * it will be neccessary to copy the contents to a new packet. Here is a short
+	 * example:
+	 * 
+	 * <pre>
+	 * Pcap pcap = ...; // From somewhere
+	 * PcapPacket packet = new PcapPacket(JMemory.POINTER);
+	 * 
+	 * while (nextEx(packet) == Pcap.NEXT_EX_OK) {
+	 *   PcapPacket copy = new PcapPacket(packet); // Make the copy and new obj
+	 * }
+	 * </pre>
+	 * 
+	 * @param packet
+	 *          packet that will be peered with the next libpcap returned packet
+	 * @return the status code
+	 *         <ul>
+	 *         <li>1 if the packet has been read without problems
+	 *         <li>0 if the timeout set with pcap_open_live() has elapsed. In
+	 *         this case pkt_header and pkt_data don't point to a valid packet
+	 *         <li>-1 if an error occurred
+	 *         <li>-2 if EOF was reached reading from an offline capture
+	 *         </ul>
+	 * @since 1.2
+	 */
+	public int nextEx(PcapPacket packet) {
+		int r = nextEx(packet.getCaptureHeader(), packet);
+
+		packet.scan(JRegistry.mapDLTToId(datalink()));
+
+		return r;
+	}
+
+	/**
 	 * Read a packet from an interface or from an offline capture. This function
 	 * is used to retrieve the next available packet, bypassing the callback
 	 * method traditionally provided by libpcap. pcap_next_ex fills the pkt_header
