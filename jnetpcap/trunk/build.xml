@@ -35,12 +35,23 @@
 
 	<!-- Incremented with each development build - SVN maintained -->
 	<property file="build.number" />
+	
+	<!-- Incremented everytime we increment the package release number - SVN maintained -->
+	<property file="pkg.number" />
 
 	<!-- Deployable packages and their structure -->
 	<property file="package.properties" />
 
 	<!-- load the build properties file -->
 	<property file="build.properties" />
+	
+	<tstamp>
+		<format property="timestamp.svnformat" pattern="${format.timestamp.svn}" locale="${format.timestamp.locale}" />
+	</tstamp>
+	
+	<!-- load the SVN properties file -->
+	<property file="svn.properties" />
+
 
 	<!-- Dependency libraries -->
 	<property file="lib.properties" />
@@ -327,12 +338,7 @@
 		<echo message="compiling JNI C++ files to object code" />
 		<echo message="using ${compiler.cc.cmd} compiler" />
 		<echo message="system include = ${java.sdk.include.dir}" />
-		<cc runtime="dynamic" 
-			debug="${compiler.debug}" 
-			objdir="${build.obj.dir}" 
-			multithreaded="${compiler.multithreaded}" 
-			exceptions="${compiler.exceptions}"
-			>
+		<cc runtime="dynamic" debug="${compiler.debug}" objdir="${build.obj.dir}" multithreaded="${compiler.multithreaded}" exceptions="${compiler.exceptions}">
 
 			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
 
@@ -372,7 +378,7 @@
 
 		</exec>
 		<echo message="Created shared JNI libary: ${jni.build.filepath}" />
-		
+
 		<property name="jni.lib.file" value="${jni.build.filepath}" />
 	</target>
 
@@ -383,14 +389,14 @@
 	<!-- =================================================================== -->
 	<target name="check-libpcap-version-dpkg" depends="check-packager-type" if="packager.dpkg">
 
-		<exec executable="dpkg-query" outputproperty="result.dpkg.version" >
+		<exec executable="dpkg-query" outputproperty="result.dpkg.version">
 			<arg value="--show" />
 			<arg value="--showformat" />
 			<arg value="$${Version}" />
 			<arg value="libpcap0.8" />
 		</exec>
 
-		<exec executable="sed" inputstring="${result.dpkg.version}" outputproperty="compiler.LIBPCAP_VERSION" >
+		<exec executable="sed" inputstring="${result.dpkg.version}" outputproperty="compiler.LIBPCAP_VERSION">
 			<arg value="s/[\.-]//g" />
 		</exec>
 
@@ -407,14 +413,14 @@
 	<!-- =================================================================== -->
 	<target name="check-libpcap-version-rpm" depends="check-packager-type" if="packager.rpm">
 
-		<exec executable="rpm" outputproperty="result.rpm.version" >
+		<exec executable="rpm" outputproperty="result.rpm.version">
 			<arg value="-q" />
 			<arg value="--queryformat" />
 			<arg value="%{VERSION}" />
 			<arg value="libpcap" />
 		</exec>
 
-		<exec executable="sed" inputstring="${result.rpm.version}" outputproperty="compiler.LIBPCAP_VERSION" >
+		<exec executable="sed" inputstring="${result.rpm.version}" outputproperty="compiler.LIBPCAP_VERSION">
 			<arg value="s/[\.-]//g" />
 		</exec>
 
@@ -433,29 +439,21 @@
 	<!-- Sets the property "packager.*" for the appropriate packager type    -->
 	<!-- =================================================================== -->
 	<target name="check-packager-type">
-		<exec executable="which" 
-			resultproperty="result.rpm" 
-			outputproperty="devnull" 
-			errorproperty="devnull" 
-			failifexecutionfails="false" >
+		<exec executable="which" resultproperty="result.rpm" outputproperty="devnull" errorproperty="devnull" failifexecutionfails="false">
 			<arg value="rpm" />
 		</exec>
 
-		<condition property="packager.rpm" >
+		<condition property="packager.rpm">
 			<equals arg1="${result.rpm}" arg2="0" />
 		</condition>
 		<echo message="rpm = ${packager.rpm}" />
 
 
-		<exec executable="which" 
-			resultproperty="result.dpkg" 
-			outputproperty="devnull" 
-			errorproperty="devnull"
-			failifexecutionfails="false"> 
+		<exec executable="which" resultproperty="result.dpkg" outputproperty="devnull" errorproperty="devnull" failifexecutionfails="false">
 			<arg value="dpkg-query" />
 		</exec>
 
-		<condition property="packager.dpkg" >
+		<condition property="packager.dpkg">
 			<equals arg1="${result.dpkg}" arg2="0" />
 		</condition>
 		<echo message="dpkg = ${packager.dpkg}" />
@@ -478,13 +476,7 @@
 		<echo message="compiling JNI C++ files to object code" />
 		<echo message="using ${compiler.cc.cmd} compiler" />
 		<echo message="system include = ${java.sdk.include.dir}" />
-		<cc runtime="dynamic" 
-			outtype="shared" 
-			outfile="${build.lib.dir}/${lib.pcap.basename}" 
-			debug="${compiler.debug}" objdir="${build.obj.dir}" 
-			multithreaded="compiler.multithreaded" 
-			exceptions="compiler.exceptions"
-			warnings="${compiler.warnings}">
+		<cc runtime="dynamic" outtype="shared" outfile="${build.lib.dir}/${lib.pcap.basename}" debug="${compiler.debug}" objdir="${build.obj.dir}" multithreaded="compiler.multithreaded" exceptions="compiler.exceptions" warnings="${compiler.warnings}">
 
 			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
 
@@ -646,7 +638,7 @@
 		<rpm specfile="${rpm.spec.name}" topdir="${rpm.build.dir}" command="-bb --buildroot=${rpm.buildroot.dir}" />
 
 	</target>
-	
+
 	<!-- =================================================================== -->
 	<!-- build a tar file                                                    -->
 	<!-- =================================================================== -->
@@ -669,10 +661,7 @@
 		<copy todir="${tar.build.pkg.dir}" file="${doc.dir}/CHANGE_LOG.txt" />
 		<copy todir="${tar.build.pkg.dir}" file="${doc.dir}/LICENSE.txt" />
 
-		<tar destfile="${tar.build.file}"
-			basedir="${tar.build.dir}" 
-			compression="gzip" 
-			casesensitive="true" />
+		<tar destfile="${tar.build.file}" basedir="${tar.build.dir}" compression="gzip" casesensitive="true" />
 
 	</target>
 
@@ -702,7 +691,7 @@
 	<target name="package-win" depends="prep-dist,comp-jni,comp-manifest">
 
 		<mkdir dir="${pkg.lib.dir}" />
-		
+
 		<!-- ############################################################### -->
 		<!--                  Distribute header files                        -->
 		<!-- ############################################################### -->
@@ -755,7 +744,7 @@
 	<!-- Packages up the 'library' package -->
 	<!-- =================================================================== -->
 	<target name="package-src" depends="prep-dist,comp-manifest">
-		
+
 
 		<mkdir dir="${pkg.src.dir}" />
 
@@ -813,7 +802,7 @@
 		<checksum forceoverwrite="true" file="${pkg.src.zip}" />
 
 	</target>
-	
+
 	<!-- =================================================================== -->
 	<!-- create  a RPM package -->
 	<!-- =================================================================== -->
@@ -846,7 +835,7 @@
 		<checksum forceoverwrite="true" file="${deb.dist.file}" />
 
 	</target>
-	
+
 	<!--                  UPLOAD SECTION                                     -->
 
 	<!-- =================================================================== -->
@@ -926,7 +915,7 @@ https://sourceforge.net/project/admin/editpackages.php?group_id=164277
 	<!-- =================================================================== -->
 	<!-- Increment the build number and commit it to SVN                     -->
 	<!-- =================================================================== -->
-	<target name="buildnumber">
+	<target name="svn-buildnumber">
 		<tstamp />
 		<tstamp>
 			<format property="timestamp.isoformat" pattern="${format.timestamp.long}" locale="${format.timestamp.locale}" />
@@ -946,6 +935,67 @@ https://sourceforge.net/project/admin/editpackages.php?group_id=164277
 			<commit message="incremented the build number on ${timestamp.isoformat}" file="build.number" />
 		</svn>
 	</target>
+	
+	<!-- =================================================================== -->
+	<!-- Increment the build number and commit it to SVN                     -->
+	<!-- =================================================================== -->
+	<target name="svn-pkgnumber">
+		<tstamp />
+		<tstamp>
+			<format property="timestamp.isoformat" pattern="${format.timestamp.long}" locale="${format.timestamp.locale}" />
+		</tstamp>
+
+		<echo>BEFORE: pkg.release=${pkg.release}</echo>
+		<!-- Updates the version.properties file -->
+		<property name="pkg.id" value="${env.USER}" />
+
+		<propertyfile file="pkg.number">
+			<entry type="int" key="pkg.release" value="1" operation="+" pattern="0" />
+			<entry key="build.tstamp" value="${DSTAMP}" />
+		</propertyfile>
+
+		<echo>Build number incremented on ${timestamp.isoformat}</echo>
+		<svn username="${svn.username}" password="${svn.password}">
+			<commit message="incremented the package release number on ${timestamp.isoformat}" file="pkg.number" />
+		</svn>
+	</target>
+
+
+	<!-- =================================================================== -->
+	<!-- Increment the build number and commit it to SVN                     -->
+	<!-- =================================================================== -->
+	<target name="svn-tag-trunk2builds">
+
+		<echo>Tagging ${svn.jnp.trunk} to ${svn.jnp.builds}</echo>
+		<echo>
+svn copy ${svn.jnp.trunk} ${svn.jnp.builds} -m "${svn.builds.comment}" 
+		</echo>
+		
+		<svn username="${svn.username}" password="${svn.password}">
+			<copy message="${svn.builds.comment}" 
+				srcUrl="${svn.jnp.trunk.url}" 
+				destUrl="${svn.jnp.builds.url}" />	
+		</svn>
+	</target>
+	
+	<!-- =================================================================== -->
+	<!-- Increment the build number and commit it to SVN                     -->
+	<!-- =================================================================== -->
+	<target name="svn-tag-trunk2tags">
+
+		<echo>Tagging ${svn.jnp.trunk} to ${svn.jnp.tags}</echo>
+		<echo>
+svn copy ${svn.jnp.trunk} ${svn.jnp.builds} -m "${svn.tags.comment}" 
+		</echo>
+		
+		<svn username="${svn.username}" password="${svn.password}">
+			<copy message="${svn.tags.comment}" 
+				srcUrl="${svn.jnp.trunk.url}" 
+				destUrl="${svn.jnp.tags.url}" />	
+		</svn>
+	</target>
+
+
 
 	<!-- =================================================================== -->
 	<!-- Execute SVN status on the working directory                         -->
@@ -956,14 +1006,14 @@ https://sourceforge.net/project/admin/editpackages.php?group_id=164277
 			<property name="svn.status.verbose" value="true" />
 		</ant>
 	</target>
-			
+
 	<!--                        MAIN CONTROL SECTION  -->
 
 	<!-- =================================================================== -->
 	<!-- Echo certain properties for debugging purposes -->
 	<!-- =================================================================== -->
 	<target name="echo-properties" depends="prep-build">
-		<echoproperties/>
+		<echoproperties />
 		<echo message="timestamp.isoformat=${timestamp.isoformat}" />
 		<echo message="timestamp.short=${timestamp.short}" />
 		<echo message="" />
@@ -1108,7 +1158,7 @@ https://sourceforge.net/project/admin/editpackages.php?group_id=164277
 		<echo message="upload-dist-javadoc  - upload javadoc package to distribution server" />
 		<echo message="upload-web-javadoc   - upload javadoc package to web hosting server (http://jnetpcap.com)" />
 	</target>
-	
+
 	<!-- =================================================================== -->
 	<!-- Build all -->
 	<!-- =================================================================== -->
