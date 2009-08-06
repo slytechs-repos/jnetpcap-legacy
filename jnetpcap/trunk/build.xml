@@ -1157,6 +1157,13 @@ svn copy ${svn.jnp.trunk} ${svn.jnp.builds} -m "${svn.tags.comment}"
 		<echo message="upload-dist-win      - upload windows package to distribution server" />
 		<echo message="upload-dist-javadoc  - upload javadoc package to distribution server" />
 		<echo message="upload-web-javadoc   - upload javadoc package to web hosting server (http://jnetpcap.com)" />
+
+		<echo message="svn-buildnumber        - increments the build number and checks into SVN" />
+		<echo message="svn-pkgnumber          - increments the package release number and checks into SVN" />
+		<echo message="svn-tag-trunk2builds   - takes a snapshot for the dev trunk and copies it to builds" />
+		<echo message="svn-tag-trunk2builds   - takes a snapshot for the dev trunk and copies it to builds" />
+		<echo message="svn-tag-trunk2tags     - takes a snapshot for the dev trunk and copies it to tags" />
+
 	</target>
 
 	<!-- =================================================================== -->
