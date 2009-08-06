@@ -204,7 +204,23 @@ public class Ip4
 			/* 5 */
 			UNASSIGNED1(5),
 			/* 6 */
-			UNASSIGNED2(6), ;
+			UNASSIGNED2(6),
+
+			EXPERIMENTAL_MEASUREMENT(10),
+			MTU_PROBE(11),
+			MTU_REPLY(12),
+			EXPERIMENTAL_FLOW_CONTROL(13),
+			EXPERIMENTAL_ACCESS_CONTROL(14),
+			ENCODE(15),
+			IMI_TRAFFIC_DESCRIPTOR(16),
+			EXTENDED_IP(17),
+			TRACEROUTE(18),
+			ADDRESS_EXTENSION(19),
+			ROUTER_ALERT(20),
+			SELECTIVE_DIRECTED_BROADCAST_MOST(21),
+			DYNAMIC_PACKET_STATE(23),
+			UPSTREAM_MULTICAST_PACKET(24),
+			QUICK_START(25), ;
 			public final int id;
 
 			private OptionCode(int id) {
@@ -214,6 +230,30 @@ public class Ip4
 			public static OptionCode valueOf(int id) {
 				for (OptionCode c : values()) {
 					if (c.id == id) {
+						return c;
+					}
+				}
+
+				return null;
+			}
+		}
+
+		public enum CodeClass {
+			CONTROL(0),
+			RESERVED1(1),
+			DEBUG(2),
+			RESERVED2(3), ;
+
+			private final int cl;
+
+			private CodeClass(int cl) {
+				this.cl = cl;
+
+			}
+
+			public static CodeClass valueOf(int cl) {
+				for (CodeClass c : values()) {
+					if (cl == c.cl) {
 						return c;
 					}
 				}
@@ -262,9 +302,9 @@ public class Ip4
 		 * 
 		 * @return code field value
 		 */
-		@Field(offset = 0, length = 3, format = "%d")
+		@Field(offset = 0, length = 8, format = "%d")
 		public int code() {
-			return getUByte(0) & 0x1F;
+			return getUByte(0);
 		}
 
 		/**
@@ -306,6 +346,41 @@ public class Ip4
 		@FieldSetter
 		public void code(int value) {
 			setUByte(0, code() & 0xE0 | value & 0x1F);
+		}
+
+		@Field(parent = "code", offset = 7, length = 1, display = "copy", format = "%d")
+		public int code_Copy() {
+			return (code() & 0x80) >> 7;
+		}
+
+		@Dynamic(Field.Property.DESCRIPTION)
+		public String code_CopyDescription() {
+			return (code_Copy() > 0) ? "copy to all fragments"
+			    : "do not copy to fragments";
+		}
+
+		@Field(parent = "code", offset = 5, length = 2, display = "class", format = "%d")
+		public int code_Class() {
+			return (code() & 0x60) >> 5;
+		}
+
+		public CodeClass code_ClassEnum() {
+			return CodeClass.valueOf(code_Class());
+		}
+
+		@Dynamic(Field.Property.DESCRIPTION)
+		public String code_ClassDescription() {
+			return code_ClassEnum().toString();
+		}
+
+		@Field(parent = "code", offset = 0, length = 5, display = "type", format = "%d")
+		public int code_Type() {
+			return (code() & 0x1F);
+		}
+		
+		@Dynamic(Field.Property.DESCRIPTION)
+		public String code_TypeDescription() {
+			return IpOption.OptionCode.valueOf(code() & 0x1F).toString();
 		}
 
 		/**
@@ -820,6 +895,236 @@ public class Ip4
 		}
 	}
 
+	@Header(id = 10)
+	public static class ExperimentalMeasurement
+	    extends
+	    IpOption {
+
+		@Field(offset = 8, length = 8)
+		public int length() {
+			return getUByte(1);
+		}
+
+		@FieldSetter
+		public void length(int value) {
+			setUByte(1, value);
+		}
+	}
+
+	@Header(id = 11)
+	public static class MtuProbe
+	    extends
+	    IpOption {
+
+		@Field(offset = 8, length = 8)
+		public int length() {
+			return getUByte(1);
+		}
+
+		@FieldSetter
+		public void length(int value) {
+			setUByte(1, value);
+		}
+	}
+
+	@Header(id = 12)
+	public static class MtuReply
+	    extends
+	    IpOption {
+
+		@Field(offset = 8, length = 8)
+		public int length() {
+			return getUByte(1);
+		}
+
+		@FieldSetter
+		public void length(int value) {
+			setUByte(1, value);
+		}
+	}
+
+	@Header(id = 13)
+	public static class ExperimentalFlowControl
+	    extends
+	    IpOption {
+
+		@Field(offset = 8, length = 8)
+		public int length() {
+			return getUByte(1);
+		}
+
+		@FieldSetter
+		public void length(int value) {
+			setUByte(1, value);
+		}
+	}
+
+	@Header(id = 14)
+	public static class ExperimentalAccessControl
+	    extends
+	    IpOption {
+
+		@Field(offset = 8, length = 8)
+		public int length() {
+			return getUByte(1);
+		}
+
+		@FieldSetter
+		public void length(int value) {
+			setUByte(1, value);
+		}
+	}
+
+	@Header(id = 15)
+	public static class Encode
+	    extends
+	    IpOption {
+
+		@Field(offset = 8, length = 8)
+		public int length() {
+			return getUByte(1);
+		}
+
+		@FieldSetter
+		public void length(int value) {
+			setUByte(1, value);
+		}
+	}
+
+	@Header(id = 16)
+	public static class IMITrafficDescriptor
+	    extends
+	    IpOption {
+
+		@Field(offset = 8, length = 8)
+		public int length() {
+			return getUByte(1);
+		}
+
+		@FieldSetter
+		public void length(int value) {
+			setUByte(1, value);
+		}
+	}
+
+	@Header(id = 17)
+	public static class ExtendedIp
+	    extends
+	    IpOption {
+
+		@Field(offset = 8, length = 8)
+		public int length() {
+			return getUByte(1);
+		}
+
+		@FieldSetter
+		public void length(int value) {
+			setUByte(1, value);
+		}
+	}
+
+	@Header(id = 18)
+	public static class Traceroute
+	    extends
+	    IpOption {
+
+		@Field(offset = 8, length = 8)
+		public int length() {
+			return getUByte(1);
+		}
+
+		@FieldSetter
+		public void length(int value) {
+			setUByte(1, value);
+		}
+	}
+
+	@Header(id = 19)
+	public static class AddressExtension
+	    extends
+	    IpOption {
+
+		@Field(offset = 8, length = 8)
+		public int length() {
+			return getUByte(1);
+		}
+
+		@FieldSetter
+		public void length(int value) {
+			setUByte(1, value);
+		}
+	}
+
+	@Header(id = 20)
+	public static class RouterAlert
+	    extends
+	    IpOption {
+
+		public enum Action {
+			EXAMINE_PACKET(0), ;
+			private final int value;
+
+			private Action(int value) {
+				this.value = value;
+
+			}
+
+			public int value() {
+				return value;
+			}
+
+			public static Action valueOf(int action) {
+				for (Action a : values()) {
+					if (a.value == action) {
+						return a;
+					}
+				}
+
+				return null;
+			}
+		}
+
+		@Field(offset = 8, length = 8)
+		public int length() {
+			return getUByte(1);
+		}
+
+		@FieldSetter
+		public void length(int value) {
+			setUByte(1, value);
+		}
+
+		@Dynamic(Field.Property.DESCRIPTION)
+		public String actionDescription() {
+			return actionEnum().toString();
+		}
+
+		@Field(offset = 16, length = 16)
+		public int action() {
+			return super.getUShort(2);
+		}
+
+		public Action actionEnum() {
+			return Action.valueOf(action());
+		}
+	}
+
+	@Header(id = 21)
+	public static class SelectiveDirectedBroadcastMode
+	    extends
+	    IpOption {
+
+		@Field(offset = 8, length = 8)
+		public int length() {
+			return getUByte(1);
+		}
+
+		@FieldSetter
+		public void length(int value) {
+			setUByte(1, value);
+		}
+	}
+
 	public final static int DIFF_CODEPOINT = 0xFC;
 
 	public final static int DIFF_ECE = 0x01;
@@ -907,7 +1212,12 @@ public class Ip4
 			optionsOffsets[id] = i;
 			optionsBitmap |= (1 << id);
 
-			switch (IpOption.OptionCode.valueOf(id)) {
+			final IpOption.OptionCode code = IpOption.OptionCode.valueOf(id);
+			if (code == null) {
+				break; // We are done, something seriously wrong with the header
+			}
+
+			switch (code) {
 				case NO_OP:
 					optionsLength[id] = 1;
 					break;
