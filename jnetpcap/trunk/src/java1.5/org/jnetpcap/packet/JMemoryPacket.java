@@ -55,7 +55,8 @@ public class JMemoryPacket
 		 * Creates an empty capture header
 		 */
 		public JMemoryHeader() {
-			// Empty
+			this(0, 0, System.currentTimeMillis() / 1000, System.nanoTime());
+			
 		}
 
 		/**
@@ -90,6 +91,9 @@ public class JMemoryPacket
 		 */
 		public void caplen(int caplen) {
 			this.caplen = caplen;
+			if (this.wirelen == 0) {
+				setWirelen(caplen);
+			}
 		}
 
 		/**
@@ -186,6 +190,10 @@ public class JMemoryPacket
 		 */
 		public final void setWirelen(int wirelen) {
 			this.wirelen = wirelen;
+			
+			if (this.caplen == 0) {
+				this.caplen = wirelen;
+			}
 		}
 
 		/**
