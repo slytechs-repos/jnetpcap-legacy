@@ -753,18 +753,18 @@ void cb_jpacket_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 		return;
 	}
 	
-	jobject pcap_packet = 
+/*	jobject pcap_packet = 
 		transferToNewBuffer(env, pkt_header, pkt_data, data->state);
 	if (pcap_packet == NULL) {
 		pcap_breakloop(data->p);
 		return;
 	}
-
+*/
 	env->CallVoidMethod(
 			data->obj,
 			data->mid, 
-//			data->packet,
-			pcap_packet,
+			data->packet,
+//			pcap_packet,
 			data->user);
 	
 	if (env->ExceptionCheck() == JNI_TRUE) {
@@ -806,18 +806,18 @@ void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 	fflush(stdout);
 #endif
 	
-	jobject pcap_packet = 
+/*	jobject pcap_packet = 
 		transferToNewBuffer(env, pkt_header, pkt_data, data->state);
 	if (pcap_packet == NULL) {
 		pcap_breakloop(data->p);
 		return;
 	}
-
+*/
 	env->CallVoidMethod(
 			data->obj,
 			data->mid, 
-//			data->packet,
-			pcap_packet,
+			data->packet,
+//			pcap_packet,
 			data->user);
 	
 #ifdef DEBUG
