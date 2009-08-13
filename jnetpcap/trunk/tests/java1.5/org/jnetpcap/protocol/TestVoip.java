@@ -113,7 +113,7 @@ public class TestVoip
 		assertTrue(packet.hasHeader(JProtocol.RTP_ID));
 	}
 
-	public void testRtpAudioExtract() throws IOException {
+	public void SKIP_testRtpAudioExtract() throws IOException {
 		Rtp rtp = new Rtp();
 
 		try {
