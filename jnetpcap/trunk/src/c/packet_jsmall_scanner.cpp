@@ -84,7 +84,13 @@ void debug_scan(char *msg,scan_t *scan) {
 			);
 }
 
-
+/**
+ * Checks if the data at specified offset is accessible or has it possibly
+ * been truncated.
+ */
+int is_accessible(scan_t *scan, int offset) {
+	return (scan->offset + offset) <= scan->buf_len;
+}
 /*
  * Converts our numerical header ID to a string, which is better suited for
  * debugging.
@@ -213,30 +219,6 @@ debug_scan("loop-length==0", &scan);
 
 		} else { // length != 0
 			
-			/******************************************************
-			 * ****************************************************
-			 * * Make sure we didn't come up with some bogus
-			 * * header length. If so, throw exception and abort.
-			 * ****************************************************
-			 ******************************************************/
-			if (!SCAN_IGNORE_BOUNDS(pscan) && (scan.offset + 
-					scan.hdr_prefix + 
-					scan.hdr_gap + 
-					scan.length + 
-					scan.hdr_payload +
-					scan.hdr_postfix)
-					> scan.wire_len) {
-				throwException(scan.env, ILLEGAL_STATE_EXCEPTION, 
-						id2str(scan.id));
-#ifdef DEBUG
-debug_error("assert", "header length (%d) greater then packet wire-length (%d)",
-		scan.length,
-		scan.wire_len);
-debug_scan("assert", &scan);
-#endif 
-				return -1;
-			}
-
 #ifdef DEBUG
 debug_scan("loop-length > 0", &scan);
 #endif
@@ -267,7 +249,7 @@ debug_scan("TCP OVERRIDE", &scan);
 			if (scanner->sc_flags[scan.id] & FLAG_HEURISTIC_BINDING) { 
 				
 				/* 
-				 * Save these critical properties, incase heuristic changes them
+				 * Save these critical properties, in case heuristic changes them
 				 * for this current header, not the next one its supposed to
 				 * check for.
 				 */
@@ -434,6 +416,7 @@ debug_scan("adj buf_len", scan);
 	if (scan->hdr_payload == 0 && scan->id != PAYLOAD_ID) {
 		scan->hdr_payload = scan->wire_len - 
 			(offset + scan->hdr_prefix + scan->length + scan->hdr_gap);
+		scan->hdr_payload = (scan->hdr_payload < 0) ? 0 : scan->hdr_payload;
 #ifdef DEBUG
 debug_scan("adj payload", scan);
 #endif
@@ -493,9 +476,9 @@ debug_exit("record_header");
  * postfix appropriately to account for shortened packet.
  */
 void adjustForTruncatedPacket(scan_t *scan) {
-	
 #ifdef DEBUG
 debug_enter("adjustForTruncatedPacket");
+debug_trace("packet", "%ld", scan->scanner->sc_cur_frame_num);
 #endif
 
 	/*
@@ -515,6 +498,17 @@ debug_enter("adjustForTruncatedPacket");
 	register int end = start + scan->hdr_postfix;
 	register int buf_len = scan->buf_len;
 	
+#ifdef DEBUG
+debug_trace("", "offset=%d, pre=%d, len=%d, gap=%d, pay=%d, post=%d",
+		scan->offset,
+		scan->hdr_prefix,
+		scan->length,
+		scan->hdr_gap,
+		scan->hdr_payload,
+		scan->hdr_postfix);
+debug_trace("", "start=%d end=%d buf_len=%d", start, end, buf_len);
+#endif
+
 	if (end > buf_len) { // Check if postfix extends past the end of packet
 		
 		/*
@@ -524,6 +518,7 @@ debug_enter("adjustForTruncatedPacket");
 		if (scan->hdr_postfix > 0) {
 			scan->hdr_flags |= HEADER_FLAG_PREFIX_TRUNCATED;			
 			scan->hdr_postfix = (start > buf_len) ? 0 : buf_len - start;
+			scan->hdr_postfix = (scan->hdr_postfix < 0) ? 0 : scan->hdr_postfix;
 #ifdef DEBUG
 debug_scan("adjust postfix", scan);
 #endif
@@ -536,6 +531,7 @@ debug_scan("adjust postfix", scan);
 		if (end > buf_len) {
 			scan->hdr_flags |= HEADER_FLAG_PAYLOAD_TRUNCATED;	
 			scan->hdr_payload = (start > buf_len) ? 0 : buf_len - start;
+			scan->hdr_payload = (scan->hdr_payload < 0) ? 0 : scan->hdr_payload;
 
 #ifdef DEBUG
 debug_scan("adjust payload", scan);
@@ -548,6 +544,7 @@ debug_scan("adjust payload", scan);
 				
 				scan->hdr_flags |= HEADER_FLAG_GAP_TRUNCATED;	
 				scan->hdr_gap = (start > buf_len) ? 0 : buf_len - start;
+				scan->hdr_gap = (scan->hdr_gap < 0) ? 0 : scan->hdr_gap;
 #ifdef DEBUG
 debug_scan("adjust gap", scan);
 #endif
@@ -560,6 +557,7 @@ debug_scan("adjust gap", scan);
 			if (end > buf_len) {
 				scan->hdr_flags |= HEADER_FLAG_HEADER_TRUNCATED;	
 				scan->length = (start > buf_len) ? 0 : buf_len - start;
+				scan->length = (scan->length < 0) ? 0 : scan->length;
 #ifdef DEBUG
 debug_scan("adjust header", scan);
 #endif
@@ -571,6 +569,7 @@ debug_scan("adjust header", scan);
 				if (0 && scan->hdr_prefix > 0 && end > buf_len) {
 					scan->hdr_flags |= HEADER_FLAG_PREFIX_TRUNCATED;	
 					scan->hdr_prefix = (start > buf_len) ? 0 : buf_len - start;
+					scan->hdr_prefix = (scan->hdr_prefix < 0) ? 0 : scan->hdr_prefix;
 #ifdef DEBUG
 debug_scan("adjust prefix", scan);
 #endif
@@ -580,9 +579,11 @@ debug_scan("adjust prefix", scan);
 		}
 	}	
 	
+
 #ifdef DEBUG
 debug_exit("adjustForTruncatedPacket");
 #endif
+#undef DEBUG
 }
 
 /**

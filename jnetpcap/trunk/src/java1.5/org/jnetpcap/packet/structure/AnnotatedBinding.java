@@ -207,7 +207,7 @@ public class AnnotatedBinding implements JBinding {
 
 		packet.getHeader(header);
 
-		return annotatedBound.isBound(packet, offset, header);
+		return header.isHeaderTruncated() == false && annotatedBound.isBound(packet, offset, header);
 	}
 
 	/*

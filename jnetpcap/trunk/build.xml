@@ -28,7 +28,7 @@
     Author: Mark Bednarczyk, Sly Technologies, Inc.
 
  -->
-<project name="jNetPcap" default="all" basedir=".">
+<project name="jNetPcap" default="all" basedir="." xmlns:cpptasks="antlib:net.sf.antcontrib.cpptasks">
 
 	<!-- Get the enviroment collection from the OS -->
 	<property environment="env" />
@@ -338,10 +338,14 @@
 		<echo message="compiling JNI C++ files to object code" />
 		<echo message="using ${compiler.cc.cmd} compiler" />
 		<echo message="system include = ${java.sdk.include.dir}" />
-		<cc runtime="dynamic" debug="${compiler.debug}" objdir="${build.obj.dir}" multithreaded="${compiler.multithreaded}" exceptions="${compiler.exceptions}">
-
-			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
-
+		<echo message="path=${env.Path}" />
+		
+		<cc runtime="dynamic" 
+			debug="${compiler.debug}" 
+			objdir="${build.obj.dir}" 
+			multithreaded="${compiler.multithreaded}" 
+			exceptions="${compiler.exceptions}">
+			
 			<compiler name="${compiler.cc.cmd}">
 				<compilerarg value="-DHAVE_REMOTE" />
 				<defineset define="LIBPCAP_VERSION=0x${compiler.LIBPCAP_VERSION}" if="compiler.LIBPCAP_VERSION" />
@@ -360,7 +364,6 @@
 		<echo message="linking object files" />
 		<echo message="using ${compiler.ld.cmd} linker found at ${compiler.ld.bin.dir}" />
 		<exec executable="${compiler.ld.cmd}">
-			<env key="PATH" path="${compiler.ld.bin.dir};${env.PATH}" />
 
 			<arg value="-shared" />
 			<arg value="-Wl,--add-stdcall-alias" />
@@ -472,7 +475,7 @@
 		<echo>arch=${os.arch}</echo>
 		<echo>name=${os.name}</echo>
 
-		<echo message="Using pcap version ${pcap.version}" />
+		<echo message="Using pcap version ${compiler.LIBPCAP_VERSION}" />
 		<echo message="compiling JNI C++ files to object code" />
 		<echo message="using ${compiler.cc.cmd} compiler" />
 		<echo message="system include = ${java.sdk.include.dir}" />

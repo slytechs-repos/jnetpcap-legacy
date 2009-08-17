@@ -36,7 +36,7 @@
  */
 const char *indent_template = "                            ";
 char indent_buffer[1024] = {'\0'};
-int indent = -1;
+int indent = 0;
 char indent_char = DEFAULT_INDENT_CHAR;
 
 int debug_level = DEFAULT_LEVEL;
@@ -50,16 +50,18 @@ void debug_set_level(int level) {
 }
 
 void debug_inc() {
+//	printf("debug_inc() - index=%d buf=%s\n", indent, indent_buffer);
 	if (indent < DEBUG_MAX_LEVEL) { // Safety check
 		indent_buffer[indent] = indent_char;
 		indent_buffer[++indent] = '\0';
 	} else {
-		indent_buffer[indent - 1] = '>'; // Indicates too many levels
-		indent_buffer[indent - 0] = '\0';
+		indent_buffer[indent + 0] = '>'; // Indicates too many levels
+		indent_buffer[indent + 1] = '\0';
 	}
 }
 
 void debug_dec() {
+//	printf("debug_dec) - index=%d buf=%s\n", indent, indent_buffer);
 	if (indent > 0) { // Safety check
 		indent_buffer[--indent] = '\0';
 	} else {

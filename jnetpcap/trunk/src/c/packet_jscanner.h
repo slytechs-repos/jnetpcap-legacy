@@ -58,6 +58,8 @@
 
 #define INVALID PAYLOAD_ID
 
+#define ACCESS(offset) if (is_accessible(scan, offset) == FALSE) return;
+
 
 /******************************
  ******************************
@@ -97,6 +99,7 @@ extern const char *native_protocol_names[];
 void callJavaHeaderScanner(scan_t *scan);
 void record_header(scan_t *scan);
 void adjustForTruncatedPacket(scan_t *scan);
+
 
 extern char str_buf[1024];
 
@@ -327,6 +330,20 @@ int validate_next(int id, scan_t *);
 extern Debug scanner_logger;
 extern Debug protocol_logger;
 *****/
+/**
+ * Checks and calculates if there is enough data in the
+ * buffer to access entire header, if not the header's
+ * TRUNCATE flag is set and header's length set to wire_len.
+ *
+ * scan->length is the input and output with theoretical header length.
+ * scan->wire_len is the input with actual buffer length.
+ * scan->hdr_flags output with TRUNCATED flag set.
+ */
+int truncate_header(scan_t *scan);
+
+int is_accessible(scan_t *scan, int offset);
+
+
 
 #endif
 #endif
