@@ -119,6 +119,10 @@ ENTER(SLL_ID, "scan_sll");
 	register sll_t *sll = (sll_t *)(scan->buf + scan->offset);
 	scan->length = SLL_LEN;
 	
+	if (is_accessible(scan, 9) == FALSE) {
+		return;
+	}
+
 	switch(BIG_ENDIAN16(sll->sll_protocol)) {
 	case 0x800:	scan->next_id = validate_next(IP4_ID, scan); EXIT(); return;
 	}
@@ -243,12 +247,14 @@ void debug_rtp(rtp_t *rtp) {
 void scan_rtp(scan_t *scan) {
 	register rtp_t *rtp = (rtp_t *)(scan->buf + scan->offset);
 	
+	ACCESS(0);
 	scan->length += RTP_LENGTH + rtp->rtp_cc * 4;
 	
 	/*
 	 * Check for extension. We don't care here what it is, just want to add up
 	 * all the lengths
 	 */
+	ACCESS(scan->length + 4);
 	if (rtp->rtp_ext) {
 		rtpx_t * rtpx = (rtpx_t *)(scan->buf + scan->offset + scan->length);
 		
@@ -259,7 +265,8 @@ void scan_rtp(scan_t *scan) {
 	 * used.
 	 */
 	if (rtp->rtp_pad) {
-		scan->hdr_postfix = scan->buf[scan->buf_len -1];
+		ACCESS(scan->wire_len -1);
+		scan->hdr_postfix = scan->buf[scan->wire_len -1];
 	}
 
 /*************************
@@ -814,6 +821,10 @@ void scan_ip6(scan_t *scan) {
 	scan->hdr_payload = BIG_ENDIAN16(ip6->ip6_plen);
 	uint8_t *buf = (uint8_t *)(scan->buf + scan->offset + sizeof(ip6_t));
 	
+	if(is_accessible(scan, 40) == FALSE) {
+		return;
+	}
+
 	/*
 	 * Set the flow key pair for Ip6.
 	 * First, we check if Ip6 has already been set by looking in the
@@ -881,10 +892,15 @@ again:
 	case 51:  // Authentication Header
 	case 50:  // Encapsulation Security Payload Header
 	case 135: // Mobility Header
+
+		if (is_accessible(scan, scan->length + 2) == FALSE) {
+			return;
+		}
+
 		/* Skips over all option headers */
 		type = (int) *(buf + 0); // Option type
 		len = ((int) *(buf + 1)) * 8 + 8; // Option length
-		if ((scan->offset + len) > scan->buf_len) { // Catch all just in case
+		if (is_accessible(scan, scan->offset + len) == FALSE) { // Catch all just in case
 			
 #ifdef DEBUG
 	printf("#%ld scan_ip6() infinite loop detected. Option type=%d len=%d offset=%d\n", 
@@ -968,7 +984,7 @@ void dissect_ip4_headers(dissect_t *dissect) {
 	scanner_t *scanner = dissect->d_scanner;
 	
 	int end = ip->ihl * 4; // End of IP header
-	int len = 0; // Length of curren option
+	int len = 0; // Length of current option
 	
 	header_t *sub;
 	sub = header->hdr_subheader = get_subheader_storage(scanner, 10);
@@ -1015,6 +1031,10 @@ void scan_ip4(register scan_t *scan) {
 	scan->length = ip4->ihl * 4;
 	scan->hdr_payload = BIG_ENDIAN16(ip4->tot_len) - scan->length;
 	
+	if (is_accessible(scan, 8) == FALSE) {
+		return;
+	}
+
 	/* Check if this IP packet is a fragment and record in flags */
 	int frag = BIG_ENDIAN16(ip4->frag_off);
 	if (frag & IP4_FLAG_MF || (frag & IP4_FRAG_OFF_MASK > 0)) {
@@ -1028,6 +1048,10 @@ void scan_ip4(register scan_t *scan) {
 		fflush(stdout);
 #endif
 	
+	if (is_accessible(scan, 16) == FALSE) {
+		return;
+	}
+
 	/*
 	 * Set the flow key pair for Ip4.
 	 * First, we check if Ip4 has already been set by looking in the
@@ -1101,8 +1125,11 @@ void scan_802dot3(scan_t *scan) {
 	scan->length = sizeof(ethernet_t);
 	
 
+	if (is_accessible(scan, 14) == FALSE) {
+		return;
+	}
 
-	if (BIG_ENDIAN16(eth->type) >= 0x600) { // We have an Ethernet frame
+ 	if (BIG_ENDIAN16(eth->type) >= 0x600) { // We have an Ethernet frame
 		scan->id      = ETHERNET_ID;
 		scan->next_id = validate_next(lookup_ethertype(eth->type), scan);
 		
@@ -1112,6 +1139,10 @@ void scan_802dot3(scan_t *scan) {
 		scan->next_id = validate_next(IEEE_802DOT2_ID, scan); // LLC v2
 	}
 	
+ 	if (is_accessible(scan, 12) == FALSE) {
+ 		return;
+ 	}
+
 	/*
 	 * Set the flow key pair for Ethernet.
 	 * First, we check if Ethernet has already been set by looking in the
@@ -1141,7 +1172,6 @@ void scan_802dot3(scan_t *scan) {
 
 }
 
-
 /*
  * Scan ethertype
  */
@@ -1151,6 +1181,10 @@ void scan_ethernet(scan_t *scan) {
 	
 	scan->length = sizeof(ethernet_t);
 	
+	if (is_accessible(scan, 12) == FALSE) {
+		return;
+	}
+
 	/*
 	 * Set the flow key pair for Ethernet.
 	 * First, we check if Ethernet has already been set by looking in the
@@ -1181,6 +1215,10 @@ void scan_ethernet(scan_t *scan) {
 		scan->packet->pkt_flow_key.id[1] = ETHERNET_ID;
 	}
 
+
+	if (is_accessible(scan, 14) == FALSE) {
+		return;
+	}
 
 	if (BIG_ENDIAN16(eth->type) < 0x600) { // We have an IEEE 802.3 frame
 		scan->id      = IEEE_802DOT3_ID;
@@ -1364,9 +1402,9 @@ void init_native_protocols() {
 	
 	// Initialize debug loggers
 #ifdef DEBUG
-	for (int i = 0; i < MAX_ID_COUNT; i ++) {
-		protocol_loggers[i] = new Debug(id2str(i), &protocol_logger);
-	}
+//	for (int i = 0; i < MAX_ID_COUNT; i ++) {
+//		protocol_loggers[i] = new Debug(id2str(i), &protocol_logger);
+//	}
 #endif
 
 }

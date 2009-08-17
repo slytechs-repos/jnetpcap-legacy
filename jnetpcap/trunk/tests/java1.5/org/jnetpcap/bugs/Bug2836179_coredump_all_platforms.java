@@ -61,8 +61,8 @@ import org.jnetpcap.packet.PcapPacketHandler;
  */
 public class Bug2836179_coredump_all_platforms extends TestCase {
 
-	private final static File DIR = new File("tests");
-	private static final int COUNT = 100;
+	private final static File DIR = new File("d:/captures");
+	private static final int COUNT = 1;
 	private StringBuilder errbuf;
 
 	@Override
@@ -86,7 +86,7 @@ public class Bug2836179_coredump_all_platforms extends TestCase {
 		});
 
 		for (int i = 0; i < COUNT; i++) {
-			for (String fname : files) {
+			for (final String fname : files) {
 				Pcap pcap = Pcap.openOffline(DIR.toString() + "/" + fname,
 						errbuf);
 				assertNotNull(errbuf.toString(), pcap);
@@ -96,6 +96,8 @@ public class Bug2836179_coredump_all_platforms extends TestCase {
 					@Override
 					public void nextPacket(JPacket packet, Pcap user) {
 						assertNotNull(packet);
+						
+						System.out.printf("%s#%d headerCount=%d\r", fname, packet.getFrameNumber(), packet.getState().getHeaderCount());
 
 					}
 

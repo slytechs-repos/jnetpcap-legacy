@@ -133,6 +133,7 @@ public class TestIcmp
 		PcapPacket packet = TestUtils.getPcapPacket("tests/test-afs.pcap", 29 - 1);
 
 		System.out.println(packet.toHexdump(128, false, false, true));
+		System.out.println(packet.getState().toDebugString());
 
 		Ip4 ip = new Ip4();
 		Icmp icmp = new Icmp(); // Need an instance so we can check on sub header
