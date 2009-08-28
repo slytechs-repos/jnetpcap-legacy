@@ -78,7 +78,6 @@ public class Bug2836179_coredump_all_platforms extends TestCase {
 	public void testStressTestJPacketHandler() {
 		String[] files = DIR.list(new FilenameFilter() {
 
-			@Override
 			public boolean accept(File dir, String name) {
 				return name.endsWith(".pcap");
 			}
@@ -93,7 +92,6 @@ public class Bug2836179_coredump_all_platforms extends TestCase {
 
 				pcap.loop(Pcap.LOOP_INFINATE, new JPacketHandler<Pcap>() {
 
-					@Override
 					public void nextPacket(JPacket packet, Pcap user) {
 						assertNotNull(packet);
 						
@@ -116,7 +114,6 @@ public class Bug2836179_coredump_all_platforms extends TestCase {
 	public void testStressTestPcapPacketHandler() {
 		String[] files = DIR.list(new FilenameFilter() {
 
-			@Override
 			public boolean accept(File dir, String name) {
 				return name.endsWith(".pcap");
 			}
@@ -131,7 +128,6 @@ public class Bug2836179_coredump_all_platforms extends TestCase {
 
 				pcap.loop(Pcap.LOOP_INFINATE, new PcapPacketHandler<Pcap>() {
 
-					@Override
 					public void nextPacket(PcapPacket packet, Pcap user) {
 						assertNotNull(packet);
 
