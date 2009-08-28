@@ -96,20 +96,17 @@ public class PcapDumperExampleUsingOpenDead {
 			dumper.dump(header, packet);
 		}
 
-		/***************************************************************************
-		 **************************************************************************/
-
 		final File file = new File(ofile);
 		System.out.printf("%s file has %d bytes in it!\n", ofile, file.length());
 
-		/*
+		/***************************************************************************
 		 * Last thing to do is close the dumper and pcap handles
-		 */
+		 **************************************************************************/
 		dumper.close(); // Won't be able to delete without explicit close
 		pcap.close();
 
 		if (file.exists()) {
-			// file.delete(); // Cleanup
+			 file.delete(); // Cleanup
 		}
 
 	}
