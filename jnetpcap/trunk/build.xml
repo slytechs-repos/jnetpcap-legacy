@@ -87,6 +87,7 @@
 	<path id="test.classpath">
 		<path refid="compiler.classpath" />
 		<pathelement location="${junit.jar}" />
+		<pathelement location="lib/hyperic-sigar-1.6.3/sigar.jar" />
 	</path>
 
 	<!-- =================================================================== -->
@@ -1088,7 +1089,7 @@ svn copy ${svn.jnp.trunk} ${svn.jnp.builds} -m "${svn.tags.comment}"
 			<!-- jvmarg value="-verbose:jni" /-->
 
 			<formatter type="plain" usefile="false" />
-			<sysproperty key="java.library.path" value="${jni.build.dir}" />
+			<sysproperty key="java.library.path" value="${jni.build.dir}:lib/hyperic-sigar-1.6.3" />
 
 			<test name="org.jnetpcap.BuildTests" todir="${report.dir}" />
 			<test name="org.jnetpcap.bugs.AllBugTests" todir="${report.dir}" />
