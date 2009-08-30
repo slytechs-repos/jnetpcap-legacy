@@ -756,6 +756,7 @@ void cb_jpacket_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 	jobject pcap_packet =
 		transferToNewBuffer(env, pkt_header, pkt_data, data->state);
 	if (pcap_packet == NULL) {
+		env->DeleteLocalRef(pcap_packet);
 		pcap_breakloop(data->p);
 		return;
 	}
@@ -766,6 +767,8 @@ void cb_jpacket_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 //			data->packet,
 			pcap_packet,
 			data->user);
+	
+	env->DeleteLocalRef(pcap_packet);
 	
 	if (env->ExceptionCheck() == JNI_TRUE) {
 		data->exception = env->ExceptionOccurred();
@@ -806,9 +809,12 @@ void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 	fflush(stdout);
 #endif
 	
-	jobject pcap_packet =
+	jobject pcap_packet;
+	
+	pcap_packet =
 		transferToNewBuffer(env, pkt_header, pkt_data, data->state);
 	if (pcap_packet == NULL) {
+		env->DeleteLocalRef(pcap_packet);
 		pcap_breakloop(data->p);
 		return;
 	}
@@ -819,6 +825,8 @@ void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 //			data->packet,
 			pcap_packet,
 			data->user);
+	
+	env->DeleteLocalRef(pcap_packet);
 	
 #ifdef DEBUG
 	printf("cb_pcap_packet_dispatch() handler_done - %d\n", data->id);
@@ -917,6 +925,14 @@ jobject transferToNewBuffer(
 	memcpy(ptr, pkt_data, pkt_header->caplen);
 	jmemoryPeer(env, pcap_packet, ptr, pkt_header->caplen, jheader);
 	ptr += pkt_header->caplen;
+	
+	/*
+	 * Free up intermediate local references. We can't rely on JNI freeing them
+	 * since we may be called from a long or infinite loop. JNI references are
+	 * only freeded up when main JNI call returns which may be never in our case.
+	 */
+	env->DeleteLocalRef(jheader);
+	env->DeleteLocalRef(jstate);
 	
 	/* Local reference is good enough for return value. If this is returned from
 	 * JNI code upto java, JNI turns them into globs.
