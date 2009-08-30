@@ -1,19 +1,14 @@
 /**
- * Copyright (C) 2008 Sly Technologies, Inc.
- * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public
+ * Copyright (C) 2008 Sly Technologies, Inc. This library is free software; you
+ * can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version. This
+ * library is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details. You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 package org.jnetpcap.bugs;
 
@@ -57,12 +52,15 @@ import org.jnetpcap.packet.PcapPacketHandler;
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
- * 
  */
-public class Bug2836179_coredump_all_platforms extends TestCase {
+public class Bug2836179_coredump_all_platforms
+    extends
+    TestCase {
 
-	private final static File DIR = new File("d:/captures");
+	private final static File DIR = new File("tests");
+
 	private static final int COUNT = 1;
+
 	private StringBuilder errbuf;
 
 	@Override
@@ -86,16 +84,16 @@ public class Bug2836179_coredump_all_platforms extends TestCase {
 
 		for (int i = 0; i < COUNT; i++) {
 			for (final String fname : files) {
-				Pcap pcap = Pcap.openOffline(DIR.toString() + "/" + fname,
-						errbuf);
+				Pcap pcap = Pcap.openOffline(DIR.toString() + "/" + fname, errbuf);
 				assertNotNull(errbuf.toString(), pcap);
 
 				pcap.loop(Pcap.LOOP_INFINATE, new JPacketHandler<Pcap>() {
 
 					public void nextPacket(JPacket packet, Pcap user) {
 						assertNotNull(packet);
-						
-						System.out.printf("%s#%d headerCount=%d\r", fname, packet.getFrameNumber(), packet.getState().getHeaderCount());
+
+						System.out.printf("%s#%d headerCount=%d\r", fname, packet
+						    .getFrameNumber(), packet.getState().getHeaderCount());
 
 					}
 
@@ -103,11 +101,11 @@ public class Bug2836179_coredump_all_platforms extends TestCase {
 
 				pcap.close();
 			}
-			
+
 			System.out.printf(".");
 			System.out.flush();
 		}
-		
+
 		System.out.println();
 	}
 
@@ -122,8 +120,7 @@ public class Bug2836179_coredump_all_platforms extends TestCase {
 
 		for (int i = 0; i < COUNT; i++) {
 			for (String fname : files) {
-				Pcap pcap = Pcap.openOffline(DIR.toString() + "/" + fname,
-						errbuf);
+				Pcap pcap = Pcap.openOffline(DIR.toString() + "/" + fname, errbuf);
 				assertNotNull(errbuf.toString(), pcap);
 
 				pcap.loop(Pcap.LOOP_INFINATE, new PcapPacketHandler<Pcap>() {
@@ -137,11 +134,11 @@ public class Bug2836179_coredump_all_platforms extends TestCase {
 
 				pcap.close();
 			}
-			
+
 			System.out.printf(".");
 			System.out.flush();
 		}
-		
+
 		System.out.println();
 	}
 
