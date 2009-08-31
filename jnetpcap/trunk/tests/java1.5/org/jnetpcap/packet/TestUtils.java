@@ -635,4 +635,16 @@ public class TestUtils
 
 		return frame;
 	}
+	
+	/**
+	 * A special method that resets the position of an offline capture back to the
+	 * begining. This method is only intended for certain jUnit testcases and not
+	 * intended for production use. The pcap object must open for an offline
+	 * capture and not dead or live. Otherwise an error will occur.
+	 * 
+	 * @param pcap
+	 *          open offline capture
+	 */
+	protected native void pcapOfflineReset(Pcap pcap);
+		
 }

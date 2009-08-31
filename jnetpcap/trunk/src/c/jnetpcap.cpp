@@ -365,7 +365,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__IILorg_jnetpcap_packet_J
 	 * Structure to encapsulate user data object, and store our JNI information
 	 * so we can dispatch to Java land.
 	 */
-	cb_jpacket_t data;
+	cb_packet_t data;
 	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
@@ -385,7 +385,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__IILorg_jnetpcap_packet_J
 		return -1;
 	}
 
-	int r = pcap_dispatch(p, jcnt, cb_jpacket_dispatch, (u_char *)&data);
+	int r = pcap_dispatch(p, jcnt, cb_pcap_packet_dispatch, (u_char *)&data);
 	if (data.exception != NULL) {
 		env->Throw(data.exception);
 	}
@@ -694,7 +694,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__IILorg_jnetpcap_packet_JPack
 	 * Structure to encapsulate user data object, and store our JNI information
 	 * so we can dispatch to Java land.
 	 */
-	cb_jpacket_t data;
+	cb_packet_t data;
 	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
@@ -714,7 +714,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__IILorg_jnetpcap_packet_JPack
 		return -1;
 	}
 
-	int r = pcap_loop(p, jcnt, cb_jpacket_dispatch, (u_char *)&data);
+	int r = pcap_loop(p, jcnt, cb_pcap_packet_dispatch, (u_char *)&data);
 	if (data.exception != NULL) {
 		env->Throw(data.exception);
 	}
