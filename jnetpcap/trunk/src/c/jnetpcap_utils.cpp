@@ -629,6 +629,74 @@ JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_PcapUtils_getHardwareAddress
 }
 
 /*
+ * Class:     org_jnetpcap_PcapUtils
+ * Method:    injectLoop
+ * Signature: (IILorg/jnetpcap/packet/PcapPacketHandler;Ljava/lang/Object;Lorg/jnetpcap/packet/PcapPacket;Lorg/jnetpcap/packet/JPacket$State;Lorg/jnetpcap/PcapHeader;Lorg/jnetpcap/packet/JScanner;)I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_PcapUtils_injectLoop
+(JNIEnv *env, jclass zz,
+		jint jcnt, 
+		jint id,
+		jobject jhandler, 
+		jobject juser, 
+		jobject jpacket,
+		jobject jstate,
+		jobject jheader, 
+		jobject jscanner) {
+
+//	printf("LOOP-JPacketHandler\n"); fflush(stdout);
+	if (jhandler == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return -1;
+	}
+
+	/*
+	 * Structure to encapsulate user data object, and store our JNI information
+	 * so we can dispatch to Java land.
+	 */
+	cb_jpacket_t data;
+	memset(&data, 0, sizeof(data));
+	data.env = env;
+	data.obj = jhandler;
+	data.pcap = NULL;
+	data.user = juser;
+	data.header = jheader;
+	data.packet = jpacket;
+	data.state = jstate;
+	data.id = id;
+	data.scanner = jscanner;
+	jclass clazz = env->GetObjectClass(jhandler);
+	data.p = NULL;
+	data.flags = 0;
+
+	data.mid = env->GetMethodID(clazz, "nextPacket",
+			"(Lorg/jnetpcap/packet/PcapPacket;Ljava/lang/Object;)V");
+	if (data.mid == NULL) {
+		return -1;
+	}
+	
+	const pcap_pkthdr *pkt_header = (const pcap_pkthdr *)getJMemoryPhysical(env, jheader);
+	const u_char *pkt_data = (const u_char *)getJMemoryPhysical(env, jheader);
+
+	for (int i = 0; i < jcnt || jcnt == -1; i ++) {
+		cb_pcap_packet_dispatch((u_char *)&data, pkt_header, pkt_data);
+		if (data.exception != NULL) {
+			env->Throw(data.exception);
+			break;
+		}
+		
+		if (data.flags & DEBUG_INJECT_PACKET_BREAK_LOOP) {
+			break;
+		}
+
+	}
+
+	return jcnt;
+}
+
+
+
+/*
  * Legacy ByteBuffer dispatch function - deprecated.
  */
 void pcap_callback(u_char *user, const pcap_pkthdr *pkt_header,
@@ -733,66 +801,15 @@ void cb_jbuffer_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 /**
  * JPacket dispatcher that dispatches decoded java packets
  */
-void cb_jpacket_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
-		const u_char *pkt_data) {
-
-	cb_jpacket_t *data = (cb_jpacket_t *)user;
-
-	JNIEnv *env = data->env;
-	
-	jmemoryPeer(env, data->header, pkt_header, sizeof(pcap_pkthdr), data->pcap);
-	jmemoryPeer(env, data->packet, pkt_data, pkt_header->caplen, data->pcap);
-
-	if (Java_org_jnetpcap_packet_JScanner_scan(
-			env, 
-			data->scanner, 
-			data->packet,
-			data->state,
-			data->id,
-			pkt_header->len) < 0) {
-		return;
-	}
-	
-	jobject pcap_packet =
-		transferToNewBuffer(env, pkt_header, pkt_data, data->state);
-	if (pcap_packet == NULL) {
-		env->DeleteLocalRef(pcap_packet);
-		pcap_breakloop(data->p);
-		return;
-	}
-
-	env->CallVoidMethod(
-			data->obj,
-			data->mid, 
-//			data->packet,
-			pcap_packet,
-			data->user);
-	
-	env->DeleteLocalRef(pcap_packet);
-	
-	if (env->ExceptionCheck() == JNI_TRUE) {
-		data->exception = env->ExceptionOccurred();
-		pcap_breakloop(data->p);
-	}
-}
-/**
- * JPacket dispatcher that dispatches decoded java packets
- */
 void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 		const u_char *pkt_data) {
 
-	cb_jpacket_t *data = (cb_jpacket_t *)user;
+	cb_packet_t *data = (cb_packet_t *)user;
 
 	JNIEnv *env = data->env;
 	
 	jmemoryPeer(env, data->header, pkt_header, sizeof(pcap_pkthdr), data->pcap);
 	jmemoryPeer(env, data->packet, pkt_data, pkt_header->caplen, data->pcap);
-
-//#define DEBUG
-#ifdef DEBUG
-	printf("cb_pcap_packet_dispatch() scan - %d\n", data->id);
-	fflush(stdout);
-#endif
 
 	if (Java_org_jnetpcap_packet_JScanner_scan(
 			env, 
@@ -804,43 +821,32 @@ void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 		return;
 	}
 	
-#ifdef DEBUG
-	printf("cb_pcap_packet_dispatch() handler - %d\n", data->id);
-	fflush(stdout);
-#endif
-	
-	jobject pcap_packet;
-	
-	pcap_packet =
-		transferToNewBuffer(env, pkt_header, pkt_data, data->state);
-	if (pcap_packet == NULL) {
-		env->DeleteLocalRef(pcap_packet);
-		pcap_breakloop(data->p);
-		return;
-	}
+//	jobject pcap_packet =
+//		transferToNewBuffer(env, pkt_header, pkt_data, data->state);
+//	if (pcap_packet == NULL) {
+//		if (data->pcap != NULL) {
+//			pcap_breakloop(data->p);
+//		} else {
+//			data->flags |= DEBUG_INJECT_PACKET_BREAK_LOOP;
+//		}
+//		return;
+//	}
 
 	env->CallVoidMethod(
 			data->obj,
 			data->mid, 
-//			data->packet,
-			pcap_packet,
+			data->packet,
+//			pcap_packet,
 			data->user);
 	
-	env->DeleteLocalRef(pcap_packet);
-	
-#ifdef DEBUG
-	printf("cb_pcap_packet_dispatch() handler_done - %d\n", data->id);
-	jobject o = transferToNewBuffer(env, pkt_header, pkt_data, data->state);
-	printf("cb_pcap_packet_dispatch() packet=%p\n",o);
-
-	fflush(stdout);
-#endif
+//	env->DeleteLocalRef(pcap_packet);
 	
 	if (env->ExceptionCheck() == JNI_TRUE) {
 		data->exception = env->ExceptionOccurred();
 		pcap_breakloop(data->p);
 	}
 }
+
 
 /**
  * Specialized handler that natively dumps to a dump handle without entering

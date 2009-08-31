@@ -113,7 +113,8 @@ typedef struct cb_jbuffer_t {
 	jobject buffer; // JBuffer
 } cb_jbuffer_t;
 
-typedef struct cb_jpacket_t {
+#define DEBUG_INJECT_PACKET_BREAK_LOOP 1
+typedef struct cb_packet_t {
 	pcap_t *p;
 	jmethodID mid;
 	JNIEnv *env;       // thread
@@ -126,6 +127,7 @@ typedef struct cb_jpacket_t {
 	jobject state;     // JPacket.State
 	jint id;           // Header ID
 	jobject scanner;   // JScanner
+	int flags;         // Flags used when inject packet is used
 	
 } cb_jpacket_t;
 
@@ -135,7 +137,6 @@ extern "C"
 void pcap_callback(u_char*, const pcap_pkthdr*, const u_char*);
 void cb_byte_buffer_dispatch(u_char*, const pcap_pkthdr*, const u_char*);
 void cb_jbuffer_dispatch(u_char*, const pcap_pkthdr*, const u_char*);
-void cb_jpacket_dispatch(u_char*, const pcap_pkthdr*, const u_char*);
 void cb_pcap_packet_dispatch(u_char*, const pcap_pkthdr*, const u_char*);
 void cb_pcap_dumper_handler(u_char*, const pcap_pkthdr*, const u_char*);
 
