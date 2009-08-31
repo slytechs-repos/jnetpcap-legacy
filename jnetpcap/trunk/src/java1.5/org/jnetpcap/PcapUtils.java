@@ -15,6 +15,12 @@ package org.jnetpcap;
 import java.io.IOException;
 import java.util.List;
 
+import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.packet.JPacketHandler;
+import org.jnetpcap.packet.JScanner;
+import org.jnetpcap.packet.PcapPacket;
+import org.jnetpcap.packet.PcapPacketHandler;
+
 /**
  * A Pcap utility class which provides certain additional and convenience
  * methods.
@@ -40,8 +46,11 @@ public final class PcapUtils {
 	 * @return a task object which allows interaction with the underlying capture
 	 *         loop and thread
 	 */
-	public static <T> PcapTask<T> dispatchInBackground(Pcap pcap, int cnt,
-	    final ByteBufferHandler<T> handler, final T data) {
+	public static <T> PcapTask<T> dispatchInBackground(
+	    Pcap pcap,
+	    int cnt,
+	    final ByteBufferHandler<T> handler,
+	    final T data) {
 
 		return new PcapTask<T>(pcap, cnt, data) {
 
@@ -98,8 +107,11 @@ public final class PcapUtils {
 	 * @return a task object which allows interaction with the underlying capture
 	 *         loop and thread
 	 */
-	public static <T> PcapTask<T> dispatchInBackground(Pcap pcap, int cnt,
-	    final JBufferHandler<T> handler, final T data) {
+	public static <T> PcapTask<T> dispatchInBackground(
+	    Pcap pcap,
+	    int cnt,
+	    final JBufferHandler<T> handler,
+	    final T data) {
 
 		return new PcapTask<T>(pcap, cnt, data) {
 
@@ -182,8 +194,11 @@ public final class PcapUtils {
 	 * @return a task object which allows interaction with the underlying capture
 	 *         loop and thread
 	 */
-	public static <T> PcapTask<T> loopInBackground(Pcap pcap, int cnt,
-	    final ByteBufferHandler<T> handler, final T data) {
+	public static <T> PcapTask<T> loopInBackground(
+	    Pcap pcap,
+	    int cnt,
+	    final ByteBufferHandler<T> handler,
+	    final T data) {
 		return new PcapTask<T>(pcap, cnt, data) {
 
 			public void run() {
@@ -209,8 +224,11 @@ public final class PcapUtils {
 	 * @return a task object which allows interaction with the underlying capture
 	 *         loop and thread
 	 */
-	public static <T> PcapTask<T> loopInBackground(Pcap pcap, int cnt,
-	    final JBufferHandler<T> handler, final T data) {
+	public static <T> PcapTask<T> loopInBackground(
+	    Pcap pcap,
+	    int cnt,
+	    final JBufferHandler<T> handler,
+	    final T data) {
 		return new PcapTask<T>(pcap, cnt, data) {
 
 			public void run() {
@@ -219,6 +237,46 @@ public final class PcapUtils {
 
 		};
 	}
+
+	public static <T> int injectLoop(
+	    int cnt,
+	    int id,
+	    PcapPacketHandler<T> handler,
+	    T user,
+	    PcapPacket packet) {
+
+		return injectLoop(cnt, id, handler, user, packet, packet.getState(), packet
+		    .getCaptureHeader(), JScanner.getThreadLocal());
+	}
+
+	/**
+	 * A special method invokes the real native loop callback with fake pcap
+	 * packets. The loop is used to test for memory leaks and performance that
+	 * bypasses libpcap calls.
+	 * 
+	 * @param packet
+	 *          packet to inject into the loop and callback
+	 * @param flags
+	 *          number of packets to inject or -1 for inifinite
+	 * @param handler
+	 *          handler to dispatch the injected packet to
+	 * @param user
+	 *          user data
+	 * @param <T>
+	 *          type of user data
+	 * @param header
+	 *          pcap header for this packet
+	 * @return number of packets injected
+	 */
+	private native static <T> int injectLoop(
+	    int cnt,
+	    int id,
+	    PcapPacketHandler<T> handler,
+	    T user,
+	    PcapPacket packet,
+	    JPacket.State state,
+	    PcapHeader header,
+	    JScanner scanner);
 
 	private PcapUtils() {
 		// So no one can instatiate
