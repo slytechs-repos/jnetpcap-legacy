@@ -82,20 +82,346 @@ public class Ip4
 	 * @author Sly Technologies, Inc.
 	 */
 	public enum Ip4Type implements JHeaderType {
-		/**
-		 * Internet control messaging protocol
-		 */
-		ICMP("icmp", 1),
 
 		/**
-		 * Ttransmission control protocol
+		 * IPv6 Hop-by-Hop Option [RFC1883]
 		 */
-		TCP("tcp", 6),
+		HOPORT("IPv6 Hop-by-Hop Option", 0),
+
+		/**
+		 * Internet Control Message [RFC792]
+		 */
+		ICMP("Internet Control Message", 1),
+
+		/**
+		 * Internet Group Management [RFC1112]
+		 */
+		IGMP("Internet Group Management", 2),
+
+		/**
+		 * Gateway-to-Gateway [RFC823]
+		 */
+		GGP("Gateway-to-Gateway", 3),
 
 		/**
 		 * Unreliable datagram protocol
 		 */
-		UDP("udp", 17), ;
+		IP("IP in IP (encapsulation)", 4),
+
+		/**
+		 * Stream [RFC1190][RFC1819]
+		 */
+		ST("Stream", 5),
+
+		/**
+		 * Transmission Control [RFC793]
+		 */
+		TCP("Transmission Control", 6),
+
+		/**
+		 * CBT [Ballardie]
+		 */
+		CBT("CBT", 7),
+
+		/**
+		 * Exterior Gateway Protocol [RFC888][DLM1]
+		 */
+		EGP("Exterior Gateway Protocol", 8),
+
+		/**
+		 * any private interior gateway [IANA] (used by Cisco for their IGRP)
+		 */
+		IGP("any private interior gateway", 9),
+
+		/**
+		 * BBN RCC Monitoring [SGC]
+		 */
+		BBN_RCC_MON("BBN RCC Monitoring", 10),
+
+		/**
+		 * PUP [PUP][XEROX]
+		 */
+		NVP_II("Network Voice Protocol", 11),
+
+		/**
+		 * CBT [Ballardie]
+		 */
+		PUP("PUP", 12),
+
+		/**
+		 * ARGUS [RWS4]
+		 */
+		ARGUS("ARGUS", 13),
+
+		/**
+		 * EMCON [BN7]
+		 */
+		EMCON("EMCON", 14),
+
+		/**
+		 * Cross Net Debugger [IEN158][JFH2]
+		 */
+		XNET("Cross Net Debugger", 15),
+
+		/**
+		 * Chaos [NC3]
+		 */
+		CHAOS("Chaos", 16),
+
+		/**
+		 * User Datagram [RFC768][JBP]
+		 */
+		UDP("User Datagram", 17),
+
+		/**
+		 * Multiplexing [IEN90][JBP]
+		 */
+		MUX("Multiplexing", 18),
+
+		/**
+		 * DCN Measurement Subsystems [DLM1]
+		 */
+		DCN_MEAS("DCN Measurement Subsystems", 19),
+
+		/**
+		 * Host Monitoring [RFC869][RH6]
+		 */
+		HMP("Host Monitoring", 20),
+
+		/**
+		 * Packet Radio Measurement [ZSU]
+		 */
+		PRM("Packet Radio Measurement", 21),
+
+		/**
+		 * XEROX NS IDP [ETHERNET][XEROX]
+		 */
+		XNS_IDP("XEROX NS IDP", 22),
+
+		/**
+		 * Trunk-1 [BWB6]
+		 */
+		TRUNK_1("Trunk-1", 23),
+
+		/**
+		 * Trunk-2 [BWB6]
+		 */
+		TRUNK_2("Trunk-2", 24),
+
+		/**
+		 * Leaf-1 [BWB6]
+		 */
+		LEAF_1("Leaf-1", 25),
+
+		/**
+		 * Leaf-2 [BWB6]
+		 */
+		LEAF_2("Leaf-2", 26),
+
+		/**
+		 * Reliable Data Protocol [RFC908][RH6]
+		 */
+		RDP("Reliable Data Protocol", 27),
+
+		/**
+		 * Internet Reliable Transaction [RFC938][TXM]
+		 */
+		IRTP("Internet Reliable Transaction", 28),
+
+		/**
+		 * ISO Transport Protocol Class 4 [RFC905][RC77]
+		 */
+		ISO_TP4("ISO Transport Protocol Class 4", 29),
+
+		/**
+		 * Bulk Data Transfer Protocol [RFC969][DDC1]
+		 */
+		NETBLT("Bulk Data Transfer Protocol", 30),
+
+		/**
+		 * MFE Network Services Protocol [MFENET][BCH2]
+		 */
+		MFE_NSP("MFE Network Services Protocol", 31),
+
+		/**
+		 * MERIT Internodal Protocol [HWB]
+		 */
+		MERIT_INP("MERIT Internodal Protocol", 32),
+
+		/**
+		 * Datagram Congestion Control Protocol [RFC4340]
+		 */
+		DCCP("Datagram Congestion Control Protocol", 33),
+
+		/**
+		 * Third Party Connect Protocol [SAF3]
+		 */
+		THIRD_PC("Third Party Connect Protocol", 34),
+
+		/**
+		 * Inter-Domain Policy Routing Protocol [MXS1]
+		 */
+		IDPR("Inter-Domain Policy Routing Protocol", 35),
+
+		/**
+		 * XTP [GXC]
+		 */
+		XTP("XTP", 36),
+
+		/**
+		 * Datagram Delivery Protocol [WXC]
+		 */
+		DDP("Datagram Delivery Protocol", 37),
+
+		/**
+		 * IDPR Control Message Transport Proto [MXS1]
+		 */
+		IDPR_CMTP("IDPR Control Message Transport Proto", 38),
+
+		/**
+		 * TP++ Transport Protocol [DXF]
+		 */
+		TP_PLUS("TP++ Transport Protocol", 39),
+
+		/**
+		 * IL Transport Protocol [Presotto]
+		 */
+		IL("IL Transport Protocol", 40),
+
+		/**
+		 * Ipv6 [Deering]
+		 */
+		IPv6("Ipv6", 41),
+
+		/**
+		 * Source Demand Routing Protocol [DXE1]
+		 */
+		SDRP("Source Demand Routing Protocol", 42),
+
+		/**
+		 * Routing Header for IPv6 [Deering]
+		 */
+		IPv6_ROUTE("Ipv6", 43),
+
+		/**
+		 * Fragment Header for IPv6 [Deering]
+		 */
+		IPv6_FRAG("Fragment Header for IPv6", 44),
+
+		/**
+		 * Inter-Domain Routing Protocol [Hares]
+		 */
+		IDRP("Inter-Domain Routing Protocol", 45),
+
+		/**
+		 * Reservation Protocol [Braden]
+		 */
+		RSVP("Reservation Protocol", 46),
+
+		/**
+		 * General Routing Encapsulation [Li]
+		 */
+		GRE("General Routing Encapsulation", 47),
+
+		/**
+		 * Dynamic Source Routing Protocol [RFC4728]
+		 */
+		DSR("Dynamic Source Routing Protocol", 48),
+
+		/**
+		 * BNA [Salamon]
+		 */
+		BNA("BNA", 49),
+
+		/**
+		 * Encap Security Payload [RFC4303]
+		 */
+		ESP("Encap Security Payload", 50),
+
+		/**
+		 * Authentication Header [RFC4302]
+		 */
+		AH("Authentication Header", 51),
+
+		/**
+		 * Integrated Net Layer Security TUBA [GLENN]
+		 */
+		I_NLSP("Integrated Net Layer Security  TUBA", 52),
+
+		/**
+		 * IP with Encryption [JI6]
+		 */
+		SWIPE("IP with Encryption", 53),
+
+		/**
+		 * NBMA Address Resolution Protocol [RFC1735]
+		 */
+		NARP("NBMA Address Resolution Protocol", 54),
+
+		/**
+		 * IP Mobility [Perkins]
+		 */
+		MOBILE("IP Mobility", 55),
+
+		/**
+		 * Transport Layer Security Protocol [Oberg] using Kryptonet key management
+		 */
+		TLSP("Transport Layer Security Protocol", 56),
+
+		/**
+		 * SKIP [Markson]
+		 */
+		SKIP("SKIP", 57),
+
+		/**
+		 * ICMP for IPv6 [RFC1883]
+		 */
+		IPv6_ICMP("ICMP for IPv6", 58),
+
+		/**
+		 * No Next Header for IPv6 [RFC1883]
+		 */
+		IPv6_NoNxt("No Next Header for IPv6", 59),
+
+		/**
+		 * Destination Options for IPv6 [RFC1883]
+		 */
+		IPv6_Opts("Destination Options for IPv6", 60),
+
+		/**
+		 * any host internal protocol [IANA]
+		 */
+		ANY_LOC("any host internal protocol", 61),
+
+		/**
+		 * IP-within-IP Encapsulation Protocol [JI6]
+		 */
+		IPIP("IP-within-IP Encapsulation Protocol", 94),
+
+		/**
+		 * Protocol Independent Multicast [Farinacci]
+		 */
+		PIM("Protocol Independent Multicast", 103),
+
+		/**
+		 * IPX in IP [Lee]
+		 */
+		IPX_In_IP("IPX in IP", 111),
+
+		/**
+		 * Schedule Transfer Protocol [JMP]
+		 */
+		STP("Schedule Transfer Protocol", 118),
+
+		/**
+		 * Fibre Channel [Rajagopal]
+		 */
+		FC("Fibre Channel", 133),
+
+		/**
+		 * MPLS-in-IP [RFC4023]
+		 */
+		MPLS_in_IP("MPLS-in-IP", 137), ;
 		/**
 		 * Name of the constant
 		 * 
@@ -377,7 +703,7 @@ public class Ip4
 		public int code_Type() {
 			return (code() & 0x1F);
 		}
-		
+
 		@Dynamic(Field.Property.DESCRIPTION)
 		public String code_TypeDescription() {
 			return IpOption.OptionCode.valueOf(code() & 0x1F).toString();
