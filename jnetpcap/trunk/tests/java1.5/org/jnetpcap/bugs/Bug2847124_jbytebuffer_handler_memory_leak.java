@@ -69,7 +69,7 @@ public class Bug2847124_jbytebuffer_handler_memory_leak
 
 	private final static File DIR = new File("tests");
 
-	private static final int COUNT = 100;
+	private static final int COUNT = 10;
 
 	private StringBuilder errbuf;
 
@@ -209,7 +209,7 @@ public class Bug2847124_jbytebuffer_handler_memory_leak
 		System.out.printf("injected packet size=%d bytes\n", buf.size());
 
 		for (int i = 0; i < COUNT; i++) {
-			PcapUtils.injectLoop(1000000, JProtocol.ETHERNET_ID,
+			PcapUtils.injectLoop(10000, JProtocol.ETHERNET_ID,
 			    new PcapPacketHandler<String>() {
 
 				    public void nextPacket(PcapPacket packet, String user) {
