@@ -821,25 +821,25 @@ void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 		return;
 	}
 	
-//	jobject pcap_packet =
-//		transferToNewBuffer(env, pkt_header, pkt_data, data->state);
-//	if (pcap_packet == NULL) {
-//		if (data->pcap != NULL) {
-//			pcap_breakloop(data->p);
-//		} else {
-//			data->flags |= DEBUG_INJECT_PACKET_BREAK_LOOP;
-//		}
-//		return;
-//	}
+	jobject pcap_packet =
+		transferToNewBuffer(env, pkt_header, pkt_data, data->state);
+	if (pcap_packet == NULL) {
+		if (data->pcap != NULL) {
+			pcap_breakloop(data->p);
+		} else {
+			data->flags |= DEBUG_INJECT_PACKET_BREAK_LOOP;
+		}
+		return;
+	}
 
 	env->CallVoidMethod(
 			data->obj,
 			data->mid, 
-			data->packet,
-//			pcap_packet,
+//			data->packet,
+			pcap_packet,
 			data->user);
 	
-//	env->DeleteLocalRef(pcap_packet);
+	env->DeleteLocalRef(pcap_packet);
 	
 	if (env->ExceptionCheck() == JNI_TRUE) {
 		data->exception = env->ExceptionOccurred();
