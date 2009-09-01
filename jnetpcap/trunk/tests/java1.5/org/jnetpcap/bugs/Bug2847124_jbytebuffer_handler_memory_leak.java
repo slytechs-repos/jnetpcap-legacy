@@ -231,7 +231,7 @@ public class Bug2847124_jbytebuffer_handler_memory_leak
 				base = pm.getSize();
 			}
 
-			if (i % (COUNT / 100) == 0 && i != 0) {
+			if (i % (COUNT / 10) == 0 && i != 0) {
 				te = System.currentTimeMillis();
 				total += count;
 				bytes += b;
@@ -318,7 +318,7 @@ public class Bug2847124_jbytebuffer_handler_memory_leak
 				base = pm.getSize();
 			}
 
-			if (i % (COUNT / 100) == 0 && i != 0) {
+			if (i % (COUNT / 10) == 0 && i != 0) {
 				te = System.currentTimeMillis();
 				total += count;
 				bytes += b;
@@ -433,7 +433,7 @@ public class Bug2847124_jbytebuffer_handler_memory_leak
 				base = pm.getSize();
 			}
 
-			if (i % (COUNT / 100) == 0 && i != 0) {
+			if (i % (COUNT / 10) == 0 && i != 0) {
 				te = System.currentTimeMillis();
 				total += count;
 				bytes += b;
