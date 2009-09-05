@@ -15,13 +15,15 @@ package org.jnetpcap.bugs;
 import java.io.File;
 import java.io.FilenameFilter;
 
-import junit.framework.TestCase;
-
 import org.jnetpcap.Pcap;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JPacketHandler;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.PcapPacketHandler;
+import org.jnetpcap.packet.TestUtils;
+import org.jnetpcap.packet.format.FormatUtils;
+import org.jnetpcap.protocol.network.Ip4;
+import org.jnetpcap.protocol.tcpip.Tcp;
 
 /**
  * 1.3.b0006 coredumps on the following platforms: ubuntu, fedora and debian.
@@ -53,9 +55,7 @@ import org.jnetpcap.packet.PcapPacketHandler;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class Bug2836179_coredump_all_platforms
-    extends
-    TestCase {
+public class Bug2836179_coredump_all_platforms extends TestUtils {
 
 	private final static File DIR = new File("tests");
 
@@ -73,7 +73,25 @@ public class Bug2836179_coredump_all_platforms
 		errbuf = null;
 	}
 
-	public void testStressTestJPacketHandler() {
+	public void testCoredumpingCapure() {
+
+		Ip4 ip = new Ip4();
+		Tcp tcp = new Tcp();
+
+		for (PcapPacket packet : TestUtils
+				.getIterable("../../clients/Vikram/forMark.pcap", "host 192.168.1.104 and port 1433")) {
+			
+			if (packet.hasHeader(ip) && packet.hasHeader(tcp)) {
+				String src = FormatUtils.ip(ip.source());
+				String dst = FormatUtils.ip(ip.destination());
+				System.out.printf("#%d %s -> %s:%d:%d\n", packet
+						.getFrameNumber(), src, dst, tcp.destination(), tcp
+						.source());
+			}
+		}
+	}
+
+	public void SKIPtestStressTestJPacketHandler() {
 		String[] files = DIR.list(new FilenameFilter() {
 
 			public boolean accept(File dir, String name) {
@@ -84,7 +102,8 @@ public class Bug2836179_coredump_all_platforms
 
 		for (int i = 0; i < COUNT; i++) {
 			for (final String fname : files) {
-				Pcap pcap = Pcap.openOffline(DIR.toString() + "/" + fname, errbuf);
+				Pcap pcap = Pcap.openOffline(DIR.toString() + "/" + fname,
+						errbuf);
 				assertNotNull(errbuf.toString(), pcap);
 
 				pcap.loop(Pcap.LOOP_INFINATE, new JPacketHandler<Pcap>() {
@@ -92,8 +111,9 @@ public class Bug2836179_coredump_all_platforms
 					public void nextPacket(JPacket packet, Pcap user) {
 						assertNotNull(packet);
 
-						System.out.printf("%s#%d headerCount=%d\r", fname, packet
-						    .getFrameNumber(), packet.getState().getHeaderCount());
+						System.out.printf("%s#%d headerCount=%d\r", fname,
+								packet.getFrameNumber(), packet.getState()
+										.getHeaderCount());
 
 					}
 
@@ -109,7 +129,7 @@ public class Bug2836179_coredump_all_platforms
 		System.out.println();
 	}
 
-	public void testStressTestPcapPacketHandler() {
+	public void SKIPtestStressTestPcapPacketHandler() {
 		String[] files = DIR.list(new FilenameFilter() {
 
 			public boolean accept(File dir, String name) {
@@ -120,7 +140,8 @@ public class Bug2836179_coredump_all_platforms
 
 		for (int i = 0; i < COUNT; i++) {
 			for (String fname : files) {
-				Pcap pcap = Pcap.openOffline(DIR.toString() + "/" + fname, errbuf);
+				Pcap pcap = Pcap.openOffline(DIR.toString() + "/" + fname,
+						errbuf);
 				assertNotNull(errbuf.toString(), pcap);
 
 				pcap.loop(Pcap.LOOP_INFINATE, new PcapPacketHandler<Pcap>() {
