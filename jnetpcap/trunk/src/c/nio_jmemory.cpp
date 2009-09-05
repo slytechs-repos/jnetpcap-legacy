@@ -33,18 +33,18 @@
 
 /****************************************************************
  * **************************************************************
- * 
+ *
  * NON Java declared native functions. Private scan function
- * 
+ *
  * **************************************************************
  ****************************************************************/
 
 
 /****************************************************************
  * **************************************************************
- * 
+ *
  * Java declared native functions for jMemory class
- * 
+ *
  * **************************************************************
  ****************************************************************/
 
@@ -294,31 +294,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_allocate
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_cleanup
 (JNIEnv *env, jobject obj) {
 
-	jboolean jowner = env->GetBooleanField(obj, jmemoryOwnerFID);
-	void *mem = getJMemoryPhysical(env, obj);
-	if (mem != NULL && jowner) {
-		/*
-		 * Record statistics
-		 */
-		jint psize = env->GetIntField(obj, jmemoryPhysicalSizeFID);
-		jint size = env->GetIntField(obj, jmemorySizeFID);
-		memory_usage.total_deallocated += psize;
-		memory_usage.total_deallocate_calls ++;
-
-		printf("cleanup() free size=%d psize=%d mem=%p obj=%p jowner=%d\n", size, psize, mem, obj, jowner);
-		fflush(stdout);
-
-		/*
-		 * Release the main structure
-		 */
-		free(mem);
-		env->SetIntField(obj, jmemoryPhysicalSizeFID, (jint) 0);
-	}
-
-	env->SetLongField(obj, jmemoryPhysicalFID, (jlong) 0);
-	env->SetBooleanField(obj, jmemoryOwnerFID, JNI_FALSE);
-	env->SetIntField(obj, jmemorySizeFID, (jint)0);
-	env->SetObjectField(obj, jmemoryKeeperFID, (jobject) NULL);
+	jmemoryCleanup(env, obj);
 }
 
 /*
@@ -520,9 +496,9 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferToDirect__Ljava_nio
 
 /****************************************************************
  * **************************************************************
- * 
+ *
  * Java declared native functions for jReference class
- * 
+ *
  * **************************************************************
  ****************************************************************/
 
@@ -631,7 +607,7 @@ jobject jreferenceCreate(JNIEnv *env, jobject obj, jobject local_ref) {
 	}
 
 	/*
-	 * Lets see if we can reuse any previously cleared slots 
+	 * Lets see if we can reuse any previously cleared slots
 	 */
 	for (int i = 0; i < refs->count; i++) {
 		if (refs->reference[i] == NULL) {
@@ -709,6 +685,8 @@ void *getJMemoryPhysical(JNIEnv *env, jobject obj) {
 	return toPtr(pt);
 }
 
+jobject last = NULL;
+
 void setJMemoryPhysical(JNIEnv *env, jobject obj, jlong value) {
 	/*
 	 * Make sure we clean up any previous allocations before we set new ptr
@@ -719,11 +697,70 @@ void setJMemoryPhysical(JNIEnv *env, jobject obj, jlong value) {
 
 	env->SetLongField(obj, jmemoryPhysicalFID, value);
 
-	printf("setJMemoryPhysical() obj=%p mem=%ld\n", obj, value);fflush(stdout);
+//	printf("setJMemoryPhysical() obj=%p mem=%p\n", obj, toPtr(value));fflush(stdout);
+//	char buf[1024];
+//	printf("%s\n", jmemoryToDebugString(env, obj, buf));
+
+	last = obj;
+}
+
+char *jmemoryToDebugString(JNIEnv *env, jobject obj, char *buf) {
+	jstring jstr = (jstring) env->CallObjectMethod(obj, jmemoryToDebugStringMID);
+	if (jstr == NULL) {
+		return (char *)"ERROR in jmemoryToDebugString";
+	}
+
+	int len = env->GetStringUTFLength(jstr);
+	const char *str = env->GetStringUTFChars(jstr, NULL);
+	buf[len] = '\0';
+	strncpy(buf, str, len);
+	env->ReleaseStringUTFChars(jstr, str);
+
+	return buf;
 }
 
 void jmemoryCleanup(JNIEnv *env, jobject obj) {
-	Java_org_jnetpcap_nio_JMemory_cleanup(env, obj);
+
+	void *mem = getJMemoryPhysical(env, obj);
+	if (mem == NULL) {
+		return; // Nothing to do
+	}
+
+#ifdef DEBUG
+	char buf[1024];
+	printf("\n%p jmemoryCleanup() obj=%p\n", env, obj);fflush(stdout);
+	printf("%s\n", jmemoryToDebugString(env, obj, buf));
+#endif
+
+	jboolean jowner = env->GetBooleanField(obj, jmemoryOwnerFID);
+	if (mem != NULL && jowner) {
+		/*
+		 * Record statistics
+		 */
+		jint psize = env->GetIntField(obj, jmemoryPhysicalSizeFID);
+		jint size = env->GetIntField(obj, jmemorySizeFID);
+		memory_usage.total_deallocated += psize;
+		memory_usage.total_deallocate_calls ++;
+
+#ifdef DEBUG
+		printf("%p jmemoryCleanup() free size=%d psize=%d mem=%p obj=%p jowner=%d\n", env, size, psize, mem, obj, jowner);
+		fflush(stdout);
+#endif
+		/*
+		 * Release the main structure
+		 */
+		free(mem);
+		env->SetIntField(obj, jmemoryPhysicalSizeFID, (jint) 0);
+	} else {
+#ifdef DEBUG
+		printf("%p jmemoryCleanup() %p not owner\n", env, obj);fflush(stdout);
+#endif
+	}
+
+	env->SetLongField(obj, jmemoryPhysicalFID, (jlong) 0);
+	env->SetBooleanField(obj, jmemoryOwnerFID, JNI_FALSE);
+	env->SetIntField(obj, jmemorySizeFID, (jint)0);
+	env->SetObjectField(obj, jmemoryKeeperFID, (jobject) NULL);
 }
 
 /**
@@ -732,12 +769,19 @@ void jmemoryCleanup(JNIEnv *env, jobject obj) {
 jint jmemoryPeer(JNIEnv *env, jobject obj, const void *ptr, size_t length,
 		jobject owner) {
 
+#ifdef DEBUG
+	char buf[1024];
+	printf("%p jmemoryPeer() obj=%p\n", env, obj);fflush(stdout);
+	printf("%s\n", jmemoryToDebugString(env, obj, buf));
+#endif
 	/*
 	 * Make sure we release any previously held resources
 	 */
 	void *mem = getJMemoryPhysical(env, obj);
 	if (mem != NULL && mem != ptr) {
-		printf("jmemoryPeer() doing cleanup mem=%p obj=%p owner=%p\n", mem, obj, owner); fflush(stdout);
+#ifdef DEBUG
+		printf("%p jmemoryPeer() doing cleanup mem=%p obj=%p owner=%p\n", env, mem, obj, owner); fflush(stdout);
+#endif
 		jmemoryCleanup(env, obj);
 	}
 
@@ -749,7 +793,9 @@ jint jmemoryPeer(JNIEnv *env, jobject obj, const void *ptr, size_t length,
 	env->SetBooleanField(obj, jmemoryOwnerFID, (owner == obj) ? JNI_TRUE
 			: JNI_FALSE);
 
-	printf("jmemoryPeer() obj=%p owner=%d\n", obj, (owner == obj)); fflush(stdout);
+#ifdef DEBUG
+	printf("%p jmemoryPeer() obj=%p owner=%d\n", env, obj, (owner == obj)); fflush(stdout);
+#endif
 
 	return (jint) length;
 }
@@ -785,33 +831,45 @@ char *jmemoryPoolAllocate(JNIEnv *env, size_t size, jobject *obj_ref) {
  */
 char *jmemoryAllocate(JNIEnv *env, size_t size, jobject obj) {
 
-	printf("ENTER jmemoryAllocate\n"); fflush(stdout);
+#ifdef DEBUG
+	printf("\n%p jmemoryAllocate() ENTER\n", env); fflush(stdout);
+#endif
 
-	jint jsize = (jint) size;
-
-	printf("malloc size=%d\n", size); fflush(stdout);
-	void * mem = malloc(size);
+#ifdef DEBUG
+	printf("%p jmemoryAllocate() malloc size=%d\n", env, size); fflush(stdout);
+#endif
+	void *mem = malloc(size);
 	if (mem == NULL) {
-		printf("EXCEPTION mem==NULL\n"); fflush(stdout);
+		printf("%p EXCEPTION mem==NULL\n", env); fflush(stdout);
 		throwException(env, OUT_OF_MEMORY_ERROR, "");
 		return NULL;
 	}
 
-	printf("set to zero mem=%p size=%d\n", mem, size); fflush(stdout);
+#ifdef DEBUG
+	printf("%p jmemoryAllocate() set to zero mem=%p size=%d\n", env, mem, size); fflush(stdout);
+#endif
 
 	/*
 	 * Initialize allocated memory
 	 */
 	memset(mem, 0, size);
 
-	printf("setup\n"); fflush(stdout);
+#ifdef DEBUG
+	printf("%p jmemoryAllocate() setup\n", env); fflush(stdout);
+#endif
 
-	setJMemoryPhysical(env, obj, toLong(mem));
-	env->SetBooleanField(obj, jmemoryOwnerFID, JNI_TRUE);
-	env->SetIntField(obj, jmemorySizeFID, jsize);
-	env->SetIntField(obj, jmemoryPhysicalSizeFID, jsize);
+	jmemoryPeer(env, obj, mem, size, obj);
 
-	printf("usage\n"); fflush(stdout);
+#ifdef DEBUG
+	char buf[1024];
+	printf("%s\n", jmemoryToDebugString(env, obj, buf));
+#endif
+
+	jint jsize = (jint) size;
+
+#ifdef DEBUG
+	printf("%p jmemoryAllocate() usage\n", env); fflush(stdout);
+#endif
 	memory_usage.total_allocated += jsize;
 	memory_usage.total_allocate_calls ++;
 
@@ -820,6 +878,8 @@ char *jmemoryAllocate(JNIEnv *env, size_t size, jobject obj) {
 	} else {
 		memory_usage.seg_256_or_above_bytes ++;
 	}
-	printf("EXIT jmemoryAllocate\n"); fflush(stdout);
+#ifdef DEBUG
+	printf("%p jmemoryAllocate() EXIT\n", env); fflush(stdout);
+#endif
 	return (char *)mem;
 }

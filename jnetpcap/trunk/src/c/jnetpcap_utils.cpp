@@ -44,18 +44,18 @@
  */
 
 const char *toCharArray(JNIEnv *env, jstring jstr, char *buf) {
-	
+
 	const char *s = env->GetStringUTFChars(jstr, NULL);
 	strcpy(buf, s);
-	
+
 	env->ReleaseStringUTFChars(jstr, s);
-	
+
 	return buf;
 }
 
 jstring toJavaString(JNIEnv *env, const char *buf) {
 	jstring s = env->NewString((jchar *)buf, (jsize) strlen(buf));
-	
+
 	return s;
 }
 
@@ -70,7 +70,7 @@ jlong toLong(void *ptr) {
 }
 
 void *toPtr(jlong lp) {
-	
+
 #ifndef WIN32
 	void *ptr = (void *) ((intptr_t) lp);
 #else
@@ -91,22 +91,22 @@ jmethodID findMethod(JNIEnv *env, jobject obj, const char *name, const char *sig
 	if (clazz == NULL) {
 		return 0; // Out of memory exception already thrown
 	}
-	
+
 	jmethodID id;
 	if ( (id = env->GetMethodID(clazz, name, signature)) == NULL) {
 		throwException(env, NO_SUCH_METHOD_EXCEPTION, name);
 		return 0;
 	}
-	
+
 	env->DeleteLocalRef(clazz);
-	
+
 	return id;
 }
 
 
 /**
  * Find class or throw exception if not found.
- * 
+ *
  * @return global reference to class that needs to be freed manually before
  *         library exit
  */
@@ -117,15 +117,15 @@ jclass findClass(JNIEnv *env, const char *name) {
 		throwException(env, CLASS_NOT_FOUND_EXCEPTION, name);
 		return NULL;
 	}
-	
+
 	jclass global = (jclass) env->NewGlobalRef(local);
-	
+
 	env->DeleteLocalRef(local);
-	
+
 	if (global == NULL) {
 		return NULL; // Out of memory exception already thrown
 	}
-	
+
 	return global;
 }
 
@@ -174,7 +174,7 @@ void setPktHeader(JNIEnv *env, jobject jpkt_header, pcap_pkthdr *pkt_header) {
  * Return: the supplied structured filled in or if null, new allocated one.
  */
 pcap_pkthdr *getPktHeader(JNIEnv *env, jobject jpkt_header, pcap_pkthdr *pkt_header) {
-	
+
 	if (pkt_header == NULL) {
 		pkt_header = (pcap_pkthdr *) malloc(sizeof(pcap_pkthdr));
 	}
@@ -186,7 +186,7 @@ pcap_pkthdr *getPktHeader(JNIEnv *env, jobject jpkt_header, pcap_pkthdr *pkt_hea
 	pkt_header->caplen = (int) env->GetIntField(jpkt_header, PcapPktHdrCaplenFID);
 
 	pkt_header->len = (int) env->GetIntField(jpkt_header, PcapPktHdrLenFID);
-	
+
 	return pkt_header;
 }
 
@@ -235,11 +235,11 @@ void throwVoidException(JNIEnv *env, const char *excClassName) {
  * Calls on StringBuilder.setLength(0) and StringBuilder.append(String)
  */
 void setString(JNIEnv *env, jobject buffer, const char *str) {
-	
+
 	if (str == NULL) {
 		str = "";
 	}
-	
+
 	jstring jstr = env->NewStringUTF(str);
 
 	env->CallVoidMethod(buffer, setLengthMID, 0); // Set buffer to 0 length
@@ -257,7 +257,7 @@ void setString(JNIEnv *env, jobject buffer, const char *str) {
  * LinkedList or some other custom list. So that is the reason for the dynamic
  * methodID lookup. We pass the ID along to reuse it through out the life of
  * this recursive scan.
- * 
+ *
  * @param obj Pcap
  * @param jlist java.util.list to which we will add this PcapIf element
  * @param MID_add cached dynamic method ID of the "add" method
@@ -269,46 +269,46 @@ jobject newPcapIf(JNIEnv *env, jobject jlist, jmethodID MID_add, pcap_if_t *ifp)
 
 	// Invoke new PcapIf()
 	jobject obj = env->NewObject(pcapIfClass, pcapIfConstructorMID);
-	
+
 	/*
 	 * Initialize PcapIf.next field. Also add the new PcapIf object that went
 	 * into the field to the use supplied jlist.
-	 */ 
+	 */
 	if (ifp->next != NULL) {
 		jobject jpcapif = newPcapIf(env, jlist, MID_add, ifp->next);
 		if (jpcapif == NULL) {
 			return NULL; // Out of memory exception already thrown
 		}
-		
+
 		env->SetObjectField(obj, pcapIfNextFID, jpcapif);
 		if (env->CallBooleanMethod(jlist, MID_add, jpcapif) == JNI_FALSE) {
 			env->DeleteLocalRef(jpcapif);
 			return NULL; // Failed to add to the list
 		}
-		
+
 		env->DeleteLocalRef(jpcapif);
 	} else {
 		env->SetObjectField(obj, pcapIfNextFID, NULL);
 	}
-	
+
 	/**
 	 * Assign PcapIf.name string field.
 	 */
 	if (ifp->name != NULL) {
-		
+
 		js = env->NewStringUTF(ifp->name);
 		if (js == NULL) {
 			return NULL; // Out of memory exception already thrown
 		}
-		
+
 		env->SetObjectField(obj, pcapIfNameFID, js);
-		
+
 		env->DeleteLocalRef(js);
-		
+
 	} else {
 		env->SetObjectField(obj, pcapIfNameFID, NULL);
 	}
-	
+
 	/**
 	 * Assign PcapIf.description string field.
 	 */
@@ -318,55 +318,55 @@ jobject newPcapIf(JNIEnv *env, jobject jlist, jmethodID MID_add, pcap_if_t *ifp)
 			return NULL; // Out of memory exception already thrown
 		}
 		env->SetObjectField(obj, pcapIfDescriptionFID, js);
-		
+
 		env->DeleteLocalRef(js);
 	} else {
 		env->SetObjectField(obj, pcapIfDescriptionFID, NULL);
 	}
-	
+
 	/**
 	 * Add all addresses found in pcap_if.address linked list of sockaddr to
 	 * the already Java allocated list in the PcapIf.addresses field.
 	 */
 	if (ifp->addresses != NULL) {
-		
+
 		// Lookup field and the List object from PcapIf.addresses field
 		jobject jaddrlist = env->GetObjectField(obj, pcapIfAddressesFID);
 		if (jaddrlist == NULL) {
 			return NULL; // Exception already thrown
 		}
-		
+
 		// Lookup List.add method ID within the object, can't be static as this
 		// is a interface lookup, not a known object type implementing the
 		// interface
-		jmethodID MID_addr_add = findMethod(env, jaddrlist, "add", 
+		jmethodID MID_addr_add = findMethod(env, jaddrlist, "add",
 				"(Ljava/lang/Object;)Z");
 		if (MID_addr_add == NULL) {
 			env->DeleteLocalRef(jaddrlist);
 			return NULL; // Exception already thrown
 		}
-		
+
 		// Process the structure and get the next addr
 		jobject jaddr = newPcapAddr(env, jaddrlist, MID_addr_add, ifp->addresses);
 		if (jaddr == NULL) {
 			env->DeleteLocalRef(jaddrlist);
 			return NULL; // Out of memory exception already thrown
 		}
-		
+
 		// Call on List.add method to add our new PcapAddr object
 		if (env->CallBooleanMethod(jaddrlist, MID_addr_add, jaddr) == JNI_FALSE) {
 			env->DeleteLocalRef(jaddrlist);
 			env->DeleteLocalRef(jaddr);
 			return NULL; // Failed to add to the list
 		}
-		
+
 		// Release local resources
 		env->DeleteLocalRef(jaddr);
 		env->DeleteLocalRef(jaddrlist);
 	}
-	
+
 	env->SetIntField(obj, pcapIfFlagsFID, (jint) ifp->flags);
-	
+
 	return obj;
 }
 
@@ -379,8 +379,8 @@ jobject newPcapAddr(JNIEnv *env, jobject jlist, jmethodID MID_add, pcap_addr *a)
 			env->DeleteLocalRef(jaddr);
 			return NULL;
 		}
-		
-		// Set the next field for the hell of it, not accessed in java 
+
+		// Set the next field for the hell of it, not accessed in java
 		env->SetObjectField(obj, pcapAddrNextFID, jaddr);
 
 		// Call List.add method to add our PcapAddr object
@@ -388,22 +388,22 @@ jobject newPcapAddr(JNIEnv *env, jobject jlist, jmethodID MID_add, pcap_addr *a)
 			env->DeleteLocalRef(jaddr);
 			return NULL;
 		}
-		
+
 	} else {
 		env->SetObjectField(obj, pcapAddrNextFID, NULL);
 	}
-	
+
 	jobject jsock;
 	if (a->addr != NULL) {
 		if ( (jsock = newPcapSockAddr(env, a->addr)) == NULL) {
 			return NULL;
 		}
-		
+
 		env->SetObjectField(obj, pcapAddrAddrFID, jsock);
 	} else {
 		env->SetObjectField(obj, pcapAddrAddrFID, NULL);
 	}
-	
+
 	if (a->netmask != NULL) {
 		if ( (jsock = newPcapSockAddr(env, a->netmask)) == NULL) {
 			return NULL;
@@ -412,7 +412,7 @@ jobject newPcapAddr(JNIEnv *env, jobject jlist, jmethodID MID_add, pcap_addr *a)
 	} else {
 		env->SetObjectField(obj, pcapAddrNetmaskFID, NULL);
 	}
-	
+
 	if (a->broadaddr != NULL) {
 		if ( (jsock = newPcapSockAddr(env, a->broadaddr)) == NULL) {
 			return NULL;
@@ -430,7 +430,7 @@ jobject newPcapAddr(JNIEnv *env, jobject jlist, jmethodID MID_add, pcap_addr *a)
 	} else {
 		env->SetObjectField(obj, pcapAddrDstaddrFID, NULL);
 	}
-	
+
 	return obj;
 }
 
@@ -438,24 +438,24 @@ jobject newPcapSockAddr(JNIEnv *env, sockaddr *a) {
 	jobject obj = env->NewObject(PcapSockAddrClass, PcapSockAddrConstructorMID);
 
 	env->SetShortField(obj, PcapSockAddrFamilyFID, (jshort) a->sa_family);
-		
+
 	if (a->sa_family == AF_INET) {
 		jbyteArray jarray = env->NewByteArray(4);
 		env->SetByteArrayRegion(jarray, 0, 4, (jbyte *)(a->sa_data + 2));
-		
+
 		env->SetObjectField(obj, PcapSockAddrDataFID, jarray);
-		
+
 		env->DeleteLocalRef(jarray);
 	} else if (a->sa_family == AF_INET6) {
 		jbyteArray jarray = env->NewByteArray(16);
 		env->SetByteArrayRegion(jarray, 0, 16, (jbyte *)(a->sa_data + 2));
-		
+
 		env->SetObjectField(obj, PcapSockAddrDataFID, jarray);
 		env->DeleteLocalRef(jarray);
 	} else {
 		jbyteArray jarray = env->NewByteArray(14); // Has to be atleast 14 bytes
 		env->SetByteArrayRegion(jarray, 0, 14, (jbyte *)(a->sa_data + 2));
-		
+
 		env->SetObjectField(obj, PcapSockAddrDataFID, jarray);
 		env->DeleteLocalRef(jarray);
 
@@ -466,7 +466,7 @@ jobject newPcapSockAddr(JNIEnv *env, sockaddr *a) {
 }
 
 void setPcapStat(JNIEnv *env, jobject jstats, pcap_stat *stats) {
-	
+
 	env->SetLongField(jstats, pcapStatRecvFID, (jlong) stats->ps_recv);
 	env->SetLongField(jstats, pcapStatDropFID, (jlong) stats->ps_drop);
 	env->SetLongField(jstats, pcapStatIfDropFID, (jlong) stats->ps_ifdrop);
@@ -474,9 +474,9 @@ void setPcapStat(JNIEnv *env, jobject jstats, pcap_stat *stats) {
 
 /****************************************************************
  * **************************************************************
- * 
+ *
  * MS Ip Helper API calls
- * 
+ *
  * **************************************************************
  ****************************************************************/
 #ifdef WIN32
@@ -488,17 +488,17 @@ PIP_INTERFACE_INFO getIpInterfaceInfo(void) {
 
 	DWORD size = 0;
 	PIP_INTERFACE_INFO  info = NULL;
-	
+
 	// Get the require size of the structure
 	if (GetInterfaceInfo(info, &size) == ERROR_INSUFFICIENT_BUFFER) {
 		info = (PIP_INTERFACE_INFO) malloc(size);
 	} else {
 		return NULL;
 	}
-	
+
 	// Now fill in the structure
 	GetInterfaceInfo(info, &size);
-	
+
 	return info;
 }
 
@@ -509,15 +509,15 @@ PIP_INTERFACE_INFO getIpInterfaceInfo(void) {
 PMIB_IFROW getMibIfRow (int index) {
 
 	PMIB_IFROW row = (PMIB_IFROW) malloc(sizeof(MIB_IFROW));
-	
+
 	row->dwIndex = index;
-	
+
 	// Get the require size of the structure
 	if (row != NULL && GetIfEntry(row) == NO_ERROR) {
 		return row;
 	} else {
 		return NULL;
-	}	
+	}
 }
 
 
@@ -526,9 +526,9 @@ PMIB_IFROW getMibIfRow (int index) {
 
 /****************************************************************
  * **************************************************************
- * 
+ *
  * Java declared native functions
- * 
+ *
  * **************************************************************
  ****************************************************************/
 
@@ -539,45 +539,45 @@ PMIB_IFROW getMibIfRow (int index) {
  */
 JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_PcapUtils_getHardwareAddress
   (JNIEnv *env, jclass clazz, jstring jdevice) {
-	
+
 #ifndef IFNAMSIZ
 #define IFNAMSIZ 512
 #endif
-	
+
 	jbyteArray jba = NULL;
 	char buf[IFNAMSIZ];
-	
+
 	// convert from jstring to char *
 	toCharArray(env, jdevice, buf);
-	
-#ifdef WIN32 
+
+#ifdef WIN32
 
 	PIP_INTERFACE_INFO info = getIpInterfaceInfo();
-	
+
 	if (info == NULL) {
-		throwException(env, IO_EXCEPTION, 
+		throwException(env, IO_EXCEPTION,
 				"unable to retrieve interface info");
 		return NULL;
 	}
-	
+
 	for (int i = 0; i < info->NumAdapters; i ++) {
 		PIP_ADAPTER_INDEX_MAP map = &info->Adapter[i];
-		
-		
+
+
 		/*
 		 * Name is in wide character format. So convert to plain UTF8.
 		 */
 		int size=WideCharToMultiByte(0, 0, map->Name, -1, NULL, 0, NULL, NULL);
 		char utf8[size + 1];
 		WideCharToMultiByte(0, 0, map->Name, -1, utf8, size, NULL, NULL);
-		
+
 #ifdef DEBUG
 		printf("#%d name=%s buf=%s\n", i, utf8, buf); fflush(stdout);
 #endif
-		
+
 		char *p1 = strchr(utf8, '{');
 		char *p2 = strchr(buf,  '{');
-		
+
 		if(p1 == NULL || p2 == NULL) {
 			p1 = utf8;
 			p2 = buf;
@@ -588,22 +588,22 @@ JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_PcapUtils_getHardwareAddress
 #ifdef DEBUG
 			printf("FOUND index=%d len=%d\n", map->Index, row->dwPhysAddrLen); fflush(stdout);
 #endif
-			
+
 			jba = env->NewByteArray((jsize) row->dwPhysAddrLen);
-			
-			env->SetByteArrayRegion(jba, (jsize) 0, (jsize) row->dwPhysAddrLen, 
+
+			env->SetByteArrayRegion(jba, (jsize) 0, (jsize) row->dwPhysAddrLen,
 					(jbyte *)row->bPhysAddr);
-			
+
 			free(row);
 		}
 	}
-	
+
 	free(info);
-	
+
 #else
-	
+
    struct ifreq ifr;
-   
+
    int sd = socket(PF_INET, SOCK_DGRAM, 0);
     if (sd < 0) {
 		throwException(env, IO_EXCEPTION, "cannot open socket.");
@@ -624,7 +624,7 @@ JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_PcapUtils_getHardwareAddress
     jba = env->NewByteArray((jsize) 6);
     env->SetByteArrayRegion(jba, 0, 6, (jbyte *)ifr.ifr_ifru.ifru_hwaddr.sa_data);
 #endif
-	
+
 	return jba;
 }
 
@@ -635,13 +635,13 @@ JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_PcapUtils_getHardwareAddress
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_PcapUtils_injectLoop
 (JNIEnv *env, jclass zz,
-		jint jcnt, 
+		jint jcnt,
 		jint id,
-		jobject jhandler, 
-		jobject juser, 
+		jobject jhandler,
+		jobject juser,
 		jobject jpacket,
 		jobject jstate,
-		jobject jheader, 
+		jobject jheader,
 		jobject jscanner) {
 
 //	printf("LOOP-JPacketHandler\n"); fflush(stdout);
@@ -674,7 +674,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_PcapUtils_injectLoop
 	if (data.mid == NULL) {
 		return -1;
 	}
-	
+
 	const pcap_pkthdr *pkt_header = (const pcap_pkthdr *)getJMemoryPhysical(env, jheader);
 	const u_char *pkt_data = (const u_char *)getJMemoryPhysical(env, jheader);
 
@@ -684,7 +684,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_PcapUtils_injectLoop
 			env->Throw(data.exception);
 			break;
 		}
-		
+
 		if (data.flags & DEBUG_INJECT_PACKET_BREAK_LOOP) {
 			break;
 		}
@@ -721,15 +721,15 @@ void pcap_callback(u_char *user, const pcap_pkthdr *pkt_header,
 	}
 
 	env->CallNonvirtualVoidMethod(
-			data->obj, 
-			data->clazz, 
+			data->obj,
+			data->clazz,
 			data->mid,
-			(jobject) data->user, 
+			(jobject) data->user,
 			(jlong) pkt_header->ts.tv_sec,
-			(jint)pkt_header->ts.tv_usec, 
+			(jint)pkt_header->ts.tv_usec,
 			(jint)pkt_header->caplen,
 			(jint)pkt_header->len, buffer);
-	
+
 	env->DeleteLocalRef(buffer);
 	if (env->ExceptionCheck() == JNI_TRUE) {
 		data->exception = env->ExceptionOccurred();
@@ -747,7 +747,7 @@ void cb_byte_buffer_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 	cb_byte_buffer_t *data = (cb_byte_buffer_t *)user;
 
 	JNIEnv *env = data->env;
-	
+
 	setJMemoryPhysical(env, data->header, toLong((void*)pkt_header));
 
 	jobject buffer = env->NewDirectByteBuffer((void *)pkt_data,
@@ -755,16 +755,16 @@ void cb_byte_buffer_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 	if (buffer == NULL) {
 		return;
 	}
-	
+
 	env->CallVoidMethod(
-			data->obj, 
-			data->mid, 
+			data->obj,
+			data->mid,
 			(jobject) data->header,
 			(jobject) buffer,
 			(jobject) data->user);
-	
+
 	env->DeleteLocalRef(buffer);
-	
+
 	if (env->ExceptionCheck() == JNI_TRUE) {
 		data->exception = env->ExceptionOccurred();
 		pcap_breakloop(data->p);
@@ -776,22 +776,22 @@ void cb_byte_buffer_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
  */
 void cb_jbuffer_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 		const u_char *pkt_data) {
-	
+
 	cb_jbuffer_t *data = (cb_jbuffer_t *)user;
 
 	JNIEnv *env = data->env;
-		
+
 	jmemoryPeer(env, data->header, pkt_header, sizeof(pcap_pkthdr), data->pcap);
 	jmemoryPeer(env, data->buffer, pkt_data, pkt_header->caplen, data->pcap);
 
-	
+
 	env->CallVoidMethod(
-			data->obj, 
-			data->mid, 
-			data->header, 
+			data->obj,
+			data->mid,
+			data->header,
 			data->buffer,
 			data->user);
-	
+
 	if (env->ExceptionCheck() == JNI_TRUE) {
 		data->exception = env->ExceptionOccurred();
 		pcap_breakloop(data->p);
@@ -807,20 +807,20 @@ void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 	cb_packet_t *data = (cb_packet_t *)user;
 
 	JNIEnv *env = data->env;
-	
+
 	jmemoryPeer(env, data->header, pkt_header, sizeof(pcap_pkthdr), data->pcap);
 	jmemoryPeer(env, data->packet, pkt_data, pkt_header->caplen, data->pcap);
 
 	if (Java_org_jnetpcap_packet_JScanner_scan(
-			env, 
-			data->scanner, 
+			env,
+			data->scanner,
 			data->packet,
 			data->state,
 			data->id,
 			pkt_header->len) < 0) {
 		return;
 	}
-	
+
 	jobject pcap_packet =
 		transferToNewBuffer(env, pkt_header, pkt_data, data->state);
 	if (pcap_packet == NULL) {
@@ -834,13 +834,13 @@ void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 
 	env->CallVoidMethod(
 			data->obj,
-			data->mid, 
+			data->mid,
 //			data->packet,
 			pcap_packet,
 			data->user);
-	
+
 	env->DeleteLocalRef(pcap_packet);
-	
+
 	if (env->ExceptionCheck() == JNI_TRUE) {
 		data->exception = env->ExceptionOccurred();
 		pcap_breakloop(data->p);
@@ -854,7 +854,7 @@ void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
  */
 void cb_pcap_dumper_handler(u_char *dump_handle, const pcap_pkthdr *pkt_header,
 		const u_char *pkt_data) {
-	
+
 	pcap_dump(dump_handle, pkt_header, pkt_data);
 }
 
@@ -863,8 +863,8 @@ void cb_pcap_dumper_handler(u_char *dump_handle, const pcap_pkthdr *pkt_header,
  * Copies contents of a libpcap capture header, scanner packet_t structure and
  * libpcap provided packet data buffer into a single newly allocated memory block
  * peered to brand new PcapPacket.
- * 
- * @param env 
+ *
+ * @param env
  *        JNI environment
  * @param pkt_header
  *        libpcap provided capture header
@@ -873,65 +873,66 @@ void cb_pcap_dumper_handler(u_char *dump_handle, const pcap_pkthdr *pkt_header,
  * @param state
  *        a java object reference to JPacket.State which was initialized by
  *        the scanner
- * @return 
+ * @return
  *        A new packet object owner of a newly malloced block of memory which
  *        contains a copy of pcap header, packet state and packet data buffer
  *        and is fully initialized.
  */
 jobject transferToNewBuffer(
 		JNIEnv *env,
-		const pcap_pkthdr *pkt_header, 
-		const u_char *pkt_data, 
+		const pcap_pkthdr *pkt_header,
+		const u_char *pkt_data,
 		jobject state) {
-	
+
 	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, state);
-	size_t state_size = 		
-		packet->pkt_header_count * sizeof(header_t) + 
+	size_t state_size =
+		packet->pkt_header_count * sizeof(header_t) +
 		sizeof(packet_state_t);
 
-	size_t size = pkt_header->caplen + state_size + sizeof(pcap_pkthdr); 
+	size_t size = pkt_header->caplen + state_size + sizeof(pcap_pkthdr);
 	if (size > (1024 * 1024)) {
-		throwException(env, ILLEGAL_STATE_EXCEPTION, 
+		throwException(env, ILLEGAL_STATE_EXCEPTION,
 				"packet size over 1MB\n");
-		return NULL;		
-	}
-	
-	char *ptr = (char *)malloc(size);
-	if (ptr == NULL) {
-		throwVoidException(env, OUT_OF_MEMORY_ERROR);
 		return NULL;
 	}
-	
+
+
 	jobject pcap_packet = env->NewObject(
-			pcapPacketClass, 
-			pcapPacketConstructorMID, 
+			pcapPacketClass,
+			pcapPacketConstructorMID,
 			jmemoryPOINTER_CONST);
 	if (pcap_packet == NULL) {
-		throwException(env, ILLEGAL_STATE_EXCEPTION, 
+		throwException(env, ILLEGAL_STATE_EXCEPTION,
 				"unable to allocate PcapPacket object");
 		return NULL;
 	}
-	
+
 	jobject jheader = env->GetObjectField(pcap_packet, pcapHeaderFID);
 	jobject jstate = env->GetObjectField(pcap_packet, pcapStateFID);
 	if (jheader == NULL || jstate == NULL) {
-		throwException(env, ILLEGAL_STATE_EXCEPTION, 
+		throwException(env, ILLEGAL_STATE_EXCEPTION,
 				"unable to allocate PcapHeader object");
 		return NULL;
 	}
 
+	char *ptr = jmemoryAllocate(env, size, jheader);
+	if (ptr == NULL) {
+		throwVoidException(env, OUT_OF_MEMORY_ERROR);
+		return NULL;
+	}
+
+
 	memcpy(ptr, pkt_header, sizeof(pcap_pkthdr));
-	jmemoryPeer(env, jheader, ptr, sizeof(pcap_pkthdr), jheader); // Owner
 	ptr += sizeof(pcap_pkthdr);
-	
+
 	memcpy(ptr, packet, state_size);
 	jmemoryPeer(env, jstate, ptr, state_size, jheader);
 	ptr += state_size;
-	
+
 	memcpy(ptr, pkt_data, pkt_header->caplen);
 	jmemoryPeer(env, pcap_packet, ptr, pkt_header->caplen, jheader);
 	ptr += pkt_header->caplen;
-	
+
 	/*
 	 * Free up intermediate local references. We can't rely on JNI freeing them
 	 * since we may be called from a long or infinite loop. JNI references are
@@ -939,7 +940,7 @@ jobject transferToNewBuffer(
 	 */
 	env->DeleteLocalRef(jheader);
 	env->DeleteLocalRef(jstate);
-	
+
 	/* Local reference is good enough for return value. If this is returned from
 	 * JNI code upto java, JNI turns them into globs.
 	 */
