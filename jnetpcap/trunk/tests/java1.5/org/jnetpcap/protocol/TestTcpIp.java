@@ -126,9 +126,11 @@ public class TestTcpIp
 				    packet = new PcapPacket(packet);
 				    j++;
 				    // }
+				    
 
 				    long f = packet.getFrameNumber();
 				    assertTrue("#" + f, packet.hasHeader(ip));
+				    System.out.println(ip);
 
 				    assertTrue("Frame #" + f, ip.isChecksumValid());
 			    }
@@ -176,6 +178,9 @@ public class TestTcpIp
 
 			int c1 = p1.getHeader(ip1).calculateChecksum();
 			int c2 = p2.getHeader(ip2).calculateChecksum();
+			
+			System.out.println(ip1);
+			System.out.println(ip2);
 
 			assertEquals(c1, ip1.checksum());
 			assertEquals(c2, ip2.checksum());
