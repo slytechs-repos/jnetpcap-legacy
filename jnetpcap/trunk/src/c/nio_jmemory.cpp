@@ -788,10 +788,10 @@ jint jmemoryPeer(JNIEnv *env, jobject obj, const void *ptr, size_t length,
 	setJMemoryPhysical(env, obj, toLong((void *) ptr));
 	env->SetIntField(obj, jmemorySizeFID, (jsize) length);
 	env->SetObjectField(obj, jmemoryKeeperFID, owner);
-	jint psize = env->GetIntField(obj, jmemoryPhysicalSizeFID);
 
 	env->SetBooleanField(obj, jmemoryOwnerFID, (owner == obj) ? JNI_TRUE
 			: JNI_FALSE);
+	env->SetIntField(obj, jmemoryPhysicalSizeFID, (owner == obj) ? (jsize) length : 0);
 
 #ifdef DEBUG
 	printf("%p jmemoryPeer() obj=%p owner=%d\n", env, obj, (owner == obj)); fflush(stdout);
