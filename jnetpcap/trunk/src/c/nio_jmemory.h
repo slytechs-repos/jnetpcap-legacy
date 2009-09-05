@@ -6,21 +6,21 @@
 extern "C" {
 #define	EXTERN extern "C"
 #endif
-	
+
 #include <stdint.h>
 #include "export.h"
-	
+
 #include <jni.h>
-	
+
 typedef struct memory_usage_t {
 	uint64_t total_allocated;
 	uint64_t total_deallocated;
-		
+
 	uint64_t total_allocate_calls;
 	uint64_t total_deallocate_calls;
-	
+
 	uint64_t seg_0_255_bytes;
-	uint64_t seg_256_or_above_bytes;		
+	uint64_t seg_256_or_above_bytes;
 } memory_usage_t;
 
 typedef struct jni_global_ref_t {
@@ -65,6 +65,7 @@ jint jmemoryPeer(JNIEnv *env, jobject obj, const void *ptr, size_t length, jobje
 
 char *jmemoryPoolAllocate(JNIEnv *env, size_t size, jobject *obj_ref);
 char *jmemoryAllocate(JNIEnv *env, size_t size, jobject obj);
+char *jmemoryToDebugString(JNIEnv *env, jobject obj, char *buf);
 
 
 #ifdef __cplusplus
