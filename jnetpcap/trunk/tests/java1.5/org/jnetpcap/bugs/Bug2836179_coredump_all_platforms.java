@@ -62,6 +62,10 @@ public class Bug2836179_coredump_all_platforms extends TestUtils {
 	private static final int COUNT = 1;
 
 	private StringBuilder errbuf;
+	
+	public static void main(String[] args) {
+		stressTestPcapPacketHandler();
+	}
 
 	@Override
 	protected void setUp() throws Exception {
@@ -162,5 +166,39 @@ public class Bug2836179_coredump_all_platforms extends TestUtils {
 
 		System.out.println();
 	}
+	
+	public static void stressTestPcapPacketHandler() {
+		StringBuilder errbuf = new StringBuilder();
+		String[] files = DIR.list(new FilenameFilter() {
+
+			public boolean accept(File dir, String name) {
+				return name.endsWith(".pcap");
+			}
+
+		});
+
+		for (int i = 0; i < COUNT; i++) {
+			for (String fname : files) {
+				Pcap pcap = Pcap.openOffline(DIR.toString() + "/" + fname, errbuf);
+
+				pcap.loop(Pcap.LOOP_INFINATE, new PcapPacketHandler<Pcap>() {
+
+					public void nextPacket(PcapPacket packet, Pcap user) {
+						System.out.println(packet);
+
+					}
+
+				}, pcap);
+
+				pcap.close();
+			}
+
+			System.out.printf(".");
+			System.out.flush();
+		}
+
+		System.out.println();
+	}
+
 
 }
