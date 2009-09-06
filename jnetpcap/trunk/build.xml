@@ -367,6 +367,7 @@
 		<exec executable="${compiler.ld.cmd}">
 
 			<arg value="-shared" />
+			<arg value="-g" />
 			<arg value="-Wl,--add-stdcall-alias" />
 
 			<arg line="-o ${jni.build.filepath}" />
