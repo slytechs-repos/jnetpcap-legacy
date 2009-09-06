@@ -126,7 +126,6 @@ public class TestTcpIp
 				    packet = new PcapPacket(packet);
 				    j++;
 				    // }
-				    
 
 				    long f = packet.getFrameNumber();
 				    assertTrue("#" + f, packet.hasHeader(ip));
@@ -178,7 +177,7 @@ public class TestTcpIp
 
 			int c1 = p1.getHeader(ip1).calculateChecksum();
 			int c2 = p2.getHeader(ip2).calculateChecksum();
-			
+
 			System.out.println(ip1);
 			System.out.println(ip2);
 
@@ -234,7 +233,7 @@ public class TestTcpIp
 			throw new IOException(errbuf.toString());
 		}
 
-		pcap.loop(Pcap.LOOP_INFINATE, new PcapPacketHandler<Pcap>() {
+		assertTrue(pcap.loop(Pcap.LOOP_INFINATE, new PcapPacketHandler<Pcap>() {
 			Ip4 ip1 = new Ip4();
 
 			Ip4 ip2 = new Ip4();
@@ -273,13 +272,13 @@ public class TestTcpIp
 					System.out.println("ip1-ip2.memory.diff=\n"
 					    + FormatUtils.hexdump(DataUtils.diff(ip1, ip2)));
 
-					System.exit(0);
+					user.breakloop();
 				}
 
 				i++;
 			}
 
-		}, pcap);
+		}, pcap) != -2);
 
 		pcap.close();
 	}
@@ -300,40 +299,11 @@ public class TestTcpIp
 			p1.getHeader(ip1);
 			p2.getHeader(ip2);
 
-			if (p1.size() != p2.size() || !ip1.isChecksumValid()
-			    || !ip2.isChecksumValid() || !compareJBuffer(p1, p2)) {
+			assertTrue("ip1.size() == p2.size()", p1.size() == p2.size());
 
-				System.out.printf("#%d crc=%x saved=%x calc=%x p1=%d p2=%d\n%s\n%s\n",
-				    i, checksums.get(i), saved.get(i), ip1.calculateChecksum(), l1
-				        .size(), l2.size(), ip1.toHexdump(), ip2.toHexdump());
-
-				System.out.println("header=" + p1.getCaptureHeader().toDebugString());
-				System.out.println("state=" + p1.getState().toDebugString());
-				System.out.println("packet1=" + p1.toDebugString());
-				System.out.println("ip1=" + ip1.toDebugString());
-				System.out.println();
-				System.out.println("ip.copy=\n" + p1.toHexdump());
-				System.out.println("packet.orig=\n"
-				    + FormatUtils.hexdump(data.get(i + 168), p2.getState()));
-
-				System.out.println("packet.diff=\n"
-				    + FormatUtils.hexdump(DataUtils.diff(data.get(i), p2)));
-
-				// System.out.println(p1);
-				// System.out.println(p2);
-
-				// System.out.println(ip1);
-				// System.out.println(ip2);
-
-				for (int j = 0; j < 100; j++) {
-					System.out.printf("%x ", ip1.calculateChecksum());
-
-					if (ip1.isChecksumValid()) {
-						System.out.println("CHANGED");
-					}
-				}
-				System.exit(0);
-			}
+			assertTrue(ip1.toString(), ip1.isChecksumValid());
+			assertTrue(ip2.toString(), ip2.isChecksumValid());
+			assertTrue(compareJBuffer(p1, p2));
 
 		}
 
