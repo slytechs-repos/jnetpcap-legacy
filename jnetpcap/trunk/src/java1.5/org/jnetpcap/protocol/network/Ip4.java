@@ -1573,7 +1573,7 @@ public class Ip4
 
 	@FieldSetter
 	public void destination(byte[] value) {
-		setByteArray(12, value);
+		setByteArray(16, value);
 	}
 
 	public byte[] destinationToByteArray(byte[] address) {
