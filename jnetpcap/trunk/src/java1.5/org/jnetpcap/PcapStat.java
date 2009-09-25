@@ -26,6 +26,7 @@ public class PcapStat {
 	private static native void initIDs();
 
 	static {
+		Pcap.isInjectSupported();
 		initIDs();
 	}
 
