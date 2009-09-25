@@ -26,7 +26,7 @@ public class PcapStat {
 	private static native void initIDs();
 
 	static {
-		Pcap.isInjectSupported();
+		System.loadLibrary(Pcap.JNETPCAP_LIBRARY_NAME);
 		initIDs();
 	}
 
