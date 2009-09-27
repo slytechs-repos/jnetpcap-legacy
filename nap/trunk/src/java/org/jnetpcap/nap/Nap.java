@@ -57,7 +57,7 @@ public class Nap
 	 */
 	private native void nativeOpen(
 	    String file,
-	    String string,
+	    String mode,
 	    StringBuilder errbuf);
 
 }

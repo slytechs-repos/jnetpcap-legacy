@@ -24,11 +24,9 @@
 
 #include "nap.h"
 
-const nap_t *nap_open(const char *fname, char *errbuf) {
-	return nap_open_mode(fname, NAP_DEFAULT_OPEN_MODE, errbuf);
-}
-
-const nap_t *nap_open_mode(const char *fname, char *mode, char *errbuf) {
+nap_t *nap_open_offline(const char *fname, char *errbuf) {
+	const char *mode = "rb";
+	
 	FILE	*fhandle;
 	if ((fhandle = fopen(fname, mode)) == NULL) {
 		perror(errbuf); // Copy system error message
@@ -60,135 +58,19 @@ const nap_t *nap_open_mode(const char *fname, char *mode, char *errbuf) {
 	return nap;
 }
 
-
-int nap_close(const nap_t *nap) {
-	if (nap != NULL) {
-		fclose(nap->fhandle);
-		free((void *) nap);
-		
-		return NAP_OK;
-	} else {
-		return NAP_NOT_OK;
-	}
+nap_dumper_t *nap_dump_open(nap_t *n, const char *fname) {
+	nap_dumper_t *dumper = malloc(sizeof(nap_dumper_t));
+	
+	dumper->fname = (char *)fname;
+	dumper->nap = n;
+	
+	
 }
 
-block_t *alloc_block(nap_t *nap, size_t size) {
+void nap_dump(nap_dumper_t *dumper, nap_packet_t *hdr, char *d) {
 	
-	block_t *block = (block_t *)malloc(sizeof(block_t));
-	block->b_nap = nap;
-	block->b_start = 0;
-	block->b_offset = 0;
-	block->b_read = 0;
-	
-	block->b_header = (nap_block_t *)malloc(size);
-	block->b_length = size;
 }
 
-void free_block(block_t *block) {
-	
-	free(block->b_header);
-	free(block);
-}
-
-
-int read_block_hdr(block_t *block) {
-	
-	nap_t *nap = block->b_nap;
-	
-	if (nap->flength == 0) {
-		return NAP_NOT_FOUND; // Emtpy file
-	}
-	
-	if (block->b_read >= NAP_BLOCK_SIZE) { // Already prefetched
-		return NAP_OK;
-	}
-	
-	/*
-	 * Otherwise we read the header into our temporary memory
-	 */
-	fseek(nap->fhandle, block->b_start, SEEK_SET); // From start of file
-	if (fread((void *) block->b_header, NAP_BLOCK_SIZE, 1, nap->fhandle) != NAP_BLOCK_SIZE) {
-		return NAP_NOT_OK;
-	}
-	
-	block->b_read = NAP_BLOCK_SIZE;
-	
-	return NAP_OK;
-}
-
-int read_block(block_t *block) {
-	
-	nap_t *nap = block->b_nap;
-	
-	if (nap->flength == 0) {
-		return NAP_NOT_FOUND; // Emtpy file
-	}
-	
-	if ( (block->b_read >= NAP_BLOCK_SIZE) && 
-			(block->b_read == block->b_header->length)) { // Already prefetched
-		
-		return NAP_OK;
-	}
-	
-	fseek(nap->fhandle, block->b_start, SEEK_SET); // From start of file
-	
-	int r = fread((void *) block->b_header,	
-			1, 
-			block->b_header->length, 
-			nap->fhandle);
-	
-	block->b_read = block->b_header->length;
-	
-	return (r == block->b_header->length) ? NAP_OK : NAP_NOT_OK;
-}
-
-int write_block(block_t *block) {
-	nap_t *nap = block->b_nap;
-	uint32_t len = block->b_header->length;
-	
-	fseek(nap->fhandle, block->b_start, SEEK_SET); // From start of file
-	int r = fwrite((void *)block->b_header, 1, len, nap->fhandle);
-	
-	return (r == len) ? NAP_OK : NAP_NOT_OK;
-}
-
-int next_block(block_t *block) {
-	
-	block->b_start += block->b_header->length;
-	block->b_offset = 0; // First record
-	block->b_read = 0; // First record
-	
-	return NAP_OK;
-}
-
-int prev_block(block_t *block) {
-	
-	if (block->b_start == 0) {
-		return NAP_NOT_FOUND;
-	}
-	
-	block->b_start -= block->b_header->length;
-	block->b_offset = 0; // First record
-	block->b_read = 0; // First record
-	
-	return NAP_OK;
-}
-
-int nap_global_id = NAP_BLOCK_MAGIC;
-const uint32_t  generate_id() {
-	return ++nap_global_id;
-}
-
-int init_block_header(nap_block_t *hdr) {
-	hdr->magic = NAP_BLOCK_MAGIC;
-	hdr->length = NAP_DEFAULT_BLOCK_SIZE;
-	hdr->major = NAP_BLOCK_MAJOR;
-	hdr->minor = NAP_BLOCK_MINOR;
-	
-	hdr->flags = NAP_DEFAULT_BLOCK_FLAGS;
-	hdr->block_id = generate_id();
-	hdr->next_block_id = 0;
-	hdr->count = 0;
-	
-	return NAP_OK;
+void nap_cb_handler(char *dumper, nap_packet_t *hdr, char *data) {
+	nap_dump((nap_dumper_t *)dumper, hdr, data);
 }
