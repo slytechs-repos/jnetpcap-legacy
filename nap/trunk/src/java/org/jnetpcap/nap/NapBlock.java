@@ -39,7 +39,7 @@ public class NapBlock extends JMemory {
 			this.parent = parent;
 	  }
 	  
-	  private native void allocBlock(NapBlock header);
+	  private native void allocBlock(Nap nap, NapBlock header);
 	  private native void cleanup(NapBlock header);
 
 		/* (non-Javadoc)
@@ -52,14 +52,16 @@ public class NapBlock extends JMemory {
 	}
 	
 	private final State state = new State(this);
+	private final Nap nap;
 
 	/**
    * @param type
    */
-  public NapBlock() {
+  public NapBlock(Nap nap) {
 	  super(POINTER);
+		this.nap = nap;
 	  
-	  state.allocBlock(this);
+	  state.allocBlock(nap, this);
   }
 
 }

@@ -262,6 +262,7 @@
 	<target name="comp-javah" depends="prep-javah,comp-java">
 		<javah destdir="${build.include.dir}" classpathref="javah.classpath" force="${javah.force}" verbose="true">	
 			<class name="org.jnetpcap.nap.Nap" />
+			<class name="org.jnetpcap.nap.NapBlock$State" />
 		</javah>
 	</target>
 
@@ -293,6 +294,8 @@
 			<fileset dir="${src.c.dir}" />
 			<includepath location="${build.include.dir}" />
 			<includepath location="${src.c.dir}" />
+			<includepath location="${jnetpcap.include.dir}" />
+			
 			<sysincludepath location="${pcap.include.dir}" />
 			<sysincludepath location="${java.sdk.include.dir}" />
 			<sysincludepath location="${java.sdk.include.dir}/win32" />
@@ -312,6 +315,9 @@
 			<arg line="${jni.obj.files}" />
 
 			<arg line="-l ${ms.lib.name}" />
+			
+			<arg line="-L ${jnetpcap.dir}" />
+			<arg line="-l ${jnetpcap.so}" />
 
 
 		</exec>
