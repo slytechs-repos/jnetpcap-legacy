@@ -303,9 +303,14 @@ public class JMemoryPacket
 	 *          number of bytes to pre allocate
 	 */
 	public JMemoryPacket(int size) {
-		super(size, State.sizeof(DEFAULT_STATE_HEADER_COUNT));
+		super(size, 0);
 
 		header.setWirelen(size);
+		
+		/**
+		 * Bug #2878768	JMemoryPacket(int) constructor doesn't work
+		 */
+		super.peer(super.memory);
 	}
 
 	/**
