@@ -34,8 +34,8 @@ public class AllBugTests {
 		suite.addTestSuite(Bug2818101_RtpHeaderLength_Invalid.class);
 		suite.addTestSuite(Bug2828030_wirelen_not_set_in_JMemoryPacket.class);
 		suite.addTestSuite(Bug2832692_null_ptr_in_hasHeader.class);
-		suite.addTestSuite(Bug2836179_coredump_all_platforms.class);
 		suite.addTestSuite(Bug2847124_jbytebuffer_handler_memory_leak.class);
+		suite.addTestSuite(Bug2878768_jmemory_packet_int.class);
 		// $JUnit-END$
 		return suite;
 	}
