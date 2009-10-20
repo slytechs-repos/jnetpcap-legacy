@@ -14,6 +14,7 @@ package org.jnetpcap.nio;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -51,7 +52,9 @@ public class JMemoryPool {
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
-	public static class Block extends JMemory {
+	public static class Block
+	    extends
+	    JMemory {
 
 		/**
 		 * How many bytes are available for allocation in this current block
@@ -67,7 +70,7 @@ public class JMemoryPool {
 		 * Constructor for allocating a block of a requested size
 		 * 
 		 * @param size
-		 *            number of bytes to allocate for this block
+		 *          number of bytes to allocate for this block
 		 */
 		Block(final int size) {
 			super(size);
@@ -78,7 +81,7 @@ public class JMemoryPool {
 		 * Peers this block with another memory object
 		 * 
 		 * @param peer
-		 *            memory object to peer with
+		 *          memory object to peer with
 		 */
 		Block(final JMemory peer) {
 			super(peer);
@@ -88,7 +91,7 @@ public class JMemoryPool {
 		 * Allocates requested size number of bytes from existing memory block
 		 * 
 		 * @param size
-		 *            number of bytes
+		 *          number of bytes
 		 * @return offset into the buffer where the allocated memory begins
 		 */
 		public int allocate(int size) {
@@ -140,7 +143,7 @@ public class JMemoryPool {
 	 * Allocates requested size of memory from the global memory pool.
 	 * 
 	 * @param size
-	 *            allocation size in bytes
+	 *          allocation size in bytes
 	 * @return buffer which references the allocated memory
 	 */
 	public static JBuffer buffer(final int size) {
@@ -159,8 +162,8 @@ public class JMemoryPool {
 	}
 
 	/**
-	 * Currently active block from which memory allocations take place if its
-	 * big enough to fullfil the requests
+	 * Currently active block from which memory allocations take place if its big
+	 * enough to fullfil the requests
 	 */
 	private Block block;
 
@@ -173,10 +176,10 @@ public class JMemoryPool {
 	/**
 	 * A pool of blocks that is maintained when a block becomes to small to
 	 * fullful an allocation request and a new block is allocated. The too small
-	 * block is put in the pool to possibly be reused to fullfil smaller
-	 * requests
+	 * block is put in the pool to possibly be reused to fullfil smaller requests
 	 */
-	private final List<Reference<Block>> pool = new LinkedList<Reference<Block>>();
+	private final List<Reference<Block>> pool =
+	    Collections.synchronizedList(new LinkedList<Reference<Block>>());
 
 	/**
 	 * Uses default allocation size and strategy.
@@ -189,20 +192,20 @@ public class JMemoryPool {
 	 * Allocates blocks in specified size
 	 * 
 	 * @param defaultBlockSize
-	 *            minimum memory block allocation size
+	 *          minimum memory block allocation size
 	 */
 	public JMemoryPool(final int defaultBlockSize) {
 		this.blockSize = defaultBlockSize;
 	}
 
 	/**
-	 * Allocates size bytes of memory and initializes the supplied memory
-	 * pointer class.
+	 * Allocates size bytes of memory and initializes the supplied memory pointer
+	 * class.
 	 * 
 	 * @param size
-	 *            number of bytes
+	 *          number of bytes
 	 * @param memory
-	 *            memory pointer
+	 *          memory pointer
 	 */
 	public void allocate(final int size, final JMemory memory) {
 
@@ -217,7 +220,7 @@ public class JMemoryPool {
 	 * referenced by JMemoryPool.
 	 * 
 	 * @param size
-	 *            amount of native memory to allocate in bytes
+	 *          amount of native memory to allocate in bytes
 	 * @return object which is the owner of the allocated memory
 	 */
 	public JMemory allocateExclusive(final int size) {
@@ -229,16 +232,16 @@ public class JMemoryPool {
 	/**
 	 * Gets a block of memory that is big enough to hold at least size number of
 	 * bytes. The user must further request from the block
-	 * {@link Block#allocate(int)} the size of memory needed. The block will
-	 * then return an offset into the memory which has been reserved for this
-	 * allocation. The pool of used blocks with potential of some available
-	 * memory in them is maintained using a WeakReference. This allows the
-	 * blocks to be GCed when no references to them exist, even if there is
-	 * still a bit of available memory left in them.
+	 * {@link Block#allocate(int)} the size of memory needed. The block will then
+	 * return an offset into the memory which has been reserved for this
+	 * allocation. The pool of used blocks with potential of some available memory
+	 * in them is maintained using a WeakReference. This allows the blocks to be
+	 * GCed when no references to them exist, even if there is still a bit of
+	 * available memory left in them.
 	 * 
 	 * @see Block#allocate(int)
 	 * @param size
-	 *            minimum available amount of memory in a block
+	 *          minimum available amount of memory in a block
 	 * @return block big enough to hold size number of bytes
 	 */
 	public Block getBlock(int size) {
@@ -294,12 +297,12 @@ public class JMemoryPool {
 	 * supplied or possibly bigger.
 	 * 
 	 * @param atLeastInSize
-	 *            minimum number of bytes to allocate
+	 *          minimum number of bytes to allocate
 	 * @return a new block to be used for allocations
 	 */
 	private Block newBlock(final int atLeastInSize) {
 		return new Block((atLeastInSize > this.blockSize) ? atLeastInSize
-				: this.blockSize);
+		    : this.blockSize);
 	}
 
 	/**
