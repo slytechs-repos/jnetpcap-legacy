@@ -90,6 +90,12 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_Pcap_openLive(JNIEnv *env, jclass cl
 
 	char errbuf[PCAP_ERRBUF_SIZE];
 	errbuf[0] = '\0'; // Reset the buffer;
+	
+	if (jsnaplen < 0) {
+		throwException(env, ILLEGAL_ARGUMENT_EXCEPTION, 
+				"SNAPLEN paremeter less then 0");		
+		return NULL;
+	}
 
 	const char *device = env->GetStringUTFChars(jdevice, 0);
 
