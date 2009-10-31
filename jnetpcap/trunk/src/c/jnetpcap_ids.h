@@ -2,15 +2,16 @@
 
 #ifndef _Included_jnetpcap_ids_h
 #define _Included_jnetpcap_ids_h
-#ifdef __cplusplus
-extern "C" {
-#define	EXTERN extern "C"
-#endif
 
 #include "export.h"
 	
 #include <jni.h>
 	
+#ifdef __cplusplus
+extern "C" {
+#define	EXTERN extern "C"
+#endif
+
 extern jclass pcapClass;
 extern jclass byteBufferClass;
 extern jclass stringBuilderClass;
