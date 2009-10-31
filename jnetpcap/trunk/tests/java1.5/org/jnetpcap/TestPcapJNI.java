@@ -145,7 +145,7 @@ public class TestPcapJNI
 
 	private StringBuilder errbuf = new StringBuilder();
 
-	public void _testStats() {
+	public void testStats() {
 		PcapStat stats = new PcapStat();
 
 		Pcap pcap = Pcap.openLive(device, snaplen, promisc, oneSecond, errbuf);
