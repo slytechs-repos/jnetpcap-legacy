@@ -762,6 +762,23 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_cleanup_1jscanner
 
 /*
  * Class:     org_jnetpcap_packet_JScanner
+ * Method:    getFrameNumber
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_org_jnetpcap_packet_JScanner_getFrameNumber
+  (JNIEnv *env, jobject obj) {
+	
+	scanner_t *scanner = (scanner_t *)getJMemoryPhysical(env, obj);
+	if (scanner == NULL) {
+		return -1;
+	}
+
+	return (jlong) scanner->sc_cur_frame_num;
+}
+
+
+/*
+ * Class:     org_jnetpcap_packet_JScanner
  * Method:    init
  * Signature: (Lorg.jnetpcap.packet.JScan;)V
  */
@@ -936,3 +953,20 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScanner_scan
 			size, (uint32_t) wirelen);
 }
 
+/*
+ * Class:     org_jnetpcap_packet_JScanner
+ * Method:    setFrameNumber
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_setFrameNumber
+  (JNIEnv *env, jobject obj, jlong frame_no) {
+	
+	scanner_t *scanner = (scanner_t *)getJMemoryPhysical(env, obj);
+	if (scanner == NULL) {
+		return;
+	}
+
+	scanner->sc_cur_frame_num = (uint64_t) frame_no;
+	
+	return;
+}

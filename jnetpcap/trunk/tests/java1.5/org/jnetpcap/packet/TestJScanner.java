@@ -271,14 +271,31 @@ public class TestJScanner
 		assertTrue(packet.hasHeader(JProtocol.TCP_ID));
 		assertTrue(packet.hasHeader(JProtocol.HTTP_ID));
 	}
-	
+
 	public void testPacketState() {
 
 		PcapPacket packet = getPcapPacket(HTTP, 5);
 		assertNotNull(packet);
-		
+
 		System.out.println(packet.getState().toDebugString());
 	}
 
+	public void testGetFrameNumber() {
+		assertTrue(JScanner.getThreadLocal().getFrameNumber() != 0);
+		System.out.printf("frameNumber=%d\n", JScanner.getThreadLocal()
+		    .getFrameNumber());
+	}
+
+	public void testSetFrameNumber() {
+		long n = JScanner.getThreadLocal().getFrameNumber();
+
+		JScanner.getThreadLocal().setFrameNumber(n + 1);
+
+		assertEquals(n + 1, JScanner.getThreadLocal().getFrameNumber());
+
+		System.out.printf("frameNumber=%d\n", JScanner.getThreadLocal()
+		    .getFrameNumber());
+
+	}
 
 }
