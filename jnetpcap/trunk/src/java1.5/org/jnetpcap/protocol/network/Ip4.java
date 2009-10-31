@@ -1497,7 +1497,7 @@ public class Ip4
 	 * 
 	 * @return header's stored checksum
 	 */
-	@Field(offset = 10 * 8, length = 16, format = "%x")
+	@Field(offset = 10 * BYTE, length = 16, format = "%x")
 	public int checksum() {
 		return getUShort(10);
 	}
@@ -1565,7 +1565,7 @@ public class Ip4
 		}
 	}
 
-	@Field(offset = 16 * 8, length = 32, format = "#ip4#")
+	@Field(offset = 16 * BYTE, length = 32, format = "#ip4#")
 	@FlowKey(index = 0)
 	public byte[] destination() {
 		return getByteArray(16, 4);
@@ -1604,7 +1604,7 @@ public class Ip4
 	 * 
 	 * @return 3 bits of the flag field as unsigned integer
 	 */
-	@Field(offset = 6 * 8, length = 3, format = "%x")
+	@Field(offset = 6 * BYTE, length = 3, format = "%x")
 	public int flags() {
 		return getUByte(6) >> 5;
 	}
@@ -1674,7 +1674,7 @@ public class Ip4
 		return this.hashcode;
 	}
 
-	@Field(offset = 0 * 8 + 4, length = 4, format = "%d")
+	@Field(offset = 0 * BYTE + 4, length = 4, format = "%d")
 	public int hlen() {
 		return getUByte(0) & 0x0F;
 	}
@@ -1694,7 +1694,7 @@ public class Ip4
 		    + ", Ip Options Present";
 	}
 
-	@Field(offset = 4 * 8, length = 16, format = "%x")
+	@Field(offset = 4 * BYTE, length = 16, format = "%x")
 	public int id() {
 		return getUShort(4);
 	}
@@ -1726,7 +1726,7 @@ public class Ip4
 		return hasAnalysis(FragmentAssembly.class);
 	}
 
-	@Field(offset = 2 * 8, length = 16, format = "%d")
+	@Field(offset = 2 * BYTE, length = 16, format = "%d")
 	public int length() {
 		return getUShort(2);
 	}
@@ -1742,7 +1742,7 @@ public class Ip4
 		    + " bytes";
 	}
 
-	@Field(offset = 6 * 8 + 3, length = 13, format = "%d")
+	@Field(offset = 6 * BYTE + 3, length = 13, format = "%d")
 	public int offset() {
 		return getUShort(6) & 0x1FFF;
 	}
@@ -1765,7 +1765,7 @@ public class Ip4
 	 * 
 	 * @return unsinged 32 bit integer representing the Ip4 source address
 	 */
-	@Field(offset = 12 * 8, length = 32, format = "#ip4#")
+	@Field(offset = 12 * BYTE, length = 32, format = "#ip4#")
 	@FlowKey(index = 0)
 	public byte[] source() {
 		return getByteArray(12, 4);
@@ -1787,7 +1787,7 @@ public class Ip4
 		return getInt(12);
 	}
 
-	@Field(offset = 1 * 8, length = 8, format = "%x", display = "diffserv")
+	@Field(offset = 1 * BYTE, length = 8, format = "%x", display = "diffserv")
 	public int tos() {
 		return getUByte(1);
 	}
@@ -1827,7 +1827,7 @@ public class Ip4
 		return (tos_ECN() > 0) ? "set" : "not set";
 	}
 
-	@Field(offset = 8 * 8, length = 8, format = "%d", description = "time to live")
+	@Field(offset = 8 * BYTE, length = 8, format = "%d", description = "time to live")
 	public int ttl() {
 		return getUByte(8);
 	}
@@ -1837,7 +1837,7 @@ public class Ip4
 		setUByte(8, value);
 	}
 
-	@Field(offset = 9 * 8, length = 8, format = "%d")
+	@Field(offset = 9 * BYTE, length = 8, format = "%d")
 	@FlowKey(index = 1)
 	public int type() {
 		return getUByte(9);
