@@ -168,7 +168,7 @@ public class JScanner
 
 		return s;
 	}
-	
+
 	public static void heuristicCheck(int id, boolean enable) {
 		if (enable) {
 			JRegistry.setFlags(id, JRegistry.FLAG_HEURISTIC_BINDING);
@@ -268,6 +268,13 @@ public class JScanner
 
 		super.finalize();
 	}
+
+	/**
+	 * Retrieves the current frame number assigned by this scanner.
+	 * 
+	 * @return current frame counter value
+	 */
+	public native long getFrameNumber();
 
 	/**
 	 * Initializes the scanner_t structure within the allocated block.
@@ -373,4 +380,14 @@ public class JScanner
 	    JPacket.State state,
 	    int id,
 	    int wirelen);
+
+	/**
+	 * Sets the scanner's current frame number to user specified value. This
+	 * allows scanner's frame numbers it assigns and keeps track of to be reset
+	 * back to 0 or some other value if needed.
+	 * 
+	 * @param frameNo
+	 *          new frame number
+	 */
+	public native void setFrameNumber(long frameNo);
 }
