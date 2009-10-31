@@ -21,9 +21,13 @@ import java.nio.ByteOrder;
 
 import junit.framework.TestCase;
 
+import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JMemoryPacket;
 import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.protocol.lan.Ethernet;
+import org.jnetpcap.protocol.network.Ip4;
+import org.jnetpcap.protocol.tcpip.Udp;
+import org.jnetpcap.util.checksum.Checksum;
 
 /**
  * @author Mark Bednarczyk
@@ -52,44 +56,39 @@ public class Bug2878768_jmemory_packet_int
 		
 		JMemoryPacket packet = new JMemoryPacket(64);
 		packet.order(ByteOrder.BIG_ENDIAN);
-		
-		packet.setUShort(0 + 12, 0x800); // ethernet.type field
-		packet.setUByte(14 + 0, 0x45); // ip.version and ip.hlen fields
-		packet.setUShort(14 + 9, 0x6); // ip.type = TCP, and so on
-		packet.scan(JProtocol.ETHERNET_ID); // Scans the packet which will allow us
-		
+		packet.setUShort(0 + 12, 0x800);
+		packet.setUByte(14 + 0, 0x45);
 		System.out.println(packet.toHexdump());
-		System.out.println(packet.getState().toDebugString());
+		packet.setUByte(14 + 9, 0x11); //UDP
+		System.out.println(packet.toHexdump());
+		packet.scan(JProtocol.ETHERNET_ID);
 		Ethernet eth = packet.getHeader(new Ethernet());
-		assertNotNull(eth);
+		Ip4 ip = packet.getHeader(new Ip4());
+		Udp udp = packet.getHeader(new Udp());
+//		udp.transferFrom(getFakeData(1460)); //Generate Random bytes
+		eth.destination(new byte[] {(byte) 0xaa, 0x0c, 0x08, 11, 22, 33});
+		eth.source(new byte[] {(byte) 0xaa, 0x0c, 0x08, 11, 22, 34});
+		ip.flags(0);
+		ip.tos(0);
+		ip.source(new byte[] {(byte) 192, (byte) 168, 18, (byte) 218});
+		ip.setByteArray(16, new byte[] {(byte) 192,(byte) 168, 18, (byte) 219});
 		
-		System.out.println(eth);
-		/*
-		 * JPacket packet = new JMemoryPacket(1400);
-packet.setUShort(0 + 12, 0x800); // ethernet.type field
-packet.setUByte(14 + 0, 0x45);   // ip.version and ip.hlen fields
-packet.setUShort(14 + 9, 0x6);   // ip.type = TCP, and so on
-packet.scan(JProtocol.ETHERNET_ID); // Scans the packet which will allow us
-to peer headers
-// Now peer our headers, also could have used JPacket.hasHeader()
-Ethernet eth = packet.getHeader(new Ethernet());
-
-Throws - > Exception in thread "main" java.lang.NullPointerException: JBuffer
-not initialized
-
-Now if I change to JBuffer() I get past the nullpointer but eth is always
-null.
-JPacket packet = new JMemoryPacket(new JBuffer(1400));
-packet.setUShort(0 + 12, 0x800); // ethernet.type field
-packet.setUByte(14 + 0, 0x45);   // ip.version and ip.hlen fields
-packet.setUShort(14 + 9, 0x6);   // ip.type = TCP, and so on
-packet.scan(JProtocol.ETHERNET_ID); // Scans the packet which will allow us
-to peer headers
-// Now peer our headers, also could have used JPacket.hasHeader()
-Ethernet eth = packet.getHeader(new Ethernet());
-
-		 */
+		ip.checksum(0);
+		System.out.printf("crc=0x%X ip.len=%d\n", Checksum.inChecksum(ip, 0, ip.size()), ip.size());
+		ip.checksum(Checksum.inChecksum(ip, 0, ip.size()));
+		System.out.println(packet.getState().toDebugString());
 		
+		System.out.printf("crc=0x%X\n", Checksum.inChecksum(ip, 0, ip.size()));
+		
+		JBuffer b = new JBuffer(4);
+		
+		b.order(ByteOrder.LITTLE_ENDIAN);
+		b.setUInt(0, 0x14010100);	
+		System.out.printf("0x%X\n%s", 0x14010100, b.toHexdump());
+		
+		b.order(ByteOrder.BIG_ENDIAN);
+		b.setUInt(0, 0x14010100);	
+		System.out.printf("0x%X\n%s", 0x14010100, b.toHexdump());
 	}
 
 }
