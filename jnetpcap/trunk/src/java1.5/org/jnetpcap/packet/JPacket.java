@@ -963,7 +963,12 @@ public abstract class JPacket
 	 */
 	@Override
 	public String toHexdump() {
-		return FormatUtils.hexdump(this);
+		if (state.isInitialized()) {
+			return FormatUtils.hexdump(this);
+		} else {
+			byte[] b = this.getByteArray(0, this.size());
+			return FormatUtils.hexdump(b);
+		}
 	}
 
 	/**
