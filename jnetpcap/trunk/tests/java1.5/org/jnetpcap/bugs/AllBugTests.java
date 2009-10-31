@@ -36,6 +36,7 @@ public class AllBugTests {
 		suite.addTestSuite(Bug2832692_null_ptr_in_hasHeader.class);
 		suite.addTestSuite(Bug2847124_jbytebuffer_handler_memory_leak.class);
 		suite.addTestSuite(Bug2878768_jmemory_packet_int.class);
+		suite.addTestSuite(Bug2836179_negative_snaplen.class);
 		// $JUnit-END$
 		return suite;
 	}
