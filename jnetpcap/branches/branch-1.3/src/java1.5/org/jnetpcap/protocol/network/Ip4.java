@@ -21,7 +21,6 @@ import org.jnetpcap.packet.JHeaderMap;
 import org.jnetpcap.packet.JHeaderType;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JSubHeader;
-import org.jnetpcap.packet.analysis.FragmentAssembly;
 import org.jnetpcap.packet.annotate.Bind;
 import org.jnetpcap.packet.annotate.BindingVariable;
 import org.jnetpcap.packet.annotate.Dynamic;
@@ -56,9 +55,7 @@ import org.jnetpcap.util.checksum.Checksum;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@Protocol(suite = Suite.NETWORK, analyzers = {
-    Ip4Sequencer.class,
-    Ip4Assembler.class })
+@Protocol(suite = Suite.NETWORK)
 @Header(name = "Ip4", nicname = "Ip", osi = Layer.NETWORK, suite = ProtocolSuite.NETWORK, spec = "RFC792", description = "ip version 4")
 public class Ip4
     extends
@@ -1713,17 +1710,6 @@ public class Ip4
 	 */
 	public boolean isFragment() {
 		return offset() != 0 || flags_MF() > 0;
-	}
-
-	/**
-	 * Checks if this packet has been reassembled from other IP fragments. This
-	 * check only works, if the PDU has been analyzed and reassembled by
-	 * Ip4Assembler.
-	 * 
-	 * @return true if this PDU is reassembled, otherwise false if atomic
-	 */
-	public boolean isReassembled() {
-		return hasAnalysis(FragmentAssembly.class);
 	}
 
 	@Field(offset = 2 * BYTE, length = 16, format = "%d")

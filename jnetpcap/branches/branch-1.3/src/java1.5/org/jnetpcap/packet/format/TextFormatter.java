@@ -18,7 +18,6 @@ import java.util.Formatter;
 
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JPacket;
-import org.jnetpcap.packet.analysis.JAnalysis;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
 import org.jnetpcap.packet.structure.JField;
 import org.jnetpcap.protocol.JProtocol.Suite;
@@ -69,46 +68,6 @@ public class TextFormatter
 	 */
 	public TextFormatter(StringBuilder out) {
 		super(out);
-	}
-
-	@Override
-	protected void analysisAfter(JHeader header, JAnalysis analysis, Detail detail)
-	    throws IOException {
-		decLevel();
-	}
-
-	@Override
-	protected void analysisBefore(
-	    JHeader header,
-	    JAnalysis analysis,
-	    Detail detail) throws IOException {
-
-		pad();
-		if (analysis.getText() != null) {
-			pad().format("*** %s analysis ***", analysis.getTitle());
-
-			for (String s : analysis.getText()) {
-				pad().format("%s: %s", analysis.getTitle(), s);
-			}
-		}
-	}
-
-	@Override
-	protected void subAnalysisBefore(
-	    JHeader header,
-	    JAnalysis analysis,
-	    JAnalysis subAnalysis,
-	    Detail detail) throws IOException {
-
-		incLevel(subAnalysis.getTitle() + ": ");
-
-		if (subAnalysis.getText() != null) {
-			for (String s : subAnalysis.getText()) {
-				pad().format("%s", s);
-			}
-		}
-
-		decLevel();
 	}
 
 	protected void fieldAfter(JHeader header, JField field, Detail detail)

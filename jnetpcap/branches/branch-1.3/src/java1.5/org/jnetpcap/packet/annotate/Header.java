@@ -20,7 +20,6 @@ import java.lang.annotation.Target;
 
 import org.jnetpcap.PcapDLT;
 import org.jnetpcap.packet.JHeader;
-import org.jnetpcap.packet.analysis.JAnalyzer;
 
 /**
  * @author Mark Bednarczyk
@@ -76,8 +75,6 @@ public @interface Header {
 	ProtocolSuite suite() default ProtocolSuite.OTHER;
 	
 	Layer osi() default Layer.NULL;
-	
-	Class<? extends JAnalyzer>[] analyzer() default JAnalyzer.class;
 	
 	Class<? extends JHeader> parent() default JHeader.class;
 	

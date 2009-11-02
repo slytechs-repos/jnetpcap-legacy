@@ -21,7 +21,7 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@Header(analyzer = SipAnalyzer.class)
+@Header()
 public class Sip
     extends
     AbstractMessageHeader {

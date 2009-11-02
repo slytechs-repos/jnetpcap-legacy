@@ -18,8 +18,6 @@ import java.nio.ByteOrder;
 
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JStruct;
-import org.jnetpcap.packet.analysis.AnalysisUtils;
-import org.jnetpcap.packet.analysis.JAnalysis;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.structure.AnnotatedHeader;
 import org.jnetpcap.packet.structure.DefaultField;
@@ -166,13 +164,6 @@ public abstract class JHeader
 		}
 
 		/**
-		 * Retrieves the analysis object that is attached to this header.
-		 * 
-		 * @return an attached analysis based object or null if not set
-		 */
-		public native JAnalysis getAnalysis();
-
-		/**
 		 * Every header "record" keeps int-bit-flags that describe certain
 		 * additional information about the header. Most commonly use flags are
 		 * {@link #FLAG_PAYLOAD_TRUNCATED} and other like it.
@@ -301,16 +292,6 @@ public abstract class JHeader
 			}
 			return super.peer(peer);
 		}
-
-		/**
-		 * Sets the analysis object for this header.
-		 * 
-		 * @param state
-		 *          packet's state object
-		 * @param analysis
-		 *          analysis object to set
-		 */
-		public native void setAnalysis(JPacket.State state, JAnalysis analysis);
 
 		/**
 		 * Sets the header flags to new values.
@@ -509,15 +490,7 @@ public abstract class JHeader
 		super.order(ByteOrder.nativeOrder());
 	}
 
-	/**
-	 * Attaches an analysis object to this header.
-	 * 
-	 * @param analysis
-	 *          analysis object to attach to this header
-	 */
-	public void addAnalysis(JAnalysis analysis) {
-		AnalysisUtils.addToRoot(getPacket().getState(), this.state, analysis);
-	}
+
 
 	/**
 	 * Method that gets called everytime a header is successfully peered with new
@@ -536,50 +509,6 @@ public abstract class JHeader
 	 */
 	protected void decodeHeader() {
 		// Empty
-	}
-
-	/**
-	 * Retrieves an analysis object that has been attached to this header. The
-	 * attached analysis object may be a compound object which provides a list of
-	 * additional analysis information.
-	 * 
-	 * @param <T>
-	 *          type of the analysis object retrieve
-	 * @param analysis
-	 *          the analysis object to peer without copying with the analysis
-	 *          information attached to this header
-	 * @return the analysis object that was passed after its been peered with
-	 *         analysis information attached to this header
-	 */
-	public <T extends JAnalysis> T getAnalysis(T analysis) {
-		JAnalysis a = state.getAnalysis();
-		if (a == null) {
-			return null;
-		}
-
-		if (a.getType() == AnalysisUtils.CONTAINER_TYPE) {
-			return getAnalysis(analysis);
-		}
-
-		if (a.getType() == analysis.getType()) {
-			analysis.peer(a);
-			return analysis;
-
-		} else {
-			return null;
-		}
-
-	}
-
-	/**
-	 * Provides a convenient way to iterate through a list of analysis objects
-	 * attached to this header.
-	 * 
-	 * @return iterator that will iterate over all analysis objects attached to
-	 *         this header
-	 */
-	public Iterable<JAnalysis> getAnalysisIterable() {
-		return AnalysisUtils.toIterable(state.getAnalysis());
 	}
 
 	/**
@@ -911,53 +840,6 @@ public abstract class JHeader
 	 */
 	public JHeader[] getSubHeaders() {
 		return EMPTY_HEADER_ARRAY;
-	}
-
-	/**
-	 * Gets the type of analysis this is.
-	 * 
-	 * @return type of analysis.
-	 */
-	public int getType() {
-		return AnalysisUtils.ROOT_TYPE;
-	}
-
-	/**
-	 * Checks if analysis has been attached to this header.
-	 * 
-	 * @param analysis
-	 *          analysis class to check for if analysis is set
-	 * @return true if analysis has been found, otherwise false
-	 */
-	public boolean hasAnalysis(Class<? extends JAnalysis> analysis) {
-		return state.getAnalysis() != null
-		    && state.getAnalysis().hasAnalysis(analysis);
-	}
-
-	/**
-	 * Checks if analysis has been attached of specific types to this header.
-	 * 
-	 * @param type
-	 *          the type of analysis to check for
-	 * @return true of analysis has been found, otherwise false
-	 */
-	public boolean hasAnalysis(int type) {
-		return state.getAnalysis() != null && state.getAnalysis().hasAnalysis(type);
-	}
-
-	/**
-	 * Checks if analysis object has been attached to this header and if true,
-	 * also peers that analysis with the user object passed in.
-	 * 
-	 * @param <T>
-	 *          type of analysis object
-	 * @param analysis
-	 *          analysis object to check for if analysis is set
-	 * @return true if analysis has been found, otherwise false
-	 */
-	public <T extends JAnalysis> boolean hasAnalysis(T analysis) {
-		return (state.getAnalysis() == null) ? false : state.getAnalysis()
-		    .hasAnalysis(analysis);
 	}
 
 	/**

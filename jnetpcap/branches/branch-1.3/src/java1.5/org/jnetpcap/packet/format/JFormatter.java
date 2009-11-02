@@ -21,7 +21,6 @@ import org.jnetpcap.packet.JHeaderPool;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.UnregisteredHeaderException;
-import org.jnetpcap.packet.analysis.JAnalysis;
 import org.jnetpcap.packet.structure.JField;
 import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.util.resolver.Resolver;
@@ -270,24 +269,6 @@ public abstract class JFormatter {
 	}
 
 	/**
-	 * @param analysis
-	 * @param detail
-	 */
-	protected void analysisAfter(JHeader header, JAnalysis analysis, Detail detail)
-	    throws IOException {
-	}
-
-	/**
-	 * @param analysis
-	 * @param detail
-	 */
-	protected void analysisBefore(
-	    JHeader header,
-	    JAnalysis analysis,
-	    Detail detail) throws IOException {
-	}
-
-	/**
 	 * 
 	 */
 	protected void decLevel() {
@@ -360,50 +341,10 @@ public abstract class JFormatter {
 			format(header, subHeader, detail);
 		}
 
-		for (JAnalysis analysis : header.getAnalysisIterable()) {
-			format(header, analysis, detail);
-		}
-
 		headerAfter(header, detail);
 
 	}
 
-	/**
-	 * @param header
-	 * @param analysis
-	 * @param detail
-	 */
-	public void format(JHeader header, JAnalysis analysis, Detail detail)
-	    throws IOException {
-
-		analysisBefore(header, analysis, detail);
-
-		for (JAnalysis subAnalysis : analysis) {
-			format(header, analysis, subAnalysis, detail);
-		}
-
-		analysisAfter(header, analysis, detail);
-	}
-
-	/**
-	 * @param header
-	 * @param analysis
-	 * @param subAnalysis
-	 * @throws IOException
-	 */
-	public void format(
-	    JHeader header,
-	    JAnalysis analysis,
-	    JAnalysis subAnalysis,
-	    Detail detail) throws IOException {
-		subAnalysisBefore(header, analysis, subAnalysis, detail);
-
-		for (JAnalysis child : subAnalysis) {
-			format(header, subAnalysis, child, detail);
-		}
-
-		subAnalysisAfter(header, analysis, subAnalysis, detail);
-	}
 
 	public void format(JHeader header, JField field) throws IOException {
 		format(header, field, DEFAULT_DETAIL);
@@ -950,29 +891,6 @@ public abstract class JFormatter {
 		}
 	}
 
-	/**
-	 * @param header
-	 * @param analysis
-	 * @param subAnalysis
-	 */
-	protected void subAnalysisAfter(
-	    JHeader header,
-	    JAnalysis analysis,
-	    JAnalysis subAnalysis,
-	    Detail detail) throws IOException {
-	}
-
-	/**
-	 * @param header
-	 * @param analysis
-	 * @param subAnalysis
-	 */
-	protected void subAnalysisBefore(
-	    JHeader header,
-	    JAnalysis analysis,
-	    JAnalysis subAnalysis,
-	    Detail detail) throws IOException {
-	}
 
 	/**
 	 * @param header

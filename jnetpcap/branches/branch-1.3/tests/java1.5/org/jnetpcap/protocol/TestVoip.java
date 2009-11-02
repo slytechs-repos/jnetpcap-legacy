@@ -19,17 +19,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jnetpcap.Pcap;
 import org.jnetpcap.packet.JPacket;
-import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.TestUtils;
-import org.jnetpcap.packet.analysis.JController;
 import org.jnetpcap.protocol.voip.Rtp;
 import org.jnetpcap.protocol.voip.Sdp;
 import org.jnetpcap.protocol.voip.Sip;
-import org.jnetpcap.protocol.voip.SipAnalyzer;
-import org.jnetpcap.protocol.voip.SipHandler;
 
 /**
  * @author Mark Bednarczyk
@@ -75,29 +70,6 @@ public class TestVoip
 		} else {
 			System.out.printf(packet.toString());
 		}
-	}
-
-	public void testSipAnalyzer() {
-		Sip sip = new Sip();
-
-		SipAnalyzer a = new SipAnalyzer();
-		JRegistry.addAnalyzer(a);
-		JRegistry.getAnalyzer(JController.class).addAnalyzer(a,
-		    JRegistry.lookupId(Sip.class));
-
-		a.add(new SipHandler() {
-
-			public void processSip(Sip sip) {
-				if (sip.contentLength() > 0) {
-					System.out.printf("\n#%d%s", sip.getPacket().getFrameNumber(), sip);
-				}
-			}
-
-		});
-
-		Pcap pcap = super.openOffline(SIP_G711);
-
-		pcap.analyze();
 	}
 
 	public void testRtpHeuristics() {

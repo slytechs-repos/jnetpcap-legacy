@@ -20,8 +20,6 @@ import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.nio.JMemoryPool;
 import org.jnetpcap.nio.JStruct;
-import org.jnetpcap.packet.analysis.AnalysisUtils;
-import org.jnetpcap.packet.analysis.JAnalysis;
 import org.jnetpcap.packet.format.FormatUtils;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
@@ -156,25 +154,6 @@ public abstract class JPacket
 		 * @return
 		 */
 		public native long get64BitHeaderMap(int index);
-
-		/**
-		 * Retrieves the analysis object that is attached to this packet.
-		 * 
-		 * @return an attached analysis based object or null if not set
-		 */
-		public native JAnalysis getAnalysis();
-
-		/**
-		 * Retrieves the analysis object that is attached to the header at index.
-		 * This method provides a way to retrive analysis object directly from a
-		 * header without having to have a reference to the header, only its index
-		 * in the packet state table of headers.
-		 * 
-		 * @param index
-		 *          index of the header within the packet state structure
-		 * @return attached analysis object or null if none are attached
-		 */
-		public native JAnalysis getAnalysis(int index);
 
 		/**
 		 * Gets the 32-bit counter that contains packet's flags in packet_state_t
@@ -335,23 +314,6 @@ public abstract class JPacket
 			flowKey.peer(this);
 			return r;
 		}
-
-		/**
-		 * Sets analysis information for header at index
-		 * 
-		 * @param index
-		 *          header index
-		 * @param analysis
-		 *          object to set
-		 */
-		public native void setAnalysis(int index, JAnalysis analysis);
-
-		/**
-		 * Sets the analysis object for this packet.
-		 * 
-		 * @param analysis
-		 */
-		public native void setAnalysis(JAnalysis analysis);
 
 		/**
 		 * Sets the 32-bit counter with packet flags
@@ -544,30 +506,6 @@ public abstract class JPacket
 	}
 
 	/**
-	 * @param nid
-	 * @param sequence
-	 */
-	public <T extends JAnalysis> void addAnalysis(int id, int instance, T analysis) {
-		int index = state.findHeaderIndex(id, instance);
-		this.state.setAnalysis(index, analysis);
-	}
-
-	/**
-	 * @param nid
-	 * @param sequence
-	 */
-	public <T extends JAnalysis> void addAnalysis(int id, T analysis) {
-		addAnalysis(id, 0, analysis);
-	}
-
-	/**
-	 * @param sequence
-	 */
-	public <T extends JAnalysis> void addAnalysis(T analysis) {
-		this.state.setAnalysis(analysis);
-	}
-
-	/**
 	 * Creates a new memory buffer of given size for internal usage
 	 * 
 	 * @param size
@@ -588,25 +526,6 @@ public abstract class JPacket
 		}
 
 		return memory.size();
-	}
-
-	public <T extends JAnalysis> T getAnalysis(
-	    Class<? extends JHeader> c,
-	    T analysis) {
-		return getAnalysis(JRegistry.lookupId(c), 0, analysis);
-	}
-
-	public <T extends JAnalysis> T getAnalysis(int id, int instance, T analysis) {
-		int index = state.findHeaderIndex(id, instance);
-		return this.state.getAnalysis(index).getAnalysis(analysis);
-	}
-
-	public <T extends JAnalysis> T getAnalysis(int id, T analysis) {
-		return getAnalysis(id, 0, analysis);
-	}
-
-	public <T extends JAnalysis> T getAnalysis(T analysis) {
-		return this.state.getAnalysis().getAnalysis(analysis);
 	}
 
 	/**
@@ -820,23 +739,6 @@ public abstract class JPacket
 	 */
 	public abstract int getTotalSize();
 
-	public int getType() {
-		return AnalysisUtils.ROOT_TYPE;
-	}
-
-	public boolean hasAnalysis(Class<? extends JAnalysis> analysis) {
-		return state.getAnalysis() != null
-		    && state.getAnalysis().hasAnalysis(analysis);
-	}
-
-	public boolean hasAnalysis(int type) {
-		return state.getAnalysis() != null && state.getAnalysis().hasAnalysis(type);
-	}
-
-	public <T extends JAnalysis> boolean hasAnalysis(T analysis) {
-		return (state.getAnalysis() != null) ? state.getAnalysis().hasAnalysis(
-		    analysis) : null;
-	}
 
 	/**
 	 * Checks if header with specified numerical ID exists within the decoded
