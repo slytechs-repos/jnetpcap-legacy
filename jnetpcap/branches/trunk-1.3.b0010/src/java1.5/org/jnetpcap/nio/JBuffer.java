@@ -15,8 +15,6 @@ package org.jnetpcap.nio;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.jnetpcap.packet.PeeringException;
-
 /**
  * A direct ByteBuffer stored in native memory
  * 
@@ -40,22 +38,11 @@ public class JBuffer
 	private native static void initIds();
 
 	/**
-	 * True means BIG endian, false means LITTLE endian byte order
+	 * @param data
 	 */
-	private volatile boolean order =
-	    (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN);
-
-	/**
-	 * True means buffer is readonly, false means read/write buffer type
-	 */
-	private boolean readonly = false;
-
-	/**
-	 * @param type
-	 *          TODO
-	 */
-	public JBuffer(Type type) {
-		super(type);
+	public JBuffer(byte[] data) {
+		super(data.length);
+		setByteArray(0, data);
 	}
 
 	/**
@@ -80,50 +67,12 @@ public class JBuffer
 	}
 
 	/**
-	 * @param data
+	 * @param type
+	 *          TODO
 	 */
-	public JBuffer(byte[] data) {
-		super(data.length);
-		setByteArray(0, data);
+	public JBuffer(Type type) {
+		super(type);
 	}
-
-	public native byte getByte(int index);
-
-	public native byte[] getByteArray(int index, byte[] array);
-
-	public native byte[] getByteArray(int index, int size);
-
-	/**
-	 * Reads data from JBuffer into user supplied array.
-	 * 
-	 * @param index
-	 *          starting position in the JBuffer
-	 * @param array
-	 *          destination array
-	 * @param offset
-	 *          starting position in the destination array
-	 * @param length
-	 *          maximum number of bytes to copy
-	 * @return the actual number of bytes copied which could be less then
-	 *         requested due to size of the JBuffer
-	 */
-	public native byte[] getByteArray(int index, byte[] array, int offset, int length);
-
-	public native double getDouble(int index);
-
-	public native float getFloat(int index);
-
-	public native int getInt(int index);
-
-	public native long getLong(int index);
-
-	public native short getShort(int index);
-
-	public native int getUByte(int index);
-
-	public native long getUInt(int index);
-
-	public native int getUShort(int index);
 
 	public int findUTF8String(int index, char... delimeter) {
 
@@ -153,6 +102,81 @@ public class JBuffer
 		}
 
 		return searchedLength;
+	}
+
+	public native byte getByte(int index);
+
+	public native byte[] getByteArray(int index, byte[] array);
+
+	/**
+	 * Reads data from JBuffer into user supplied array.
+	 * 
+	 * @param index
+	 *          starting position in the JBuffer
+	 * @param array
+	 *          destination array
+	 * @param offset
+	 *          starting position in the destination array
+	 * @param length
+	 *          maximum number of bytes to copy
+	 * @return the actual number of bytes copied which could be less then
+	 *         requested due to size of the JBuffer
+	 */
+	public native byte[] getByteArray(
+	    int index,
+	    byte[] array,
+	    int offset,
+	    int length);
+
+	public native byte[] getByteArray(int index, int size);
+
+	public native double getDouble(int index);
+
+	public native float getFloat(int index);
+
+	public native int getInt(int index);
+
+	public native long getLong(int index);
+
+	public native short getShort(int index);
+
+	public native int getUByte(int index);
+
+	public native long getUInt(int index);
+
+	public native int getUShort(int index);
+
+	/**
+	 * Converts a single byte to a java char.
+	 * 
+	 * @param index
+	 *          index into the buffer
+	 * @return converted UTF8 char
+	 */
+	public char getUTF8Char(int index) {
+		return (char) getUByte(index);
+	}
+
+	/**
+	 * Converts raw bytes to a java string. The delimeter is used to end the
+	 * string or the end of the buffer is used. The delimiter is included in the
+	 * returned string.
+	 * 
+	 * @param index
+	 *          byte index into the buffer to start
+	 * @param delimiter
+	 *          delimiter series of chars to search for
+	 * @return string which includes the delimiter
+	 */
+	public String getUTF8String(int index, char... delimeter) {
+		final StringBuilder buf =
+		    getUTF8String(index, new StringBuilder(), delimeter);
+
+		return buf.toString();
+	}
+
+	public String getUTF8String(int index, int length) {
+		return getUTF8String(index, new StringBuilder(), length).toString();
 	}
 
 	public StringBuilder getUTF8String(
@@ -187,29 +211,13 @@ public class JBuffer
 	}
 
 	/**
-	 * Converts raw bytes to a java string. The delimeter is used to end the
-	 * string or the end of the buffer is used. The delimiter is included in the
-	 * returned string.
-	 * 
-	 * @param index
-	 *          byte index into the buffer to start
-	 * @param delimiter
-	 *          delimiter series of chars to search for
-	 * @return string which includes the delimiter
-	 */
-	public String getUTF8String(int index, char... delimeter) {
-		final StringBuilder buf =
-		    getUTF8String(index, new StringBuilder(), delimeter);
-
-		return buf.toString();
-	}
-
-	/**
 	 * Converts raw bytes to a java string. The length is the maximum length of
 	 * the string to return.
 	 * 
 	 * @param index
 	 *          byte index into the buffer to start
+	 * @param buf
+	 *          a string buffer to store the string read out of the data buffer
 	 * @param length
 	 *          number of bytes to convert
 	 * @return string of at most length bytes
@@ -225,31 +233,29 @@ public class JBuffer
 		return buf;
 	}
 
-	public String getUTF8String(int index, int length) {
-		return getUTF8String(index, new StringBuilder(), length).toString();
+	/**
+	 * Retrieves the integer byte order (big or little endian) for this current
+	 * buffer.
+	 * 
+	 * @return byte order of this buffer
+	 */
+	public ByteOrder order() {
+		return ((jmemoryFlags() & JMEMORY_FLAG_BIG_ENDIAN) != 0) ? ByteOrder.BIG_ENDIAN
+		    : ByteOrder.LITTLE_ENDIAN;
 	}
 
 	/**
-	 * Converts a single byte to a java char.
+	 * Sets the integer byte order (big or little endian) for this current buffer.
 	 * 
-	 * @param index
-	 *          index into the buffer
-	 * @return converted UTF8 char
+	 * @param order
+	 *          new endianess
 	 */
-	public char getUTF8Char(int index) {
-		return (char) getUByte(index);
-	}
-
-	public boolean isReadonly() {
-		return readonly;
-	}
-
-	public ByteOrder order() {
-		return (order) ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
-	}
-
 	public void order(final ByteOrder order) {
-		this.order = (order == ByteOrder.BIG_ENDIAN);
+		if (order == ByteOrder.BIG_ENDIAN) {
+			jmemoryFlags(jmemoryFlags() | JMEMORY_FLAG_BIG_ENDIAN);
+		} else {
+			jmemoryFlags(jmemoryFlags() & ~JMEMORY_FLAG_BIG_ENDIAN);
+		}
 	}
 
 	@Override
@@ -269,9 +275,30 @@ public class JBuffer
 		return super.peer(peer, offset, length);
 	}
 
+	/**
+	 * Peers this object with the supplied object. This object will be pointing at
+	 * the same memory as the supplied object.
+	 * 
+	 * @param src
+	 *          source object that holds the memory location and size this object
+	 *          will point to
+	 * @return size of the src and this object
+	 */
+	public int peer(JMemory src) {
+		return super.peer(src);
+	}
+
 	public native void setByte(int index, byte value);
 
 	public native void setByteArray(int index, byte[] array);
+
+	/**
+	 * @param index
+	 * @param data
+	 */
+	public void setByteBuffer(int index, ByteBuffer data) {
+		super.transferFrom(data, index);
+	}
 
 	public native void setDouble(int index, double value);
 
@@ -320,28 +347,5 @@ public class JBuffer
 	    final int length,
 	    final int dstOffset) {
 		return super.transferTo(dst, srcOffset, length, dstOffset);
-	}
-
-	private final void setReadonly(boolean readonly) {
-		this.readonly = readonly;
-	}
-
-	/**
-	 * @param i
-	 * @param data
-	 */
-	public native void setByteBuffer(int i, ByteBuffer data);
-
-	/**
-	 * Peers this object with the supplied object. This object will be pointing at
-	 * the same memory as the supplied object.
-	 * 
-	 * @param src
-	 *          source object that holds the memory location and size this object
-	 *          will point to
-	 * @return size of the src and this object
-	 */
-	public int peer(JMemory src) {
-		return super.peer(src);
 	}
 }

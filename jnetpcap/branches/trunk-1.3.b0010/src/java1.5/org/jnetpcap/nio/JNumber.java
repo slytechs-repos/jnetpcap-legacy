@@ -110,7 +110,7 @@ public class JNumber
 	 * @param type
 	 *          primitive type for which to allocate memory
 	 */
-	public JNumber(Type type) {
+	public JNumber(JNumber.Type type) {
 		super(type.size);
 	}
 

@@ -15,7 +15,6 @@ package org.jnetpcap.analysis;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JPacketHandler;
 import org.jnetpcap.packet.JRegistry;
@@ -32,7 +31,6 @@ import org.jnetpcap.protocol.tcpip.Tcp;
 import org.jnetpcap.protocol.tcpip.TcpAnalyzer;
 import org.jnetpcap.protocol.tcpip.TcpAssembler;
 import org.jnetpcap.protocol.tcpip.TcpSequencer;
-import org.jnetpcap.util.SlidingBuffer;
 
 /**
  * @author Mark Bednarczyk

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2008 Sly Technologies, Inc.
+ * Copyright (C) 2009 Sly Technologies, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,38 +15,39 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.jnetpcap.packet;
+package org.jnetpcap.nio;
 
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  *
  */
-public class PeeringException
-    extends Exception {
+public class JMemoryException
+    extends
+    RuntimeException {
 
 	/**
    * 
    */
-  private static final long serialVersionUID = 7136151191443182266L;
+  private static final long serialVersionUID = 5282227591354510572L;
 
 	/**
 	 * 
 	 */
-	public PeeringException() {
+	public JMemoryException() {
 	}
 
 	/**
 	 * @param message
 	 */
-	public PeeringException(String message) {
+	public JMemoryException(String message) {
 		super(message);
 	}
 
 	/**
 	 * @param cause
 	 */
-	public PeeringException(Throwable cause) {
+	public JMemoryException(Throwable cause) {
 		super(cause);
 	}
 
@@ -54,7 +55,7 @@ public class PeeringException
 	 * @param message
 	 * @param cause
 	 */
-	public PeeringException(String message, Throwable cause) {
+	public JMemoryException(String message, Throwable cause) {
 		super(message, cause);
 	}
 

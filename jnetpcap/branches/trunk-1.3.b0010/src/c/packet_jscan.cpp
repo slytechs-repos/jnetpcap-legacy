@@ -58,7 +58,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScan_sizeof
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScan_scan_1id__
   (JNIEnv *env, jobject obj) {
 	
-	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	scan_t *scan = (scan_t *)jmem_data_ro_get(env, obj);
 	if (scan == NULL) {
 		return -1;
 	}
@@ -73,7 +73,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScan_scan_1id__
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScan_scan_1next_1id__
   (JNIEnv *env, jobject obj) {
-	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	scan_t *scan = (scan_t *)jmem_data_ro_get(env, obj);
 	if (scan == NULL) {
 		return -1;
 	}
@@ -88,7 +88,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScan_scan_1next_1id__
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScan_scan_1length__
   (JNIEnv *env, jobject obj) {
-	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	scan_t *scan = (scan_t *)jmem_data_ro_get(env, obj);
 	if (scan == NULL) {
 		return -1;
 	}
@@ -103,7 +103,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScan_scan_1length__
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_record_1header
   (JNIEnv *env, jobject obj) {
-	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	scan_t *scan = (scan_t *)jmem_data_wo_get(env, obj);
 	if (scan == NULL) {
 		return;
 	}
@@ -119,7 +119,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_record_1header
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1id__I
   (JNIEnv *env, jobject obj, jint id) {
-	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	scan_t *scan = (scan_t *)jmem_data_ro_get(env, obj);
 	if (scan == NULL) {
 		return;
 	}
@@ -134,7 +134,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1id__I
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1next_1id__I
   (JNIEnv *env, jobject obj, jint next_id) {
-	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	scan_t *scan = (scan_t *)jmem_data_wo_get(env, obj);
 	if (scan == NULL) {
 		return;
 	}
@@ -149,7 +149,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1next_1id__I
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1length__I
   (JNIEnv *env, jobject obj, jint length) {
-	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	scan_t *scan = (scan_t *)jmem_data_wo_get(env, obj);
 	if (scan == NULL) {
 		return;
 	}
@@ -164,12 +164,12 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1length__I
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1buf
   (JNIEnv *env, jobject obj, jobject jbuf) {
-	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	scan_t *scan = (scan_t *)jmem_data_wo_get(env, obj);
 	if (scan == NULL) {
 		return;
 	}
 
-	char *buf = (char *)getJMemoryPhysical(env, jbuf);
+	char *buf = (char *)jmem_data_ro_get(env, jbuf);
 	scan->buf = buf;
 }
 
@@ -180,7 +180,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1buf
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1buf_1len
   (JNIEnv *env, jobject obj, jint len) {
-	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	scan_t *scan = (scan_t *)jmem_data_wo_get(env, obj);
 	if (scan == NULL) {
 		return;
 	}
@@ -195,7 +195,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1buf_1len
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1offset__I
   (JNIEnv *env, jobject obj, jint offset) {
-	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	scan_t *scan = (scan_t *)jmem_data_wo_get(env, obj);
 	if (scan == NULL) {
 		return;
 	}
@@ -210,7 +210,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1offset__I
  */
 JNIEXPORT jobject JNICALL Java_org_jnetpcap_packet_JScan_scan_1packet
   (JNIEnv *env, jobject obj) {
-	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	scan_t *scan = (scan_t *)jmem_data_ro_get(env, obj);
 	if (scan == NULL) {
 		return NULL;
 	}
@@ -225,7 +225,7 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_packet_JScan_scan_1packet
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScan_scan_1offset__
   (JNIEnv *env, jobject obj) {
-	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	scan_t *scan = (scan_t *)jmem_data_ro_get(env, obj);
 	if (scan == NULL) {
 		return -1;
 	}
@@ -241,7 +241,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScan_scan_1offset__
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1set_1lengths
   (JNIEnv *env, jobject obj, jint prefix, jint header, jint gap, jint payload, jint postfix) {
 
-	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	scan_t *scan = (scan_t *)jmem_data_wo_get(env, obj);
 	if (scan == NULL) {
 		return;
 	}
@@ -261,7 +261,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1set_1lengths
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScan_scan_1prefix__
   (JNIEnv *env, jobject obj) {
 	
-	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	scan_t *scan = (scan_t *)jmem_data_ro_get(env, obj);
 	if (scan == NULL) {
 		return -1;
 	}
@@ -277,7 +277,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScan_scan_1prefix__
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScan_scan_1gap__
 (JNIEnv *env, jobject obj) {
 	
-	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	scan_t *scan = (scan_t *)jmem_data_ro_get(env, obj);
 	if (scan == NULL) {
 		return -1;
 	}
@@ -293,7 +293,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScan_scan_1gap__
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScan_scan_1payload__
 (JNIEnv *env, jobject obj) {
 	
-	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	scan_t *scan = (scan_t *)jmem_data_ro_get(env, obj);
 	if (scan == NULL) {
 		return -1;
 	}
@@ -309,7 +309,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScan_scan_1payload__
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScan_scan_1postix__
 (JNIEnv *env, jobject obj) {
 	
-	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	scan_t *scan = (scan_t *)jmem_data_ro_get(env, obj);
 	if (scan == NULL) {
 		return -1;
 	}
@@ -325,7 +325,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScan_scan_1postix__
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1prefix__I
   (JNIEnv *env, jobject obj, jint jvalue) {
 	
-	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	scan_t *scan = (scan_t *)jmem_data_wo_get(env, obj);
 	if (scan == NULL) {
 		return;
 	}
@@ -341,7 +341,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1prefix__I
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1gap__I
 (JNIEnv *env, jobject obj, jint jvalue) {
 	
-	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	scan_t *scan = (scan_t *)jmem_data_wo_get(env, obj);
 	if (scan == NULL) {
 		return;
 	}
@@ -357,7 +357,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1gap__I
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1payload__I
 (JNIEnv *env, jobject obj, jint jvalue) {
 	
-	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	scan_t *scan = (scan_t *)jmem_data_wo_get(env, obj);
 	if (scan == NULL) {
 		return;
 	}
@@ -373,7 +373,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1payload__I
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScan_scan_1postix__I
 (JNIEnv *env, jobject obj, jint jvalue) {
 	
-	scan_t *scan = (scan_t *)getJMemoryPhysical(env, obj);
+	scan_t *scan = (scan_t *)jmem_data_wo_get(env, obj);
 	if (scan == NULL) {
 		return;
 	}

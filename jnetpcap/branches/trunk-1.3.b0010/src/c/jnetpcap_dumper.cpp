@@ -120,7 +120,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_PcapDumper_dump__Lorg_jnetpcap_PcapHead
 		return; // Exception already thrown
 	}
 	
-	pcap_pkthdr *hdr = (pcap_pkthdr *)getJMemoryPhysical(env, jpcapheader);
+	pcap_pkthdr *hdr = (pcap_pkthdr *)jmem_data_wo_get(env, jpcapheader);
 	if (hdr == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, "header argument null");
 		return;
@@ -156,13 +156,13 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_PcapDumper_dump__Lorg_jnetpcap_PcapHead
 		return; // Exception already thrown
 	}
 	
-	pcap_pkthdr *hdr = (pcap_pkthdr *)getJMemoryPhysical(env, jpcapheader);
+	pcap_pkthdr *hdr = (pcap_pkthdr *)jmem_data_ro_get(env, jpcapheader);
 	if (hdr == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, "header argument null");
 		return;
 	}
 
-	const u_char *b = (u_char *)getJMemoryPhysical(env, jbuffer);
+	const u_char *b = (u_char *)jmem_data_ro_get(env, jbuffer);
 	if (hdr == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, "header argument null");
 		return;

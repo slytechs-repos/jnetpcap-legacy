@@ -9,7 +9,7 @@ import org.jnetpcap.PcapHeader;
 import org.jnetpcap.PcapPktHdr;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JStruct;
-import org.jnetpcap.packet.PeeringException;
+import org.jnetpcap.nio.PeeringException;
 
 /**
  * Copyright (C) 2007 Sly Technologies, Inc. This library is free software; you

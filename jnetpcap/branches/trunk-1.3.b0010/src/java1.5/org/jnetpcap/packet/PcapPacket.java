@@ -18,6 +18,7 @@ import org.jnetpcap.IncompatiblePeer;
 import org.jnetpcap.PcapHeader;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemoryPool;
+import org.jnetpcap.nio.PeeringException;
 
 /**
  * A pcap packet. Fully decoded packet that provides access to protocol headers
@@ -369,7 +370,7 @@ public class PcapPacket
 	private native static void initIds();
 
 
-	private final PcapHeader header = new PcapHeader(Type.POINTER);
+	private final PcapHeader header = new PcapHeader(Type.PEER);
 
 	/**
 	 * Copies contents of the buffer to new packet. All of the contents of the
@@ -395,7 +396,7 @@ public class PcapPacket
 	 *          sequentially in the buffer
 	 */
 	public PcapPacket(byte[] buffer) {
-		super(Type.POINTER);
+		super(Type.PEER);
 
 		transferStateAndDataFrom(buffer);
 	}
@@ -424,22 +425,20 @@ public class PcapPacket
 	 *          sequentially in the buffer
 	 */
 	public PcapPacket(ByteBuffer buffer) {
-		super(Type.POINTER);
+		super(Type.PEER);
 
 		transferStateAndDataFrom(buffer);
 	}
 
 	/**
 	 * Allocates a memory buffer large enough to hold atleast size bytes of data
-	 * and the decoded packet state. The size of the the state structure is
-	 * estimated to contain maximum of {@literal DEFAULT_STATE_HEADER_COUNT}
-	 * headers.
+	 * and the decoded packet state.
 	 * 
 	 * @param size
 	 *          amount of memory to allocate to hold packet data
 	 */
 	public PcapPacket(int size) {
-		super(size, STATE_SIZE);
+		super(size);
 	}
 
 	/**
@@ -478,7 +477,7 @@ public class PcapPacket
 	 *          sequentially in the buffer
 	 */
 	public PcapPacket(JBuffer buffer) {
-		super(Type.POINTER);
+		super(Type.PEER);
 
 		transferStateAndDataFrom(buffer);
 	}
@@ -492,7 +491,7 @@ public class PcapPacket
 	 * @throws IncompatiblePeer
 	 */
 	public PcapPacket(JPacket src) {
-		super(Type.POINTER);
+		super(Type.PEER);
 
 		if (src instanceof PcapPacket) {
 			((PcapPacket) src).transferStateAndDataTo(this);
@@ -513,7 +512,7 @@ public class PcapPacket
 	 *          packet data buffer
 	 */
 	public PcapPacket(PcapHeader header, ByteBuffer buffer) {
-		super(Type.POINTER);
+		super(Type.PEER);
 
 		transferHeaderAndDataFrom(header, buffer);
 	}
@@ -529,7 +528,7 @@ public class PcapPacket
 	 *          packet data buffer
 	 */
 	public PcapPacket(PcapHeader header, JBuffer buffer) {
-		super(Type.POINTER);
+		super(Type.PEER);
 
 		transferHeaderAndDataFrom(header, buffer);
 	}
@@ -543,7 +542,7 @@ public class PcapPacket
 	 * @throws IncompatiblePeer
 	 */
 	public PcapPacket(PcapPacket src) {
-		super(Type.POINTER);
+		super(Type.PEER);
 
 		src.transferStateAndDataTo(this);
 	}

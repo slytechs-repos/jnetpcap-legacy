@@ -72,11 +72,11 @@ jint findHeaderById(packet_state_t *packet, jint id, jint instance) {
  * **************************************************************
  ****************************************************************/
 
-jclass    pcapPacketClass = 0;
-jmethodID pcapPacketConstructorMID = 0;
+jclass    CLASS_pcap_packet = 0;
+jmethodID MID_pcap_packet_init_I = 0;
 
-jfieldID pcapStateFID = 0;
-jfieldID pcapHeaderFID = 0;
+jfieldID FID_jpacket_state = 0;
+jfieldID FID_pcap_packet_header = 0;
 
 
 /*
@@ -87,38 +87,12 @@ jfieldID pcapHeaderFID = 0;
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_PcapPacket_initIds
   (JNIEnv *env, jclass clazz) {
 	
-	pcapPacketClass = (jclass) env->NewGlobalRef(clazz);
-	
-	if ( (pcapPacketConstructorMID = env->GetMethodID(clazz, 
-			"<init>", "(Lorg/jnetpcap/nio/JMemory$Type;)V")) == NULL) {
-		
-		throwException(env, NO_SUCH_METHOD_EXCEPTION,
-				"Unable to initialize method PcapPacket(Type)");
-		fprintf(stderr, "Unable to initialize method PcapPacket(Type)");
-		return;
-	}
-
-	if ( ( pcapStateFID = env->GetFieldID(
-			clazz, 
-			"state", 
-			"Lorg/jnetpcap/packet/JPacket$State;")) == NULL) {
-		
-		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field PcapPacket.State:JPacket.State");
-		return;
-	}
-	
-	if ( ( pcapHeaderFID = env->GetFieldID(
-			clazz, 
-			"header", 
-			"Lorg/jnetpcap/PcapHeader;")) == NULL) {
-		
-		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field PcapPacket.header:PcapHeader");
-		return;
-	}
-
-
+	jnp_id_start(env, clazz);
+	jnp_c(CLASS_pcap_packet, "org/jnetpcap/packet/PcapPacket");
+	jnp_m(MID_pcap_packet_init_I, "<init>", "(I)V");
+	jnp_f(FID_jpacket_state, "state", "Lorg/jnetpcap/packet/JPacket$State;");
+	jnp_f(FID_pcap_packet_header, "header", "Lorg/jnetpcap/PcapHeader;");
+	jnp_id_end();	
 }
 
 
@@ -141,7 +115,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_sizeof__I
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_findHeaderIndex
   (JNIEnv *env, jobject obj, jint id, jint instance) {
 	
-	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	packet_state_t *packet = (packet_state_t *)jmem_data_ro_get(env, obj);
 	if (packet == NULL) {
 		return -1;
 	}
@@ -157,7 +131,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_findHeaderInd
 JNIEXPORT jlong JNICALL Java_org_jnetpcap_packet_JPacket_00024State_get64BitHeaderMap
   (JNIEnv *env, jobject obj, jint index) {
 	
-	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	packet_state_t *packet = (packet_state_t *)jmem_data_ro_get(env, obj);
 	if (packet == NULL) {
 		return -1;
 	}
@@ -173,7 +147,7 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_packet_JPacket_00024State_get64BitHead
 JNIEXPORT jobject JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getAnalysis
 
   (JNIEnv *env, jobject obj) {
-	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	packet_state_t *packet = (packet_state_t *)jmem_data_ro_get(env, obj);
 	if (packet == NULL) {
 		return NULL;
 	}
@@ -190,7 +164,7 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getAnalysi
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getHeaderCount
   (JNIEnv *env, jobject obj) {
 	
-	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	packet_state_t *packet = (packet_state_t *)jmem_data_ro_get(env, obj);
 	if (packet == NULL) {
 		return -1;
 	}
@@ -207,7 +181,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getHeaderCoun
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getInstanceCount
   (JNIEnv *env, jobject obj, jint id) {
 	
-	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	packet_state_t *packet = (packet_state_t *)jmem_data_ro_get(env, obj);
 	if (packet == NULL) {
 		return -1;
 	}
@@ -230,7 +204,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getInstanceCo
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getFlags
   (JNIEnv *env, jobject obj) {
 
-	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	packet_state_t *packet = (packet_state_t *)jmem_data_ro_get(env, obj);
 	if (packet == NULL) {
 		return -1;
 	}
@@ -246,7 +220,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getFlags
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JPacket_00024State_setFlags
   (JNIEnv *env, jobject obj, jint jflags) {
 	
-	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	packet_state_t *packet = (packet_state_t *)jmem_data_wo_get(env, obj);
 	if (packet == NULL) {
 		return;
 	}
@@ -262,7 +236,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JPacket_00024State_setFlags
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getWirelen
   (JNIEnv *env, jobject obj) {
 	
-	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	packet_state_t *packet = (packet_state_t *)jmem_data_ro_get(env, obj);
 	if (packet == NULL) {
 		return -1;
 	}
@@ -278,7 +252,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getWirelen
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JPacket_00024State_setWirelen
   (JNIEnv *env, jobject obj, jint jwirelen) {
 	
-	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	packet_state_t *packet = (packet_state_t *)jmem_data_wo_get(env, obj);
 	if (packet == NULL) {
 		return;
 	}
@@ -295,7 +269,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JPacket_00024State_setWirelen
  */
 JNIEXPORT jlong JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getFrameNumber
   (JNIEnv *env, jobject obj) {
-	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	packet_state_t *packet = (packet_state_t *)jmem_data_ro_get(env, obj);
 	if (packet == NULL) {
 		return -1;
 	}
@@ -312,7 +286,7 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getFrameNumb
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getHeaderIdByIndex
   (JNIEnv *env, jobject obj, jint index) {
 	
-	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	packet_state_t *packet = (packet_state_t *)jmem_data_ro_get(env, obj);
 	if (packet == NULL) {
 		return -1;
 	}
@@ -342,7 +316,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getHeaderIdBy
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getHeaderLengthByIndex
   (JNIEnv *env, jobject obj, jint index) {
 	
-	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	packet_state_t *packet = (packet_state_t *)jmem_data_ro_get(env, obj);
 	if (packet == NULL) {
 		return -1;
 	}
@@ -363,7 +337,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getHeaderLeng
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getHeaderOffsetByIndex
   (JNIEnv *env, jobject obj, jint index) {
 	
-	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	packet_state_t *packet = (packet_state_t *)jmem_data_ro_get(env, obj);
 	if (packet == NULL) {
 		return -1;
 	}
@@ -385,22 +359,27 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getHeaderOffs
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JPacket_00024State_setAnalysis__Lorg_jnetpcap_packet_analysis_JAnalysis_2
   (JNIEnv *env, jobject obj, jobject analysis) {
 	
-	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	jmemory_t *node = jmem_get_owner(env, obj);
+	if (node == NULL) {
+		return;
+	}
+	
+	packet_state_t *packet = (packet_state_t *)jmem_data_wo(node);
 	if (packet == NULL) {
 		throwVoidException(env, NULL_PTR_EXCEPTION);
 		return;
 	}
 	
-	if (packet->pkt_analysis != NULL) {
-		/* params: packet_state_t struct and analysis JNI global reference */
-		jmemoryRefRelease(env, obj, packet->pkt_analysis);
+	if (packet->pkt_analysis != NULL 
+			&& jref_lc_free_obj(env, node, packet->pkt_analysis)) {
+		return;
 	}
 
 	if (analysis == NULL) {
 		packet->pkt_analysis = NULL;
 	} else	{
 		/* params: packet_state_t struct and analysis JNI local reference */
-		packet->pkt_analysis = jmemoryRefCreate(env, obj, analysis);
+		packet->pkt_analysis = jref_lc_create(env, node, analysis);
 	}
 }
 
@@ -412,7 +391,12 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JPacket_00024State_setAnalysis__
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JPacket_00024State_setAnalysis__ILorg_jnetpcap_packet_analysis_JAnalysis_2
   (JNIEnv *env, jobject obj, jint id, jobject analysis) {
 		
-	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	jmemory_t *node = jmem_get_owner(env, obj);
+	if (node == NULL) {
+		return;
+	}
+	
+	packet_state_t *packet = (packet_state_t *)jmem_data_wo(node);
 	if (packet == NULL) {
 		throwVoidException(env, NULL_PTR_EXCEPTION);
 		return;
@@ -430,16 +414,16 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JPacket_00024State_setAnalysis__
 		return;
 	}
 
-	if (header->hdr_analysis != NULL) {
-		/* params: packet_state_t struct and analysis JNI global reference */
-		jmemoryRefRelease(env, obj, header->hdr_analysis);
+	if (header->hdr_analysis != NULL 
+			&& jref_lc_free_obj(env, node, header->hdr_analysis)) {
+		return;
 	}
 
 	if (analysis == NULL) {
 		header->hdr_analysis = NULL;
 	} else	{
 		/* params: packet_state_t struct and analysis JNI local reference */
-		header->hdr_analysis = jmemoryRefCreate(env, obj, analysis);
+		header->hdr_analysis = jref_lc_create(env, node, analysis);
 	}
 }
 
@@ -452,8 +436,14 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JPacket_00024State_setAnalysis__
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_peerHeaderById
   (JNIEnv *env, jobject obj, jint id, jint instance, jobject dst) {
 	
-	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	jmemory_t *node = jmem_get_owner(env, obj);
+	if (node == NULL) {
+		return -1;
+	}
+	
+	packet_state_t *packet = (packet_state_t *)jmem_data_wo(node);
 	if (packet == NULL) {
+		jnp_exception(env);
 		return -1;
 	}
 	
@@ -462,10 +452,17 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_peerHeaderByI
 		return -1;
 	}
 	
-	setJMemoryPhysical(env, dst, toLong(&packet->pkt_headers[index]));
-	jobject keeper = env->GetObjectField(obj, jmemoryKeeperFID);
-	env->SetObjectField(dst, jmemoryKeeperFID, keeper);
-
+	peer_t *peer = jpeer_get(env, dst);
+	if (peer == NULL) {
+		return -1;
+	}
+	
+	
+	if (jpeer_ref_jmem(env, peer, &packet->pkt_headers[index], 
+			sizeof(header_t), node)) {
+		return -1;
+	}
+		
 	return sizeof(header_t);
 }
 
@@ -475,19 +472,37 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_peerHeaderByI
  * Signature: (ILorg/jnetpcap/packet/JHeader$State;)I
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_peerHeaderByIndex
-  (JNIEnv *env, jobject obj, jint index, jobject dst) {
+  (JNIEnv *env, jobject obj, jint index, jobject header_state) {
+	jnp_enter("State_peerHeaderByIndex");
 	
-	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	jmemory_t *node = jmem_get_owner(env, obj);
+	if (node == NULL) {
+		jnp_exit_error();
+		return -1;
+	}
+	
+	packet_state_t *packet = (packet_state_t *)jmem_data_ro(node);
 	if (packet == NULL) {
+		jnp_exit_exception(env);
 		return -1;
 	}
 	
-	if (index >= packet->pkt_header_count) {
+	jnp_trace("pkt_header_count=%d", packet->pkt_header_count);
+	jnp_trace("pkt_flags=%d", packet->pkt_flags);
+	
+	peer_t *peer = jpeer_get(env, header_state);
+	if (peer == NULL) {
+		jnp_exit_error();
 		return -1;
 	}
 	
-	setJMemoryPhysical(env, dst, toLong(&packet->pkt_headers[index]));
-
+	if (jpeer_ref_jmem(env, peer, &packet->pkt_headers[index], 
+			sizeof(header_t), node)) {
+		jnp_exit_error();
+		return -1;
+	}
+		
+	jnp_exit_OK();
 	return sizeof(header_t);
 }
 
@@ -513,7 +528,7 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_packet_JPacket_00024State_toDebugStr
 	char buf[15 * 1024];
 	buf[0] = '\0';
 	
-	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
+	packet_state_t *packet = (packet_state_t *)jmem_data_ro_get(env, obj);
 	if (packet == NULL) {
 		return NULL;
 	}

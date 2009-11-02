@@ -68,9 +68,9 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcapSendQueue_getLen
   (JNIEnv *env, jobject obj) {
 	
 #ifdef WIN32
-	pcap_send_queue *q = (pcap_send_queue *)getJMemoryPhysical(env, obj);
+
+	pcap_send_queue *q = (pcap_send_queue *)jmem_data_ro_get(env, obj);
 	if (q == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "pcap_send_queue NULL");
 		return -1;
 	}
 	
@@ -92,9 +92,9 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcapSendQueue_getMaxLen
   (JNIEnv *env, jobject obj) {
 
 #ifdef WIN32
-pcap_send_queue *q = (pcap_send_queue *)getJMemoryPhysical(env, obj);
+
+	pcap_send_queue *q = (pcap_send_queue *)jmem_data_ro_get(env, obj);
 	if (q == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "pcap_send_queue NULL");
 		return -1;
 	}
 	
@@ -117,9 +117,9 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcapSendQueue_incLen
   (JNIEnv *env, jobject obj, jint jdelta) {
 
 #ifdef WIN32
-pcap_send_queue *q = (pcap_send_queue *)getJMemoryPhysical(env, obj);
+
+	pcap_send_queue *q = (pcap_send_queue *)jmem_data_get(env, obj);
 	if (q == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "pcap_send_queue NULL");
 		return -1;
 	}
 	
@@ -144,13 +144,15 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_winpcap_WinPcapSendQueue_setBuffer
   (JNIEnv *env, jobject obj, jobject jbuf) {
 	
 #ifdef WIN32
-	pcap_send_queue *q = (pcap_send_queue *)getJMemoryPhysical(env, obj);
+
+	pcap_send_queue *q = (pcap_send_queue *)jmem_data_wo_get(env, obj);
 	if (q == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "pcap_send_queue NULL");
 		return;
 	}
 	
-	q->buffer = (char *)getJMemoryPhysical(env, jbuf);
+	if ((q->buffer = (char *)jmem_data_ro_get(env, jbuf)) == NULL) {
+		return;
+	}
 	
 #else
 	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
@@ -167,9 +169,9 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_winpcap_WinPcapSendQueue_setBuffer
 JNIEXPORT void JNICALL Java_org_jnetpcap_winpcap_WinPcapSendQueue_setLen
   (JNIEnv *env, jobject obj, jint jlen) {
 #ifdef WIN32
-	pcap_send_queue *q = (pcap_send_queue *)getJMemoryPhysical(env, obj);
+
+	pcap_send_queue *q = (pcap_send_queue *)jmem_data_wo_get(env, obj);
 	if (q == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "pcap_send_queue NULL");
 		return;
 	}
 	
@@ -192,9 +194,9 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_winpcap_WinPcapSendQueue_setMaxLen
   (JNIEnv *env, jobject obj, jint jmaxlen) {
 	
 #ifdef WIN32
-	pcap_send_queue *q = (pcap_send_queue *)getJMemoryPhysical(env, obj);
+
+	pcap_send_queue *q = (pcap_send_queue *)jmem_data_ro_get(env, obj);
 	if (q == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "pcap_send_queue NULL");
 		return;
 	}
 	

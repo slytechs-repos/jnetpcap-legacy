@@ -39,6 +39,7 @@
  * **************************************************************
  ****************************************************************/
 
+#define jbuffer_is_big_endian(node) ((node->flags & JMEMORY_BIG_ENDIAN) != 0)
 
 /****************************************************************
  * **************************************************************
@@ -47,8 +48,7 @@
  * 
  * **************************************************************
  ****************************************************************/
-jfieldID jbufferOrderFID = 0;
-jfieldID jbufferReadonlyFID = 0;
+jclass CLASS_jbuffer = NULL;
 
 #define ITOA_BUF 16
 
@@ -60,19 +60,7 @@ jfieldID jbufferReadonlyFID = 0;
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_initIds
 (JNIEnv *env, jclass clazz) {
 
-	jclass c = clazz;
-	
-	if ( ( jbufferOrderFID = env->GetFieldID(c, "order", "Z")) == NULL) {
-		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field JBuffer.order:boolean");
-		return;
-	}
-
-	if ( ( jbufferReadonlyFID = env->GetFieldID(c, "readonly", "Z")) == NULL) {
-		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field JBuffer.readonly:boolean");
-		return;
-	}
+	CLASS_jbuffer = (jclass) env->NewGlobalRef(clazz);
 }
 
 /*
@@ -81,21 +69,25 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_initIds
  * Signature: (I)B
  */
 JNIEXPORT jbyte JNICALL Java_org_jnetpcap_nio_JBuffer_getByte
-  (JNIEnv *env, jobject obj, jint jindex) {
-	
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
-		return -1;
+(JNIEnv *env, jobject obj, jint index) {
+
+	jmemory_t *node = jmem_get(env, obj);
+	if (node == NULL) {
+		return 0;
 	}
 
-	size_t size =  (size_t) env->GetIntField(obj, jmemorySizeFID);
-	if (jindex < 0 || jindex >= size) {
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
-		return -1;
+	if (jmem_bounds(node, index, 1)) {
+		jnp_exception(env);
+		return 0;
 	}
-	
-	return mem[jindex];
+
+	jbyte *data = (jbyte *)jmem_data_ro(node); // For reading
+	if (data == NULL) {
+		jnp_exception(env);
+		return 0;
+	}
+
+	return data[index];
 }
 
 /*
@@ -104,67 +96,29 @@ JNIEXPORT jbyte JNICALL Java_org_jnetpcap_nio_JBuffer_getByte
  * Signature: (I[B)[B
  */
 JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_nio_JBuffer_getByteArray__I_3B
-  (JNIEnv *env, jobject obj, jint jindex, jbyteArray jarray) {
-	
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
+(JNIEnv *env, jobject obj, jint index, jbyteArray array) {
+
+	jmemory_t *node = jmem_get(env, obj);
+	if (node == NULL) {
+		return 0;
+	}
+
+	size_t size = env->GetArrayLength(array);
+
+	if (jmem_bounds(node, index, size)) {
+		jnp_exception(env);
+		return 0;
+	}
+
+	jbyte *data = (jbyte *)jmem_data_ro(node);
+	if (data == NULL) {
+		jnp_exception(env);
 		return NULL;
 	}
 
-	size_t size =  (size_t) env->GetIntField(obj, jmemorySizeFID);
-	if (jindex < 0 || jindex >= size) {
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
-		return NULL;
-	}
-	
-	size_t jarraySize = env->GetArrayLength(jarray);
-	
-	if (jindex + jarraySize > size) {
-		
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
-		
-		return NULL;
-	}
-	
-	env->SetByteArrayRegion(jarray, 0, jarraySize, mem + jindex);
-	
-	return jarray;
-}
+	env->SetByteArrayRegion(array, 0, size, data + index);
 
-/*
- * Class:     org_jnetpcap_nio_JBuffer
- * Method:    getByteArray
- * Signature: (II)[B
- */
-JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_nio_JBuffer_getByteArray__II
-  (JNIEnv *env, jobject obj, jint jindex, jint jarraySize) {
-	
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
-		
-		return NULL;
-	}
-
-	size_t size =  (size_t) env->GetIntField(obj, jmemorySizeFID);
-	if (jindex < 0 || jindex >= size) {		
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
-		
-		return NULL;
-	}
-		
-	if (jindex + jarraySize > size) {
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
-		
-		return NULL;
-	}
-	
-	jbyteArray jarray = env->NewByteArray(jarraySize);
-	
-	env->SetByteArrayRegion(jarray, 0, jarraySize, (mem + jindex));
-	
-	return jarray;
+	return array;
 }
 
 /*
@@ -173,34 +127,68 @@ JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_nio_JBuffer_getByteArray__II
  * Signature: (I[BII)[B
  */
 JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_nio_JBuffer_getByteArray__I_3BII
-  (JNIEnv *env, jobject obj, jint jindex, jbyteArray jarray, jint offset, jint length) {
-	
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
+(JNIEnv *env, jobject obj, jint index, jbyteArray array, jint offset, jint size) {
+
+	jmemory_t *node = jmem_get(env, obj);
+	if (node == NULL) {
 		return NULL;
 	}
 
-	size_t size =  (size_t) env->GetIntField(obj, jmemorySizeFID);
-	if (jindex < 0 || jindex >= size || offset < 0 || length < 0) {
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	if (jmem_bounds(node, index, size)) {
+		jnp_exception(env);
 		return NULL;
 	}
-	
-	size_t jarraySize = env->GetArrayLength(jarray);
-	
-	if (jindex + offset + length > size || offset + length > jarraySize) {
-		
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
-		
+
+	jint array_size = env->GetArrayLength(array);
+	if (offset + size> array_size) {
+		jnp_exception_code(env, JMEM_OUT_OF_BOUNDS);
 		return NULL;
 	}
-	
-	env->SetByteArrayRegion(jarray, offset, length, mem + jindex);
-	
-	return jarray;
+
+	jbyte *data = (jbyte *)jmem_data_ro(node);
+	if (data == NULL) {
+		jnp_exception(env);
+		return NULL;
+	}
+
+	env->SetByteArrayRegion(array, offset, size, data + index);
+
+	return array;
 }
 
+/*
+ * Class:     org_jnetpcap_nio_JBuffer
+ * Method:    getByteArray
+ * Signature: (II)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_nio_JBuffer_getByteArray__II
+(JNIEnv *env, jobject obj, jint index, jint size) {
+
+	jmemory_t *node = jmem_get(env, obj);
+	if (node == NULL) {
+		return 0;
+	}
+
+	if (jmem_bounds(node, index, size)) {
+		jnp_exception(env);
+		return 0;
+	}
+
+	jbyte *data = (jbyte *)jmem_data_ro(node);
+	if (data == NULL) {
+		jnp_exception(env);
+		return NULL;
+	}
+
+	jbyteArray array = env->NewByteArray(size);
+	if (array == NULL) {
+		jnp_exception_code(env, JNP_OUT_OF_MEMORY);
+	}
+
+	env->SetByteArrayRegion(array, 0, size, data + index);
+
+	return array;
+}
 
 /*
  * Class:     org_jnetpcap_nio_JBuffer
@@ -208,36 +196,38 @@ JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_nio_JBuffer_getByteArray__I_3BII
  * Signature: (I)D
  */
 JNIEXPORT jdouble JNICALL Java_org_jnetpcap_nio_JBuffer_getDouble
-  (JNIEnv *env, jobject obj, jint jindex) {
-	
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
+(JNIEnv *env, jobject obj, jint index) {
+
+	jmemory_t *node = jmem_get(env, obj);
+	if (node == NULL) {
 		return 0;
 	}
 
-	size_t size =  (size_t) env->GetIntField(obj, jmemorySizeFID);
-	if (jindex < 0 || jindex + sizeof(jdouble) > size) {
-		
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	if (jmem_bounds(node, index, sizeof(jdouble))) {
+		jnp_exception(env);
 		return 0;
 	}
-	
+
+	jbyte *data = (jbyte *)jmem_data_ro(node); // For reading
+	if (data == NULL) {
+		jnp_exception(env);
+		return 0;
+	}
 	// true = BID_ENDIAN, false = LITTLE_ENDIAN
-	jboolean big = env->GetBooleanField(obj, jbufferOrderFID);
+	jboolean big = jbuffer_is_big_endian(node);
 
 	/*
 	 * For efficiency of the endian byte swapping, convert to an atom and use
 	 * a CPU register if possible during conversion.
 	 */
-	 u_int64_t data = *(u_int64_t *)(mem + jindex);
-	 
+	u_int64_t long_data = *(u_int64_t *)(data + index);
+
 	/*
 	 * We can't just typecast u_int64 to a double. The double has to be read
 	 * out of memory using a double pointer.
 	 */
-	data = ENDIAN64_GET(big, data);
-	return *((jdouble *)&data);
+	long_data = ENDIAN64_GET(big, long_data);
+	return *((jdouble *)&long_data);
 }
 
 /*
@@ -246,36 +236,38 @@ JNIEXPORT jdouble JNICALL Java_org_jnetpcap_nio_JBuffer_getDouble
  * Signature: (I)F
  */
 JNIEXPORT jfloat JNICALL Java_org_jnetpcap_nio_JBuffer_getFloat
-  (JNIEnv *env, jobject obj, jint jindex) {
-	
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
+(JNIEnv *env, jobject obj, jint index) {
+
+	jmemory_t *node = jmem_get(env, obj);
+	if (node == NULL) {
 		return 0;
 	}
 
-	size_t size =  (size_t) env->GetIntField(obj, jmemorySizeFID);
-	if (jindex < 0 || jindex + sizeof(jfloat) > size) {
-		
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	if (jmem_bounds(node, index, sizeof(jfloat))) {
+		jnp_exception(env);
 		return 0;
 	}
-	
+
+	jbyte *data = (jbyte *)jmem_data_ro(node); // For reading
+	if (data == NULL) {
+		jnp_exception(env);
+		return 0;
+	}
 	// true = BID_ENDIAN, false = LITTLE_ENDIAN
-	jboolean big = env->GetBooleanField(obj, jbufferOrderFID);
-	
+	jboolean big = jbuffer_is_big_endian(node);
+
 	/*
 	 * For efficiency of the endian byte swapping, convert to an atom and use
 	 * a CPU register if possible during conversion.
 	 */
-	u_int32_t data = *(u_int32_t *)(mem + jindex);
+	u_int32_t long_data = *(u_int32_t *)(data + index);
 
 	/*
-	 * We can't just typecast u_int32 to a float. The float has to be read
-	 * out of memory using a float pointer.
+	 * We can't just typecast u_int64 to a double. The double has to be read
+	 * out of memory using a double pointer.
 	 */
-	data = ENDIAN32_GET(big, data);
-	return *((jfloat *)&data);
+	long_data = ENDIAN32_GET(big, long_data);
+	return *((jfloat *)&long_data);
 }
 
 /*
@@ -284,31 +276,34 @@ JNIEXPORT jfloat JNICALL Java_org_jnetpcap_nio_JBuffer_getFloat
  * Signature: (I)I
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JBuffer_getInt
-  (JNIEnv *env, jobject obj, jint jindex) {
-	
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
+(JNIEnv *env, jobject obj, jint index) {
+
+	jmemory_t *node = jmem_get(env, obj);
+	if (node == NULL) {
 		return 0;
 	}
 
-	size_t size =  (size_t) env->GetIntField(obj, jmemorySizeFID);
-	if (jindex < 0 || jindex + sizeof(jint) > size) {
-		
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	if (jmem_bounds(node, index, sizeof(jint))) {
+		jnp_exception(env);
 		return 0;
 	}
-	
+
+	jbyte *data = (jbyte *)jmem_data_ro(node); // For reading
+	if (data == NULL) {
+		jnp_exception(env);
+		return 0;
+	}
+
 	// true = BID_ENDIAN, false = LITTLE_ENDIAN
-	jboolean big = env->GetBooleanField(obj, jbufferOrderFID);
+	jboolean big = jbuffer_is_big_endian(node);
 
 	/*
 	 * For efficiency of the endian byte swapping, convert to an atom and use
 	 * a CPU register if possible during conversion.
 	 */
-	register jint data = *(jint *)(mem + jindex);
-	
-	return ENDIAN32_GET(big, data);
+	register jint long_data = *(jint *)(data + index);
+
+	return ENDIAN32_GET(big, long_data);
 }
 
 /*
@@ -317,30 +312,33 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JBuffer_getInt
  * Signature: (I)J
  */
 JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JBuffer_getLong
-  (JNIEnv *env, jobject obj, jint jindex) {
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
+(JNIEnv *env, jobject obj, jint index) {
+	jmemory_t *node = jmem_get(env, obj);
+	if (node == NULL) {
 		return 0;
 	}
 
-	size_t size =  (size_t) env->GetIntField(obj, jmemorySizeFID);
-	if (jindex < 0 || jindex + sizeof(jlong) > size) {
-		
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	if (jmem_bounds(node, index, sizeof(jlong))) {
+		jnp_exception(env);
 		return 0;
 	}
-	
+
+	jbyte *data = (jbyte *)jmem_data_ro(node); // For reading
+	if (data == NULL) {
+		jnp_exception(env);
+		return 0;
+	}
+
 	// true = BID_ENDIAN, false = LITTLE_ENDIAN
-	jboolean big = env->GetBooleanField(obj, jbufferOrderFID);
+	jboolean big = jbuffer_is_big_endian(node);
 
 	/*
 	 * For efficiency of the endian byte swapping, convert to an atom and use
 	 * a CPU register if possible during conversion.
 	 */
-	register u_int64_t data = *(u_int64_t *)(mem + jindex);
-	
-	return ENDIAN64_GET(big, data);
+	register u_int64_t long_data = *(u_int64_t *)(data + index);
+
+	return ENDIAN64_GET(big, long_data);
 }
 
 /*
@@ -349,30 +347,33 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JBuffer_getLong
  * Signature: (I)S
  */
 JNIEXPORT jshort JNICALL Java_org_jnetpcap_nio_JBuffer_getShort
-  (JNIEnv *env, jobject obj, jint jindex) {
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
+(JNIEnv *env, jobject obj, jint index) {
+	jmemory_t *node = jmem_get(env, obj);
+	if (node == NULL) {
 		return 0;
 	}
 
-	size_t size =  (size_t) env->GetIntField(obj, jmemorySizeFID);
-	if (jindex < 0 || jindex + sizeof(jshort) > size) {
-		
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	if (jmem_bounds(node, index, sizeof(jshort))) {
+		jnp_exception(env);
 		return 0;
 	}
-	
+
+	jbyte *data = (jbyte *)jmem_data_ro(node); // For reading
+	if (data == NULL) {
+		jnp_exception(env);
+		return 0;
+	}
+
 	// true = BID_ENDIAN, false = LITTLE_ENDIAN
-	jboolean big = env->GetBooleanField(obj, jbufferOrderFID);
+	jboolean big = jbuffer_is_big_endian(node);
 
 	/*
 	 * For efficiency of the endian byte swapping, convert to an atom and use
 	 * a CPU register if possible during conversion.
 	 */
-	register jshort data = *(jshort *)(mem + jindex);
-	
-	return ENDIAN16_GET(big, data);
+	register jshort long_data = *(jshort *)(data + index);
+
+	return ENDIAN16_GET(big, long_data);
 
 }
 
@@ -382,31 +383,25 @@ JNIEXPORT jshort JNICALL Java_org_jnetpcap_nio_JBuffer_getShort
  * Signature: (I)I
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JBuffer_getUByte
-  (JNIEnv *env, jobject obj, jint jindex) {
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
+(JNIEnv *env, jobject obj, jint index) {
+
+	jmemory_t *node = jmem_get(env, obj);
+	if (node == NULL) {
 		return 0;
 	}
 
-	size_t size =  (size_t) env->GetIntField(obj, jmemorySizeFID);
-	if (jindex < 0 || jindex + sizeof(jbyte) > size) {
-		
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	if (jmem_bounds(node, index, sizeof(jshort))) {
+		jnp_exception(env);
 		return 0;
 	}
-	
-	// true = BID_ENDIAN, false = LITTLE_ENDIAN
-	jboolean big = env->GetBooleanField(obj, jbufferOrderFID);
 
-	/*
-	 * For efficiency of the endian byte swapping, convert to an atom and use
-	 * a CPU register if possible during conversion.
-	 */
-	register u_int8_t data = (u_int8_t)*(mem + jindex);
-	
-	return (jint) data;
+	jbyte *data = (jbyte *)jmem_data_ro(node); // For reading
+	if (data == NULL) {
+		jnp_exception(env);
+		return 0;
+	}
 
+	return (jint) ((u_int8_t)*(data + index));
 }
 
 /*
@@ -415,30 +410,34 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JBuffer_getUByte
  * Signature: (I)J
  */
 JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JBuffer_getUInt
-  (JNIEnv *env, jobject obj, jint jindex) {
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
+(JNIEnv *env, jobject obj, jint index) {
+
+	jmemory_t *node = jmem_get(env, obj);
+	if (node == NULL) {
 		return 0;
 	}
 
-	size_t size =  (size_t) env->GetIntField(obj, jmemorySizeFID);
-	if (jindex < 0 || jindex + sizeof(jint) > size) {
-		
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	if (jmem_bounds(node, index, sizeof(jint))) {
+		jnp_exception(env);
 		return 0;
 	}
-	
+
+	jbyte *data = (jbyte *)jmem_data_ro(node); // For reading
+	if (data == NULL) {
+		jnp_exception(env);
+		return 0;
+	}
+
 	// true = BID_ENDIAN, false = LITTLE_ENDIAN
-	jboolean big = env->GetBooleanField(obj, jbufferOrderFID);
+	jboolean big = jbuffer_is_big_endian(node);
 
 	/*
 	 * For efficiency of the endian byte swapping, convert to an atom and use
 	 * a CPU register if possible during conversion.
 	 */
-	register u_int32_t data = *(u_int32_t *)(mem + jindex);
-	
-	return (jlong) ENDIAN32_GET(big, data);
+	register u_int32_t long_data = *(u_int32_t *)(data + index);
+
+	return (jlong) ENDIAN32_GET(big, long_data);
 
 }
 
@@ -448,31 +447,34 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JBuffer_getUInt
  * Signature: (I)I
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JBuffer_getUShort
-  (JNIEnv *env, jobject obj, jint jindex) {
-	
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
+(JNIEnv *env, jobject obj, jint index) {
+
+	jmemory_t *node = jmem_get(env, obj);
+	if (node == NULL) {
 		return 0;
 	}
 
-	size_t size =  (size_t) env->GetIntField(obj, jmemorySizeFID);
-	if (jindex < 0 || jindex + sizeof(jshort) > size) {
-		
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	if (jmem_bounds(node, index, sizeof(jshort))) {
+		jnp_exception(env);
 		return 0;
 	}
-	
+
+	jbyte *data = (jbyte *)jmem_data_ro(node); // For reading
+	if (data == NULL) {
+		jnp_exception(env);
+		return 0;
+	}
+
 	// true = BID_ENDIAN, false = LITTLE_ENDIAN
-	jboolean big = env->GetBooleanField(obj, jbufferOrderFID);
+	jboolean big = jbuffer_is_big_endian(node);
 
 	/*
 	 * For efficiency of the endian byte swapping, convert to an atom and use
 	 * a CPU register if possible during conversion.
 	 */
-	register u_int16_t data = *(u_int16_t *)(mem + jindex);
-	
-	return (jint) ENDIAN16_GET(big, data);
+	register u_int16_t long_data = *(u_int16_t *)(data + index);
+
+	return (jint) ENDIAN16_GET(big, long_data);
 }
 
 /*
@@ -481,22 +483,25 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JBuffer_getUShort
  * Signature: (IB)V
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setByte
-  (JNIEnv *env, jobject obj, jint jindex, jbyte jval) {
-	
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
-		;
-	}
+(JNIEnv *env, jobject obj, jint index, jbyte value) {
 
-	size_t size =  (size_t) env->GetIntField(obj, jmemorySizeFID);
-	if (jindex < 0 || jindex + sizeof(jbyte) > size) {
-		
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	jmemory_t *node = jmem_get(env, obj);
+	if (node == NULL) {
 		return;
 	}
-	
-	*(mem + jindex) = jval;
+
+	if (jmem_bounds(node, index, sizeof(value))) {
+		jnp_exception(env);
+		return;
+	}
+
+	jbyte *data = (jbyte *)jmem_data_wo(node); // For reading
+	if (data == NULL) {
+		jnp_exception(env);
+		return;
+	}
+
+	*(data + index) = value;
 }
 
 /*
@@ -505,31 +510,32 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setByte
  * Signature: (I[B)V
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setByteArray
-  (JNIEnv *env, jobject obj, jint jindex, jbyteArray jarray) {
-	
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
+(JNIEnv *env, jobject obj, jint index, jbyteArray array) {
+
+	if (array == NULL) {
+		jnp_exception_code(env, JNP_NULL_ARG);
 		return;
 	}
 
-	size_t size =  (size_t) env->GetIntField(obj, jmemorySizeFID);
-	if (jindex < 0 || jindex >= size) {
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	jmemory_t *node = jmem_get(env, obj);
+	if (node == NULL) {
 		return;
 	}
-	
-	size_t jarraySize = env->GetArrayLength(jarray);
-	
-	if (jindex + jarraySize > size) {
-		
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
-		
+
+	size_t size = env->GetArrayLength(array);
+
+	if (jmem_bounds(node, index, size)) {
+		jnp_exception(env);
 		return;
 	}
-	
-	env->GetByteArrayRegion(jarray, 0, jarraySize, (mem + jindex));
-	
+
+	jbyte *data = (jbyte *)jmem_data_wo(node); // For reading
+	if (data == NULL) {
+		jnp_exception(env);
+		return;
+	}
+
+	env->GetByteArrayRegion(array, 0, size, (data + index));
 	return;
 }
 
@@ -539,42 +545,38 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setByteArray
  * Signature: (ID)V
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setDouble
-  (JNIEnv *env, jobject obj, jint jindex, jdouble jval) {
-	
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
-		return;
-	}
-	
-	jboolean readonly =  env->GetBooleanField(obj, jbufferReadonlyFID);
-	if (readonly == JNI_TRUE) {
-		
-		throwVoidException(env, READ_ONLY_BUFFER_EXCETPION);
+(JNIEnv *env, jobject obj, jint index, jdouble value) {
+
+	jmemory_t *node = jmem_get(env, obj);
+	if (node == NULL) {
 		return;
 	}
 
-	size_t size =  (size_t) env->GetIntField(obj, jmemorySizeFID);
-	if (jindex < 0 || jindex + sizeof(jdouble) > size) {
-		
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	if (jmem_bounds(node, index, sizeof(value))) {
+		jnp_exception(env);
 		return;
 	}
-	
+
+	jbyte *data = (jbyte *)jmem_data_wo(node); // For reading
+	if (data == NULL) {
+		jnp_exception(env);
+		return;
+	}
+
 	// true = BID_ENDIAN, false = LITTLE_ENDIAN
-	jboolean big = env->GetBooleanField(obj, jbufferOrderFID);
-	
+	jboolean big = jbuffer_is_big_endian(node);
+
 	/*
 	 * For efficiency of the endian byte swapping, convert to an atom and use
 	 * a CPU register if possible during conversion.
 	 */
-	u_int64_t data = *(u_int64_t *)(&jval);
+	u_int64_t long_data = *(u_int64_t *)(&value);
 
 	/*
 	 * We can't just typecast u_int32 to a float. The float has to be read
 	 * out of memory using a float pointer.
 	 */
-	*((u_int64_t *)(mem + jindex)) = ENDIAN64_GET(big, data);
+	*((u_int64_t *)(data + index)) = ENDIAN64_GET(big, long_data);
 }
 
 /*
@@ -583,42 +585,38 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setDouble
  * Signature: (IF)V
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setFloat
-  (JNIEnv *env, jobject obj, jint jindex, jfloat jval) {
-	
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
-		return;
-	}
-	
-	jboolean readonly =  env->GetBooleanField(obj, jbufferReadonlyFID);
-	if (readonly == JNI_TRUE) {
-		
-		throwVoidException(env, READ_ONLY_BUFFER_EXCETPION);
+(JNIEnv *env, jobject obj, jint index, jfloat value) {
+
+	jmemory_t *node = jmem_get(env, obj);
+	if (node == NULL) {
 		return;
 	}
 
-	size_t size =  (size_t) env->GetIntField(obj, jmemorySizeFID);
-	if (jindex < 0 || jindex + sizeof(jfloat) > size) {
-		
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	if (jmem_bounds(node, index, sizeof(value))) {
+		jnp_exception(env);
 		return;
 	}
-	
+
+	jbyte *data = (jbyte *)jmem_data_wo(node); // For reading
+	if (data == NULL) {
+		jnp_exception(env);
+		return;
+	}
+
 	// true = BID_ENDIAN, false = LITTLE_ENDIAN
-	jboolean big = env->GetBooleanField(obj, jbufferOrderFID);
-	
+	jboolean big = jbuffer_is_big_endian(node);
+
 	/*
 	 * For efficiency of the endian byte swapping, convert to an atom and use
 	 * a CPU register if possible during conversion.
 	 */
-	u_int32_t data = *(u_int32_t *)(&jval);
+	u_int32_t long_data = *(u_int32_t *)(&value);
 
 	/*
 	 * We can't just typecast u_int32 to a float. The float has to be read
 	 * out of memory using a float pointer.
 	 */
-	*((u_int32_t *)(mem + jindex)) = ENDIAN32_GET(big, data);
+	*((u_int32_t *)(data + index)) = ENDIAN32_GET(big, long_data);
 }
 
 /*
@@ -627,31 +625,28 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setFloat
  * Signature: (II)V
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setInt
-  (JNIEnv *env, jobject obj, jint jindex, jint jval) {
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
-		return;
-	}
-	
-	jboolean readonly =  env->GetBooleanField(obj, jbufferReadonlyFID);
-	if (readonly == JNI_TRUE) {
-		
-		throwVoidException(env, READ_ONLY_BUFFER_EXCETPION);
+(JNIEnv *env, jobject obj, jint index, jint value) {
+
+	jmemory_t *node = jmem_get(env, obj);
+	if (node == NULL) {
 		return;
 	}
 
-	size_t size =  (size_t) env->GetIntField(obj, jmemorySizeFID);
-	if (jindex < 0 || jindex + sizeof(jint) > size) {
-		
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	if (jmem_bounds(node, index, sizeof(value))) {
+		jnp_exception(env);
 		return;
 	}
-	
+
+	jbyte *data = (jbyte *)jmem_data_wo(node); // For reading
+	if (data == NULL) {
+		jnp_exception(env);
+		return;
+	}
+
 	// true = BID_ENDIAN, false = LITTLE_ENDIAN
-	jboolean big = env->GetBooleanField(obj, jbufferOrderFID);
-	
-	*((u_int32_t *)(mem + jindex)) = ENDIAN32_GET(big, jval);
+	jboolean big = jbuffer_is_big_endian(node);
+
+	*((u_int32_t *)(data + index)) = ENDIAN32_GET(big, value);
 }
 
 /*
@@ -660,32 +655,28 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setInt
  * Signature: (IJ)V
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setLong
-  (JNIEnv *env, jobject obj, jint jindex, jlong jval) {
-	
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
-		return;
-	}
-	
-	jboolean readonly =  env->GetBooleanField(obj, jbufferReadonlyFID);
-	if (readonly == JNI_TRUE) {
-		
-		throwVoidException(env, READ_ONLY_BUFFER_EXCETPION);
+(JNIEnv *env, jobject obj, jint index, jlong value) {
+
+	jmemory_t *node = jmem_get(env, obj);
+	if (node == NULL) {
 		return;
 	}
 
-	size_t size =  (size_t) env->GetIntField(obj, jmemorySizeFID);
-	if (jindex < 0 || jindex + sizeof(jlong) > size) {
-		
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	if (jmem_bounds(node, index, sizeof(value))) {
+		jnp_exception(env);
 		return;
 	}
-	
+
+	jbyte *data = (jbyte *)jmem_data_wo(node); // For reading
+	if (data == NULL) {
+		jnp_exception(env);
+		return;
+	}
+
 	// true = BID_ENDIAN, false = LITTLE_ENDIAN
-	jboolean big = env->GetBooleanField(obj, jbufferOrderFID);
-	
-	*((u_int64_t *)(mem + jindex)) = ENDIAN64_GET(big, jval);
+	jboolean big = jbuffer_is_big_endian(node);
+
+	*((u_int64_t *)(data + index)) = ENDIAN64_GET(big, value);
 }
 
 /*
@@ -694,32 +685,28 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setLong
  * Signature: (IS)V
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setShort
-  (JNIEnv *env, jobject obj, jint jindex, jshort jval) {
-	
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
-		return;
-	}
-	
-	jboolean readonly =  env->GetBooleanField(obj, jbufferReadonlyFID);
-	if (readonly == JNI_TRUE) {
-		
-		throwVoidException(env, READ_ONLY_BUFFER_EXCETPION);
+(JNIEnv *env, jobject obj, jint index, jshort value) {
+
+	jmemory_t *node = jmem_get(env, obj);
+	if (node == NULL) {
 		return;
 	}
 
-	size_t size =  (size_t) env->GetIntField(obj, jmemorySizeFID);
-	if (jindex < 0 || jindex + sizeof(jshort) > size) {
-		
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	if (jmem_bounds(node, index, sizeof(value))) {
+		jnp_exception(env);
 		return;
 	}
-	
+
+	jbyte *data = (jbyte *)jmem_data_wo(node); // For reading
+	if (data == NULL) {
+		jnp_exception(env);
+		return;
+	}
+
 	// true = BID_ENDIAN, false = LITTLE_ENDIAN
-	jboolean big = env->GetBooleanField(obj, jbufferOrderFID);
-	
-	*((u_int16_t *)(mem + jindex)) = ENDIAN16_GET(big, jval);
+	jboolean big = jbuffer_is_big_endian(node);
+
+	*((u_int16_t *)(data + index)) = ENDIAN16_GET(big, value);
 }
 
 /*
@@ -728,29 +715,25 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setShort
  * Signature: (II)V
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setUByte
-  (JNIEnv *env, jobject obj, jint jindex, jint jval) {
+(JNIEnv *env, jobject obj, jint index, jint value) {
 
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
-		return;
-	}
-	
-	jboolean readonly =  env->GetBooleanField(obj, jbufferReadonlyFID);
-	if (readonly == JNI_TRUE) {
-		
-		throwVoidException(env, READ_ONLY_BUFFER_EXCETPION);
+	jmemory_t *node = jmem_get(env, obj);
+	if (node == NULL) {
 		return;
 	}
 
-	size_t size =  (size_t) env->GetIntField(obj, jmemorySizeFID);
-	if (jindex < 0 || jindex + sizeof(jbyte) > size) {
-		
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	if (jmem_bounds(node, index, sizeof(jbyte))) {
+		jnp_exception(env);
 		return;
 	}
-	
-	*(mem + jindex) = (jbyte) jval;
+
+	jbyte *data = (jbyte *)jmem_data_wo(node); // For reading
+	if (data == NULL) {
+		jnp_exception(env);
+		return;
+	}
+
+	*(data + index) = (jbyte) value;
 }
 
 /*
@@ -759,34 +742,30 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setUByte
  * Signature: (IJ)V
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setUInt
-  (JNIEnv *env, jobject obj, jint jindex, jlong jval) {
-	
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
-		return;
-	}
-	
-	jboolean readonly =  env->GetBooleanField(obj, jbufferReadonlyFID);
-	if (readonly == JNI_TRUE) {
-		
-		throwVoidException(env, READ_ONLY_BUFFER_EXCETPION);
+(JNIEnv *env, jobject obj, jint index, jlong value) {
+
+	jmemory_t *node = jmem_get(env, obj);
+	if (node == NULL) {
 		return;
 	}
 
-	size_t size =  (size_t) env->GetIntField(obj, jmemorySizeFID);
-	if (jindex < 0 || jindex + sizeof(int) > size) {
-		
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	if (jmem_bounds(node, index, sizeof(jint))) {
+		jnp_exception(env);
 		return;
 	}
-	
+
+	jbyte *data = (jbyte *)jmem_data_wo(node); // For reading
+	if (data == NULL) {
+		jnp_exception(env);
+		return;
+	}
+
 	// true = BID_ENDIAN, false = LITTLE_ENDIAN
-	jboolean big = env->GetBooleanField(obj, jbufferOrderFID);
-	
-	register jint temp = (jint) jval;
-	
-	*((u_int32_t *)(mem + jindex)) = ENDIAN32_GET(big, temp);
+	jboolean big = jbuffer_is_big_endian(node);
+
+	register jint temp = (jint) value;
+
+	*((u_int32_t *)(data + index)) = ENDIAN32_GET(big, temp);
 }
 
 /*
@@ -795,35 +774,31 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setUInt
  * Signature: (II)V
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setUShort
-  (JNIEnv *env, jobject obj, jint jindex, jint jval) {
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
-		return;
-	}
-	
-	jboolean readonly =  env->GetBooleanField(obj, jbufferReadonlyFID);
-	if (readonly == JNI_TRUE) {
-		
-		throwVoidException(env, READ_ONLY_BUFFER_EXCETPION);
+(JNIEnv *env, jobject obj, jint index, jint value) {
+
+	jmemory_t *node = jmem_get(env, obj);
+	if (node == NULL) {
 		return;
 	}
 
-	size_t size =  (size_t) env->GetIntField(obj, jmemorySizeFID);
-	if (jindex < 0 || jindex + sizeof(short) > size) {
-		
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	if (jmem_bounds(node, index, sizeof(jshort))) {
+		jnp_exception(env);
 		return;
 	}
-	
+
+	jbyte *data = (jbyte *)jmem_data_wo(node); // For reading
+	if (data == NULL) {
+		jnp_exception(env);
+		return;
+	}
+
 	// true = BID_ENDIAN, false = LITTLE_ENDIAN
-	jboolean big = env->GetBooleanField(obj, jbufferOrderFID);
-	
-	register jshort temp = (jshort) jval;
-	
-	*((u_int16_t *)(mem + jindex)) = ENDIAN16_GET(big, temp);
-}
+	jboolean big = jbuffer_is_big_endian(node);
 
+	register jshort temp = (jshort) value;
+
+	*((u_int16_t *)(data + index)) = ENDIAN16_GET(big, temp);
+}
 
 /*
  * Class:     org_jnetpcap_nio_JObjectBuffer
@@ -831,23 +806,26 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setUShort
  * Signature: (Ljava/lang/Class;I)Ljava/lang/Object;
  */
 JNIEXPORT jobject JNICALL Java_org_jnetpcap_nio_JObjectBuffer_getObject
-  (JNIEnv *env, jobject obj, jclass clazz, jint offset) {
-	
-	
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
+(JNIEnv *env, jobject obj, jclass clazz, jint index) {
+
+	jmemory_t *node = jmem_get(env, obj);
+	if (node == NULL) {
 		return NULL;
 	}
-//#define DEBUG
-#ifdef DEBUG
-	printf("getObject(): here mem=%p offset=%d *=%p\n", 
-			mem, 
-			offset, 
-			*((jobject *) (mem + offset)));
-	fflush(stdout);
-#endif
-	return *((jobject *) (mem + offset));
+
+	if (jmem_bounds(node, index, sizeof(jref_t *))) {
+		jnp_exception(env);
+		return NULL;
+	}
+
+	jbyte *data = (jbyte *)jmem_data_ro(node); // For reading
+	if (data == NULL) {
+		jnp_exception(env);
+		return NULL;
+	}
+
+	jref_t *jref = (jref_t *)(data + index);
+	return (jref == NULL) ? NULL : jref->jref;
 }
 
 /*
@@ -856,25 +834,39 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_nio_JObjectBuffer_getObject
  * Signature: (ILjava/lang/Object;)V
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JObjectBuffer_setObject
-  (JNIEnv *env, jobject obj, jint offset, jobject object) {
-	
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
+(JNIEnv *env, jobject obj, jint index, jobject object) {
+
+	jmemory_t *node = jmem_get(env, obj);
+	if (node == NULL) {
+		return;
+	}
+
+	if (jmem_bounds(node, index, sizeof(jref_t *))) {
+		jnp_exception(env);
+		return;
+	}
+
+	jbyte *data = (jbyte *)jmem_data_ro(node); // For reading
+	if (data == NULL) {
+		jnp_exception(env);
+		return;
+	}
+
+	jref_t *jref = jref_create();
+	if (jref == NULL) {
+		jnp_exception(env);
 		return;
 	}
 	
-	if (object == NULL) {
-		return; // Nothing todo
-	}
-	
-	jobject global_ref = jmemoryRefCreate(env, obj, object);
-	if (global_ref == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "Failed to create global_ref");
+	// TODO: jmem_seg_attach(node, jref);
+
+	if (jref_ref(env, jref, object) ) {
 		return;
 	}
 	
-	*((jobject *)(mem + offset)) = global_ref; 
+	jref_t **p = (jref_t **)(data + index);
+
+	*p = jref;
 }
 
 /*
@@ -883,8 +875,8 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JObjectBuffer_setObject
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JObjectBuffer_sizeofJObject
-  (JNIEnv *env, jclass clazz) {
-	
+(JNIEnv *env, jclass clazz) {
+
 	return sizeof(jobject);
 }
 

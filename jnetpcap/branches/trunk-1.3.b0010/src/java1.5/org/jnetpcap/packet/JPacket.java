@@ -20,6 +20,7 @@ import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.nio.JMemoryPool;
 import org.jnetpcap.nio.JStruct;
+import org.jnetpcap.nio.PeeringException;
 import org.jnetpcap.packet.analysis.AnalysisUtils;
 import org.jnetpcap.packet.analysis.JAnalysis;
 import org.jnetpcap.packet.format.FormatUtils;
@@ -138,10 +139,6 @@ public abstract class JPacket
 
 		public State(Type type) {
 			super(STRUCT_NAME, type);
-		}
-
-		public void cleanup() {
-			super.cleanup();
 		}
 
 		public int findHeaderIndex(int id) {
@@ -493,12 +490,22 @@ public abstract class JPacket
 	 * peered with allocated memory for internal usage such as copying header,
 	 * state and data into a single buffer
 	 */
-	protected final JBuffer memory = new JBuffer(Type.POINTER);
+	protected final JBuffer memory = new JBuffer(Type.PEER);
 
 	/**
 	 * Packet's state structure
 	 */
-	protected final State state = new State(Type.POINTER);
+	protected final State state = new State(Type.PEER);
+
+	/**
+	 * A packet with data buffer of specified size.
+	 * 
+	 * @param size
+	 *          size of the data buffer for packet
+	 */
+	protected JPacket(int size) {
+		super(size);
+	}
 
 	/**
 	 * Allocates a memory block and peers both the state and data buffer with it.
@@ -511,7 +518,7 @@ public abstract class JPacket
 	 *          size of the state
 	 */
 	public JPacket(int size, int state) {
-		super(Type.POINTER);
+		super(Type.PEER);
 
 		allocate(size + state);
 	}
@@ -655,7 +662,6 @@ public abstract class JPacket
 	 * @return the supplied instance of the header
 	 */
 	public <T extends JHeader> T getHeader(T header, int instance) {
-		check();
 
 		final int index = this.state.findHeaderIndex(header.getId(), instance);
 		if (index == -1) {
@@ -861,7 +867,6 @@ public abstract class JPacket
 	 * @return true header exists, otherwise false
 	 */
 	public boolean hasHeader(int id, int instance) {
-		check();
 
 		final int index = this.state.findHeaderIndex(id, instance);
 		if (index == -1) {
@@ -903,7 +908,6 @@ public abstract class JPacket
 	 * @return true header exists, otherwise false
 	 */
 	public <T extends JHeader> boolean hasHeader(T header, int instance) {
-		check();
 
 		final int index = this.state.findHeaderIndex(header.getId(), instance);
 		if (index == -1) {

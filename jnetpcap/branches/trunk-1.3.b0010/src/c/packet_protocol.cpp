@@ -758,7 +758,7 @@ void debug_udp(udp_t *udp) {
 			(int) BIG_ENDIAN16(udp->checksum)
 			);
 	
-	debug_exit("debug_udp");
+	debug_exit();
 }
 
 /*
@@ -966,7 +966,7 @@ void debug_ip4(ip4_t *ip) {
 			(int) ((flags & IP4_FLAG_MF)?"M":""),
 			(int) ip->protocol);
 	
-	debug_exit("debug_ip4");
+	debug_exit();
 }
 
 void dissect_ip4_headers(dissect_t *dissect) {

@@ -34,9 +34,13 @@
 #include "jnetpcap_utils.h"
 #include "jnetpcap_bpf.h"
 #include "nio_jmemory.h"
+#include "jnp_pcap.h"
+#include "packet_jpacket.h"
 #include "export.h"
 
-
+jnp_exception_t pcap_msg_table[] = {
+		{"object needs to provide allocated memory"}
+};
 
 
 /*****************************************************************************
@@ -675,8 +679,11 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_PcapUtils_injectLoop
 		return -1;
 	}
 
-	const pcap_pkthdr *pkt_header = (const pcap_pkthdr *)getJMemoryPhysical(env, jheader);
-	const u_char *pkt_data = (const u_char *)getJMemoryPhysical(env, jheader);
+	const pcap_pkthdr *pkt_header = (const pcap_pkthdr *)jmem_data_ro_get(env, jheader);
+	const u_char *pkt_data = (const u_char *)jmem_data_ro_get(env, jheader);
+	if (pkt_header == NULL || pkt_data == NULL) {
+		return -1;
+	}
 
 	for (int i = 0; i < jcnt || jcnt == -1; i ++) {
 		cb_pcap_packet_dispatch((u_char *)&data, pkt_header, pkt_data);
@@ -747,8 +754,13 @@ void cb_byte_buffer_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 	cb_byte_buffer_t *data = (cb_byte_buffer_t *)user;
 
 	JNIEnv *env = data->env;
-
-	setJMemoryPhysical(env, data->header, toLong((void*)pkt_header));
+	
+	if (jpeer_obj_direct(env, data->header, (char *)pkt_header, 
+			sizeof(pcap_pkthdr), data->obj)) {
+		pcap_breakloop(data->p);
+		return;
+		
+	}
 
 	jobject buffer = env->NewDirectByteBuffer((void *)pkt_data,
 			pkt_header->caplen);
@@ -776,14 +788,26 @@ void cb_byte_buffer_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
  */
 void cb_jbuffer_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 		const u_char *pkt_data) {
+	
+	jnp_enter("dispatch");
 
 	cb_jbuffer_t *data = (cb_jbuffer_t *)user;
 
 	JNIEnv *env = data->env;
 
-	jmemoryPeer(env, data->header, pkt_header, sizeof(pcap_pkthdr), data->pcap);
-	jmemoryPeer(env, data->buffer, pkt_data, pkt_header->caplen, data->pcap);
-
+	if (jpeer_obj_direct(env, data->header, (char *)pkt_header, 
+			sizeof(pcap_pkthdr), data->pcap)) {
+		pcap_breakloop(data->p);
+		jnp_exit_error();
+		return;
+	}
+	
+	if (jpeer_obj_direct(env, data->buffer, (char *)pkt_data, 
+			pkt_header->caplen, data->pcap)) {
+		pcap_breakloop(data->p);
+		jnp_exit_error();
+		return;
+	}
 
 	env->CallVoidMethod(
 			data->obj,
@@ -795,7 +819,11 @@ void cb_jbuffer_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 	if (env->ExceptionCheck() == JNI_TRUE) {
 		data->exception = env->ExceptionOccurred();
 		pcap_breakloop(data->p);
+		jnp_exit_error();
+		return;
 	}
+	
+	jnp_exit_OK();
 }
 
 /**
@@ -803,13 +831,27 @@ void cb_jbuffer_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
  */
 void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 		const u_char *pkt_data) {
+	
+	jnp_enter("dispatch");
 
 	cb_packet_t *data = (cb_packet_t *)user;
 
 	JNIEnv *env = data->env;
 
-	jmemoryPeer(env, data->header, pkt_header, sizeof(pcap_pkthdr), data->pcap);
-	jmemoryPeer(env, data->packet, pkt_data, pkt_header->caplen, data->pcap);
+	if (jpeer_obj_direct(env, data->header, (char *)pkt_header, 
+			sizeof(pcap_pkthdr), data->pcap)) {
+		pcap_breakloop(data->p);
+		
+		jnp_exit_error();
+		return;
+	}
+	
+	if (jpeer_obj_direct(env, data->packet, (char *)pkt_data, 
+			pkt_header->caplen, data->pcap)) {
+		pcap_breakloop(data->p);
+		jnp_exit_error();
+		return;
+	}
 
 	if (Java_org_jnetpcap_packet_JScanner_scan(
 			env,
@@ -818,6 +860,8 @@ void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 			data->state,
 			data->id,
 			pkt_header->len) < 0) {
+		jnp_exit_error();
+		pcap_breakloop(data->p);
 		return;
 	}
 
@@ -829,6 +873,7 @@ void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 		} else {
 			data->flags |= DEBUG_INJECT_PACKET_BREAK_LOOP;
 		}
+		jnp_exit_error();
 		return;
 	}
 
@@ -844,7 +889,11 @@ void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 	if (env->ExceptionCheck() == JNI_TRUE) {
 		data->exception = env->ExceptionOccurred();
 		pcap_breakloop(data->p);
+		jnp_exit_error();
+		return;
 	}
+	
+	jnp_exit_OK();
 }
 
 
@@ -883,55 +932,74 @@ jobject transferToNewBuffer(
 		const pcap_pkthdr *pkt_header,
 		const u_char *pkt_data,
 		jobject state) {
+	jnp_enter("transferToNewBuffer");
 
-	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, state);
+	packet_state_t *packet = (packet_state_t *)jmem_data_ro_get(env, state);
+	if (packet == NULL) {
+		jnp_exit_error();
+		return NULL;
+	}
+	
 	size_t state_size =
 		packet->pkt_header_count * sizeof(header_t) +
 		sizeof(packet_state_t);
 
 	size_t size = pkt_header->caplen + state_size + sizeof(pcap_pkthdr);
 	if (size > (1024 * 1024)) {
-		throwException(env, ILLEGAL_STATE_EXCEPTION,
-				"packet size over 1MB\n");
+		jnp_exit_exception_code(env, JMEM_OUT_OF_BOUNDS);
 		return NULL;
 	}
 
 
+	/**
+	 * new PcapPacket(size)
+	 * Allocates a block of memory large enough to hold, packet buffer, header
+	 * and scanner state.
+	 */
 	jobject pcap_packet = env->NewObject(
-			pcapPacketClass,
-			pcapPacketConstructorMID,
-			jmemoryPOINTER_CONST);
+			CLASS_pcap_packet,
+			MID_pcap_packet_init_I,
+			size);
 	if (pcap_packet == NULL) {
-		throwException(env, ILLEGAL_STATE_EXCEPTION,
-				"unable to allocate PcapPacket object");
+		jnp_exit_exception_code(env, JNP_OUT_OF_MEMORY);
 		return NULL;
 	}
 
-	jobject jheader = env->GetObjectField(pcap_packet, pcapHeaderFID);
-	jobject jstate = env->GetObjectField(pcap_packet, pcapStateFID);
+	jobject jheader = env->GetObjectField(pcap_packet, FID_pcap_packet_header);
+	jobject jstate = env->GetObjectField(pcap_packet, FID_jpacket_state);
 	if (jheader == NULL || jstate == NULL) {
-		throwException(env, ILLEGAL_STATE_EXCEPTION,
-				"unable to allocate PcapHeader object");
+		jnp_exit_exception_code(env, JNP_OUT_OF_MEMORY);
+		return NULL;
+	}
+	
+	block_t *pkt_block = jblock_get(env, pcap_packet);
+	if (pkt_block == NULL) {
+		jnp_exit_error();
 		return NULL;
 	}
 
-	char *ptr = jmemoryAllocate(env, size, jheader);
+	char *ptr = jmem_data(&pkt_block->h);
 	if (ptr == NULL) {
-		throwVoidException(env, OUT_OF_MEMORY_ERROR);
+		jnp_exit_exception_code(env, JNP_OUT_OF_MEMORY);
 		return NULL;
 	}
+	
+	jnp_trace("memcpy=pkt_data");
+	memcpy(ptr, pkt_data, pkt_header->caplen);
+	ptr += pkt_header->caplen;
 
-
+	jnp_trace("memcpy=jheader");
 	memcpy(ptr, pkt_header, sizeof(pcap_pkthdr));
 	ptr += sizeof(pcap_pkthdr);
 
+	jnp_trace("peer=jstate");
 	memcpy(ptr, packet, state_size);
-	jmemoryPeer(env, jstate, ptr, state_size, jheader);
+	if (jpeer_obj_direct(env, jstate, (char *)ptr, state_size, jheader)) {
+		jnp_exit_error();
+		return NULL;
+	}
+	
 	ptr += state_size;
-
-	memcpy(ptr, pkt_data, pkt_header->caplen);
-	jmemoryPeer(env, pcap_packet, ptr, pkt_header->caplen, jheader);
-	ptr += pkt_header->caplen;
 
 	/*
 	 * Free up intermediate local references. We can't rely on JNI freeing them
@@ -940,6 +1008,8 @@ jobject transferToNewBuffer(
 	 */
 	env->DeleteLocalRef(jheader);
 	env->DeleteLocalRef(jstate);
+	
+	jnp_exit_OK();
 
 	/* Local reference is good enough for return value. If this is returned from
 	 * JNI code upto java, JNI turns them into globs.

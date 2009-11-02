@@ -126,15 +126,14 @@ int in_checksum_add_ip_pseudo_header(
 JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_crc16CCITT
 (JNIEnv *env, jclass clazz, jobject buf, jint offset, jint length) {
 
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, buf);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
-		return -1;
+	jmemory_t *node = jmem_get(env, buf);
+	if (node == NULL) {
+		return 0;
 	}
-
-	size_t size = (size_t) env->GetIntField(buf, jmemorySizeFID);
-	if (offset < 0 || (offset + length)> (jint) size) {
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	
+	jbyte *mem = (jbyte *)jmem_data_ro(node);
+	if (mem == NULL || jmem_bounds(node, offset, length)) {
+		jnp_exception(env);
 		return -1;
 	}
 
@@ -151,15 +150,14 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_crc16CCITT
 JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_crc16CCITTSeed
 (JNIEnv *env, jclass clazz, jobject buf, jint offset, jint length, jint seed) {
 
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, buf);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
-		return -1;
+	jmemory_t *node = jmem_get(env, buf);
+	if (node == NULL) {
+		return 0;
 	}
-
-	size_t size = (size_t) env->GetIntField(buf, jmemorySizeFID);
-	if (offset < 0 || (offset + length)> (jint) size) {
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	
+	jbyte *mem = (jbyte *)jmem_data_ro(node);
+	if (mem == NULL || jmem_bounds(node, offset, length)) {
+		jnp_exception(env);
 		return -1;
 	}
 
@@ -177,15 +175,14 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_crc16CCITTSeed
 JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_crc16X25CCITT
 (JNIEnv *env, jclass clazz, jobject buf, jint offset, jint length) {
 
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, buf);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
-		return -1;
+	jmemory_t *node = jmem_get(env, buf);
+	if (node == NULL) {
+		return 0;
 	}
-
-	size_t size = (size_t) env->GetIntField(buf, jmemorySizeFID);
-	if (offset < 0 || (offset + length)> (jint) size) {
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	
+	jbyte *mem = (jbyte *)jmem_data_ro(node);
+	if (mem == NULL || jmem_bounds(node, offset, length)) {
+		jnp_exception(env);
 		return -1;
 	}
 
@@ -202,15 +199,15 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_crc16X25CCITT
 JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_crc32CCITT
 (JNIEnv *env, jclass clazz, jobject buf, jint offset, jint length) {
 
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, buf);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
-		return -1;
-	}
 
-	size_t size = (size_t) env->GetIntField(buf, jmemorySizeFID);
-	if (offset < 0 || (offset + length)> (jint) size) {
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	jmemory_t *node = jmem_get(env, buf);
+	if (node == NULL) {
+		return 0;
+	}
+	
+	jbyte *mem = (jbyte *)jmem_data_ro(node);
+	if (mem == NULL || jmem_bounds(node, offset, length)) {
+		jnp_exception(env);
 		return -1;
 	}
 
@@ -227,15 +224,15 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_crc32CCITT
 JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_crc32CCITTSeed
 (JNIEnv *env, jclass clazz, jobject buf, jint offset, jint length, jint seed) {
 
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, buf);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
-		return -1;
-	}
 
-	size_t size = (size_t) env->GetIntField(buf, jmemorySizeFID);
-	if (offset < 0 || (offset + length)> (jint) size) {
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	jmemory_t *node = jmem_get(env, buf);
+	if (node == NULL) {
+		return 0;
+	}
+	
+	jbyte *mem = (jbyte *)jmem_data_ro(node);
+	if (mem == NULL || jmem_bounds(node, offset, length)) {
+		jnp_exception(env);
 		return -1;
 	}
 
@@ -253,15 +250,15 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_crc32CCITTSeed
 JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_crc32c
 (JNIEnv *env, jclass clazz, jobject buf, jint offset, jint length, jint crc) {
 
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, buf);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
-		return -1;
-	}
 
-	size_t size = (size_t) env->GetIntField(buf, jmemorySizeFID);
-	if (offset < 0 || (offset + length)> (jint) size) {
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	jmemory_t *node = jmem_get(env, buf);
+	if (node == NULL) {
+		return 0;
+	}
+	
+	jbyte *mem = (jbyte *)jmem_data_ro(node);
+	if (mem == NULL || jmem_bounds(node, offset, length)) {
+		jnp_exception(env);
 		return -1;
 	}
 
@@ -292,15 +289,14 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_inChecksumShould
 JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_inChecksum
 (JNIEnv *env, jclass clazz, jobject buf, jint offset, jint length) {
 
-	uint8_t *mem = (uint8_t *)getJMemoryPhysical(env, buf);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
+	jmemory_t *node = jmem_get(env, buf);
+	if (node == NULL) {
 		return -1;
 	}
-
-	size_t size = (size_t) env->GetIntField(buf, jmemorySizeFID);
-	if (offset < 0 || (offset + length)> (jint) size) {
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	
+	const uint8_t *mem = (const uint8_t *)jmem_data_ro(node);
+	if (mem == NULL || jmem_bounds(node, offset, length)) {
+		jnp_exception(env);
 		return -1;
 	}
 
@@ -317,15 +313,15 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_inChecksum
 JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_pseudoTcp
 (JNIEnv *env, jclass clazz, jobject jbuf, jint ip, jint tcp) {
 	
-	const uint8_t *buf = (const uint8_t *)getJMemoryPhysical(env, jbuf);
-	if (buf == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
+	jmemory_t *node = jmem_get(env, jbuf);
+	if (node == NULL) {
 		return -1;
 	}
 	
-	size_t size = (size_t) env->GetIntField(jbuf, jmemorySizeFID);
-	if (ip < 0 || tcp < 0 || ip >= tcp || tcp >= size) {
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	const uint8_t *buf = (const uint8_t *)jmem_data_ro(node);
+	size_t size = jmem_size(node);
+	if (buf == NULL || (ip < 0 || tcp < 0 || ip >= tcp || tcp >= size)) {
+		jnp_exception(env);
 		return -1;
 	}
 
@@ -373,15 +369,16 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_pseudoTcp
 JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_pseudoUdp
 (JNIEnv *env, jclass clazz, jobject jbuf, jint ip, jint udp) {
 	
-	const uint8_t *buf = (const uint8_t *)getJMemoryPhysical(env, jbuf);
-	if (buf == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
+	
+	jmemory_t *node = jmem_get(env, jbuf);
+	if (node == NULL) {
 		return -1;
 	}
 	
-	size_t size = (size_t) env->GetIntField(jbuf, jmemorySizeFID);
-	if (ip < 0 || udp < 0 || ip >= udp || udp >= size) {
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	const uint8_t *buf = (const uint8_t *)jmem_data_ro(node);
+	size_t size = jmem_size(node);
+	if (buf == NULL || (ip < 0 || udp < 0 || ip >= udp || udp >= size)) {
+		jnp_exception(env);
 		return -1;
 	}
 
@@ -414,15 +411,15 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_pseudoUdp
 JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_icmp
 (JNIEnv *env, jclass clazz, jobject jbuf, jint ip, jint icmp) {
 	
-	const uint8_t *buf = (const uint8_t *)getJMemoryPhysical(env, jbuf);
-	if (buf == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
+	jmemory_t *node = jmem_get(env, jbuf);
+	if (node == NULL) {
 		return -1;
 	}
 	
-	size_t size = (size_t) env->GetIntField(jbuf, jmemorySizeFID);
-	if (ip < 0 || icmp < 0 || ip >= icmp || icmp >= size) {
-		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+	const uint8_t *buf = (const uint8_t *)jmem_data_ro(node);
+	size_t size = jmem_size(node);
+	if (buf == NULL || (ip < 0 || icmp < 0 || ip >= icmp || icmp >= size)) {
+		jnp_exception(env);
 		return -1;
 	}
 

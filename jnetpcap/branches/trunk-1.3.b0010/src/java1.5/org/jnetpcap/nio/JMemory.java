@@ -13,28 +13,162 @@
 package org.jnetpcap.nio;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.jnetpcap.Pcap;
-import org.jnetpcap.packet.PeeringException;
 import org.jnetpcap.packet.format.FormatUtils;
 
 /**
- * A base class for all other PEERED classes to native c structures. The class
- * only contains the physical address of the native C structure. The class also
- * contains a couple of convenience methods for allocating memory for the
- * structure to be peered as well as doing cleanup and freeing up that memory
- * when object is finalized().
+ * Native memory management. This class has 3 modes of operation.
+ * <ul>
+ * <li> Mode 1: As owner of a memory block. The owner is responsible for
+ * deallocation of memory when object is finilized.</li>
+ * <li> Mode 2: As peer to another JMemory block of native memory. This object
+ * is not responsible for deallocation of the memory, but must check if the
+ * owner is still alive or valid.</li>
+ * <li> Mode 3: As volatile memory proxy. This object acts like the owner of the
+ * memory but in reality its not and will not deallocate the memory it points
+ * to. It can however be used as a reset switch to invalidate its memory so any
+ * peered JMemory objects are deactivated as well.
+ * </ul>
  * <p>
  * This is one of the most important classes within jNetPcap library. It is
  * responsible for most of the memory allocation and management behind the
  * scenes of all jNetPcap native methods.
+ * </p>
+ * <h3> Mode 1: as owner</h3>
+ * In owner mode, this object is responsible for possibly the allocation and
+ * later deallocation of a memory block when this object is finalized. Owner
+ * objects (as determined by checking if owner property is set to null), may
+ * never be used or reused as peering objects. This operation is prohibited and
+ * will result in an exception.
+ * <p>
+ * In owner mode, <code>JMemory</code> properties have the following
+ * functions; <code>physical</code> holds the physical memory address of the
+ * start of the memory block that will be deallocated (presumably using C free
+ * function). If this property is null or zero, that means that this object is
+ * no longer usable.
+ * </p>
+ * <p>
+ * <code>size</code> holds the number of bytes that that have been allocated
+ * and will be freedup. This property is mainly used in peering process to
+ * enforce the boundaries of the requested memory to be peered. It is also used
+ * as a flag to indicate that no memory deallocation should occur. If the
+ * <code>size</code> is set to zero, then deallocation will no be done. This
+ * allows <code>JMemory</code> in owner mode, be utilized for other purposes
+ * such as in <code>JFunction</code> class which holds a reference to a
+ * function pointer.
+ * </p>
+ * <p>
+ * <code>owner</code> in owner mode this property is always null. Thus when
+ * phsyical or size is not zero or null and owner property is null, then this
+ * object is presumed to be in owner mode.
+ * </p>
+ * <h3> Mode 2: as peer</h3>
+ * Peering means that 2 objects one being the owner of a native memory block and
+ * the second a peer, will share and point at the exact same memory block.
+ * <p>
+ * A peer will have its <code>physical</code> address property point into the
+ * owner's memory block anywhere between zero offset and end of the native
+ * memory block. More formally peer will point into owner memory block in the
+ * following range [physical + 0, physical + size).
+ * </p>
+ * <p>
+ * <code>size</code> property in a peer, can be of any size, as long as it
+ * does not go outside the boundaries of the memory block as defined by the
+ * owner. Size may never be zero.
+ * </p>
+ * <p>
+ * <code>owner</code> property references either a <code>JMemory</code>
+ * object or another native memory managed object such as
+ * <code>java.nio.ByteBuffer</code>. In peered mode, the owner property may
+ * never be null. If a <code>JMemory</code> object has the <code>owner</code>
+ * property as null, it may never be peered again with another object. A newly
+ * allocated object in this mode must set its <code>owner</code> property to
+ * itself as the owner, indicating that its in peering mode.
+ * </p>
+ * <h3> Mode 3: as proxy</h3>
+ * A proxy memory mode is used for managing volatile memory, memory that is not
+ * under <code>JMemory</code> control and may through various circumstances
+ * become unusable. <code>JMemory</code> works in conjuction with a subclass
+ * <code>JProxyMemory</code> to implement this mode. In proxy mode objects may
+ * not be used directly by other subclasses therefore this type of object is
+ * only suitable for peering with.
+ * <p>
+ * <code>physical</code> property just like in the owner mode, points at a
+ * memory block. Unlike the owner mode, this <code>JMemory</code> object will
+ * not deallocate this memory, but may act as a double pointer, or a proxy for
+ * other peered objects. The <code>JProxyMemory</code> object may be
+ * instructed to invalidate its memory and any existing peered objects will also
+ * become invalidated.
+ * </p>
+ * <p>
+ * <code>size</code> same as size in owner mode.
+ * </p>
+ * <p>
+ * <code>owner</code> property contains a reference to the corresponding java
+ * owner of the memory. For example if a <code>Pcap</code> object is
+ * associated with this proxy memory, then that object is set as an owner. Since
+ * <code>JProxyMemory</code> objects are not directly usable through either
+ * java or native APIs, the only real use for this property is cosmetic. The
+ * owner property may help in debugging. The actual object it points to is
+ * irrelavent with the exception that it is meanigfull in debugging. So for
+ * example when proxy is setup for libpcap managed memory block, assigning the
+ * reference to a <code>Pcap</code> object is meaningfull as debugging output
+ * will show that the memory a peer is pointing to belongs to libpcap, and was
+ * not <code>JMemory</code> allocated.
  * </p>
  * 
  * @since 1.2
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public abstract class JMemory {
+@SuppressWarnings("unused")
+public class JMemory {
+
+	public enum Flag {
+		ACTIVE(JMemory.JMEMORY_FLAG_ACTIVE, 'A'),
+		BIG_ENDIAN(JMemory.JMEMORY_FLAG_BIG_ENDIAN, 'E'),
+		DATA(JMemory.JMEMORY_FLAG_DATA, 'D'),
+		DIRECT(JMemory.JMEMORY_FLAG_DIRECT, 'T'),
+		JAVA_OWNED(JMemory.JMEMORY_FLAG_JAVA_OWNED, 'J'),
+		PROXY(JMemory.JMEMORY_FLAG_PROXY, 'X'),
+		READ(JMemory.JMEMORY_FLAG_READ, 'R'),
+		REFERENCE(JMemory.JMEMORY_FLAG_REFERENCE, 'F'),
+		WRITE(JMemory.JMEMORY_FLAG_WRITE, 'W'), 
+		NO_PEERING(JMemory.JMEMORY_FLAG_NO_PEERING, 'N'), 
+		LC_ATTACHED(JMemory.JMEMORY_FLAG_LC_ATTACHED, 'L'), 
+		;
+		
+		public static void printFlagLegend() {
+			for (Flag f : values()) {
+				System.out.printf("%10s=%c 0x%04x\n", f.name(), f.letter, f.value);
+			}
+		}
+
+		public static String toSummary(int flags) {
+			StringBuilder b = new StringBuilder();
+			for (Flag f : values()) {
+				if ((flags & f.value) != 0) {
+					b.append(f.letter);
+				}
+			}
+
+			return b.toString();
+		}
+
+		private final char letter;
+
+		private final int value;
+
+		private Flag(int value, char letter) {
+			this.value = value;
+			this.letter = letter;
+
+		}
+	}
 
 	/**
 	 * Used in special memory allocation. Allows the user to specify the type
@@ -44,14 +178,96 @@ public abstract class JMemory {
 	 * @author Sly Technologies, Inc.
 	 */
 	public enum Type {
+
 		/**
-		 * Peered object is being created as a reference pointer and has no
-		 * memory allocated on its own. It is expected that new object will be
-		 * peered with exising memory location. The same concept as a native
-		 * memory pointer, think void * in C.
+		 * Object is the owner of memory block which it allocated. This object is
+		 * responsible for memory cleanup when its finalized.
 		 */
-		POINTER
+		BLOCK(JMemory.JMEMORY_TYPE_BLOCK),
+
+		/**
+		 * Node type which maintains a reference to java objects. This memory node
+		 * type replicates the functionality of java references but within jmemory
+		 * management context. It provides a way to attach java references to any
+		 * JMemory based object, generically. The lifespan of the JREF node is then
+		 * tied to the lifespan of the node it is attached to.
+		 */
+		JREF(JMEMORY_TYPE_JREF),
+
+		/**
+		 * 
+		 */
+		PEER(JMEMORY_TYPE_PEER),
+
+		/**
+		 * Peered object is being created as a reference pointer and has no memory
+		 * allocated on its own. It is expected that new object will be peered with
+		 * exising memory location. The same concept as a native memory pointer,
+		 * think void * in C.
+		 * 
+		 * @deprecated please use PEER instead
+		 */
+		POINTER(JMEMORY_TYPE_PEER), ;
+		/**
+		 * Converts a numerical type into enum type.
+		 * 
+		 * @param type
+		 *          numerical memory node type
+		 * @return enum type
+		 */
+		public static Type valueOf(int type) {
+			switch (type) {
+				case JMEMORY_TYPE_BLOCK:
+					return BLOCK;
+
+				case JMEMORY_TYPE_PEER:
+					return PEER;
+
+				case JMEMORY_TYPE_JREF:
+					return JREF;
+
+				default:
+					return null;
+			}
+		}
+
+		/**
+		 * Value corresponding to JMEMORY_TYPE_* constants
+		 */
+		public final int value;
+
+		private Type(int value) {
+			this.value = value;
+		}
 	}
+
+	private static final int JMEMORY_FLAG_ACTIVE = 0x0001;
+
+	static final int JMEMORY_FLAG_BIG_ENDIAN = 0x0002;
+
+	private static final int JMEMORY_FLAG_DATA = 0x004;
+
+	private static final int JMEMORY_FLAG_DIRECT = 0x0008;
+
+	private static final int JMEMORY_FLAG_JAVA_OWNED = 0x0010;
+
+	private static final int JMEMORY_FLAG_PROXY = 0x0020;
+
+	private static final int JMEMORY_FLAG_READ = 0x0040;
+
+	private static final int JMEMORY_FLAG_REFERENCE = 0x0080;
+	
+	private static final int JMEMORY_FLAG_WRITE = 0x0100;
+
+	private static final int JMEMORY_FLAG_NO_PEERING = 0x0200;
+	
+	private static final int JMEMORY_FLAG_LC_ATTACHED = 0x0400;
+	
+	private static final int JMEMORY_TYPE_BLOCK = 0;
+
+	private static final int JMEMORY_TYPE_JREF = 2;
+
+	private static final int JMEMORY_TYPE_PEER = 1;
 
 	/**
 	 * Name of the native library that wraps around libpcap and extensions
@@ -59,11 +275,28 @@ public abstract class JMemory {
 	public static final String JNETPCAP_LIBRARY_NAME = "jnetpcap";
 
 	/**
+	 * Convenience constant that is synonym as JMemory.Type.PEER. Since this type
+	 * constant is used so often, it is made as a in-class constant to make it
+	 * easier to access.
+	 */
+	public static final JMemory.Type PEER = JMemory.Type.PEER;
+
+	/**
 	 * Convenience constant that is synonym as JMemory.Type.POINTER. Since this
 	 * type constant is used so often, it is made as a in-class constant to make
 	 * it easier to access.
+	 * 
+	 * @deprecated please use JMemory.Type.PEER
 	 */
-	public static final JMemory.Type POINTER = JMemory.Type.POINTER;
+	public static final JMemory.Type POINTER = JMemory.Type.PEER;
+	
+	/**
+	 * Dynamic initialized used to keep the compiler from optimizing this.physical
+	 * away.
+	 */
+	{
+		physical = 0L;
+	}
 
 	/**
 	 * Load the native library and initialize JNI method and class IDs.
@@ -72,12 +305,12 @@ public abstract class JMemory {
 		try {
 			System.loadLibrary(JNETPCAP_LIBRARY_NAME);
 
-			Pcap.isInjectSupported();
+			// Pcap.isInjectSupported();
 
 			initIDs();
 		} catch (Exception e) {
 			System.err.println(e.getClass().getName() + ": "
-					+ e.getLocalizedMessage());
+			    + e.getLocalizedMessage());
 			throw new ExceptionInInitializerError(e);
 		}
 	}
@@ -88,9 +321,9 @@ public abstract class JMemory {
 	private static native void initIDs();
 
 	/**
-	 * Returns the total number of active native memory bytes currently
-	 * allocated that have not been deallocated as of yet. This number can be
-	 * calculated by the following formula:
+	 * Returns the total number of active native memory bytes currently allocated
+	 * that have not been deallocated as of yet. This number can be calculated by
+	 * the following formula:
 	 * 
 	 * <pre>
 	 * totalAllocated() - totalDeAllocated()
@@ -103,9 +336,9 @@ public abstract class JMemory {
 	}
 
 	/**
-	 * Returns total number of allocate calls through JMemory class. The memory
-	 * is allocated by JMemory class using native "malloc" calls and is not
-	 * normally reported by JRE memory usage.
+	 * Returns total number of allocate calls through JMemory class. The memory is
+	 * allocated by JMemory class using native "malloc" calls and is not normally
+	 * reported by JRE memory usage.
 	 * 
 	 * @return total number of function calls made to malloc since JMemory class
 	 *         was loaded into memory
@@ -117,43 +350,43 @@ public abstract class JMemory {
 	 * is allocated by JMemory class using native "malloc" calls and is not
 	 * normally reported by JRE memory usage.
 	 * 
-	 * @return total number of bytes allocated since JMemory class was loaded
-	 *         into memory
+	 * @return total number of bytes allocated since JMemory class was loaded into
+	 *         memory
 	 */
 	public native static long totalAllocated();
 
 	/**
-	 * Returns the number of memory segments that were allocated by JMemory
-	 * class in the range of 0 to 255 bytes in size. This is number of segments,
-	 * not amount of memory allocated.
+	 * Returns the number of memory segments that were allocated by JMemory class
+	 * in the range of 0 to 255 bytes in size. This is number of segments, not
+	 * amount of memory allocated.
 	 * 
 	 * @return the total number of memory segments in this size
 	 */
 	public native static long totalAllocatedSegments0To255Bytes();
 
 	/**
-	 * Returns the number of memory segments that were allocated by JMemory
-	 * class in the range of 256 bytes or above in size. This is number of
-	 * segments, not amount of memory allocated.
+	 * Returns the number of memory segments that were allocated by JMemory class
+	 * in the range of 256 bytes or above in size. This is number of segments, not
+	 * amount of memory allocated.
 	 * 
 	 * @return the total number of memory segments in this size
 	 */
 	public native static long totalAllocatedSegments256OrAbove();
 
 	/**
-	 * Returns total number of deallocate calls through JMemory class. The
-	 * memory is allocated by JMemory class using native "free" calls and is not
-	 * normally reported by JRE memory usage.
+	 * Returns total number of deallocate calls through JMemory class. The memory
+	 * is allocated by JMemory class using native "free" calls and is not normally
+	 * reported by JRE memory usage.
 	 * 
-	 * @return total number of function calls made to free since JMemory class
-	 *         was loaded into memory
+	 * @return total number of function calls made to free since JMemory class was
+	 *         loaded into memory
 	 */
 	public native static long totalDeAllocateCalls();
 
 	/**
-	 * Returns total number of bytes deallocated through JMemory class. The
-	 * memory is deallocated by JMemory class using native "free" calls and is
-	 * not normally reported by JRE memory usage.
+	 * Returns total number of bytes deallocated through JMemory class. The memory
+	 * is deallocated by JMemory class using native "free" calls and is not
+	 * normally reported by JRE memory usage.
 	 * 
 	 * @return total number of bytes deallocated since JMemory class was loaded
 	 *         into memory
@@ -161,85 +394,49 @@ public abstract class JMemory {
 	public native static long totalDeAllocated();
 
 	/**
-	 * Used to keep a reference tied with this memory object.
+	 * Used to lock read and write operation on the native memory we point to. The
+	 * locks all locks for reading threads will not block unless there is a write
+	 * lock as well. Initialized lazely.
 	 */
-	@SuppressWarnings("unused")
-	private volatile Object keeper = null;
+	private ReadWriteLock lock;
 
 	/**
-	 * Specifies if this object owns the allocated memory. Using
-	 * JMemory.allocate() automatically makes the object owner of the allocated
-	 * memory block. Otherwise it is assumed that the {@link #physical} memory
-	 * pointer is referencing a memory block not owned by this object, and
-	 * therefore will not try and deallocate that memory upon cleanup.
-	 * <p>
-	 * Remember that physical field is set from within a native call and any
-	 * object subclassing JMemory can be made to reference any memory location
-	 * including another JMemory object's allocated memory or anywhere for that
-	 * matter.
-	 * </p>
+	 * Physical address of the memory we can access. Even though this property
+	 * is marked final, it is still modified from JNI which is the only place
+	 * that is allowed to modify it. 
 	 */
-	private volatile boolean owner = false;
+	private final long physical;
 
 	/**
-	 * Physical address of the peered structure. This variable is modified
-	 * outside java space as C structures are bound to it. Subclasses implement
-	 * methods and fields that understand the exact structure.
+	 * Allocates this object in peering mode. This object may only be used to peer
+	 * with other <code>JMemory</code> based objects. Using this object before
+	 * it has been peered with another object will result in
+	 * <code>NullPointerException</code> being thrown as none of this object
+	 * properties are initialized or usable.
 	 */
-	private volatile long physical;
-
-	/**
-	 * Only maintained when owner == true This variable is modifiable by JNI
-	 * code even though is set to final. Setting to final prevents any java code
-	 * from modifying this variable. JNI code only modifies this variable under
-	 * 2 conditions. When allocating a new native memory block, it sets the size
-	 * of the memory block allocated and when its deallocated, it resets the
-	 * variable back to 0.
-	 * <p>
-	 * The variable is needed prevent anyone from changing the size field, which
-	 * can be changed at any time out of bound of actually allocated memory
-	 * block.
-	 * </p>
-	 */
-	private final int physicalSize;
-
-	/**
-	 * Number of byte currently allocated
-	 */
-	private volatile int size;
-
-	/**
-	 * Keeps track of JNI global references. As long as there is a java object
-	 * referencing the JReference container, the JNI references will not be
-	 * released. Null means that there are no references.
-	 */
-	private JReference references;
-
-	{
-		physicalSize = 0;
-	} // Prevent compiler optimizing away to 0
-
-	/**
-	 * @param peer
-	 */
-	public JMemory(ByteBuffer peer) {
-		this(peer.limit() - peer.position());
-
-		transferFrom(peer);
+	protected JMemory() {
+		this(Type.PEER);
 	}
 
 	/**
-	 * Pre-allocates memory for any structures the subclass may need to use.
+	 * @param src
+	 */
+	protected JMemory(ByteBuffer src) {
+		this(src.limit() - src.position());
+
+		transferFrom(src);
+	}
+
+	/**
+	 * Allocates native memory and makes this object the owner and manager of that
+	 * memory. Once an owner object is created, it may never be reused as a peer
+	 * to another object. Only objects of
 	 * 
 	 * @param size
-	 *            number of bytes to pre-allocate allocate
+	 *          number of bytes to pre-allocate allocate
 	 */
-	public JMemory(int size) {
-		if (size <= 0) {
-			throw new IllegalArgumentException("size must be greater than 0");
-		}
-
-		allocate(size);
+	protected JMemory(int size) {
+		createBlockNode(size);
 	}
 
 	/**
@@ -247,33 +444,48 @@ public abstract class JMemory {
 	 * 
 	 * @param src
 	 */
-	public JMemory(JMemory src) {
-		allocate(src.size);
+	protected JMemory(JMemory src) {
+		this(src.size());
 
 		src.transferTo(this);
 	}
 
 	/**
-	 * No memory pre-allocation constructor
-	 */
-	public JMemory(Type type) {
-		if (type != Type.POINTER) {
-			throw new IllegalArgumentException(
-					"Only POINTER types are supported");
-		}
-
-		this.size = 0;
-	}
-
-	/**
-	 * Method allocates native memory to hold the subclassed C structure if the
-	 * size is knows ahead of time. The physical field is set to the address of
-	 * the allocated structure.
+	 * Allocates this object in peering mode. This object may only be used to peer
+	 * with other <code>JMemory</code> based objects. Using this object before
+	 * it has been peered with another object will result in
+	 * <code>NullPointerException</code> being thrown as none of this object
+	 * properties are initialized or usable.
 	 * 
-	 * @param size
-	 *            number of bytes to allocate.
+	 * @param type
+	 *          only Type.POINTER is accepted by this constructor and all other
+	 *          types will throw an IllegalArgumentException
+	 * @throws IllegalArgumentException
+	 *           if any other memory Type is supplied besides Type.POINTER
 	 */
-	private native void allocate(int size);
+	protected JMemory(Type type) {
+
+		switch (type) {
+
+			case POINTER:
+			case PEER:
+				createPeerNode();
+				break;
+
+			case JREF:
+				createJRefNode();
+				break;
+
+			case BLOCK:
+				throw new IllegalArgumentException(
+				    "block type nodes must created using "
+				        + "constructor that takes memory size");
+
+			default:
+				throw new IllegalArgumentException("unsupported node type "
+				    + jmemoryType());
+		}
+	}
 
 	/**
 	 * Checks if this peered object is initialized. This method throws
@@ -281,73 +493,158 @@ public abstract class JMemory {
 	 * Its intended to as an assert mechanism
 	 * 
 	 * @throws IllegalStateException
-	 *             if peered object is not initialized this unchecked exception
-	 *             will be thrown, otherwise it will exit silently
+	 *           if peered object is not initialized this unchecked exception will
+	 *           be thrown, otherwise it will exit silently
 	 */
-	public void check() throws IllegalStateException {
-		if (physical == 0) {
-			throw new IllegalStateException(
-					"peered object not synchronized with native structure");
-		}
-	}
+	// public native void check() throws IllegalStateException;
+	// protected void cleanup() {
+	// reset();
+	// }
+	/**
+	 * Create a block_t node with size bytes of data allocated.
+	 * 
+	 * @param size
+	 *          number of bytes to allocate.
+	 */
+	private native void createBlockNode(int size);
 
 	/**
-	 * Called to clean up and release any allocated memory. This method should
-	 * be overriden if the allocated memory is not simply a single memory block
-	 * and something more complex. This method is safe to call at anytime even
-	 * if the object does not hold any allocated memory or is not the owner of
-	 * the memory it is peered with. The method will reset this object to
-	 * orignal unpeered state releasing any allocated and own memory at the same
-	 * time if neccessary.
+	 * Create an inactive jref_t node
 	 */
-	protected native void cleanup();
+	private native void createJRefNode();
+
+	/**
+	 * Create an inactive peer_t node
+	 */
+	private native void createPeerNode();
+
+	private final Object dataOwner() {
+
+		switch (jmemoryType()) {
+			case JMEMORY_TYPE_BLOCK:
+				return this;
+
+			case JMEMORY_TYPE_PEER:
+				return (isActive()) ? jpeerJRef() : null;
+
+			case JMEMORY_TYPE_JREF:
+				return null; // JREF doesn't point at data, only holds a java reference
+		}
+
+		return null;
+	}
 
 	/**
 	 * Default finalizer which checks if there is any memory to free up.
 	 */
 	@Override
 	protected void finalize() {
-		cleanup();
+		free();
 	}
 
 	/**
-	 * Checks if this peered object is initialized. This method does not throw
-	 * any exceptions.
+	 * Discards the memory node resources and memory. After this call, this object
+	 * is no longer usable in any shape or form. This method can only be called
+	 * from the finalizer of this object.
+	 */
+	private native void free();
+
+	/**
+	 * Checks if this peered object is initialized. This method does not throw any
+	 * exceptions.
 	 * 
 	 * @return if initialized true is returned, otherwise false
 	 */
-	public boolean isInitialized() {
-		return physical != 0;
-	}
+	private final native boolean isActive();
 
-	public final boolean isOwner() {
-		return this.owner;
+	/**
+	 * @return true or false
+	 */
+	public boolean isInitialized() {
+		return isActive();
 	}
 
 	/**
+	 * Checks if access to native memory is read-only.
+	 * 
+	 * @return true if its read-only
+	 */
+	public final boolean isReadonly() {
+		final int flags = jmemoryFlags();
+		return (jmemoryFlags() & (JMEMORY_FLAG_READ | JMEMORY_FLAG_WRITE)) != JMEMORY_FLAG_READ;
+	}
+
+	/**
+	 * Returns defined flags assigned to this memory node. These flags have no
+	 * meaning to <code>JMemory</code> class.
+	 * 
+	 * @return node's flags
+	 */
+	final native int jmemoryFlags();
+
+	/**
+	 * Sets memory node's flags.
+	 * 
+	 * @param flags
+	 *          new flags
+	 */
+	final native void jmemoryFlags(int flags);
+
+	/**
+	 * Reads the jmemory_t.next field.
+	 * 
+	 * @return next node in a linked list of JMemory nodes
+	 */
+
+	private final native JMemory jmemoryNext();
+
+	/**
+	 * Reads the jmemory_t.type field.
+	 * 
+	 * @return returns numerical memory node type
+	 */
+	private final native int jmemoryType();
+
+	/**
+	 * Reads peer_t.jref field which holds a reference to the owner of the data we
+	 * are pointing when this PEER node is active.
+	 * 
+	 * @return owner of the data block if node is active, otherwise null
+	 */
+
+	private final native Object jpeerJRef();
+
+	/**
+	 * Reads jref_t.jref field which holds a reference to a java object.
+	 * 
+	 * @return owner of the data block if node is active, otherwise null
+	 */
+	private final native Object jrefJRef();
+
+	/**
 	 * Peers the src structure with this instance. The physical memory that the
-	 * src peered object points to is set to this instance. The owner flag is
-	 * not copied and src remains at the same state as it did before. This
-	 * instance does not become the owner of the memory.
+	 * src peered object points to is set to this instance. The owner flag is not
+	 * copied and src remains at the same state as it did before. This instance
+	 * does not become the owner of the memory.
 	 * <p>
 	 * Further more, since we are peering with a ByteBuffer, the actual memory
-	 * that is peered is between ByteBuffer's position and limit properties.
-	 * Those 2 properties determine which portion of the memory that will be
-	 * peered. This allows a larger ByteBuffer to be peered with different
-	 * objects providing rudimentary memory allocation mechanism.
+	 * that is peered is between ByteBuffer's position and limit properties. Those
+	 * 2 properties determine which portion of the memory that will be peered.
+	 * This allows a larger ByteBuffer to be peered with different objects
+	 * providing rudimentary memory allocation mechanism.
 	 * </p>
 	 * <p>
 	 * Lastly care must be taken, to ensure that the lifespans do not conflict.
 	 * The memory that we are peering to must not be deallocated prior the
 	 * termination of the lifespan of this object or at minimum calling
-	 * {@link #cleanup()} method to ensure that this object no longer references
+	 * {@link #reset()} method to ensure that this object no longer references
 	 * memory which may have been or become deallocated.
 	 * </p>
 	 * 
 	 * @param peer
-	 *            The ByteBuffer whose allocated native memory we want to peer
-	 *            with. The ByteByffer must be if direct buffer type which can
-	 *            be checked using ByteBuffer.isDirect() call.
+	 *          The ByteBuffer whose allocated native memory we want to peer with.
+	 *          The ByteByffer must be if direct buffer type which can be checked
+	 *          using ByteBuffer.isDirect() call.
 	 * @throws PeeringException
 	 * @see ByteBuffer#isDirect()
 	 */
@@ -355,12 +652,12 @@ public abstract class JMemory {
 
 	/**
 	 * Peers the peer structure with this instance. The physical memory that the
-	 * peer object points to is set to this instance. The owner flag is not
-	 * copied and peer remains at the same state as it did before. This instance
-	 * does not become the owner of the memory.
+	 * peer object points to is set to this instance. The owner flag is not copied
+	 * and peer remains at the same state as it did before. This instance does not
+	 * become the owner of the memory.
 	 * 
 	 * @param peer
-	 *            the object whose allocated native memory we want to peer with
+	 *          the object whose allocated native memory we want to peer with
 	 */
 	protected int peer(JMemory peer) {
 		return peer(peer, 0, peer.size());
@@ -368,121 +665,174 @@ public abstract class JMemory {
 
 	/**
 	 * Peers the peer structure with this instance. The physical memory that the
-	 * peer object points to is set to this instance. The owner flag is not
-	 * copied and peer remains at the same state as it did before. This instance
-	 * does not become the owner of the memory. The function allows peering to a
-	 * sub portion of the peer given the specified offset and length. The
-	 * function strictly checks and inforces the bounds of the request to
-	 * guarrantee that peer is not allowed to access physical memory outside of
-	 * actual peer range.
+	 * peer object points to is set to this instance. The owner flag is not copied
+	 * and peer remains at the same state as it did before. This instance does not
+	 * become the owner of the memory. The function allows peering to a sub
+	 * portion of the peer given the specified offset and length. The function
+	 * strictly checks and inforces the bounds of the request to guarrantee that
+	 * peer is not allowed to access physical memory outside of actual peer range.
 	 * 
 	 * @param peer
-	 *            object memory block to peer with
+	 *          object memory block to peer with
 	 * @param offset
-	 *            offset into the memory block
+	 *          offset into the memory block
 	 * @param length
-	 *            amount of memory to peer with
-	 * @throws IndexOutOfBoundsException
-	 *             if the specified memory offset and length have negative or
-	 *             out of bounds of peer objects address space
+	 *          amount of memory to peer with
+	 * @throws PeeringException
+	 *           if the specified memory offset and length have negative or out of
+	 *           bounds of peer objects address space
 	 */
-	protected int peer(JMemory peer, int offset, int length)
-			throws IndexOutOfBoundsException {
-		if (offset < 0 || length < 0
-				|| (!peer.owner && offset + length > peer.size) || peer.owner
-				&& offset + length > peer.physicalSize) {
-			throw new IllegalArgumentException("Invalid [" + offset + ","
-					+ (offset + length) + "," + length + ") range.");
+	protected native int peer(JMemory peer, int offset, int length);
+
+	/**
+	 * Returns a thread lock on the underlying native memory which this object is
+	 * accessing. This operation only works for JMemory based memory managment and
+	 * will not work if this object is peered with a ByteBuffer object.Here is a
+	 * typical example
+	 * 
+	 * <pre>
+	 * PcapPacket packet = ...; // from some source
+	 * Ip4 ip = new Ip4();
+	 * ReadWriteLock l = packet.readWriteLock();
+	 * 
+	 * 
+	 * Lock readLock = l.readLock();
+	 * readLock.lock();
+	 * try {
+	 *   if (packet.hasHeader(ip)) {
+	 *     // Do read logic
+	 *   }
+	 * } finally {
+	 *   readLock.unlock();
+	 * }
+	 * </pre>
+	 * 
+	 * while another thread may be trying to write to the same packet
+	 * 
+	 * <pre>
+	 * PcapPacket packet = ...; // from some source
+	 * Ip4 ip = new Ip4();
+	 * ReadWriteLock l = packet.readWriteLock();
+	 * 
+	 * 
+	 * Lock writeLock = l.writeLock();
+	 * try {
+	 *   if (packet.hasHeader(ip)) {
+	 *     // Do write logic
+	 *   }
+	 *   
+	 *   packet.scan(); // Rescan packet since we changed its content
+	 * } finally {
+	 *   writeLock.unlock();
+	 * }
+	 * </pre>
+	 * 
+	 * Both read and write threads will be properly synchronized while accessing
+	 * the same packet data. This implementation of read and write lock will give
+	 * preferance to a write lock when multiple read and write locks are waiting
+	 * for access to object's data.
+	 * 
+	 * @return a read-write lock
+	 * @throws UnsupportedOperationException
+	 *           thrown when this memory object is peered with a ByteBuffer object
+	 *           which is the owner of the native memory. ReadWrite locks can not
+	 *           be generated for that type of peered objects and will throw this
+	 *           exception.
+	 */
+	public ReadWriteLock readWriteLock() throws UnsupportedOperationException {
+		if (isActive() == false) {
+			throw new NullPointerException();
 		}
 
-		cleanup(); // Clean up any memory we own before we give it up
+		if (jmemoryType() == JMEMORY_TYPE_PEER) {
+			if (dataOwner() instanceof JMemory) {
+				return ((JMemory) dataOwner()).readWriteLock();
+			} else {
+				throw new UnsupportedOperationException(
+				    "readWriteLock can not be acquired for peered "
+				        + "JMemory to ByteBuffer object");
+			}
 
-		this.physical = peer.physical + offset;
-		this.size = length;
-
-		/**
-		 * For specific reasons, we can never be the owner of the peered
-		 * structure. The owner should remain the object that initially created
-		 * or was created to manage the physical memory. The reasons are as
-		 * follows:
-		 * <ul>
-		 * <li>Memory could be a revolving buffer
-		 * <li>Memory allocation could have been complex with sub structures
-		 * that need to be deallocated
-		 * <li>The src object may have been passed around and references stored
-		 * to it elsewhere. If we are GCed before src and we free up the memory
-		 * the original src object would become unstable
-		 * </ul>
-		 */
-		this.owner = false;
-
-		if (peer.keeper == null) {
-			this.keeper = peer;
 		} else {
-			this.keeper = peer.keeper;
+			if (this.lock == null) {
+				this.lock = new ReentrantReadWriteLock();
+			}
+
+			return lock;
 		}
-
-		/*
-		 * Transfer the JNI global references
-		 */
-		if (peer.references != null) {
-			this.references = peer.references;
-		}
-
-		return size;
-
 	}
 
 	/**
-	 * Changes the size of this memory block. The size can not be changed passed
-	 * the physical size.
-	 * 
-	 * @param size
-	 *            length in bytes for this memory buffer
+	 * Do a soft reset on the underlying memory node. Reset will free up any
+	 * currently allocated resources, with one exception. Block nodes can not be
+	 * freed up. They can only be deactivated, which will cause the node to be
+	 * quickly dereferenced by any peers and eventually discarded by java GC
+	 * mechanism.
 	 */
-	protected void setSize(int size) {
-		if (!owner) {
-			throw new IllegalAccessError(
-					"object not owner of the memory block. Can not change size,"
-							+ " must use peer() to change rereference properties");
-		}
+	protected native void reset();
 
-		if (size < 0 || size > physicalSize) {
-			throw new IllegalArgumentException(
-					"size is out of bounds (physical size=" + physicalSize
-							+ ", requested size=" + size);
-		}
-
-		this.size = size;
+	protected final void setReadonly(boolean state) {
+		jmemoryFlags(jmemoryFlags() & ~JMEMORY_FLAG_WRITE);
 	}
 
 	/**
 	 * Returns the size of the memory block that this peered structure is point
 	 * to. This object does not neccessarily have to be the owner of the memory
-	 * block and could simply be a portion of the over all memory block.
+	 * block and could simply be a portion of the over all memory block. Also the
+	 * returned size does not include jmemory managment overhead.
 	 * 
 	 * @return number of byte currently allocated
 	 */
-	public int size() {
-		if (isInitialized() == false) {
-			throw new NullPointerException("jmemory not initialized");
-		}
-
-		return size;
-	}
+	public native int size();
 
 	/**
-	 * A debug method, similar to toString() which converts the contents of the
-	 * memory to textual hexdump.
+	 * Returns an opaque object suitable for usage in java synchronized statement
+	 * for locking access to underlying native memory. Unlike
+	 * {@link #readWriteLock()} method, this object returns a handle for all types
+	 * of memory including ByteBuffer.
+	 * <p>
+	 * Here is a typical usage where 2 threads (1 read and 1 write) threads need
+	 * to be synchronized to prevent concurrent modification to occur. The first
+	 * is the reader thread:
 	 * 
-	 * @return multi-line hexdump of the entire memory region
+	 * <pre>
+	 * PcapPacket packet = ...; // From some where 
+	 * Ip4 ip = new Ip4(); 
+	 * Object lock = packet.syncHandle(); 
+	 * synchronized(lock) { 
+	 *   if (packet.hasHeader(ip)) { 
+	 *     // Do read logic 
+	 *   } 
+	 * }
+	 * </pre>
+	 * 
+	 * while the second is the writer thread:
+	 * 
+	 * <pre>
+	 * PcapPacket packet = ...; // From some where 
+	 * Ip4 ip = new Ip4(); 
+	 * Object lock = packet.syncHandle(); 
+	 * synchronized(lock) { 
+	 *   if (packet.hasHeader(ip)) { 
+	 *     // Do write logic 
+	 *   } 
+	 *   
+	 *   packet.scan(); // rescan since we changed packet contents 
+	 * }
+	 * </pre>
+	 * 
+	 * </p>
+	 * 
+	 * @return an opaque handle suitable for usage in synchronized statement. This
+	 *         method never returns null.
 	 */
-	public String toHexdump() {
-		JBuffer b = new JBuffer(Type.POINTER);
-		b.peer(this);
+	public Object syncHandle() {
 
-		return FormatUtils.hexdumpCombined(b.getByteArray(0, size), 0, 0, true,
-				true, true);
+		if (isInitialized() == false) {
+			throw new NullPointerException();
+		}
+
+		return (jmemoryType() == JMEMORY_TYPE_PEER) ? dataOwner() : this;
 	}
 
 	/**
@@ -498,8 +848,8 @@ public abstract class JMemory {
 	 * <li>owner = the class name of the object that owns the physical memory
 	 * <li>isOwner = if true, means that this object is the owner of physical
 	 * memory
-	 * <li>size in parenthesis = the size of the physical memory allocated by
-	 * the owner
+	 * <li>size in parenthesis = the size of the physical memory allocated by the
+	 * owner
 	 * <li>offset in parenthesis = the offset into the physical memory block of
 	 * this memory object
 	 * </ul>
@@ -507,50 +857,64 @@ public abstract class JMemory {
 	 * @return a summary string describing the state of this memory object
 	 */
 	public String toDebugString() {
-		StringBuilder b = new StringBuilder();
-
-		b.append("JMemory: JMemory@").append(Long.toHexString(physical))
-				.append(getClass().toString()).append(": ");
-		b.append("size=").append(size).append(" bytes");
-		if (!owner) {
-			b.append("\n");
-			b.append("JMemory: owner=").append(
-					(keeper == null) ? "null" : keeper.getClass().getName()
-							.replaceAll("org.jnetpcap.", ""));
-			b.append(".class");
-			if (keeper instanceof JMemory) {
-				JMemory k = (JMemory) keeper;
-				b.append("(size=").append(k.physicalSize);
-				b.append("/offset=").append(this.physical - k.physical);
-				b.append(')');
-			}
-		} else {
-			b.append("\n").append("JMemory: isOwner=").append(owner);
+		if (isActive() == false) {
+			return super.toString();
 		}
+		
+		final StringBuilder b = new StringBuilder();
+		final String t = "JMemory:" + Type.valueOf(jmemoryType()) + ":";
 
-//		if (references == null) {
-//			b.append("\nJMemory: references(null)");
-//		} else {
-//			b.append("\nJMemory: references(").append(
-//					references.toDebugString()).append(')');
-//		}
+		b.append(t).append(" this=").append(this.getClass().getSimpleName());
+		b.append('@').append(Long.toHexString(physical));
+		b.append(", ");
+
+		b.append(" flags=[").append(Flag.toSummary(jmemoryFlags())).append(']');
+		b.append("(0x").append(Integer.toHexString(jmemoryFlags())).append(')');
+		b.append(", ");
+
+		Object dataOwner = dataOwner();
+
+		switch (jmemoryType()) {
+			case JMEMORY_TYPE_BLOCK:
+				if (isActive()) {
+					b.append(" size=").append(size());
+				}
+				break;
+
+			case JMEMORY_TYPE_PEER:
+				if (isActive()) {
+					b.append(" size=").append(size());
+					b.append(", ");
+					b.append(" data=").append(size());
+
+					if (dataOwner != null) {
+						b.append(", ");
+						b.append(" owner=").append(dataOwner.toString());
+					}
+				}
+				break;
+
+		}
 
 		return b.toString();
 	}
 
 	/**
-	 * Checks if physical memory pointed to by this object, is owned either by
-	 * this JMemory based object or the actual owner is also JMemory based. This
-	 * method provides a check if the physical memory pointed to by this object
-	 * has been allocated through use of one of JMemory based functions or
-	 * outside its memory management scope. For example, memory allocated by
-	 * libpcap library will return false. While packets that copied their state
-	 * to new memory will return true.
+	 * A debug method, similar to toString() which converts the contents of the
+	 * memory to textual hexdump.
 	 * 
-	 * @return true if physical memory is managed by JMemory, otherwise false
+	 * @return multi-line hexdump of the entire memory region
 	 */
-	public boolean isJMemoryBasedOwner() {
-		return physical != 0 && (owner || keeper instanceof JMemory);
+	public String toHexdump() {
+		if (isInitialized() == false) {
+			return "not initialized";
+		}
+
+		JBuffer b = new JBuffer(Type.PEER);
+		b.peer(this);
+
+		return FormatUtils.hexdumpCombined(b.getByteArray(0, size()), 0, 0, true,
+		    true, true);
 	}
 
 	/**
@@ -558,32 +922,34 @@ public abstract class JMemory {
 	 * memory to textual hexdump.
 	 * 
 	 * @param length
-	 *            maximum number of bytes to dump to hex output
+	 *          maximum number of bytes to dump to hex output
 	 * @param address
-	 *            flag if set to true will print out address offset on every
-	 *            line
+	 *          flag if set to true will print out address offset on every line
 	 * @param text
-	 *            flag if set to true will print out a text characters at the
-	 *            end of everyline
+	 *          flag if set to true will print out a text characters at the end of
+	 *          everyline
 	 * @param data
-	 *            flag if set to true will print out raw HEX data on every line
+	 *          flag if set to true will print out raw HEX data on every line
 	 * @return multi-line hexdump of the entire memory region
 	 */
-	public String toHexdump(int length, boolean address, boolean text,
-			boolean data) {
-		length = (length < size) ? length : size;
+	public String toHexdump(
+	    int length,
+	    boolean address,
+	    boolean text,
+	    boolean data) {
+		length = (length < size()) ? length : size();
 		JBuffer b = new JBuffer(Type.POINTER);
 		b.peer(this);
 
 		return FormatUtils.hexdumpCombined(b.getByteArray(0, length), 0, 0,
-				address, text, data);
+		    address, text, data);
 	}
 
 	/**
 	 * Copies contents of byte array to memory
 	 * 
 	 * @param buffer
-	 *            source buffer
+	 *          source buffer
 	 * @return number of bytes copied
 	 */
 	protected int transferFrom(byte[] buffer) {
@@ -594,23 +960,26 @@ public abstract class JMemory {
 	 * Copies contents of byte array to memory
 	 * 
 	 * @param buffer
-	 *            source buffer
+	 *          source buffer
 	 * @param srcOffset
-	 *            starting offset into the byte array
+	 *          starting offset into the byte array
 	 * @param length
-	 *            number of bytes to copy
+	 *          number of bytes to copy
 	 * @param dstOffset
-	 *            starting offset into memory buffer
+	 *          starting offset into memory buffer
 	 * @return number of bytes copied
 	 */
-	protected native int transferFrom(byte[] buffer, int srcOffset, int length,
-			int dstOffset);
+	protected native int transferFrom(
+	    byte[] buffer,
+	    int srcOffset,
+	    int length,
+	    int dstOffset);
 
 	/**
 	 * Copies data from memory from direct byte buffer to this memory
 	 * 
 	 * @param src
-	 *            source buffer
+	 *          source buffer
 	 * @return actual number of bytes that was copied
 	 */
 	protected int transferFrom(ByteBuffer src) {
@@ -621,9 +990,9 @@ public abstract class JMemory {
 	 * Copies data from memory from direct byte buffer to this memory
 	 * 
 	 * @param src
-	 *            source buffer
+	 *          source buffer
 	 * @param dstOffset
-	 *            offset into our memory location
+	 *          offset into our memory location
 	 * @return actual number of bytes that was copied
 	 */
 	protected int transferFrom(ByteBuffer src, int dstOffset) {
@@ -631,7 +1000,7 @@ public abstract class JMemory {
 			return transferFromDirect(src, 0);
 		} else {
 			return transferFrom(src.array(), src.position(), src.limit()
-					- src.position(), 0);
+			    - src.position(), 0);
 		}
 	}
 
@@ -639,49 +1008,18 @@ public abstract class JMemory {
 	 * Copies data from memory from direct byte buffer to this memory
 	 * 
 	 * @param src
-	 *            source buffer
+	 *          source buffer
 	 * @param dstOffset
-	 *            offset into our memory location
+	 *          offset into our memory location
 	 * @return actual number of bytes that was copied
 	 */
 	protected native int transferFromDirect(ByteBuffer src, int dstOffset);
 
 	/**
-	 * A special method that allows one object to transfer ownership of a memory
-	 * block. The supplied JMemory object must already be the owner of the
-	 * memory block. This policy is strictly enforced. If the ownership transfer
-	 * succeeds, this memory object will be responsible for freeing up memory
-	 * block when this object is garbage collected or the user calls
-	 * JMemory.cleanup() method. <h2>Warning!</h2> Care must be taken to only
-	 * transfer ownership for simple memory allocations. If a complex memory
-	 * allocation was used, one that sub allocates other memory blocks which are
-	 * referenced from the original memory block, to avoid creating memory
-	 * leaks. It is best practice to sub allocate other memory blocks using
-	 * JMemory class which will properly manage that memory block and ensure
-	 * that it will freed properly as well.
-	 * 
-	 * @param memory
-	 *            memory block to transfer the ownership from
-	 * @return if tranfer succeeded true is returned, otherwise false.
-	 */
-	protected boolean transferOwnership(JMemory memory) {
-		if (!memory.owner || this.physical == 0
-				|| this.physical != memory.physical) {
-			return false;
-		}
-
-		memory.owner = false;
-		this.owner = true;
-		this.keeper = null; // Release any kept references
-
-		return true;
-	}
-
-	/**
 	 * Copies data from memory to byte array
 	 * 
 	 * @param buffer
-	 *            destination buffer starting offset in byte array
+	 *          destination buffer starting offset in byte array
 	 * @return number of bytes copied
 	 */
 	protected int transferTo(byte[] buffer) {
@@ -692,38 +1030,41 @@ public abstract class JMemory {
 	 * Copies data from memory to byte array
 	 * 
 	 * @param buffer
-	 *            destination buffer
+	 *          destination buffer
 	 * @param srcOffset
-	 *            starting offset in memory
+	 *          starting offset in memory
 	 * @param length
-	 *            number of bytes to copy
+	 *          number of bytes to copy
 	 * @param dstOffset
-	 *            starting offset in byte array
+	 *          starting offset in byte array
 	 * @return number of bytes copied
 	 */
-	protected native int transferTo(byte[] buffer, int srcOffset, int length,
-			int dstOffset);
+	protected native int transferTo(
+	    byte[] buffer,
+	    int srcOffset,
+	    int length,
+	    int dstOffset);
 
 	/**
 	 * Copies teh contents of this memory to buffer
 	 * 
 	 * @param dst
-	 *            destination buffer
+	 *          destination buffer
 	 * @return actual number of bytes that was copied
 	 */
 	public int transferTo(ByteBuffer dst) {
-		return transferTo(dst, 0, size);
+		return transferTo(dst, 0, size());
 	}
 
 	/**
 	 * Copies teh contents of this memory to buffer
 	 * 
 	 * @param dst
-	 *            destination buffer
+	 *          destination buffer
 	 * @param srcOffset
-	 *            offset in source
+	 *          offset in source
 	 * @param length
-	 *            number of bytes to copy
+	 *          number of bytes to copy
 	 * @return number of bytes copied
 	 */
 	public int transferTo(ByteBuffer dst, int srcOffset, int length) {
@@ -741,13 +1082,13 @@ public abstract class JMemory {
 	 * Transfers the contents of this memory to buffer.
 	 * 
 	 * @param dst
-	 *            destination buffer
+	 *          destination buffer
 	 * @param srcOffset
-	 *            offset in source
+	 *          offset in source
 	 * @param length
-	 *            number of bytes to copy
+	 *          number of bytes to copy
 	 * @param dstOffset
-	 *            offset in destination buffer
+	 *          offset in destination buffer
 	 * @return number of bytes copied
 	 */
 	public int transferTo(JBuffer dst, int srcOffset, int length, int dstOffset) {
@@ -758,28 +1099,31 @@ public abstract class JMemory {
 	 * Copied the entire contents of this memory to destination memory
 	 * 
 	 * @param dst
-	 *            destination memory
+	 *          destination memory
 	 * @return number of bytes copied
 	 */
 	protected int transferTo(JMemory dst) {
-		return transferTo(dst, 0, size, 0);
+		return transferTo(dst, 0, size(), 0);
 	}
 
 	/**
 	 * Copied the entire contents of this memory to destination memory
 	 * 
 	 * @param dst
-	 *            destination memory
+	 *          destination memory
 	 * @param srcOffset
-	 *            offset in source
+	 *          offset in source
 	 * @param length
-	 *            number of bytes to copy
+	 *          number of bytes to copy
 	 * @param dstOffset
-	 *            offset in destination buffer
+	 *          offset in destination buffer
 	 * @return number of bytes copied
 	 */
-	protected native int transferTo(JMemory dst, int srcOffset, int length,
-			int dstOffset);
+	protected native int transferTo(
+	    JMemory dst,
+	    int srcOffset,
+	    int length,
+	    int dstOffset);
 
 	/**
 	 * @param dst
@@ -787,6 +1131,5 @@ public abstract class JMemory {
 	 * @param length
 	 * @return actual number of bytes that was copied
 	 */
-	private native int transferToDirect(ByteBuffer dst, int srcOffset,
-			int length);
+	private native int transferToDirect(ByteBuffer dst, int srcOffset, int length);
 }

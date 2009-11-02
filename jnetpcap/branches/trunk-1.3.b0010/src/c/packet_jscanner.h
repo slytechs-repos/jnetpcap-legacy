@@ -97,11 +97,21 @@ extern native_debug_func_t native_debug[];
 extern const char *native_protocol_names[];
 
 void callJavaHeaderScanner(scan_t *scan);
-void record_header(scan_t *scan);
 void adjustForTruncatedPacket(scan_t *scan);
 
 
 extern char str_buf[1024];
+
+extern "C" {
+	
+const char *id2str(int id);
+void record_header(scan_t *scan);
+int validate(int id, scan_t *);
+int validate_next(int id, scan_t *);
+int is_accessible(scan_t *scan, int offset);
+
+}
+
 
 
 
@@ -319,10 +329,6 @@ uint64_t toUlong64(JNIEnv *env, jintArray ja);
 
 jint findHeaderById(packet_state_t *packet, jint id, jint instance);
 
-const char *id2str(int id);
-
-int validate(int id, scan_t *);
-int validate_next(int id, scan_t *);
 
 /****
  * Temporarily backed out of C++ Debug class and G++ compiler
@@ -340,9 +346,6 @@ extern Debug protocol_logger;
  * scan->hdr_flags output with TRUNCATED flag set.
  */
 int truncate_header(scan_t *scan);
-
-int is_accessible(scan_t *scan, int offset);
-
 
 
 #endif
