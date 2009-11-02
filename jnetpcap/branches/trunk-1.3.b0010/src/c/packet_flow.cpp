@@ -40,14 +40,13 @@
 /**
  * Post processes the flow key data. If hashcode is not computed it computes one.
  * Fills in the flow_t.reverse_pairs array if FLOW_KEY_FLAG_REVERSABLE_PAIRS is set.
- * It also computes a different kind of hashcode if that flat is set. The hash
+ * It also computes a different kind of hashcode if that flag is set. The hash
  * is direction independent. Otherwise the hashcode will be direction dependent.
  */
 void process_flow_key(scan_t *scan) {
 	flow_key_t *key = &scan->packet->pkt_flow_key;
-	int reversable = key->flags & FLOW_KEY_FLAG_REVERSABLE_PAIRS;
 
-	if (reversable) {
+	if (key->flags & FLOW_KEY_FLAG_REVERSABLE_PAIRS) {
 		for (int i = 0; i < key->pair_count; i ++) {
 			key->reverse_pair[i][0] = key->forward_pair[i][1];
 			key->reverse_pair[i][1] = key->forward_pair[i][0];
@@ -59,7 +58,7 @@ void process_flow_key(scan_t *scan) {
 		key->hash = ((uint32_t) key->header_map) ^ (key->header_map >> 32)
 				^ key->flags;
 
-		if (reversable) {
+		if (key->flags & FLOW_KEY_FLAG_REVERSABLE_PAIRS) {
 			for (int i = 0; i < key->pair_count; i ++) {
 				key->hash ^= key->reverse_pair[i][0];
 				key->hash ^= key->reverse_pair[i][1];
@@ -101,11 +100,10 @@ void process_flow_key(scan_t *scan) {
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JFlowKey_getPairCount
 (JNIEnv *env, jobject obj) {
-
-	flow_key_t * key = (flow_key_t *) getJMemoryPhysical(env, obj);
+	
+	flow_key_t *key = (flow_key_t *)jmem_data_get(env, obj);
 	if (key == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, NULL);
-		return -1;
+		return 0;
 	}
 
 	return (jint) key->pair_count;
@@ -119,10 +117,17 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JFlowKey_getPairCount
 JNIEXPORT jlong JNICALL Java_org_jnetpcap_packet_JFlowKey_getPair
 (JNIEnv *env, jobject obj, jint index, jboolean reverse) {
 
-	flow_key_t * key = (flow_key_t *) getJMemoryPhysical(env, obj);
+	flow_key_t *key = (flow_key_t *)jmem_data_get(env, obj);
 	if (key == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, NULL);
-		return -1;
+		return 0;
+	}
+	
+	if (reverse) {
+		return ((jlong) (key->reverse_pair[index][0]) << 32) |
+		(jlong)key->reverse_pair[index][1];
+	} else {
+		return ((jlong) (key->forward_pair[index][0]) << 32) |
+		(jlong)key->forward_pair[index][1];
 	}
 }
 
@@ -134,10 +139,9 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_packet_JFlowKey_getPair
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JFlowKey_getPairP1
 (JNIEnv *env, jobject obj, jint index, jboolean reverse) {
 
-	flow_key_t * key = (flow_key_t *) getJMemoryPhysical(env, obj);
+	flow_key_t *key = (flow_key_t *)jmem_data_get(env, obj);
 	if (key == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, NULL);
-		return -1;
+		return 0;
 	}
 
 	return (reverse)? key->reverse_pair[index][0] : key->forward_pair[index][0];
@@ -151,10 +155,9 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JFlowKey_getPairP1
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JFlowKey_getPairP2
 (JNIEnv *env, jobject obj, jint index, jboolean reverse) {
 
-	flow_key_t * key = (flow_key_t *) getJMemoryPhysical(env, obj);
+	flow_key_t *key = (flow_key_t *)jmem_data_get(env, obj);
 	if (key == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, NULL);
-		return -1;
+		return 0;
 	}
 
 	return (reverse)? key->reverse_pair[index][1] : key->forward_pair[index][1];
@@ -169,10 +172,9 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JFlowKey_getPairP2
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JFlowKey_hashCode
 (JNIEnv *env, jobject obj) {
 
-	flow_key_t * key = (flow_key_t *) getJMemoryPhysical(env, obj);
+	flow_key_t *key = (flow_key_t *)jmem_data_get(env, obj);
 	if (key == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, NULL);
-		return -1;
+		return 0;
 	}
 
 	return key->hash;
@@ -186,10 +188,9 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JFlowKey_hashCode
 JNIEXPORT jlong JNICALL Java_org_jnetpcap_packet_JFlowKey_getHeaderMap
 (JNIEnv *env, jobject obj) {
 
-	flow_key_t * key = (flow_key_t *) getJMemoryPhysical(env, obj);
+	flow_key_t *key = (flow_key_t *)jmem_data_get(env, obj);
 	if (key == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, NULL);
-		return -1;
+		return 0;
 	}
 
 	return key->header_map;
@@ -203,10 +204,9 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_packet_JFlowKey_getHeaderMap
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JFlowKey_getFlags
   (JNIEnv *env, jobject obj) {
 	
-	flow_key_t * key = (flow_key_t *) getJMemoryPhysical(env, obj);
+	flow_key_t *key = (flow_key_t *)jmem_data_get(env, obj);
 	if (key == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, NULL);
-		return -1;
+		return 0;
 	}
 
 	return key->flags;	
@@ -222,15 +222,13 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JFlowKey_getFlags
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JFlowKey_match
 (JNIEnv *env, jobject obj, jobject jFlowKey) {
 
-	flow_key_t * key1 = (flow_key_t *) getJMemoryPhysical(env, obj);
+	flow_key_t *key1 = (flow_key_t *)jmem_data_get(env, obj);
 	if (key1 == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return 0;
 	}
 
-	flow_key_t * key2 = (flow_key_t *) getJMemoryPhysical(env, jFlowKey);
+	flow_key_t *key2 = (flow_key_t *)jmem_data_get(env, jFlowKey);
 	if (key2 == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return 0;
 	}
 
@@ -294,16 +292,14 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JFlowKey_match
 JNIEXPORT jboolean JNICALL Java_org_jnetpcap_packet_JFlowKey_equal
 (JNIEnv *env, jobject obj, jobject jFlowKey) {
 
-	flow_key_t * key1 = (flow_key_t *) getJMemoryPhysical(env, obj);
+	flow_key_t *key1 = (flow_key_t *)jmem_data_get(env, obj);
 	if (key1 == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, NULL);
-		return JNI_FALSE;
+		return 0;
 	}
 
-	flow_key_t * key2 = (flow_key_t *) getJMemoryPhysical(env, jFlowKey);
+	flow_key_t *key2 = (flow_key_t *)jmem_data_get(env, jFlowKey);
 	if (key2 == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, NULL);
-		return JNI_FALSE;
+		return 0;
 	}
 
 #ifdef DEBUG
@@ -374,10 +370,9 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JFlowKey_sizeof
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JFlowKey_getId
   (JNIEnv *env, jobject obj, jint index) {
 	
-	flow_key_t * key = (flow_key_t *) getJMemoryPhysical(env, obj);
+	flow_key_t *key = (flow_key_t *)jmem_data_get(env, obj);
 	if (key == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, NULL);
-		return -1;
+		return 0;
 	}
 
 	return (jint) key->id[index];	

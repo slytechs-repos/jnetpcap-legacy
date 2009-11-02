@@ -45,10 +45,14 @@
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JHeaderScanner_bindNativeScanner
 (JNIEnv *env, jobject obj, jint id) {
+	
+	jnp_enter("JHeaderScanner_bindNativeScanner");
+
 
 	if (id < 0 || id > MAX_ID_COUNT) {
 		sprintf(str_buf, "invalid ID=%d (%s)", id, id2str(id));
 		throwException(env, UNREGISTERED_SCANNER_EXCEPTION, str_buf);
+		jnp_exit_error();
 		return;
 	}
 
@@ -56,12 +60,18 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JHeaderScanner_bindNativeScanner
 		
 		sprintf(str_buf, "native scanner not registered under ID=%d (%s)", 
 				id,
-				id2str(id));
+				id2str((int)id));
 		throwException(env, UNREGISTERED_SCANNER_EXCEPTION,	str_buf);
+		jnp_exit_error();
 		return;
 	}
 
-	setJMemoryPhysical(env, obj, toLong((void *)native_protocols[id]));
+	if (jpeer_obj_direct(env, obj, (char *)native_protocols[id], 0, NULL)) {
+		jnp_exit_error();
+		return;
+	}
+	
+	jnp_exit_OK();
 }
 
 /*
@@ -71,18 +81,22 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JHeaderScanner_bindNativeScanner
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JHeaderScanner_nativeScan
 (JNIEnv *env, jobject obj, jobject jscan) {
+	jnp_enter("JHeaderScanner_nativeScan");
 
-	native_protocol_func_t func = (native_protocol_func_t)getJMemoryPhysical(env, obj);
+	native_protocol_func_t func = (native_protocol_func_t)jmem_data_ro_get(env, obj);
 	if (func == NULL) {
+		jnp_exit_error();
 		return;
 	}
 
-	scan_t *scan = (scan_t *)getJMemoryPhysical(env, jscan);
+	scan_t *scan = (scan_t *)jmem_data_get(env, jscan);
 	if (jscan == NULL) {
+		jnp_exit_error();
 		return;
 	}
 
 	// Dispatch to function pointer
 	func(scan);
+	jnp_exit_OK();
 }
 

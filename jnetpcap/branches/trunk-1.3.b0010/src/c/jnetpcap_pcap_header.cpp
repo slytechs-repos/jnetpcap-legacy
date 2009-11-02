@@ -56,7 +56,8 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_PcapHeader_sizeof
  */
 JNIEXPORT jlong JNICALL Java_org_jnetpcap_PcapHeader_hdr_1sec__
   (JNIEnv *env, jobject obj) {
-	pcap_pkthdr *hdr = (pcap_pkthdr *)getJMemoryPhysical(env, obj);
+
+	pcap_pkthdr *hdr = (pcap_pkthdr *)jmem_data_ro_get(env, obj);
 	if (hdr == NULL) {
 		return -1;
 	}
@@ -71,7 +72,8 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_PcapHeader_hdr_1sec__
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_PcapHeader_hdr_1sec__J
   (JNIEnv *env, jobject obj, jlong jts) {
-	pcap_pkthdr *hdr = (pcap_pkthdr *)getJMemoryPhysical(env, obj);
+
+	pcap_pkthdr *hdr = (pcap_pkthdr *)jmem_data_wo_get(env, obj);
 	if (hdr == NULL) {
 		return;
 	}
@@ -86,7 +88,8 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_PcapHeader_hdr_1sec__J
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_PcapHeader_hdr_1usec__
    (JNIEnv *env, jobject obj) {
-	pcap_pkthdr *hdr = (pcap_pkthdr *)getJMemoryPhysical(env, obj);
+
+	pcap_pkthdr *hdr = (pcap_pkthdr *)jmem_data_ro_get(env, obj);
 	if (hdr == NULL) {
 		return -1;
 	}
@@ -101,7 +104,8 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_PcapHeader_hdr_1usec__
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_PcapHeader_hdr_1usec__I
    (JNIEnv *env, jobject obj, jint jts) {
-	pcap_pkthdr *hdr = (pcap_pkthdr *)getJMemoryPhysical(env, obj);
+
+	pcap_pkthdr *hdr = (pcap_pkthdr *)jmem_data_wo_get(env, obj);
 	if (hdr == NULL) {
 		return;
 	}
@@ -116,7 +120,8 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_PcapHeader_hdr_1usec__I
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_PcapHeader_hdr_1len__
   (JNIEnv *env, jobject obj) {
-	pcap_pkthdr *hdr = (pcap_pkthdr *)getJMemoryPhysical(env, obj);
+
+	pcap_pkthdr *hdr = (pcap_pkthdr *)jmem_data_ro_get(env, obj);
 	if (hdr == NULL) {
 		return -1;
 	}
@@ -131,7 +136,8 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_PcapHeader_hdr_1len__
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_PcapHeader_hdr_1len__I
   (JNIEnv *env, jobject obj, jint jlen) {
-	pcap_pkthdr *hdr = (pcap_pkthdr *)getJMemoryPhysical(env, obj);
+
+	pcap_pkthdr *hdr = (pcap_pkthdr *)jmem_data_wo_get(env, obj);
 	if (hdr == NULL) {
 		return;
 	}
@@ -146,7 +152,8 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_PcapHeader_hdr_1len__I
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_PcapHeader_hdr_1wirelen__
   (JNIEnv *env, jobject obj) {
-	pcap_pkthdr *hdr = (pcap_pkthdr *)getJMemoryPhysical(env, obj);
+
+	pcap_pkthdr *hdr = (pcap_pkthdr *)jmem_data_ro_get(env, obj);
 	if (hdr == NULL) {
 		return -1;
 	}
@@ -161,7 +168,8 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_PcapHeader_hdr_1wirelen__
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_PcapHeader_hdr_1wirelen__I
   (JNIEnv *env, jobject obj, jint jlen) {
-	pcap_pkthdr *hdr = (pcap_pkthdr *)getJMemoryPhysical(env, obj);
+
+	pcap_pkthdr *hdr = (pcap_pkthdr *)jmem_data_wo_get(env, obj);
 	if (hdr == NULL) {
 		return;
 	}

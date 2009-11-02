@@ -297,7 +297,6 @@
 			<class name="org.jnetpcap.PcapHeader" />
 
 			<class name="org.jnetpcap.nio.JMemory" />
-			<class name="org.jnetpcap.nio.JReference" />
 			<class name="org.jnetpcap.nio.JNumber" />
 			<class name="org.jnetpcap.nio.JBuffer" />
 			<class name="org.jnetpcap.nio.JObjectBuffer" />
@@ -366,13 +365,15 @@
 		<echo message="using ${compiler.ld.cmd} linker found at ${compiler.ld.bin.dir}" />
 		<exec executable="${compiler.ld.cmd}">
 
-			<arg value="-shared" />
+			<arg value="--debug" />
+			<arg value="--verbose" />
 			<arg value="-g" />
 			<arg value="-Wl,--add-stdcall-alias" />
-
-			<arg line="-o ${jni.build.filepath}" />
+			<arg value="-shared" />
 
 			<arg line="${jni.obj.files}" />
+			<arg line="-o ${jni.build.filepath}" />
+
 
 			<arg line="-L ${pcap.lib.dir}" />
 

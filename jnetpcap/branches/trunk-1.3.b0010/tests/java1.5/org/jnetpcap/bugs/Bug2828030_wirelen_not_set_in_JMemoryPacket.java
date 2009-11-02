@@ -15,9 +15,9 @@ package org.jnetpcap.bugs;
 import java.nio.ByteBuffer;
 
 import org.jnetpcap.nio.JBuffer;
+import org.jnetpcap.nio.PeeringException;
 import org.jnetpcap.packet.JMemoryPacket;
 import org.jnetpcap.packet.PcapPacket;
-import org.jnetpcap.packet.PeeringException;
 import org.jnetpcap.packet.TestUtils;
 import org.jnetpcap.protocol.JProtocol;
 

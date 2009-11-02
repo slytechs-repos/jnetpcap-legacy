@@ -30,14 +30,17 @@
 #endif /*WIN32*/
 
 #include "util_debug.h"
+#include "jnp.h"
 
 /*
  * Some debug functionality
  */
 const char *indent_template = "                            ";
-char indent_buffer[1024] = {'\0'};
-int indent = 0;
+char indent_buffer[1024 * 10] = {'\0'};
+int indent = -1;
 char indent_char = DEFAULT_INDENT_CHAR;
+const char *last_method[100];
+uint64_t debug_flags = 0L;
 
 int debug_level = DEFAULT_LEVEL;
 
@@ -49,26 +52,43 @@ void debug_set_level(int level) {
 	debug_level = level;
 }
 
-void debug_inc() {
-//	printf("debug_inc() - index=%d buf=%s\n", indent, indent_buffer);
-	if (indent < DEBUG_MAX_LEVEL) { // Safety check
-		indent_buffer[indent] = indent_char;
-		indent_buffer[++indent] = '\0';
+char *to_buf() {
+	if (indent >= 0) {
+		sprintf(indent_buffer, "%s", last_method[0]);
 	} else {
-		indent_buffer[indent + 0] = '>'; // Indicates too many levels
-		indent_buffer[indent + 1] = '\0';
+		indent_buffer[0] = '\0';
 	}
+	
+	for (int i = 1; i <= indent; i++) {
+		strcat(indent_buffer, ".");
+		strcat(indent_buffer, last_method[i]);
+	}
+
+	return indent_buffer;
+}
+
+void debug_inc(const char *name) {
+	if (indent < DEBUG_MAX_LEVEL) { // Safety check
+		indent ++;
+	} 
+	
+	last_method[indent] = name;
+	
+	to_buf();
 }
 
 void debug_dec() {
 //	printf("debug_dec) - index=%d buf=%s\n", indent, indent_buffer);
-	if (indent > 0) { // Safety check
-		indent_buffer[--indent] = '\0';
+	if (indent >= 0) { // Safety check
+//		indent_buffer[--indent] = '\0';
+//		sprintf(indent_buffer, "[%d]%s", --indent, last_method[indent]);
+		indent --;
+
 	} else {
-		indent_buffer[indent + 0] = '<'; // Indicates below min level
-		indent_buffer[indent + 1 ] = '\0';
-		
+//		indent_buffer[indent + 0] = '<'; // Indicates below min level
+//		indent_buffer[indent + 1 ] = '\0';	
 	}
+	to_buf();
 }
 
 void debug_reset() {
@@ -78,33 +98,37 @@ void debug_reset() {
 }
 
 char *debug_indent() {	
+	if (indent  < 0) {
+		return "";
+	}
+	
 	return indent_buffer;
 }
 
-void debug_vmsg(const char *type, const char *msg, const char *fmt, va_list ap) {
+void debug_vmsg(const char *type, const char *fmt, va_list ap) {
 	char buf[1024];
 		
 	vsprintf(buf, fmt, ap);
-	printf("%s%-20s%s: "
+	printf("%s%s: "
 			"%s"
 			"\n",
-			type, msg, debug_indent(),
+			type, debug_indent(),
 			buf);
 	
 	fflush(stdout);
 }
 
-void debug_msg(const char *type, const char *msg, const char *fmt, ...) {
+void debug_msg(const char *type, const char *fmt, ...) {
 	
 	va_list ap;
 	va_start(ap, fmt);
 
-	debug_vmsg("", msg, fmt, ap);
+	debug_vmsg("", fmt, ap);
 
 	va_end(ap);
 }
 
-void debug_trace(const char *msg, const char *fmt, ...) {
+void debug_trace(const char *fmt, ...) {
 	if (debug_level < DEBUG_TRACE) {
 		return;
 	}
@@ -112,12 +136,12 @@ void debug_trace(const char *msg, const char *fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
 	
-	debug_vmsg("[TRACE]", msg, fmt, ap);
+	debug_vmsg("[TRACE]", fmt, ap);
 	
 	va_end(ap);
 }
 
-void debug_warn(const char *msg, const char *fmt, ...) {
+void debug_warn(const char *fmt, ...) {
 	if (debug_level < DEBUG_WARN) {
 		return;
 	}
@@ -125,12 +149,12 @@ void debug_warn(const char *msg, const char *fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
 	
-	debug_vmsg("[WARN ]", msg, fmt, ap);
+	debug_vmsg("[WARN ]", fmt, ap);
 	
 	va_end(ap);
 }
 
-void debug_error(const char *msg, const char *fmt, ...) {
+void debug_error(const char *fmt, ...) {
 	if (debug_level < DEBUG_ERROR) {
 		return;
 	}
@@ -138,12 +162,12 @@ void debug_error(const char *msg, const char *fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
 	
-	debug_vmsg("[ERROR]", msg, fmt, ap);
+	debug_vmsg("[ERROR]", fmt, ap);
 	
 	va_end(ap);
 }
 
-void debug_info(const char *msg, const char *fmt, ...) {
+void debug_info(const char *fmt, ...) {
 	if (debug_level < DEBUG_INFO) {
 		return;
 	}
@@ -151,20 +175,39 @@ void debug_info(const char *msg, const char *fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
 	
-	debug_vmsg("[INFO]", msg, fmt, ap);
+	debug_vmsg("[INFO]", fmt, ap);
 	
 	va_end(ap);
 }
 
+
 void debug_enter(const char *method) {
-	debug_inc();
-	debug_trace("enter", ">>> %s() >>>", method);
+	debug_inc(method);
+//	last_method[indent] = method;
+	debug_trace("");
 }
 
-void debug_exit(const char *method) {
-	debug_trace("exit", "<<< %s() <<<", method);
+int debug_exit() {
+	to_buf();
+	
+	debug_trace(jnp_perror());
 	debug_dec();
+	
+	if (debug_flags & (1L << indent)) {
+		debug_flags &= ~(1L << indent);
+		return debug_exit();
+	}
+	
+	return jnp_error();
 }
+
+int debug_exit_after() {
+
+	debug_flags |= (1L << indent);
+	
+	return jnp_error();
+}
+
 
 
 
@@ -276,7 +319,7 @@ void Debug::msg(Level type, char *msg, char *fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
 
-	vmsg(type, msg, fmt, ap);
+	vmsg(type, fmt, ap);
 
 	va_end(ap);
 }
@@ -302,7 +345,7 @@ void Debug::trace(char *msg, char *fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
 	
-	vmsg(TRACE, msg, fmt, ap);
+	vmsg(TRACE, fmt, ap);
 	
 	va_end(ap);	
 }
@@ -315,7 +358,7 @@ void Debug::info(char *msg, char *fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
 	
-	vmsg(INFO, msg, fmt, ap);
+	vmsg(INFO, fmt, ap);
 	
 	va_end(ap);	
 }
@@ -327,7 +370,7 @@ void Debug::warn(char *msg, char *fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
 	
-	vmsg(WARN, msg, fmt, ap);
+	vmsg(WARN, fmt, ap);
 	
 	va_end(ap);	
 }
@@ -339,7 +382,7 @@ void Debug::error(char *msg, char *fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
 	
-	vmsg(ERR, msg, fmt, ap);
+	vmsg(ERR, fmt, ap);
 	
 	va_end(ap);	
 }

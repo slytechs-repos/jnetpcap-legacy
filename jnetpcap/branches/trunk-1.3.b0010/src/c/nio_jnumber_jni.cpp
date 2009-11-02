@@ -87,13 +87,12 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JNumber_sizeof
 JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JNumber_intValue__
   (JNIEnv *env, jobject obj) {
 	
-	jint *p = (jint *)getJMemoryPhysical(env, obj);
-	if (p == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "native NULL pointer");
+	jint *data = (jint *)jmem_data_ro_get(env, obj); // For reading
+	if (data == NULL) {
 		return 0;
 	}
 	
-	return *p;	
+	return *data;	
 }
 
 /*
@@ -104,12 +103,12 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JNumber_intValue__
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JNumber_intValue__I
   (JNIEnv *env, jobject obj, jint jvalue) {
 	
-	jint *p = (jint *)getJMemoryPhysical(env, obj);
-	if (p == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "native NULL pointer");
+	jint *data = (jint *)jmem_data_wo_get(env, obj); 
+	if (data == NULL) {
 		return;
 	}
-	*p = jvalue;
+	
+	*data = jvalue;
 }
 
 /*
@@ -120,12 +119,12 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JNumber_intValue__I
 JNIEXPORT jbyte JNICALL Java_org_jnetpcap_nio_JNumber_byteValue__
   (JNIEnv *env, jobject obj) {
 	
-	jbyte *p = (jbyte *)getJMemoryPhysical(env, obj);
-	if (p == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "native NULL pointer");
+	jbyte *data = (jbyte *)jmem_data_ro_get(env, obj); // For reading
+	if (data == NULL) {
 		return 0;
 	}
-	return *p;	
+	
+	return *data;	
 }
 
 /*
@@ -135,12 +134,13 @@ JNIEXPORT jbyte JNICALL Java_org_jnetpcap_nio_JNumber_byteValue__
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JNumber_byteValue__B
   (JNIEnv *env, jobject obj, jbyte jvalue) {
-	jbyte *p = (jbyte *)getJMemoryPhysical(env, obj);
-	if (p == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "native NULL pointer");
+	
+	jbyte *data = (jbyte *)jmem_data_wo_get(env, obj); 
+	if (data == NULL) {
 		return;
 	}
-	*p = jvalue;
+	
+	*data = jvalue;
 }
 
 /*
@@ -151,12 +151,12 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JNumber_byteValue__B
 JNIEXPORT jshort JNICALL Java_org_jnetpcap_nio_JNumber_shortValue__
   (JNIEnv *env, jobject obj) {
 	
-	jshort *p = (jshort *)getJMemoryPhysical(env, obj);
-	if (p == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "native NULL pointer");
+	jshort *data = (jshort *)jmem_data_ro_get(env, obj); // For reading
+	if (data == NULL) {
 		return 0;
 	}
-	return *p;	
+	
+	return *data;	
 }
 
 /*
@@ -167,12 +167,12 @@ JNIEXPORT jshort JNICALL Java_org_jnetpcap_nio_JNumber_shortValue__
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JNumber_shortValue__S
   (JNIEnv *env, jobject obj, jshort jvalue) {
 	
-	jshort *p = (jshort *)getJMemoryPhysical(env, obj);
-	if (p == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "native NULL pointer");
+	jshort *data = (jshort *)jmem_data_wo_get(env, obj); 
+	if (data == NULL) {
 		return;
 	}
-	*p = jvalue;
+	
+	*data = jvalue;
 }
 
 /*
@@ -183,12 +183,12 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JNumber_shortValue__S
 JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JNumber_longValue__
   (JNIEnv *env, jobject obj) {
 	
-	jlong *p = (jlong *)getJMemoryPhysical(env, obj);
-	if (p == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "native NULL pointer");
+	jlong *data = (jlong *)jmem_data_ro_get(env, obj); // For reading
+	if (data == NULL) {
 		return 0;
 	}
-	return *p;	
+	
+	return *data;	
 }
 
 /*
@@ -199,12 +199,12 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JNumber_longValue__
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JNumber_longValue__J
   (JNIEnv *env, jobject obj, jlong jvalue) {
 	
-	jlong *p = (jlong *)getJMemoryPhysical(env, obj);
-	if (p == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "native NULL pointer");
+	jlong *data = (jlong *)jmem_data_wo_get(env, obj); 
+	if (data == NULL) {
 		return;
 	}
-	*p = jvalue;
+	
+	*data = jvalue;
 }
 
 /*
@@ -215,12 +215,12 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JNumber_longValue__J
 JNIEXPORT jfloat JNICALL Java_org_jnetpcap_nio_JNumber_floatValue__
   (JNIEnv *env, jobject obj) {
 	
-	jfloat *p = (jfloat *)getJMemoryPhysical(env, obj);
-	if (p == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "native NULL pointer");
+	jfloat *data = (jfloat *)jmem_data_ro_get(env, obj);
+	if (data == NULL) {
 		return 0;
 	}
-	return *p;	
+	
+	return *data;	
 }
 
 /*
@@ -231,12 +231,12 @@ JNIEXPORT jfloat JNICALL Java_org_jnetpcap_nio_JNumber_floatValue__
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JNumber_floatValue__F
   (JNIEnv *env, jobject obj, jfloat jvalue) {
 	
-	jfloat *p = (jfloat *)getJMemoryPhysical(env, obj);
-	if (p == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "native NULL pointer");
+	jfloat *data = (jfloat *)jmem_data_wo_get(env, obj); 
+	if (data == NULL) {
 		return;
 	}
-	*p = jvalue;
+	
+	*data = jvalue;
 }
 
 /*
@@ -247,12 +247,12 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JNumber_floatValue__F
 JNIEXPORT jdouble JNICALL Java_org_jnetpcap_nio_JNumber_doubleValue__
   (JNIEnv *env, jobject obj) {
 	
-	jdouble *p = (jdouble *)getJMemoryPhysical(env, obj);
-	if (p == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "native NULL pointer");
+	jdouble *data = (jdouble *)jmem_data_ro_get(env, obj);
+	if (data == NULL) {
 		return 0;
 	}
-	return *p;	
+	
+	return *data;	
 }
 
 /*
@@ -263,11 +263,11 @@ JNIEXPORT jdouble JNICALL Java_org_jnetpcap_nio_JNumber_doubleValue__
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JNumber_doubleValue__D
   (JNIEnv *env, jobject obj, jdouble jvalue) {
 	
-	jdouble *p = (jdouble *)getJMemoryPhysical(env, obj);
-	if (p == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "native NULL pointer");
+	jfloat *data = (jfloat *)jmem_data_wo_get(env, obj); 
+	if (data == NULL) {
 		return;
 	}
-	*p = jvalue;
+	
+	*data = jvalue;
 }
 

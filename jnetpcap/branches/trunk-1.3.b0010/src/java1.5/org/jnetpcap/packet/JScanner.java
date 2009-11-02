@@ -246,7 +246,7 @@ public class JScanner
 		super(STRUCT_NAME + "#" + count++, blocksize + sizeof()); // Allocate memory
 		// block in
 		// JMemory
-		init(new JScan());
+		init(new JScan(Type.PEER));
 		reloadAll();
 	}
 

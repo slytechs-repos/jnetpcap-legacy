@@ -559,7 +559,7 @@ public class TestPcapJNI
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
 			PcapHeader header = new PcapHeader(); // allocated memory
-			JBuffer buffer = new JBuffer(JMemory.Type.POINTER);
+			JBuffer buffer = new JBuffer(JMemory.Type.PEER);
 
 			buffer = pcap.next(header, buffer);
 
@@ -573,9 +573,10 @@ public class TestPcapJNI
 
 	public void testNextEx() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
+		
 		try {
-			PcapHeader header = new PcapHeader(JMemory.Type.POINTER);
-			JBuffer buffer = new JBuffer(JMemory.Type.POINTER);
+			PcapHeader header = new PcapHeader(JMemory.Type.PEER);
+			JBuffer buffer = new JBuffer(JMemory.Type.PEER);
 
 			assertEquals(1, pcap.nextEx(header, buffer));
 

@@ -25,6 +25,8 @@
 #endif /*WIN32*/
 
 #include "jnetpcap_utils.h"
+#include "jnp.h"
+#include "jnp_pcap.h"
 #include "export.h"
 
 /*******************************************************************************
@@ -63,83 +65,43 @@ jmethodID bufferGetCapacityMID = 0;
  */
 JNIEXPORT void JNICALL JNICALL Java_org_jnetpcap_Pcap_initIDs
 (JNIEnv *env, jclass clazz) {
-
-	pcapClass = (jclass) env->NewGlobalRef(clazz); // This one is easy
-
-	if ( (pcapConstructorMID = env->GetMethodID(clazz, 
-			"<init>", "()V")) == NULL) {
-		return;
-	}
-
-	if ( (pcapPhysicalFID = env->GetFieldID(clazz, "physical", "J")) == NULL) {
-		return;
-	}
-
-	if ( (byteBufferClass = findClass(env, "java/nio/ByteBuffer")) == NULL) {
+	
+	if (jnp_add_messages(JNP_FAMILY_PCAP, pcap_msg_table)) {
 		return;
 	}
 	
-	if ( (bufferClass = findClass(env, "java/nio/Buffer")) == NULL) {
-		return;
-	}
+	jnp_id_start(env, clazz);
+	jnp_c(pcapClass,          "org/jnetpcap/Pcap");
+	jnp_m(pcapConstructorMID, "<init>",   "()V");
+	jnp_f(pcapPhysicalFID,    "physical", "J");
+	jnp_id_end();
 	
-	if ( (byteBufferIsDirectMID = env->GetMethodID(byteBufferClass, "isDirect",
-			"()Z")) == NULL) {
-		return;
-	}
+	jnp_id_start(env, clazz);
+	jnp_c(byteBufferClass,       "java/nio/ByteBuffer");
+	jnp_m(byteBufferIsDirectMID, "isDirect", "()Z");
+	jnp_id_end();
+
+	jnp_id_start(env, clazz);
+	jnp_c(bufferClass,           "java/nio/Buffer");
+	jnp_m(bufferGetPositionMID,  "position", "()I");
+	jnp_m(bufferGetLimitMID,     "limit",    "()I");
+	jnp_m(bufferSetPositionMID,  "position", "(I)Ljava/nio/Buffer;");
+	jnp_m(bufferSetLimitMID,     "limit",    "(I)Ljava/nio/Buffer;");
+	jnp_m(bufferGetCapacityMID,  "capacity", "()I");
+	jnp_id_end();
+
+
+	jnp_id_start(env, clazz);
+	jnp_c(stringBuilderClass,    "java/lang/StringBuilder");
+	jnp_m(appendMID,"append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;");
+	jnp_m(setLengthMID,          "setLength", "(I)V");
+	jnp_id_end();
 	
-	if ( (bufferGetPositionMID = env->GetMethodID(bufferClass, "position",
-			"()I")) == NULL) {
-		return;
-	}
 
-	if ( (bufferGetLimitMID = env->GetMethodID(bufferClass, "limit",
-			"()I")) == NULL) {
-		return;
-	}
-	
-	if ( (bufferSetPositionMID = env->GetMethodID(bufferClass, "position",
-			"(I)Ljava/nio/Buffer;")) == NULL) {
-		return;
-	}
-
-	if ( (bufferSetLimitMID = env->GetMethodID(bufferClass, "limit",
-			"(I)Ljava/nio/Buffer;")) == NULL) {
-		return;
-	}
-	
-	if ( (bufferGetCapacityMID = env->GetMethodID(bufferClass, "capacity",
-			"()I")) == NULL) {
-		return;
-	}
-
-
-
-
-	if ( (stringBuilderClass = findClass(env, 
-			"java/lang/StringBuilder")) == NULL) {
-		return;
-	}
-
-	if ( (appendMID = env->GetMethodID(stringBuilderClass, "append",
-			"(Ljava/lang/String;)Ljava/lang/StringBuilder;")) == NULL) {
-		return;
-	}
-
-	if ( (setLengthMID = env->GetMethodID(stringBuilderClass, "setLength",
-			"(I)V")) == NULL) {
-		return;
-	}
-	
-	if ( (pcapIntegerClass = findClass(env, 
-			"org/jnetpcap/PcapInteger")) == NULL) {
-		return;
-	}
-	
-	if ( (pcapIntegerValueFID = env->GetFieldID(pcapIntegerClass, "value",
-			"I")) == NULL) {
-		return;
-	}
+	jnp_id_start(env, clazz);
+	jnp_c(pcapIntegerClass,       "org/jnetpcap/PcapInteger");
+	jnp_f(pcapIntegerValueFID,    "value",	  "I");
+	jnp_id_end();
 
 }
 

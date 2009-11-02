@@ -54,7 +54,7 @@
 JNIEXPORT jobject JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getAnalysis
 (JNIEnv *env, jobject obj) {
 
-	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
+	header_t *header = (header_t *)jmem_data_ro_get(env, obj);
 	if (header == NULL) {
 		return NULL;
 	}
@@ -70,7 +70,7 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getAnalysi
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getId
 (JNIEnv *env, jobject obj) {
 
-	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
+	header_t *header = (header_t *)jmem_data_ro_get(env, obj);
 	if (header == NULL) {
 		return -1;
 	}
@@ -86,7 +86,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getId
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getOffset
 (JNIEnv *env, jobject obj) {
 
-	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
+	header_t *header = (header_t *)jmem_data_ro_get(env, obj);
 	if (header == NULL) {
 		return -1;
 	}
@@ -102,7 +102,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getOffset
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getLength
 (JNIEnv *env, jobject obj) {
 
-	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
+	header_t *header = (header_t *)jmem_data_ro_get(env, obj);
 	if (header == NULL) {
 		return -1;
 	}
@@ -118,21 +118,33 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getLength
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JHeader_00024State_setAnalysis
 (JNIEnv *env, jobject obj, jobject packet, jobject analysis) {
 
-	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
-	if (header == NULL) {
+	/*
+	 * We attach and create JREFs on the owner node that this node points to
+	 * and not on this particular node itself.
+	 */
+	jmemory_t *node = jmem_get_owner(env, obj);
+	if (node == NULL) {
 		return;
 	}
 
-	if (header->hdr_analysis != NULL) {
-		/* params: packet_state_t struct and analysis JNI global reference */
-		jmemoryRefRelease(env, packet, header->hdr_analysis);
+	header_t *header = (header_t *)jmem_data_ro(node);
+	if (header == NULL) {
+		jnp_exception(env);
+		return;
+	}
+
+	if (header->hdr_analysis != NULL 
+			&& jref_lc_free_obj(env, node, header->hdr_analysis)) {
+		return;
 	}
 
 	if (analysis == NULL) {
 		header->hdr_analysis = NULL;
-	} else	{
-		/* params: packet_state_t struct and analysis JNI local reference */
-		header->hdr_analysis = jmemoryRefCreate(env, packet, analysis);
+		return;
+	}
+	
+	if ((header->hdr_analysis = jref_lc_create(env, node, analysis)) != NULL) {
+		return;
 	}
 }
 
@@ -142,13 +154,13 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JHeader_00024State_setAnalysis
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getPrefix
-  (JNIEnv *env, jobject obj) {
+(JNIEnv *env, jobject obj) {
 
-	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
+	header_t *header = (header_t *)jmem_data_ro_get(env, obj);
 	if (header == NULL) {
 		return -1;
 	}
-	
+
 	return (jint)header->hdr_prefix;
 }
 
@@ -160,11 +172,11 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getPrefix
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getGap
 (JNIEnv *env, jobject obj) {
 
-	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
+	header_t *header = (header_t *)jmem_data_ro_get(env, obj);
 	if (header == NULL) {
 		return -1;
 	}
-	
+
 	return (jint)header->hdr_gap;
 }
 
@@ -176,11 +188,11 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getGap
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getPayload
 (JNIEnv *env, jobject obj) {
 
-	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
+	header_t *header = (header_t *)jmem_data_ro_get(env, obj);
 	if (header == NULL) {
 		return -1;
 	}
-	
+
 	return (jint)header->hdr_payload;
 }
 
@@ -192,11 +204,11 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getPayload
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getPostfix
 (JNIEnv *env, jobject obj) {
 
-	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
+	header_t *header = (header_t *)jmem_data_ro_get(env, obj);
 	if (header == NULL) {
 		return -1;
 	}
-	
+
 	return (jint)header->hdr_postfix;
 }
 
@@ -208,12 +220,11 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getPostfix
 JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getFlags
 (JNIEnv *env, jobject obj) {
 
-	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
+	header_t *header = (header_t *)jmem_data_ro_get(env, obj);
 	if (header == NULL) {
 		return -1;
 	}
-	
+
 	return (jint)header->hdr_flags;
 }
-
 

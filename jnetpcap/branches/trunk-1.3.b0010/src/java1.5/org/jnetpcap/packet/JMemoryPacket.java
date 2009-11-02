@@ -16,6 +16,7 @@ import java.nio.ByteBuffer;
 
 import org.jnetpcap.JCaptureHeader;
 import org.jnetpcap.nio.JBuffer;
+import org.jnetpcap.nio.PeeringException;
 import org.jnetpcap.packet.format.FormatUtils;
 
 /**

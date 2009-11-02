@@ -41,7 +41,7 @@ public class JScan
 	 * Alocates and creates scan_t structure in native memory
 	 */
 	public JScan() {
-		super(STRUCT_NAME, sizeof());
+		super(STRUCT_NAME, Type.PEER);
 	}
 
 	/**

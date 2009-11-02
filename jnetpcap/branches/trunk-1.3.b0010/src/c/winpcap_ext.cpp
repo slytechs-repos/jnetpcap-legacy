@@ -548,7 +548,10 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_sendQueueTransmit
 		return -1; // Exception already thrown
 	}
 
-	pcap_send_queue *queue = (pcap_send_queue *)getJMemoryPhysical(env, jqueue);
+	pcap_send_queue *queue = (pcap_send_queue *)jmem_data_ro_get(env, jqueue);
+	if (queue == NULL) {
+		return -1;
+	}
 	
 	return pcap_sendqueue_transmit(p, queue, (int)jsync);
 #else

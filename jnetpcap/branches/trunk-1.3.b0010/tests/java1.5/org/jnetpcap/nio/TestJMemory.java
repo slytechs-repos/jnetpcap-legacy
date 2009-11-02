@@ -18,7 +18,6 @@ import java.nio.ByteOrder;
 import junit.framework.TestCase;
 
 import org.jnetpcap.nio.JNumber.Type;
-import org.jnetpcap.packet.PeeringException;
 
 /**
  * @author Mark Bednarczyk
@@ -47,7 +46,7 @@ public class TestJMemory
 
 	public void testPeerWithNonDirectByteBuffer() {
 		ByteBuffer b = ByteBuffer.allocate(4);
-		JNumber n = new JNumber(Type.INT);
+		JNumber n = new JNumber(JNumber.Type.INT);
 
 		try {
 			n.peer(b);
@@ -62,9 +61,13 @@ public class TestJMemory
 		b.order(ByteOrder.nativeOrder());
 		b.putInt(100);
 		b.flip();
+		
+		JMemory.Flag.printFlagLegend();
 
-		JNumber n = new JNumber(Type.INT);
+		JNumber n = new JNumber(JMemory.Type.PEER);
+		System.out.println(n.toDebugString());
 		n.peer(b);
+		System.out.println(n.toDebugString());
 
 		assertEquals(100, n.intValue());
 	}
@@ -96,8 +99,9 @@ public class TestJMemory
 	}
 
 	public void testReadFromUninitializedPtr() {
-		JNumber n = new JNumber(JMemory.Type.POINTER); // Uninitialized ptr
-
+		JNumber n = new JNumber(JMemory.Type.PEER); // Uninitialized ptr
+		JMemory.Flag.printFlagLegend();
+		System.out.println(n.toDebugString());
 		try {
 			assertEquals(100, n.intValue());
 			fail("Expected a native NULL ptr exception");

@@ -5,37 +5,44 @@
 #ifndef Include_util_debug_h
 #define Include_util_debug_h
 
-#define JNIEXPORT extern "C"
+#ifndef JNIEXPORT
+//#define JNIEXPORT extern "C"
+#endif
 
 #undef __declspec
 #define __declspec(a) extern "C"
 
 #include <stdarg.h>
 
-#define DEBUG_MAX_LEVEL	10
+#define DEBUG_MAX_LEVEL	100
 
 #define DEBUG_TRACE 10
 #define	DEBUG_INFO  8
 #define DEBUG_WARN  6
 #define DEBUG_ERROR 4
 
+#define	DENTER(method)	debug_enter(method)
+#define	DEXIT(method)	debug_exit(method)
+#define DTRACE(msg, fmt, ...) debug_trace(msg, fmt, ...)
+
 #define DEFAULT_LEVEL DEBUG_TRACE
 #define DEFAULT_INDENT_CHAR '.'
-
+extern "C" {
 extern int  debug_get_level();
 extern void debug_set_level(int level);
 extern void debug_inc();
 extern void debug_dec();
 extern void debug_reset();
-extern void debug_vmsg(const char *type, const char *msg, const char *fmt, va_list ap);
-extern void debug_msg(const char *type, const char *msg, const char *fmt, ...);
-extern void debug_trace(const char *msg, const char *fmt, ...);
-extern void debug_warn(const char *msg, const char *fmt, ...);
-extern void debug_error(const char *msg, const char *fmt, ...);
-extern void debug_info(const char *msg, const char *fmt, ...);
+extern void debug_vmsg(const char *type, const char *fmt, va_list ap);
+extern void debug_msg(const char *type, const char *fmt, ...);
+extern void debug_trace(const char *fmt, ...);
+extern void debug_warn(const char *fmt, ...);
+extern void debug_error(const char *fmt, ...);
+extern void debug_info(const char *fmt, ...);
 extern void debug_enter(const char *method);
-extern void debug_exit(const char *method);
-
+extern int  debug_exit();
+extern int  debug_exit_after();
+}
 #define DEBUG_MAX_NAME			256
 #define DEBUG_DEFAULT_LEVEL 	TRACE
 
