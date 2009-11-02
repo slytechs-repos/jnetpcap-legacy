@@ -64,6 +64,7 @@ void jreferenceRelease(JNIEnv *env, jobject jref, jobject global_ref);
 jint jmemoryPeer(JNIEnv *env, jobject obj, const void *ptr, size_t length, jobject owner);
 
 char *jmemoryPoolAllocate(JNIEnv *env, size_t size, jobject *obj_ref);
+void jmemoryResize(JNIEnv *env, jobject obj, size_t size);
 char *jmemoryAllocate(JNIEnv *env, size_t size, jobject obj);
 char *jmemoryToDebugString(JNIEnv *env, jobject obj, char *buf);
 
