@@ -19,7 +19,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.jnetpcap.packet.JHeader;
-import org.jnetpcap.packet.analysis.JAnalyzer;
 
 /**
  * Specifies global protocol properties
@@ -151,15 +150,6 @@ public @interface Protocol {
 	 * @return protocol family for this protocol
 	 */
 	Suite suite() default Suite.OTHER;
-
-	/**
-	 * A list of analyzers that are also part of this protocol. The listed
-	 * analyzers will automatically be registered with JRegistry when the protocol
-	 * or its header is registered.
-	 * 
-	 * @return a list of analyzers used to analyze this protocol
-	 */
-	Class<? extends JAnalyzer>[] analyzers() default JAnalyzer.class;
 
 	Class<? extends JHeader>[] headers() default JHeader.class;
 

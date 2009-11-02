@@ -15,18 +15,9 @@ package org.jnetpcap.newstuff;
 import java.io.IOException;
 
 import org.jnetpcap.packet.JPacket;
-import org.jnetpcap.packet.JRegistry;
-import org.jnetpcap.packet.RegistryHeaderErrors;
 import org.jnetpcap.packet.TestUtils;
-import org.jnetpcap.packet.analysis.FragmentSequence;
-import org.jnetpcap.packet.analysis.JController;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
-import org.jnetpcap.protocol.application.WebImage;
-import org.jnetpcap.protocol.tcpip.Http;
-import org.jnetpcap.protocol.tcpip.HttpAnalyzer;
-import org.jnetpcap.protocol.tcpip.HttpHandler;
-import org.jnetpcap.protocol.tcpip.Http.ContentType;
 
 /**
  * @author Mark Bednarczyk
@@ -62,52 +53,5 @@ public class TestHttp2
 		JFormatter out = new TextFormatter(System.out);
 
 		out.format(packet);
-	}
-
-	public void test2() throws IOException, RegistryHeaderErrors {
-		final FragmentSequence seq = new FragmentSequence();
-		JRegistry.register(WebImage.class);
-
-		HttpAnalyzer httpAnalyzer = JRegistry.getAnalyzer(HttpAnalyzer.class);
-		httpAnalyzer.add(new HttpHandler() {
-
-			public void processHttp(Http http) {
-				if (http.getMessageType() != Http.MessageType.RESPONSE) {
-					out.printf("\n\n#%d *** %s *** ", http.getPacket()
-					    .getFrameNumber(), http.getMessageType());
-					return;
-				}
-				out.printf("\n\n#%d *** %s len=%s *** ", http.getPacket()
-				    .getFrameNumber(), http.getMessageType(), String.valueOf(http
-				    .fieldValue(Http.Response.Content_Length)), http.toString());
-
-				ContentType type = http.contentTypeEnum();
-				if (type != ContentType.JPEG) {
-					return;
-				}
-
-				switch (type) {
-					case JPEG:
-						WebImage jpeg = http.getPacket().getHeader(new WebImage());
-						System.out.printf("\nJPEG reassembled lenth=%d\n", jpeg.size());
-						// printSequence(http.getPacket().getAnalysis(Tcp.ID, seq));
-						break;
-
-					default:
-						System.out.printf("Unknown content type %s\n", type);
-				}
-			}
-
-		});
-
-		// JPacket packet = getPcapPacket(HTTP, 51);
-		// controller.nextPacket(packet, null);
-
-		openOffline(HTTP, JRegistry.getAnalyzer(JController.class));
-
-	}
-
-	private void printSequence(FragmentSequence seq) {
-		System.out.printf("seq=%s\n", seq.toString());
 	}
 }

@@ -9,19 +9,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.jnetpcap.PcapDLT;
-import org.jnetpcap.packet.analysis.JAnalyzer;
-import org.jnetpcap.packet.analysis.JController;
 import org.jnetpcap.packet.structure.AnnotatedBinding;
 import org.jnetpcap.packet.structure.AnnotatedHeader;
 import org.jnetpcap.packet.structure.AnnotatedScannerMethod;
 import org.jnetpcap.packet.structure.HeaderDefinitionError;
 import org.jnetpcap.protocol.JProtocol;
-import org.jnetpcap.protocol.network.Ip4Assembler;
-import org.jnetpcap.protocol.network.Ip4Sequencer;
-import org.jnetpcap.protocol.tcpip.HttpAnalyzer;
-import org.jnetpcap.protocol.tcpip.TcpAnalyzer;
-import org.jnetpcap.protocol.tcpip.TcpAssembler;
-import org.jnetpcap.protocol.tcpip.TcpSequencer;
 import org.jnetpcap.util.resolver.Resolver;
 import org.jnetpcap.util.resolver.Resolver.ResolverType;
 
@@ -180,9 +172,6 @@ public final class JRegistry {
 	 * </ul>
 	 */
 	static {
-
-		analyzers = new HashMap<Class<?>, JAnalyzer>();
-
 		/**
 		 * Initialized DLT to ID mappings
 		 */
@@ -243,17 +232,6 @@ public final class JRegistry {
 				}
 			}
 		}
-
-		/**
-		 * Register core analyzer: JController
-		 */
-		addAnalyzer(new JController());
-		addAnalyzer(new Ip4Sequencer());
-		addAnalyzer(new Ip4Assembler());
-		addAnalyzer(new TcpAnalyzer());
-		addAnalyzer(new TcpSequencer());
-		addAnalyzer(new TcpAssembler());
-		addAnalyzer(new HttpAnalyzer());
 
 		/**
 		 * Enable heuristics by default for TCP and UDP protocols
@@ -483,16 +461,6 @@ public final class JRegistry {
 		resolver.initializeIfNeeded();
 
 		return resolver;
-	}
-
-	private final static Map<Class<?>, JAnalyzer> analyzers;
-
-	public static <T extends JAnalyzer> T getAnalyzer(Class<T> c) {
-		return (T) analyzers.get(c);
-	}
-
-	public static <T extends JAnalyzer> void addAnalyzer(T analyzer) {
-		analyzers.put(analyzer.getClass(), analyzer);
 	}
 
 	/**

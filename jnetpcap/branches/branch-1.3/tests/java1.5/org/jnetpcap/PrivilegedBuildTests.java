@@ -20,26 +20,6 @@ package org.jnetpcap;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.jnetpcap.analysis.TestAnalysisAccessors;
-import org.jnetpcap.format.TestFormatter;
-import org.jnetpcap.header.TestHttp;
-import org.jnetpcap.header.TestIcmp;
-import org.jnetpcap.header.TestIpv6;
-import org.jnetpcap.header.TestSubHeader;
-import org.jnetpcap.nio.TestJBuffer;
-import org.jnetpcap.nio.TestJMemory;
-import org.jnetpcap.packet.JHandlerTest;
-import org.jnetpcap.packet.TestJHeader;
-import org.jnetpcap.packet.TestJRegistry;
-import org.jnetpcap.packet.TestJScanner;
-import org.jnetpcap.packet.TestPcapPacket;
-import org.jnetpcap.packet.TestPcapUtils;
-import org.jnetpcap.protocol.TestNetwork;
-import org.jnetpcap.protocol.TestTcpIp;
-import org.jnetpcap.protocol.TestVoip;
-import org.jnetpcap.util.TestExpandableString;
-import org.jnetpcap.util.TestSearchPaths;
-
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
