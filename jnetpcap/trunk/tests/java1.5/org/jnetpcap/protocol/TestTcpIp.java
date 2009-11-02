@@ -123,13 +123,13 @@ public class TestTcpIp
 			    public void nextPacket(PcapPacket packet, Pcap pcap) {
 
 				    // if (i++ % 1 == 0) {
-				    packet = new PcapPacket(packet);
+//				    packet = new PcapPacket(packet);
 				    j++;
 				    // }
 
 				    long f = packet.getFrameNumber();
 				    assertTrue("#" + f, packet.hasHeader(ip));
-				    System.out.println(ip);
+				    System.out.println(packet.getState().toDebugString());
 
 				    assertTrue("Frame #" + f, ip.isChecksumValid());
 			    }

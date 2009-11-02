@@ -313,6 +313,6 @@ public class PcapPacketArrayList
 	 *      java.lang.Object)
 	 */
 	public void nextPacket(PcapPacket packet, Object user) {
-		list.add(new PcapPacket(packet));
+		list.add(packet);
 	}
 }

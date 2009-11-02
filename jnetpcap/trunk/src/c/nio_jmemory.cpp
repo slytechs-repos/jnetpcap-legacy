@@ -764,6 +764,14 @@ void jmemoryCleanup(JNIEnv *env, jobject obj) {
 }
 
 /**
+ * Change the size of the peered object. The physicalSize remains unchanged.
+ */
+void jmemoryResize(JNIEnv *env, jobject obj, size_t size) {
+	env->SetIntField(obj, jmemorySizeFID, (jsize) size);
+}
+
+
+/**
  * Provides a flexible peer method that can be called from JNI code
  */
 jint jmemoryPeer(JNIEnv *env, jobject obj, const void *ptr, size_t length,

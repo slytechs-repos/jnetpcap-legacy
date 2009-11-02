@@ -923,15 +923,16 @@ jobject transferToNewBuffer(
 
 
 	memcpy(ptr, pkt_header, sizeof(pcap_pkthdr));
+	jmemoryResize(env, jheader, sizeof(pcap_pkthdr));
 	ptr += sizeof(pcap_pkthdr);
+	
+	memcpy(ptr, pkt_data, pkt_header->caplen);
+	jmemoryPeer(env, pcap_packet, ptr, pkt_header->caplen, jheader);
+	ptr += pkt_header->caplen;
 
 	memcpy(ptr, packet, state_size);
 	jmemoryPeer(env, jstate, ptr, state_size, jheader);
 	ptr += state_size;
-
-	memcpy(ptr, pkt_data, pkt_header->caplen);
-	jmemoryPeer(env, pcap_packet, ptr, pkt_header->caplen, jheader);
-	ptr += pkt_header->caplen;
 
 	/*
 	 * Free up intermediate local references. We can't rely on JNI freeing them
