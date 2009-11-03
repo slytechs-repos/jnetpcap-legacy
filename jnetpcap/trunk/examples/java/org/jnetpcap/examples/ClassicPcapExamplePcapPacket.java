@@ -16,11 +16,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.jnetpcap.JCaptureHeader;
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapIf;
-import org.jnetpcap.packet.JPacket;
-import org.jnetpcap.packet.JPacketHandler;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.PcapPacketHandler;
 
@@ -107,6 +104,11 @@ import org.jnetpcap.packet.PcapPacketHandler;
  */
 public class ClassicPcapExamplePcapPacket {
 
+	/**
+	 * Main startup method
+	 * @param args
+	 *   ignored
+	 */
 	public static void main(String[] args) {
 		List<PcapIf> alldevs = new ArrayList<PcapIf>(); // Will be filled with NICs
 		StringBuilder errbuf = new StringBuilder();     // For any error msgs
