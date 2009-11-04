@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2008 Sly Technologies, Inc. This library is free software; you
+ * Copyright (C) 2009 Sly Technologies, Inc. This library is free software; you
  * can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version. This
@@ -32,7 +32,8 @@ import java.nio.ByteBuffer;
  */
 @SuppressWarnings("unused")
 public class JNumber
-    extends JMemory {
+    extends
+    JMemory {
 
 	/**
 	 * Used to request a specific type of primitive that this number will be
@@ -43,13 +44,39 @@ public class JNumber
 	 * @author Sly Technologies, Inc.
 	 */
 	public enum Type {
+		/**
+		 * 8-bit integer
+		 */
 		BYTE,
+
+		/**
+		 * 16-bit UTF character
+		 */
 		CHAR,
+
+		/**
+		 * 32-bit integer
+		 */
 		INT,
+
+		/**
+		 * 16-bit integer
+		 */
 		SHORT,
+
+		/**
+		 * 64-bit integer
+		 */
 		LONG,
-		LONGLONG,
+
+		/**
+		 * A floating point value
+		 */
 		FLOAT,
+
+		/**
+		 * A long floating point value
+		 */
 		DOUBLE;
 
 		/**
@@ -63,6 +90,11 @@ public class JNumber
 			size = JNumber.sizeof(ordinal());
 		}
 
+		/**
+		 * Returns the size of the biggets primitive
+		 * 
+		 * @return size in bytes of the biggest primitive on this platform
+		 */
 		public static int getBiggestSize() {
 			if (biggestSize == 0) {
 				for (Type t : values()) {
@@ -100,6 +132,10 @@ public class JNumber
 
 	private final static int MAX_SIZE_ORDINAL = 8;
 
+	/**
+	 * Allocates a JNumber object capable of storing the biggest primitive on this
+	 * platform.
+	 */
 	public JNumber() {
 		super(Type.getBiggestSize());
 	}
@@ -117,6 +153,9 @@ public class JNumber
 	/**
 	 * Creates a number pointer, which does not allocate any memory on its own,
 	 * but needs to be peered with primitive pointer.
+	 * 
+	 * @param type
+	 *          memory model
 	 */
 	public JNumber(JMemory.Type type) {
 		super(type);
@@ -124,43 +163,141 @@ public class JNumber
 
 	private native static int sizeof(int oridnal);
 
+	/**
+	 * Returns the data from this JNUmber as a signed integer
+	 * 
+	 * @return java signed integer
+	 */
 	public native int intValue();
 
+	/**
+	 * Sets new value in native memory
+	 * 
+	 * @param value
+	 *          new value
+	 */
 	public native void intValue(int value);
 
+	/**
+	 * Gets value from native memory
+	 * 
+	 * @return java signed byte
+	 */
 	public native byte byteValue();
 
+	/**
+	 * Sets new value in native memory
+	 * 
+	 * @param value
+	 *          new value
+	 */
 	public native void byteValue(byte value);
 
+	/**
+	 * Gets value from native memory
+	 * 
+	 * @return java signed short
+	 */
 	public native short shortValue();
 
+	/**
+	 * Sets new value in native memory
+	 * 
+	 * @param value
+	 *          new value
+	 */
 	public native void shortValue(short value);
 
+	/**
+	 * Gets value from native memory
+	 * 
+	 * @return java signed long
+	 */
 	public native long longValue();
 
+	/**
+	 * Sets new value in native memory
+	 * 
+	 * @param value
+	 *          new value
+	 */
 	public native void longValue(long value);
 
+	/**
+	 * Gets value from native memory
+	 * 
+	 * @return java float
+	 */
 	public native float floatValue();
 
+	/**
+	 * Sets new value in native memory
+	 * 
+	 * @param value
+	 *          new value
+	 */
 	public native void floatValue(float value);
 
+	/**
+	 * Gets value from native memory
+	 * 
+	 * @return java double float
+	 */
 	public native double doubleValue();
 
+	/**
+	 * Sets new value in native memory
+	 * 
+	 * @param value
+	 *          new value
+	 */
 	public native void doubleValue(double value);
 
+	/**
+	 * Peers with supplied number object
+	 * 
+	 * @param number
+	 *          number object to peer with
+	 * @return number of bytes peered
+	 */
 	public int peer(JNumber number) {
 		return super.peer(number);
 	}
 
+	/**
+	 * Peers with supplied buffer object
+	 * 
+	 * @param buffer
+	 *          buffer to peer with
+	 * @return number of bytes peered
+	 */
 	public int peer(JBuffer buffer) {
 		return super.peer(buffer, 0, size());
 	}
 
+	/**
+	 * Peers with supplied buffer object
+	 * 
+	 * @param buffer
+	 *          buffer to peer with
+	 * @param offset
+	 *          offset into supplied buffer
+	 * @return number of bytes peered
+	 */
 	public int peer(JBuffer buffer, int offset) {
 		return super.peer(buffer, offset, size());
 	}
 
-	public int transferFrom(ByteBuffer peer) {
-		return super.transferFrom(peer);
+	/**
+	 * Copies data out of the supplied buffer into this number object
+	 * 
+	 * @param buffer
+	 *          buffer to copy data out of. Buffer's position and limit properties
+	 *          set the bounds for the copy
+	 * @return number of bytes copied
+	 */
+	@Override
+  public int transferFrom(ByteBuffer buffer) {
+		return super.transferFrom(buffer);
 	}
 }

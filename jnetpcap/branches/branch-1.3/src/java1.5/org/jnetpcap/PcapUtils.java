@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2008 Sly Technologies, Inc. This library is free software; you
+ * Copyright (C) 2009 Sly Technologies, Inc. This library is free software; you
  * can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version. This
@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.util.List;
 
 import org.jnetpcap.packet.JPacket;
-import org.jnetpcap.packet.JPacketHandler;
 import org.jnetpcap.packet.JScanner;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.PcapPacketHandler;
@@ -35,6 +34,8 @@ public final class PcapUtils {
 	 * immediately and returns a PcapTask from which the user can interact with
 	 * the background task.
 	 * 
+	 * @param <T>
+	 *          User supplied type
 	 * @param pcap
 	 *          an open pcap object
 	 * @param cnt
@@ -96,6 +97,8 @@ public final class PcapUtils {
 	 * immediately and returns a PcapTask from which the user can interact with
 	 * the background task.
 	 * 
+	 * @param <T>
+	 *          user supplied type
 	 * @param pcap
 	 *          an open pcap object
 	 * @param cnt
@@ -183,6 +186,8 @@ public final class PcapUtils {
 	 * immediately and returns a PcapTask from which the user can interact with
 	 * the background task.
 	 * 
+	 * @param <T>
+	 *          user supplied type
 	 * @param pcap
 	 *          an open pcap object
 	 * @param cnt
@@ -213,6 +218,8 @@ public final class PcapUtils {
 	 * immediately and returns a PcapTask from which the user can interact with
 	 * the background task.
 	 * 
+	 * @param <T>
+	 *          user supplied type
 	 * @param pcap
 	 *          an open pcap object
 	 * @param cnt
@@ -238,6 +245,21 @@ public final class PcapUtils {
 		};
 	}
 
+	/**
+	 * @param <T>
+	 *          user supplied type
+	 * @param cnt
+	 *          number of packets
+	 * @param id
+	 *          dlt type
+	 * @param handler
+	 *          user packet handler
+	 * @param user
+	 *          user object
+	 * @param packet
+	 *          packet used for peering when using no copy mode
+	 * @return libpcap result code
+	 */
 	public static <T> int injectLoop(
 	    int cnt,
 	    int id,

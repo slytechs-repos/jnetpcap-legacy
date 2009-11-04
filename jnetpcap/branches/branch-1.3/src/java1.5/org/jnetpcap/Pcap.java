@@ -1,5 +1,5 @@
 /**
- * $Id$ Copyright (C) 2006 Sly Technologies, Inc. This library is free software;
+ * $Id$ Copyright (C) 2009 Sly Technologies, Inc. This library is free software;
  * you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version. This
@@ -186,10 +186,11 @@ import org.jnetpcap.protocol.JProtocol;
  * </p>
  * <p>
  * Alternative way of capturing packets from any of the open pcap sessions is to
- * use {@link #dispatch(int, PcapHandler, Object)} method, which works very
- * similarly to {@link #loop(int, PcapHandler, Object)}. You can also use
- * {@link #next(PcapPktHdr)} and {@link #nextEx(PcapPktHdr, PcapPktBuffer)}
- * methods which will deliver 1 packet at a time.
+ * use {@link #dispatch(int, PcapPacketHandler, Object)} method, which works
+ * very similarly to {@link #loop(int, PcapPacketHandler, Object)}. You can
+ * also use {@link #next(PcapHeader, JBuffer)} and
+ * {@link #nextEx(PcapHeader, JBuffer)} methods which will deliver 1 packet at a
+ * time.
  * </p>
  * <h3>No packet data copies!</h3>
  * <p>
@@ -219,25 +220,11 @@ import org.jnetpcap.protocol.JProtocol;
  * <em>libpcap</em> libpcap to crash or coredump which will also crash the
  * entire Java VM.
  * </p>
- * <p>
- * Since multithreading is an issue with native libpcap, starting with jNetPcap
- * version 1.2, the API provides 2 methods
- * {@link #loop(int, int, JPacketHandler, Object, JPacket, org.jnetpcap.packet.JPacket.State, PcapHeader, JScanner)}
- * and {@link #dispatch} methods, which take care of all of the details of how
- * to synchronize a control thread with a capture thread. The implementation of
- * these 2 methods is in class {@link PcapUtils} but as a convenience is also
- * delegated directly from Pcap class. These 2 methods will start either
- * {@link #loop} or {@link #dispatch} in a background thread, and dispatch
- * packets to a user supplied {@link PcapHandler}, just like from the
- * non-threaded {@link #loop} and {@link #dispatch} methods. The 2 threaded
- * methods return immediately with a {@link PcapTask} handle which can be used
- * to access status and control of the background thread.
- * </p>
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class Pcap  {
+public class Pcap {
 
 	/**
 	 * Default capture promiscous mode to be used (default:
@@ -589,8 +576,8 @@ public class Pcap  {
 	 * Checks if the current platform has support for pcap_inject call. The
 	 * support is libpcap version and platform dependent.
 	 * 
-	 * @see #inject
-	 * @return true means {@link #inject} is supported, otherwise not
+	 * @see #inject(byte[])
+	 * @return true means {@link #inject(byte[])} is supported, otherwise not
 	 */
 	public native static boolean isInjectSupported();
 
@@ -598,8 +585,8 @@ public class Pcap  {
 	 * Checks if the current platform has support for pcap_sendpacket call. The
 	 * support is libpcap version and platform dependent.
 	 * 
-	 * @see #inject
-	 * @return true means {@link #sendPacket} is supported, otherwise not
+	 * @see #sendPacket(byte[])
+	 * @return true means {@link #sendPacket(byte[])} is supported, otherwise not
 	 */
 	public native static boolean isSendPacketSupported();
 
@@ -1617,6 +1604,8 @@ public class Pcap  {
 	 *          called when packet arrives for each packet
 	 * @param user
 	 *          opaque user object
+	 * @param scanner
+	 *          a custom user quick-scanner for parsing headers within the packet
 	 * @return 0 on success, -1 on error and -2 if breakloop was used interrupt
 	 *         the captue
 	 * @deprecated user of PcapHandler has been replaced with ByteBufferHandler
@@ -1649,6 +1638,7 @@ public class Pcap  {
 	 * Cleanup before we're GCed. Will close connection to any open interface.
 	 * Does nothing if connection already closed.
 	 */
+	@Override
 	protected void finalize() {
 		if (physical != 0) {
 			close();
@@ -1673,6 +1663,8 @@ public class Pcap  {
 	 * error, -1 is returned and errbuf is filled in with an appropriate error
 	 * message.
 	 * 
+	 * @param errbuf
+	 *          error buffer where error message will be stored on error
 	 * @see #setNonBlock(int, StringBuilder)
 	 * @return if there is an error, -1 is returned and errbuf is filled in with
 	 *         an appropriate error message
@@ -2669,6 +2661,8 @@ public class Pcap  {
 	 * @see #getNonBlock(StringBuilder)
 	 * @param nonBlock
 	 *          a non negative value means to set in non blocking mode
+	 * @param errbuf
+	 *          error buffer where error message will be stored on error
 	 * @return if there is an error, -1 is returned and errbuf is filled in with
 	 *         an appropriate error message
 	 * @since 1.2
@@ -2700,8 +2694,11 @@ public class Pcap  {
 
 	/**
 	 * Prints libVersion that Pcap is based on.
+	 * 
+	 * @return libpcap version in use by this pcap object
 	 */
-	public String toString() {
+	@Override
+  public String toString() {
 		checkIsActive(); // Check if Pcap.close wasn't called
 
 		return libVersion();

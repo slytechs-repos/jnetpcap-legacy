@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2008 Sly Technologies, Inc. This library is free software; you
+ * Copyright (C) 2009 Sly Technologies, Inc. This library is free software; you
  * can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version. This
@@ -11,7 +11,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 package org.jnetpcap;
-
 
 /**
  * Interface to to capture header provided by the capturing library. For example
@@ -62,35 +61,50 @@ public interface JCaptureHeader {
 	 */
 	public abstract long nanos();
 
+	/**
+	 * Converts the timestamp into a java style timestamp suitable for usage with
+	 * <code>Date</code> class.
+	 * 
+	 * @return capture timestamp in milli-seconds
+	 */
 	public abstract long timestampInMillis();
-	
+
+	/**
+	 * Gets the absolute capture timestamp in nano seconds (10e-9)
+	 * 
+	 * @return timestamp in nano seconds
+	 */
 	public abstract long timestampInNanos();
-	
+
+	/**
+	 * Gets the absolute capture timestam pin micro seconds (10e-6)
+	 * 
+	 * @return timestamp in micro seconds
+	 */
 	public abstract long timestampInMicros();
 
+	/**
+	 * @param seconds
+	 */
+	public abstract void seconds(long seconds);
 
 	/**
-   * @param seconds
-   */
-  public abstract void seconds(long seconds);
+	 * @param nanos
+	 */
+	public abstract void nanos(long nanos);
 
 	/**
-   * @param nanos
-   */
-  public abstract void nanos(long nanos);
+	 * @param caplen
+	 */
+	public abstract void caplen(int caplen);
 
 	/**
-   * @param caplen
-   */
-  public abstract void caplen(int caplen);
+	 * @param wirelen
+	 */
+	public abstract void wirelen(int wirelen);
 
 	/**
-   * @param wirelen
-   */
-  public abstract void wirelen(int wirelen);
-
-	/**
-   * @param captureHeader
-   */
-  public abstract void initFrom(JCaptureHeader captureHeader);
+	 * @param captureHeader
+	 */
+	public abstract void initFrom(JCaptureHeader captureHeader);
 }

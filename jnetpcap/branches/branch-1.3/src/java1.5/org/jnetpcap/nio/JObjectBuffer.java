@@ -16,7 +16,6 @@ import java.nio.ByteBuffer;
 
 import org.jnetpcap.util.Offset;
 
-
 /**
  * A special buffer that also allows java object references to be set within the
  * buffer's memory. At JNI level, global JNI references are created and this
@@ -33,10 +32,11 @@ import org.jnetpcap.util.Offset;
  * @author Sly Technologies, Inc.
  */
 public class JObjectBuffer
-    extends JBuffer {
-	
+    extends
+    JBuffer {
+
 	/**
-	 * Size of JNI's jobject reference in bytes. 
+	 * Size of JNI's jobject reference in bytes.
 	 */
 	public final static int REF = sizeofJObject();
 
@@ -74,27 +74,32 @@ public class JObjectBuffer
 	public JObjectBuffer(byte[] data) {
 		super(data);
 	}
-	
+
 	/**
 	 * Retrieves a jobject reference from the specified memory location.
 	 * 
 	 * @param <T>
+	 *          object type
 	 * @param c
+	 *          object class
 	 * @param offset
-	 * @return
+	 *          offset into the buffer
+	 * @return stored object
 	 */
 	public <T> T getObject(Class<T> c, Offset offset) {
 		return getObject(c, offset.offset());
 	}
 
-
 	/**
 	 * Retrieves a jobject reference from the specified memory location.
 	 * 
 	 * @param <T>
+	 *          object type
 	 * @param c
+	 *          object class
 	 * @param offset
-	 * @return
+	 *          offset into the buffer
+	 * @return stored object
 	 */
 	public native <T> T getObject(Class<T> c, int offset);
 
@@ -104,27 +109,35 @@ public class JObjectBuffer
 	 * and it will be deallocated when this object buffer is released.
 	 * 
 	 * @param <T>
+	 *          objects types
+	 * @param offset
+	 *          offset into the buffer
 	 * @param value
+	 *          object to store
 	 */
 	public native <T> void setObject(int offset, T value);
-	
+
 	/**
 	 * Sets the jobject reference at specified location within the buffer. The
 	 * buffer will keep track of the global JNI object reference that is created
 	 * and it will be deallocated when this object buffer is released.
 	 * 
 	 * @param <T>
+	 *          object's type
+	 * @param offset
+	 *          offset into the buffer
 	 * @param value
+	 *          object to store
 	 */
 	public <T> void setObject(Offset offset, T value) {
 		setObject(offset.offset(), value);
 	}
 
-
 	/**
-	 * Returns the native size of JNI's jobject type. sizeof(jobject)
+	 * Returns the native size of JNI's jobject type.
 	 * 
-	 * @return
+	 * @return size in bytes that it takes to store the object reference on this
+	 *         platform
 	 */
 	public native static int sizeofJObject();
 }

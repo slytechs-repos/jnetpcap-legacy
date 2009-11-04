@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2007 Sly Technologies, Inc. This library is free software; you
+ * Copyright (C) 2009 Sly Technologies, Inc. This library is free software; you
  * can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version. This
@@ -159,7 +159,8 @@ public class PcapBpfProgram {
 	 * Cleans up JNI resources and releases any unreleased BPF programs in native
 	 * land.
 	 */
-	protected void finalize() {
+	@Override
+  protected void finalize() {
 
 		if (physical != 0) {
 			cleanup();
