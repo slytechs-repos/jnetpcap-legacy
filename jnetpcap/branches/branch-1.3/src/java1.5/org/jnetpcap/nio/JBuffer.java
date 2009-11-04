@@ -18,14 +18,14 @@ import java.nio.ByteOrder;
 import org.jnetpcap.packet.PeeringException;
 
 /**
- * A direct ByteBuffer stored in native memory
+ * A direct buffer stored in native memory
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
 public class JBuffer
     extends
-    JMemory implements JByteBuffer {
+    JMemory {
 
 	/**
 	 * 
@@ -51,8 +51,9 @@ public class JBuffer
 	private boolean readonly = false;
 
 	/**
+	 * Creates a 
 	 * @param type
-	 *          TODO
+	 *          memory model
 	 */
 	public JBuffer(Type type) {
 		super(type);
