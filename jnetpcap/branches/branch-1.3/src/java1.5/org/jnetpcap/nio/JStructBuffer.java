@@ -15,13 +15,22 @@ package org.jnetpcap.nio;
 import org.jnetpcap.util.Offset;
 
 /**
+ * TODO: remove
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@SuppressWarnings("all")
 public class JStructBuffer
     extends JObjectBuffer {
 
 	protected interface JStructField extends Offset {
+		
+		/**
+		 * Length of the field
+		 * 
+		 * @param offset 
+		 * @return
+		 */
 		public int length(int offset);
 
 	}

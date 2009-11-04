@@ -19,9 +19,11 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
+ * TODO: remove
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@SuppressWarnings("all")
 public class JMappedBuffer implements JByteBuffer {
 
 	private static class Entry {

@@ -15,9 +15,11 @@ package org.jnetpcap.nio;
 import java.nio.ByteOrder;
 
 /**
+ * TODO: remove
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@SuppressWarnings("all")
 public interface JByteBuffer {
 	public byte getByte(int index);
 

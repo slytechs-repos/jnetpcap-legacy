@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2007 Sly Technologies, Inc. This library is free software; you
+ * Copyright (C) 2009 Sly Technologies, Inc. This library is free software; you
  * can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version. This
@@ -91,7 +91,9 @@ public final class PcapAddr {
 		return this.dstaddr;
 	}
 
-	@SuppressWarnings( { "unchecked", "unused" })
+	@SuppressWarnings( {
+	    "unchecked",
+	    "unused" })
 	private List toList() {
 
 		/**
@@ -110,6 +112,12 @@ public final class PcapAddr {
 		return list;
 	}
 
+	/**
+	 * Debug information about this address object.
+	 * 
+	 * @return debug info
+	 */
+	@Override
 	public String toString() {
 		StringBuilder out = new StringBuilder();
 
