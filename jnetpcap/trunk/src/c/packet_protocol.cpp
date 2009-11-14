@@ -961,9 +961,9 @@ void debug_ip4(ip4_t *ip) {
 			(int) ip->ihl,
 			(int) BIG_ENDIAN16(ip->tot_len),
 			(int) flags >> 13,
-			(int) ((flags & IP4_FLAG_RESERVED)?"R":""),
-			(int) ((flags & IP4_FLAG_DF)?"D":""),
-			(int) ((flags & IP4_FLAG_MF)?"M":""),
+			((flags & IP4_FLAG_RESERVED)?"R":""),
+			((flags & IP4_FLAG_DF)?"D":""),
+			((flags & IP4_FLAG_MF)?"M":""),
 			(int) ip->protocol);
 	
 	debug_exit("debug_ip4");
