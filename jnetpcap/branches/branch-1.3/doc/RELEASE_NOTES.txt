@@ -1,6 +1,6 @@
 ################################################################################
 #
-#    Copyright (C) 2007-2008 Sly Technologies, Inc.
+#    Copyright (C) 2007-2009 Sly Technologies, Inc.
 #
 #    This program is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU General Public License
@@ -20,14 +20,16 @@
 
 
                               jNetPcap Package
-                               Version 1.2 RC5
+                               Version 1.3.a1
                                Release Notes
-                            Created on 2009-03-18
+                            Created on 2009-11-06
 
 INTRODUCTION:
 ============
 
-This is a release candidate #5 release of jNetPcap library. 
+This is a stable release alpha #1 of jNetPcap library. The feature set for
+1.3 release cycle is frozen and only bug fixes will be released in future
+1.3 updates. 
 
 The API classes are compiled with Java 1.5.X compiler and require Java 1.5 
 compatibility. The package is platform dependent as there is a native library 
@@ -40,14 +42,6 @@ others. For capturing packets, both packet at a time and dispatched handler
 methods are implemented. Also various low level kernel buffer operations that 
 are natively available through WinPcap extension library are implemented as 
 well, but only available on windows based platforms.
-
-This release adds support for protocol analysis. Ip4 and Tcp multi 
-segment/fragment reassembly and sequencing. Tracking of tcp acks and streams.
-
-This release also adds a new protocol headers, Http and Html.
-
-The release also addresses several known bugs as listed in the bugs and changes
-section of these release notes.
 
 The javadoc API documentation and a user guide is available at the project's 
 website at: http://jnetpcap.org.
@@ -62,19 +56,19 @@ directories. There are 2 parts to setting up environment for jNetPcap.
                        WinPcap version 4.0.1 or greater is recommended, but not 
                        neccessary. (http://winpcap.org)
                        
-  *) FC8 notes: main files of interest from linux RPM package are installed 
+  *) FC notes: main files of interest from linux RPM package are installed 
                   in the following locations:
   
      - /usr/lib/libjnetpcap.so
-     - /usr/share/java/jnetpcap-1.0.jar 
-     - /usr/share/doc/jnetpcap-1.0 = contains RELEASE notes and javadocs
+     - /usr/share/java/jnetpcap-1.3.a1.jar 
+     - /usr/share/doc/jnetpcap-1.3.a1 = contains RELEASE notes and javadocs
 
   *) Debian notes: main files of interest from linux deb package are installed 
                   in the following locations:
   
      - /usr/lib/libjnetpcap.so
-     - /usr/share/java/jnetpcap-1.0.jar 
-     - /usr/share/doc/jnetpcap-1.0 = contains RELEASE notes and javadocs
+     - /usr/share/java/jnetpcap-1.3.a1.jar 
+     - /usr/share/doc/jnetpcap-1.3.a1 = contains RELEASE notes and javadocs
 
   1) Add supplied jnetpcap-version.jar file to your build system's CLASSPATH.
      The jar file is found at the root of the installation directory in zip 
@@ -156,11 +150,8 @@ Within the package zip file, jnetpcap-version-arch.zip that would be
  	  
  	- No requirement for cgywin or mingw for runtime support, only to build.
 
- * To run
- 
-   - Dependency removed: Apache's commons-logging library is not longer required
       
- * In addition to run supplied tests (optional)
+ * To run supplied tests (optional)
  
    - jUnit any version
       (http://www.junit.org/index.htm)
@@ -194,7 +185,7 @@ you will need to included any version of 'jUnit' in the CLASSPATH.
  	  are WinPcap 3.1 and WinPcap 4.0beta2", source http://winpcap.org website.
  	  
  	- Current version of jNetPcap has been tested with WinPcap versions 3.1, 
- 	  4.0, 4.0.1
+ 	  4.0, 4.0.1, 4.1.1
  	
  	- jNetPcap will not work with versions prior to 3.1 including 3.0 itself.
  	
@@ -229,34 +220,27 @@ to new protocol package.
 
 == Bugs Fixed ==
 
-  - #2688877 - reported that debian package is missing .so soft link to .so.rc4 
-               main lib file. Will add that link in post-install to debian 
-               package control file
+  - Bug#2890773 - PcapPacketHandler invalid PcapHeader peer
   
-  - #2648427 - PcapDumper.dump() core-dumps. A patch is available upon request. 
+  - Bug#2890736 - JMemoryPool concurrent mod exception
   
-  - #2557009 - LLC header problem  
+  - Bug#2890094 - JPacket.toHexdump doesn't work on unintialized packets
+  
+  - Bug#2878768 - JMemoryPacket(int) constructor doesn't work
+  
+  - Bug#2857282 - Ip4.destination(byte[]) setter uses incorrect offset
 
 == Changes ==
 
 * Added
 
-  - Pcap.loop() and Pcap.dispatch() variation to allow the user to supply 
-    JScanner. This allows JScanner internal buffer size to be changed by the 
-    user
-    
-  - Added JPacket.setMemoryPool(). This allows the user to change the default 
-    allocation block size of JMemoryPool for packets that are copied via the 
-    constructor and transferTo() methods
-    
-  - Added analyzer support for Tcp/Ip family of protocols. This includes Ip 
-    fragment reassembly, tcp segment sequencing and reassembly as well
-    
-  - Added Http and Html as CORE jnetpcap protocols supported by native scanner
+  - Feature#2848659 - Add frame counter reset on JScanner
+  
+* Removed
+
+  - Removed analysis feature from 1.3 release. (The feature can still be found
+    in the development trunk and builds.)
   
 == Deprecations ==
 
-  - Moved org.jnetpcap.packet.header package to new org.jnetpcap.protocol 
-    package. Protocols are grouped into families of protocols, which are stored
-    under appropriate protocol suite sub-packages.  
 

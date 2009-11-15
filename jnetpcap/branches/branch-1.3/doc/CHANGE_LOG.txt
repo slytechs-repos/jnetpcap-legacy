@@ -1,6 +1,6 @@
 ################################################################################
 #
-#    Copyright (C) 2007-2008 Sly Technologies, Inc.
+#    Copyright (C) 2007-2009 Sly Technologies, Inc.
 #
 #    This program is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU General Public License
@@ -21,6 +21,33 @@
                               jNetPcap Package
                                  Change Log
                                  
+                                 
+== Release 1.3.a1 (2009-11-06) ==
+
+* Fixes
+
+  - Bug#2890773 - PcapPacketHandler invalid PcapHeader peer
+  
+  - Bug#2890736 - JMemoryPool concurrent mod exception
+  
+  - Bug#2890094 - JPacket.toHexdump doesn't work on unintialized packets
+  
+  - Bug#2878768 - JMemoryPacket(int) constructor doesn't work
+  
+  - Bug#2857282 - Ip4.destination(byte[]) setter uses incorrect offset
+  
+  - Bug#2897714 - invalid (char *) to (int) conversion in packet_protocol.cpp
+
+* Added
+
+  - Feature#2848659 - Add frame counter reset on JScanner
+  
+== No Official 1.2 stable release ==
+
+* Notes
+
+  - Release 1.2 branch was deprecated and replaced with stable 1.3 branch
+
 == Release 1.2.rc5 (2009-3-18) ==
 
 * Fixes
