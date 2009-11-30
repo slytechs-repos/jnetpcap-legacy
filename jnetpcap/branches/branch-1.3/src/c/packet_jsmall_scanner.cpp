@@ -376,7 +376,7 @@ debug_exit("scan()");
  * Record state of the header in the packet state structure.
  */
 void record_header(scan_t *scan) {
-	
+
 #ifdef DEBUG
 debug_enter("record_header");
 debug_scan("top", scan);
@@ -467,7 +467,6 @@ debug_scan("adj payload", scan);
 debug_scan("bottom", scan);
 debug_exit("record_header");
 #endif
-
 }
 
 /**
@@ -517,7 +516,7 @@ debug_trace("", "start=%d end=%d buf_len=%d", start, end, buf_len);
 		 */
 		if (scan->hdr_postfix > 0) {
 			scan->hdr_flags |= HEADER_FLAG_PREFIX_TRUNCATED;			
-			scan->hdr_postfix = (start > buf_len) ? 0 : buf_len - start;
+			scan->hdr_postfix = (start > scan->mem_len) ? 0 : scan->mem_len - start;
 			scan->hdr_postfix = (scan->hdr_postfix < 0) ? 0 : scan->hdr_postfix;
 #ifdef DEBUG
 debug_scan("adjust postfix", scan);

@@ -234,6 +234,9 @@ typedef struct tcp_t {
 	uint16_t urg_ptr;
 } tcp_t;
 
+#define PROTO_ETHERNET_HEADER_LENGTH 14
+#define PROTO_802_3_MAX_LEN 0x600
+
 /**
  * Ethernet 2 structure
  */

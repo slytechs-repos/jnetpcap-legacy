@@ -1122,14 +1122,14 @@ void scan_802dot3(scan_t *scan) {
 	
 	ethernet_t *eth = (ethernet_t *) (scan->buf + scan->offset);
 	
-	scan->length = sizeof(ethernet_t);
+	scan->length = PROTO_ETHERNET_HEADER_LENGTH;
 	
 
-	if (is_accessible(scan, 14) == FALSE) {
+	if (is_accessible(scan, PROTO_ETHERNET_HEADER_LENGTH) == FALSE) {
 		return;
 	}
 
- 	if (BIG_ENDIAN16(eth->type) >= 0x600) { // We have an Ethernet frame
+ 	if (BIG_ENDIAN16(eth->type) >= PROTO_802_3_MAX_LEN) { // We have an Ethernet frame
 		scan->id      = ETHERNET_ID;
 		scan->next_id = validate_next(lookup_ethertype(eth->type), scan);
 		
@@ -1138,10 +1138,17 @@ void scan_802dot3(scan_t *scan) {
 	} else {
 		scan->next_id = validate_next(IEEE_802DOT2_ID, scan); // LLC v2
 	}
-	
- 	if (is_accessible(scan, 12) == FALSE) {
- 		return;
- 	}
+ 	
+ 	int frame_len = BIG_ENDIAN16(eth->type);
+ 	scan->hdr_payload = frame_len - PROTO_ETHERNET_HEADER_LENGTH;
+ 	scan->hdr_postfix = scan->buf_len - frame_len;
+ 	
+ 	printf("scan_802dot3(): buf=%d frame_len=%d pay=%d post=%d\n", 
+ 			scan->buf_len,
+ 			frame_len,
+ 			scan->hdr_payload,
+ 			scan->hdr_postfix);
+
 
 	/*
 	 * Set the flow key pair for Ethernet.
