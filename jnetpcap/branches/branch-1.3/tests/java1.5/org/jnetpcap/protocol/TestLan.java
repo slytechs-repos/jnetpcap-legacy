@@ -12,9 +12,14 @@
  */
 package org.jnetpcap.protocol;
 
+import org.jnetpcap.packet.JMemoryPacket;
+import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.TestUtils;
+import org.jnetpcap.packet.VariousInMemoryPackets;
 
 /**
+ * Various DL layer tests.
+ * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
@@ -23,11 +28,20 @@ public class TestLan
     TestUtils {
 
 	public final static String SLL =
-	    "C:\\Documents and Settings\\markbe.DESKTOP-HP.000" +
-	    "\\My Documents\\Downloads\\CaptureDemo.cap";
+	    "C:\\Documents and Settings\\markbe.DESKTOP-HP.000"
+	        + "\\My Documents\\Downloads\\CaptureDemo.cap";
 
 	public void testSLL() {
 		System.out.println(super.getPcapPacket(SLL, 1 - 1));
 	}
 
+	public void test802dot3Trailer() {
+		JPacket packet =
+		    new JMemoryPacket(JProtocol.IEEE_802DOT3_ID,
+		        VariousInMemoryPackets.PACKET_2_TRAILER);
+		
+//		System.out.println(packet.getHeader(new IEEE802dot3()));
+		System.out.println(packet);
+		System.out.println(packet.getState().toDebugString());
+	}
 }
