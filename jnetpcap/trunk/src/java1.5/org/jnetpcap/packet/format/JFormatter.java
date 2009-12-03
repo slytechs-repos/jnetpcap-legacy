@@ -665,6 +665,8 @@ public abstract class JFormatter {
 		if (outputBuffer != null) {
 			outputBuffer.setLength(0);
 		}
+		
+		this.padStack.clear();
 	}
 
 	/**
