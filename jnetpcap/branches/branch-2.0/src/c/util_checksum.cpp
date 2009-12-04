@@ -348,7 +348,9 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_pseudoTcp
 		return (jint) -1;
 	}
 	
-	if ((tcp + len) > size) {
+	tcp_t *tcp_hdr = (tcp_t *)(buf + tcp);
+	int hlen = (tcp_hdr->doff << 2);
+	if ((tcp + hlen) > size) {
 		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
 		return 0;
 	}
@@ -391,7 +393,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_pseudoUdp
 	udp_t *pudp = (udp_t *)(buf + udp);
 	len = BIG_ENDIAN16(pudp->length);
 	
-	if ((udp + len) > size) {
+	if ((udp + 8) > size) {
 		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
 		return 0;
 	}
@@ -446,7 +448,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_icmp
 		return (jint) -1;
 	}
 	
-	if ((icmp + len) > size) {
+	if ((icmp + 4) > size) {
 		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
 		return 0;
 	}
