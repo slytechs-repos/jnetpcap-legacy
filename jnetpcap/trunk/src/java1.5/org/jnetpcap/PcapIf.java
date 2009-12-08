@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2007 Sly Technologies, Inc. This library is free software; you
+ * Copyright (C) 2009 Sly Technologies, Inc. This library is free software; you
  * can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version. This
@@ -18,8 +18,7 @@ import java.util.List;
 
 /**
  * Class peered with native <code>pcap_if_t</code> structure. Addresses is
- * replaced as a list to simulate a linked list of address structures. The
- * {@link #addresses} is preallocated for convenience. This is not a JNI peering
+ * replaced as a list to simulate a linked list of address structures. This is not a JNI peering
  * class, and is only a read-only object.
  * 
  * @author Mark Bednarczyk
@@ -135,8 +134,10 @@ public class PcapIf {
 
 	/**
 	 * Debug string.
+	 * @return debug string
 	 */
-	public String toString() {
+	@Override
+  public String toString() {
 		StringBuilder out = new StringBuilder();
 
 		out.append("<");

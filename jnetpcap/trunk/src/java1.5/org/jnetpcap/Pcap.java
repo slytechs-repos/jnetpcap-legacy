@@ -1,5 +1,5 @@
 /**
- * $Id$ Copyright (C) 2006 Sly Technologies, Inc. This library is free software;
+ * $Id$ Copyright (C) 2009 Sly Technologies, Inc. This library is free software;
  * you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version. This
@@ -591,8 +591,8 @@ public class Pcap implements JAnalyze {
 	 * Checks if the current platform has support for pcap_inject call. The
 	 * support is libpcap version and platform dependent.
 	 * 
-	 * @see #inject
-	 * @return true means {@link #inject} is supported, otherwise not
+	 * @see #inject(byte[])
+	 * @return true means {@link #inject(byte[])} is supported, otherwise not
 	 */
 	public native static boolean isInjectSupported();
 
@@ -1736,6 +1736,8 @@ public class Pcap implements JAnalyze {
 	 *          called when packet arrives for each packet
 	 * @param user
 	 *          opaque user object
+	 * @param scanner
+	 *          a custom user quick-scanner for parsing headers within the packet
 	 * @return 0 on success, -1 on error and -2 if breakloop was used interrupt
 	 *         the captue
 	 * @deprecated user of PcapHandler has been replaced with ByteBufferHandler
@@ -1768,6 +1770,7 @@ public class Pcap implements JAnalyze {
 	 * Cleanup before we're GCed. Will close connection to any open interface.
 	 * Does nothing if connection already closed.
 	 */
+	@Override
 	protected void finalize() {
 		if (physical != 0) {
 			close();
@@ -1792,6 +1795,8 @@ public class Pcap implements JAnalyze {
 	 * error, -1 is returned and errbuf is filled in with an appropriate error
 	 * message.
 	 * 
+	 * @param errbuf
+	 *          error buffer where error message will be stored on error
 	 * @see #setNonBlock(int, StringBuilder)
 	 * @return if there is an error, -1 is returned and errbuf is filled in with
 	 *         an appropriate error message
