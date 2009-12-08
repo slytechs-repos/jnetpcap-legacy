@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2007 Sly Technologies, Inc. This library is free software; you
+ * Copyright (C) 2009 Sly Technologies, Inc. This library is free software; you
  * can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version. This
@@ -66,7 +66,13 @@ public class PcapSockAddr {
 		return (b >= 0) ? b : b + 256;
 	}
 
-	public String toString() {
+	/**
+	 * Debug string
+	 * 
+	 * @return debug string
+	 */
+	@Override
+  public String toString() {
 		switch (family) {
 			case AF_INET:
 				return "[INET4:" + u(data[0]) + "." + u(data[1]) + "." + u(data[2])

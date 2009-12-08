@@ -33,7 +33,8 @@ package org.jnetpcap.nio;
  * @author Sly Technologies, Inc.
  */
 public class JReference
-    extends JStruct {
+    extends
+    JStruct {
 
 	private static final String STRUCT_NAME = "jni_global_ref_t";
 
@@ -41,7 +42,7 @@ public class JReference
 	 * Default number of space to allocate to hold references. Accessed from JNI.
 	 */
 	@SuppressWarnings("unused")
-  private final static int DEFAULT_REFERENCE_COUNT = 3;
+	private final static int DEFAULT_REFERENCE_COUNT = 3;
 
 	/**
 	 * This type of structure is always allocated natively and peered with a java
@@ -62,9 +63,20 @@ public class JReference
 	 * Releases any held JNI global references
 	 */
 	private native void cleanupReferences();
-	
-	public native String toDebugString();
-	
+
+	/**
+	 * Returns a debug string
+	 * 
+	 * @return debug string
+	 */
+	@Override
+  public native String toDebugString();
+
+	/**
+	 * Capacity of this object TODO: remove this method
+	 * 
+	 * @return capacity of this object
+	 */
 	public native int getCapacity();
 
 }

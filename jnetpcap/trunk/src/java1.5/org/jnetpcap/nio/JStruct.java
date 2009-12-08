@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2008 Sly Technologies, Inc. This library is free software; you
+ * Copyright (C) 2009 Sly Technologies, Inc. This library is free software; you
  * can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version. This
@@ -32,7 +32,8 @@ import java.nio.ByteBuffer;
  * @author Sly Technologies, Inc.
  */
 public class JStruct
-    extends JMemory {
+    extends
+    JMemory {
 
 	/**
 	 * Name of the native structure
@@ -40,8 +41,12 @@ public class JStruct
 	private final String structName;
 
 	/**
-	 * @param type TODO
+	 * Creates a new structure object
 	 * 
+	 * @param structName
+	 *          name of the native structure
+	 * @param type
+	 *          memory model
 	 */
 	public JStruct(String structName, Type type) {
 		super(type);
@@ -49,7 +54,12 @@ public class JStruct
 	}
 
 	/**
+	 * Creates a new structure object peered with the supplied object
+	 * 
+	 * @param structName
+	 *          name of the native structure
 	 * @param peer
+	 *          buffer to peer with
 	 */
 	public JStruct(String structName, ByteBuffer peer) {
 		super(peer);
@@ -57,7 +67,12 @@ public class JStruct
 	}
 
 	/**
+	 * Creates a new structure object of specified size
+	 * 
+	 * @param structName
+	 *          name of the native structure
 	 * @param size
+	 *          size in bytes for this new structure object
 	 */
 	public JStruct(String structName, int size) {
 		super(size);
@@ -65,17 +80,32 @@ public class JStruct
 	}
 
 	/**
+	 * Creates a new structure object
+	 * 
+	 * @param structName
+	 *          name of the native structure
 	 * @param peer
+	 *          memory to peer with
 	 */
 	public JStruct(String structName, JMemory peer) {
 		super(peer);
 		this.structName = structName;
 	}
 
+	/**
+	 * Gets the name of the native structure
+	 * 
+	 * @return name of the structure
+	 */
 	public final String getStructName() {
 		return this.structName;
 	}
 
+	/**
+	 * Debug information
+	 * 
+	 * @return debug info
+	 */
 	public String toString() {
 		return "struct " + structName;
 	}
