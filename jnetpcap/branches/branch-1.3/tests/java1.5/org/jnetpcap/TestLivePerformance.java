@@ -53,8 +53,10 @@ public class TestLivePerformance
 		double pps = ((double) pkt / ((double) (te - ts) / 1000.));
 		double bps = ((double) (bytes * 8) / ((double) (te - ts) / 1000.));
 
-		System.out.printf("recv=%d, drop=%d, ifDrop=%d pps=%.2f bps=%.2fKb\n",
-		    stats.getRecv(), stats.getDrop(), stats.getIfDrop(), pps, bps / 1024);
+		System.out.printf(
+		    "recv=%d, drop=%d, ifDrop=%d pps=%.2f bps=%.2fKb ave=%d bytes\n",
+		    stats.getRecv(), stats.getDrop(), stats.getIfDrop(), pps, bps / 1024,
+		    bytes / pkt);
 	}
 
 	public void testCapture10() {
@@ -70,7 +72,16 @@ public class TestLivePerformance
 			fail(errbuf.toString());
 		}
 
-		System.out.println(alldevs.toString());
+		int j = 2;
+		for (PcapIf i : alldevs) {
+			if (i.getDescription() == null) {
+				System.out.printf("#%d: %s\n", j, i.getName());
+			} else {
+				System.out.printf("#%d: %s - %s\n", j, i.getName(), i.getDescription());
+			}
+
+			j++;
+		}
 
 		int index = 0;
 		assertTrue("device count less then index " + index, alldevs.size() > index);
@@ -97,11 +108,10 @@ public class TestLivePerformance
 					System.out.flush();
 
 					next += (max / 10);
-					bytes += buffer.size();
 				}
 				cnt++;
 				pkt++;
-				bytes += 1500;
+				bytes += buffer.size();
 			}
 
 		};
@@ -115,10 +125,10 @@ public class TestLivePerformance
 			if (pcap.loop(max, handler, "rock") != Pcap.OK) {
 				fail(pcap.getErr());
 			}
-			
-//			pkt += max;
-//			bytes += max * 1000;
-			
+
+			// pkt += max;
+			// bytes += max * 1000;
+
 			endStats();
 			System.out.printf("\n#%06d: ", l * max);
 			printStats(pcap);
