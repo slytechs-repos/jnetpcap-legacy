@@ -34,7 +34,21 @@ public class TestLivePerformance
 
 	long bytes = 0;
 
+	long drops = 0;
+
+	long totPkt = 0;
+
+	long totBytes = 0;
+	
+	long totTs = 0;
+
+	long totTe = 0;
+
 	public void startStats() {
+
+		if (ts == 0) {
+			totTs = System.currentTimeMillis();
+		}
 		ts = System.currentTimeMillis();
 		te = ts;
 		pkt = 0;
@@ -43,6 +57,10 @@ public class TestLivePerformance
 
 	public void endStats() {
 		te = System.currentTimeMillis();
+		totTe = te;
+
+		totPkt += pkt;
+		totBytes += bytes;
 	}
 
 	public void printStats(Pcap pcap) {
@@ -59,6 +77,35 @@ public class TestLivePerformance
 		    bytes / pkt);
 	}
 
+	public void printSummary(Pcap pcap) {
+		PcapStat stats = new PcapStat();
+
+		pcap.stats(stats);
+
+		double pps = ((double) totPkt / ((double) (totTe - totTs) / 1000.));
+		double bps = ((double) (totBytes * 8) / ((double) (totTe - totTs) / 1000.));
+
+		System.out.printf(
+		    "TOTAL: recv=%d, drop=%d, ifDrop=%d pps=%.2f bps=%.2fKb ave=%d bytes\n",
+		    stats.getRecv(), stats.getDrop(), stats.getIfDrop(), pps, bps / 1024,
+		    bytes / pkt);
+	}
+
+
+	public boolean hasDrops(Pcap pcap) {
+		PcapStat stats = new PcapStat();
+
+		pcap.stats(stats);
+
+		if (stats.getDrop() != drops) {
+			drops = stats.getDrop();
+
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	public void testCapture10() {
 		StringBuilder errbuf = new StringBuilder();
 		int snaplen = Pcap.DEFAULT_SNAPLEN;
@@ -72,40 +119,54 @@ public class TestLivePerformance
 			fail(errbuf.toString());
 		}
 
+		final boolean verbose = ((System.getProperty("verbose") != null)
+			? Boolean.parseBoolean(System.getProperty("verbose"))
+			: false);
+
 		int j = 2;
 		for (PcapIf i : alldevs) {
 			if (i.getDescription() == null) {
-				System.out.printf("#%d: %s\n", j, i.getName());
+				if (verbose) {
+					System.out.printf("#%d: %s\n", j, i.getName());
+				}
 			} else {
-				System.out.printf("#%d: %s - %s\n", j, i.getName(), i.getDescription());
+				if (verbose) {
+					System.out.printf("#%d: %s - %s\n", j, i.getName(), i.getDescription());
+				}
 			}
 
 			j++;
 		}
 
-		int index = 0;
+		int index = 2;
 		assertTrue("device count less then index " + index, alldevs.size() > index);
 		dev = alldevs.get(index);
 
-		System.out.println();
-		System.out.printf("Opening %s interface\n",
-		    (dev.getDescription() != null) ? dev.getDescription() : dev.getName());
+		if (verbose) {
+			System.out.println();
+			System.out.printf("Opening %s interface\n",
+			    (dev.getDescription() != null) ? dev.getDescription() : dev.getName());
+		}
 
 		Pcap pcap = Pcap.openLive(dev.getName(), snaplen, promisc, timeout, errbuf);
 		assertNotNull(errbuf.toString(), pcap);
 
-		final int max = 10000;
+		final int max = ((System.getProperty("max") != null) 
+			? Integer.parseInt(System.getProperty("max")) 
+			: 1000);
 
-		JBufferHandler<String> handler = new JBufferHandler<String>() {
+		JBufferHandler<Pcap> handler = new JBufferHandler<Pcap>() {
 
 			int cnt = 0;
 
 			int next = 0;
 
-			public void nextPacket(PcapHeader header, JBuffer buffer, String user) {
+			public void nextPacket(PcapHeader header, JBuffer buffer, Pcap pcap) {
 				if (cnt == next) {
-					System.out.printf(".");
-					System.out.flush();
+					if (verbose) {
+						System.out.printf((hasDrops(pcap) ? "X" : "."));
+						System.out.flush();
+					}
 
 					next += (max / 10);
 				}
@@ -116,13 +177,17 @@ public class TestLivePerformance
 
 		};
 
-		final int loops = 10;
+		final int loops = ((System.getProperty("loops") != null) ? 
+			Integer.parseInt(System.getProperty("loops")) 
+			: 10);
 
 		for (int l = 0; l < loops; l++) {
 
-			System.out.printf("#%06d: ", l * max);
+			if (verbose) {
+				System.out.printf("#%06d: ", l * max);
+			}
 			startStats();
-			if (pcap.loop(max, handler, "rock") != Pcap.OK) {
+			if (pcap.loop(max, handler, pcap) != Pcap.OK) {
 				fail(pcap.getErr());
 			}
 
@@ -130,9 +195,13 @@ public class TestLivePerformance
 			// bytes += max * 1000;
 
 			endStats();
-			System.out.printf("\n#%06d: ", l * max);
-			printStats(pcap);
+			if (verbose) {
+				System.out.printf("\n#%06d: ", l * max);
+				printStats(pcap);
+			}
 		}
+
+		printSummary(pcap);
 
 		pcap.close();
 	}
