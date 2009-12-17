@@ -266,20 +266,15 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__ILorg_jnetpcap_ByteBuffe
 	 * so we can dispatch to Java land.
 	 */
 	cb_byte_buffer_t data;
-	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
 	data.pcap = obj;
 	data.user = juser;
 	data.header = jheader;
-	jclass clazz = env->GetObjectClass(jhandler);
 	data.p = p;
+	data.exception = NULL;
+	data.mid = ByteBufferHandlerNextPacketMID;
 
-	data.mid = env->GetMethodID(clazz, "nextPacket",
-			"(Lorg/jnetpcap/PcapHeader;Ljava/nio/ByteBuffer;Ljava/lang/Object;)V");
-	if (data.mid == NULL) {
-		return -1;
-	}
 
 	int r = pcap_dispatch(p, jcnt, cb_byte_buffer_dispatch, (u_char *)&data);
 	if (data.exception != NULL) {
@@ -317,21 +312,15 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__ILorg_jnetpcap_JBufferHa
 	 * so we can dispatch to Java land.
 	 */
 	cb_jbuffer_t data;
-	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
 	data.pcap = obj;
 	data.user = juser;
 	data.header = jheader;
 	data.buffer = jbuffer;
-	jclass clazz = env->GetObjectClass(jhandler);
 	data.p = p;
-
-	data.mid = env->GetMethodID(clazz, "nextPacket",
-			"(Lorg/jnetpcap/PcapHeader;Lorg/jnetpcap/nio/JBuffer;Ljava/lang/Object;)V");
-	if (data.mid == NULL) {
-		return -1;
-	}
+	data.exception = NULL;
+	data.mid = JBufferHandlerNextPacketMID;
 
 	int r = pcap_dispatch(p, jcnt, cb_jbuffer_dispatch, (u_char *)&data);
 	if (data.exception != NULL) {
@@ -372,7 +361,6 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__IILorg_jnetpcap_packet_J
 	 * so we can dispatch to Java land.
 	 */
 	cb_packet_t data;
-	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
 	data.pcap = obj;
@@ -382,14 +370,10 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__IILorg_jnetpcap_packet_J
 	data.state = jstate;
 	data.id = id;
 	data.scanner = jscanner;
-	jclass clazz = env->GetObjectClass(jhandler);
 	data.p = p;
+	data.exception = NULL;
+	data.mid = JPacketHandlerNextPacketMID;
 
-	data.mid = env->GetMethodID(clazz, "nextPacket",
-			"(Lorg/jnetpcap/packet/JPacket;Ljava/lang/Object;)V");
-	if (data.mid == NULL) {
-		return -1;
-	}
 
 	int r = pcap_dispatch(p, jcnt, cb_pcap_packet_dispatch, (u_char *)&data);
 	if (data.exception != NULL) {
@@ -430,7 +414,6 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__IILorg_jnetpcap_packet_P
 	 * so we can dispatch to Java land.
 	 */
 	cb_jpacket_t data;
-	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
 	data.pcap = obj;
@@ -440,14 +423,11 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__IILorg_jnetpcap_packet_P
 	data.state = jstate;
 	data.id = id;
 	data.scanner = jscanner;
-	jclass clazz = env->GetObjectClass(jhandler);
 	data.p = p;
+	data.exception = NULL;
 
-	data.mid = env->GetMethodID(clazz, "nextPacket",
-			"(Lorg/jnetpcap/packet/PcapPacket;Ljava/lang/Object;)V");
-	if (data.mid == NULL) {
-		return -1;
-	}
+	data.mid = PcapPacketHandlerNextPacketMID;
+
 
 	int r = pcap_dispatch(p, jcnt, cb_pcap_packet_dispatch, (u_char *)&data);
 	if (data.exception != NULL) {
@@ -590,21 +570,17 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__ILorg_jnetpcap_ByteBufferHan
 	 * so we can dispatch to Java land.
 	 */
 	cb_byte_buffer_t data;
-	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
 	data.pcap = obj;
 	data.user = juser;
 	data.header = jheader;
-	jclass clazz = env->GetObjectClass(jhandler);
 	data.p = p;
+	data.exception = NULL;
 	
 
-	data.mid = env->GetMethodID(clazz, "nextPacket",
-			"(Lorg/jnetpcap/PcapHeader;Ljava/nio/ByteBuffer;Ljava/lang/Object;)V");
-	if (data.mid == NULL) {
-		return -1;
-	}
+	data.mid = ByteBufferHandlerNextPacketMID;
+
 	
 	int r = pcap_loop(p, jcnt, cb_byte_buffer_dispatch, (u_char *)&data);
 	if (data.exception != NULL) {
@@ -643,7 +619,6 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__ILorg_jnetpcap_JBufferHandle
 	 * so we can dispatch to Java land.
 	 */
 	cb_jbuffer_t data;
-	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
 	data.pcap = obj;
@@ -651,14 +626,10 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__ILorg_jnetpcap_JBufferHandle
 	data.user = juser;
 	data.header = jheader;
 	data.buffer = jbuffer;
-	jclass clazz = env->GetObjectClass(jhandler);
 	data.p = p;
-
-	data.mid = env->GetMethodID(clazz, "nextPacket",
-			"(Lorg/jnetpcap/PcapHeader;Lorg/jnetpcap/nio/JBuffer;Ljava/lang/Object;)V");
-	if (data.mid == NULL) {
-		return -1;
-	}
+	data.exception = NULL;
+	
+	data.mid = JBufferHandlerNextPacketMID;
 
 	int r = pcap_loop(p, jcnt, cb_jbuffer_dispatch, (u_char *)&data);
 	
@@ -701,7 +672,6 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__IILorg_jnetpcap_packet_JPack
 	 * so we can dispatch to Java land.
 	 */
 	cb_packet_t data;
-	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
 	data.pcap = obj;
@@ -711,14 +681,10 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__IILorg_jnetpcap_packet_JPack
 	data.state = jstate;
 	data.id = id;
 	data.scanner = jscanner;
-	jclass clazz = env->GetObjectClass(jhandler);
 	data.p = p;
-
-	data.mid = env->GetMethodID(clazz, "nextPacket",
-			"(Lorg/jnetpcap/packet/JPacket;Ljava/lang/Object;)V");
-	if (data.mid == NULL) {
-		return -1;
-	}
+	data.exception = NULL;
+	
+	data.mid = JPacketHandlerNextPacketMID;
 
 	int r = pcap_loop(p, jcnt, cb_pcap_packet_dispatch, (u_char *)&data);
 	if (data.exception != NULL) {
@@ -760,7 +726,6 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__IILorg_jnetpcap_packet_PcapP
 	 * so we can dispatch to Java land.
 	 */
 	cb_jpacket_t data;
-	memset(&data, 0, sizeof(data));
 	data.env = env;
 	data.obj = jhandler;
 	data.pcap = obj;
@@ -770,14 +735,10 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__IILorg_jnetpcap_packet_PcapP
 	data.state = jstate;
 	data.id = id;
 	data.scanner = jscanner;
-	jclass clazz = env->GetObjectClass(jhandler);
 	data.p = p;
+	data.exception = NULL;
 
-	data.mid = env->GetMethodID(clazz, "nextPacket",
-			"(Lorg/jnetpcap/packet/PcapPacket;Ljava/lang/Object;)V");
-	if (data.mid == NULL) {
-		return -1;
-	}
+	data.mid = PcapPacketHandlerNextPacketMID;
 
 	int r = pcap_loop(p, jcnt, cb_pcap_packet_dispatch, (u_char *)&data);
 	if (data.exception != NULL) {

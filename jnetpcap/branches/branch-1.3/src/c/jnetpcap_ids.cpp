@@ -49,6 +49,16 @@ jmethodID bufferSetPositionMID = 0;
 jmethodID bufferSetLimitMID = 0;
 jmethodID bufferGetCapacityMID = 0;
 
+jclass JBufferHandlerClass;
+jclass ByteBufferHandlerClass;
+jclass JPacketHandlerClass;
+jclass PcapPacketHandlerClass;
+
+jmethodID JBufferHandlerNextPacketMID;
+jmethodID ByteBufferHandlerNextPacketMID;
+jmethodID JPacketHandlerNextPacketMID;
+jmethodID PcapPacketHandlerNextPacketMID;
+
 
 /*
  * Class:     org_jnetpcap_Pcap
@@ -138,6 +148,45 @@ JNIEXPORT void JNICALL JNICALL Java_org_jnetpcap_Pcap_initIDs
 	
 	if ( (pcapIntegerValueFID = env->GetFieldID(pcapIntegerClass, "value",
 			"I")) == NULL) {
+		return;
+	}
+	
+	if ( (JBufferHandlerClass = findClass(env, 
+			"org/jnetpcap/JBufferHandler")) == NULL) {
+		return;
+	}
+
+	if ( (ByteBufferHandlerClass = findClass(env, 
+			"org/jnetpcap/ByteBufferHandler")) == NULL) {
+		return;
+	}
+	if ( (JPacketHandlerClass = findClass(env, 
+			"org/jnetpcap/packet/JPacketHandler")) == NULL) {
+		return;
+	}
+	if ( (PcapPacketHandlerClass = findClass(env, 
+			"org/jnetpcap/packet/PcapPacketHandler")) == NULL) {
+		return;
+	}
+
+	if ( (JBufferHandlerNextPacketMID = 
+		env->GetMethodID(JBufferHandlerClass, "nextPacket",
+			"(Lorg/jnetpcap/PcapHeader;Lorg/jnetpcap/nio/JBuffer;Ljava/lang/Object;)V")) == NULL) {
+		return;
+	}
+	if ( (ByteBufferHandlerNextPacketMID = 
+		env->GetMethodID(ByteBufferHandlerClass, "nextPacket",
+			"(Lorg/jnetpcap/PcapHeader;Ljava/nio/ByteBuffer;Ljava/lang/Object;)V")) == NULL) {
+		return;
+	}
+	if ( (JPacketHandlerNextPacketMID = 
+		env->GetMethodID(JPacketHandlerClass, "nextPacket",
+			"(Lorg/jnetpcap/packet/JPacket;Ljava/lang/Object;)V")) == NULL) {
+		return;
+	}
+	if ( (PcapPacketHandlerNextPacketMID = 
+		env->GetMethodID(PcapPacketHandlerClass, "nextPacket",
+			"(Lorg/jnetpcap/packet/PcapPacket;Ljava/lang/Object;)V")) == NULL) {
 		return;
 	}
 
