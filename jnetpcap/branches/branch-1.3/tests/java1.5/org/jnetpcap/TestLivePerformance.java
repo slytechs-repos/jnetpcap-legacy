@@ -122,6 +122,9 @@ public class TestLivePerformance
 		final boolean verbose = ((System.getProperty("verbose") != null)
 			? Boolean.parseBoolean(System.getProperty("verbose"))
 			: false);
+		final boolean doDispatch = ((System.getProperty("dispatch") != null)
+			? Boolean.parseBoolean(System.getProperty("dispatch"))
+			: false);
 
 		int j = 2;
 		for (PcapIf i : alldevs) {
@@ -181,6 +184,7 @@ public class TestLivePerformance
 			Integer.parseInt(System.getProperty("loops")) 
 			: 10);
 
+		if (doDispatch == false) {
 		for (int l = 0; l < loops; l++) {
 
 			if (verbose) {
@@ -199,6 +203,36 @@ public class TestLivePerformance
 				System.out.printf("\n#%06d: ", l * max);
 				printStats(pcap);
 			}
+		}
+		} else {
+		for (int l = 0; l < loops; l++) {
+
+			if (verbose) {
+				System.out.printf("#%06d: ", l * max);
+			}
+			startStats();
+			int r, cnt = 0, calls = 0;
+			
+			while ( (r = pcap.dispatch(max, handler, pcap)) >= 0 && cnt < max) {
+				if (r < 0) {
+					fail(pcap.getErr());
+				}
+
+				cnt += r;
+				calls ++;
+			}
+
+			// pkt += max;
+			// bytes += max * 1000;
+
+
+			endStats();
+			if (verbose) {
+				double ppc = (double)cnt / (double)calls; // Packets per Call
+				System.out.printf("\n#%06d: calls=%d ppc=%.2f ", l * max, calls, ppc);
+				printStats(pcap);
+			}
+		}
 		}
 
 		printSummary(pcap);
