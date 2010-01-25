@@ -34,11 +34,11 @@ import org.jnetpcap.packet.format.TextFormatter;
  * The packet interface provides numerous methods for accessing the decoded
  * information. To check if any particular header is found within the packet's
  * data buffer at the time the packet was scanned, the user can use
- * {@link #hasHeader} methods. The method returns true if a particular header is
- * found within the packet data buffer, otherwise false. A convenience method
- * {@link #hasHeader(JHeader)} exists that performs both an existance check and
- * initializes the header instace supplied to point at the header within the
- * packet.
+ * {@link #hasHeader(int)} method. The method returns true if a particular
+ * header is found within the packet data buffer, otherwise false. A convenience
+ * method {@link #hasHeader(JHeader)} exists that performs both an existance
+ * check and initializes the header instace supplied to point at the header
+ * within the packet.
  * </p>
  * <p>
  * There are also numerous peer and deep copy methods. The peering methods do
@@ -500,6 +500,9 @@ public abstract class JPacket
 	 * and/or data buffer into another memory area, such as a direct ByteBuffer or
 	 * JBuffer.
 	 * </p>
+	 * 
+	 * @param type
+	 *          memory type
 	 */
 	public JPacket(Type type) {
 		super(type);
@@ -542,7 +545,7 @@ public abstract class JPacket
 	 * @return zero based frame number
 	 */
 	public long getFrameNumber() {
-		return state.getFrameNumber() + 1;
+		return getScannedState().getFrameNumber() + 1;
 	}
 
 	/**
@@ -575,8 +578,10 @@ public abstract class JPacket
 	 */
 	public <T extends JHeader> T getHeader(T header, int instance) {
 		check();
+		lazyScan();
 
-		final int index = this.state.findHeaderIndex(header.getId(), instance);
+		final int index =
+		    getScannedState().findHeaderIndex(header.getId(), instance);
 		if (index == -1) {
 			return null;
 		}
@@ -600,8 +605,10 @@ public abstract class JPacket
 	public <T extends JHeader> T getHeaderByIndex(int index, T header)
 	    throws IndexOutOfBoundsException {
 
+		lazyScan();
+
 		JHeader.State hstate = header.getState();
-		this.state.peerHeaderByIndex(index, hstate);
+		getScannedState().peerHeaderByIndex(index, hstate);
 
 		header.peer(this, hstate.getOffset(), hstate.getLength());
 		header.setPacket(this); // Set the header's parent
@@ -619,7 +626,7 @@ public abstract class JPacket
 	 * @return number of headers present
 	 */
 	public int getHeaderCount() {
-		return this.state.getHeaderCount();
+		return getScannedState().getHeaderCount();
 	}
 
 	/**
@@ -631,7 +638,7 @@ public abstract class JPacket
 	 * @return numerical ID of the header found at the specific index
 	 */
 	public int getHeaderIdByIndex(int index) {
-		return this.state.getHeaderIdByIndex(index);
+		return getScannedState().getHeaderIdByIndex(index);
 	}
 
 	/**
@@ -644,7 +651,7 @@ public abstract class JPacket
 	 * @return number of headers of the same type in the packet
 	 */
 	public int getHeaderInstanceCount(int id) {
-		return this.state.getInstanceCount(id);
+		return getScannedState().getInstanceCount(id);
 	}
 
 	/**
@@ -718,6 +725,11 @@ public abstract class JPacket
 		return getCaptureHeader().wirelen();
 	}
 
+	/**
+	 * Gets the scanner that is assigned to processing of this packet.
+	 * 
+	 * @return this packet's current scanner
+	 */
 	public JScanner getScanner() {
 		return scanner;
 	}
@@ -732,13 +744,24 @@ public abstract class JPacket
 	}
 
 	/**
+	 * Method that performs a lazy scan of the packet but only if neccessary.
+	 * Otherwise it just returns the state object.
+	 * 
+	 * @return the scanned state object
+	 */
+	private State getScannedState() {
+		lazyScan();
+
+		return this.state;
+	}
+
+	/**
 	 * Gets the total size of this packet. The size includes state, header and
 	 * packet data.
 	 * 
 	 * @return size in bytes
 	 */
 	public abstract int getTotalSize();
-
 
 	/**
 	 * Checks if header with specified numerical ID exists within the decoded
@@ -764,8 +787,9 @@ public abstract class JPacket
 	 */
 	public boolean hasHeader(int id, int instance) {
 		check();
+		lazyScan();
 
-		final int index = this.state.findHeaderIndex(id, instance);
+		final int index = getScannedState().findHeaderIndex(id, instance);
 		if (index == -1) {
 			return false;
 		}
@@ -786,7 +810,7 @@ public abstract class JPacket
 	 * @return true header exists, otherwise false
 	 */
 	public <T extends JHeader> boolean hasHeader(T header) {
-		return (state.get64BitHeaderMap(0) & (1L << header.getId())) != 0
+		return (getScannedState().get64BitHeaderMap(0) & (1L << header.getId())) != 0
 		    && hasHeader(header, 0);
 	}
 
@@ -807,7 +831,8 @@ public abstract class JPacket
 	public <T extends JHeader> boolean hasHeader(T header, int instance) {
 		check();
 
-		final int index = this.state.findHeaderIndex(header.getId(), instance);
+		final int index =
+		    getScannedState().findHeaderIndex(header.getId(), instance);
 		if (index == -1) {
 			return false;
 		}
@@ -860,12 +885,40 @@ public abstract class JPacket
 	}
 
 	/**
+	 * Checks if the current packet has been decoded or not. This method does not
+	 * trigger the decoding itself.
+	 * 
+	 * @return true if packet has already been decoded, otherwise false
+	 */
+	public boolean isScanned() {
+		return this.state.isInitialized();
+	}
+
+	/**
+	 * Optional method that allows a packet to be scanned. The method is not
+	 * implemented by all implementations since dlt has to be known ahead of time.
+	 * Any packets returned by JPacketHandler or PcapPacket handler will provide
+	 * implementation for this method. Other implementations may not.
+	 */
+	public abstract void scan();
+
+	/**
+	 * Checks if the packet object has been already scanned and if not, performs a
+	 * scan. Otherwise this method does nothing.
+	 */
+	private void lazyScan() {
+		if (isScanned() == false) {
+			scan();
+		}
+	}
+
+	/**
 	 * Formats packet raw data as a hexdump output and marks header boundaries
 	 * with special characters.
 	 */
 	@Override
 	public String toHexdump() {
-		if (state.isInitialized()) {
+		if (isScanned()) {
 			return FormatUtils.hexdump(this);
 		} else {
 			byte[] b = this.getByteArray(0, this.size());

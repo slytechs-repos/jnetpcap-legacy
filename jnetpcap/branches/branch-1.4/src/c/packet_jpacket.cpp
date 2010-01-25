@@ -90,7 +90,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_PcapPacket_initIds
 	pcapPacketClass = (jclass) env->NewGlobalRef(clazz);
 	
 	if ( (pcapPacketConstructorMID = env->GetMethodID(clazz, 
-			"<init>", "(Lorg/jnetpcap/nio/JMemory$Type;)V")) == NULL) {
+			"<init>", "(Lorg/jnetpcap/nio/JMemory$Type;I)V")) == NULL) {
 		
 		throwException(env, NO_SUCH_METHOD_EXCEPTION,
 				"Unable to initialize method PcapPacket(Type)");

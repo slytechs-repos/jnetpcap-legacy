@@ -171,7 +171,8 @@ jobject transferToNewBuffer(
 		JNIEnv *env,
 		const pcap_pkthdr *pkt_header, 
 		const u_char *pkt_data, 
-		jobject state);
+		jobject state,
+		int dlt);
 
 #ifdef __cplusplus
 }

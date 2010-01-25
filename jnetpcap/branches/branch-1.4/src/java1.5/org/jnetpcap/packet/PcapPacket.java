@@ -368,6 +368,7 @@ public class PcapPacket
 	 */
 	private native static void initIds();
 
+	private int dlt = -1;
 
 	private final PcapHeader header = new PcapHeader(Type.POINTER);
 
@@ -560,6 +561,23 @@ public class PcapPacket
 	public PcapPacket(Type type) {
 		super(type);
 	}
+	
+	/**
+	 * Special type of instantiation that allows an empty packet to be peered, or
+	 * in C terms its a packet pointer with no actual memory allocated. Accessing
+	 * most methods in this packet object before its initialized will throw
+	 * NullPointerException as the object has not been initialized yet. This constructor
+	 * further allows packets to be scanned by the scan method.
+	 * 
+	 * @param type
+	 *          state of the object to create
+	 */
+	private PcapPacket(Type type, int dlt) {
+		super(type);
+		
+		this.dlt = dlt;
+	}
+
 
 	/**
 	 * Retrieves the PcapHeader, capture header provided by libpcap
@@ -994,4 +1012,16 @@ public class PcapPacket
 
 		return o;
 	}
+
+	/* (non-Javadoc)
+   * @see org.jnetpcap.packet.JPacket#scan()
+   */
+  @Override
+  public void scan() {
+  	if (this.dlt == -1) {
+  		throw new IllegalStateException("dlt for this packet has not been set");
+  	}
+  	
+  	scan(dlt);
+  }
 }
