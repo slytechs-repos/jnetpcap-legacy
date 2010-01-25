@@ -56,7 +56,7 @@ public class JMemoryPacket
 		 */
 		public JMemoryHeader() {
 			this(0, 0, System.currentTimeMillis() / 1000, System.nanoTime());
-			
+
 		}
 
 		/**
@@ -190,7 +190,7 @@ public class JMemoryPacket
 		 */
 		public final void setWirelen(int wirelen) {
 			this.wirelen = wirelen;
-			
+
 			if (this.caplen == 0) {
 				this.caplen = wirelen;
 			}
@@ -285,12 +285,12 @@ public class JMemoryPacket
 	 */
 	public JMemoryPacket(ByteBuffer buffer) throws PeeringException {
 		super(Type.POINTER);
-		
+
 		final int size = buffer.limit() - buffer.position();
 
 		final JBuffer mem = getMemoryBuffer(size);
 		super.peer(mem);
-		
+
 		transferFrom(buffer);
 
 		header.setWirelen(size);
@@ -306,9 +306,9 @@ public class JMemoryPacket
 		super(size, 0);
 
 		header.setWirelen(size);
-		
+
 		/**
-		 * Bug #2878768	JMemoryPacket(int) constructor doesn't work
+		 * Bug #2878768 JMemoryPacket(int) constructor doesn't work
 		 */
 		super.peer(super.memory);
 	}
@@ -406,7 +406,7 @@ public class JMemoryPacket
 		b.transferFrom(buffer); // Make a buffer to buffer copy
 
 		peer(b, 0, len);
-		
+
 		header.setWirelen(len);
 	}
 
@@ -735,5 +735,19 @@ public class JMemoryPacket
 		packet.transferStateAndDataTo(buffer, 0);
 
 		return peerStateAndData(buffer, 0);
+	}
+
+	/**
+	 * This method is not supported by this class. You must supply the DLT type
+	 * before the packet can be scanned.
+	 * 
+	 * @throws UnsupportedOperationException
+	 *           thrown since this method is not supported
+	 * @see org.jnetpcap.packet.JPacket#scan()
+	 * @see org.jnetpcap.packet.JPacket#scan(int)
+	 */
+	@Override
+	public void scan() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("optional method not supported");
 	}
 }

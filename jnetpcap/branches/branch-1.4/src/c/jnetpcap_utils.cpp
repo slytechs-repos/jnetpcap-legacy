@@ -808,21 +808,21 @@ void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 
 	JNIEnv *env = data->env;
 
-	jmemoryPeer(env, data->header, pkt_header, sizeof(pcap_pkthdr), data->pcap);
-	jmemoryPeer(env, data->packet, pkt_data, pkt_header->caplen, data->pcap);
-
-	if (Java_org_jnetpcap_packet_JScanner_scan(
-			env,
-			data->scanner,
-			data->packet,
-			data->state,
-			data->id,
-			pkt_header->len) < 0) {
-		return;
-	}
+//	jmemoryPeer(env, data->header, pkt_header, sizeof(pcap_pkthdr), data->pcap);
+//	jmemoryPeer(env, data->packet, pkt_data, pkt_header->caplen, data->pcap);
+//
+//	if (Java_org_jnetpcap_packet_JScanner_scan(
+//			env,
+//			data->scanner,
+//			data->packet,
+//			data->state,
+//			data->id,
+//			pkt_header->len) < 0) {
+//		return;
+//	}
 
 	jobject pcap_packet =
-		transferToNewBuffer(env, pkt_header, pkt_data, data->state);
+		transferToNewBuffer(env, pkt_header, pkt_data, NULL, data->id);
 	if (pcap_packet == NULL) {
 		if (data->pcap != NULL) {
 			pcap_breakloop(data->p);
@@ -882,14 +882,16 @@ jobject transferToNewBuffer(
 		JNIEnv *env,
 		const pcap_pkthdr *pkt_header,
 		const u_char *pkt_data,
-		jobject state) {
+		jobject state,
+		int dlt) {
 
-	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, state);
-	size_t state_size =
-		packet->pkt_header_count * sizeof(header_t) +
-		sizeof(packet_state_t);
-
-	size_t size = pkt_header->caplen + state_size + sizeof(pcap_pkthdr);
+//	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, state);
+//	size_t state_size =
+//		packet->pkt_header_count * sizeof(header_t) +
+//		sizeof(packet_state_t);
+//
+//	size_t size = pkt_header->caplen + state_size + sizeof(pcap_pkthdr);
+	size_t size = pkt_header->caplen + sizeof(pcap_pkthdr);
 	if (size > (1024 * 1024)) {
 		throwException(env, ILLEGAL_STATE_EXCEPTION,
 				"packet size over 1MB\n");
@@ -900,7 +902,8 @@ jobject transferToNewBuffer(
 	jobject pcap_packet = env->NewObject(
 			pcapPacketClass,
 			pcapPacketConstructorMID,
-			jmemoryPOINTER_CONST);
+			jmemoryPOINTER_CONST,
+			dlt);
 	if (pcap_packet == NULL) {
 		throwException(env, ILLEGAL_STATE_EXCEPTION,
 				"unable to allocate PcapPacket object");
@@ -908,8 +911,8 @@ jobject transferToNewBuffer(
 	}
 
 	jobject jheader = env->GetObjectField(pcap_packet, pcapHeaderFID);
-	jobject jstate = env->GetObjectField(pcap_packet, pcapStateFID);
-	if (jheader == NULL || jstate == NULL) {
+//	jobject jstate = env->GetObjectField(pcap_packet, pcapStateFID);
+	if (jheader == NULL) {
 		throwException(env, ILLEGAL_STATE_EXCEPTION,
 				"unable to allocate PcapHeader object");
 		return NULL;
@@ -930,9 +933,9 @@ jobject transferToNewBuffer(
 	jmemoryPeer(env, pcap_packet, ptr, pkt_header->caplen, jheader);
 	ptr += pkt_header->caplen;
 
-	memcpy(ptr, packet, state_size);
-	jmemoryPeer(env, jstate, ptr, state_size, jheader);
-	ptr += state_size;
+//	memcpy(ptr, packet, state_size);
+//	jmemoryPeer(env, jstate, ptr, state_size, jheader);
+//	ptr += state_size;
 
 	/*
 	 * Free up intermediate local references. We can't rely on JNI freeing them
@@ -940,7 +943,7 @@ jobject transferToNewBuffer(
 	 * only freeded up when main JNI call returns which may be never in our case.
 	 */
 	env->DeleteLocalRef(jheader);
-	env->DeleteLocalRef(jstate);
+//	env->DeleteLocalRef(jstate);
 
 	/* Local reference is good enough for return value. If this is returned from
 	 * JNI code upto java, JNI turns them into globs.

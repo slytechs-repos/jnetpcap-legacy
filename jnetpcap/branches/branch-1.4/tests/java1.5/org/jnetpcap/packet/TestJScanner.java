@@ -280,11 +280,11 @@ public class TestJScanner
 		System.out.println(packet.getState().toDebugString());
 	}
 
-	public void testGetFrameNumber() {
-		assertTrue(JScanner.getThreadLocal().getFrameNumber() != 0);
-		System.out.printf("frameNumber=%d\n", JScanner.getThreadLocal()
-		    .getFrameNumber());
-	}
+//	public void testGetFrameNumber() {
+//		assertTrue(JScanner.getThreadLocal().getFrameNumber() != 0);
+//		System.out.printf("frameNumber=%d\n", JScanner.getThreadLocal()
+//		    .getFrameNumber());
+//	}
 
 	public void testSetFrameNumber() {
 		long n = JScanner.getThreadLocal().getFrameNumber();
