@@ -126,7 +126,7 @@ public class TestLivePerformance
 			? Boolean.parseBoolean(System.getProperty("dispatch"))
 			: false);
 
-		int j = 2;
+		int j = 0;
 		for (PcapIf i : alldevs) {
 			if (i.getDescription() == null) {
 				if (verbose) {
@@ -141,7 +141,7 @@ public class TestLivePerformance
 			j++;
 		}
 
-		int index = 2;
+		int index = 0;
 		assertTrue("device count less then index " + index, alldevs.size() > index);
 		dev = alldevs.get(index);
 

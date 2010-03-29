@@ -72,6 +72,8 @@ public class TestUtils extends TestCase {
 	public final static String L2TP = "tests/test-l2tp.pcap";
 
 	public final static String MYSQL = "tests/test-mysql.pcap";
+	
+	public final static int WIRESHARK_INDEX = 1;
 
 	/**
 	 * Special Appendable device that throws away its output. Used in stress
@@ -331,7 +333,7 @@ public class TestUtils extends TestCase {
 					if (i++ == index) {
 						PcapPacket packet = new PcapPacket(header, buffer);
 						packet.scan(JRegistry.mapDLTToId(pcap.datalink()));
-
+						System.out.println(packet.getState().toDebugString());
 						packet.transferStateAndDataTo(result);
 
 						pcap.breakloop();
