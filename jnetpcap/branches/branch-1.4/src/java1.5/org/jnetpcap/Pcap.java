@@ -19,6 +19,8 @@ import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JNumber;
 import org.jnetpcap.nio.JMemory.Type;
 import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.packet.JPacketBuffer;
+import org.jnetpcap.packet.JPacketBufferHandler;
 import org.jnetpcap.packet.JPacketHandler;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.JScanner;
@@ -225,6 +227,12 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Sly Technologies, Inc.
  */
 public class Pcap {
+
+	/**
+	 * Default JBufferSize used by loop and dispatch methods that utilize this
+	 * type of buffer. Default value is {@value #DEFAULT_JPACKET_BUFFER_SIZE}.
+	 */
+	public static final int DEFAULT_JPACKET_BUFFER_SIZE = 1024 * 1024;
 
 	/**
 	 * Default capture promiscous mode to be used (default:
@@ -946,6 +954,59 @@ public class Pcap {
 	    ByteBufferHandler<T> handler,
 	    T user,
 	    PcapHeader header);
+
+	/**
+	 * A packet dispatch method that dispatches multiple packets at a time. The
+	 * packet are stored in a new buffer that is <code>bufferSize</code> in
+	 * length and contains both pcap header and packet data. Multiple packets are
+	 * stored in the buffer and can be accessed from {@link JPacketBuffer} using
+	 * its accessor methods.
+	 * 
+	 * @param <T>
+	 *          user type
+	 * @param cnt
+	 *          number of packets to capture
+	 * @param bufferSize
+	 *          size of the buffer to allocate for each dispatch iteration
+	 * @param handler
+	 *          user handler to callback
+	 * @param user
+	 *          user object
+	 * @return number of packets captured
+	 */
+	public <T> int dispatch(
+	    int cnt,
+	    int bufferSize,
+	    JPacketBufferHandler<T> handler,
+	    T user) {
+		return dispatch(cnt, bufferSize, handler, user, datalinkToId());
+	}
+
+	/**
+	 * A packet dispatch method that dispatches multiple packets at a time. The
+	 * packet are stored in a new buffer that is <code>bufferSize</code> in
+	 * length and contains both pcap header and packet data. Multiple packets are
+	 * stored in the buffer and can be accessed from {@link JPacketBuffer} using
+	 * its accessor methods.
+	 * 
+	 * @param <T>
+	 *          user type
+	 * @param cnt
+	 *          number of packets to capture
+	 * @param bufferSize
+	 *          size of the buffer to allocate for each dispatch iteration
+	 * @param handler
+	 *          user handler to callback
+	 * @param user
+	 *          user object
+	 * @return number of packets captured
+	 */
+	private native <T> int dispatch(
+	    int cnt,
+	    int bufferSize,
+	    JPacketBufferHandler<T> handler,
+	    T user,
+	    int id);
 
 	/**
 	 * <p>
@@ -1819,6 +1880,60 @@ public class Pcap {
 	    PcapHeader header);
 
 	/**
+	 * A packet dispatch method that dispatches multiple packets at a time. The
+	 * packet are stored in a new buffer that is <code>bufferSize</code> in
+	 * length and contains both pcap header and packet data. Multiple packets are
+	 * stored in the buffer and can be accessed from {@link JPacketBuffer} using
+	 * its accessor methods.
+	 * 
+	 * @see #loop(int, JPacketBufferHandler, Object)
+	 * @param <T>
+	 *          user type
+	 * @param cnt
+	 *          number of packets to capture
+	 * @param bufferSize
+	 *          size of the buffer to allocate for each dispatch iteration
+	 * @param handler
+	 *          user handler to callback
+	 * @param user
+	 *          user object
+	 * @return number of packets captured
+	 */
+	public <T> int loop(
+	    int cnt,
+	    int bufferSize,
+	    JPacketBufferHandler<T> handler,
+	    T user) {
+		return loop(cnt, bufferSize, handler, user, datalinkToId());
+	}
+
+	/**
+	 * A packet dispatch method that dispatches multiple packets at a time. The
+	 * packet are stored in a new buffer that is <code>bufferSize</code> in
+	 * length and contains both pcap header and packet data. Multiple packets are
+	 * stored in the buffer and can be accessed from {@link JPacketBuffer} using
+	 * its accessor methods.
+	 * 
+	 * @param <T>
+	 *          user type
+	 * @param cnt
+	 *          number of packets to capture
+	 * @param bufferSize
+	 *          size of the buffer to allocate for each dispatch iteration
+	 * @param handler
+	 *          user handler to callback
+	 * @param user
+	 *          user object
+	 * @return number of packets captured
+	 */
+	private native <T> int loop(
+	    int cnt,
+	    int bufferSize,
+	    JPacketBufferHandler<T> handler,
+	    T user,
+	    int id);
+
+	/**
 	 * Collect a group of packets. pcap_loop() is similar to pcap_dispatch()
 	 * except it keeps reading packets until cnt packets are processed or an error
 	 * occurs. It does not return when live read timeouts occur. Rather,
@@ -2047,6 +2162,35 @@ public class Pcap {
 	    T user,
 	    PcapHeader header,
 	    JBuffer buffer);
+
+	/**
+	 * A packet dispatch method that dispatches multiple packets at a time. The
+	 * packet are stored in a new buffer that is
+	 * {@value #DEFAULT_JPACKET_BUFFER_SIZE} bytes in length and contains both
+	 * pcap header and packet data. Multiple packets are stored in the buffer and
+	 * can be accessed from {@link JPacketBuffer} using its accessor methods.
+	 * <p>
+	 * This method allocates uses default buffer size of
+	 * {@value #DEFAULT_JPACKET_BUFFER_SIZE} as defined by constant
+	 * <code>DEFAULT_BUFFER_SIZE</code>
+	 * </p>
+	 * 
+	 * @see #DEFAULT_JPACKET_BUFFER_SIZE
+	 * @see #loop(int, int, JPacketBufferHandler, Object)
+	 * @param <T>
+	 *          user type
+	 * @param cnt
+	 *          number of packets to capture
+	 * @param handler
+	 *          user handler to callback
+	 * @param user
+	 *          user object
+	 * @return number of packets captured
+	 */
+	public <T> int loop(int cnt, JPacketBufferHandler<T> handler, T user) {
+		return loop(cnt, Pcap.DEFAULT_JPACKET_BUFFER_SIZE, handler, user,
+		    datalinkToId());
+	}
 
 	/**
 	 * Collect a group of packets. pcap_loop() is similar to pcap_dispatch()
@@ -2698,7 +2842,7 @@ public class Pcap {
 	 * @return libpcap version in use by this pcap object
 	 */
 	@Override
-  public String toString() {
+	public String toString() {
 		checkIsActive(); // Check if Pcap.close wasn't called
 
 		return libVersion();

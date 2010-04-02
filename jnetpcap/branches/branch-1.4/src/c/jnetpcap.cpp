@@ -72,6 +72,7 @@
 #include "jnetpcap_ids.h"
 #include "nio_jmemory.h"
 #include "org_jnetpcap_Pcap.h"
+#include "jpacket_buffer.h"
 #include "export.h"
 
 /*
@@ -340,6 +341,66 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__ILorg_jnetpcap_JBufferHa
 
 	return r;
 }
+
+/*
+ * Class:     org_jnetpcap_Pcap
+ * Method:    dispatch
+ * Signature: (IILorg/jnetpcap/packet/JPacketBufferHandler;Ljava/lang/Object;I)I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_dispatch__IILorg_jnetpcap_packet_JPacketBufferHandler_2Ljava_lang_Object_2I
+  (JNIEnv *env, jobject obj, jint jcnt, jint jsize, jobject jhandler, jobject juser, jint jdlt) {
+	
+	if (jhandler == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return -1;
+	}
+
+	pcap_t *p = getPcap(env, obj);
+	if (p == NULL) {
+		return -1; // Exception already thrown
+	}
+
+	/*
+	 * Structure to encapsulate user data object, and store our JNI information
+	 * so we can dispatch to Java land.
+	 */
+	cb_jpacket_buffer_t data;
+	memset(&data, 0, sizeof(data));
+	data.env = env;
+	data.obj = jhandler;
+	data.user = juser;
+	jclass clazz = env->GetObjectClass(jhandler);
+	data.p = p;
+	data.id = (uint32_t) jdlt;
+
+	data.mid = env->GetMethodID(clazz, "nextBuffer",
+			"(Lorg/jnetpcap/packet/JPacketBuffer;Ljava/lang/Object;)V");
+	if (data.mid == NULL) {
+		if (data.exception != NULL) {
+			env->Throw(data.exception);
+		}
+		
+		return -1;
+	}
+	
+	if (jpacket_buffer_create(
+			env, 
+			&data.jbuffer, 
+			&data.buf, 
+			data.buf_size, data.buf_size, // size, min size
+			data.id)) {
+		return -1;
+	}
+
+	int r = pcap_dispatch(p, jcnt, cb_jpacket_buffer_handler, (u_char *)&data);
+	if (data.exception != NULL) {
+		env->Throw(data.exception);
+	}
+
+	return r;
+	
+}
+
 
 /*
  * Class:     org_jnetpcap_Pcap
@@ -727,6 +788,96 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__IILorg_jnetpcap_packet_JPack
 
 	return r;
 }
+
+/*
+ * Class:     org_jnetpcap_Pcap
+ * Method:    loop
+ * Signature: (IILorg/jnetpcap/packet/JPacketBufferHandler;Ljava/lang/Object;I)I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_loop__IILorg_jnetpcap_packet_JPacketBufferHandler_2Ljava_lang_Object_2I
+  (JNIEnv *env, jobject obj, jint jcnt, jint jsize, jobject jhandler, jobject juser, jint jdlt) {
+	
+	if (jhandler == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return -1;
+	}
+
+//	printf("loop(): getPcap()\n"); fflush(stdout);
+	pcap_t *p = getPcap(env, obj);
+	if (p == NULL) {
+		return -1; // Exception already thrown
+	}
+
+//	printf("loop(): init cb_jpacket_buffer_t()\n"); fflush(stdout);
+	/*
+	 * Structure to encapsulate user data object, and store our JNI information
+	 * so we can dispatch to Java land.
+	 */
+	cb_jpacket_buffer_t data;
+	memset(&data, 0, sizeof(data));
+	data.env = env;
+	data.obj = jhandler;
+	data.user = juser;
+	jclass clazz = env->GetObjectClass(jhandler);
+	data.p = p;
+	data.id = (uint32_t) jdlt;
+	data.buf_size = (uint32_t) jsize;
+
+//	printf("loop(): getMethodId(nextBuffer)\n"); fflush(stdout);
+	data.mid = env->GetMethodID(clazz, "nextBuffer",
+			"(Lorg/jnetpcap/packet/JPacketBuffer;Ljava/lang/Object;)V");
+	if (data.mid == NULL) {
+		if (data.exception != NULL) {
+			env->Throw(data.exception);
+		}
+		
+		return -1;
+	}
+	
+//	printf("loop(): jpacket_buffer_create()\n"); fflush(stdout);
+	if (jpacket_buffer_create(
+			env, 
+			&data.jbuffer, 
+			&data.buf, 
+			data.buf_size, data.buf_size, // size, min size
+			data.id)) {
+		
+		return -1;
+	}
+	
+//	jpacket_buffer_t *b2 = (jpacket_buffer_t *)getJMemoryPhysical(env, data.jbuffer);
+//	printf("loop(): b1=%p b2=%p\n",
+//			data.buf, b2); fflush(stdout);
+
+
+//	printf("loop(): pcap_loop()\n"); fflush(stdout);
+	int r = pcap_loop(p, jcnt, cb_jpacket_buffer_handler, (u_char *)&data);
+	if (data.exception != NULL) {
+		env->Throw(data.exception);
+	}
+	
+//	printf("loop(): jpacket_buffer_dispatch(count=%d, jbuffer=%p buf=%p)\n", 
+//			data.buf->count, data.jbuffer, data.buf); fflush(stdout);
+	if (data.buf != NULL) {
+		if(jpacket_buffer_dispatch(
+				env, 
+				jhandler, 
+				data.mid, 
+				&data.jbuffer, 
+				data.buf, 
+				data.user)) {
+			
+			if (data.exception != NULL) {
+				env->Throw(data.exception);
+			}
+			
+			return -1;
+		}
+	}
+
+	return r;
+}
+
 
 /*
  * Class:     org_jnetpcap_Pcap
