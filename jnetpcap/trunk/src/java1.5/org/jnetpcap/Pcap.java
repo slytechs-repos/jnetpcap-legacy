@@ -62,12 +62,12 @@ import org.jnetpcap.protocol.JProtocol;
  * <h3>Getting a list of network interfaces from Pcap</h3>
  * Lets get started with little example on how to inquire about available
  * interfaces, ask the user to pick one of those interfaces for us, open it for
- * capture, compile and install a capture filter and then start processing some
- * packets captured as a result. This is all loosely based on examples you will
- * find on tcpdump.org website but updated for jNetPCAP. As with libpcap, we
- * first want to find out and get network interface names so we can tell
- * jNetPCAP to open one or more for reading. So first we inquire about the list
- * of interfaces on the system:
+ * capture, compile(PcapBpfProgram, String, int, int) and install a capture
+ * filter and then start processing some packets captured as a result. This is
+ * all loosely based on examples you will find on tcpdump.org website but
+ * updated for jNetPCAP. As with libpcap, we first want to find out and get
+ * network interface names so we can tell jNetPCAP to open one or more for
+ * reading. So first we inquire about the list of interfaces on the system:
  * 
  * <pre>
  * StringBuilder errbuf = new StringBuilder();
@@ -130,7 +130,7 @@ import org.jnetpcap.protocol.JProtocol;
  * int optimize = 0; // 1 means true, 0 means false
  * int netmask = 0;
  * 
- * int r = pcap.compile(filter, expression, optimize, netmask);
+ * int r = pcap.compile(PcapBpfProgram, String, int, int)(filter, expression, optimize, netmask);
  * if (r != Pcap.OK) {
  *   System.out.println(&quot;Filter error: &quot; + pcap.getErr());
  * }
@@ -144,11 +144,12 @@ import org.jnetpcap.protocol.JProtocol;
  * <p>
  * <b>Note of caution:</b> the <code>PcapBpfProgram</code> at the top of the
  * previous code section, can not be accessed until successfully filled in with
- * values in the <code>pcap.compile</code> code. If you try and access any of
- * its methods an <code>IllegalStateException</code> will be thrown. Only
- * after a successful call to <code>compile</code> does the object become
- * usable. The object is peered with C structure and until properly intialized,
- * can not be accessed from java.
+ * values in the <code>pcap.compile(PcapBpfProgram, String, int, int)</code>
+ * code. If you try and access any of its methods an
+ * <code>IllegalStateException</code> will be thrown. Only after a successful
+ * call to <code>compile(PcapBpfProgram, String, int, int)</code> does the
+ * object become usable. The object is peered with C structure and until
+ * properly intialized, can not be accessed from java.
  * </p>
  * <h3> Dispatcher to receive packets as they arrive</h3>
  * And lastly lets do something with the data.
@@ -229,6 +230,43 @@ import org.jnetpcap.protocol.JProtocol;
 public class Pcap {
 
 	/**
+	 * Enum table which specifies in which direction should pcap capture packets
+	 * on a capture device. This table corresponds to the following native pcap
+	 * enum type:
+	 * 
+	 * <pre>
+	 * typedef enum {
+	 *   PCAP_D_INOUT = 0,
+	 *   PCAP_D_IN,
+	 *   PCAP_D_OUT
+	 * } pcap_direction_t;
+	 * 
+	 * </pre>
+	 * 
+	 * @since 1.4
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public enum Direction {
+
+		/**
+		 * (default) Captures both incoming and outgoing packets
+		 */
+		INOUT,
+
+		/**
+		 * Captures only incoming packets
+		 */
+		IN,
+
+		/**
+		 * Caputures only outgoing packets
+		 */
+		OUT,
+
+	}
+
+	/**
 	 * Default JBufferSize used by loop and dispatch methods that utilize this
 	 * type of buffer. Default value is {@value #DEFAULT_JPACKET_BUFFER_SIZE}.
 	 */
@@ -262,6 +300,52 @@ public class Pcap {
 	public static final int DISPATCH_BUFFER_FULL = -1;
 
 	/**
+	 * generic error code
+	 */
+	public static final int ERROR = -1;
+
+	/**
+	 * the operation can't be performed on already activated captures
+	 */
+	public static final int ERROR_ACTIVATED = -4;
+
+	/**
+	 * loop terminated by pcap_breakloop
+	 */
+	public static final int ERROR_BREAK = -2;
+
+	/**
+	 * if the capture source is not up
+	 */
+	public static final int ERROR_IFACE_NOT_UP = -9;
+
+	/**
+	 * if the capture source specified when the handle was created doesn't exist
+	 */
+	public static final int ERROR_NO_SUCH_DEVICE = -5;
+
+	/**
+	 * the capture needs to be activated
+	 */
+	public static final int ERROR_NOT_ACTIVATED = -3;
+
+	/**
+	 * operation supported only in monitor mode
+	 */
+	public static final int ERROR_NOT_RFMON = -7;
+
+	/**
+	 * if the process doesn't have permission to open the capture source
+	 */
+	public static final int ERROR_PERM_DENIED = -8;
+
+	/**
+	 * if monitor mode was specified but the capture source doesn't support
+	 * monitor mode
+	 */
+	public static final int ERROR_RFMON_NOTSUP = -6;
+
+	/**
 	 * Name of the native library that wraps around libpcap and extensions
 	 */
 	public static final String JNETPCAP_LIBRARY_NAME = "jnetpcap";
@@ -272,13 +356,26 @@ public class Pcap {
 	 * <code>breakloop</code> call was used to interrupt the dispatcher. Note,
 	 * that this constant is not appropriate value for <code>dispatch</code>
 	 * method call, which has a different meaning.
+	 * 
+	 * @deprecated use {@link #LOOP_INFINITE} due to misspelled name
 	 */
 	public static final int LOOP_INFINATE = -1;
+
+	/**
+	 * Value of packet count argument for <code>loop</code> method call which
+	 * indicates that the loop should never exit, unless an error occured or
+	 * <code>breakloop</code> call was used to interrupt the dispatcher. Note,
+	 * that this constant is not appropriate value for <code>dispatch</code>
+	 * method call, which has a different meaning.
+	 */
+	public static final int LOOP_INFINITE = -1;
 
 	/**
 	 * Pcap status return code for <code>loop</code> and <code>dispatch</code>
 	 * methods. This status code indicates that the the dispatcher was interrupted
 	 * by a call to <code>breakloop</code> call.
+	 * 
+	 * @deprecated use {@link #ERROR_BREAK}
 	 */
 	public static final int LOOP_INTERRUPTED = -2;
 
@@ -341,6 +438,8 @@ public class Pcap {
 	 * Pcap status return code for most of the methods defined here. All methods
 	 * that return an intenger as a status code, use this constants as meaning the
 	 * call failed.
+	 * 
+	 * @deprecated use {@link #ERROR} or {@link #WARNING}
 	 */
 	public static final int NOT_OK = -1;
 
@@ -350,6 +449,17 @@ public class Pcap {
 	 * call succeeded.
 	 */
 	public static final int OK = 0;
+
+	/**
+	 * on success with any other warning
+	 */
+	public static final int WARNING = 1;
+
+	/**
+	 * on success on a device that doesn't support promiscuous mode if promiscuous
+	 * mode was requested
+	 */
+	public static final int WARNING_PROMISC_NOT_SUP = 2;
 
 	/**
 	 * Static initializer
@@ -370,7 +480,7 @@ public class Pcap {
 			throw new IllegalStateException(e);
 		}
 	}
-
+	
 	/**
 	 * <p>
 	 * Compile a packet filter without the need of opening an adapter. This
@@ -379,13 +489,15 @@ public class Pcap {
 	 * filtering engine.
 	 * </p>
 	 * <p>
-	 * pcap_compile_nopcap() is similar to pcap_compile() except that instead of
-	 * passing a pcap structure, one passes the snaplen and linktype explicitly.
-	 * It is intended to be used for compiling filters for direct BPF usage,
-	 * without necessarily having called pcap_open(). (pcap_compile_nopcap() is a
-	 * wrapper around pcap_open_dead(), pcap_compile(), and pcap_close(); the
-	 * latter three routines can be used directly in order to get the error text
-	 * for a compilation error.)
+	 * {@link #compile(PcapBpfProgram, String, int, int)}_nopcap() is similar to
+	 * {@link #compile(PcapBpfProgram, String, int, int)}() except that instead
+	 * of passing a pcap structure, one passes the snaplen and linktype
+	 * explicitly. It is intended to be used for compiling filters for direct BPF
+	 * usage, without necessarily having called pcap_open(). ({@link #compile(PcapBpfProgram, String, int, int)}_nopcap()
+	 * is a wrapper around pcap_open_dead(),
+	 * {@link #compile(PcapBpfProgram, String, int, int)}(), and pcap_close();
+	 * the latter three routines can be used directly in order to get the error
+	 * text for a compilation error.)
 	 * </p>
 	 * <p>
 	 * Look at the Filtering expression syntax section for details on the str
@@ -399,16 +511,75 @@ public class Pcap {
 	 *          interface
 	 * @param program
 	 *          initially empty, but after the method call will contain the
-	 *          compiled BPF program
+	 *          compile(PcapBpfProgram, String, int, int)d BPF program
 	 * @param str
-	 *          a string containing the textual expression to be compiled
+	 *          a string containing the textual expression to be
+	 *          compile(PcapBpfProgram, String, int, int)d
 	 * @param optimize
 	 *          1 means to do optimizations, any other value means no
 	 * @param netmask
 	 *          netmask needed to determine the broadcast address
 	 * @return a return of -1 indicates an error; the error text is unavailable;
-	 *         lastly, the compiled program is stored and therefore returned in
-	 *         the formal parameter <code>program</code>
+	 *         lastly, the compile(PcapBpfProgram, String, int, int)d program is
+	 *         stored and therefore returned in the formal parameter
+	 *         <code>program</code>
+	 *         
+	 * @deprecated use {@link #compileNopcap(int, int, PcapBpfProgram, String, int, int)}
+	 * @since 1.0
+	 */
+	public static int compile(
+			int snaplen,
+			int dlt,
+			PcapBpfProgram program,
+			String str,
+			int optimize,
+			int netmask) {
+		return Pcap.compileNoPcap(snaplen, dlt, program, str, optimize, netmask);
+	}
+
+	/**
+	 * <p>
+	 * Compile a packet filter without the need of opening an adapter. This
+	 * function converts an high level filtering expression (see Filtering
+	 * expression syntax) in a program that can be interpreted by the kernel-level
+	 * filtering engine.
+	 * </p>
+	 * <p>
+	 * {@link #compile(PcapBpfProgram, String, int, int)}_nopcap() is similar to
+	 * {@link #compile(PcapBpfProgram, String, int, int)}() except that instead
+	 * of passing a pcap structure, one passes the snaplen and linktype
+	 * explicitly. It is intended to be used for compiling filters for direct BPF
+	 * usage, without necessarily having called pcap_open(). ({@link #compile(PcapBpfProgram, String, int, int)}_nopcap()
+	 * is a wrapper around pcap_open_dead(),
+	 * {@link #compile(PcapBpfProgram, String, int, int)}(), and pcap_close();
+	 * the latter three routines can be used directly in order to get the error
+	 * text for a compilation error.)
+	 * </p>
+	 * <p>
+	 * Look at the Filtering expression syntax section for details on the str
+	 * parameter.
+	 * </p>
+	 * 
+	 * @param snaplen
+	 *          generate code to truncate packets to this length upon a match
+	 * @param dlt
+	 *          the first header type within the packet, or data link type of the
+	 *          interface
+	 * @param program
+	 *          initially empty, but after the method call will contain the
+	 *          compile(PcapBpfProgram, String, int, int)d BPF program
+	 * @param str
+	 *          a string containing the textual expression to be
+	 *          compile(PcapBpfProgram, String, int, int)d
+	 * @param optimize
+	 *          1 means to do optimizations, any other value means no
+	 * @param netmask
+	 *          netmask needed to determine the broadcast address
+	 * @return a return of -1 indicates an error; the error text is unavailable;
+	 *         lastly, the compile(PcapBpfProgram, String, int, int)d program is
+	 *         stored and therefore returned in the formal parameter
+	 *         <code>program</code>
+	 * @since 1.4
 	 */
 	public native static int compileNoPcap(
 	    int snaplen,
@@ -417,6 +588,30 @@ public class Pcap {
 	    String str,
 	    int optimize,
 	    int netmask);
+
+	/**
+	 * pcap_create() is used to create a packet capture handle to look at packets
+	 * on the network. source is a string that specifies the network device to
+	 * open; on Linux systems with 2.2 or later kernels, a source argument of
+	 * "any" or NULL can be used to capture packets from all interfaces. The
+	 * returned handle must be activated with pcap_activate() before pack' ets can
+	 * be captured with it; options for the capture, such as promiscu' ous mode,
+	 * can be set on the handle before activating it.
+	 * 
+	 * @param device
+	 *          a string that specifies the network device to open; on Linux
+	 *          systems with 2.2 or later kernels, a source argument of "any" or
+	 *          NULL can be used to capture packets from all interfaces.
+	 * @param errbuf
+	 *          If NULL is returned, errbuf is filled in with an appropriate error
+	 *          mes' sage
+	 * @return a new pcap object that needs to be activated using
+	 *         {@link #activate()} call
+	 * @since 1.4
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public native static Pcap create(String device, StringBuilder errbuf);
 
 	/**
 	 * Translates a data link type name, which is a DLT_ name with the DLT_
@@ -795,6 +990,36 @@ public class Pcap {
 	}
 
 	/**
+	 * Is used to activate a packet capture handle to look at packets on the
+	 * network, with the options that were set on the handle being in effect.
+	 * 
+	 * @return returns 0 on success without warnings,
+	 *         {@link #WARNING_PROMISC_NOT_SUP} on success on a device that
+	 *         doesn't support promiscuous mode if promiscuous mode was requested,
+	 *         {@link #WARNING} on success with any other warning,
+	 *         {@link #ERROR_ACTIVATED} if the handle has already been activated,
+	 *         {@link #ERROR_NO_SUCH_DEVICE} if the capture source specified when
+	 *         the handle was created doesn't exist, {@link #ERROR_PERM_DENIED} if
+	 *         the process doesn't have permission to open the capture source,
+	 *         {@link #ERROR_RFMON_NOTSUP} if monitor mode was specified but the
+	 *         capture source doesn't support monitor mode,
+	 *         {@link #ERROR_IFACE_NOT_UP} if the capture source is not up, and
+	 *         {@link #ERROR} if another error occurred.
+	 *         <p>
+	 *         If {@link #WARNING} or {@link #ERROR} is returned,
+	 *         {@link #getErr()} gets the message describing the warning or error.
+	 *         If {@link #WARNING_PROMISC_NOT_SUP}, {@link #ERROR_NO_SUCH_DEVICE},
+	 *         or {@link #ERROR_PERM_DENIED} is returned, {@link #getErr()} gets
+	 *         the message giving additional details about the problem that might
+	 *         be useful for debugging the problem if it's unexpected.
+	 *         </p>
+	 * @since 1.4
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public native int activate();
+
+	/**
 	 * <p>
 	 * set a flag that will force pcap_dispatch() or pcap_loop() to return rather
 	 * than looping. They will return the number of packets that have been
@@ -828,6 +1053,23 @@ public class Pcap {
 	public native void breakloop();
 
 	/**
+	 * Check whether monitor mode can be set for a not-yet-activated capture
+	 * handle. Checks whether monitor mode could be set on a capture handle when
+	 * the handle is activated.
+	 * 
+	 * @return returns 0 if monitor mode could not be set, 1 if monitor mode could
+	 *         be set, {@link #ERROR_NO_SUCH_DEVICE} if the device specified when
+	 *         the handle was created doesn't exist, {@link #ERROR_ACTIVATED} if
+	 *         called on a capture handle that has been activated, or
+	 *         {@link #ERROR} if an error occurred. If {@link #ERROR} is returned,
+	 *         {@link #getErr()} gets the error text.
+	 * @since 1.4
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public native int canSetRfmon();
+
+	/**
 	 * Checks if the current Pcap structure is active and open. It automatically
 	 * throws an exception when its closed, but will not crash the VM. All dynamic
 	 * non-native method in Pcap and any subclassed extensions should always make
@@ -855,9 +1097,10 @@ public class Pcap {
 	 * 
 	 * @param program
 	 *          initially empty, but after the method call will contain the
-	 *          compiled BPF program
+	 *          compile(PcapBpfProgram, String, int, int)d BPF program
 	 * @param str
-	 *          a string containing the textual expression to be compiled
+	 *          a string containing the textual expression to be
+	 *          compile(PcapBpfProgram, String, int, int)d
 	 * @param optimize
 	 *          1 means to do optimizations, any other value means no
 	 * @param netmask
@@ -917,9 +1160,9 @@ public class Pcap {
 	 * any packets arrive, or if the file descriptor for the capture device is in
 	 * non-blocking mode and no packets were available to be read) or if no more
 	 * packets are available in a ``savefile.'' A return of -1 indicates an error
-	 * in which case pcap_perror() or pcap_geterr() may be used to display the
-	 * error text. A return of -2 indicates that the loop terminated due to a call
-	 * to pcap_breakloop() before any packets were processed. If your application
+	 * in which case {@link #getErr()}() may be used to display the error text. A
+	 * return of -2 indicates that the loop terminated due to a call to
+	 * pcap_breakloop() before any packets were processed. If your application
 	 * uses pcap_breakloop(), make sure that you explicitly check for -1 and -2,
 	 * rather than just checking for a return value < 0.
 	 * </p>
@@ -1034,9 +1277,9 @@ public class Pcap {
 	 * any packets arrive, or if the file descriptor for the capture device is in
 	 * non-blocking mode and no packets were available to be read) or if no more
 	 * packets are available in a ``savefile.'' A return of -1 indicates an error
-	 * in which case pcap_perror() or pcap_geterr() may be used to display the
-	 * error text. A return of -2 indicates that the loop terminated due to a call
-	 * to pcap_breakloop() before any packets were processed. If your application
+	 * in which case {@link #getErr()}() may be used to display the error text. A
+	 * return of -2 indicates that the loop terminated due to a call to
+	 * pcap_breakloop() before any packets were processed. If your application
 	 * uses pcap_breakloop(), make sure that you explicitly check for -1 and -2,
 	 * rather than just checking for a return value < 0.
 	 * </p>
@@ -1250,9 +1493,9 @@ public class Pcap {
 	 * any packets arrive, or if the file descriptor for the capture device is in
 	 * non-blocking mode and no packets were available to be read) or if no more
 	 * packets are available in a ``savefile.'' A return of -1 indicates an error
-	 * in which case pcap_perror() or pcap_geterr() may be used to display the
-	 * error text. A return of -2 indicates that the loop terminated due to a call
-	 * to pcap_breakloop() before any packets were processed. If your application
+	 * in which case {@link #getErr()}() may be used to display the error text. A
+	 * return of -2 indicates that the loop terminated due to a call to
+	 * pcap_breakloop() before any packets were processed. If your application
 	 * uses pcap_breakloop(), make sure that you explicitly check for -1 and -2,
 	 * rather than just checking for a return value < 0.
 	 * </p>
@@ -1316,9 +1559,9 @@ public class Pcap {
 	 * any packets arrive, or if the file descriptor for the capture device is in
 	 * non-blocking mode and no packets were available to be read) or if no more
 	 * packets are available in a ``savefile.'' A return of -1 indicates an error
-	 * in which case pcap_perror() or pcap_geterr() may be used to display the
-	 * error text. A return of -2 indicates that the loop terminated due to a call
-	 * to pcap_breakloop() before any packets were processed. If your application
+	 * in which case {@link #getErr()}() may be used to display the error text. A
+	 * return of -2 indicates that the loop terminated due to a call to
+	 * pcap_breakloop() before any packets were processed. If your application
 	 * uses pcap_breakloop(), make sure that you explicitly check for -1 and -2,
 	 * rather than just checking for a return value < 0.
 	 * </p>
@@ -1413,9 +1656,9 @@ public class Pcap {
 	 * any packets arrive, or if the file descriptor for the capture device is in
 	 * non-blocking mode and no packets were available to be read) or if no more
 	 * packets are available in a ``savefile.'' A return of -1 indicates an error
-	 * in which case pcap_perror() or pcap_geterr() may be used to display the
-	 * error text. A return of -2 indicates that the loop terminated due to a call
-	 * to pcap_breakloop() before any packets were processed. If your application
+	 * in which case or {@link #getErr()}() may be used to display the error
+	 * text. A return of -2 indicates that the loop terminated due to a call to
+	 * pcap_breakloop() before any packets were processed. If your application
 	 * uses pcap_breakloop(), make sure that you explicitly check for -1 and -2,
 	 * rather than just checking for a return value < 0.
 	 * </p>
@@ -1527,9 +1770,9 @@ public class Pcap {
 	 * any packets arrive, or if the file descriptor for the capture device is in
 	 * non-blocking mode and no packets were available to be read) or if no more
 	 * packets are available in a ``savefile.'' A return of -1 indicates an error
-	 * in which case pcap_perror() or pcap_geterr() may be used to display the
-	 * error text. A return of -2 indicates that the loop terminated due to a call
-	 * to pcap_breakloop() before any packets were processed. If your application
+	 * in which case {@link #getErr()}() may be used to display the error text. A
+	 * return of -2 indicates that the loop terminated due to a call to
+	 * pcap_breakloop() before any packets were processed. If your application
 	 * uses pcap_breakloop(), make sure that you explicitly check for -1 and -2,
 	 * rather than just checking for a return value < 0.
 	 * </p>
@@ -1582,9 +1825,9 @@ public class Pcap {
 	 * any packets arrive, or if the file descriptor for the capture device is in
 	 * non-blocking mode and no packets were available to be read) or if no more
 	 * packets are available in a ``savefile.'' A return of -1 indicates an error
-	 * in which case pcap_perror() or pcap_geterr() may be used to display the
-	 * error text. A return of -2 indicates that the loop terminated due to a call
-	 * to pcap_breakloop() before any packets were processed. If your application
+	 * in which case {@link #getErr()}() may be used to display the error text. A
+	 * return of -2 indicates that the loop terminated due to a call to
+	 * pcap_breakloop() before any packets were processed. If your application
 	 * uses pcap_breakloop(), make sure that you explicitly check for -1 and -2,
 	 * rather than just checking for a return value < 0.
 	 * </p>
@@ -1641,9 +1884,9 @@ public class Pcap {
 	 * any packets arrive, or if the file descriptor for the capture device is in
 	 * non-blocking mode and no packets were available to be read) or if no more
 	 * packets are available in a ``savefile.'' A return of -1 indicates an error
-	 * in which case pcap_perror() or pcap_geterr() may be used to display the
-	 * error text. A return of -2 indicates that the loop terminated due to a call
-	 * to pcap_breakloop() before any packets were processed. If your application
+	 * in which case {@link #getErr()}() may be used to display the error text. A
+	 * return of -2 indicates that the loop terminated due to a call to
+	 * pcap_breakloop() before any packets were processed. If your application
 	 * uses pcap_breakloop(), make sure that you explicitly check for -1 and -2,
 	 * rather than just checking for a return value < 0.
 	 * </p>
@@ -2769,6 +3012,20 @@ public class Pcap {
 	private native int sendPacketPrivate(ByteBuffer buf, int start, int len);
 
 	/**
+	 * sets the buffer size that will be used on a capture handle when the handle
+	 * is activated to buffer_size, which is in units of bytes.
+	 * 
+	 * @param size
+	 *          size that will be used on a capture handle
+	 * @return 0 on success or {@link #ERROR_ACTIVATED} if called on a capture
+	 *         handle that has been activated.
+	 * @since 1.4
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public native int setBufferSize(long size);
+
+	/**
 	 * Set the current data link type of the pcap descriptor to the type specified
 	 * by dlt.
 	 * 
@@ -2779,15 +3036,81 @@ public class Pcap {
 	public native int setDatalink(int dlt);
 
 	/**
+	 * Set the direction for which packets will be captured. The method
+	 * <code>setDirection()</code> is used to specify a direction that packets
+	 * will be captured. dir is one of the constants {@link Direction#IN},
+	 * {@link Direction#OUT} or {@link Direction#INOUT}. {@link Direction#IN}
+	 * will only capture packets received by the device, {@link Direction#OUT}
+	 * will only capture packets sent by the device and {@link Direction#INOUT}
+	 * will capture packets received by or sent by the device.
+	 * {@link Direction#INOUT} is the default setting if this function is not
+	 * called.
+	 * <p>
+	 * pcap_setdirection() isn't necessarily fully supported on all platforms;
+	 * some platforms might return an error for all values, and some other
+	 * platforms might not support {@link Direction#OUT}.
+	 * </p>
+	 * <p>
+	 * This operation is not supported if a "savefile" is being read.
+	 * </p>
+	 * 
+	 * @param dir
+	 *          direction that packets will be captured.
+	 * @return returns 0 on success and {@link #ERROR} on failure. If
+	 *         {@link #ERROR} is returned, {@link #getErr()} gets the error text.
+	 * @since 1.4
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public int setDirection(Direction dir) {
+		return setDirection(dir.ordinal());
+	}
+
+	/**
+	 * Set the direction for which packets will be captured. The method
+	 * <code>setDirection()</code> is used to specify a direction that packets
+	 * will be captured. dir is one of the constants {@link Direction#IN},
+	 * {@link Direction#OUT} or {@link Direction#INOUT}. {@link Direction#IN}
+	 * will only capture packets received by the device, {@link Direction#OUT}
+	 * will only capture packets sent by the device and {@link Direction#INOUT}
+	 * will capture packets received by or sent by the device.
+	 * {@link Direction#INOUT} is the default setting if this function is not
+	 * called.
+	 * <p>
+	 * pcap_setdirection() isn't necessarily fully supported on all platforms;
+	 * some platforms might return an error for all values, and some other
+	 * platforms might not support {@link Direction#OUT}.
+	 * </p>
+	 * <p>
+	 * This operation is not supported if a "savefile" is being read.
+	 * </p>
+	 * <p>
+	 * This method is private since native method uses specific pcap_direction_t
+	 * enum structure to make the call and java int doesn't provide the proper
+	 * typesafety. This is why we use a public method first requiring a java enum
+	 * type, and convert that to appropriate native integer value.
+	 * </p>
+	 * 
+	 * @param dir
+	 *          direction that packets will be captured.
+	 * @return returns 0 on success and {@link #ERROR} on failure. If
+	 *         {@link #ERROR} is returned, {@link #getErr()} gets the error text.
+	 * @since 1.4
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	private native int setDirection(int dir);
+
+	/**
 	 * Associate a filter to a capture. pcap_setfilter() is used to specify a
 	 * filter program. fp is a pointer to a bpf_program struct, usually the result
-	 * of a call to pcap_compile(). -1 is returned on failure, in which case
-	 * pcap_geterr() may be used to display the error text; 0 is returned on
-	 * success.
+	 * of a call to {@link #compile(PcapBpfProgram, String, int, int)}. -1 is
+	 * returned on failure, in which case {@link #getErr()}() may be used to
+	 * display the error text; 0 is returned on success.
 	 * 
 	 * @param program
-	 * @return -1 is returned on failure, in which case pcap_geterr() may be used
-	 *         to display the error text; 0 is returned on success
+	 * @return -1 is returned on failure, in which case {@link #getErr()}() may
+	 *         be used to display the error text; 0 is returned on success
 	 */
 	public native int setFilter(PcapBpfProgram program);
 
@@ -2814,12 +3137,77 @@ public class Pcap {
 	public native int setNonBlock(int nonBlock, StringBuilder errbuf);
 
 	/**
+	 * Set promiscuous mode for a not-yet-activated capture handle. Sets whether
+	 * promiscuous mode should be set on a capture handle when the handle is
+	 * activated. If promisc is non-zero, promiscuous mode will be set, otherwise
+	 * it will not be set.
+	 * 
+	 * @param promisc
+	 *          if promisc is non-zero, promiscuous mode will be set, otherwise it
+	 *          will not be set
+	 * @return returns 0 on success or {@link #ERROR_ACTIVATED} if called on a
+	 *         capture handle that has been activated
+	 * @since 1.4
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public native int setPromisc(int promisc);
+
+	/**
+	 * Set monitor mode for a not-yet-activated capture handle.
+	 * 
+	 * @param rfmon
+	 *          sets whether monitor mode should be set on a capture handle when
+	 *          the handle is activated. If rfmon is non-zero, monitor mode will
+	 *          be set, otherwise it will not be set.
+	 * @return returns 0 on success or {@link #ERROR_ACTIVATED} if called on a
+	 *         capture handle that has been activated
+	 * @since 1.4
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public native int setRfmon(int rfmon);
+
+	/**
+	 * Set the snapshot length for a not-yet-activated capture handle. Sets the
+	 * snapshot length to be used on a capture handle when the handle is activated
+	 * to snaplen.
+	 * 
+	 * @param snaplen
+	 *          snapshot length
+	 * @return returns 0 on success or {@link #ERROR_ACTIVATED} if called on a
+	 *         capture handle that has been activated
+	 * @since 1.4
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public native int setSnaplen(int snaplen);
+
+	/**
+	 * Set the read timeout for a not-yet-activated capture handle. Sets the read
+	 * timeout that will be used on a capture handle when the handle is activated
+	 * to timeout, which is in units of milliseconds.
+	 * 
+	 * @param timeout
+	 *          timeout value in milli seconds
+	 * @return returns 0 on success or {@link #ERROR_ACTIVATED} if called on a
+	 *         capture handle that has been activated
+	 * @since 1.4
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
+	 */
+	public native int setTimeout(int timeout);
+
+	/**
 	 * Return the dimension of the packet portion (in bytes) that is delivered to
 	 * the application. pcap_snapshot() returns the snapshot length specified when
 	 * pcap_open_live was called.
 	 * 
+	 * @return returns the snapshot length specified when {@link #setSnaplen(int)}
+	 *         or {@link #openLive(String, int, int, int, StringBuilder)} was
+	 *         called, for a live capture, or the snapshot length from the capture
+	 *         file, for a "savefile".
 	 * @see #openLive(String, int, int, int, StringBuilder)
-	 * @return the snapshot length specified when pcap_open_live was called
 	 */
 	public native int snapshot();
 
