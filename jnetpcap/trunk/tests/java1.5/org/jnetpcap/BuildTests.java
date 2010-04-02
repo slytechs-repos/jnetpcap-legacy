@@ -72,6 +72,7 @@ public class BuildTests {
 		suite.addTestSuite(TestVoip.class);
 		suite.addTestSuite(TestTcpIp.class);
 		suite.addTestSuite(TestNetwork.class);
+		suite.addTestSuite(TestLibpcap1_0_0_API.class);
 		//$JUnit-END$
 		return suite;
 	}
