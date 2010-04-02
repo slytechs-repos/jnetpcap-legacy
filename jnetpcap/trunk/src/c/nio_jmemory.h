@@ -59,6 +59,7 @@ void jmemoryCleanup(JNIEnv *env, jobject obj);
 jobject jmemoryRefCreate(JNIEnv *env, jobject jmemory, jobject local_ref);
 void jmemoryRefRelease(JNIEnv *env, jobject jmemory, jobject global_ref);
 
+size_t getJMemorySize(JNIEnv *env, jobject obj);
 jobject jreferenceCreate(JNIEnv *env, jobject jref, jobject local_ref);
 void jreferenceRelease(JNIEnv *env, jobject jref, jobject global_ref);
 jint jmemoryPeer(JNIEnv *env, jobject obj, const void *ptr, size_t length, jobject owner);

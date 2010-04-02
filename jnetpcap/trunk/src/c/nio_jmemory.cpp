@@ -891,3 +891,10 @@ char *jmemoryAllocate(JNIEnv *env, size_t size, jobject obj) {
 #endif
 	return (char *)mem;
 }
+
+/**
+ * Retrieves the size field of the JMemory object
+ */
+size_t getJMemorySize(JNIEnv *env, jobject obj) {
+	return (size_t) env->GetIntField(obj, jmemorySizeFID);
+}
