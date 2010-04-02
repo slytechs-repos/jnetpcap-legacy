@@ -35,6 +35,7 @@ jclass bufferClass = NULL;
 jclass byteBufferClass = NULL;
 jclass stringBuilderClass = NULL;
 jclass pcapIntegerClass = NULL;
+jclass jpacketBufferClass = NULL;
 
 jfieldID pcapPhysicalFID = 0;
 jfieldID pcapIntegerValueFID = 0;
@@ -48,6 +49,7 @@ jmethodID bufferGetLimitMID = 0;
 jmethodID bufferSetPositionMID = 0;
 jmethodID bufferSetLimitMID = 0;
 jmethodID bufferGetCapacityMID = 0;
+jmethodID jpacketBufferConstructorMID = 0;
 
 
 /*
@@ -138,6 +140,15 @@ JNIEXPORT void JNICALL JNICALL Java_org_jnetpcap_Pcap_initIDs
 	
 	if ( (pcapIntegerValueFID = env->GetFieldID(pcapIntegerClass, "value",
 			"I")) == NULL) {
+		return;
+	}
+	
+	if ( (jpacketBufferClass = findClass(env, "org/jnetpcap/packet/JPacketBuffer")) == NULL) {
+		return;
+	}
+
+	if ( (jpacketBufferConstructorMID = env->GetMethodID(jpacketBufferClass, "<init>",
+			"(I)V")) == NULL) {
 		return;
 	}
 

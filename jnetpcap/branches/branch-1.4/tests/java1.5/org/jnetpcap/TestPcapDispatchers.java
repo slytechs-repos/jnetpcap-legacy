@@ -13,6 +13,8 @@
 package org.jnetpcap;
 
 import java.nio.ByteBuffer;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import junit.framework.TestCase;
 
@@ -20,17 +22,21 @@ import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.packet.JMemoryPacket;
 import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.packet.JPacketBuffer;
+import org.jnetpcap.packet.JPacketBufferHandler;
 import org.jnetpcap.packet.JPacketHandler;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.PcapPacketHandler;
 import org.jnetpcap.packet.format.FormatUtils;
+import org.jnetpcap.protocol.tcpip.Udp;
 
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
 public class TestPcapDispatchers
-    extends TestCase {
+    extends
+    TestCase {
 
 	private final static int COUNT = 3;
 
@@ -52,15 +58,12 @@ public class TestPcapDispatchers
 		public void inc() {
 			if (++count % 100000 == 0) {
 				long delta = System.currentTimeMillis() - ts;
-				System.out.printf("100K #%d @ %s, " +
-						"mem+%d, mem-%d mem=%d, calls+%d calls-%d\n", 
-						(count / 100000), 
-						FormatUtils.formatTimeInMillis(delta),
-						(int)JMemory.totalAllocated(),
-						JMemory.totalDeAllocated(),
-						JMemory.totalActiveAllocated(),
-						JMemory.totalAllocateCalls(),
-						JMemory.totalDeAllocateCalls());
+				System.out.printf("100K #%d @ %s, "
+				    + "mem+%d, mem-%d mem=%d, calls+%d calls-%d\n", (count / 100000),
+				    FormatUtils.formatTimeInMillis(delta), (int) JMemory
+				        .totalAllocated(), JMemory.totalDeAllocated(), JMemory
+				        .totalActiveAllocated(), JMemory.totalAllocateCalls(), JMemory
+				        .totalDeAllocateCalls());
 
 				ts = System.currentTimeMillis();
 				// System.gc();
@@ -96,7 +99,7 @@ public class TestPcapDispatchers
 	}
 
 	@SuppressWarnings("deprecation")
-  private void dispatch(String file, PcapPacketHandler<Counter> handler) {
+	private void dispatch(String file, PcapPacketHandler<Counter> handler) {
 		pcap = open(file);
 		assertEquals(Pcap.OK, pcap.dispatch(Pcap.DISPATCH_BUFFER_FULL, handler,
 		    COUNTER));
@@ -342,4 +345,62 @@ public class TestPcapDispatchers
 		fail("Not yet implemented");
 	}
 
+	public void testJPacketBufferHandler() {
+
+		StringBuilder errbuf = new StringBuilder();
+		Pcap pcap = Pcap.openOffline(TEST_AFS, errbuf);
+		assertNotNull(errbuf.toString(), pcap);
+
+		JPacketBufferHandler<Queue<JPacketBuffer>> handler =
+		    new JPacketBufferHandler<Queue<JPacketBuffer>>() {
+
+			    public void nextBuffer(
+			        JPacketBuffer buffer,
+			        Queue<JPacketBuffer> queue) {
+
+				    assertTrue(buffer.getPacketCount() > 0);
+				    queue.offer(buffer);
+			    }
+
+		    };
+
+		Queue<JPacketBuffer> queue = new ArrayBlockingQueue<JPacketBuffer>(1000);
+		assertEquals(pcap.getErr(), Pcap.OK, pcap.loop(0, 0, handler, queue));
+
+		/*
+		 * This should be in a separate thread - the consumer - for full efficiency
+		 */
+		for (JPacketBuffer buf : queue) {
+			System.out.printf("------ %d packet ------\n", buf.getPacketCount());
+			for (JPacket packet : buf) {
+				try {
+					System.out.println(packet);
+				} catch (Exception e) {
+					System.out.println(packet.toDebugString());
+					System.out.println(packet.getState().toDebugString());
+					System.out.println(packet.getHeader(new Udp()).toDebugString());
+					Udp udp = packet.getHeader(new Udp());
+					int crc1 = udp.checksum();
+
+					/*
+					 * final int ipOffset = getPreviousHeaderOffset(); return
+					 * Checksum.inChecksumShouldBe( checksum(), Checksum.pseudoUdp(packet,
+					 * ipOffset, this.getOffset()));
+					 */
+					System.out.printf("packet.size=%d ipOffset=%d offset=%d\n", packet
+					    .size(), udp.getPreviousHeaderOffset(), udp.getOffset());
+
+					int crc2 = udp.calculateChecksum();
+
+					assertEquals(crc1, crc2);
+
+					System.out.println(udp);
+					e.getCause().getCause().printStackTrace();
+					fail(e.getMessage());
+				}
+			}
+		}
+
+		pcap.close();
+	}
 }
