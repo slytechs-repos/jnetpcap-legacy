@@ -291,6 +291,11 @@ public final class JRegistry {
 	 *          container object that contains binding instance methods
 	 */
 	public static void addBindings(Object bindingContainer) {
+		if (bindingContainer instanceof JBinding) {
+			addBindings(new JBinding[] { (JBinding) bindingContainer });
+			return;
+		}
+
 		clearErrors();
 		addBindings(AnnotatedBinding.inspectObject(bindingContainer, errors));
 	}
