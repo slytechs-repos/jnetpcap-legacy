@@ -25,6 +25,8 @@
 
 * Fixes
 
+  - Bug#2981951 - Intermittent crashes in scanner
+
   - Bug#2978441 - JRegistry.addBinding(JBinding) not working
   
   - Bug#2890736 - reopened bug ConcurrentModificationException in JMemoryPool
