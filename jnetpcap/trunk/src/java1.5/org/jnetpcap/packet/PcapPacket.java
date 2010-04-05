@@ -999,7 +999,13 @@ public class PcapPacket
 	 * @return number of bytes copied
 	 */
 	public int transferStateAndDataTo(PcapPacket packet) {
-		JBuffer buffer = packet.getMemoryBuffer(this.getTotalSize());
+		if (this.isScanned() == false) {
+			this.scan();
+		}
+		
+		final int totalSize = this.getTotalSize();
+		
+		JBuffer buffer = packet.getMemoryBuffer(totalSize);
 
 		int o = header.transferTo(buffer, 0);
 		packet.header.peerTo(buffer, 0);
@@ -1007,8 +1013,10 @@ public class PcapPacket
 		packet.state.peerTo(buffer, o, state.size());
 		o += state.transferTo(packet.state);
 
-		packet.peer(buffer, o, size());
-		o += this.transferTo(buffer, 0, size(), o);
+		final int size = size();
+		
+		packet.peer(buffer, o, size);
+		o += this.transferTo(packet, 0, size, 0);
 
 		return o;
 	}

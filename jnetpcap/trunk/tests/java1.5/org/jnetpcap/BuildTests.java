@@ -61,9 +61,9 @@ public class BuildTests {
 		suite.addTestSuite(TestJBuffer.class);
 		suite.addTestSuite(TestJMemory.class);
 		suite.addTestSuite(TestFormatter.class);
-/*
+
 		suite.addTestSuite(TestPcapDispatchers.class);
-*/
+
 		suite.addTestSuite(TestHttp.class);
 		suite.addTestSuite(TestIpv6.class);
 		suite.addTestSuite(TestExpandableString.class);

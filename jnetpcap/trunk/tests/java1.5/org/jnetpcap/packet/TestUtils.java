@@ -49,6 +49,8 @@ import org.jnetpcap.PcapIf;
 import org.jnetpcap.PcapTask;
 import org.jnetpcap.PcapUtils;
 import org.jnetpcap.nio.JBuffer;
+import org.jnetpcap.packet.format.JFormatter;
+import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.protocol.JProtocol;
 
 /**
@@ -93,6 +95,15 @@ public class TestUtils extends TestCase {
 		}
 
 	};
+
+	/**
+   * A formatter that throws away its output. The formatter still goes through
+   * all of its formatting (based on TextFormatter) which stresses all aspects
+   * of the actual output generation, but no buffering is done and output is
+   * thrown away, providing a more efficient method of generating formatter
+   * output and discarding it.
+   */
+  public static final JFormatter FORMAT_NULL = new TextFormatter(DEV_NULL);
 
 	private static JScanner scanner = new JScanner();
 
