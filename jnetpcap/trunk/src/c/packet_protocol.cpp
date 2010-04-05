@@ -448,17 +448,6 @@ int validate_sip(scan_t *scan) {
 			
 	) {
 		
-#ifndef DEBUG
-		char b[32];
-		b[0] = '\0';
-		b[31] = '\0';
-		strncpy(b, sip, (size <= 31)? size : 31);
-		
-		if (size < 10)
-		printf("validate_sip(): #%d INVALID size=%d sip=%s\n", 
-				(int) scan->packet->pkt_frame_num, size, b);
-#endif 
-
 		return SIP_ID;
 	} 
 	
@@ -576,17 +565,6 @@ int validate_http(scan_t *scan) {
 			size >= 3 && strncmp(http, "PUT", 3) == 0 || 
 			size >= 3 && strncmp(http, "GET", 3) == 0
 			) {
-		
-#ifndef DEBUG
-		char b[32];
-		b[0] = '\0';
-		b[31] = '\0';
-		strncpy(b, http, (size <= 31)? size : 31);
-		
-		if (size < 10)
-		printf("scan_http(): #%d INVALID size=%d http=%s\n", 
-				(int) scan->packet->pkt_frame_num, size, b);
-#endif 
 
 		return HTTP_ID;
 	} 
