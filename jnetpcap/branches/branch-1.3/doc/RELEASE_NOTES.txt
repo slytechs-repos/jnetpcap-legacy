@@ -1,6 +1,6 @@
 ################################################################################
 #
-#    Copyright (C) 2007-2009 Sly Technologies, Inc.
+#    Copyright (C) 2007-2010 Sly Technologies, Inc.
 #
 #    This program is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU General Public License
@@ -20,14 +20,14 @@
 
 
                               jNetPcap Package
-                               Version 1.3.a1
+                               Version 1.3.b1
                                Release Notes
-                            Created on 2009-11-06
+                            Created on 2010-04-05
 
 INTRODUCTION:
 ============
 
-This is a stable release alpha #1 of jNetPcap library. The feature set for
+This is a stable release beta #1 of jNetPcap library. The feature set for
 1.3 release cycle is frozen and only bug fixes will be released in future
 1.3 updates. 
 
@@ -220,26 +220,21 @@ to new protocol package.
 
 == Bugs Fixed ==
 
-  - Bug#2890773 - PcapPacketHandler invalid PcapHeader peer
+  - Bug#2978441 - JRegistry.addBinding(JBinding) not working
   
-  - Bug#2890736 - JMemoryPool concurrent mod exception
+  - Bug#2890736 - reopened bug ConcurrentModificationException in JMemoryPool
   
-  - Bug#2890094 - JPacket.toHexdump doesn't work on unintialized packets
+  - Bug#2906021 - Ethernet trailer end up in last header payload
   
-  - Bug#2878768 - JMemoryPacket(int) constructor doesn't work
+  - Bug#2908252 - JFormatter invalid state after exception during format output
   
-  - Bug#2857282 - Ip4.destination(byte[]) setter uses incorrect offset
+  - Bug#2908513 - exception thrown by Checksum for truncated or recursive ICMP headers.
 
 == Changes ==
 
 * Added
 
-  - Feature#2848659 - Add frame counter reset on JScanner
-  
-* Removed
-
-  - Removed analysis feature from 1.3 release. (The feature can still be found
-    in the development trunk and builds.)
+  - Added testcase for Bug#2899902 ( buffer underflow on 64-bit systems)
   
 == Deprecations ==
 
