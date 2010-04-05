@@ -499,6 +499,7 @@ void scan_http(scan_t *scan) {
 	scan->length = size;
 		
 #ifdef DEBUG
+#   error "DEBUG DEFINED"
 	char b[32];
 	b[0] = '\0';
 	b[31] = '\0';
@@ -558,7 +559,7 @@ int validate_http(scan_t *scan) {
 		b[31] = '\0';
 		strncpy(b, http, (size <= 31)? size : 31);
 		
-		printf("scan_http(): UNMATCHED size=%d http=%s\n", size, b);
+		printf("validate_http(): UNMATCHED size=%d http=%s\n", size, b);
 #endif 
 		return INVALID;
 	}
@@ -576,17 +577,6 @@ int validate_http(scan_t *scan) {
 			size >= 3 && strncmp(http, "PUT", 3) == 0 || 
 			size >= 3 && strncmp(http, "GET", 3) == 0
 			) {
-		
-#ifndef DEBUG
-		char b[32];
-		b[0] = '\0';
-		b[31] = '\0';
-		strncpy(b, http, (size <= 31)? size : 31);
-		
-		if (size < 10)
-		printf("scan_http(): #%d INVALID size=%d http=%s\n", 
-				(int) scan->packet->pkt_frame_num, size, b);
-#endif 
 
 		return HTTP_ID;
 	} 
