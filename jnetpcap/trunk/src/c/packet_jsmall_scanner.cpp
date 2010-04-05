@@ -969,3 +969,101 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_setFrameNumber
 	
 	return;
 }
+
+
+/************************************
+ * EXPERIMENTAL CODE
+ * 
+ * TODO this code still needs significant amount of work. Commented out
+ * until can be finished.
+ ************************************/
+/*
+void cut_through_scan(scan_t *scan) {
+	
+#define BIG8(_b, _o)  (*((uin8_t *)&_b[o]))
+#define BIG16(_b, _o) BIG_ENDIAN16(*((uin16_t *)&_b[o]))
+#define BIG32(_b, _o) BIG_ENDIAN16(*((uin32_t *)&_b[o]))
+	
+#define eth_type BIG_ENDIAN16(((ethernet_t *)buf)->type)
+#define eth_len PROTO_ETHERNET_HEADER_LENGTH
+#define i8023_len PROTO_ETHERNET_HEADER_LENGTH
+#define llc_len 4
+#define llc_type (*((uint16_t *)buf))
+#define snap_len 5
+#define snap_type BIG_ENDIAN16(((snap_t *)buf)->pid)
+#define ip4_len  (((ip4_t *)buf)->ihl << 2)
+#define ip4_type (((ip4_t *)buf)->protocol)
+#define tcp_len (((tcp_t *)buf)->doff << 2)
+#define udp_len BIG_ENDIAN16(((udp_t *)buf)->length)
+#define null_type 0
+	
+	int len = scan->buf_len;
+	int type;
+	uint8_t *buf = (uint8_t *)scan->buf;
+	int id = scan->id;
+	
+#define ADVANCE(_l, _t) {len -= _l; type = _t; buf += _l;}
+#define CHECK_TYPE(_id, _var) (_var == _id)
+#define CHECK_MIN_LENGTH(_min, _len) {if(len < _min && len < _len) return;}
+#define RECORD(_id) id = _id;
+	
+	if (!CHECK_TYPE(ETHERNET_ID, id)) { // Not an ethernet frame
+		return;		
+	}
+	
+	if (eth_type < 0x600) { // IEEE 802.3
+		
+		CHECK_MIN_LENGTH(eth_len, eth_len);
+		ADVANCE(eth_len, null_type)
+		RECORD(IEEE_802DOT3_ID);
+		
+		// llc2
+		CHECK_MIN_LENGTH(llc_len, llc_len);
+		ADVANCE(llc_len, llc_type);
+		RECORD(IEEE_802DOT2_ID);
+		
+		switch (type) {
+		case 0xaaaa: // SNAP
+			CHECK_MIN_LENGTH(snap_len, snap_len);
+			ADVANCE(snap_len, snap_type);
+			RECORD(IEEE_SNAP_ID);
+			
+		default:
+			return;
+		}
+		
+	} else { // Old ethernet
+		CHECK_MIN_LENGTH(eth_len, eth_len);
+		ADVANCE(eth_len, eth_type);
+		RECORD(ETHERNET_ID);
+	}
+	
+	// ETHER TYPES
+	switch (type) {		
+	case 0x800: // IPv4
+		CHECK_MIN_LENGTH(1, ip4_len);
+		ADVANCE(ip4_len, ip4_type);
+		RECORD(IP4_ID);
+		
+		switch (type) {
+		case 7: // TCP
+			CHECK_MIN_LENGTH(12, tcp_len);
+			ADVANCE(tcp_len, null_type);
+			RECORD(TCP_ID);
+			
+			break;
+			
+		case 16: // UDP
+			CHECK_MIN_LENGTH(4, udp_len);
+			ADVANCE(udp_len, null_type);
+			RECORD(UDP_ID);
+			
+			break;
+			
+		}
+	}
+
+	
+	return;
+}
+*/
