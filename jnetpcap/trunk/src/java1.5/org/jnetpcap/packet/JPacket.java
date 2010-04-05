@@ -882,6 +882,12 @@ public abstract class JPacket
 	 */
 	public void scan(int id) {
 		scanner.scan(this, id, getCaptureHeader().wirelen());
+		
+		JBuffer buf = new JBuffer(POINTER);
+		getMemoryPool().allocate(state.size(), buf);
+		state.transferTo(buf, 0, state.size(), 0);
+		
+		state.peer(buf);
 	}
 
 	/**

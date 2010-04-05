@@ -670,6 +670,10 @@ public class JMemoryPacket
 	 * @return number of bytes copied
 	 */
 	public int transferStateAndDataFrom(JPacket packet) {
+		if (packet.isScanned() == false) {
+			packet.scan();
+		}
+		
 		int len = packet.state.size() + packet.size();
 		JBuffer mem = getMemoryBuffer(len);
 

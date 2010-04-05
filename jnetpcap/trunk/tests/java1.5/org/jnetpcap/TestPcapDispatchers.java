@@ -363,9 +363,10 @@ public class TestPcapDispatchers
 			    }
 
 		    };
-
+		    
 		Queue<JPacketBuffer> queue = new ArrayBlockingQueue<JPacketBuffer>(1000);
 		assertEquals(pcap.getErr(), Pcap.OK, pcap.loop(0, 0, handler, queue));
+
 
 		/*
 		 * This should be in a separate thread - the consumer - for full efficiency
@@ -373,7 +374,7 @@ public class TestPcapDispatchers
 		for (JPacketBuffer buf : queue) {
 			System.out.printf("------ %d packet ------\n", buf.getPacketCount());
 			for (JPacket packet : buf) {
-				try {
+				/*try {
 					System.out.println(packet);
 				} catch (Exception e) {
 					System.out.println(packet.toDebugString());
@@ -382,11 +383,11 @@ public class TestPcapDispatchers
 					Udp udp = packet.getHeader(new Udp());
 					int crc1 = udp.checksum();
 
-					/*
+					
 					 * final int ipOffset = getPreviousHeaderOffset(); return
 					 * Checksum.inChecksumShouldBe( checksum(), Checksum.pseudoUdp(packet,
 					 * ipOffset, this.getOffset()));
-					 */
+					 
 					System.out.printf("packet.size=%d ipOffset=%d offset=%d\n", packet
 					    .size(), udp.getPreviousHeaderOffset(), udp.getOffset());
 
@@ -397,7 +398,7 @@ public class TestPcapDispatchers
 					System.out.println(udp);
 					e.getCause().getCause().printStackTrace();
 					fail(e.getMessage());
-				}
+				}*/
 			}
 		}
 
