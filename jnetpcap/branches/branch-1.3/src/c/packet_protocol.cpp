@@ -142,6 +142,10 @@ extern void debug_rtp(rtp_t *rtp);
  */
 int validate_rtp(scan_t *scan) {
 	
+	if ((scan->buf_len - scan->offset) < sizeof(rtp_t)) {
+		return INVALID;
+	}
+	
 ENTER(RTP_ID, "validate_rtp");
 	
 	register rtp_t *rtp = (rtp_t *)(scan->buf + scan->offset);	
@@ -324,10 +328,17 @@ void scan_sip(scan_t *scan) {
 	 * To calculate length we need to take it from ip header - tcp header
 	 */
 	char *buf = scan->buf;
-	header_t tcph = packet->pkt_headers[packet->pkt_header_count -1];
+	int size;
+	int remain = scan->buf_len - scan->offset;
 	
-	register int size = tcph.hdr_payload;
-		
+	if ((packet->pkt_header_map & (1 << TCP_ID)) != 0) {
+	  header_t tcph = packet->pkt_headers[packet->pkt_header_count -1];
+	  size = (remain < tcph.hdr_payload) ? remain : tcph.hdr_payload;
+
+	} else {
+	  size = remain; // Remaining in buffer
+	}
+
 	scan->length = size;
 		
 #ifdef DEBUG
@@ -346,21 +357,24 @@ void scan_sip(scan_t *scan) {
 	 * We could use strstr(), but for efficiency and since we need to lookup
 	 * multiple sub-strings in the text header, we use our own loop.
 	 */
-	for (int i = 0; i < size; i ++){
-		if ((sip[i] == 'c' || sip[i] == 'C') && 
+	for (int i = 0; i < size; i ++, remain--){
+		if (remain >= 13 && (sip[i] == 'c' || sip[i] == 'C') && 
 				strncmp(&sip[i], "Content-Type:", 13)) {
 			content_type = &sip[i + 13];
+			i += 13;
+			remain -= 13;
 		}
 			
 		if (sip[i] == '\r' && sip[i + 1] == '\n' 
 			&& sip[i + 2] == '\r' && sip[i + 3] == '\n') {
 				
 			scan->length = i + 4;
+			remain -= 4;
 			break;
 		}
 	}
 	
-	if (content_type == NULL) {
+	if (content_type == NULL || remain < 15) {
 		scan->next_id = PAYLOAD_ID;
 		return;
 	}
@@ -394,12 +408,20 @@ int validate_sip(scan_t *scan) {
 	 * To calculate length we need to take it from ip header - tcp header
 	 */
 	char *buf = scan->buf;
-	header_t tcph = packet->pkt_headers[packet->pkt_header_count -1];
+	int size;
 	
-	int size = tcph.hdr_payload;
+	if ((packet->pkt_header_map & (1 << TCP_ID)) != 0) {
+	  header_t tcph = packet->pkt_headers[packet->pkt_header_count -1];
+	  size = tcph.hdr_payload;
+
+	} else {
+	  size = scan->buf_len - scan->offset; // Remaining in buffer
+	}
+
+	scan->length = size; // Size from previous tcp header
 	
 	/* First sanity check if we have printable chars */
-	if (size < 5 || 
+	if (size < 3 || 
 		(isprint(sip[0]) && isprint(sip[1]) && isprint(sip[2])) == FALSE) {
 		
 #ifdef DEBUG
@@ -413,16 +435,18 @@ int validate_sip(scan_t *scan) {
 		return INVALID;
 	}
 	
-	if (	/* SIP Response */
-			strncmp(sip, "SIP", 3) == 0 ||
+	if (	/* SIP Requests */
+			size >= 8 && strncmp(sip, "REGISTER", 8) == 0 || 
+			size >= 7 && strncmp(sip, "OPTIONS", 7) == 0 ||
+			size >= 6 && strncmp(sip, "INVITE", 6) == 0 || 
+			size >= 6 && strncmp(sip, "CANCEL", 6) == 0 || 
+			size >= 3 && strncmp(sip, "ACK", 3) == 0 || 
+			size >= 3 && strncmp(sip, "BYE", 3) == 0 || 
 			
-			/* SIP Requests */
-			strncmp(sip, "REGISTER", 8) == 0 || 
-			strncmp(sip, "INVITE", 6) == 0 || 
-			strncmp(sip, "ACK", 3) == 0 || 
-			strncmp(sip, "CANCEL", 6) == 0 || 
-			strncmp(sip, "BYE", 3) == 0 || 
-			strncmp(sip, "OPTIONS", 7) == 0 ) {
+			/* SIP Response */
+			size >= 3 && strncmp(sip, "SIP", 3) == 0
+			
+	) {
 		
 #ifndef DEBUG
 		char b[32];
@@ -462,9 +486,15 @@ void scan_http(scan_t *scan) {
 	 * To calculate length we need to take it from ip header - tcp header
 	 */
 	char *buf = scan->buf;
-	header_t tcph = packet->pkt_headers[packet->pkt_header_count -1];
+	int size;
 	
-	register int size = tcph.hdr_payload;
+	if ((packet->pkt_header_map & (1 << TCP_ID)) != 0) {
+	  header_t tcph = packet->pkt_headers[packet->pkt_header_count -1];
+	  size = tcph.hdr_payload;
+
+	} else {
+	  size = scan->buf_len - scan->offset; // Remaining in buffer
+	}
 		
 	scan->length = size;
 		
@@ -480,7 +510,7 @@ void scan_http(scan_t *scan) {
 #endif 
 
 		
-	for (int i = 0; i < size; i ++){
+	for (int i = 0; i < size - 4; i ++){
 		if (http[i] == '\r' && http[i + 1] == '\n' 
 			&& http[i + 2] == '\r' && http[i + 3] == '\n') {
 				
@@ -500,6 +530,7 @@ void scan_http(scan_t *scan) {
  * constant INVALID or header ID constant.
  */
 int validate_http(scan_t *scan) {
+	
 	char *http = (char *)(scan->buf + scan->offset);
 	packet_state_t *packet = scan->packet;
 	
@@ -507,9 +538,15 @@ int validate_http(scan_t *scan) {
 	 * To calculate length we need to take it from ip header - tcp header
 	 */
 	char *buf = scan->buf;
-	header_t tcph = packet->pkt_headers[packet->pkt_header_count -1];
+	int size;
 	
-	int size = tcph.hdr_payload;
+	if ((packet->pkt_header_map & (1 << TCP_ID)) != 0) {
+	  header_t tcph = packet->pkt_headers[packet->pkt_header_count -1];
+	  size = tcph.hdr_payload;
+
+	} else {
+	  size = scan->buf_len - scan->offset; // Remaining in buffer
+	}
 	
 	/* First sanity check if we have printable chars */
 	if (size < 5 || 
@@ -527,17 +564,18 @@ int validate_http(scan_t *scan) {
 	}
 	
 	if (	/* HTTP Response */
-			strncmp(http, "HTTP", 4) == 0 ||
-			
+			size >= 4 && strncmp(http, "HTTP", 4) == 0 ||
+
 			/* HTTP Requests */
-			strncmp(http, "GET", 3) == 0 || 
-			strncmp(http, "OPTIONS", 7) == 0 || 
-			strncmp(http, "HEAD", 4) == 0 || 
-			strncmp(http, "POST", 4) == 0 || 
-			strncmp(http, "PUT", 3) == 0 || 
-			strncmp(http, "DELETE", 6) == 0 || 
-			strncmp(http, "TRACE", 5) == 0 || 
-			strncmp(http, "CONNECT", 7 == 0) ) {
+			size >= 7 && strncmp(http, "CONNECT", 7 == 0) ||
+			size >= 7 && strncmp(http, "OPTIONS", 7) == 0 || 
+			size >= 6 && strncmp(http, "DELETE", 6) == 0 || 
+			size >= 5 && strncmp(http, "TRACE", 5) == 0 || 
+			size >= 4 && strncmp(http, "HEAD", 4) == 0 || 
+			size >= 4 && strncmp(http, "POST", 4) == 0 || 
+			size >= 3 && strncmp(http, "PUT", 3) == 0 || 
+			size >= 3 && strncmp(http, "GET", 3) == 0
+			) {
 		
 #ifndef DEBUG
 		char b[32];
@@ -560,6 +598,10 @@ int validate_http(scan_t *scan) {
  * Scan Internet Control Message Protocol header
  */
 void scan_icmp(scan_t *scan) {
+	if ((scan->buf_len - scan->offset) < sizeof(icmp_t)) {
+		return;
+	}
+
 	icmp_t *icmp = (icmp_t *)(scan->buf + scan->offset);
 	
 	switch (icmp->type) {
@@ -592,6 +634,11 @@ void scan_icmp(scan_t *scan) {
  * Scan Point to Point protocol
  */
 void scan_ppp(scan_t *scan) {
+	
+	if ((scan->buf_len - scan->offset) < sizeof(ppp_t)) {
+		return;
+	}
+
 	ppp_t *ppp = (ppp_t *)(scan->buf + scan->offset);
 	scan->length = sizeof(ppp_t);
 	
@@ -606,6 +653,11 @@ void scan_ppp(scan_t *scan) {
  * Scan Layer 2 Tunneling Protocol header
  */
 void scan_l2tp(scan_t *scan) {
+
+	if ((scan->buf_len - scan->offset) < sizeof(l2tp_t)) {
+		return;
+	}
+
 	l2tp_t *l2tp = (l2tp_t *)(scan->buf + scan->offset);
 	scan->length = 6;
 	if (l2tp->l == 1) {
@@ -633,6 +685,11 @@ void scan_l2tp(scan_t *scan) {
  * Scan IEEE 802.1q VLAN tagging header
  */
 void scan_vlan(scan_t *scan) {
+	
+	if ((scan->buf_len - scan->offset) < sizeof(vlan_t)) {
+		return;
+	}
+
 	vlan_t *vlan = (vlan_t *)(scan->buf + scan->offset);
 	scan->length = sizeof(vlan_t);
 	
@@ -647,6 +704,11 @@ void scan_vlan(scan_t *scan) {
  * Scan IEEE 802.2 or LLC2 header
  */
 void scan_llc(scan_t *scan) {
+	
+	if ((scan->buf_len - scan->offset) < sizeof(llc_t)) {
+		return;
+	}
+
 	llc_t *llc = (llc_t *) (scan->buf + scan->offset);
 	if (llc->control & 0x3 == 0x3) {
 		scan->length = 3;
@@ -663,6 +725,11 @@ void scan_llc(scan_t *scan) {
  * Scan IEEE SNAP header
  */
 void scan_snap(scan_t *scan) {
+	
+	if ((scan->buf_len - scan->offset) < sizeof(snap_t)) {
+		return;
+	}
+
 	snap_t *snap = (snap_t *) (scan->buf + scan->offset);
 	char *b = (char *) snap;
 	scan->length = 5;
@@ -698,10 +765,13 @@ void scan_snap(scan_t *scan) {
  */
 void scan_tcp(scan_t *scan) {
 	
-
+	const int remain = (scan->buf_len - scan->offset);
+	if (remain < sizeof(tcp_t)) {
+		return;
+	}
+	
 	tcp_t *tcp = (tcp_t *) (scan->buf + scan->offset);
 	scan->length = tcp->doff * 4;
-	
 	
 	/*
 	 * Set the flow key pair for Tcp.
@@ -731,7 +801,6 @@ void scan_tcp(scan_t *scan) {
 	fflush(stdout);
 #endif
 	}
-	
 	switch (BIG_ENDIAN16(tcp->dport)) {
 	case 80:
 	case 8080:
@@ -765,6 +834,11 @@ void debug_udp(udp_t *udp) {
  * Scan UDP header
  */
 void scan_udp(scan_t *scan) {
+	
+	if ((scan->buf_len - scan->offset) < sizeof(udp_t)) {
+		return;
+	}
+
 	udp_t *udp = (udp_t *) (scan->buf + scan->offset);
 	scan->length = sizeof(udp_t);
 	
@@ -807,6 +881,10 @@ void scan_udp(scan_t *scan) {
  * Scan Address Resolution Protocol header
  */
 void scan_arp(scan_t *scan) {
+	if ((scan->buf_len - scan->offset) < sizeof(arp_t)) {
+		return;
+	}
+
 	arp_t *arp = (arp_t *)(scan->buf + scan->offset);
 	
 	scan->length = (arp->hlen + arp->plen) * 2 + 8;
@@ -816,6 +894,11 @@ void scan_arp(scan_t *scan) {
  * Scan IP version 6
  */
 void scan_ip6(scan_t *scan) {
+	
+	if ((scan->buf_len - scan->offset) < sizeof(ip6_t)) {
+		return;
+	}
+
 	ip6_t *ip6 = (ip6_t *)(scan->buf + scan->offset);
 	scan->length = IP6_HEADER_LENGTH;
 	scan->hdr_payload = BIG_ENDIAN16(ip6->ip6_plen);
@@ -1027,6 +1110,11 @@ void dissect_ip4_headers(dissect_t *dissect) {
  * Scan IP version 4
  */
 void scan_ip4(register scan_t *scan) {
+	
+	if ((scan->buf_len - scan->offset) < sizeof(ip4_t)) {
+		return;
+	}
+
 	register ip4_t *ip4 = (ip4_t *) (scan->buf + scan->offset);
 	scan->length = ip4->ihl * 4;
 	scan->hdr_payload = BIG_ENDIAN16(ip4->tot_len) - scan->length;
@@ -1120,6 +1208,10 @@ void scan_ip4(register scan_t *scan) {
  */
 void scan_802dot3(scan_t *scan) {
 	
+	if ((scan->buf_len - scan->offset) < sizeof(ethernet_t)) {
+		return;
+	}
+
 	ethernet_t *eth = (ethernet_t *) (scan->buf + scan->offset);
 	
 	scan->length = PROTO_ETHERNET_HEADER_LENGTH;
@@ -1183,7 +1275,11 @@ void scan_802dot3(scan_t *scan) {
  * Scan ethertype
  */
 void scan_ethernet(scan_t *scan) {
-	
+
+	if ((scan->buf_len - scan->offset) < sizeof(ethernet_t)) {
+		return;
+	}
+
 	ethernet_t *eth = (ethernet_t *) (scan->buf + scan->offset);
 	
 	scan->length = sizeof(ethernet_t);
@@ -1252,11 +1348,16 @@ void scan_payload(scan_t *scan) {
  * restored to original value before this method retuns.
  */
 int validate_next(register int id, register scan_t *scan) {
+
+	if ((scan->buf_len - scan->offset) == 0) {
+		return INVALID;
+	}
 	
 	register native_validate_func_t validate_func = validate_table[id];
 	if (validate_func == NULL) {
 		return id; 
 	}
+
 
 	int saved_offset = scan->offset;
 	scan->offset += scan->length + scan->hdr_gap;
