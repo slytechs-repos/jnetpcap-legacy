@@ -294,7 +294,7 @@ public class Pcap {
 	 * a single buffer , unless an error occured or <code>breakloop</code> call
 	 * was used to interrupt the dispatcher. Note, that this constant is only
 	 * appropriate value for <code>dispatch</code> method call. Loop method uses
-	 * LOOP_INFINATE for something similar, but definately not identical to this
+	 * LOOP_INFINITE for something similar, but definately not identical to this
 	 * option.
 	 */
 	public static final int DISPATCH_BUFFER_FULL = -1;

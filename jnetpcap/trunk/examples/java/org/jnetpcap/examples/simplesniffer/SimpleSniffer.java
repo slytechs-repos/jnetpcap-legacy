@@ -100,7 +100,7 @@ public class SimpleSniffer {
 		};
 
 		System.out.println("Started dispatcher");
-		pcap.loop(Pcap.LOOP_INFINATE, h, null);
+		pcap.loop(Pcap.LOOP_INFINITE, h, null);
 
 		pcap.close();
 		pcap = null;

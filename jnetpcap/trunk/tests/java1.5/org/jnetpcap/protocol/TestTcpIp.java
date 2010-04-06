@@ -238,7 +238,7 @@ public class TestTcpIp
 		final PcapPacketArrayList list =
 		    new PcapPacketArrayList((int) new File(file).length() / 100);
 
-		pcap.loop(Pcap.LOOP_INFINATE, list, null);
+		pcap.loop(Pcap.LOOP_INFINITE, list, null);
 
 		pcap.close();
 
@@ -252,7 +252,7 @@ public class TestTcpIp
 			throw new IOException(errbuf.toString());
 		}
 
-		assertTrue(pcap.loop(Pcap.LOOP_INFINATE, new PcapPacketHandler<Pcap>() {
+		assertTrue(pcap.loop(Pcap.LOOP_INFINITE, new PcapPacketHandler<Pcap>() {
 			Ip4 ip1 = new Ip4();
 
 			Ip4 ip2 = new Ip4();
@@ -334,7 +334,7 @@ public class TestTcpIp
 
 		assertNotNull(errbuf.toString(), pcap);
 
-		pcap.loop(Pcap.LOOP_INFINATE, new PcapPacketHandler<String>() {
+		pcap.loop(Pcap.LOOP_INFINITE, new PcapPacketHandler<String>() {
 			Ip4 ip = new Ip4();
 
 			Tcp tcp = new Tcp();
@@ -370,7 +370,7 @@ public class TestTcpIp
 
 		assertNotNull(errbuf.toString(), pcap);
 
-		pcap.loop(Pcap.LOOP_INFINATE, new PcapPacketHandler<String>() {
+		pcap.loop(Pcap.LOOP_INFINITE, new PcapPacketHandler<String>() {
 			Ip6 ip = new Ip6();
 
 			Tcp tcp = new Tcp();
@@ -398,7 +398,7 @@ public class TestTcpIp
 
 		assertNotNull(errbuf.toString(), pcap);
 
-		pcap.loop(Pcap.LOOP_INFINATE, new PcapPacketHandler<String>() {
+		pcap.loop(Pcap.LOOP_INFINITE, new PcapPacketHandler<String>() {
 			Ip6 ip = new Ip6();
 
 			Udp udp = new Udp();
@@ -426,7 +426,7 @@ public class TestTcpIp
 
 		assertNotNull(errbuf.toString(), pcap);
 
-		pcap.loop(Pcap.LOOP_INFINATE, new PcapPacketHandler<String>() {
+		pcap.loop(Pcap.LOOP_INFINITE, new PcapPacketHandler<String>() {
 			Ip4 ip = new Ip4();
 
 			Icmp icmp = new Icmp();
