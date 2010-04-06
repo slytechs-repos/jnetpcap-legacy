@@ -4,6 +4,7 @@
  ***************************************************************************/
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "jpacket_buffer.h"
 #include "jnetpcap_ids.h"
