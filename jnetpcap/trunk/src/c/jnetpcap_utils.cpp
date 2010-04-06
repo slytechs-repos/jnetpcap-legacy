@@ -609,31 +609,16 @@ JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_PcapUtils_getHardwareAddress
 
 	if (mac_addr_dlpi(dev, mac) != -1) {
 		jba = env->NewByteArray((jsize) 6);
-		env->SetByteArrayRegion(jba, (jsize) 0, (jsize) 6, (jbyte *)mac);
+		env->SetByteArrayRegion(jba,  0,  6, (jbyte *)mac);
 	} 
 #else
 
-   struct ifreq ifr;
+	u_char mac[6];
 
-   int sd = socket(PF_INET, SOCK_DGRAM, 0);
-    if (sd < 0) {
-		throwException(env, IO_EXCEPTION, "cannot open socket.");
-        return NULL; // error: can't create socket.
-    }
-
-    /* set interface name (lo, eth0, eth1,..) */
-    memset(&ifr, 0, sizeof(ifr));
-    strncpy(ifr.ifr_ifrn.ifrn_name,buf, IFNAMSIZ);
-
-    /* get a Get Interface Hardware Address */
-    if (ioctl(sd, SIOCGIFHWADDR, &ifr) != 0) {
-	return NULL;
-    }
-
-    close(sd);
-
-    jba = env->NewByteArray((jsize) 6);
-    env->SetByteArrayRegion(jba, 0, 6, (jbyte *)ifr.ifr_ifru.ifru_hwaddr.sa_data);
+	if (mac_addr_sys(buf, mac) != -1) {
+		jba = env->NewByteArray((jsize) 6);
+		env->SetByteArrayRegion(jba, 0, 6, (jbyte *)mac);
+	}
 #endif
 
 	return jba;
