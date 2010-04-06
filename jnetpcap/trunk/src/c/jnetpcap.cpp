@@ -1142,7 +1142,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_inject
 		return -1;
 	}
 	
-	size_t size = getJMemorySize(jbuf);
+	size_t size = getJMemorySize(env, jbuf);
 	if (jstart < 0 || jlength < 0 || jstart + jlength > size) {
 		throwException(env, BUFFER_OVERFLOW_EXCEPTION,
 				"out of bounds");

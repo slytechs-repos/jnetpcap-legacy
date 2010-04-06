@@ -25,7 +25,7 @@ typedef struct jpacket_buffer_t {
 	uint32_t	dlt;   		// pkt dlt ID
 	uint32_t	offset;     // Current position within the buffer
 	uint32_t	capacity;   // Buffer capacity
-};
+} jpacket_buffer_t;
 
 typedef struct cb_jpacket_buffer_t {
 	pcap_t *p;
@@ -39,7 +39,7 @@ typedef struct cb_jpacket_buffer_t {
 	uint32_t	buf_size; // User requested buffer size
 	
 	jpacket_buffer_t *buf;
-};
+} cb_jpacket_buffer_t;
 
 /*
  * PROTOTYPES
