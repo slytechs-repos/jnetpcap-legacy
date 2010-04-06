@@ -530,6 +530,7 @@
 			<sysincludepath location="${java.sdk.include.dir}/linux" />
 			<defineset define="LIBPCAP_VERSION=0x${compiler.LIBPCAP_VERSION}" if="compiler.LIBPCAP_VERSION" />
 			<defineset define="DEBUG" if="DEBUG" />
+			<defineset define="Linux" />
 
 
 			<linker name="${compiler.ld.cmd}">
