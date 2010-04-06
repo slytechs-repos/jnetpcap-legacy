@@ -47,7 +47,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <pcap/pcap.h>
+#include <pcap.h>
 #include <jni.h>
 
 #ifndef WIN32
@@ -74,6 +74,7 @@
 #include "org_jnetpcap_Pcap.h"
 #include "jpacket_buffer.h"
 #include "export.h"
+
 
 /*
  * Class:     org_jnetpcap_Pcap
@@ -110,6 +111,11 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_compileNoPcap
  */
 JNIEXPORT jobject JNICALL Java_org_jnetpcap_Pcap_create
   (JNIEnv *env, jclass clazz, jstring jdevice, jobject jerrbuf) {
+
+#if (LIBPCAP_VERSION < LIBPCAP_PCAP_CREATE)
+	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
+	return NULL;
+#else
 	
 	if (jdevice == NULL || jerrbuf == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
@@ -141,6 +147,7 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_Pcap_create
 	setPhysical(env, obj, toLong(p));
 
 	return obj;
+#endif
 }
 
 /*
@@ -569,12 +576,17 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_Pcap_openOffline
 JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_activate
   (JNIEnv *env, jobject obj) {
 	
+#if (LIBPCAP_VERSION < LIBPCAP_PCAP_CREATE)
+	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
+	return -1;
+#else
 	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
 		return -1; // Exception already thrown
 	}
 
 	return (jint) pcap_activate(p);
+#endif
 }
 
 /*
@@ -600,7 +612,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_Pcap_breakloop
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_canSetRfmon
   (JNIEnv *env, jobject obj) {
-#if defined(WIN32) || defined(WIN64)
+#if defined(WIN32) || defined(WIN64) || (LIBPCAP_VERSION < LIBPCAP_PCAP_CREATE)
 	return (jint) 0;
 #else
 
@@ -1867,6 +1879,11 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_sendPacketPrivate
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_setBufferSize
   (JNIEnv *env, jobject obj, jlong jsize) {
+#if (LIBPCAP_VERSION < LIBPCAP_PCAP_CREATE)
+	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
+	return -1;
+#else
+	
 	
 	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
@@ -1874,6 +1891,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_setBufferSize
 	}
 
 	return (jint) pcap_set_buffer_size(p, (int) jsize);
+#endif
 }
 
 /*
@@ -1970,6 +1988,11 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_setNonBlock
  */
 JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_setPromisc
   (JNIEnv *env, jobject obj, jint jpromisc) {
+#if (LIBPCAP_VERSION < LIBPCAP_PCAP_CREATE)
+	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
+	return NULL;
+#else
+	
 	
 	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
@@ -1977,6 +2000,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_setPromisc
 	}
 
 	return (jint) pcap_set_promisc(p, (int) jpromisc);
+#endif
 }
 
 /*
@@ -1987,7 +2011,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_setPromisc
 JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_setRfmon
   (JNIEnv *env, jobject obj, jint jrfmon) {
 	
-#if defined(WIN32) || defined(WIN64)
+#if defined(WIN32) || defined(WIN64) || (LIBPCAP_VERSION < LIBPCAP_PCAP_CREATE)
 	return (jint) -1;
 #else
 	
@@ -2008,12 +2032,18 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_setRfmon
 JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_setSnaplen
   (JNIEnv *env, jobject obj, jint jsnaplen) {
 	
+#if (LIBPCAP_VERSION < LIBPCAP_PCAP_CREATE)
+	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
+	return -1;
+#else
+	
 	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
 		return -1; // Exception already thrown
 	}
 
 	return (jint) pcap_set_snaplen(p, (int) jsnaplen);
+#endif
 }
 
 /*
@@ -2024,12 +2054,18 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_setSnaplen
 JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_setTimeout
   (JNIEnv *env, jobject obj, jint jtimeout) {
 	
+#if (LIBPCAP_VERSION < LIBPCAP_PCAP_CREATE)
+	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
+	return -1;
+#else
+	
 	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
 		return -1; // Exception already thrown
 	}
 
 	return (jint) pcap_set_timeout(p, (int) jtimeout);
+#endif
 }
 
 /*

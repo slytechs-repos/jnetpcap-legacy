@@ -34,6 +34,7 @@
 #include "jnetpcap_utils.h"
 #include "jnetpcap_bpf.h"
 #include "nio_jmemory.h"
+#include "mac_addr.h"
 #include "export.h"
 
 
@@ -600,6 +601,16 @@ JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_PcapUtils_getHardwareAddress
 
 	free(info);
 
+#elif SUNOS
+	char dev[IFNAMSIZ * 2];
+	sprintf(dev, "/dev/%s", buf);
+
+	u_char mac[6];
+
+	if (mac_addr_dlpi(dev, mac) != -1) {
+		jba = env->NewByteArray((jsize) 6);
+		env->SetByteArrayRegion(jba, (jsize) 0, (jsize) 6, (jbyte *)mac);
+	} 
 #else
 
    struct ifreq ifr;

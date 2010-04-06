@@ -432,7 +432,39 @@
 
 	</target>
 
-	<target name="check-libpcap-version" depends="check-libpcap-version-rpm,check-libpcap-version-dpkg">
+	<!-- =================================================================== -->
+	<!-- Checks for libpcap version on platforms running RPM.                -->
+	<!-- The version number is set in  "${compiler.LIBPCAP_VERSION}"         -->
+	<!-- property.                                                           -->
+	<!-- =================================================================== -->
+	<target name="check-libpcap-version-pkg" depends="check-packager-type" if="packager.pkg">
+
+<!--
+		<exec executable="pkg" outputproperty="result.pkg.out1">
+			<arg value="info" />
+			<arg value="SUNWlibpcap" />
+		</exec>
+-->
+
+		<exec executable="grep" inputstring="${result.pkg.out1}" outputproperty="result.pkg.out2">
+			<arg value="Version: " />
+		</exec>
+
+		<exec executable="sed" inputstring="${result.pkg.out2}" outputproperty="result.pkg.out3">
+			<arg value="s/.*Version: //g" />
+		</exec>
+
+		<property name="compiler.LIBPCAP_VERSION" value="098" />
+		<exec executable="sed" inputstring="${result.pkg.out3}" outputproperty="compiler.LIBPCAP_VERSION">
+			<arg value="s/[\.-]//g" />
+		</exec>
+
+		<echo message="Libpcap pkg version = ${compiler.LIBPCAP_VERSION}" />
+
+
+	</target>
+
+	<target name="check-libpcap-version" depends="check-libpcap-version-rpm,check-libpcap-version-dpkg,check-libpcap-version-pkg">
 		<echo message="compiler.LIBPCAP_VERSION = ${compiler.LIBPCAP_VERSION}" />
 	</target>
 
@@ -459,6 +491,15 @@
 			<equals arg1="${result.dpkg}" arg2="0" />
 		</condition>
 		<echo message="dpkg = ${packager.dpkg}" />
+
+		<exec executable="which" resultproperty="result.pkg" outputproperty="devnull" errorproperty="devnull" failifexecutionfails="false">
+			<arg value="pkg" />
+		</exec>
+
+		<condition property="packager.pkg">
+			<equals arg1="${result.pkg}" arg2="0" />
+		</condition>
+		<echo message="pkg = ${packager.pkg}" />
 	</target>
 
 	<!-- =================================================================== -->
@@ -474,7 +515,7 @@
 		<echo>arch=${os.arch}</echo>
 		<echo>name=${os.name}</echo>
 
-		<echo message="Using pcap version ${compiler.LIBPCAP_VERSION}" />
+		<echo message="Using pcap version 0x${compiler.LIBPCAP_VERSION}" />
 		<echo message="compiling JNI C++ files to object code" />
 		<echo message="using ${compiler.cc.cmd} compiler" />
 		<echo message="system include = ${java.sdk.include.dir}" />
@@ -511,9 +552,59 @@
 
 
 	<!-- =================================================================== -->
+	<!-- Generates shared JNI library file from C++ sources                  -->
+	<!-- =================================================================== -->
+	<target name="comp-jni-sunos" depends="check-libpcap-version,prep-checks,prep-jni,prep-lib,comp-javah" if="platform.sunos">
+
+		<!-- Not supplying "outtype", disables the LINKER in CC tag
+     		outtype="shared"
+    		outfile="${build.library.filename.nosuffix}"
+				<linkerarg value="- -add-stdcall-alias" />
+      	-->
+		<echo>arch=${os.arch}</echo>
+		<echo>name=${os.name}</echo>
+
+		<echo message="Using pcap version 0x${compiler.LIBPCAP_VERSION}" />
+		<echo message="compiling JNI C++ files to object code" />
+		<echo message="using ${compiler.cc.cmd} compiler" />
+		<echo message="system include = ${java.sdk.include.dir}" />
+		<cc runtime="dynamic" outtype="shared" outfile="${build.lib.dir}/${lib.pcap.basename}" debug="${compiler.debug}" objdir="${build.obj.dir}" multithreaded="compiler.multithreaded" exceptions="compiler.exceptions" warnings="${compiler.warnings}">
+
+			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
+
+			<fileset dir="${src.c.dir}" />
+			<includepath location="${build.include.dir}" />
+			<includepath location="${src.c.dir}" />
+			<sysincludepath location="${java.sdk.include.dir}" />
+			<sysincludepath location="${java.sdk.include.dir}/solaris" />
+			<defineset define="LIBPCAP_VERSION=0x${compiler.LIBPCAP_VERSION}" if="compiler.LIBPCAP_VERSION" />
+			<defineset define="DEBUG" if="DEBUG" />
+			<defineset define="SUNOS" />
+
+
+			<linker name="${compiler.ld.cmd}">
+				<syslibset libs="pcap" />
+
+				<linkerarg value="-Wl,-soname,${lib.pcap.basename}" />
+
+				<linkerarg value="-lstdc++" />
+			</linker>
+		</cc>
+
+		<copy tofile="${build.lib.dir}/${lib.pcap.fullname}" file="${build.lib.dir}/${lib.pcap.name}" />
+
+		<echo message="Created shared JNI libary: ${build.lib.dir}/${lib.pcap.fullname}" />
+
+		<property name="jni.lib.file" value="${build.lib.dir}/${lib.pcap.fullname}" />
+
+
+	</target>
+
+
+	<!-- =================================================================== -->
 	<!-- Compiles java files using JavaDoc                                   -->
 	<!-- =================================================================== -->
-	<target name="comp-jni" depends="comp-jni-linux,comp-jni-win32">
+	<target name="comp-jni" depends="comp-jni-linux,comp-jni-win32,comp-jni-sunos">
 	</target>
 
 
