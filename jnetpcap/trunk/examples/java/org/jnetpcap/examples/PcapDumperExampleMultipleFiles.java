@@ -106,7 +106,7 @@ public class PcapDumperExampleMultipleFiles {
 				 * Fifth we enter the loop and tell it to capture 10 packets. We
 				 * pass in the dumper created in step 3
 				 **************************************************************************/
-				pcap.loop(Pcap.LOOP_INFINATE, dumpHandler, pcap);
+				pcap.loop(Pcap.LOOP_INFINITE, dumpHandler, pcap);
 
 				dumper.close(); // close out the dumper and flush any unwritten packets
 			}

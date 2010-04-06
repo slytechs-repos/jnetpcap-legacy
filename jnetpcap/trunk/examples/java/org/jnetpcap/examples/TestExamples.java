@@ -137,7 +137,7 @@ public class TestExamples
 		 * Fifth we enter the loop and tell it to capture 10 packets. We pass in the
 		 * dumper created in step 3
 		 **************************************************************************/
-		assertTrue(pcap.loop(Pcap.LOOP_INFINATE, dumpHandler, dumper) == Pcap.OK);
+		assertTrue(pcap.loop(Pcap.LOOP_INFINITE, dumpHandler, dumper) == Pcap.OK);
 
 		File file = new File(ofile);
 

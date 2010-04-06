@@ -325,7 +325,7 @@ public class TestPcapJNI
 		assertNotNull(pcap.getErr(), dumper);
 
 		try {
-			int r = pcap.loop(Pcap.LOOP_INFINATE, dumper);
+			int r = pcap.loop(Pcap.LOOP_INFINITE, dumper);
 			assertEquals(pcap.getErr(), Pcap.OK, r);
 
 			assertEquals("dumped file and source file lengths don't match", tmpFile
@@ -543,7 +543,7 @@ public class TestPcapJNI
 		assertNotNull(pcap.getErr(), dumper);
 
 		try {
-			int r = pcap.loop(Pcap.LOOP_INFINATE, dumper);
+			int r = pcap.loop(Pcap.LOOP_INFINITE, dumper);
 			assertEquals(pcap.getErr(), Pcap.OK, r);
 
 			assertEquals("dumped file and source file lengths don't match", tmpFile
@@ -880,7 +880,7 @@ public class TestPcapJNI
 			}
 		};
 
-		int r = pcap.loop(Pcap.LOOP_INFINATE, handler, dumper);
+		int r = pcap.loop(Pcap.LOOP_INFINITE, handler, dumper);
 		assertTrue("Something happened in the loop", r == Pcap.OK);
 
 		dumper.close();
@@ -1028,7 +1028,7 @@ public class TestPcapJNI
 			}
 		};
 
-		int r = pcap.loop(Pcap.LOOP_INFINATE, handler, null);
+		int r = pcap.loop(Pcap.LOOP_INFINITE, handler, null);
 		if (r == Pcap.LOOP_INTERRUPTED) {
 
 			/*

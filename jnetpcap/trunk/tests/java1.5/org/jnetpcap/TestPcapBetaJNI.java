@@ -717,7 +717,7 @@ public class TestPcapBetaJNI
 			}
 		};
 
-		int r = pcap.loop(Pcap.LOOP_INFINATE, handler, null);
+		int r = pcap.loop(Pcap.LOOP_INFINITE, handler, null);
 		if (r == Pcap.LOOP_INTERRUPTED) {
 
 			/*
@@ -822,7 +822,7 @@ public class TestPcapBetaJNI
 			}
 		};
 
-		int r = pcap.loop(Pcap.LOOP_INFINATE, handler, dumper);
+		int r = pcap.loop(Pcap.LOOP_INFINITE, handler, dumper);
 		assertTrue("Something happened in the loop", r == Pcap.OK);
 
 		dumper.close();
