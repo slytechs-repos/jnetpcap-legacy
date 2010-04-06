@@ -31,6 +31,10 @@
 #include <sys/kinfo.h>
 #endif
 
+#ifdef WIN32
+#include <pcap.h>
+#endif
+
 int mac_addr_sys ( char *dev, u_char *addr)
 {
 /* implementation for Linux */
