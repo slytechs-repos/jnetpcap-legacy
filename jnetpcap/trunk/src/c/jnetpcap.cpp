@@ -277,6 +277,22 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_Pcap_freecode
 
 /*
  * Class:     org_jnetpcap_Pcap
+ * Method:    isCreateSupported
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_org_jnetpcap_Pcap_isCreateSupported
+  (JNIEnv *, jclass) {
+	
+#if (LIBPCAP_VERSION < LIBPCAP_PCAP_CREATE)
+	return JNI_FALSE;
+#else
+	return JNI_TRUE;
+#endif
+}
+
+
+/*
+ * Class:     org_jnetpcap_Pcap
  * Method:    isInjectSupported
  * Signature: ()Z
  */
