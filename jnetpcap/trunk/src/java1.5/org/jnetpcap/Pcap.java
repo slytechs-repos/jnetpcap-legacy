@@ -480,7 +480,7 @@ public class Pcap {
 			throw new IllegalStateException(e);
 		}
 	}
-	
+
 	/**
 	 * <p>
 	 * Compile a packet filter without the need of opening an adapter. This
@@ -523,17 +523,17 @@ public class Pcap {
 	 *         lastly, the compile(PcapBpfProgram, String, int, int)d program is
 	 *         stored and therefore returned in the formal parameter
 	 *         <code>program</code>
-	 *         
-	 * @deprecated use {@link #compileNopcap(int, int, PcapBpfProgram, String, int, int)}
+	 * @deprecated use
+	 *             {@link #compileNopcap(int, int, PcapBpfProgram, String, int, int)}
 	 * @since 1.0
 	 */
 	public static int compile(
-			int snaplen,
-			int dlt,
-			PcapBpfProgram program,
-			String str,
-			int optimize,
-			int netmask) {
+	    int snaplen,
+	    int dlt,
+	    PcapBpfProgram program,
+	    String str,
+	    int optimize,
+	    int netmask) {
 		return Pcap.compileNoPcap(snaplen, dlt, program, str, optimize, netmask);
 	}
 
@@ -774,6 +774,18 @@ public class Pcap {
 	 *           JNI was unable to aquire its handle
 	 */
 	private native static void initIDs();
+
+	/**
+	 * Checks if the current platform has support for pcap_create,
+	 * pcap_set_buffer_size, pcap_set_snaplen, pcap_set_timeout,
+	 * pcap_setdirection, pcap_set_promisc, pcap_can_rfmon, pcap_set_rfmon,
+	 * pcap_activate calls which are only availabled on platforms that support
+	 * minimum libpcap version 1.0.0.
+	 * 
+	 * @return true if the set of the above functions is supported on the platform
+	 *         otherwise false.
+	 */
+	public native static boolean isCreateSupported();
 
 	/**
 	 * Checks if the current platform has support for pcap_inject call. The

@@ -22,6 +22,7 @@ extern "C" {
  */
 #define LIBPCAP_PCAP_SENDPACKET	0x093
 #define LIBPCAP_PCAP_INJECT     0x097
+#define LIBPCAP_PCAP_CREATE		0x100
 
 	
 #define ILLEGAL_STATE_EXCEPTION "java/lang/IllegalStateException"
