@@ -19,12 +19,23 @@ package org.jnetpcap.packet;
  * method such as <code>Pcap.breakLoop</code> or timeout occured.
  * <p>
  * The handler can be setup using appropriate <code>Pcap.loop</code> or
- * <code>Pcap.dispatch</code> methods.
+ * <code>Pcap.dispatch</code> methods. The corresponding loop and dispatch
+ * methods are designed to provide the most efficiency in delivering packets to
+ * java environment, after they have been received and dispatched from native
+ * libpcap library. This type of callback handler allows jnetpcap to minimize
+ * entering the java environment in order to dispatch packets. Since packet
+ * contents and the corresponding capture headers are copied into the buffer,
+ * they can also be retained permanently, unlike packets delivered via other
+ * handlers which do not perform copies and simply wrap around libpcap
+ * controlled buffer space.
  * </p>
  * 
+ * @see org.jnetpcap.Pcap#loop(int, JPacketBufferHandler, Object)
+ * @see org.jnetpcap.Pcap#dispatch(int, int, JPacketBufferHandler, Object)
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
- * @param <T> user type
+ * @param <T>
+ *          user type
  */
 public interface JPacketBufferHandler<T> {
 

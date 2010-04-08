@@ -21,15 +21,21 @@ import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory;
 
 /**
- * A memory buffer used to hold multiple packets. The is filled by jNetPcap with
- * multiple raw packet data and capture headers upto the specified size of the
- * buffer. The packets can then be accessed via accessor methods. The structure
- * of the data within the buffer is as follows:
+ * A memory buffer used to hold multiple packets. This specialized buffer is
+ * filled by jNetPcap with multiple raw packet data and capture headers upto the
+ * specified size of the buffer. The packets can then be accessed via accessor
+ * methods. The structure of the data within the buffer is as follows:
  * 
  * <pre>
  * [count][capture header 1][packet data 1][capture header n][packet data n]
  * </pre>
  * 
+ * <p>
+ * </p>
+ * 
+ * @see org.jnetpcap.Pcap#loop(int, JPacketBufferHandler, Object)
+ * @see org.jnetpcap.Pcap#dispatch(int, int, JPacketBufferHandler, Object)
+ * @see JPacketBufferHandler
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
@@ -143,7 +149,7 @@ public class JPacketBuffer
 			}
 
 			public JPacket next() {
-				index ++;
+				index++;
 
 				/*
 				 * Create empty (unpeered) java objects
@@ -159,8 +165,8 @@ public class JPacketBuffer
 				offset += packet.peer(JPacketBuffer.this, offset, header.caplen());
 
 				/*
-				 * Alignment on 16-bit boundary, strictly enforced at native level 
-				 * as well.
+				 * Alignment on 16-bit boundary, strictly enforced at native level as
+				 * well.
 				 */
 				offset += (header.caplen() % 2);
 
