@@ -56,9 +56,10 @@ To install the library unzip the binary platform-dependent package into any
 directory, or install the RPM package on unix based systems into its default
 directories. There are 2 parts to setting up environment for jNetPcap.
 
-  *) Win32 Dependency: jNetPcap requires WinPcap 3.1 or greater installed. 
-                       WinPcap version 4.0.1 or greater is recommended, but not 
-                       neccessary. (http://winpcap.org)
+  *) Win32 Dependency: jNetPcap requires WinPcap 4.1.1 or greater installed. 
+                       (http://winpcap.org)
+                       
+  *) Unix dependencies: libpcap 1.0.0 or above is required.
                        
   *) Development build only provides a single tar file containing the linux
      binaries for all linux based platforms. 
