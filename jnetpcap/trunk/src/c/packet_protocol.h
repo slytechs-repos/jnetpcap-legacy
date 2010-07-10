@@ -32,6 +32,7 @@
 #define SDP_ID           org_jnetpcap_protocol_JProtocol_SDP_ID
 #define RTP_ID           org_jnetpcap_protocol_JProtocol_RTP_ID
 #define SLL_ID           org_jnetpcap_protocol_JProtocol_SLL_ID
+#define IEEE_802DOT2D_ID  org_jnetpcap_protocol_JProtocol_IEEE_802DOT2D_ID
 
 
 /*

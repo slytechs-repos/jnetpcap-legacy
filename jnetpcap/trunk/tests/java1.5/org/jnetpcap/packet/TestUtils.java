@@ -74,6 +74,8 @@ public class TestUtils extends TestCase {
 	public final static String L2TP = "tests/test-l2tp.pcap";
 
 	public final static String MYSQL = "tests/test-mysql.pcap";
+	
+	public final static String G711 = "tests/test-sip-rtp-g711.pcap";
 
 	/**
 	 * Special Appendable device that throws away its output. Used in stress

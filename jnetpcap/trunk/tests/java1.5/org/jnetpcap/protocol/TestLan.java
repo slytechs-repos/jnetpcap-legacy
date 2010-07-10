@@ -44,4 +44,10 @@ public class TestLan
 		System.out.println(packet);
 		System.out.println(packet.getState().toDebugString());
 	}
+	
+	public void testSTP() {
+		JPacket packet = TestUtils.getPcapPacket(TestUtils.G711, 23 - 1);
+		
+		System.out.println(packet);
+	}
 }
