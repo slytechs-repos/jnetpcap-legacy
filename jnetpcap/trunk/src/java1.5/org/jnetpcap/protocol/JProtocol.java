@@ -21,6 +21,7 @@ import org.jnetpcap.protocol.application.WebImage;
 import org.jnetpcap.protocol.lan.Ethernet;
 import org.jnetpcap.protocol.lan.IEEE802dot1q;
 import org.jnetpcap.protocol.lan.IEEE802dot2;
+import org.jnetpcap.protocol.lan.IEEE802dot2d;
 import org.jnetpcap.protocol.lan.IEEE802dot3;
 import org.jnetpcap.protocol.lan.IEEESnap;
 import org.jnetpcap.protocol.lan.SLL;
@@ -150,6 +151,11 @@ public enum JProtocol {
 	 */
 	SLL(SLL.class, PcapDLT.LINUX_SLL),
 	
+	/**
+	 * Spanning Tree Protocol (STP)
+	 */
+	IEEE802dot2d(IEEE802dot2d.class)
+	
 	;
 
 	/**
@@ -233,6 +239,9 @@ public enum JProtocol {
 	public final static int RTP_ID = 19;
 	
 	public final static int SLL_ID = 20;
+	
+	public final static int IEEE_802DOT2D_ID = 21;
+	public final static int STP = 21;
 	
 	public final static int LAST_ID = JProtocol.values().length;
 

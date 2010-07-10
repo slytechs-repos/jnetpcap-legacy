@@ -696,6 +696,7 @@ void scan_llc(scan_t *scan) {
 
 	switch (llc->dsap) {
 	case 0xaa: scan->next_id = validate_next(IEEE_SNAP_ID, scan); break;
+	case 0x42: scan->next_id = validate_next(IEEE_802DOT2D_ID, scan); break;
 	}
 }
 
@@ -1484,6 +1485,7 @@ void init_native_protocols() {
 	native_protocol_names[SDP_ID]           = "SDP";
 	native_protocol_names[RTP_ID]           = "RTP";
 	native_protocol_names[SLL_ID]           = "SLL";
+	native_protocol_names[IEEE_802DOT2D_ID]  = "STP";
 	
 	
 	// Initialize debug loggers
