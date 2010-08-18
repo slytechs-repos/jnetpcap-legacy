@@ -297,4 +297,16 @@ public class TestPcapPacket
 		
 	}
 
+	public final void testLastHeaderInPacket() {
+		
+		packet = TestUtils.getPcapPacket("tests/test-l2tp.pcap", 0);
+		
+		JHeader last = packet.getLastHeader();
+		
+		System.out.printf("name=%s%n", last.getName());
+		System.out.printf("name=%s%n", packet.getLastHeaderName());
+		
+		
+		
+	}
 }

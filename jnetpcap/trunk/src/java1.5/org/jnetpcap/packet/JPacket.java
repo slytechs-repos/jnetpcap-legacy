@@ -23,6 +23,7 @@ import org.jnetpcap.nio.JStruct;
 import org.jnetpcap.packet.format.FormatUtils;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
+import org.jnetpcap.packet.structure.AnnotatedHeader;
 
 /**
  * A native packet buffer object. This class references both packet data buffer
@@ -882,11 +883,11 @@ public abstract class JPacket
 	 */
 	public void scan(int id) {
 		scanner.scan(this, id, getCaptureHeader().wirelen());
-		
+
 		JBuffer buf = new JBuffer(POINTER);
 		getMemoryPool().allocate(state.size(), buf);
 		state.transferTo(buf, 0, state.size(), 0);
-		
+
 		state.peer(buf);
 	}
 
@@ -948,5 +949,64 @@ public abstract class JPacket
 			throw new IllegalStateException(
 			    "internal error, StringBuilder threw IOException");
 		}
+	}
+
+	/**
+	 * Returns a reference to the last header found within this packet. If the
+	 * last header is the payload header, which is typically the case, then the
+	 * second to last header is returned instead of the payload header. If the
+	 * payload header is the only header within the packet, then only under this
+	 * single condition is payload header returned.
+	 * 
+	 * @return last non-payload header
+	 */
+	public JHeader getLastHeader() {
+		return getLastHeader(false); // Its not OK to return payload header as last
+	}
+
+	/**
+	 * Returns a reference to the last header found within this packet. The
+	 * boolean flag determines if its OK to return Payload.class, which is a catch
+	 * all builtin header at the end of almost every packet, as the last header. A
+	 * value of false returns the last non-payload header from this packet. If
+	 * there are no other headers and payload is the only one within the packet,
+	 * this method returns the payload header no matter what the boolean flag is
+	 * set at.
+	 * 
+	 * @param payloadOk
+	 *          true means that its OK to return the Payload header which
+	 *          typically resides at the end of most packets, otherwise the header
+	 *          before the payload header is returned (second to last) unless
+	 *          payload is the only header within the packet
+	 * @return last header or the second to last header depending on the payloadOk
+	 *         parameter
+	 */
+	public JHeader getLastHeader(boolean payloadOk) {
+		int last = this.state.getHeaderCount() - 1;
+
+		if (!payloadOk && state.getHeaderIdByIndex(last) == Payload.ID && last > 0) {
+			last--; // We want the last header before payload
+		}
+
+		final JHeader header =
+		    JHeaderPool.getDefault().getHeader(state.getHeaderIdByIndex(last));
+		this.getHeaderByIndex(last, header);
+
+		return header;
+	}
+	
+	public String getLastHeaderName() {
+		
+		int last = this.state.getHeaderCount() - 1;
+
+		if (state.getHeaderIdByIndex(last) == Payload.ID && last > 0) {
+			last--; // We want the last header before payload
+		}
+		
+		final int id = state.getHeaderIdByIndex(last);
+		
+		final AnnotatedHeader a = JRegistry.lookupAnnotatedHeader(id);
+		
+		return (a == null) ? null : a.getName();
 	}
 }
