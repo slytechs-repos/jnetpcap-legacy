@@ -550,9 +550,17 @@ public final class JRegistry {
 
 	public static AnnotatedHeader lookupAnnotatedHeader(int id)
 	    throws UnregisteredHeaderException {
-		if (MAP_BY_ID[id] == null || MAP_BY_ID[id].annotatedHeader == null) {
+		if (MAP_BY_ID[id] == null) {
 			throw new UnregisteredHeaderException("header [" + id
 			    + "] not registered");
+		}
+		
+		if (MAP_BY_ID[id].annotatedHeader == null) {
+			Entry e = MAP_BY_ID[id];
+			errors.clear();
+			e.annotatedHeader = inspect(e.getHeaderClass(), errors);
+
+			registerAnnotatedSubHeaders(e.annotatedHeader.getHeaders());
 		}
 
 		return MAP_BY_ID[id].annotatedHeader;
