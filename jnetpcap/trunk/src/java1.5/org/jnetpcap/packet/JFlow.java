@@ -12,6 +12,7 @@
  */
 package org.jnetpcap.packet;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -49,8 +50,8 @@ public class JFlow {
 			this.reverse = new LinkedList<JPacket>();
 		} else {
 			this.all = new LinkedList<JPacket>();
-			this.forward = null;
-			this.reverse = null;
+			this.forward = Collections.emptyList();
+			this.reverse = Collections.emptyList();
 		}
 	}
 
