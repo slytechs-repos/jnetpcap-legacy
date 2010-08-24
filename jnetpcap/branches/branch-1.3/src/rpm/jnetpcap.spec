@@ -1,6 +1,16 @@
 #
 #   RPM package specification for JNETPCAP
 #
+# Note: It is critical to use underscore in physical top level directory
+#       of jnetpcap when checking out from SVN. If a dash is used, rpmbuild
+#       tool converts the dash ('-') to an underscore ('_') causing major build
+#       problems since the build directory might reside under 
+#       /home/user/jnp-1.3/build/rpm while the rpm build tool creates a new
+#       working directory and assumes underscores /home/user/jnp_1.3/build/rpm 
+#       which is of course a different directory entirely causing files not to
+#       be found and failure of the rpm build
+#       
+ 
 %define VERSION		@pkg.version@
 %define PKG_RELEASE	@pkg.release@
 %define OPERATING_SYS	@platform.os.name@
