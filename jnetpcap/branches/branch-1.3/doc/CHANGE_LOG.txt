@@ -21,6 +21,14 @@
                               jNetPcap Package
                                  Change Log
                                  
+== Release 1.3 final (2010-08-24) ==
+
+* No code changes (b1 code thoroughly tested and deployed for several months)
+
+* Various build script changes
+  
+  - Added x86_64 builds
+
 == Release 1.3.b1 (2010-04-05) ==
 
 * Fixes
@@ -35,7 +43,8 @@
   
   - Bug#2908252 - JFormatter invalid state after exception during format output
   
-  - Bug#2908513 - exception thrown by Checksum for truncated or recursive ICMP headers.
+  - Bug#2908513 - exception thrown by Checksum for truncated or recursive ICMP 
+                  headers.
     
 * Added
 
