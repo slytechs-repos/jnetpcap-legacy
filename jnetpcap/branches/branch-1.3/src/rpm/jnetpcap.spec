@@ -38,14 +38,8 @@ providing entire libpcap environment under java.
 
 %prep
 
-%build
-pwd
-
-%install
-
 %files
 %doc LICENSE.txt RELEASE_NOTES.txt CHANGE_LOG.txt
-
 /usr/lib/libjnetpcap.so.%{VERSION}
 /usr/share/java/%{JNETPCAP}.jar
 
