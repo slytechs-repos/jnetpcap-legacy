@@ -193,13 +193,13 @@ public class IEEE802dot1d
 	 * 
 	 * @return message type
 	 */
-	public IEEE802dot2d.Type typeEnum() {
+	public IEEE802dot1d.Type typeEnum() {
 		switch (type()) {
 			case 0:
-				return IEEE802dot2d.Type.CONFIG;
+				return IEEE802dot1d.Type.CONFIG;
 
 			case (1 << 7):
-				return IEEE802dot2d.Type.CHANGE;
+				return IEEE802dot1d.Type.CHANGE;
 
 			default:
 				return null;
@@ -212,7 +212,7 @@ public class IEEE802dot1d
 	 * @param type
 	 *          message type constant
 	 */
-	public void typeEnum(IEEE802dot2d.Type type) {
+	public void typeEnum(IEEE802dot1d.Type type) {
 		switch (type) {
 			case CONFIG:
 				type(0);
