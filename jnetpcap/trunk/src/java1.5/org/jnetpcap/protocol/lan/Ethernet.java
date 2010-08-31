@@ -53,7 +53,24 @@ public class Ethernet
 	public enum EthernetType {
 		IEEE_802DOT1Q(0x8100, "vlan - IEEE 802.1q"),
 		IP4(0x800, "ip version 4"),
-		IP6(0x86DD, "ip version 6"), ;
+		IP6(0x86DD, "ip version 6"),
+		PUP(0x200),
+		XNS(0x600),
+		CHAOS(0x804),
+		ARP(0x806),
+		VINES_IP(0xbad),
+		VINES_ECHO(0xbaf),
+		DEC(0x6003),
+		APOLLO(0x8019),
+		SLARP(0x8035, "Cisco SLARP"),
+		DECSTP(0x8038),
+		ETHERTALK(0x809b, "Apple ether-talk"),
+		IPX(0x8137, "Novell IPX"),
+		FRAME_RELAY_ARP(0x808, "Cisco Framerelay ARP"),
+		STP(0x4242, "IEEE STP IEEE802.1d"),
+		ISO(0xfefe, "ISO CLNP/ISO ES-IS"),
+		;
+		
 		public static String toString(int id) {
 			for (EthernetType t : values()) {
 				if (t.id == id) {
