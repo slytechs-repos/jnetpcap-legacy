@@ -19,9 +19,9 @@ import org.jnetpcap.packet.Payload;
 import org.jnetpcap.protocol.application.Html;
 import org.jnetpcap.protocol.application.WebImage;
 import org.jnetpcap.protocol.lan.Ethernet;
+import org.jnetpcap.protocol.lan.IEEE802dot1d;
 import org.jnetpcap.protocol.lan.IEEE802dot1q;
 import org.jnetpcap.protocol.lan.IEEE802dot2;
-import org.jnetpcap.protocol.lan.IEEE802dot2d;
 import org.jnetpcap.protocol.lan.IEEE802dot3;
 import org.jnetpcap.protocol.lan.IEEESnap;
 import org.jnetpcap.protocol.lan.SLL;
@@ -154,7 +154,7 @@ public enum JProtocol {
 	/**
 	 * Spanning Tree Protocol (STP)
 	 */
-	IEEE802dot2d(IEEE802dot2d.class)
+	IEEE802dot1d(IEEE802dot1d.class)
 	
 	;
 
