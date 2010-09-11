@@ -50,6 +50,7 @@ public abstract class AnnotatedMethod {
 		this.object = object;
 		this.method = method;
 		this.declaringClass = method.getDeclaringClass();
+		this.method.setAccessible(true);
 
 	}
 
@@ -57,6 +58,7 @@ public abstract class AnnotatedMethod {
 		this.method = method;
 		this.declaringClass = method.getDeclaringClass();
 		this.object = null;
+		this.method.setAccessible(true);
 
 		validateSignature(method);
 	}
