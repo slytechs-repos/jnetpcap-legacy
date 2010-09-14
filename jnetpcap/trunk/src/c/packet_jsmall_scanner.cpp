@@ -868,6 +868,11 @@ debug_error("IllegalArgumentException",
 			 */
 			scanner->sc_scan_table[i] = native_protocols[i];
 		} else {
+						
+			if (scanner->sc_java_header_scanners[i] != NULL) {
+				env->DeleteGlobalRef(scanner->sc_java_header_scanners[i]);
+				scanner->sc_java_header_scanners[i] = NULL;
+			}
 
 			/*
 			 * Record the java header scanner and replace the native scanner with
