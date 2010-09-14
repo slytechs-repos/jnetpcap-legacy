@@ -359,8 +359,6 @@ public class JScanner
 	public int scan(JPacket packet, int id, int wirelen) {
 		final JPacket.State state = packet.getState();
 
-		reloadAll();
-
 		return scan(packet, state, id, wirelen);
 	}
 
