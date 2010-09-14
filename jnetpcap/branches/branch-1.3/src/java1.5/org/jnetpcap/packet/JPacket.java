@@ -396,6 +396,11 @@ public abstract class JPacket
 	 */
 	public final static int DEFAULT_STATE_HEADER_COUNT = 20;
 
+	/**
+	 * Default scanner used to scan a packet per user request
+	 */
+	protected static JScanner defaultScanner = new JScanner();
+
 	private static JFormatter out = new TextFormatter(new StringBuilder());
 
 	/**
@@ -404,9 +409,13 @@ public abstract class JPacket
 	protected static JMemoryPool pool = new JMemoryPool();
 
 	/**
-	 * Default scanner used to scan a packet per user request
+	 * Returns the default scanner for all packets
+	 * 
+	 * @return the current default scanner
 	 */
-	protected static JScanner scanner = new JScanner();
+	public static JScanner getDefaultScanner() {
+		return defaultScanner;
+	}
 
 	/**
 	 * Gets the current internal packet formatter used in the {@link #toString}
@@ -717,9 +726,16 @@ public abstract class JPacket
 	public int getPacketWirelen() {
 		return getCaptureHeader().wirelen();
 	}
-
+	
+	/**
+	 * Gets the current default scanner.
+	 * 
+	 * @return current default scanner
+	 * @deprecated use static {@link JPacket#getDefaultScanner()} instead
+	 */
+	@Deprecated
 	public JScanner getScanner() {
-		return scanner;
+		return defaultScanner;
 	}
 
 	/**
@@ -856,7 +872,7 @@ public abstract class JPacket
 	 *          to be found in the packet, the DLT
 	 */
 	public void scan(int id) {
-		scanner.scan(this, id, getCaptureHeader().wirelen());
+		defaultScanner.scan(this, id, getCaptureHeader().wirelen());
 	}
 
 	/**
