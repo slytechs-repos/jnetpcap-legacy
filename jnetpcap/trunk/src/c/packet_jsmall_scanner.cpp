@@ -354,6 +354,10 @@ debug_scan("loop-bottom", &scan);
 		scan.offset += scan.length + scan.hdr_gap;
 		scan.length = 0;
 		scan.next_id = PAYLOAD_ID;
+		
+		if (scan.offset >= scan.buf_len) {
+			scan.id = END_OF_HEADERS;
+		}
 	} // End for loop
 
 	/* record number of header entries found */
