@@ -155,6 +155,8 @@ public class JScanner
 		} else {
 			JRegistry.clearFlags(id, JRegistry.FLAG_OVERRIDE_BINDING);
 		}
+		
+		JPacket.getDefaultScanner().reloadAll();
 	}
 
 	/**
@@ -175,6 +177,8 @@ public class JScanner
 		} else {
 			JRegistry.clearFlags(id, JRegistry.FLAG_HEURISTIC_BINDING);
 		}
+		
+		JPacket.getDefaultScanner().reloadAll();
 	}
 
 	public static void heuristicPostCheck(int id, boolean enable) {
@@ -185,6 +189,8 @@ public class JScanner
 			JRegistry.clearFlags(id, JRegistry.FLAG_HEURISTIC_BINDING);
 			JRegistry.clearFlags(id, JRegistry.FLAG_HEURISTIC_PRE_BINDING);
 		}
+		
+		JPacket.getDefaultScanner().reloadAll();
 	}
 
 	public static void heuristicPreCheck(int id, boolean enable) {
@@ -195,6 +201,8 @@ public class JScanner
 			JRegistry.clearFlags(id, JRegistry.FLAG_HEURISTIC_BINDING);
 			JRegistry.clearFlags(id, JRegistry.FLAG_HEURISTIC_PRE_BINDING);
 		}
+		
+		JPacket.getDefaultScanner().reloadAll();
 	}
 
 	/**
