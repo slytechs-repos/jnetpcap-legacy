@@ -1123,8 +1123,8 @@ public class Ip4
 			final int length = length() - 4;
 			final Entry[] entries = new Entry[length / 4];
 
-			for (int i = 4; i < length; i += 8) {
-				final Entry entry = entries[i / 8];
+			for (int i = 4, index = 0; i < length; i += 8, index ++) {
+				final Entry entry = entries[index] = new Entry();
 				entry.address = getByteArray(i, 4);
 				entry.timestamp = getUInt(i + 4);
 			}
@@ -1136,8 +1136,8 @@ public class Ip4
 			final int length = length() - 4;
 			final Entry[] entries = new Entry[length / 4];
 
-			for (int i = 4; i < length; i += 4) {
-				final Entry entry = entries[i / 4];
+			for (int i = 4, index = 0; i < length; i += 4, index ++) {
+				final Entry entry = entries[index] = new Entry();
 				entry.timestamp = getUInt(i + 4);
 			}
 
