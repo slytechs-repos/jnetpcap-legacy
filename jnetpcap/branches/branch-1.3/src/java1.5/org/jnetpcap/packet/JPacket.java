@@ -901,9 +901,8 @@ public abstract class JPacket
 		try {
 			out.format(this);
 			return out.toString();
-		} catch (IOException e) {
-			throw new IllegalStateException(
-			    "internal error, StringBuilder threw IOException");
+		} catch (Exception e) {
+			throw new RuntimeException(out.toString(), e);
 		}
 	}
 }
