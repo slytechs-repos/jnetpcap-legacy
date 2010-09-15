@@ -22,7 +22,7 @@ import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.util.checksum.Checksum;
 
 /**
- * Udp/Ip header definition.
+ * User Datagram Protocol (UDP).
  * <p>
  * The User Datagram Protocol (UDP) is one of the core members of the Internet
  * Protocol Suite, the set of network protocols used for the Internet. With UDP,
@@ -55,6 +55,46 @@ import org.jnetpcap.util.checksum.Checksum;
  * Common network applications that use UDP include: the Domain Name System
  * (DNS), streaming media applications such as IPTV, Voice over IP (VoIP),
  * Trivial File Transfer Protocol (TFTP) and many online games.
+ * </p>
+ * <p>
+ * UDP is a minimal message-oriented Transport Layer protocol that is documented
+ * in IETF RFC 768
+ * </p>
+ * <p>
+ * UDP provides no guarantees to the upper layer protocol for message delivery
+ * and the UDP protocol layer retains no state of UDP messages once sent. For
+ * this reason, UDP is sometimes referred to as Unreliable Datagram Protocol.
+ * </p>
+ * <p>
+ * UDP provides application multiplexing (via port numbers) and integrity
+ * verification (via checksum) of the header and payload.[3] If transmission
+ * reliability is desired, it must be implemented in the user's application.
+ * </p>
+ * <p>
+ * The UDP header consists of 4 fields, all of which are 2 bytes (16 bits).[1]
+ * The use of two of those is optional in IPv4 (pink background in table). In
+ * IPv6 only the source port is optional:
+ * <ul>
+ * <li>Source port number - This field identifies the sender's port when
+ * meaningful and should be assumed to be the port to reply to if needed. If not
+ * used, then it should be zero. If the source host is the client, the port
+ * number is likely to be an ephemeral port number. If the source host is the
+ * server, the port number is likely to be a well-known port number.
+ * <li>Destination port number - This field identifies the receiver's port and
+ * is required. Similar to source port number, if the client is the destination
+ * host then the port number will likely be an ephemeral port number and if the
+ * destination host is the server then the port number will likely be a
+ * well-known port number.
+ * <li>Length A field that specifies the length in bytes of the entire
+ * datagram: header and data. The minimum length is 8 bytes since that's the
+ * length of the header. The field size sets a theoretical limit of 65,535 bytes
+ * (8 byte header + 65,527 bytes of data) for a UDP datagram. The practical
+ * limit for the data length which is imposed by the underlying IPv4 protocol is
+ * 65,507 bytes (65,535 - 8 byte UDP header - 20 byte IP header).
+ * <li>Checksum - The checksum field is used for error-checking of the header
+ * and data. If the checksum is omitted in IPv4, the field uses the value
+ * all-zeros. This field is not optional for IPv6.
+ * </ul>
  * </p>
  * Description source: http://wikipedia.org/wiki/User_Datagram_Protocol
  * 
