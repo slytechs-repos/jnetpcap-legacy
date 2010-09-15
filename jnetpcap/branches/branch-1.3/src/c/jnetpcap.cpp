@@ -957,6 +957,10 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_injectPrivate
 JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_sendPacket
   (JNIEnv *env, jobject obj, jobject jbuffer) {
 	
+#if (LIBPCAP_VERSION < LIBPCAP_PCAP_SENDPACKET)
+	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
+	return -1;
+#else
 	if (jbuffer == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION,
 				"buffer argument is null");
@@ -978,6 +982,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_sendPacket
 
 	int r = pcap_sendpacket(p, b, (int) size);
 	return r;
+#endif
 }
 
 
