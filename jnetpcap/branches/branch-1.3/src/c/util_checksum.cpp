@@ -386,6 +386,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_pseudoUdp
 		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
 		return -1;
 	}
+	
 
 	vec_t vec[5];
 	uint32_t phdr[2];
@@ -395,6 +396,9 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_pseudoUdp
 
 	udp_t *pudp = (udp_t *)(buf + udp);
 	len = BIG_ENDIAN16(pudp->length);
+	if (udp + len >= size) {
+		return 0;
+	}
 	
 	if ((udp + 8) > size) {
 		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
@@ -453,6 +457,10 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_icmp
 	
 	if ((icmp + 4) > size) {
 		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+		return 0;
+	}
+	
+	if ((icmp + len) > size) {
 		return 0;
 	}
 
