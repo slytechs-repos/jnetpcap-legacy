@@ -672,10 +672,6 @@ void scan_vlan(scan_t *scan) {
 	scan->length = sizeof(vlan_t);
 	
 	scan->next_id = validate_next(lookup_ethertype(vlan->type), scan);
-	
-	if (scan->next_id == PAYLOAD_ID) {
-		scan->next_id = validate_next(IEEE_802DOT2_ID, scan);
-	}
 }
 
 /*
