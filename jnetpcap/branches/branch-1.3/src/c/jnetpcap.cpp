@@ -951,6 +951,38 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_injectPrivate
 
 /*
  * Class:     org_jnetpcap_Pcap
+ * Method:    sendPacket
+ * Signature: (Lorg/jnetpcap/nio/JBuffer;)I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_sendPacket
+  (JNIEnv *env, jobject obj, jobject jbuffer) {
+	
+	if (jbuffer == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION,
+				"buffer argument is null");
+		return -1;
+	}
+
+	pcap_t *p = getPcap(env, obj);
+	if (p == NULL) {
+		return -1; // Exception already thrown
+	}
+	
+	u_char *b = (u_char *)getJMemoryPhysical(env, jbuffer);
+	if (b == NULL) {
+		throwException(env, ILLEGAL_ARGUMENT_EXCEPTION,
+				"Unable to retrieve physical address from JBuffer");
+	}
+	
+	size_t size = env->GetIntField(jbuffer, jmemorySizeFID);
+
+	int r = pcap_sendpacket(p, b, (int) size);
+	return r;
+}
+
+
+/*
+ * Class:     org_jnetpcap_Pcap
  * Method:    sendPacketPrivate
  * Signature: (Ljava/nio/ByteBuffer;)I
  */
