@@ -31,10 +31,10 @@ import org.jnetpcap.util.checksum.Checksum;
  * layer protocol developed by the International Organization for
  * Standardization (ISO). The original ISO standards for HDLC are:
  * <ul>
- * <li> ISO 3309 — Frame Structure
- * <li> ISO 4335 — Elements of Procedure
- * <li> ISO 6159 — Unbalanced Classes of Procedure
- * <li> ISO 6256 — Balanced Classes of Procedure
+ * <li> ISO 3309 - Frame Structure
+ * <li> ISO 4335 - Elements of Procedure
+ * <li> ISO 6159 - Unbalanced Classes of Procedure
+ * <li> ISO 6256 - Balanced Classes of Procedure
  * </ul>
  * <p>
  * The current standard for HDLC is ISO 13239, which replaces all of those
