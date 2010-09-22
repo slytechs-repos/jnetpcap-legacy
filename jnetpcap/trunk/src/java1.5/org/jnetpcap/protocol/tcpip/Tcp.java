@@ -681,7 +681,7 @@ public class Tcp
 	    JSubHeader<Tcp> {
 
 		/**
-		 * Options (Variable 0-320 bits, divisible by 32) – The length of this field
+		 * Options (Variable 0-320 bits, divisible by 32) - The length of this field
 		 * is determined by the data offset field. Options 0 and 1 are a single byte
 		 * (8 bits) in length. The remaining options indicate the total length of
 		 * the option (expressed in bytes) in the second byte. Some options may only
