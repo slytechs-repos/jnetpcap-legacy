@@ -60,9 +60,9 @@ import org.jnetpcap.util.checksum.Checksum;
  * <p>
  * The header structure is as follows:
  * <ul>
- * <li> Source port (16 bits) – identifies the sending port
- * <li> Destination port (16 bits) – identifies the receiving port
- * <li> Sequence number (32 bits) – has a dual role:
+ * <li> Source port (16 bits) - identifies the sending port
+ * <li> Destination port (16 bits) - identifies the receiving port
+ * <li> Sequence number (32 bits) - has a dual role:
  * <ul>
  * <li> If the SYN flag is set, then this is the initial sequence number. The
  * sequence number of the actual first data byte (and the acknowledged number in
@@ -70,50 +70,50 @@ import org.jnetpcap.util.checksum.Checksum;
  * <li> If the SYN flag is clear, then this is the accumulated sequence number
  * of the first data byte of this packet for the current session.
  * </ul>
- * <li> Acknowledgment number (32 bits) – if the ACK flag is set then the value
+ * <li> Acknowledgment number (32 bits) - if the ACK flag is set then the value
  * of this field is the next sequence number that the receiver is expecting.
  * This acknowledges receipt of all prior bytes (if any). The first ACK sent by
  * each end acknowledges the other end's initial sequence number itself, but no
  * data.
- * <li> Data offset (4 bits) – specifies the size of the TCP header in 32-bit
+ * <li> Data offset (4 bits) - specifies the size of the TCP header in 32-bit
  * words. The minimum size header is 5 words and the maximum is 15 words thus
  * giving the minimum size of 20 bytes and maximum of 60 bytes, allowing for up
  * to 40 bytes of options in the header. This field gets its name from the fact
  * that it is also the offset from the start of the TCP segment to the actual
  * data.
- * <li> Reserved (4 bits) – for future use and should be set to zero
- * <li> Flags (8 bits) (aka Control bits) – contains 8 1-bit flags
+ * <li> Reserved (4 bits) - for future use and should be set to zero
+ * <li> Flags (8 bits) (aka Control bits) - contains 8 1-bit flags
  * <ul>
- * <li> CWR (1 bit) – Congestion Window Reduced (CWR) flag is set by the sending
+ * <li> CWR (1 bit) - Congestion Window Reduced (CWR) flag is set by the sending
  * host to indicate that it received a TCP segment with the ECE flag set and had
  * responded in congestion control mechanism (added to header by RFC 3168).
- * <li> ECE (1 bit) – ECN-Echo indicates If the SYN flag is set, that the TCP
+ * <li> ECE (1 bit) - ECN-Echo indicates If the SYN flag is set, that the TCP
  * peer is ECN capable. If the SYN flag is clear, that a packet with Congestion
  * Experienced flag in IP header set is received during normal transmission
  * (added to header by RFC 3168).
- * <li>URG (1 bit) – indicates that the Urgent pointer field is significant
- * <li>ACK (1 bit) – indicates that the Acknowledgment field is significant.
+ * <li>URG (1 bit) - indicates that the Urgent pointer field is significant
+ * <li>ACK (1 bit) - indicates that the Acknowledgment field is significant.
  * All packets after the initial SYN packet sent by the client should have this
  * flag set.
- * <li>PSH (1 bit) – Push function. Asks to push the buffered data to the
+ * <li>PSH (1 bit) - Push function. Asks to push the buffered data to the
  * receiving application.
- * <li>RST (1 bit) – Reset the connection
- * <li>SYN (1 bit) – Synchronize sequence numbers. Only the first packet sent
+ * <li>RST (1 bit) - Reset the connection
+ * <li>SYN (1 bit) - Synchronize sequence numbers. Only the first packet sent
  * from each end should have this flag set. Some other flags change meaning
  * based on this flag, and some are only valid for when it is set, and others
  * when it is clear.
- * <li>FIN (1 bit) – No more data from sender
+ * <li>FIN (1 bit) - No more data from sender
  * </ul>
- * <li> Window (16 bits) – the size of the receive window, which specifies the
+ * <li> Window (16 bits) - the size of the receive window, which specifies the
  * number of bytes (beyond the sequence number in the acknowledgment field) that
  * the receiver is currently willing to receive (see Flow control and Window
  * Scaling)
- * <li> Checksum (16 bits) – The 16-bit checksum field is used for
+ * <li> Checksum (16 bits) - The 16-bit checksum field is used for
  * error-checking of the header and data
- * <li> Urgent pointer (16 bits) – if the URG flag is set, then this 16-bit
+ * <li> Urgent pointer (16 bits) - if the URG flag is set, then this 16-bit
  * field is an offset from the sequence number indicating the last urgent data
  * byte
- * <li> Options (Variable 0-320 bits, divisible by 32) – The length of this
+ * <li> Options (Variable 0-320 bits, divisible by 32) - The length of this
  * field is determined by the data offset field. Options 0 and 1 are a single
  * byte (8 bits) in length. The remaining options indicate the total length of
  * the option (expressed in bytes) in the second byte. Some options may only be
@@ -126,11 +126,11 @@ import org.jnetpcap.util.checksum.Checksum;
  * <li>3,3,S (24 bits) - Window scale (see window scaling for details) [SYN]
  * <li>4,2 (16 bits) - Selective Acknowledgement permitted. [SYN] (See
  * selective acknowledgments for details)
- * <li>5,N,BBBB,EEEE,... (variable bits, N is either 10, 18, 26, or 34)-
+ * <li>5,N,BBBB,EEEE,... (variable bits, N is either 10, 18, 26, or 34) -
  * Selective ACKnowlegement (SACK) These first two bytes are followed by a list
  * of 1-4 blocks being selectively acknowledged, specified as 32-bit begin/end
  * pointers.
- * <li>8,10,TTTT,EEEE (80 bits)- Timestamp and echo of previous timestamp (see
+ * <li>8,10,TTTT,EEEE (80 bits) - Timestamp and echo of previous timestamp (see
  * TCP Timestamps for details)
  * <li>14,3,S (24 bits) - TCP Alternate Checksum Request. [SYN]
  * <li>15,N,... (variable bits) - TCP Alternate Checksum Data.
@@ -331,28 +331,28 @@ public class Tcp
 	}
 
 	/**
-	 * Flags (8 bits) (aka Control bits) – contains 8 1-bit flags
+	 * Flags (8 bits) (aka Control bits) - contains 8 1-bit flags
 	 * <ul>
-	 * <li> CWR (1 bit) – Congestion Window Reduced (CWR) flag is set by the
+	 * <li> CWR (1 bit) - Congestion Window Reduced (CWR) flag is set by the
 	 * sending host to indicate that it received a TCP segment with the ECE flag
 	 * set and had responded in congestion control mechanism (added to header by
 	 * RFC 3168).
-	 * <li> ECE (1 bit) – ECN-Echo indicates If the SYN flag is set, that the TCP
+	 * <li> ECE (1 bit) - ECN-Echo indicates If the SYN flag is set, that the TCP
 	 * peer is ECN capable. If the SYN flag is clear, that a packet with
 	 * Congestion Experienced flag in IP header set is received during normal
 	 * transmission (added to header by RFC 3168).
-	 * <li>URG (1 bit) – indicates that the Urgent pointer field is significant
-	 * <li>ACK (1 bit) – indicates that the Acknowledgment field is significant.
+	 * <li>URG (1 bit) - indicates that the Urgent pointer field is significant
+	 * <li>ACK (1 bit) - indicates that the Acknowledgment field is significant.
 	 * All packets after the initial SYN packet sent by the client should have
 	 * this flag set.
-	 * <li>PSH (1 bit) – Push function. Asks to push the buffered data to the
+	 * <li>PSH (1 bit) - Push function. Asks to push the buffered data to the
 	 * receiving application.
-	 * <li>RST (1 bit) – Reset the connection
-	 * <li>SYN (1 bit) – Synchronize sequence numbers. Only the first packet sent
+	 * <li>RST (1 bit) - Reset the connection
+	 * <li>SYN (1 bit) - Synchronize sequence numbers. Only the first packet sent
 	 * from each end should have this flag set. Some other flags change meaning
 	 * based on this flag, and some are only valid for when it is set, and others
 	 * when it is clear.
-	 * <li>FIN (1 bit) – No more data from sender
+	 * <li>FIN (1 bit) - No more data from sender
 	 * </ul>
 	 * 
 	 * @author Mark Bednarczyk
@@ -360,47 +360,47 @@ public class Tcp
 	 */
 	public enum Flag {
 		/**
-		 * ACK (1 bit) – indicates that the Acknowledgment field is significant. All
+		 * ACK (1 bit) - indicates that the Acknowledgment field is significant. All
 		 * packets after the initial SYN packet sent by the client should have this
 		 * flag set.
 		 */
 		ACK,
 		/**
-		 * CWR (1 bit) – Congestion Window Reduced (CWR) flag is set by the sending
+		 * CWR (1 bit) - Congestion Window Reduced (CWR) flag is set by the sending
 		 * host to indicate that it received a TCP segment with the ECE flag set and
 		 * had responded in congestion control mechanism (added to header by RFC
 		 * 3168).
 		 */
 		CWR,
 		/**
-		 * ECE (1 bit) – ECN-Echo indicates If the SYN flag is set, that the TCP
+		 * ECE (1 bit) - ECN-Echo indicates If the SYN flag is set, that the TCP
 		 * peer is ECN capable. If the SYN flag is clear, that a packet with
 		 * Congestion Experienced flag in IP header set is received during normal
 		 * transmission (added to header by RFC 3168).
 		 */
 		ECE,
 		/**
-		 * FIN (1 bit) – No more data from sender
+		 * FIN (1 bit) - No more data from sender
 		 */
 		FIN,
 		/**
-		 * PSH (1 bit) – Push function. Asks to push the buffered data to the
+		 * PSH (1 bit) - Push function. Asks to push the buffered data to the
 		 * receiving application.
 		 */
 		PSH,
 		/**
-		 * RST (1 bit) – Reset the connection
+		 * RST (1 bit) - Reset the connection
 		 */
 		RST,
 		/**
-		 * SYN (1 bit) – Synchronize sequence numbers. Only the first packet sent
+		 * SYN (1 bit) - Synchronize sequence numbers. Only the first packet sent
 		 * from each end should have this flag set. Some other flags change meaning
 		 * based on this flag, and some are only valid for when it is set, and
 		 * others when it is clear.
 		 */
 		SYN,
 		/**
-		 * URG (1 bit) – indicates that the Urgent pointer field is significant
+		 * URG (1 bit) - indicates that the Urgent pointer field is significant
 		 */
 		URG, ;
 
@@ -648,7 +648,7 @@ public class Tcp
 	}
 
 	/**
-	 * Options (Variable 0-320 bits, divisible by 32) – The length of this field
+	 * Options (Variable 0-320 bits, divisible by 32) - The length of this field
 	 * is determined by the data offset field. Options 0 and 1 are a single byte
 	 * (8 bits) in length. The remaining options indicate the total length of the
 	 * option (expressed in bytes) in the second byte. Some options may only be
@@ -662,11 +662,11 @@ public class Tcp
 	 * <li>3,3,S (24 bits) - Window scale (see window scaling for details) [SYN]
 	 * <li>4,2 (16 bits) - Selective Acknowledgement permitted. [SYN] (See
 	 * selective acknowledgments for details)
-	 * <li>5,N,BBBB,EEEE,... (variable bits, N is either 10, 18, 26, or 34)-
+	 * <li>5,N,BBBB,EEEE,... (variable bits, N is either 10, 18, 26, or 34) -
 	 * Selective ACKnowlegement (SACK) These first two bytes are followed by a
 	 * list of 1-4 blocks being selectively acknowledged, specified as 32-bit
 	 * begin/end pointers.
-	 * <li>8,10,TTTT,EEEE (80 bits)- Timestamp and echo of previous timestamp
+	 * <li>8,10,TTTT,EEEE (80 bits) - Timestamp and echo of previous timestamp
 	 * (see TCP Timestamps for details)
 	 * <li>14,3,S (24 bits) - TCP Alternate Checksum Request. [SYN]
 	 * <li>15,N,... (variable bits) - TCP Alternate Checksum Data.
@@ -715,7 +715,7 @@ public class Tcp
 			 */
 			NO_OP(1),
 			/**
-			 * 5,N,BBBB,EEEE,... (variable bits, N is either 10, 18, 26, or 34)-
+			 * 5,N,BBBB,EEEE,... (variable bits, N is either 10, 18, 26, or 34) -
 			 * Selective ACKnowlegement (SACK) These first two bytes are followed by a
 			 * list of 1-4 blocks being selectively acknowledged, specified as 32-bit
 			 * begin/end pointers.
@@ -1200,28 +1200,28 @@ public class Tcp
 	}
 
 	/**
-	 * Flags (8 bits) (aka Control bits) – contains 8 1-bit flags
+	 * Flags (8 bits) (aka Control bits) - contains 8 1-bit flags
 	 * <ul>
-	 * <li> CWR (1 bit) – Congestion Window Reduced (CWR) flag is set by the
+	 * <li> CWR (1 bit) - Congestion Window Reduced (CWR) flag is set by the
 	 * sending host to indicate that it received a TCP segment with the ECE flag
 	 * set and had responded in congestion control mechanism (added to header by
 	 * RFC 3168).
-	 * <li> ECE (1 bit) – ECN-Echo indicates If the SYN flag is set, that the TCP
+	 * <li> ECE (1 bit) - ECN-Echo indicates If the SYN flag is set, that the TCP
 	 * peer is ECN capable. If the SYN flag is clear, that a packet with
 	 * Congestion Experienced flag in IP header set is received during normal
 	 * transmission (added to header by RFC 3168).
-	 * <li>URG (1 bit) – indicates that the Urgent pointer field is significant
-	 * <li>ACK (1 bit) – indicates that the Acknowledgment field is significant.
+	 * <li>URG (1 bit) - indicates that the Urgent pointer field is significant
+	 * <li>ACK (1 bit) - indicates that the Acknowledgment field is significant.
 	 * All packets after the initial SYN packet sent by the client should have
 	 * this flag set.
-	 * <li>PSH (1 bit) – Push function. Asks to push the buffered data to the
+	 * <li>PSH (1 bit) - Push function. Asks to push the buffered data to the
 	 * receiving application.
-	 * <li>RST (1 bit) – Reset the connection
-	 * <li>SYN (1 bit) – Synchronize sequence numbers. Only the first packet sent
+	 * <li>RST (1 bit) - Reset the connection
+	 * <li>SYN (1 bit) - Synchronize sequence numbers. Only the first packet sent
 	 * from each end should have this flag set. Some other flags change meaning
 	 * based on this flag, and some are only valid for when it is set, and others
 	 * when it is clear.
-	 * <li>FIN (1 bit) – No more data from sender
+	 * <li>FIN (1 bit) - No more data from sender
 	 * </ul>
 	 * 
 	 * @return the field's value
@@ -1242,7 +1242,7 @@ public class Tcp
 	}
 
 	/**
-	 * ACK (1 bit) – indicates that the Acknowledgment field is significant. All
+	 * ACK (1 bit) - indicates that the Acknowledgment field is significant. All
 	 * packets after the initial SYN packet sent by the client should have this
 	 * flag set.
 	 * 
@@ -1264,7 +1264,7 @@ public class Tcp
 	}
 
 	/**
-	 * CWR (1 bit) – Congestion Window Reduced (CWR) flag is set by the sending
+	 * CWR (1 bit) - Congestion Window Reduced (CWR) flag is set by the sending
 	 * host to indicate that it received a TCP segment with the ECE flag set and
 	 * had responded in congestion control mechanism (added to header by RFC
 	 * 3168).
@@ -1287,7 +1287,7 @@ public class Tcp
 	}
 
 	/**
-	 * ECE (1 bit) – ECN-Echo indicates If the SYN flag is set, that the TCP peer
+	 * ECE (1 bit) - ECN-Echo indicates If the SYN flag is set, that the TCP peer
 	 * is ECN capable. If the SYN flag is clear, that a packet with Congestion
 	 * Experienced flag in IP header set is received during normal transmission
 	 * (added to header by RFC 3168).
@@ -1310,7 +1310,7 @@ public class Tcp
 	}
 
 	/**
-	 * FIN (1 bit) – No more data from sender
+	 * FIN (1 bit) - No more data from sender
 	 * 
 	 * @return true if bit flag is set, otherwise false
 	 */
@@ -1330,7 +1330,7 @@ public class Tcp
 	}
 
 	/**
-	 * PSH (1 bit) – Push function. Asks to push the buffered data to the
+	 * PSH (1 bit) - Push function. Asks to push the buffered data to the
 	 * receiving application.
 	 * 
 	 * @return true if bit flag is set, otherwise false
@@ -1351,7 +1351,7 @@ public class Tcp
 	}
 
 	/**
-	 * RST (1 bit) – Reset the connection
+	 * RST (1 bit) - Reset the connection
 	 * 
 	 * @return true if bit flag is set, otherwise false
 	 */
@@ -1371,7 +1371,7 @@ public class Tcp
 	}
 
 	/**
-	 * SYN (1 bit) – Synchronize sequence numbers. Only the first packet sent from
+	 * SYN (1 bit) - Synchronize sequence numbers. Only the first packet sent from
 	 * each end should have this flag set. Some other flags change meaning based
 	 * on this flag, and some are only valid for when it is set, and others when
 	 * it is clear.
@@ -1394,7 +1394,7 @@ public class Tcp
 	}
 
 	/**
-	 * URG (1 bit) – indicates that the Urgent pointer field is significant
+	 * URG (1 bit) - indicates that the Urgent pointer field is significant
 	 * 
 	 * @return true if bit flag is set, otherwise false
 	 */
