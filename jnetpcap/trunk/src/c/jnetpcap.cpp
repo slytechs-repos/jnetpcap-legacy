@@ -1918,12 +1918,17 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_setDatalink
 JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_setDirection
   (JNIEnv *env, jobject obj, jint jdir) {
 	
+#if (LIBPCAP_VERSION < LIBPCAP_PCAP_CREATE)
+	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
+	return -1;
+#else
 	pcap_t *p = getPcap(env, obj);
 	if (p == NULL) {
 		return -1; // Exception already thrown
 	}
 
 	return (jint) pcap_setdirection(p, (pcap_direction_t) jdir);
+#endif
 }
 
 /*
@@ -1990,7 +1995,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_setPromisc
   (JNIEnv *env, jobject obj, jint jpromisc) {
 #if (LIBPCAP_VERSION < LIBPCAP_PCAP_CREATE)
 	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
-	return NULL;
+	return -1;
 #else
 	
 	
