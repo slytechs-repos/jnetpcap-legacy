@@ -20,7 +20,9 @@ import junit.framework.TestCase;
 import org.jnetpcap.JCaptureHeader;
 import org.jnetpcap.PcapHeader;
 import org.jnetpcap.nio.JBuffer;
+import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.nio.JMemory.Type;
+import org.jnetpcap.protocol.lan.Ethernet;
 
 /**
  * @author Mark Bednarczyk
@@ -294,6 +296,20 @@ public class TestPcapPacket
 		    .size());
 
 		// System.out.println(packet2.toString());
+		
+	}
+	
+	public final void testPcapHeader() {
+		JBuffer buffer = new JBuffer(VariousInMemoryPackets.PACKET_1); // Allocate buffer of 128 bytes
+		PcapHeader hdr = new PcapHeader(buffer.size(), buffer.size());
+		PcapPacket packet = new PcapPacket(JMemory.POINTER);
+		
+		packet.peer(buffer);
+		packet.getCaptureHeader().peerTo(hdr, 0);
+		
+		packet.scan(Ethernet.ID);
+		
+		System.out.println(packet);
 		
 	}
 
