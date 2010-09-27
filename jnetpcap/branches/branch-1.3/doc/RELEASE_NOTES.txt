@@ -22,12 +22,12 @@
                               jNetPcap Package
                                Version 1.3.b1
                                Release Notes
-                            Created on 2010-04-05
+                            Created on 2010-08-26
 
 INTRODUCTION:
 ============
 
-This is a stable release beta #1 of jNetPcap library. The feature set for
+This is a stable release beta #2 of jNetPcap library. The feature set for
 1.3 release cycle is frozen and only bug fixes will be released in future
 1.3 updates. 
 
@@ -219,6 +219,35 @@ fixes several bugs, adds Http and Html header support and moves header package
 to new protocol package. 
 
 == Bugs Fixed ==
+  - Bug#3062026	- Scanner.reloadAll() in JPacket.scan()
+
+  - Bug#3062029	- Memory leak in native scanner reloadAll() tables
+
+  - Bug#3062031	- @Bind method with multiple same headers, gets wrong header
+
+  - Bug#3062035	- AnnotatedMethod doesn't open up method access perm
+
+  - Bug#3062037	- Checksum.pseudoUDP coredumps on invalid headers
+
+  - Bug#3062050	- Main scanner loop processes 0 length headers
+
+  - Bug#3062053	- @Deprecated JPacket.getScanner method
+
+  - Bug#3065968 - Missing sendPacket(JBuffer) implementation
+
+  - Bug#3066662 - UDP header missing setter methods
+
+  - Bug#3066959 - VLAN definition incorrectly assumes 802.1d as next header
+
+  - Bug#2353774 - Tcp header incomplete - missing tcp options
+
+  - Bug#3067088 - Ip4.Timestamp incorrectly initialized
+
+  - Bug#3067096 - JPacket.toString() exceptions consume all output in progress
+
+  - Bug#2933449	- SIP PRACK Message dosn't recognized
+
+  - Bug#3018072	- Wrong scanning Sdp headers in Linux
 
   - Bug#2981951 - Intermittent crashes in scanner
 
