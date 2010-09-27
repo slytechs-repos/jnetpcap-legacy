@@ -44,6 +44,8 @@ public class TestTcpIp
     TestUtils {
 
 	public final static String HTTP_IP6 = "tests/v6-http.cap";
+	
+	public final static String SMALL_IMAP = "tests/test-small-imap.pcap";
 
 	public void testIp4CRC16Pkt1() {
 
@@ -487,6 +489,18 @@ public class TestTcpIp
 			assertTrue(ip.isFragmented());
 		}
 
+	}
+	
+	public void testTcpOptions() {
+		JPacket packet = TestUtils.getPcapPacket(SMALL_IMAP, 1 - 1);
+		System.out.println(packet.toString());
+		
+		Tcp tcp = packet.getHeader(new Tcp());
+		Tcp.Timestamp ts = new Tcp.Timestamp();
+		
+		if (tcp.hasSubHeader(ts)) {
+			System.out.printf("tsval=%d tsecr=%d%n", ts.tsval(), ts.tsecr());
+		}
 	}
 
 }
