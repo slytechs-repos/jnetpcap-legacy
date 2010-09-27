@@ -251,6 +251,7 @@ public class TestJScanner
 	public void testFlagOverride() {
 		JScanner.bindingOverride(JProtocol.TCP_ID, true);
 		JScanner.heuristicCheck(JProtocol.TCP_ID, false);
+		JPacket.getDefaultScanner().reloadAll();
 
 		PcapPacket packet = getPcapPacket(HTTP, 5);
 
@@ -258,6 +259,10 @@ public class TestJScanner
 		assertTrue(packet.hasHeader(JProtocol.IP4_ID));
 		assertTrue(packet.hasHeader(JProtocol.TCP_ID));
 		assertFalse(packet.hasHeader(JProtocol.HTTP_ID));
+		
+		JScanner.heuristicCheck(JProtocol.TCP_ID, true);
+		JPacket.getDefaultScanner().reloadAll();
+
 	}
 
 	public void testFlagPostHeuristics() {
