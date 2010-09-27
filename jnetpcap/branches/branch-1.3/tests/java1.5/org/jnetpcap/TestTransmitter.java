@@ -14,11 +14,22 @@ package org.jnetpcap;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
+
+import org.jnetpcap.packet.JMemoryPacket;
+import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.protocol.JProtocol;
+import org.jnetpcap.protocol.lan.Ethernet;
+import org.jnetpcap.protocol.network.Ip4;
+import org.jnetpcap.protocol.tcpip.Tcp;
 
 /**
  * @author Mark Bednarczyk
@@ -26,7 +37,8 @@ import junit.textui.TestRunner;
  */
 @SuppressWarnings("unused")
 public class TestTransmitter
-    extends TestCase {
+    extends
+    TestCase {
 
 	private final static String linux = "any";
 
@@ -115,8 +127,13 @@ public class TestTransmitter
 	@SuppressWarnings("deprecation")
 	private final PcapHandler<?> doNothingHandler = new PcapHandler<Object>() {
 
-		public void nextPacket(Object userObject, long seconds, int useconds,
-		    int caplen, int len, ByteBuffer buffer) {
+		public void nextPacket(
+		    Object userObject,
+		    long seconds,
+		    int useconds,
+		    int caplen,
+		    int len,
+		    ByteBuffer buffer) {
 			// Do nothing handler
 		}
 	};
@@ -145,9 +162,19 @@ public class TestTransmitter
 	 * packet all filled with 0xFF for 14 bytes which is the size of ethernet
 	 * frame. This should produce a broadcast frame.
 	 */
-	public void testSendPacket() {
+	public void testSendPacketUsingByteArray() {
 
-		Pcap pcap = Pcap.openLive("eth0", snaplen, 1, 10 * oneSecond, errbuf);
+		List<PcapIf> alldevs = new ArrayList<PcapIf>();
+		int r = Pcap.findAllDevs(alldevs, errbuf);
+		if (r == Pcap.NOT_OK || alldevs.isEmpty()) {
+			System.err.printf("Can't read list of devices, error is %s", errbuf
+			    .toString());
+			return;
+		}
+		PcapIf device = alldevs.get(1); // We know we have atleast 1 device
+
+		Pcap pcap =
+		    Pcap.openLive(device.getName(), snaplen, 1, 10 * oneSecond, errbuf);
 		assertNotNull(errbuf.toString(), pcap);
 
 		byte[] a = new byte[14];
@@ -184,6 +211,64 @@ public class TestTransmitter
 
 		pcap.close();
 
+	}
+
+	public void testSendPacketUsingJBuffer() throws UnknownHostException {
+		JPacket packet =
+		    new JMemoryPacket(JProtocol.ETHERNET_ID,
+		        "0016b6c13cb10021 5db0456c08004500 "
+		            + "00340e8e40008006 9c54c0a80165d822 "
+		            + "b5b1c1cf005020ce 4303000000008002 "
+		            + "2000d94300000204 05b4010303020101 " + "0402");
+
+		InetAddress dst = InetAddress.getByName("201.1.1.1");
+		InetAddress src = InetAddress.getByName("192.168.1.1");
+
+		Ip4 ip = packet.getHeader(new Ip4());
+		Tcp tcp = packet.getHeader(new Tcp());
+
+		ip.destination(dst.getAddress());
+		ip.source(src.getAddress());
+
+		ip.checksum(ip.calculateChecksum());
+		tcp.checksum(tcp.calculateChecksum());
+		packet.scan(Ethernet.ID);
+
+		System.out.println(packet);
+		List<PcapIf> alldevs = new ArrayList<PcapIf>(); // Will be filled with NICs
+		StringBuilder errbuf = new StringBuilder(); // For any error msgs
+		/***************************************************************************
+		 * First get a list of devices on this system
+		 **************************************************************************/
+		int r = Pcap.findAllDevs(alldevs, errbuf);
+		if (r == Pcap.NOT_OK || alldevs.isEmpty()) {
+			System.err.printf("Can't read list of devices, error is %s", errbuf
+			    .toString());
+			return;
+		}
+		PcapIf device = alldevs.get(0); // We know we have atleast 1 device
+		/***************************************************************************
+		 * Second we open a network interface
+		 **************************************************************************/
+		int snaplen = 64 * 1024; // Capture all packets, no trucation
+		int flags = Pcap.MODE_NON_PROMISCUOUS; // capture all packets
+		int timeout = 10 * 1000; // 10 seconds in millis
+		Pcap pcap =
+		    Pcap.openLive(device.getName(), snaplen, flags, timeout, errbuf);
+		System.out.println("Device ->" + device.getName());
+
+		try {
+			if (pcap.sendPacket(packet) != Pcap.OK) {
+				System.err.println(pcap.getErr());
+			}
+		} finally {
+			/*************************************************************************
+			 * Lastly we close
+			 ************************************************************************/
+			pcap.close();
+			
+			
+		}
 	}
 
 }
