@@ -53,6 +53,7 @@ public abstract class AbstractMessageHeader
 	    "REF", // REFER
 	    "NOT", // NOTIFY
 	    "INF", // INFO
+	    "PRA", // PRACK
 	};
 
 	private static boolean checkValidFirstChars(JBuffer buffer, int offset) {
@@ -116,7 +117,7 @@ public abstract class AbstractMessageHeader
 		super.getUTF8String(0, buf, len);
 
 		rawHeader = buf.toString();
-		String lines[] = rawHeader.split("\r\n");
+		String lines[] = rawHeader.split("\r\n|\n");
 
 		// System.out.println("[" + s + "]");
 

@@ -364,12 +364,21 @@ void scan_sip(scan_t *scan) {
 			i += 13;
 			remain -= 13;
 		}
-			
+		
+		/* Windows CR+LF+CR+LF */
 		if (sip[i] == '\r' && sip[i + 1] == '\n' 
 			&& sip[i + 2] == '\r' && sip[i + 3] == '\n') {
 				
 			scan->length = i + 4;
 			remain -= 4;
+			break;
+		}
+		
+		/* Unix LF+LF */
+		if (sip[i] == '\n' && sip[i + 1] == '\n') {
+				
+			scan->length = i + 2;
+			remain -= 2;
 			break;
 		}
 	}
@@ -442,6 +451,7 @@ int validate_sip(scan_t *scan) {
 			size >= 6 && strncmp(sip, "CANCEL", 6) == 0 || 
 			size >= 3 && strncmp(sip, "ACK", 3) == 0 || 
 			size >= 3 && strncmp(sip, "BYE", 3) == 0 || 
+			size >= 3 && strncmp(sip, "PRACK", 5) == 0 || 
 			
 			/* SIP Response */
 			size >= 3 && strncmp(sip, "SIP", 3) == 0
