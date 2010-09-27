@@ -21,6 +21,41 @@
                               jNetPcap Package
                                  Change Log
                                  
+== Release 1.3.b2  (2010-09-26) ==
+
+* Fixes
+
+  - Bug#3062026	- Scanner.reloadAll() in JPacket.scan()
+
+  - Bug#3062029	- Memory leak in native scanner reloadAll() tables
+
+  - Bug#3062031	- @Bind method with multiple same headers, gets wrong header
+
+  - Bug#3062035	- AnnotatedMethod doesn't open up method access perm
+
+  - Bug#3062037	- Checksum.pseudoUDP coredumps on invalid headers
+
+  - Bug#3062050	- Main scanner loop processes 0 length headers
+
+  - Bug#3062053	- @Deprecated JPacket.getScanner method
+
+  - Bug#3065968 - Missing sendPacket(JBuffer) implementation
+
+  - Bug#3066662 - UDP header missing setter methods
+
+  - Bug#3066959 - VLAN definition incorrectly assumes 802.1d as next header
+
+  - Bug#2353774 - Tcp header incomplete - missing tcp options
+
+  - Bug#3067088 - Ip4.Timestamp incorrectly initialized
+
+  - Bug#3067096 - JPacket.toString() exceptions consume all output in progress
+
+  - Bug#2933449	- SIP PRACK Message dosn't recognized
+
+  - Bug#3018072	- Wrong scanning Sdp headers in Linux
+
+
 == Release 1.3 final (2010-08-24) ==
 
 * No code changes (b1 code thoroughly tested and deployed for several months)
