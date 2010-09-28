@@ -552,7 +552,11 @@
 
 			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
 
-			<fileset includes="${jni.obj.files}" dir="${src.c.dir}" />
+			<fileset dir="${src.c.dir}" >
+				<exclude name="*_pcap100.cpp" />
+				<exclude name="api_*.cpp" />
+				<include name="*.cpp" />
+			</fileset>
 			<includepath location="${build.include.dir}" />
 			<includepath location="${src.c.dir}" />
 			<sysincludepath location="${java.sdk.include.dir}" />
@@ -571,7 +575,6 @@
 			</linker>
 		</cc>
 
-		<copy tofile="${build.lib.dir}/${lib.pcap.fullname}" file="${build.lib.dir}/${lib.pcap.name}" />
 
 		<echo message="Created shared JNI libary: ${build.lib.dir}/${lib.pcap.fullname}" />
 		
@@ -579,7 +582,10 @@
 
 			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
 
-			<fileset includes="${pcap100.files}" dir="${src.c.dir}" />
+			<fileset dir="${src.c.dir}" >
+				<include name="*_pcap100.cpp" />
+				<include name="api_*.cpp" />
+			</fileset>
 			<includepath location="${build.include.dir}" />
 			<includepath location="${src.c.dir}" />
 			<sysincludepath location="${java.sdk.include.dir}" />
@@ -590,7 +596,8 @@
 
 
 			<linker name="${compiler.ld.cmd}">
-				<syslibset libs="pcap" />
+				<syslibset libs="pcap,jnetpcap" />
+				<libset dir="${build.lib.dir}" libs="jnetpcap" />
 
 				<linkerarg value="-Wl,-soname,${jni.pcap100.file}" />
 
@@ -598,9 +605,10 @@
 			</linker>
 		</cc>
 
+		<echo message="Created shared JNI libary: ${build.lib.dir}/${jni.build.pcap100.filepath}" />
+
 		<copy tofile="${build.lib.dir}/${lib.pcap.fullname}" file="${build.lib.dir}/${lib.pcap.name}" />
 
-		<echo message="Created shared JNI libary: ${build.lib.dir}/${lib.pcap.fullname}" />
 
 
 		<property name="jni.lib.file" value="${build.lib.dir}/${lib.pcap.fullname}" />
