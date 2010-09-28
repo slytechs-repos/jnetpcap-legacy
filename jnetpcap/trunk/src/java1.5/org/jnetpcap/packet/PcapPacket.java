@@ -547,6 +547,7 @@ public class PcapPacket
 		super(Type.POINTER);
 
 		src.transferStateAndDataTo(this);
+		this.dlt = src.dlt;
 	}
 
 	/**
