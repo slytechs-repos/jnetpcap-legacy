@@ -384,7 +384,7 @@
 		<echo message="Created jnetpcap libary: ${jni.build.filepath}" />
 
 		<!-- 
-		  enable-auto-import is for linking jnetpcap.dll and jnetpcap-api100.dll
+		  enable-auto-import is for linking jnetpcap.dll and jnetpcap-pcap100.dll
 		  -->
 		<exec executable="${compiler.ld.cmd}">
 
@@ -392,9 +392,9 @@
 			<arg value="-g" />
 			<arg value="-Wl,--add-stdcall-alias,--enable-auto-import" />
 
-			<arg line="-o ${jni.build.api100.filepath}" />
+			<arg line="-o ${jni.build.pcap100.filepath}" />
 
-			<arg line="${api100.files}" />
+			<arg line="${pcap100.files}" />
 
 			<arg line="-L ${pcap.lib.dir}" />
 			
@@ -408,7 +408,7 @@
 
 
 		</exec>
-		<echo message="Created ${jni.api100.file} libary: ${jni.build.api100.filepath}" />
+		<echo message="Created ${jni.pcap100.file} libary: ${jni.build.pcap100.filepath}" />
 
 		<property name="jni.lib.file" value="${jni.build.filepath}" />
 	</target>
