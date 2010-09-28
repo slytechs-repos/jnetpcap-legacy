@@ -192,7 +192,7 @@ public class Pcap100
 	 * not portable between different operating systems (i.e. dll for windows and
 	 * so for *NIX.)
 	 */
-	public final static String LIBRARY_NAME = "jnetpcap-api100";
+	public final static String LIBRARY_NAME = "jnetpcap-pcap100";
 
 	/**
 	 * Error exception if the library failed to load successfully
