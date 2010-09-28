@@ -49,6 +49,7 @@
 #include <stdlib.h>
 #include <pcap.h>
 #include <jni.h>
+#include <string.h>
 
 #ifndef WIN32
 #include <errno.h>
@@ -79,15 +80,15 @@
 
 #define PCAP100_NATIVES_COUNT  9
 JNINativeMethod pcap100Natives[PCAP100_NATIVES_COUNT] = {
-/*0*/{ "activate", "()I", (void *) Java_org_jnetpcap_Pcap_activate },	
-/*1*/{ "canSetRfmon", "()I", (void *) Java_org_jnetpcap_Pcap_canSetRfmon },	
-/*2*/{ "setRfmon", "(I)I", (void *) Java_org_jnetpcap_Pcap_setRfmon },	
-/*3*/{ "setBufferSize", "(J)I", (void *) Java_org_jnetpcap_Pcap_setBufferSize },	
-/*4*/{ "setDirection", "(I)I", (void *) Java_org_jnetpcap_Pcap_setDirection },	
-/*5*/{ "setPromisc", "(I)I", (void *) Java_org_jnetpcap_Pcap_setPromisc },	
-/*6*/{ "setSnaplen", "(I)I", (void *) Java_org_jnetpcap_Pcap_setSnaplen },	
-/*7*/{ "setTimeout", "(I)I", (void *) Java_org_jnetpcap_Pcap_setTimeout },	
-/*8*/{ "create", "(Ljava/lang/String;Ljava/lang/StringBuilder;)Lorg/jnetpcap/Pcap;", 
+/*0*/{ (char *)"activate", (char *)"()I", (void *) Java_org_jnetpcap_Pcap_activate },	
+/*1*/{ (char *)"canSetRfmon", (char *)"()I", (void *) Java_org_jnetpcap_Pcap_canSetRfmon },	
+/*2*/{ (char *)"setRfmon", (char *)"(I)I", (void *) Java_org_jnetpcap_Pcap_setRfmon },	
+/*3*/{ (char *)"setBufferSize", (char *)"(J)I", (void *) Java_org_jnetpcap_Pcap_setBufferSize },	
+/*4*/{ (char *)"setDirection", (char *)"(I)I", (void *) Java_org_jnetpcap_Pcap_setDirection },	
+/*5*/{ (char *)"setPromisc", (char *)"(I)I", (void *) Java_org_jnetpcap_Pcap_setPromisc },	
+/*6*/{ (char *)"setSnaplen", (char *)"(I)I", (void *) Java_org_jnetpcap_Pcap_setSnaplen },	
+/*7*/{ (char *)"setTimeout", (char *)"(I)I", (void *) Java_org_jnetpcap_Pcap_setTimeout },	
+/*8*/{ (char *)"create", (char *)"(Ljava/lang/String;Ljava/lang/StringBuilder;)Lorg/jnetpcap/Pcap;", 
 			(void *) Java_org_jnetpcap_Pcap_create}
 };
 

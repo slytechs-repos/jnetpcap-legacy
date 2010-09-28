@@ -49,6 +49,7 @@
 #include <stdlib.h>
 #include <pcap.h>
 #include <jni.h>
+#include <string.h>
 
 #include "api_descriptor.h"
 #include "jnetpcap_utils.h"
