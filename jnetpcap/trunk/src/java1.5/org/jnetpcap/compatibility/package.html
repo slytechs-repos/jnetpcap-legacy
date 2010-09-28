@@ -1,0 +1,32 @@
+<body>
+Backword compatibility package. This package provides classes that
+expose, along with their supporting native libraries, API features to
+older versions of jnetpcap library.
+<p>A new class (lets call it class B) is created that extends the
+main Pcap class (class A). Another words, class B extends class A. If we
+look at Pcap class hierarchy we get:
+<pre>
+Pcap
+ +->Pcap100
+</pre>
+
+Where Pcap is our normal Pcap class and Pcap100 is a new class that
+provides libpcap 1.0.0 functions that were not available in previous
+libpcap and Pcap class implementations. Both A and B classes register
+and methods that correspond to the new libpcap API with JNI. The same
+native jNetPcap functions service both classes. So a call from
+Pcap.create is identical to a call Pcap100.create, in the sense that the
+exact same native function is invoked as a wrapper around libpcap's
+pcap_create call.
+</p>
+<p>If the user is linked to the version of jnetpcap in which the
+full API is defined within the main A class, then the user does not have
+to utilize class B to access those new API functions. However if class B
+is utilized with an older release of jNetPcap, where the new function
+calls have not been previously defined, as of release of that particular
+version of jnetpcap, then class B can be used to access those new
+function calls.</p>
+<p>This mechanism breaks up the libpcap API into distinct layers to
+which the main Pcap class is linked, while a secondary class is defined
+that is backward portable to previous versions of jnetpcap.</p>
+</body>

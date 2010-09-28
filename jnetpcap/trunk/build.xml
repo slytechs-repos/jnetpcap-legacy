@@ -277,6 +277,8 @@
 	<target name="comp-javah" depends="prep-javah,comp-java">
 		<javah destdir="${build.include.dir}" classpathref="javah.classpath" force="${javah.force}" verbose="true">
 
+			<class name="org.jnetsoft.library.APIDescriptor" />
+			<class name="org.jnetpcap.compatibility.Pcap100" />
 			<class name="org.jnetpcap.Pcap" />
 			<class name="org.jnetpcap.PcapBpfProgram" />
 			<class name="org.jnetpcap.PcapDumper" />
@@ -379,7 +381,34 @@
 
 
 		</exec>
-		<echo message="Created shared JNI libary: ${jni.build.filepath}" />
+		<echo message="Created jnetpcap libary: ${jni.build.filepath}" />
+
+		<!-- 
+		  enable-auto-import is for linking jnetpcap.dll and jnetpcap-api100.dll
+		  -->
+		<exec executable="${compiler.ld.cmd}">
+
+			<arg value="-shared" />
+			<arg value="-g" />
+			<arg value="-Wl,--add-stdcall-alias,--enable-auto-import" />
+
+			<arg line="-o ${jni.build.api100.filepath}" />
+
+			<arg line="${api100.files}" />
+
+			<arg line="-L ${pcap.lib.dir}" />
+			
+			<arg line="-L ${jni.build.dir}" />
+
+			<arg line="-l ${pcap.lib.name}" />
+			
+			<arg line="-l jnetpcap" />
+
+			<arg line="-l ${ms.lib.name}" />
+
+
+		</exec>
+		<echo message="Created ${jni.api100.file} libary: ${jni.build.api100.filepath}" />
 
 		<property name="jni.lib.file" value="${jni.build.filepath}" />
 	</target>
@@ -981,7 +1010,8 @@ https://sourceforge.net/project/admin/editpackages.php?group_id=164277
 	<!-- =================================================================== -->
 	<target name="upload-web-javadoc">
 
-		<property name="latest" value="${web.doc.dir}/latest" />
+		<property name="latest.link" value="${pkg.name}-${pkg.branch}" />
+		<property name="latest" value="${web.doc.dir}/${latest.link}" />
 		<property name="javadoc" value="${pkg.javadoc}" />
 
 		<echo message="uploading ${javadoc}" />
@@ -991,10 +1021,10 @@ https://sourceforge.net/project/admin/editpackages.php?group_id=164277
 		<sshexec trust="yes" host="${shell.host.name}" username="${shell.user.name}" password="${shell.user.pass}" command="rm -rf ${web.doc.dir}/${pkg.javadoc}; unzip ${web.doc.dir}/${pkg.javadoc}.zip -d ${web.doc.dir}; rm  ${web.doc.dir}/${pkg.javadoc}.zip" />
 
 
-		<echo message="linking latest -> ${javadoc}" />
+		<echo message="linking ${latest.link} -> ${javadoc}" />
 		<sshexec trust="yes" host="${shell.host.name}" username="${shell.user.name}" password="${shell.user.pass}" command="rm -f ${latest}; ln -s ${javadoc} ${latest}" />
 
-		<echo message="Completed: http://jnetpcap.com/docs/javadoc/latest/index.html" />
+		<echo message="Completed: http://jnetpcap.com/docs/javadocs/${latest.link}/index.html" />
 	</target>
 
 	<!--                  SVN SECTION                                        -->

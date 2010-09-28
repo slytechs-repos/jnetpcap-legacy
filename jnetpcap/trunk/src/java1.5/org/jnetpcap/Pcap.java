@@ -13,8 +13,11 @@
 package org.jnetpcap;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.jnetpcap.compatibility.Pcap080;
+import org.jnetpcap.compatibility.Pcap100;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JNumber;
 import org.jnetpcap.nio.JMemory.Type;
@@ -223,6 +226,11 @@ import org.jnetpcap.protocol.JProtocol;
  * <em>libpcap</em> libpcap to crash or coredump which will also crash the
  * entire Java VM.
  * </p>
+ * <h3>Libpcap API Versions and Compatibility</h3>
+ * Starting with version 1.4, jNetPcap provides support for various libpcap API
+ * layers. You can check at runtime, which libpcap API is supported on the
+ * current platform or environment and make appropriate decisions. See
+ * {@link #isPcap100Supported} for more information.
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
@@ -250,14 +258,14 @@ public class Pcap {
 	public enum Direction {
 
 		/**
-		 * (default) Captures both incoming and outgoing packets
-		 */
-		INOUT,
-
-		/**
 		 * Captures only incoming packets
 		 */
 		IN,
+
+		/**
+		 * (default) Captures both incoming and outgoing packets
+		 */
+		INOUT,
 
 		/**
 		 * Caputures only outgoing packets
@@ -344,6 +352,22 @@ public class Pcap {
 	 * monitor mode
 	 */
 	public static final int ERROR_RFMON_NOTSUP = -6;
+
+	/**
+	 * Direction constant for use with {@link #setDirection(int) setDirection}
+	 * which indicates the inbound direction
+	 * 
+	 * @since 1.4
+	 */
+	public static final int IN = 1;
+
+	/**
+	 * Direction constant for use with {@link #setDirection(int) setDirection}
+	 * which indicates both in and out directions
+	 * 
+	 * @since 1.4
+	 */
+	public static final int INOUT = 0;
 
 	/**
 	 * Name of the native library that wraps around libpcap and extensions
@@ -451,6 +475,14 @@ public class Pcap {
 	public static final int OK = 0;
 
 	/**
+	 * Direction constant for use with {@link #setDirection(int) setDirection}
+	 * which indicates the outbound direction
+	 * 
+	 * @since 1.4
+	 */
+	public static final int OUT = 2;
+
+	/**
 	 * on success with any other warning
 	 */
 	public static final int WARNING = 1;
@@ -466,9 +498,16 @@ public class Pcap {
 	 */
 	static {
 
-		System.loadLibrary(JNETPCAP_LIBRARY_NAME);
+		if (Pcap080.IS_LOADED) {
+			initIDs();
+		} else {
+			// We can live without Pcap100, but we can't without Pcap080
+			throw Pcap080.LOAD_EXCEPTION;
+		}
 
-		initIDs();
+		if (Pcap100.IS_LOADED) {
+			// Empty
+		}
 
 		try {
 			// Make sure some classes that are needed get loaded too
@@ -608,6 +647,7 @@ public class Pcap {
 	 * @return a new pcap object that needs to be activated using
 	 *         {@link #activate()} call
 	 * @since 1.4
+	 * @see #isPcap100Supported()
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
@@ -784,7 +824,10 @@ public class Pcap {
 	 * 
 	 * @return true if the set of the above functions is supported on the platform
 	 *         otherwise false.
+	 * @see #isPcap100Supported()
+	 * @deprecated use {@link #isPcap100Supported} instead
 	 */
+	@Deprecated
 	public native static boolean isCreateSupported();
 
 	/**
@@ -795,6 +838,76 @@ public class Pcap {
 	 * @return true means {@link #inject(byte[])} is supported, otherwise not
 	 */
 	public native static boolean isInjectSupported();
+
+	/**
+	 * Checks if the current version of libpcap installed on the system supports
+	 * libpcap 1.0.0 API calls. The name Pcap100 stands for the name pcap 1.0.0,
+	 * where 1.0.0 is compressed to 100.
+	 * <p>
+	 * This call is optional, normally the system packager ensures that the
+	 * appropriate versions of the prerequisite libraries are installed. However
+	 * it is never guarranteed how the user will setup their environmet. This call
+	 * ensures that the programmer can handle even the extreme case, where
+	 * installed libpcap version does not support libpcap 1.0.0 API calls.
+	 * </p>
+	 * <p>
+	 * If this method evaluates to false, meaning that API calls are not
+	 * available, all libpcap 1.0.0 related calls will throw
+	 * {@link UnsatisfiedLinkError}.
+	 * </p>
+	 * <p>
+	 * Example:
+	 * 
+	 * <pre>
+	 * StringBuilder errbuf = new StringBuilder();
+	 * List&lt;PcapIf&gt; alldevs = new ArrayList&lt;PcapIf&gt;();
+	 * int snaplen = 64 * 1024;
+	 * int promisc = Pcap.MODE_PROMISCUOUS;
+	 * int timeout = Pcap.DEFAULT_TIMEOUT;
+	 * int bufsize = 128 * 1024 * 1024;
+	 * int direction = Pcap.INOUT;
+	 * 
+	 * Pcap.findAllDevs(alldevs, errbuf);
+	 * String device = alldevs.get(0).getName();
+	 * 
+	 * Pcap pcap;
+	 * if (Pcap.isPcap100Supported()) {
+	 * 	pcap = Pcap.create(device, errbuf);
+	 * 
+	 * 	pcap.setSnaplen(snaplen);
+	 * 	pcap.setTimeout(timeout);
+	 * 	pcap.setPromisc(promisc);
+	 * 	pcap.setBufferSize(bufsize);
+	 * 	pcap.setDirection(direction);
+	 * 
+	 * 	pcap.activate();
+	 * 
+	 * } else {
+	 * 	pcap = Pcap.openLive(device, promisc, timeout, errbuf);
+	 * }
+	 * 
+	 * pcap.close();
+	 * </pre>
+	 * 
+	 * </p>
+	 * 
+	 * @return true if libpcap 1.0.0 API calls are available otherwise false
+	 * @since 1.4
+	 * @see Pcap100
+	 * @see #activate
+	 * @see #create
+	 * @see #canSetRfmon
+	 * @see #setBufferSize
+	 * @see #setDirection(int)
+	 * @see #setDirection(org.jnetpcap.Pcap.Direction)
+	 * @see #setPromisc
+	 * @see #setRfmon
+	 * @see #setSnaplen
+	 * @see #setTimeout
+	 */
+	public static boolean isPcap100Supported() {
+		return Pcap100.IS_IMPLEMENTED;
+	}
 
 	/**
 	 * Checks if the current platform has support for pcap_sendpacket call. The
@@ -1026,6 +1139,7 @@ public class Pcap {
 	 *         be useful for debugging the problem if it's unexpected.
 	 *         </p>
 	 * @since 1.4
+	 * @see #isPcap100Supported()
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
@@ -1076,6 +1190,7 @@ public class Pcap {
 	 *         {@link #ERROR} if an error occurred. If {@link #ERROR} is returned,
 	 *         {@link #getErr()} gets the error text.
 	 * @since 1.4
+	 * @see #isPcap100Supported()
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
@@ -3032,6 +3147,7 @@ public class Pcap {
 	 * @return 0 on success or {@link #ERROR_ACTIVATED} if called on a capture
 	 *         handle that has been activated.
 	 * @since 1.4
+	 * @see #isPcap100Supported()
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
@@ -3071,6 +3187,7 @@ public class Pcap {
 	 * @return returns 0 on success and {@link #ERROR} on failure. If
 	 *         {@link #ERROR} is returned, {@link #getErr()} gets the error text.
 	 * @since 1.4
+	 * @see #isPcap100Supported()
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
@@ -3108,10 +3225,11 @@ public class Pcap {
 	 * @return returns 0 on success and {@link #ERROR} on failure. If
 	 *         {@link #ERROR} is returned, {@link #getErr()} gets the error text.
 	 * @since 1.4
+	 * @see #isPcap100Supported()
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
-	private native int setDirection(int dir);
+	public native int setDirection(int dir);
 
 	/**
 	 * Associate a filter to a capture. pcap_setfilter() is used to specify a
@@ -3160,6 +3278,7 @@ public class Pcap {
 	 * @return returns 0 on success or {@link #ERROR_ACTIVATED} if called on a
 	 *         capture handle that has been activated
 	 * @since 1.4
+	 * @see #isPcap100Supported()
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
@@ -3175,6 +3294,7 @@ public class Pcap {
 	 * @return returns 0 on success or {@link #ERROR_ACTIVATED} if called on a
 	 *         capture handle that has been activated
 	 * @since 1.4
+	 * @see #isPcap100Supported()
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
@@ -3190,6 +3310,7 @@ public class Pcap {
 	 * @return returns 0 on success or {@link #ERROR_ACTIVATED} if called on a
 	 *         capture handle that has been activated
 	 * @since 1.4
+	 * @see #isPcap100Supported()
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
@@ -3205,6 +3326,7 @@ public class Pcap {
 	 * @return returns 0 on success or {@link #ERROR_ACTIVATED} if called on a
 	 *         capture handle that has been activated
 	 * @since 1.4
+	 * @see #isPcap100Supported()
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
