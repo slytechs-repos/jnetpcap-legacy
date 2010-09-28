@@ -15,6 +15,7 @@ package org.jnetpcap.nio;
 import java.nio.ByteBuffer;
 
 import org.jnetpcap.Pcap;
+import org.jnetpcap.compatibility.Pcap080;
 import org.jnetpcap.packet.PeeringException;
 import org.jnetpcap.packet.format.FormatUtils;
 
@@ -69,16 +70,10 @@ public abstract class JMemory {
 	 * Load the native library and initialize JNI method and class IDs.
 	 */
 	static {
-		try {
-			System.loadLibrary(JNETPCAP_LIBRARY_NAME);
-
-			Pcap.isInjectSupported();
-
+		if (Pcap080.IS_LOADED) {
 			initIDs();
-		} catch (Exception e) {
-			System.err.println(e.getClass().getName() + ": "
-			    + e.getLocalizedMessage());
-			throw new ExceptionInInitializerError(e);
+		} else {
+			throw Pcap080.LOAD_EXCEPTION;
 		}
 	}
 
