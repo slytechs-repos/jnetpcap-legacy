@@ -106,52 +106,6 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_compileNoPcap
 
 /*
  * Class:     org_jnetpcap_Pcap
- * Method:    create
- * Signature: (Ljava/lang/String;Ljava/lang/StringBuilder;)Lorg/jnetpcap/Pcap;
- */
-JNIEXPORT jobject JNICALL Java_org_jnetpcap_Pcap_create
-  (JNIEnv *env, jclass clazz, jstring jdevice, jobject jerrbuf) {
-
-#if (LIBPCAP_VERSION < LIBPCAP_PCAP_CREATE)
-	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
-	return NULL;
-#else
-	
-	if (jdevice == NULL || jerrbuf == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, NULL);
-		return NULL;
-	}
-
-	char errbuf[PCAP_ERRBUF_SIZE];
-	errbuf[0] = '\0'; // Reset the buffer;
-
-	const char *device = env->GetStringUTFChars(jdevice, 0);
-
-	//	printf("device=%s snaplen=%d, promisc=%d timeout=%d\n",
-	//			device, jsnaplen, jpromisc, jtimeout);
-
-	pcap_t *p = pcap_create(device, errbuf);
-	setString(env, jerrbuf, errbuf); // Even if no error, could have warning msg
-
-	env->ReleaseStringUTFChars(jdevice, device);
-
-	if (p == NULL) {
-		return NULL;
-	}
-
-	/*
-	 * Use a no-arg constructor and initialize 'physical' field using
-	 * special JNI priviledges.
-	 */
-	jobject obj = env->NewObject(clazz, pcapConstructorMID);
-	setPhysical(env, obj, toLong(p));
-
-	return obj;
-#endif
-}
-
-/*
- * Class:     org_jnetpcap_Pcap
  * Method:    datalinkNameToVal
  * Signature: (Ljava/lang/String;)I
  */
@@ -281,22 +235,6 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_Pcap_freecode
 
 	pcap_freecode(b);
 }
-
-/*
- * Class:     org_jnetpcap_Pcap
- * Method:    isCreateSupported
- * Signature: ()Z
- */
-JNIEXPORT jboolean JNICALL Java_org_jnetpcap_Pcap_isCreateSupported
-  (JNIEnv *, jclass) {
-	
-#if (LIBPCAP_VERSION < LIBPCAP_PCAP_CREATE)
-	return JNI_FALSE;
-#else
-	return JNI_TRUE;
-#endif
-}
-
 
 /*
  * Class:     org_jnetpcap_Pcap
@@ -570,27 +508,6 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_Pcap_openOffline
 
 /*
  * Class:     org_jnetpcap_Pcap
- * Method:    activate
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_activate
-  (JNIEnv *env, jobject obj) {
-	
-#if (LIBPCAP_VERSION < LIBPCAP_PCAP_CREATE)
-	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
-	return -1;
-#else
-	pcap_t *p = getPcap(env, obj);
-	if (p == NULL) {
-		return -1; // Exception already thrown
-	}
-
-	return (jint) pcap_activate(p);
-#endif
-}
-
-/*
- * Class:     org_jnetpcap_Pcap
  * Method:    breakloop
  * Signature: ()V
  */
@@ -603,26 +520,6 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_Pcap_breakloop
 	}
 
 	pcap_breakloop(p);
-}
-
-/*
- * Class:     org_jnetpcap_Pcap
- * Method:    canSetRfmon
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_canSetRfmon
-  (JNIEnv *env, jobject obj) {
-#if defined(WIN32) || defined(WIN64) || (LIBPCAP_VERSION < LIBPCAP_PCAP_CREATE)
-	return (jint) 0;
-#else
-
-	pcap_t *p = getPcap(env, obj);
-	if (p == NULL) {
-		return -1; // Exception already thrown
-	}
-
-	return (jint) pcap_can_set_rfmon(p);
-#endif
 }
 
 /*
@@ -1874,28 +1771,6 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_sendPacketPrivate
 
 /*
  * Class:     org_jnetpcap_Pcap
- * Method:    setBufferSize
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_setBufferSize
-  (JNIEnv *env, jobject obj, jlong jsize) {
-#if (LIBPCAP_VERSION < LIBPCAP_PCAP_CREATE)
-	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
-	return -1;
-#else
-	
-	
-	pcap_t *p = getPcap(env, obj);
-	if (p == NULL) {
-		return -1; // Exception already thrown
-	}
-
-	return (jint) pcap_set_buffer_size(p, (int) jsize);
-#endif
-}
-
-/*
- * Class:     org_jnetpcap_Pcap
  * Method:    setDatalink
  * Signature: (I)I
  */
@@ -1908,27 +1783,6 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_setDatalink
 	}
 
 	return pcap_set_datalink(p, value);
-}
-
-/*
- * Class:     org_jnetpcap_Pcap
- * Method:    setDirection
- * Signature: (I)I
- */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_setDirection
-  (JNIEnv *env, jobject obj, jint jdir) {
-	
-#if (LIBPCAP_VERSION < LIBPCAP_PCAP_CREATE)
-	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
-	return -1;
-#else
-	pcap_t *p = getPcap(env, obj);
-	if (p == NULL) {
-		return -1; // Exception already thrown
-	}
-
-	return (jint) pcap_setdirection(p, (pcap_direction_t) jdir);
-#endif
 }
 
 /*
@@ -1986,92 +1840,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_setNonBlock
 	return r;
 }
 
-/*
- * Class:     org_jnetpcap_Pcap
- * Method:    setPromisc
- * Signature: (I)I
- */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_setPromisc
-  (JNIEnv *env, jobject obj, jint jpromisc) {
-#if (LIBPCAP_VERSION < LIBPCAP_PCAP_CREATE)
-	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
-	return -1;
-#else
-	
-	
-	pcap_t *p = getPcap(env, obj);
-	if (p == NULL) {
-		return -1; // Exception already thrown
-	}
 
-	return (jint) pcap_set_promisc(p, (int) jpromisc);
-#endif
-}
-
-/*
- * Class:     org_jnetpcap_Pcap
- * Method:    setRfmon
- * Signature: (I)I
- */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_setRfmon
-  (JNIEnv *env, jobject obj, jint jrfmon) {
-	
-#if defined(WIN32) || defined(WIN64) || (LIBPCAP_VERSION < LIBPCAP_PCAP_CREATE)
-	return (jint) -1;
-#else
-	
-	pcap_t *p = getPcap(env, obj);
-	if (p == NULL) {
-		return -1; // Exception already thrown
-	}
-
-	return (jint) pcap_set_rfmon(p, (int) jrfmon);
-#endif
-}
-
-/*
- * Class:     org_jnetpcap_Pcap
- * Method:    setSnaplen
- * Signature: (I)I
- */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_setSnaplen
-  (JNIEnv *env, jobject obj, jint jsnaplen) {
-	
-#if (LIBPCAP_VERSION < LIBPCAP_PCAP_CREATE)
-	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
-	return -1;
-#else
-	
-	pcap_t *p = getPcap(env, obj);
-	if (p == NULL) {
-		return -1; // Exception already thrown
-	}
-
-	return (jint) pcap_set_snaplen(p, (int) jsnaplen);
-#endif
-}
-
-/*
- * Class:     org_jnetpcap_Pcap
- * Method:    setTimeout
- * Signature: (I)I
- */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_setTimeout
-  (JNIEnv *env, jobject obj, jint jtimeout) {
-	
-#if (LIBPCAP_VERSION < LIBPCAP_PCAP_CREATE)
-	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "");
-	return -1;
-#else
-	
-	pcap_t *p = getPcap(env, obj);
-	if (p == NULL) {
-		return -1; // Exception already thrown
-	}
-
-	return (jint) pcap_set_timeout(p, (int) jtimeout);
-#endif
-}
 
 /*
  * Class:     org_jnetpcap_Pcap

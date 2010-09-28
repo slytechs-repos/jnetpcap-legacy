@@ -420,6 +420,8 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferTo__Lorg_jnetpcap_n
 		JNIEnv *env, jobject obj, jobject jdst, jint jsrcOffset, jint jlen,
 		jint jdstOffset) {
 
+	return 0;
+	
 	char *src = (char *) getJMemoryPhysical(env, obj);
 	if (src == NULL || jdst == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, "");

@@ -1,0 +1,124 @@
+int[] array = {1, 2, 3};
+
+array[4] = 4;
+
+array[5] = "hello";
+
+Object[] map = {1:"a", 2:"b", "C string":"c", [0.20]:"d"};
+
+loop(k, v : map; k2, v2 : map; v3 : map.values) {
+	print("k=$map[$k] k2=$k2, $map[$k]%n");
+}
+
+for (i : new int[] {0..10}; 
+	 j : [0-10]; 
+	 a : ['a'..'z']; // ['a', 'b', 'c', ...]
+	 b : ["192.168.[0..5].[0-128]"]; // "192.168.0.0", "192.168.0.1"...
+	 k = 0; k < 10; k += 2;) {
+	 
+	 
+}
+
+string a = "192.168.1.[0..1]";
+println(a); // 192.168.1.[0..1]
+string[] b = a; // b[0] == "192.168.1.0", b[1] == "192.168.1.1", b.length == 2
+for (b: a) println(b); // "192.168.1.0" "192.168.1.1"
+print(b); // "192.168.1.0", "192.168.1.1"
+
+struct abc {
+	int:u  a {
+		int:4 sub1;
+		int:2 sub2;
+		int:26 sub3;
+	};
+	int:ul b;
+	int:4b c;
+	int:4l d;
+	
+	union {
+		int a_u;
+		int b_u;
+	};
+};
+
+union def {
+	int a;
+	int b;
+};
+
+array = [0..8];
+abc = array;
+println(abc.a);
+println(abc.d);
+
+
+// Equivalent
+
+loop(i : [0..10]) {
+  loop(j : [0..10]) {
+  }
+}
+
+loop(array => i) {
+	println("b=$i");
+}
+
+{
+  ($i) ? print("b=$i, len=$array.len") + "\n";
+} loop(array => i);
+
+if ($i) {
+}
+
+if ($i == "hello") {
+}
+
+Object
+ +-> primative
+     +-> int
+     +-> uint
+     +-> char
+     +-> boolean
+     +-> void
+     +-> []
+         +-> char[]
+             +-> string
+         
+parser str = "hello";
+
+ {
+parser:
+	  type_decl = ^(type id ?bit_field);
+		   type = 'int' | 'long' | 'float';
+		 	 id = ['a' | 'b' | 'c']+;
+	  bit_field = ?':' int_number;
+	   
+
+}
+
+str.tokenizer = new Tokenizer();
+str.parser = new Parser();
+str.regex = new Regex();
+         
+function1().function1();
+
+void function1(string str) {
+
+	primative[] decls = new primative[];
+
+	switch(str) {
+		case type_decl {
+			case (type id [int_number]) {
+				primative var = new primative;
+				
+				var.type = primative.values[type];
+				var.name = id;
+				var.sizeof = int_number;
+				
+				decls += var;
+			}
+		}
+
+	}
+  
+}

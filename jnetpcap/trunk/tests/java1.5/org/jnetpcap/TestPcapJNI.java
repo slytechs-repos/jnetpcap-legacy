@@ -23,6 +23,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
+import org.jnetpcap.compatibility.Pcap080;
+import org.jnetpcap.compatibility.Pcap100;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.nio.JNumber;
@@ -62,13 +64,13 @@ public class TestPcapJNI
 
 	private static final int snaplen = 64 * 1024;
 
-	  private static File tmpFile;
+	private static File tmpFile;
 
 	private final static String win =
 	    "\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
 
 	private final static String device = (isWindows) ? win : linux;
-	
+
 	static {
 		try {
 			tmpFile = File.createTempFile("temp-", "-TestPcapJNI");
@@ -1094,5 +1096,15 @@ public class TestPcapJNI
 		} finally {
 			pcap.close();
 		}
+	}
+
+	public void testForLipcap1APIAvailability() {
+		System.out.println(Pcap.libVersion());
+		System.out.printf("isAPI080Loaded=%s%n", Pcap080.IS_LOADED);
+		System.out.printf("isAPI100Loaded=%s%n", Pcap100.IS_LOADED);
+
+		assertTrue(Pcap080.LOAD_EXCEPTION_MESSAGE, Pcap080.IS_LOADED);
+		assertTrue(Pcap100.LOAD_EXCEPTION_MESSAGE, Pcap100.IS_LOADED);
+		assertTrue(Pcap100.IS_IMPLEMENTED);
 	}
 }

@@ -203,7 +203,7 @@ public class TestTcpIp
 				System.out.printf("\n%04d: ", i);
 			}
 			System.out.printf(".", i);
-			testCompareChecksumOf2Sets();
+//			testCompareChecksumOf2Sets();
 
 		}
 	}
