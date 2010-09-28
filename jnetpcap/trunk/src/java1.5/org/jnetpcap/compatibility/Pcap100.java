@@ -225,6 +225,14 @@ public class Pcap100
 	static {
 
 		UnsatisfiedLinkError error = null;
+		
+		if (!Pcap080.IS_LOADED) {
+			/*
+			 * We need Pcap080 in order to function. If we don't load the main library
+			 * we have to abort
+			 */
+			throw Pcap080.LOAD_EXCEPTION;
+		}
 
 		/*
 		 * We try and load the libpcap 1.0.0 API compatibility library.
