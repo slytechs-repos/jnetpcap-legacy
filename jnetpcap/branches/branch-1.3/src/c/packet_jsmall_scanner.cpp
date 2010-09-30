@@ -599,7 +599,6 @@ void callJavaHeaderScanner(scan_t *scan) {
 #ifdef DEBUG
 debug_enter("callJavaHeaderScanner");
 #endif
-
 	JNIEnv *env = scan->env;
 	jobject jscanner = scan->scanner->sc_java_header_scanners[scan->id];
 
@@ -642,8 +641,10 @@ debug_enter("scanJPacket");
 	/*
 	 * Peer JPacket.state to packet_state_t structure
 	 */
-	setJMemoryPhysical(env, jstate, toLong(packet));
-	env->SetObjectField(jstate, jmemoryKeeperFID, obj); // Set it to JScanner
+//	setJMemoryPhysical(env, jstate, toLong(packet));
+//	env->SetObjectField(jstate, jmemoryKeeperFID, obj); // Set it to JScanner
+	jmemoryPeer(env, jstate, packet, sizeof(packet_state_t), obj);
+
 	
 	/*
 	 * Reset the entire packet_state_t structure
@@ -676,9 +677,13 @@ debug_trace("before scan", "buf_len=%d wire_len=%d", buf_length, wirelen);
 debug_trace("after scan",	"buf_len=%d wire_len=%d", buf_length, wirelen);
 #endif
 		
-	env->SetIntField(jstate, jmemorySizeFID, (jsize) sizeof(packet_state_t)
-			+ sizeof(header_t) * packet->pkt_header_count);
-	
+//	env->SetIntField(jstate, jmemorySizeFID, (jsize) sizeof(packet_state_t)
+//			+ sizeof(header_t) * packet->pkt_header_count);
+
+	const size_t len = sizeof(packet_state_t) + 
+		(sizeof(header_t) * packet->pkt_header_count);
+	jmemoryResize(env, jstate, len);
+
 #ifdef DEBUG
 debug_exit("scanJPacket");
 #endif
@@ -790,6 +795,9 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_packet_JScanner_getFrameNumber
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_init
 (JNIEnv *env, jobject obj, jobject jscan) {
 
+#ifdef DEBUG
+debug_enter("JScanner_init");
+#endif
 	if (jscan == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION,
 				"JScan parameter can not be null");
@@ -822,6 +830,9 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_init
 	scanner->sc_subindex = 0;
 	scanner->sc_subheader = (header_t *)malloc(scanner->sc_sublen);
 
+#ifdef DEBUG
+debug_exit("JScanner_init");
+#endif
 
 }
 
@@ -869,7 +880,11 @@ debug_error("IllegalArgumentException",
 			 * with native scanner.
 			 */
 			scanner->sc_scan_table[i] = native_protocols[i];
+//			printf("loadScanners::native(%s)\n", id2str(i));fflush(stdout);
 		} else {
+			
+//			printf("loadScanners::java(%s)\n", id2str(i));fflush(stdout);
+
 			
 			if (scanner->sc_java_header_scanners[i] != NULL) {
 				env->DeleteGlobalRef(scanner->sc_java_header_scanners[i]);
