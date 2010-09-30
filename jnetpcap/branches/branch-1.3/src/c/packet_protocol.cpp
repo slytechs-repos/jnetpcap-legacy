@@ -1502,6 +1502,7 @@ void init_native_protocols() {
 	native_protocol_names[SDP_ID]           = "SDP";
 	native_protocol_names[RTP_ID]           = "RTP";
 	native_protocol_names[SLL_ID]           = "SLL";
+	native_protocol_names[WEB_IMAGE_ID]     = "WEB_IMAGE";
 	
 	
 	// Initialize debug loggers
