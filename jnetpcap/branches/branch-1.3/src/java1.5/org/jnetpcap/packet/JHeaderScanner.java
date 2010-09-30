@@ -402,9 +402,19 @@ public class JHeaderScanner
 	public String toString() {
 		final Formatter out = new Formatter();
 
-		out.format("id=%2d, wasClassLoaded=%s isDirect=%s, bindings=%d method=%s ",
-		    this.id, this.lengthMethods != null, isDirect(), this.bindingsList
-		        .size(), hasScanMethod());
+		StringBuilder b = new StringBuilder();
+
+		for (JBinding binding : this.bindingsList) {
+			if (b.length() != 0) {
+				b.append(',');
+			}
+
+			b.append(JRegistry.lookupClass(binding.getSourceId()).getSimpleName());
+		}
+
+		out.format("id=%2d, loaded=%-5s direct=%-5s, scan=%-5s bindings=%-2d [%s]",
+		    this.id, this.lengthMethods != null, isDirect(), hasScanMethod(),
+		    this.bindingsList.size(), b);
 
 		return out.toString();
 	}
