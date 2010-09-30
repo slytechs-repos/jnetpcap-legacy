@@ -1151,7 +1151,7 @@ public class Tcp
 				break; // We are done, something seriously wrong with the header
 			}
 
-			System.out.printf("%s: i=%d id=%d ", code, i, id);
+//			System.out.printf("%s: i=%d id=%d ", code, i, id);
 			switch (code) {
 				case NO_OP:
 					optionsLength[id] = 1;
@@ -1164,13 +1164,13 @@ public class Tcp
 
 				default:
 					final int length = getUByte(i + 1); // Length option field
-				System.out.printf("length=%d", length);
+//				System.out.printf("length=%d", length);
 					i += length -1;
 					optionsLength[id] = length;
 					break;
 			}
 
-			System.out.println();
+//			System.out.println();
 			// System.out.printf("i=%d id=%d bitmap=0x%X length=%d\n", i, id,
 			// optionsBitmap, optionsLength[id]);
 		}
