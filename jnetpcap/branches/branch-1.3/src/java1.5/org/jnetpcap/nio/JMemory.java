@@ -742,7 +742,7 @@ public abstract class JMemory {
 		if (dst.isDirect()) {
 			return transferToDirect(dst, srcOffset, length);
 		} else {
-			int o = transferTo(dst.array(), 0, length, dst.position());
+			int o = transferTo(dst.array(), srcOffset, length, dst.position());
 			dst.position(dst.position() + o);
 
 			return o;
