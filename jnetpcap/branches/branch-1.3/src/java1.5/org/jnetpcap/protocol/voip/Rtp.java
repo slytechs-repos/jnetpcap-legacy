@@ -14,17 +14,13 @@ package org.jnetpcap.protocol.voip;
 
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JHeader;
-import org.jnetpcap.packet.JScanner;
 import org.jnetpcap.packet.JSubHeader;
 import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
-import org.jnetpcap.packet.annotate.Validate;
 import org.jnetpcap.protocol.JProtocol;
-import org.jnetpcap.protocol.tcpip.Tcp;
-import org.jnetpcap.protocol.tcpip.Udp;
 
 /**
  * <p>
@@ -83,103 +79,6 @@ import org.jnetpcap.protocol.tcpip.Udp;
 public class Rtp
     extends
     JHeader {
-
-	/**
-	 * Constant containing the name of the RFC that describes the specification of
-	 * this header
-	 */
-	public final static String RFC = "rfc3550";
-
-	/**
-	 * Constant containing the name of the protocol suite this header belongs to
-	 */
-	public final static ProtocolSuite SUITE = ProtocolSuite.VOIP;
-
-	/**
-	 * Constant containing a short description of this protocol header
-	 */
-	public final static String DESCRIPTION = "real-time transfer protocol";
-
-	/**
-	 * Bitmask applied to byte 0 in the header which masks off the version number
-	 * of the Rtp header within the packet.
-	 */
-	public final static int VERSION_MASK = 0xC0;
-
-	/**
-	 * Bit offset into byte 0 of the header for VERSION field.
-	 */
-	public final static int VERSION_OFFSET = 6;
-
-	/**
-	 * Bitmask applied to byte 0 in the header which masks off the padding bit
-	 * option flag.
-	 */
-	public final static int PADDING_MASK = 0x20;
-
-	/**
-	 * Bit offset into byte 0 of the header for PADDING field.
-	 */
-	public final static int PADDING_OFFSET = 5;
-
-	/**
-	 * Bitmask applied to byte 0 in the header which masks off the extension bit
-	 * option flag.
-	 */
-	public final static int EXTENSION_MASK = 0x10;
-
-	/**
-	 * Bit offset into byte 0 of the header for EXTENSION field.
-	 */
-	public final static int EXTENSION_OFFSET = 4;
-
-	/**
-	 * Bitmask applied to byte 0 in the header which masks off the CSRC COUNT
-	 * field.
-	 */
-	public final static int CC_MASK = 0x0F;
-
-	/**
-	 * Bit offset into byte 0 of the header for CSRC COUNT field.
-	 */
-	public final static int CC_OFFSET = 0;
-
-	/**
-	 * Bitmask applied to byte 1 in the header which masks off the marker bit
-	 * option flag.
-	 */
-	public final static int MARKER_MASK = 0x80;
-
-	/**
-	 * Bit offset into byte 1 of the header for MARKER field.
-	 */
-	public final static int MARKER_OFFSET = 7;
-
-	/**
-	 * Bitmask applied to byte 1 in the header which masks off the payload type
-	 * field.
-	 */
-	public final static int TYPE_MASK = 0x7F;
-
-	/**
-	 * Bit offset into byte 1 of the header for PAYLOAD TYPE field.
-	 */
-	public final static int TYPE_OFFSET = 0;
-
-	/**
-	 * Constant which defines the length of the static part of the header in bytes
-	 */
-	public final static int STATIC_HEADER_LENGTH = 12;
-
-	/**
-	 * Constant which defines the length of a CSRC entry in CSRC table in bytes
-	 */
-	public final static int CSRC_LENGTH = 4;
-
-	/**
-	 * Default RTP port number
-	 */
-	public final static int RTP_UDP_PORT = 5004;
 
 	/**
 	 * An extension mechanism is provided to allow individual implementations to
@@ -264,17 +163,6 @@ public class Rtp
 		}
 
 		/**
-		 * The format of these 16 bit field is to be defined by the profile
-		 * specification under which the implementations are operating. This RTP
-		 * specification does not define any header extensions itself.
-		 * 
-		 * @return raw usigned 16 bit value of the profile specific field
-		 */
-		public int profileSpecific() {
-			return super.getUShort(0);
-		}
-
-		/**
 		 * a 16-bit length field that counts the number of 32-bit words in the
 		 * extension, excluding the four-octet extension header (therefore zero is a
 		 * valid length).
@@ -286,6 +174,17 @@ public class Rtp
 		public int length() {
 			return super.getUShort(2);
 		}
+
+		/**
+		 * The format of these 16 bit field is to be defined by the profile
+		 * specification under which the implementations are operating. This RTP
+		 * specification does not define any header extensions itself.
+		 * 
+		 * @return raw usigned 16 bit value of the profile specific field
+		 */
+		public int profileSpecific() {
+			return super.getUShort(0);
+		}
 	}
 
 	/**
@@ -296,28 +195,13 @@ public class Rtp
 	 */
 	public enum PayloadType {
 		/**
-		 * 0 - PCMU is specified in CCITT/ITU-T recommendation G.711
+		 * 13 -
 		 */
-		G711,
+		CN,
 		/**
-		 * 1 -
+		 * 6 -
 		 */
-		RESERVED1,
-
-		/**
-		 * 2 -
-		 */
-		G721,
-
-		/**
-		 * 3 -
-		 */
-		GSM,
-
-		/**
-		 * 4 -
-		 */
-		G723,
+		DVI4_16K,
 
 		/**
 		 * 5 -
@@ -325,19 +209,14 @@ public class Rtp
 		DVI4_8K,
 
 		/**
-		 * 6 -
+		 * 0 - PCMU is specified in CCITT/ITU-T recommendation G.711
 		 */
-		DVI4_16K,
+		G711,
 
 		/**
-		 * 7 -
+		 * 2 -
 		 */
-		LPC,
-
-		/**
-		 * 8 -
-		 */
-		PCMA,
+		G721,
 
 		/**
 		 * 9 -
@@ -345,9 +224,19 @@ public class Rtp
 		G722,
 
 		/**
-		 * 10 -
+		 * 4 -
 		 */
-		L16_2CH,
+		G723,
+
+		/**
+		 * 15 -
+		 */
+		G728,
+
+		/**
+		 * 3 -
+		 */
+		GSM,
 
 		/**
 		 * 11 -
@@ -355,14 +244,14 @@ public class Rtp
 		L16_1CH,
 
 		/**
-		 * 12 -
+		 * 10 -
 		 */
-		QCELP,
+		L16_2CH,
 
 		/**
-		 * 13 -
+		 * 7 -
 		 */
-		CN,
+		LPC,
 
 		/**
 		 * 14 -
@@ -370,9 +259,19 @@ public class Rtp
 		MPA,
 
 		/**
-		 * 15 -
+		 * 8 -
 		 */
-		G728,
+		PCMA,
+
+		/**
+		 * 12 -
+		 */
+		QCELP,
+
+		/**
+		 * 1 -
+		 */
+		RESERVED1,
 
 		/**
 		 * 16
@@ -392,9 +291,122 @@ public class Rtp
 	}
 
 	/**
+	 * Bitmask applied to byte 0 in the header which masks off the CSRC COUNT
+	 * field.
+	 */
+	public final static int CC_MASK = 0x0F;
+
+	/**
+	 * Bit offset into byte 0 of the header for CSRC COUNT field.
+	 */
+	public final static int CC_OFFSET = 0;
+
+	/**
+	 * Constant which defines the length of a CSRC entry in CSRC table in bytes
+	 */
+	public final static int CSRC_LENGTH = 4;
+
+	/**
+	 * Constant containing a short description of this protocol header
+	 */
+	public final static String DESCRIPTION = "real-time transfer protocol";
+
+	/**
+	 * Bitmask applied to byte 0 in the header which masks off the extension bit
+	 * option flag.
+	 */
+	public final static int EXTENSION_MASK = 0x10;
+
+	/**
+	 * Bit offset into byte 0 of the header for EXTENSION field.
+	 */
+	public final static int EXTENSION_OFFSET = 4;
+
+	/**
 	 * Registry assigned header ID
 	 */
 	public static int ID = JProtocol.RTP_ID;
+
+	/**
+	 * Bitmask applied to byte 1 in the header which masks off the marker bit
+	 * option flag.
+	 */
+	public final static int MARKER_MASK = 0x80;
+
+	/**
+	 * Bit offset into byte 1 of the header for MARKER field.
+	 */
+	public final static int MARKER_OFFSET = 7;
+
+	/**
+	 * Bitmask applied to byte 0 in the header which masks off the padding bit
+	 * option flag.
+	 */
+	public final static int PADDING_MASK = 0x20;
+
+	/**
+	 * Bit offset into byte 0 of the header for PADDING field.
+	 */
+	public final static int PADDING_OFFSET = 5;
+
+	/**
+	 * Constant containing the name of the RFC that describes the specification of
+	 * this header
+	 */
+	public final static String RFC = "rfc3550";
+
+	/**
+	 * Default RTP port number
+	 */
+	public final static int RTP_UDP_PORT = 5004;
+
+	/**
+	 * Constant which defines the length of the static part of the header in bytes
+	 */
+	public final static int STATIC_HEADER_LENGTH = 12;
+
+	/**
+	 * Constant containing the name of the protocol suite this header belongs to
+	 */
+	public final static ProtocolSuite SUITE = ProtocolSuite.VOIP;
+
+	/**
+	 * Bitmask applied to byte 1 in the header which masks off the payload type
+	 * field.
+	 */
+	public final static int TYPE_MASK = 0x7F;
+
+	/**
+	 * Bit offset into byte 1 of the header for PAYLOAD TYPE field.
+	 */
+	public final static int TYPE_OFFSET = 0;
+
+	/**
+	 * Bitmask applied to byte 0 in the header which masks off the version number
+	 * of the Rtp header within the packet.
+	 */
+	public final static int VERSION_MASK = 0xC0;
+
+	/**
+	 * Bit offset into byte 0 of the header for VERSION field.
+	 */
+	public final static int VERSION_OFFSET = 6;
+
+	/**
+	 * Calculate the base header length (Rtp header without an extension).
+	 * 
+	 * @param buffer
+	 *          buffer with rtp header
+	 * @param offset
+	 *          offset into the buffer
+	 * @return dynamic length of the header with extension ignored
+	 */
+	private static int baseHeaderLength(final JBuffer buffer, final int offset) {
+		final byte b0 = buffer.getByte(offset);
+		final int cc = (b0 & CC_MASK) >> CC_OFFSET;
+
+		return Rtp.STATIC_HEADER_LENGTH + (cc * CSRC_LENGTH);
+	}
 
 	/**
 	 * Determines the length of the header in octets. The value is calculated by
@@ -443,32 +455,78 @@ public class Rtp
 	}
 
 	/**
-	 * Calculate the base header length (Rtp header without an extension).
+	 * The CSRC count contains the number of CSRC identifiers that follow the
+	 * fixed header.
 	 * 
-	 * @param buffer
-	 *          buffer with rtp header
-	 * @param offset
-	 *          offset into the buffer
-	 * @return dynamic length of the header with extension ignored
+	 * @return number of 4 octect CSRC identifiers that follow the fixed header
+	 *         part
 	 */
-	private static int baseHeaderLength(final JBuffer buffer, final int offset) {
-		final byte b0 = buffer.getByte(offset);
-		final int cc = (b0 & CC_MASK) >> CC_OFFSET;
-
-		return Rtp.STATIC_HEADER_LENGTH + (cc * CSRC_LENGTH);
+	@Field(offset = 4, length = 4)
+	public int count() {
+		return (super.getByte(0) & CC_MASK) >> CC_OFFSET;
 	}
 
 	/**
-	 * This field identifies the version of RTP. The version defined by this
-	 * specification is two (2). (The value 1 is used by the first draft version
-	 * of RTP and the value 0 is used by the protocol initially implemented in the
-	 * "vat" audio tool.)
+	 * <p>
+	 * The CSRC list identifies the contributing sources for the payload contained
+	 * in this packet. The number of identifiers is given by the CC field. If
+	 * there are more than 15 contributing sources, only 15 can be identified.
+	 * CSRC identifiers are inserted by mixers (see Section 7.1), using the SSRC
+	 * identifiers of contributing sources. For example, for audio packets the
+	 * SSRC identifiers of all sources that were mixed together to create a packet
+	 * are listed, allowing correct talker indication at the receiver.
+	 * </p>
 	 * 
-	 * @return version number of rtp header
+	 * @return array which contains values of the csrc list field
 	 */
-	@Field(offset = 0, length = 2)
-	public int version() {
-		return (super.getByte(0) & VERSION_MASK) >> VERSION_OFFSET;
+	@Field(offset = STATIC_HEADER_LENGTH * BYTE)
+	public int[] csrc() {
+		final int count = count();
+
+		final int[] csrc = new int[count];
+
+		for (int i = 0; i < csrc.length; i++) {
+			csrc[i] = super.getInt(STATIC_HEADER_LENGTH + i * CSRC_LENGTH);
+		}
+
+		return csrc;
+	}
+
+	/**
+	 * Calculates the length of the csrc field in bits. The length is calculated
+	 * by using the count (CC) field and multiplying by 32 bits which is the
+	 * length of each CSRC entry.
+	 * 
+	 * @return length of the csrc field in bits
+	 */
+	@Dynamic(Field.Property.LENGTH)
+	public int csrcLength() {
+		return count() * CSRC_LENGTH * BYTE;
+	}
+
+	/**
+	 * If the extension bit is set, the fixed header MUST be followed by exactly
+	 * one header extension, with a format defined in Section 5.3.1 of RFC3550
+	 * 
+	 * @return value of the extension field
+	 */
+	@Field(offset = 3, length = 1)
+	public boolean hasExtension() {
+		return ((super.getByte(0) & EXTENSION_MASK) >> EXTENSION_OFFSET) > 0;
+	}
+
+	/**
+	 * The interpretation of the marker is defined by a profile. It is intended to
+	 * allow significant events such as frame boundaries to be marked in the
+	 * packet stream. A profile MAY define additional marker bits or specify that
+	 * there is no marker bit by changing the number of bits in the payload type
+	 * field (see Section 5.3 of RFC3550).
+	 * 
+	 * @return value of the marker field
+	 */
+	@Field(offset = 8, length = 1)
+	public boolean hasMarker() {
+		return ((super.getByte(1) & MARKER_MASK) >> MARKER_OFFSET) > 0;
 	}
 
 	/**
@@ -498,81 +556,9 @@ public class Rtp
 		}
 
 		final int length =
-		    packet.getUByte(getPostfixOffset() + getPostfixLength() - 1);
+		    this.packet.getUByte(getPostfixOffset() + getPostfixLength() - 1);
 
 		return length;
-	}
-
-	/**
-	 * If the extension bit is set, the fixed header MUST be followed by exactly
-	 * one header extension, with a format defined in Section 5.3.1 of RFC3550
-	 * 
-	 * @return value of the extension field
-	 */
-	@Field(offset = 3, length = 1)
-	public boolean hasExtension() {
-		return ((super.getByte(0) & EXTENSION_MASK) >> EXTENSION_OFFSET) > 0;
-	}
-
-	/**
-	 * The CSRC count contains the number of CSRC identifiers that follow the
-	 * fixed header.
-	 * 
-	 * @return number of 4 octect CSRC identifiers that follow the fixed header
-	 *         part
-	 */
-	@Field(offset = 4, length = 4)
-	public int count() {
-		return (super.getByte(0) & CC_MASK) >> CC_OFFSET;
-	}
-
-	/**
-	 * The interpretation of the marker is defined by a profile. It is intended to
-	 * allow significant events such as frame boundaries to be marked in the
-	 * packet stream. A profile MAY define additional marker bits or specify that
-	 * there is no marker bit by changing the number of bits in the payload type
-	 * field (see Section 5.3 of RFC3550).
-	 * 
-	 * @return value of the marker field
-	 */
-	@Field(offset = 8, length = 1)
-	public boolean hasMarker() {
-		return ((super.getByte(1) & MARKER_MASK) >> MARKER_OFFSET) > 0;
-	}
-
-	/**
-	 * This field identifies the format of the RTP payload and determines its
-	 * interpretation by the application. A profile MAY specify a default static
-	 * mapping of payload type codes to payload formats. Additional payload type
-	 * codes MAY be defined dynamically through non-RTP means (see Section 3). A
-	 * set of default mappings for audio and video is specified in the companion
-	 * RFC 3551 [1]. An RTP source MAY change the payload type during a session,
-	 * but this field SHOULD NOT be used for multiplexing separate media streams
-	 * (see Section 5.2 of RFC3550). A receiver MUST ignore packets with payload
-	 * types that it does not understand.
-	 * 
-	 * @return value of the payload type field
-	 */
-	@Field(offset = 9, length = 7)
-	public int type() {
-		return (super.getByte(1) & TYPE_MASK) >> TYPE_OFFSET;
-	}
-
-	/**
-	 * This field identifies the format of the RTP payload and determines its
-	 * interpretation by the application. A profile MAY specify a default static
-	 * mapping of payload type codes to payload formats. Additional payload type
-	 * codes MAY be defined dynamically through non-RTP means (see Section 3). A
-	 * set of default mappings for audio and video is specified in the companion
-	 * RFC 3551 [1]. An RTP source MAY change the payload type during a session,
-	 * but this field SHOULD NOT be used for multiplexing separate media streams
-	 * (see Section 5.2 of RFC3550). A receiver MUST ignore packets with payload
-	 * types that it does not understand.
-	 * 
-	 * @return value of the payload type field as a constant
-	 */
-	public PayloadType typeEnum() {
-		return PayloadType.valueOf(type());
 	}
 
 	/**
@@ -589,6 +575,26 @@ public class Rtp
 	@Field(offset = 16, length = 16)
 	public int sequence() {
 		return super.getUShort(2);
+	}
+
+	/**
+	 * The SSRC field identifies the synchronization source. This identifier
+	 * SHOULD be chosen randomly, with the intent that no two synchronization
+	 * sources within the same RTP session will have the same SSRC identifier. An
+	 * example algorithm for generating a random identifier is presented in
+	 * Appendix A.6. Although the probability of multiple sources choosing the
+	 * same identifier is low, all RTP implementations must be prepared to detect
+	 * and resolve collisions. Section 8 describes the probability of collision
+	 * along with a mechanism for resolving collisions and detecting RTP-level
+	 * forwarding loops based on the uniqueness of the SSRC identifier. If a
+	 * source changes its source transport address, it must also choose a new SSRC
+	 * identifier to avoid being interpreted as a looped source (see Section 8.2).
+	 * 
+	 * @return value of the unsigned 32-bit ssrc field
+	 */
+	@Field(offset = 8 * BYTE, length = 32)
+	public long ssrc() {
+		return super.getUInt(8);
 	}
 
 	/**
@@ -673,61 +679,51 @@ public class Rtp
 	}
 
 	/**
-	 * The SSRC field identifies the synchronization source. This identifier
-	 * SHOULD be chosen randomly, with the intent that no two synchronization
-	 * sources within the same RTP session will have the same SSRC identifier. An
-	 * example algorithm for generating a random identifier is presented in
-	 * Appendix A.6. Although the probability of multiple sources choosing the
-	 * same identifier is low, all RTP implementations must be prepared to detect
-	 * and resolve collisions. Section 8 describes the probability of collision
-	 * along with a mechanism for resolving collisions and detecting RTP-level
-	 * forwarding loops based on the uniqueness of the SSRC identifier. If a
-	 * source changes its source transport address, it must also choose a new SSRC
-	 * identifier to avoid being interpreted as a looped source (see Section 8.2).
+	 * This field identifies the format of the RTP payload and determines its
+	 * interpretation by the application. A profile MAY specify a default static
+	 * mapping of payload type codes to payload formats. Additional payload type
+	 * codes MAY be defined dynamically through non-RTP means (see Section 3). A
+	 * set of default mappings for audio and video is specified in the companion
+	 * RFC 3551 [1]. An RTP source MAY change the payload type during a session,
+	 * but this field SHOULD NOT be used for multiplexing separate media streams
+	 * (see Section 5.2 of RFC3550). A receiver MUST ignore packets with payload
+	 * types that it does not understand.
 	 * 
-	 * @return value of the unsigned 32-bit ssrc field
+	 * @return value of the payload type field
 	 */
-	@Field(offset = 8 * BYTE, length = 32)
-	public long ssrc() {
-		return super.getUInt(8);
+	@Field(offset = 9, length = 7)
+	public int type() {
+		return (super.getByte(1) & TYPE_MASK) >> TYPE_OFFSET;
 	}
 
 	/**
-	 * <p>
-	 * The CSRC list identifies the contributing sources for the payload contained
-	 * in this packet. The number of identifiers is given by the CC field. If
-	 * there are more than 15 contributing sources, only 15 can be identified.
-	 * CSRC identifiers are inserted by mixers (see Section 7.1), using the SSRC
-	 * identifiers of contributing sources. For example, for audio packets the
-	 * SSRC identifiers of all sources that were mixed together to create a packet
-	 * are listed, allowing correct talker indication at the receiver.
-	 * </p>
+	 * This field identifies the format of the RTP payload and determines its
+	 * interpretation by the application. A profile MAY specify a default static
+	 * mapping of payload type codes to payload formats. Additional payload type
+	 * codes MAY be defined dynamically through non-RTP means (see Section 3). A
+	 * set of default mappings for audio and video is specified in the companion
+	 * RFC 3551 [1]. An RTP source MAY change the payload type during a session,
+	 * but this field SHOULD NOT be used for multiplexing separate media streams
+	 * (see Section 5.2 of RFC3550). A receiver MUST ignore packets with payload
+	 * types that it does not understand.
 	 * 
-	 * @return array which contains values of the csrc list field
+	 * @return value of the payload type field as a constant
 	 */
-	@Field(offset = STATIC_HEADER_LENGTH * BYTE)
-	public int[] csrc() {
-		final int count = count();
-
-		final int[] csrc = new int[count];
-
-		for (int i = 0; i < csrc.length; i++) {
-			csrc[i] = super.getInt(STATIC_HEADER_LENGTH + i * CSRC_LENGTH);
-		}
-
-		return csrc;
+	public PayloadType typeEnum() {
+		return PayloadType.valueOf(type());
 	}
 
 	/**
-	 * Calculates the length of the csrc field in bits. The length is calculated
-	 * by using the count (CC) field and multiplying by 32 bits which is the
-	 * length of each CSRC entry.
+	 * This field identifies the version of RTP. The version defined by this
+	 * specification is two (2). (The value 1 is used by the first draft version
+	 * of RTP and the value 0 is used by the protocol initially implemented in the
+	 * "vat" audio tool.)
 	 * 
-	 * @return length of the csrc field in bits
+	 * @return version number of rtp header
 	 */
-	@Dynamic(Field.Property.LENGTH)
-	public int csrcLength() {
-		return count() * CSRC_LENGTH * BYTE;
+	@Field(offset = 0, length = 2)
+	public int version() {
+		return (super.getByte(0) & VERSION_MASK) >> VERSION_OFFSET;
 	}
 
 	/**
