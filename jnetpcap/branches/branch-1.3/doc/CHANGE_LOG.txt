@@ -29,6 +29,20 @@
   
   - Bug#3078704 - Debug message coming from Tcp header when options are parsed
   
+* Removed
+
+  - org.jnetpcap.package.dissect - left over and unusable package intended for 
+                  the native dissector feature which has been removed from 1.3
+                  release
+                  
+  - SipHandler interface - left over from analyzer feature that has been
+                  removed from 1.3 release
+                  
+* Modifications/Updates
+
+  - org.jnetpcap.protocol.voip - updated javadocs, cleaned up warnings on all
+                  the classes in this package
+  
 == Release 1.3.b2  (2010-09-26) ==
 
 * Fixes
