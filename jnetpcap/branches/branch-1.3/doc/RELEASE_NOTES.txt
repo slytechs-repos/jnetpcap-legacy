@@ -20,16 +20,17 @@
 
 
                               jNetPcap Package
-                               Version 1.3.b1
+                               Version 1.3.b3
                                Release Notes
-                            Created on 2010-08-26
+                            Created on 2010-10-01
 
 INTRODUCTION:
 ============
 
-This is a stable release beta #2 of jNetPcap library. The feature set for
+This is a stable release beta #3 of jNetPcap library. The feature set for
 1.3 release cycle is frozen and only bug fixes will be released in future
-1.3 updates. 
+1.3 updates. Fixes a bug where a "debug string" is sent to System.out, with
+not way of turning it off from the Tcp protocol while its parsing tcp options.
 
 The API classes are compiled with Java 1.5.X compiler and require Java 1.5 
 compatibility. The package is platform dependent as there is a native library 
