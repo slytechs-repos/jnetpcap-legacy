@@ -39,6 +39,10 @@
 #include <util_in_cksum.h>
 #include "nio_jbuffer.h"
 
+#ifdef _WIN64
+#include <BaseTsd.h>
+#endif
+
 /*
  * Checksum routine for Internet Protocol family headers (Portable Version).
  *
@@ -88,7 +92,12 @@ in_cksum(const vec_t *vec, int veclen)
 		/*
 		 * Force to even boundary.
 		 */
-		if ((1 & (unsigned long) w) && (mlen > 0)) {
+#if defined(_WIN64) || defined(_WIN32)
+		if ((1 & (UINT_PTR) w) && (mlen > 0)) {
+#else
+		if ((1 & (intptr_t) w) && (mlen > 0)) {
+#endif
+
 			REDUCE;
 			sum <<= 8;
 			s_util.c[0] = *(const uint16_t *)w;
