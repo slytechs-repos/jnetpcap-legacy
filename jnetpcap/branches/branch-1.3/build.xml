@@ -39,6 +39,9 @@
 	<!-- Incremented everytime we increment the package release number - SVN maintained -->
 	<property file="pkg.number" />
 
+	<!-- Deployable packages and their structure -->
+	<property file="package.properties" />
+
 	<!-- load the build properties file -->
 	<property file="build.properties" />
 
@@ -46,8 +49,6 @@
 	<property file="${os.name}_${os.arch}.properties" />
 	<property file="${os.name}.properties" />
 
-	<!-- Deployable packages and their structure -->
-	<property file="package.properties" />
 	
 	<tstamp>
 		<format property="timestamp.svnformat" pattern="${format.timestamp.svn}" locale="${format.timestamp.locale}" />
