@@ -41,10 +41,15 @@
 
 	<!-- Deployable packages and their structure -->
 	<property file="package.properties" />
-
+	
 	<!-- load the build properties file -->
 	<property file="build.properties" />
-	
+
+	<!-- Platform dependent properties -->
+	<property file="${os.name}_${os.arch}.properties" />
+	<property file="${os.name}.properties" />
+
+
 	<tstamp>
 		<format property="timestamp.svnformat" pattern="${format.timestamp.svn}" locale="${format.timestamp.locale}" />
 	</tstamp>
@@ -60,8 +65,6 @@
 	<!-- Properties for webserver we copy website related documents -->
 	<property file="web.properties" />
 
-	<!-- Platform dependent properties -->
-	<property file="${os.name}.properties" />
 
 
 	<!--                        PREPARE PATHS SECTION  -->
@@ -383,6 +386,69 @@
 
 		<property name="jni.lib.file" value="${jni.build.filepath}" />
 	</target>
+	
+	<target name="comp-jni-win64" depends="prep-checks,prep-jni,prep-lib,comp-javah" if="platform.win64">
+
+		<!-- Not supplying "outtype", disables the LINKER in CC tag
+     		outtype="shared"
+    		outfile="${build.library.filename.nosuffix}"
+				<linkerarg value="- -add-stdcall-alias" />
+      	-->
+		<echo>arch=${os.arch}</echo>
+		<echo>name=${os.name}</echo>
+
+		<echo message="Using WinPcap version ${pcap.version}" />
+		<echo message="compiling JNI C++ files to object code" />
+		<echo message="using ${compiler.cc.cmd} compiler" />
+		<echo message="system include = ${java.sdk.include.dir}" />
+		<echo message="path=${env.Path}" />
+		
+		<cc runtime="dynamic" 
+			debug="${compiler.debug}" 
+			objdir="${build.obj.dir}" 
+			multithreaded="${compiler.multithreaded}" 
+			exceptions="${compiler.exceptions}">
+			
+			<compiler name="${compiler.cc.cmd}">
+				<compilerarg value="-DHAVE_REMOTE" />
+				<defineset define="LIBPCAP_VERSION=0x${compiler.LIBPCAP_VERSION}" if="compiler.LIBPCAP_VERSION" />
+				<defineset define="DEBUG" if="DEBUG" />
+			</compiler>
+
+			<fileset dir="${src.c.dir}" />
+			<includepath location="${build.include.dir}" />
+			<includepath location="${src.c.dir}" />
+			<sysincludepath location="${pcap.include.dir}" />
+			<sysincludepath location="${java.sdk.include.dir}" />
+			<sysincludepath location="${java.sdk.include.dir}/win32" />
+
+		</cc>
+
+		<echo message="linking object files" />
+		<echo message="using ${compiler.ld.cmd} linker found at ${compiler.ld.bin.dir}" />
+		<exec executable="${compiler.ld.cmd}">
+
+			<arg value="-shared" />
+			<arg value="-g" />
+			<arg value="-Wl,--add-stdcall-alias" />
+			<arg value="-static-libgcc" />
+
+			<arg line="-o ${jni.build.filepath}" />
+
+			<arg line="${jni.obj.files}" />
+
+			<arg line="-L ${pcap.lib.dir}" />
+
+			<arg line="-l ${pcap.lib.name}" />
+
+			<arg line="-l ${ms.lib.name}" />
+
+
+		</exec>
+		<echo message="Created shared JNI libary: ${jni.build.filepath}" />
+
+		<property name="jni.lib.file" value="${jni.build.filepath}" />
+	</target>
 
 	<!-- =================================================================== -->
 	<!-- Checks for libpcap version on platforms running RPM.                -->
@@ -513,7 +579,7 @@
 	<!-- =================================================================== -->
 	<!-- Compiles java files using JavaDoc                                   -->
 	<!-- =================================================================== -->
-	<target name="comp-jni" depends="comp-jni-linux,comp-jni-win32">
+	<target name="comp-jni" depends="comp-jni-linux,comp-jni-win32,comp-jni-win64">
 	</target>
 
 
