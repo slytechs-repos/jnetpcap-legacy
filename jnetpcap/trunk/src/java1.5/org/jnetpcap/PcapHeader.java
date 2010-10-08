@@ -332,5 +332,9 @@ public class PcapHeader
 	public long timestampInMicros() {
 		return hdr_sec() * 1000000 + hdr_usec();
 	}
+	
+	public String toString() {
+		return String.format("[caplen=%d, wirelen=%d]", caplen(), wirelen());
+	}
 
 }
