@@ -15,7 +15,15 @@ package org.jnetpcap.compatibility;
 import org.jnetsoft.library.Library;
 
 /**
- * Helper class which loads the main jnetpcap native library.
+ * Helper class which loads the main jnetpcap native library. The class is used
+ * to manage loading of the main jnetpcap library which contains all of the
+ * pcap_* calls starting with version libpcpa 0.8.0. In addition to libpcap
+ * calls, the library also contains various jnetpcap specific calls such as the
+ * native decoder, protocols and utilities. This is an essential library that
+ * jnetpcap can not work without. Therefore if any errors are encountered while
+ * the library is loading, its considered a critical error and the
+ * {@link java.lang.UnsatisfiedLinkError} exception is thrown from the static
+ * initializer, causing JVM to abort loading this class.
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
