@@ -1,5 +1,5 @@
 /***************************************************************************
- * Copyright (C) 2007, Sly Technologies, Inc                               *
+ * Copyright (C) 2010, Sly Technologies, Inc                               *
  * Distributed under the Lesser GNU Public License  (LGPL)                 *
  ***************************************************************************/
 
@@ -355,9 +355,11 @@ debug_scan("loop-bottom", &scan);
 		scan.length = 0;
 		scan.next_id = PAYLOAD_ID;
 		
+		
 		if (scan.offset >= scan.buf_len) {
 			scan.id = END_OF_HEADERS;
 		}
+
 	} // End for loop
 
 	/* record number of header entries found */
@@ -597,7 +599,6 @@ void callJavaHeaderScanner(scan_t *scan) {
 #ifdef DEBUG
 debug_enter("callJavaHeaderScanner");
 #endif
-
 	JNIEnv *env = scan->env;
 	jobject jscanner = scan->scanner->sc_java_header_scanners[scan->id];
 
@@ -640,8 +641,10 @@ debug_enter("scanJPacket");
 	/*
 	 * Peer JPacket.state to packet_state_t structure
 	 */
-	setJMemoryPhysical(env, jstate, toLong(packet));
-	env->SetObjectField(jstate, jmemoryKeeperFID, obj); // Set it to JScanner
+//	setJMemoryPhysical(env, jstate, toLong(packet));
+//	env->SetObjectField(jstate, jmemoryKeeperFID, obj); // Set it to JScanner
+	jmemoryPeer(env, jstate, packet, sizeof(packet_state_t), obj);
+
 	
 	/*
 	 * Reset the entire packet_state_t structure
@@ -674,9 +677,13 @@ debug_trace("before scan", "buf_len=%d wire_len=%d", buf_length, wirelen);
 debug_trace("after scan",	"buf_len=%d wire_len=%d", buf_length, wirelen);
 #endif
 		
-	env->SetIntField(jstate, jmemorySizeFID, (jsize) sizeof(packet_state_t)
-			+ sizeof(header_t) * packet->pkt_header_count);
-	
+//	env->SetIntField(jstate, jmemorySizeFID, (jsize) sizeof(packet_state_t)
+//			+ sizeof(header_t) * packet->pkt_header_count);
+
+	const size_t len = sizeof(packet_state_t) + 
+		(sizeof(header_t) * packet->pkt_header_count);
+	jmemoryResize(env, jstate, len);
+
 #ifdef DEBUG
 debug_exit("scanJPacket");
 #endif
@@ -788,6 +795,9 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_packet_JScanner_getFrameNumber
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_init
 (JNIEnv *env, jobject obj, jobject jscan) {
 
+#ifdef DEBUG
+debug_enter("JScanner_init");
+#endif
 	if (jscan == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION,
 				"JScan parameter can not be null");
@@ -820,6 +830,9 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_init
 	scanner->sc_subindex = 0;
 	scanner->sc_subheader = (header_t *)malloc(scanner->sc_sublen);
 
+#ifdef DEBUG
+debug_exit("JScanner_init");
+#endif
 
 }
 
@@ -867,8 +880,12 @@ debug_error("IllegalArgumentException",
 			 * with native scanner.
 			 */
 			scanner->sc_scan_table[i] = native_protocols[i];
+//			printf("loadScanners::native(%s)\n", id2str(i));fflush(stdout);
 		} else {
-						
+			
+//			printf("loadScanners::java(%s)\n", id2str(i));fflush(stdout);
+
+			
 			if (scanner->sc_java_header_scanners[i] != NULL) {
 				env->DeleteGlobalRef(scanner->sc_java_header_scanners[i]);
 				scanner->sc_java_header_scanners[i] = NULL;
@@ -978,101 +995,3 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_setFrameNumber
 	
 	return;
 }
-
-
-/************************************
- * EXPERIMENTAL CODE
- * 
- * TODO this code still needs significant amount of work. Commented out
- * until can be finished.
- ************************************/
-/*
-void cut_through_scan(scan_t *scan) {
-	
-#define BIG8(_b, _o)  (*((uin8_t *)&_b[o]))
-#define BIG16(_b, _o) BIG_ENDIAN16(*((uin16_t *)&_b[o]))
-#define BIG32(_b, _o) BIG_ENDIAN16(*((uin32_t *)&_b[o]))
-	
-#define eth_type BIG_ENDIAN16(((ethernet_t *)buf)->type)
-#define eth_len PROTO_ETHERNET_HEADER_LENGTH
-#define i8023_len PROTO_ETHERNET_HEADER_LENGTH
-#define llc_len 4
-#define llc_type (*((uint16_t *)buf))
-#define snap_len 5
-#define snap_type BIG_ENDIAN16(((snap_t *)buf)->pid)
-#define ip4_len  (((ip4_t *)buf)->ihl << 2)
-#define ip4_type (((ip4_t *)buf)->protocol)
-#define tcp_len (((tcp_t *)buf)->doff << 2)
-#define udp_len BIG_ENDIAN16(((udp_t *)buf)->length)
-#define null_type 0
-	
-	int len = scan->buf_len;
-	int type;
-	uint8_t *buf = (uint8_t *)scan->buf;
-	int id = scan->id;
-	
-#define ADVANCE(_l, _t) {len -= _l; type = _t; buf += _l;}
-#define CHECK_TYPE(_id, _var) (_var == _id)
-#define CHECK_MIN_LENGTH(_min, _len) {if(len < _min && len < _len) return;}
-#define RECORD(_id) id = _id;
-	
-	if (!CHECK_TYPE(ETHERNET_ID, id)) { // Not an ethernet frame
-		return;		
-	}
-	
-	if (eth_type < 0x600) { // IEEE 802.3
-		
-		CHECK_MIN_LENGTH(eth_len, eth_len);
-		ADVANCE(eth_len, null_type)
-		RECORD(IEEE_802DOT3_ID);
-		
-		// llc2
-		CHECK_MIN_LENGTH(llc_len, llc_len);
-		ADVANCE(llc_len, llc_type);
-		RECORD(IEEE_802DOT2_ID);
-		
-		switch (type) {
-		case 0xaaaa: // SNAP
-			CHECK_MIN_LENGTH(snap_len, snap_len);
-			ADVANCE(snap_len, snap_type);
-			RECORD(IEEE_SNAP_ID);
-			
-		default:
-			return;
-		}
-		
-	} else { // Old ethernet
-		CHECK_MIN_LENGTH(eth_len, eth_len);
-		ADVANCE(eth_len, eth_type);
-		RECORD(ETHERNET_ID);
-	}
-	
-	// ETHER TYPES
-	switch (type) {		
-	case 0x800: // IPv4
-		CHECK_MIN_LENGTH(1, ip4_len);
-		ADVANCE(ip4_len, ip4_type);
-		RECORD(IP4_ID);
-		
-		switch (type) {
-		case 7: // TCP
-			CHECK_MIN_LENGTH(12, tcp_len);
-			ADVANCE(tcp_len, null_type);
-			RECORD(TCP_ID);
-			
-			break;
-			
-		case 16: // UDP
-			CHECK_MIN_LENGTH(4, udp_len);
-			ADVANCE(udp_len, null_type);
-			RECORD(UDP_ID);
-			
-			break;
-			
-		}
-	}
-
-	
-	return;
-}
-*/
