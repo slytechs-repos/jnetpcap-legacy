@@ -39,7 +39,7 @@
 #include <util_in_cksum.h>
 #include "nio_jbuffer.h"
 
-#ifdef _WIN64
+#if defined(_WIN64) || defined(_WIN32)
 #include <BaseTsd.h>
 #endif
 
