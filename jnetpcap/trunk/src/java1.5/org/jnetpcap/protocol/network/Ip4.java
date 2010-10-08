@@ -1462,15 +1462,15 @@ public class Ip4
 
 	public final static int ID = JProtocol.IP4_ID;
 
-	@Bind(to = Ethernet.class)
-	public static boolean bindToEthernet(JPacket packet, Ethernet eth) {
-		return eth.type() == 0x800;
-	}
-
-	@Bind(to = IEEESnap.class)
-	public static boolean bindToSnap(JPacket packet, IEEESnap snap) {
-		return snap.pid() == 0x800;
-	}
+//	@Bind(to = Ethernet.class)
+//	public static boolean bindToEthernet(JPacket packet, Ethernet eth) {
+//		return eth.type() == 0x800;
+//	}
+//
+//	@Bind(to = IEEESnap.class)
+//	public static boolean bindToSnap(JPacket packet, IEEESnap snap) {
+//		return snap.pid() == 0x800;
+//	}
 
 	@HeaderLength
 	public static int getHeaderLength(JBuffer buffer, int offset) {
