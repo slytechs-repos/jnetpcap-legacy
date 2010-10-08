@@ -62,24 +62,56 @@ public class Pcap100Test
 			assertNotNull(errbuf.toString(), pcap);
 		}
 
-		pcap.close();
+		if (pcap != null) {
+			pcap.close();
+		}
 	}
 
-	public void testInVer1_4() {
-		StringBuilder errbuf = new StringBuilder();
-		List<PcapIf> alldevs = new ArrayList<PcapIf>();
-		int snaplen = 64 * 1024;
-		int promisc = Pcap.MODE_PROMISCUOUS;
-		int timeout = Pcap.DEFAULT_TIMEOUT;
-		int bufsize = 128 * 1024 * 1024;
-		int direction = Pcap.INOUT;
+public void testInVer1_4() {
+	StringBuilder errbuf = new StringBuilder();
+	List<PcapIf> alldevs = new ArrayList<PcapIf>();
+	int snaplen = 64 * 1024;
+	int promisc = Pcap.MODE_PROMISCUOUS;
+	int timeout = Pcap.DEFAULT_TIMEOUT;
+	int bufsize = 128 * 1024 * 1024;
+	int direction = Pcap.INOUT;
 
-		if (Pcap.findAllDevs(alldevs, errbuf) != Pcap.OK) {
-			fail(errbuf.toString());
-		}
-		String device = alldevs.get(0).getName();
+	if (Pcap.findAllDevs(alldevs, errbuf) != Pcap.OK) {
+		fail(errbuf.toString());
+	}
+	String device = alldevs.get(0).getName();
 
-		Pcap pcap = null;
+	Pcap pcap = null;
+	pcap = Pcap.create(device, errbuf);
+	assertNotNull(errbuf.toString(), pcap);
+
+	pcap.setSnaplen(snaplen);
+	pcap.setTimeout(timeout);
+	pcap.setPromisc(promisc);
+	pcap.setBufferSize(bufsize);
+	pcap.setDirection(direction);
+
+	pcap.activate();
+
+	pcap.close();
+}
+
+public void testInVer1_4WithCheck() {
+	StringBuilder errbuf = new StringBuilder();
+	List<PcapIf> alldevs = new ArrayList<PcapIf>();
+	int snaplen = 64 * 1024;
+	int promisc = Pcap.MODE_PROMISCUOUS;
+	int timeout = Pcap.DEFAULT_TIMEOUT;
+	int bufsize = 128 * 1024 * 1024;
+	int direction = Pcap.INOUT;
+
+	if (Pcap.findAllDevs(alldevs, errbuf) != Pcap.OK) {
+		fail(errbuf.toString());
+	}
+	String device = alldevs.get(0).getName();
+
+	Pcap pcap = null;
+	if (Pcap.isPcap100Supported()) {
 		pcap = Pcap.create(device, errbuf);
 		assertNotNull(errbuf.toString(), pcap);
 
@@ -90,38 +122,11 @@ public class Pcap100Test
 		pcap.setDirection(direction);
 
 		pcap.activate();
-
-		pcap.close();
+	} else {
+		pcap = Pcap.openLive(device, snaplen, promisc, timeout, errbuf);
+		assertNotNull(errbuf.toString(), pcap);
 	}
 
-	public void testInVer1_4WithCheck() {
-		StringBuilder errbuf = new StringBuilder();
-		List<PcapIf> alldevs = new ArrayList<PcapIf>();
-		int snaplen = 64 * 1024;
-		int promisc = Pcap.MODE_PROMISCUOUS;
-		int timeout = Pcap.DEFAULT_TIMEOUT;
-		int bufsize = 128 * 1024 * 1024;
-		int direction = Pcap.INOUT;
-
-		if (Pcap.findAllDevs(alldevs, errbuf) != Pcap.OK) {
-			fail(errbuf.toString());
-		}
-		String device = alldevs.get(0).getName();
-
-		Pcap pcap = null;
-		if (Pcap.isPcap100Supported()) {
-			pcap = Pcap.create(device, errbuf);
-			assertNotNull(errbuf.toString(), pcap);
-
-			pcap.setSnaplen(snaplen);
-			pcap.setTimeout(timeout);
-			pcap.setPromisc(promisc);
-			pcap.setBufferSize(bufsize);
-			pcap.setDirection(direction);
-
-			pcap.activate();
-		}
-
-		pcap.close();
-	}
+	pcap.close();
+}
 }
