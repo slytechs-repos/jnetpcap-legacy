@@ -95,11 +95,16 @@ public class TestNoSystemOutOutput
 
 		});
 
+//		int count = 0;
 		for (String f : files) {
 			for (PcapPacket packet : TestUtils.getIterable(DIR + "/" + f)) {
+//				savedOut.printf("TestNoSystemOutput() #%d\n", count ++);
+//				savedOut.flush();
+//				
+				
 				DISGARD_OUTPUT.format(packet);
 				assertTrue("unexpected System.out output found " + f + ": packet="
-				    + packet.toString(), out.size() == 0);
+				    + packet.toString() + "\noutput found=" + out.toString(), out.size() == 0);
 			}
 		}
 	}

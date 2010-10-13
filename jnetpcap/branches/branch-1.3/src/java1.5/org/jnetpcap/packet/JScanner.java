@@ -12,6 +12,11 @@
  */
 package org.jnetpcap.packet;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.jnetpcap.nio.JMemoryReference;
 import org.jnetpcap.nio.JStruct;
 
 /**
@@ -99,9 +104,7 @@ import org.jnetpcap.nio.JStruct;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class JScanner
-    extends
-    JStruct {
+public class JScanner extends JStruct {
 
 	private static int count = 0;
 
@@ -110,20 +113,20 @@ public class JScanner
 	 */
 	public static final int DEFAULT_BLOCKSIZE = 100 * 1024; // 100K
 
-	private final static ThreadLocal<JScanner> localScanners =
-	    new ThreadLocal<JScanner>() {
+	private static ThreadLocal<JScanner> localScanners =
+			new ThreadLocal<JScanner>() {
 
-		    /*
+				/*
 				 * (non-Javadoc)
 				 * 
 				 * @see java.lang.ThreadLocal#initialValue()
 				 */
-		    @Override
-		    protected JScanner initialValue() {
-			    return new JScanner();
-		    }
+				@Override
+				protected JScanner initialValue() {
+					return new JScanner();
+				}
 
-	    };
+			};
 
 	/**
 	 * Maximum number of header entries allowed per packet buffer by the scanner
@@ -155,7 +158,7 @@ public class JScanner
 		} else {
 			JRegistry.clearFlags(id, JRegistry.FLAG_OVERRIDE_BINDING);
 		}
-		
+
 		JPacket.getDefaultScanner().reloadAll();
 	}
 
@@ -165,10 +168,19 @@ public class JScanner
 	 * @return a thread local global scanner
 	 */
 	public static JScanner getThreadLocal() {
-		JScanner s = localScanners.get();
-		s.reloadAll();
+		// JScanner s = localScanners.get();
+		// s.reloadAll();
 
+		JScanner s = JPacket.getDefaultScanner();
 		return s;
+	}
+
+	public static void shutdown() {
+
+		JScanner s = getThreadLocal();
+
+		localScanners.remove();
+		localScanners = null;
 	}
 
 	public static void heuristicCheck(int id, boolean enable) {
@@ -177,7 +189,7 @@ public class JScanner
 		} else {
 			JRegistry.clearFlags(id, JRegistry.FLAG_HEURISTIC_BINDING);
 		}
-		
+
 		JPacket.getDefaultScanner().reloadAll();
 	}
 
@@ -189,7 +201,7 @@ public class JScanner
 			JRegistry.clearFlags(id, JRegistry.FLAG_HEURISTIC_BINDING);
 			JRegistry.clearFlags(id, JRegistry.FLAG_HEURISTIC_PRE_BINDING);
 		}
-		
+
 		JPacket.getDefaultScanner().reloadAll();
 	}
 
@@ -201,7 +213,7 @@ public class JScanner
 			JRegistry.clearFlags(id, JRegistry.FLAG_HEURISTIC_BINDING);
 			JRegistry.clearFlags(id, JRegistry.FLAG_HEURISTIC_PRE_BINDING);
 		}
-		
+
 		JPacket.getDefaultScanner().reloadAll();
 	}
 
@@ -243,6 +255,13 @@ public class JScanner
 	 */
 	public JScanner() {
 		this(DEFAULT_BLOCKSIZE);
+
+		/*
+		 * List<StackTraceElement> list = new
+		 * ArrayList<StackTraceElement>(Arrays.asList(Thread.currentThread()
+		 * .getStackTrace())); list.remove(0); list.remove(0);
+		 * System.out.printf("%s:%s%n", toString(), list);
+		 */
 	}
 
 	/**
@@ -252,29 +271,16 @@ public class JScanner
 	 */
 	public JScanner(int blocksize) {
 		super(STRUCT_NAME + "#" + count++, blocksize + sizeof()); // Allocate memory
-		// block in
-		// JMemory
+
 		init(new JScan());
 		reloadAll();
-	}
 
-	/**
-	 * Clean up the scanner_t structure and release any held resources. For one
-	 * all the JHeaderScanners that are kept as global references need to be
-	 * released.
-	 */
-	private native void cleanup_jscanner();
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#finalize()
-	 */
-	@Override
-	protected void finalize() {
-		cleanup_jscanner();
-
-		super.finalize();
+		/*
+		 * List<StackTraceElement> list = new
+		 * ArrayList<StackTraceElement>(Arrays.asList(Thread.currentThread()
+		 * .getStackTrace())); list.remove(0); list.remove(0);
+		 * System.out.printf("%s:%s%n", toString(), list);
+		 */
 	}
 
 	/**
@@ -320,7 +326,7 @@ public class JScanner
 			}
 
 			if (scanners[i].hasBindings() || scanners[i].hasScanMethod()
-			    || scanners[i].isDirect() == false) {
+					|| scanners[i].isDirect() == false) {
 				// System.out.printf("%s, Downloading scanner [%s]\n", this,
 				// scanners[i]);
 			} else {
@@ -381,11 +387,10 @@ public class JScanner
 	 *          packet length
 	 * @return number of bytes processed
 	 */
-	private native int scan(
-	    JPacket packet,
-	    JPacket.State state,
-	    int id,
-	    int wirelen);
+	private native int scan(JPacket packet,
+			JPacket.State state,
+			int id,
+			int wirelen);
 
 	/**
 	 * Sets the scanner's current frame number to user specified value. This
@@ -396,4 +401,14 @@ public class JScanner
 	 *          new frame number
 	 */
 	public native void setFrameNumber(long frameNo);
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jnetpcap.nio.JMemory#createReference(long)
+	 */
+	@Override
+	protected JMemoryReference createReference(long address) {
+		return new JScannerReference(this, address);
+	}
 }

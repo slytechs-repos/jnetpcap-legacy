@@ -25,8 +25,10 @@ import org.jnetpcap.JBufferHandler;
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapHeader;
 import org.jnetpcap.PcapUtils;
+import org.jnetpcap.nio.DisposableGC;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory;
+import org.jnetpcap.nio.JMemoryPool;
 import org.jnetpcap.packet.format.FormatUtils;
 import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.protocol.lan.Ethernet;
@@ -62,20 +64,18 @@ import org.jnetpcap.protocol.tcpip.Tcp;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class TestForMemoryLeaks
-    extends
-    TestUtils {
+public class TestForMemoryLeaks extends TestUtils {
 
 	private final static File DIR = new File("tests");
 
-	private static final int COUNT = 1000;
+	private static final int COUNT = 3000;
 
 	private StringBuilder errbuf;
 
 	@Override
 	protected void setUp() throws Exception {
 		errbuf = new StringBuilder();
-
+		DisposableGC.getDeault().setVVerbose(true);
 		// System.out.println(System.getProperties());
 	}
 
@@ -113,116 +113,119 @@ public class TestForMemoryLeaks
 		long base = 0;
 
 		final JBuffer buf =
-		    new JBuffer(FormatUtils.toByteArray(""
-		        + "0007e914 78a20010 7b812445 080045c0"
-		        + "00280005 0000ff11 70e7c0a8 62dec0a8"
-		        + "65e906a5 06a50014 e04ac802 000c0002"
-		        + "00000002 00060000 00000000"
+				new JBuffer(FormatUtils.toByteArray(""
+						+ "0007e914 78a20010 7b812445 080045c0"
+						+ "00280005 0000ff11 70e7c0a8 62dec0a8"
+						+ "65e906a5 06a50014 e04ac802 000c0002"
+						+ "00000002 00060000 00000000"
 
-		    // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        //
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        //
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        //
-		        //		        
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
-		        // + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						//
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						//
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						//
+						//		        
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
+						// + "00000002 00060000 00000000 00000000"
 
-		        ));
+						));
 		final PcapHeader header = new PcapHeader(buf.size(), buf.size());
 		PcapPacket packet = new PcapPacket(header, buf);
 
 		System.out.printf("injected packet size=%d bytes\n", buf.size());
 
 		for (int i = 0; i < COUNT; i++) {
-			PcapUtils.injectLoop(1000, JProtocol.ETHERNET_ID,
-			    new PcapPacketHandler<String>() {
+			PcapUtils.injectLoop(1000,
+					JProtocol.ETHERNET_ID,
+					new PcapPacketHandler<String>() {
 
-				    public void nextPacket(PcapPacket packet, String user) {
-					    assertNotNull(packet);
+						public void nextPacket(PcapPacket packet, String user) {
+							assertNotNull(packet);
 
-					    count++;
-					    b += packet.size();
-					    h += packet.getState().getHeaderCount();
+							count++;
+							b += packet.size();
+							h += packet.getState().getHeaderCount();
 
-				    }
+						}
 
-			    }, "", packet);
+					},
+					"",
+					packet);
 
 			/*
 			 * Skip 1 iteration to allow all the files to be opened and any allocated
@@ -241,13 +244,18 @@ public class TestForMemoryLeaks
 
 				pm.gather(sig, pid);
 
-				System.out.printf(
-				    "tot=%.1f packets=%d pps=%.0f bytes=%.0fKb/s hdr=%.0f/s "
-				        + "hdr=%.0fus rm=%dKb pm=%.1fb vm=%dKb\n",
-				    ((double) total) / 1024 / 1024, count, ((double) count / delta),
-				    ((double) b / delta / 1024.), ((double) h / delta),
-				    1000000. / ((double) h / delta), pm.getResident() / (1024),
-				    ((double) pm.getResident() - base) / count, pm.getSize() / (1024));
+				System.out
+						.printf("tot=%.1f packets=%d pps=%.0f bytes=%.0fKb/s hdr=%.0f/s "
+								+ "hdr=%.0fus rm=%dKb pm=%.1fb vm=%dKb\n",
+								((double) total) / 1024 / 1024,
+								count,
+								((double) count / delta),
+								((double) b / delta / 1024.),
+								((double) h / delta),
+								1000000. / ((double) h / delta),
+								pm.getResident() / (1024),
+								((double) pm.getResident() - base) / count,
+								pm.getSize() / (1024));
 				System.out.flush();
 
 				ts = te;
@@ -266,10 +274,12 @@ public class TestForMemoryLeaks
 		end = System.currentTimeMillis();
 		double delta = ((double) end - (double) start) / 1000.;
 		System.out
-		    .printf(
-		        "totals: packets=%d average=%f pps bytes=%fKb/s headers=%f/s header_scan=%fus\n",
-		        count, ((double) total / delta), ((double) bytes / delta / 1024.),
-		        ((double) h / delta), 1000000. / ((double) h / delta));
+				.printf("totals: packets=%d average=%f pps bytes=%fKb/s headers=%f/s header_scan=%fus\n",
+						count,
+						((double) total / delta),
+						((double) bytes / delta / 1024.),
+						((double) h / delta),
+						1000000. / ((double) h / delta));
 		System.out.flush();
 
 	}
@@ -328,13 +338,18 @@ public class TestForMemoryLeaks
 
 				pm.gather(sig, pid);
 
-				System.out.printf(
-				    "tot=%.1fMpkts packets=%d pps=%.0f bytes=%.0fKb/s hdr=%.0f/s "
-				        + "hdr=%.0fus rm=%dKb pm=%.1fb vm=%dKb\n",
-				    ((double) total) / (1000000), count, ((double) count / delta),
-				    ((double) b / delta / 1024.), ((double) h / delta),
-				    1000000. / ((double) h / delta), pm.getResident() / (1024),
-				    ((double) pm.getResident() - base) / count, pm.getSize() / (1024));
+				System.out
+						.printf("tot=%.1fMpkts packets=%d pps=%.0f bytes=%.0fKb/s hdr=%.0f/s "
+								+ "hdr=%.0fus rm=%dKb pm=%.1fb vm=%dKb\n",
+								((double) total) / (1000000),
+								count,
+								((double) count / delta),
+								((double) b / delta / 1024.),
+								((double) h / delta),
+								1000000. / ((double) h / delta),
+								pm.getResident() / (1024),
+								((double) pm.getResident() - base) / count,
+								pm.getSize() / (1024));
 				System.out.flush();
 
 				ts = te;
@@ -353,10 +368,12 @@ public class TestForMemoryLeaks
 		end = System.currentTimeMillis();
 		double delta = ((double) end - (double) start) / 1000.;
 		System.out
-		    .printf(
-		        "totals: packets=%d average=%f pps bytes=%fKb/s headers=%f/s header_scan=%fus\n",
-		        count, ((double) total / delta), ((double) bytes / delta / 1024.),
-		        ((double) h / delta), 1000000. / ((double) h / delta));
+				.printf("totals: packets=%d average=%f pps bytes=%fKb/s headers=%f/s header_scan=%fus\n",
+						count,
+						((double) total / delta),
+						((double) bytes / delta / 1024.),
+						((double) h / delta),
+						1000000. / ((double) h / delta));
 		System.out.flush();
 
 	}
@@ -370,7 +387,7 @@ public class TestForMemoryLeaks
 
 		});
 
-		for (int i = 0; i < COUNT; i++) {
+		for (int i = 0; i < COUNT/10; i++) {
 			for (String fname : files) {
 				Pcap pcap = Pcap.openOffline(DIR.toString() + "/" + fname, errbuf);
 				assertNotNull(errbuf.toString(), pcap);
@@ -385,6 +402,10 @@ public class TestForMemoryLeaks
 				}, pcap);
 
 				pcap.close();
+			}
+
+			if ((i % 80) == 0) {
+				System.out.println();
 			}
 
 			System.out.printf(".");
@@ -421,10 +442,10 @@ public class TestForMemoryLeaks
 						count++;
 						b += buffer.size();
 
-						// packet.peer(buffer);
-						// packet.getCaptureHeader().peerTo(header, 0);
-						// packet.scan(Ethernet.ID);
-						// h += packet.getState().getHeaderCount();
+						packet.peer(buffer);
+						packet.getCaptureHeader().peerTo(header, 0);
+						packet.scan(Ethernet.ID);
+						h += packet.getState().getHeaderCount();
 					}
 
 				}, pcap);
@@ -451,19 +472,19 @@ public class TestForMemoryLeaks
 				pm.gather(sig, pid);
 
 				System.out.printf("#%-2d %s: ", loop, new Time(System
-				    .currentTimeMillis()));
-				System.out.printf(
-				    "tot=%.1fMp packets=%d pps=%.0f bytes=%.0fMb/s hdr=%.0f/s "
-				        + "hdr=%.0fus rm=%.1fMb pm=%.1fb vm=%dKb\n",
-				    ((double) total) / 1000 / 1000, // Tot
-				    count, // packets
-				    ((double) count / delta), // pps
-				    ((double) b / delta / (1024. * 1024)), // bytes
-				    ((double) h / delta), // hdr/s
-				    1000000. / ((double) h / delta), // hdr us
-				    (double) pm.getResident() / (1024 * 1024), // rm
-				    ((double) pm.getResident() - base) / count, // pm
-				    pm.getSize() / (1024)); // vm
+						.currentTimeMillis()));
+				System.out
+						.printf("tot=%.1fMp packets=%d pps=%.0f bytes=%.0fMb/s hdr=%.0f/s "
+								+ "hdr=%.0fus rm=%.1fMb pm=%.1fb vm=%dKb\n",
+								((double) total) / 1000 / 1000, // Tot
+								count, // packets
+								((double) count / delta), // pps
+								((double) b / delta / (1024. * 1024)), // bytes
+								((double) h / delta), // hdr/s
+								1000000. / ((double) h / delta), // hdr us
+								(double) pm.getResident() / (1024 * 1024), // rm
+								((double) pm.getResident() - base) / count, // pm
+								pm.getSize() / (1024)); // vm
 				System.out.flush();
 
 				ts = te;
@@ -476,10 +497,12 @@ public class TestForMemoryLeaks
 		end = System.currentTimeMillis();
 		double delta = ((double) end - (double) start) / 1000.;
 		System.out
-		    .printf(
-		        "totals: packets=%d average=%f pps bytes=%fKb/s headers=%f/s header_scan=%fus\n",
-		        count, ((double) total / delta), ((double) bytes / delta / 1024.),
-		        ((double) h / delta), 1000000. / ((double) h / delta));
+				.printf("totals: packets=%d average=%f pps bytes=%fKb/s headers=%f/s header_scan=%fus\n",
+						count,
+						((double) total / delta),
+						((double) bytes / delta / 1024.),
+						((double) h / delta),
+						1000000. / ((double) h / delta));
 		System.out.flush();
 
 	}
@@ -490,10 +513,10 @@ public class TestForMemoryLeaks
 		final int packetCount = buffer.getInt(0);
 		final int size = buffer.size();
 
-		if (true)
-			return;
 		System.out.printf("Read %d files, with %d packets, for %d bytes\n",
-		    files.length, packetCount, size);
+				files.length,
+				packetCount,
+				size);
 
 		start = ts = System.currentTimeMillis();
 		Sigar sig = new Sigar();
@@ -513,10 +536,10 @@ public class TestForMemoryLeaks
 				packet.scan(Ethernet.ID);
 				h += packet.getState().getHeaderCount();
 
-				if (packet.hasHeader(tcp)) {
-					System.out.printf("#%d: ", packet.getFrameNumber());
-					System.out.println(packet.toString());
-				}
+//				if (packet.hasHeader(tcp)) {
+//					System.out.printf("#%d: ", packet.getFrameNumber());
+//					System.out.println(packet.toString());
+//				}
 			}
 
 		};
@@ -553,20 +576,21 @@ public class TestForMemoryLeaks
 				pm.gather(sig, pid);
 
 				System.out.printf("#%-2d %s: ", loop, new Time(System
-				    .currentTimeMillis()));
+						.currentTimeMillis()));
 				System.out.printf("tot=%.1fMp " + "packets=%d " + "pps=%.0f(%.1fus) "
-				    + "hps=%.0f(%.0fns) " + "bytes=%.0fMb/s " + "rm=%.1fMb "
-				    + "pm=%.1fb " + "vm=%dKb" + "%n",
+						+ "hps=%.0f(%.0fns) " + "bytes=%.0fMb/s " + "rm=%.1fMb "
+						+ "pm=%.1fb " + "vm=%dKb" + "%n",
 
 				((double) total) / 1000 / 1000, // Tot
-				    count, // packets
-				    ((double) count / delta), // pps
-				    delta * 1000000. / (double) count, hps, // hdr/s
-				    ((Double.isInfinite(sph)) ? 0.0 : sph), // hdr ns
-				    ((double) b / delta / (1024. * 1024)), // bytes
-				    (double) pm.getResident() / (1024 * 1024), // rm
-				    ((double) pm.getResident() - base) / count, // pm
-				    pm.getSize() / (1024)); // vm
+						count, // packets
+						((double) count / delta), // pps
+						delta * 1000000. / (double) count,
+						hps, // hdr/s
+						((Double.isInfinite(sph)) ? 0.0 : sph), // hdr ns
+						((double) b / delta / (1024. * 1024)), // bytes
+						(double) pm.getResident() / (1024 * 1024), // rm
+						((double) pm.getResident() - base) / count, // pm
+						pm.getSize() / (1024)); // vm
 				System.out.flush();
 
 				ts = te;
@@ -589,23 +613,30 @@ public class TestForMemoryLeaks
 
 		System.out.printf("### %02d:%02d:%02d ", hours, minutes, seconds);
 		System.out.printf("packets=%d(%.1fKpps, %.1fns/p) "
-		    + "headers=%d(%.0fKhps, %.0fns/h) " + "MBps=%.3f(%.3fMbps) " + "%n",
+				+ "headers=%d(%.0fKhps, %.0fns/h) " + "MBps=%.3f(%.3fMbps) " + "%n",
 
-		total, ((double) total / delta / 1000), delta * 1000000000.
-		    / (double) total, headers, hps, sph,
-		    ((double) bytes / delta / (1024. * 1024)),
-		    ((double) bytes * 8 / delta / (1024. * 1024)));
+				total,
+				((double) total / delta / 1000),
+				delta * 1000000000. / (double) total,
+				headers,
+				hps,
+				sph,
+				((double) bytes / delta / (1024. * 1024)),
+				((double) bytes * 8 / delta / (1024. * 1024)));
 		System.out.flush();
 	}
 
-	public void testStressTestQueuedJBufferHandlerFromMemory() throws SigarException {
+	public void privateTestStressTestQueuedJBufferHandlerFromMemory0()
+			throws SigarException, InterruptedException {
 		String[] files = getDirFileList(DIR, ".pcap");
 		JPcapRecordBuffer buffer = loadAllPacketsFromFiles(files);
 		final int packetCount = buffer.getInt(0);
 		final int size = buffer.size();
 
 		System.out.printf("Read %d files, with %d packets, for %d bytes\n",
-		    files.length, packetCount, size);
+				files.length,
+				packetCount,
+				size);
 
 		start = ts = System.currentTimeMillis();
 		Sigar sig = new Sigar();
@@ -615,37 +646,44 @@ public class TestForMemoryLeaks
 		final PcapPacket packet = new PcapPacket(JMemory.POINTER);
 		int loop = 0;
 		final Tcp tcp = new Tcp();
+		DisposableGC.getDeault().setVVerbose(true);
+		// DisposableGC.getDeault().stopCleanupThread();
+		 DisposableGC.getDeault().startCleanupThread();
 
-		final BlockingQueue<PcapPacket> queue = new ArrayBlockingQueue<PcapPacket>(10000);
+		final BlockingQueue<PcapPacket> queue =
+				new ArrayBlockingQueue<PcapPacket>(1000);
 		final JBufferHandler<Object> handler = new JBufferHandler<Object>() {
 
 			public void nextPacket(PcapHeader header, JBuffer buffer, Object user) {
-
 				count++;
+				// long index = total + count;
+				// System.out.printf("#%d", index);
+
 				b += buffer.size();
-
 				PcapPacket pkt = new PcapPacket(header, buffer);
-				pkt.scan(Ethernet.ID);
-				h += pkt.getState().getHeaderCount();
-				
-				if (queue.remainingCapacity() == 0) {
-					queue.clear();
-				}
-				
-				try {
-          queue.put(pkt);
-        } catch (InterruptedException e) {
-        }
+				// pkt.scan(Ethernet.ID);
+				// h += pkt.getState().getHeaderCount();
 
-//				packet.peer(buffer);
-//				packet.getCaptureHeader().peerTo(header, 0);
-//				packet.scan(Ethernet.ID);
-//				h += packet.getState().getHeaderCount();
+				// if (queue.remainingCapacity() == 0) {
+				// queue.clear();
+				// }
+				//
+				// try {
+				// queue.put(pkt);
+				// } catch (InterruptedException e) {
+				// }
+
+				// packet.peer(buffer);
+				// packet.getCaptureHeader().peerTo(header, 0);
+				// packet.scan(Ethernet.ID);
+				// h += packet.getState().getHeaderCount();
 
 				// if (packet.hasHeader(tcp)) {
 				// System.out.printf("#%d: ", packet.getFrameNumber());
 				// System.out.println(packet.toString());
 				// }
+
+				// System.out.println();
 			}
 
 		};
@@ -658,9 +696,9 @@ public class TestForMemoryLeaks
 			 * Skip 1 iteration to allow all the files to be opened and any allocated
 			 * resources to end up as a memory base.
 			 */
-			if (i == 0) {
-				base = pm.getSize();
-			}
+			// if (i == 0) {
+			// base = pm.getSize();
+			// }
 
 			// if (i % (COUNT / 10000) == 0 && i != 0) {
 			// System.out.printf("=");
@@ -682,20 +720,21 @@ public class TestForMemoryLeaks
 				pm.gather(sig, pid);
 
 				System.out.printf("#%-2d %s: ", loop, new Time(System
-				    .currentTimeMillis()));
-				System.out.printf("tot=%.1fMp " + "packets=%d " + "pps=%.0f(%.1fus) "
-				    + "hps=%.0f(%.0fns) " + "bytes=%.0fMb/s " + "rm=%.1fMb "
-				    + "pm=%.1fb " + "vm=%dKb" + "%n",
+						.currentTimeMillis()));
+				System.out.printf("tot=%.1fMp " + "packets=%d " + "Kpps=%.2f(%.1fus) "
+						+ "hps=%.0f(%.0fns) " + "bytes=%.2fMb/s " + "rm=%.1fMb "
+						+ "pm=%.1fb " + "vm=%dKb" + "%n",
 
 				((double) total) / 1000 / 1000, // Tot
-				    count, // packets
-				    ((double) count / delta), // pps
-				    delta * 1000000. / (double) count, hps, // hdr/s
-				    ((Double.isInfinite(sph)) ? 0.0 : sph), // hdr ns
-				    ((double) b / delta / (1024. * 1024)), // bytes
-				    (double) pm.getResident() / (1024 * 1024), // rm
-				    ((double) pm.getResident() - base) / count, // pm
-				    pm.getSize() / (1024)); // vm
+						count, // packets
+						((double) count / delta / 1000.), // pps
+						delta * 1000000. / (double) count,
+						hps, // hdr/s
+						((Double.isInfinite(sph)) ? 0.0 : sph), // hdr ns
+						((double) b / delta / (1024. * 1024)), // bytes
+						(double) pm.getResident() / (1024 * 1024), // rm
+						((double) pm.getResident() - base) / count, // pm
+						pm.getSize() / (1024)); // vm
 				System.out.flush();
 
 				ts = te;
@@ -718,13 +757,30 @@ public class TestForMemoryLeaks
 
 		System.out.printf("### %02d:%02d:%02d ", hours, minutes, seconds);
 		System.out.printf("packets=%d(%.1fKpps, %.1fns/p) "
-		    + "headers=%d(%.0fKhps, %.0fns/h) " + "MBps=%.3f(%.3fMbps) " + "%n",
+				+ "headers=%d(%.0fKhps, %.0fns/h) " + "MBps=%.3f(%.3fMbps) " + "%n",
 
-		total, ((double) total / delta / 1000), delta * 1000000000.
-		    / (double) total, headers, hps, sph,
-		    ((double) bytes / delta / (1024. * 1024)),
-		    ((double) bytes * 8 / delta / (1024. * 1024)));
+				total,
+				((double) total / delta / 1000),
+				delta * 1000000000. / (double) total,
+				headers,
+				hps,
+				sph,
+				((double) bytes / delta / (1024. * 1024)),
+				((double) bytes * 8 / delta / (1024. * 1024)));
 		System.out.flush();
+
+		queue.clear();
+	}
+
+	public void testStressTestQueuedJBufferHandlerFromMemory()
+			throws SigarException, InterruptedException {
+		privateTestStressTestQueuedJBufferHandlerFromMemory0();
+
+		JMemoryPool.shutdown();
+		JScanner.shutdown();
+		JPacket.shutdown();
+
+		DisposableGC.getDeault().waitForForcableCleanup();
 	}
 
 	private String[] getDirFileList(File dir, String endsWith) {
@@ -764,20 +820,21 @@ public class TestForMemoryLeaks
 			assertNotNull(errbuf.toString(), pcap);
 
 			try {
-			pcap.loop(Pcap.LOOP_INFINATE, new JBufferHandler<String>() {
-				private int index = 1;
+				pcap.loop(Pcap.LOOP_INFINATE, new JBufferHandler<String>() {
+					private int index = 1;
 
-				public void nextPacket(PcapHeader header, JBuffer buffer, String fname) {
-					buf.append(header, buffer);
+					public void nextPacket(PcapHeader header, JBuffer buffer, String fname) {
+						buf.append(header, buffer);
 
-//					final PcapPacket packet = new PcapPacket(header, buffer);
-//					packet.scan(Ethernet.ID);
-//					System.out.printf("#%s:%d%n", fname, index++);
-//					System.out.println(packet.toHexdump());
-//					System.out.println(packet.getState().toDebugString());
-//					System.out.println(packet);
-				}
-			}, fname);
+						// final PcapPacket packet = new PcapPacket(header, buffer);
+						// packet.scan(Ethernet.ID);
+						// System.out.printf("#%s:%d%n", fname, index++);
+						// System.out.println(packet.toHexdump());
+						// System.out.println(packet.getState().toDebugString());
+						// System.out.println(packet);
+					}
+				},
+						fname);
 			} catch (RuntimeException e) {
 				e.printStackTrace();
 				throw e;
@@ -797,10 +854,9 @@ public class TestForMemoryLeaks
 
 	final PcapPacket packet = new PcapPacket(JMemory.POINTER);
 
-	private <T> long dispatchToJBuffeHandler(
-	    JPcapRecordBuffer buffer,
-	    JBufferHandler<T> handler,
-	    T user) {
+	private <T> long dispatchToJBuffeHandler(JPcapRecordBuffer buffer,
+			JBufferHandler<T> handler,
+			T user) {
 
 		// for (Record record: buffer) {
 		// handler.nextPacket(record.header, record.packet, user);
@@ -815,10 +871,9 @@ public class TestForMemoryLeaks
 		return buffer.getPacketRecordCount();
 	}
 
-	private <T> long dispatchToPcapPacketHandler(
-	    JPcapRecordBuffer buffer,
-	    PcapPacketHandler<T> handler,
-	    T user) {
+	private <T> long dispatchToPcapPacketHandler(JPcapRecordBuffer buffer,
+			PcapPacketHandler<T> handler,
+			T user) {
 
 		// for (Record record: buffer) {
 		// handler.nextPacket(record.header, record.packet, user);
@@ -835,10 +890,17 @@ public class TestForMemoryLeaks
 
 		return buffer.getPacketRecordCount();
 	}
-	
-	public void test802dot1q() {
-		PcapPacket packet = TestUtils.getPcapPacket("tests/test-vlan.pcap", 262 - 1);
-		System.out.println(packet.toString());
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see junit.framework.TestCase#runTest()
+	 */
+	@Override
+	protected void runTest() throws Throwable {
+
+		System.out.printf("============== %s ==============%n", getName());
+		super.runTest();
 	}
 
 }
