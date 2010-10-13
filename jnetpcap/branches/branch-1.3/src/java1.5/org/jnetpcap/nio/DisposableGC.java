@@ -69,7 +69,7 @@ public final class DisposableGC {
 	}
 
 	private DisposableGC() {
-		startCleanupThread();
+//		startCleanupThread();
 	}
 
 	void drainRefQueueBounded() {
