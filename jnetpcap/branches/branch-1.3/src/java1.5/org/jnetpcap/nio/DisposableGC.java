@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-
 /**
  * Specialized garbage-collector that invokes the
  * {@link DisposableReference.dispose} method immediately as soon as a
@@ -42,9 +41,9 @@ public final class DisposableGC {
 	 * LinkedHashSet: 42.4-43.5   43.2-44.3
 	 * </pre>
 	 */
-	final Collection<DisposableReference> refCollection3 =
+	// final Collection<DisposableReference> refCollection3 =
 	// new ArrayDeque<DisposableReference>(20000);
-			new ArrayList<DisposableReference>(20000);
+	// new ArrayList<DisposableReference>(20000);
 	// new LinkedList<DisposableReference>();
 	// new HashSet<DisposableReference>(20000);
 	// new LinkedHashSet<DisposableReference>(20000);
@@ -69,7 +68,7 @@ public final class DisposableGC {
 	}
 
 	private DisposableGC() {
-//		startCleanupThread();
+		// startCleanupThread();
 	}
 
 	void drainRefQueueBounded() {
