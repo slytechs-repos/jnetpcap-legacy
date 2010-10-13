@@ -36,6 +36,8 @@ import org.jnetpcap.packet.format.FormatUtils;
  */
 public abstract class JMemory {
 
+	private JMemoryReference ref = null;
+
 	/**
 	 * Used in special memory allocation. Allows the user to specify the type
 	 * allocation required of this memory object.
@@ -75,9 +77,12 @@ public abstract class JMemory {
 			Pcap.isInjectSupported();
 
 			initIDs();
+
+			Class.forName("org.jnetpcap.nio.JMemoryReference");
+
 		} catch (Exception e) {
 			System.err.println(e.getClass().getName() + ": "
-			    + e.getLocalizedMessage());
+					+ e.getLocalizedMessage());
 			throw new ExceptionInInitializerError(e);
 		}
 	}
@@ -288,8 +293,30 @@ public abstract class JMemory {
 	public void check() throws IllegalStateException {
 		if (physical == 0) {
 			throw new IllegalStateException(
-			    "peered object not synchronized with native structure");
+					"peered object not synchronized with native structure");
 		}
+	}
+
+	/**
+	 * Creates a cleanup/dispose weak reference object. This reference object is
+	 * responsible for cleanup, after the actual JMemory object is garbage
+	 * collected. After this object is garbage collected, the dispose method on
+	 * the returned JMemoryReference object will be called at some point, when
+	 * this object on longer exists, to cleanup. All JMemoryReferences contain a
+	 * native memory pointer to the memory that potentially needs cleanup and
+	 * disposal.
+	 * <p>
+	 * This method is protected and allows subclasses to provide their own cleanup
+	 * code. If this method is not overriden, it will return a JMemoryReference
+	 * object suitable to cleanup after this memory object.
+	 * </p>
+	 * 
+	 * @param address
+	 *          native memory address to use in the disposable
+	 * @return a reference that is tied to this JMemory object
+	 */
+	protected JMemoryReference createReference(final long address) {
+		return new JMemoryReference(this, address);
 	}
 
 	/**
@@ -302,14 +329,6 @@ public abstract class JMemory {
 	 * neccessary.
 	 */
 	protected native void cleanup();
-
-	/**
-	 * Default finalizer which checks if there is any memory to free up.
-	 */
-	@Override
-	protected void finalize() {
-		cleanup();
-	}
 
 	/**
 	 * Checks if this peered object is initialized. This method does not throw any
@@ -392,12 +411,12 @@ public abstract class JMemory {
 	 *           bounds of peer objects address space
 	 */
 	protected int peer(JMemory peer, int offset, int length)
-	    throws IndexOutOfBoundsException {
+			throws IndexOutOfBoundsException {
 		if (offset < 0 || length < 0
-		    || (!peer.owner && offset + length > peer.size) || peer.owner
-		    && offset + length > peer.physicalSize) {
+				|| (!peer.owner && offset + length > peer.size) || peer.owner
+				&& offset + length > peer.physicalSize) {
 			throw new IllegalArgumentException("Invalid [" + offset + ","
-			    + (offset + length) + "," + length + ") range.");
+					+ (offset + length) + "," + length + ") range.");
 		}
 
 		cleanup(); // Clean up any memory we own before we give it up
@@ -447,14 +466,14 @@ public abstract class JMemory {
 	protected void setSize(int size) {
 		if (!owner) {
 			throw new IllegalAccessError(
-			    "object not owner of the memory block. Can not change size,"
-			        + " must use peer() to change rereference properties");
+					"object not owner of the memory block. Can not change size,"
+							+ " must use peer() to change rereference properties");
 		}
 
 		if (size < 0 || size > physicalSize) {
 			throw new IllegalArgumentException(
-			    "size is out of bounds (physical size=" + physicalSize
-			        + ", requested size=" + size);
+					"size is out of bounds (physical size=" + physicalSize
+							+ ", requested size=" + size);
 		}
 
 		this.size = size;
@@ -485,8 +504,12 @@ public abstract class JMemory {
 		JBuffer b = new JBuffer(Type.POINTER);
 		b.peer(this);
 
-		return FormatUtils.hexdumpCombined(b.getByteArray(0, size), 0, 0, true,
-		    true, true);
+		return FormatUtils.hexdumpCombined(b.getByteArray(0, size),
+				0,
+				0,
+				true,
+				true,
+				true);
 	}
 
 	/**
@@ -513,14 +536,13 @@ public abstract class JMemory {
 	public String toDebugString() {
 		StringBuilder b = new StringBuilder();
 
-		b.append("JMemory: JMemory@").append(Long.toHexString(physical)).append(
-		    getClass().toString()).append(": ");
+		b.append("JMemory: JMemory@").append(Long.toHexString(physical))
+				.append(getClass().toString()).append(": ");
 		b.append("size=").append(size).append(" bytes");
 		if (!owner) {
 			b.append("\n");
-			b.append("JMemory: owner=").append(
-			    (keeper == null) ? "null" : keeper.getClass().getName().replaceAll(
-			        "org.jnetpcap.", ""));
+			b.append("JMemory: owner=").append((keeper == null) ? "null" : keeper
+					.getClass().getName().replaceAll("org.jnetpcap.", ""));
 			b.append(".class");
 			if (keeper instanceof JMemory) {
 				JMemory k = (JMemory) keeper;
@@ -572,17 +594,20 @@ public abstract class JMemory {
 	 *          flag if set to true will print out raw HEX data on every line
 	 * @return multi-line hexdump of the entire memory region
 	 */
-	public String toHexdump(
-	    int length,
-	    boolean address,
-	    boolean text,
-	    boolean data) {
+	public String toHexdump(int length,
+			boolean address,
+			boolean text,
+			boolean data) {
 		length = (length < size) ? length : size;
 		JBuffer b = new JBuffer(Type.POINTER);
 		b.peer(this);
 
-		return FormatUtils.hexdumpCombined(b.getByteArray(0, length), 0, 0,
-		    address, text, data);
+		return FormatUtils.hexdumpCombined(b.getByteArray(0, length),
+				0,
+				0,
+				address,
+				text,
+				data);
 	}
 
 	/**
@@ -609,11 +634,10 @@ public abstract class JMemory {
 	 *          starting offset into memory buffer
 	 * @return number of bytes copied
 	 */
-	protected native int transferFrom(
-	    byte[] buffer,
-	    int srcOffset,
-	    int length,
-	    int dstOffset);
+	protected native int transferFrom(byte[] buffer,
+			int srcOffset,
+			int length,
+			int dstOffset);
 
 	/**
 	 * Copies data from memory from direct byte buffer to this memory
@@ -640,7 +664,7 @@ public abstract class JMemory {
 			return transferFromDirect(src, 0);
 		} else {
 			return transferFrom(src.array(), src.position(), src.limit()
-			    - src.position(), 0);
+					- src.position(), 0);
 		}
 	}
 
@@ -661,14 +685,13 @@ public abstract class JMemory {
 	 * block. This policy is strictly enforced. If the ownership transfer
 	 * succeeds, this memory object will be responsible for freeing up memory
 	 * block when this object is garbage collected or the user calls
-	 * JMemory.cleanup() method.
-	 * <h2>Warning!</h2>
-	 * Care must be taken to only transfer ownership for simple memory
-	 * allocations. If a complex memory allocation was used, one that sub
-	 * allocates other memory blocks which are referenced from the original memory
-	 * block, to avoid creating memory leaks. It is best practice to sub allocate
-	 * other memory blocks using JMemory class which will properly manage that
-	 * memory block and ensure that it will freed properly as well.
+	 * JMemory.cleanup() method. <h2>Warning!</h2> Care must be taken to only
+	 * transfer ownership for simple memory allocations. If a complex memory
+	 * allocation was used, one that sub allocates other memory blocks which are
+	 * referenced from the original memory block, to avoid creating memory leaks.
+	 * It is best practice to sub allocate other memory blocks using JMemory class
+	 * which will properly manage that memory block and ensure that it will freed
+	 * properly as well.
 	 * 
 	 * @param memory
 	 *          memory block to transfer the ownership from
@@ -682,6 +705,16 @@ public abstract class JMemory {
 		memory.owner = false;
 		this.owner = true;
 		this.keeper = null; // Release any kept references
+
+		if (this.ref != null) {
+			throw new IllegalStateException(
+					"Can not transfer ownership when already own memory");
+		}
+		this.ref = createReference(memory.ref.address);
+
+		memory.ref.address = 0;
+		memory.ref.remove();
+		memory.ref = null;
 
 		return true;
 	}
@@ -710,11 +743,10 @@ public abstract class JMemory {
 	 *          starting offset in byte array
 	 * @return number of bytes copied
 	 */
-	protected native int transferTo(
-	    byte[] buffer,
-	    int srcOffset,
-	    int length,
-	    int dstOffset);
+	protected native int transferTo(byte[] buffer,
+			int srcOffset,
+			int length,
+			int dstOffset);
 
 	/**
 	 * Copies teh contents of this memory to buffer
@@ -790,11 +822,10 @@ public abstract class JMemory {
 	 *          offset in destination buffer
 	 * @return number of bytes copied
 	 */
-	protected native int transferTo(
-	    JMemory dst,
-	    int srcOffset,
-	    int length,
-	    int dstOffset);
+	protected native int transferTo(JMemory dst,
+			int srcOffset,
+			int length,
+			int dstOffset);
 
 	/**
 	 * @param dst

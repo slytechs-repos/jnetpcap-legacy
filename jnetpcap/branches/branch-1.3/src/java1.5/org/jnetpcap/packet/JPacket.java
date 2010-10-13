@@ -51,9 +51,7 @@ import org.jnetpcap.packet.format.TextFormatter;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public abstract class JPacket
-    extends
-    JBuffer implements JHeaderAccessor {
+public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 
 	/**
 	 * Class maintains the decoded packet state. The class is peered with
@@ -83,13 +81,13 @@ public abstract class JPacket
 	 * </pre>
 	 * 
 	 * <p>
-	 * The methods in this <code>State</code> provide 3 sets of functions.
-	 * Looking up global state of the packet found in packet_state_t structure,
-	 * looking up header information in <code>struct header_t</code> by header
-	 * ID retrieved from JRegistry and instance numbers, looking up header
-	 * information by direct indexes into native maps and arrays. Instance numbers
-	 * specify which instance of the header, if more than 1 exists in a packet.
-	 * For example if there is a packet with 2 Ip4 headers such as
+	 * The methods in this <code>State</code> provide 3 sets of functions. Looking
+	 * up global state of the packet found in packet_state_t structure, looking up
+	 * header information in <code>struct header_t</code> by header ID retrieved
+	 * from JRegistry and instance numbers, looking up header information by
+	 * direct indexes into native maps and arrays. Instance numbers specify which
+	 * instance of the header, if more than 1 exists in a packet. For example if
+	 * there is a packet with 2 Ip4 headers such as
 	 * 
 	 * <pre>
 	 * Ethernet-&gt;Ip4-&gt;Snmp-&gt;Ip4 
@@ -106,9 +104,7 @@ public abstract class JPacket
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
-	public static class State
-	    extends
-	    JStruct {
+	public static class State extends JStruct {
 
 		/**
 		 * Flag which is set when the packet that was decoded was truncated and not
@@ -226,7 +222,7 @@ public abstract class JPacket
 		}
 
 		public int peer(JBuffer peer, int offset, int length)
-		    throws IndexOutOfBoundsException {
+				throws IndexOutOfBoundsException {
 			int r = super.peer(peer, offset, length);
 
 			flowKey.peer(this);
@@ -248,10 +244,10 @@ public abstract class JPacket
 		 * (non-Javadoc)
 		 * 
 		 * @see org.jnetpcap.nio.JPeerable#peer(org.jnetpcap.nio.JMemoryPool.Block,
-		 *      int, int)
+		 * int, int)
 		 */
 		public int peer(JMemoryPool.Block peer, int offset, int length)
-		    throws IndexOutOfBoundsException {
+				throws IndexOutOfBoundsException {
 			int r = super.peer(peer, offset, length);
 
 			flowKey.peer(this);
@@ -268,7 +264,7 @@ public abstract class JPacket
 		public native int peerHeaderById(int id, int instance, JHeader.State dst);
 
 		public native int peerHeaderByIndex(int index, JHeader.State dst)
-		    throws IndexOutOfBoundsException;
+				throws IndexOutOfBoundsException;
 
 		/**
 		 * Peers this packet's state to buffer
@@ -399,7 +395,7 @@ public abstract class JPacket
 	/**
 	 * Default scanner used to scan a packet per user request
 	 */
-	protected static JScanner defaultScanner = new JScanner();
+	protected static JScanner defaultScanner;
 
 	private static JFormatter out = new TextFormatter(new StringBuilder());
 
@@ -414,7 +410,19 @@ public abstract class JPacket
 	 * @return the current default scanner
 	 */
 	public static JScanner getDefaultScanner() {
+		if (defaultScanner == null) {
+			synchronized (JScanner.class) {
+				if (defaultScanner == null) {
+					defaultScanner = new JScanner();
+				}
+			}
+		}
 		return defaultScanner;
+	}
+	
+	public static void shutdown() {
+		defaultScanner = null;
+		pool = null;
 	}
 
 	/**
@@ -505,8 +513,8 @@ public abstract class JPacket
 	 * state can be anywhere, but by default JScanner stores it in a round-robin
 	 * buffer it uses for decoding fast incoming packets. The state can easily be
 	 * copied into another buffer for longer storage using such methods as
-	 * <code>transferStateAndDataTo</code> which will copy the packet state
-	 * and/or data buffer into another memory area, such as a direct ByteBuffer or
+	 * <code>transferStateAndDataTo</code> which will copy the packet state and/or
+	 * data buffer into another memory area, such as a direct ByteBuffer or
 	 * JBuffer.
 	 * </p>
 	 */
@@ -607,7 +615,7 @@ public abstract class JPacket
 	 * @throws IndexOutOfBoundsException
 	 */
 	public <T extends JHeader> T getHeaderByIndex(int index, T header)
-	    throws IndexOutOfBoundsException {
+			throws IndexOutOfBoundsException {
 
 		JHeader.State hstate = header.getState();
 		this.state.peerHeaderByIndex(index, hstate);
@@ -726,7 +734,7 @@ public abstract class JPacket
 	public int getPacketWirelen() {
 		return getCaptureHeader().wirelen();
 	}
-	
+
 	/**
 	 * Gets the current default scanner.
 	 * 
@@ -754,7 +762,6 @@ public abstract class JPacket
 	 * @return size in bytes
 	 */
 	public abstract int getTotalSize();
-
 
 	/**
 	 * Checks if header with specified numerical ID exists within the decoded
@@ -803,7 +810,7 @@ public abstract class JPacket
 	 */
 	public <T extends JHeader> boolean hasHeader(T header) {
 		return (state.get64BitHeaderMap(0) & (1L << header.getId())) != 0
-		    && hasHeader(header, 0);
+				&& hasHeader(header, 0);
 	}
 
 	/**
@@ -872,7 +879,7 @@ public abstract class JPacket
 	 *          to be found in the packet, the DLT
 	 */
 	public void scan(int id) {
-		defaultScanner.scan(this, id, getCaptureHeader().wirelen());
+		getDefaultScanner().scan(this, id, getCaptureHeader().wirelen());
 	}
 
 	/**

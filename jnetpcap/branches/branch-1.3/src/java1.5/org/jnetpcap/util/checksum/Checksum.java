@@ -30,7 +30,7 @@ public class Checksum {
 	 * require the header field that stores the CRC value, to be zeroed out for
 	 * the computation on itself.
 	 */
-	public final static JBuffer ZERO_BUFFER = new JBuffer(new byte[256]);
+//	public final static JBuffer ZERO_BUFFER = new JBuffer(new byte[256]);
 
 	/**
 	 * Calculate CCITT CRC16 checksum using a CRC32 CCITT seed.

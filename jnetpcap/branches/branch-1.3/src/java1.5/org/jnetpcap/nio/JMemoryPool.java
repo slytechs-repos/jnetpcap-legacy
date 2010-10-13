@@ -14,6 +14,7 @@ package org.jnetpcap.nio;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.sql.Time;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -52,9 +53,7 @@ public class JMemoryPool {
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
-	public static class Block
-	    extends
-	    JMemory {
+	public static class Block extends JMemory {
 
 		/**
 		 * How many bytes are available for allocation in this current block
@@ -66,6 +65,8 @@ public class JMemoryPool {
 		 */
 		private int current = 0;
 
+		private long createdOn;
+
 		/**
 		 * Constructor for allocating a block of a requested size
 		 * 
@@ -75,6 +76,7 @@ public class JMemoryPool {
 		Block(final int size) {
 			super(size);
 			this.available = size;
+			this.createdOn = System.currentTimeMillis();
 		}
 
 		/**
@@ -85,6 +87,7 @@ public class JMemoryPool {
 		 */
 		Block(final JMemory peer) {
 			super(peer);
+			this.createdOn = System.currentTimeMillis();
 		}
 
 		/**
@@ -119,6 +122,19 @@ public class JMemoryPool {
 			// Do nothing for now
 		}
 
+		public String toString() {
+			StringBuilder b = new StringBuilder(80);
+			b.append("JMemoryPool::Block");
+			b.append('[');
+			b.append("capacity=").append(size());
+			b.append(',');
+			b.append("available=").append(this.current);
+			b.append(',');
+			b.append("createdOn=").append(new Time(this.createdOn).toString());
+			b.append(']');
+
+			return b.toString();
+		}
 	}
 
 	/**
@@ -133,9 +149,7 @@ public class JMemoryPool {
 	 * then further sub allocates per individual requests. The is the default
 	 * size.
 	 */
-	public static final int DEFAULT_BLOCK_SIZE = 1024 * 10;
-
-	private final static JMemoryPool global = new JMemoryPool();
+	public static final int DEFAULT_BLOCK_SIZE = 128 * 1024;
 
 	private static JMemoryPool defaultPool;
 
@@ -148,7 +162,7 @@ public class JMemoryPool {
 	 */
 	public static JBuffer buffer(final int size) {
 		final JBuffer buffer = new JBuffer(Type.POINTER);
-		global.allocate(size, buffer);
+		defaultMemoryPool().allocate(size, buffer);
 
 		return buffer;
 	}
@@ -158,7 +172,7 @@ public class JMemoryPool {
 	 * @param storage
 	 */
 	public static void malloc(final int size, final JMemory storage) {
-		global.allocate(size, storage);
+		defaultMemoryPool().allocate(size, storage);
 	}
 
 	/**
@@ -179,7 +193,7 @@ public class JMemoryPool {
 	 * block is put in the pool to possibly be reused to fullfil smaller requests
 	 */
 	private final List<Reference<Block>> pool =
-	    Collections.synchronizedList(new LinkedList<Reference<Block>>());
+			Collections.synchronizedList(new LinkedList<Reference<Block>>());
 
 	/**
 	 * Uses default allocation size and strategy.
@@ -310,8 +324,11 @@ public class JMemoryPool {
 	 * @return a new block to be used for allocations
 	 */
 	private Block newBlock(final int atLeastInSize) {
+//		System.out
+//				.printf("newBlock() size=%d block=%d%n", atLeastInSize, blockSize);
+
 		return new Block((atLeastInSize > this.blockSize) ? atLeastInSize
-		    : this.blockSize);
+				: this.blockSize);
 	}
 
 	/**
@@ -324,6 +341,13 @@ public class JMemoryPool {
 			defaultPool = new JMemoryPool();
 		}
 		return defaultPool;
+	}
+
+	public static void shutdown() {
+		if (defaultPool != null) {
+			defaultPool.block = null;
+			defaultPool = null;
+		}
 	}
 
 }

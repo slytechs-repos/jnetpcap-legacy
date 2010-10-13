@@ -96,8 +96,6 @@ public class TestUtils extends TestCase {
 
 	};
 
-	private static JScanner scanner = new JScanner();
-
 	/**
 	 * Scans a packet that has been initialized but not scanned. Assumes
 	 * ethernet is the DLT protocol
@@ -121,7 +119,7 @@ public class TestUtils extends TestCase {
 	 */
 	public static int scanPacket(JPacket packet, int id) {
 
-		return scanner.scan(packet, id);
+		return JScanner.getThreadLocal().scan(packet, id);
 	}
 
 	public static Iterable<PcapPacket> getIterable(final String file) {

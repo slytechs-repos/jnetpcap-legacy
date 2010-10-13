@@ -51,22 +51,26 @@
 jclass jmemoryClass = 0;
 jclass jreferenceClass = 0;
 jclass jmemoryPoolClass = 0;
+jclass jmemoryRefClass = 0;
 
 jmethodID jreferenceConstVoidMID = 0;
 jmethodID jmemoryToDebugStringMID = 0;
 
 jfieldID jmemoryPhysicalFID = 0;
+jfieldID jmemoryRefAddressFID = 0;
 jfieldID jmemoryPhysicalSizeFID = 0;
 jfieldID jmemorySizeFID = 0;
 jfieldID jmemoryOwnerFID = 0;
 jfieldID jmemoryKeeperFID = 0;
 jfieldID jmemoryReferencesFID = 0;
 jfieldID jmemoryPOINTERFID = 0;
+jfieldID jmemoryRefFID = 0;
 
 jobject jmemoryPOINTER_CONST;
 
 jmethodID jmemoryPoolAllocateExclusiveMID = 0;
 jmethodID jmemoryPoolDefaultMemoryPoolMID = 0;
+jmethodID jmemoryCreateReferenceMID = 0;
 
 jobject defaultMemoryPool = NULL;
 
@@ -130,6 +134,19 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_initIDs
 		fprintf(stderr, "Unable to initialize field JMemory.references:JReference");
 		return;
 	}
+	if ( ( jmemoryRefFID = env->GetFieldID(c, "ref", "Lorg/jnetpcap/nio/JMemoryReference;")) == NULL) {
+		throwException(env, NO_SUCH_FIELD_EXCEPTION,
+				"Unable to initialize field JMemory.ref:JMemoryReference");
+		fprintf(stderr, "Unable to initialize field JMemory.ref");
+		return;
+	}
+
+	if ( ( jmemoryCreateReferenceMID = env->GetMethodID(c, "createReference", "(J)Lorg/jnetpcap/nio/JMemoryReference;")) == NULL) {
+		throwException(env, NO_SUCH_FIELD_EXCEPTION,
+				"Unable to initialize method JMemory.createReference()");
+		fprintf(stderr, "Unable to initialize method JMemory.createReference()");
+		return;
+	}
 
 	if ( ( jmemoryToDebugStringMID = env->GetMethodID(c, "toDebugString", "()Ljava/lang/String;")) == NULL) {
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
@@ -191,6 +208,19 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_initIDs
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
 				"Unable to initialize method JMemoryPool.defaultMemoryPool():JMemoryPool");
 		fprintf(stderr, "Unable to initialize method JMemoryPool.defaultMemoryPool():JMemoryPool");
+		return;
+	}
+
+	if ( (jmemoryRefClass = c = findClass(env, "org/jnetpcap/nio/JMemoryReference")) == NULL) {
+		throwException(env, CLASS_NOT_FOUND_EXCEPTION,
+				"Unable to initialize class org.jnetpcap.nio.JMemoryReference");
+		fprintf(stderr, "Unable to initialize class org.jnetpcap.nio.JMemoryReference");
+		return;
+	}
+
+	if ( ( jmemoryRefAddressFID = env->GetFieldID(c, "address", "J")) == NULL) {
+		throwException(env, NO_SUCH_FIELD_EXCEPTION,
+				"Unable to initialize field JMemoryReference.address:long");
 		return;
 	}
 
@@ -284,6 +314,22 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_allocate
 (JNIEnv *env, jobject obj, jint jsize) {
 
 	jmemoryAllocate(env, (size_t) jsize, obj);
+}
+
+/*
+ * Class:     org_jnetpcap_nio_JMemoryReference
+ * Method:    dispose
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemoryReference_dispose
+(JNIEnv *env, jobject obj) {
+
+	jlong pt = env->GetLongField(obj, jmemoryRefAddressFID);
+	void * ptr = toPtr(pt);
+
+	if (ptr != NULL) {
+		free(ptr);
+	}
 }
 
 /*
@@ -443,6 +489,12 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferTo__Lorg_jnetpcap_n
 	}
 
 	jlen = (dstLen < jlen) ? dstLen : jlen;
+
+//	printf("\nJMemory_2III() dst=%p off=%d src=%p off=%d len=%d",
+//			dst, jdstOffset,
+//			src, jsrcOffset,
+//			jlen);
+//	fflush(stdout);
 
 	memcpy((void *) (dst + jdstOffset), (void *) (src + jsrcOffset), jlen);
 
@@ -704,6 +756,22 @@ void setJMemoryPhysical(JNIEnv *env, jobject obj, jlong value) {
 	last = obj;
 }
 
+/**
+ * Function calls on the java JMemory.createReference method and passes it the
+ * address of this jmemory native pointer (usually memory pointer). The java
+ * method may be overriden or returns the default new instance of
+ * JMemoryReference object. The function is marked static to prevent anyone else
+ * outside of nio_jmemory method using it. It would be very dangerous to try
+ * and create new JMemoryReference objects outside. This should only be done
+ * from jmemoryAllocate and from transferOwnership methods.
+ */
+static jobject jmemoryCreateReference(JNIEnv *env, jobject obj, void *address) {
+	return env->CallObjectMethod(
+			obj,
+			jmemoryCreateReferenceMID,
+			toLong(address));
+}
+
 char *jmemoryToDebugString(JNIEnv *env, jobject obj, char *buf) {
 	jstring jstr = (jstring) env->CallObjectMethod(obj, jmemoryToDebugStringMID);
 	if (jstr == NULL) {
@@ -867,6 +935,12 @@ char *jmemoryAllocate(JNIEnv *env, size_t size, jobject obj) {
 #endif
 
 	jmemoryPeer(env, obj, mem, size, obj);
+
+	jobject ref = jmemoryCreateReference(env, obj, mem);
+	if (ref == NULL) {
+		return NULL; // Out of memory
+	}
+	env->SetObjectField(obj, jmemoryRefFID, ref);
 
 #ifdef DEBUG
 	char buf[1024];

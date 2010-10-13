@@ -31,6 +31,9 @@
 #include "nio_jmemory.h"
 #include "nio_jbuffer.h"
 #include "org_jnetpcap_protocol_JProtocol.h"
+#include "org_jnetpcap_nio_JMemoryReference.h"
+#include "org_jnetpcap_packet_JScanner.h"
+#include "org_jnetpcap_packet_JScannerReference.h"
 #include "export.h"
 #include "util_debug.h"
 
@@ -49,39 +52,26 @@ char id_str_buf[256];
 /*****
  * Temporarily backout of C++ Debug class and g++ compiler
  * 
-Debug scanner_logger("jscanner");
-Debug protocol_logger("jprotocol", &scanner_logger);
+ Debug scanner_logger("jscanner");
+ Debug protocol_logger("jprotocol", &scanner_logger);
  ************/
 
 /* scanner specific debug_ trace functions */
 void debug_header(char *msg, header_t *header) {
-	debug_trace(msg, 
-			"id=%s prefix=%-3d header=%-3d gap=%-3d payload=%-3d post=%-3d", 
-			id2str(header->hdr_id),
-			header->hdr_prefix,
-			header->hdr_length,
-			header->hdr_gap,
-			header->hdr_payload,
-			header->hdr_postfix
-			);
+	debug_trace(msg,
+			"id=%s prefix=%-3d header=%-3d gap=%-3d payload=%-3d post=%-3d",
+			id2str(header->hdr_id), header->hdr_prefix, header->hdr_length,
+			header->hdr_gap, header->hdr_payload, header->hdr_postfix);
 }
 
-void debug_scan(char *msg,scan_t *scan) {
-	debug_trace(msg, 
+void debug_scan(char *msg, scan_t *scan) {
+	debug_trace(msg,
 			"id=%s off=%d prefix=%-3d header=%-3d gap=%-3d payload=%-3d post=%-3d "
-			"nid=%s buf_len=%-3d wire_len=%-3d flags=%0x",
-			id2str(scan->id),
-			scan->offset,
-			scan->hdr_prefix,
-			scan->length,
-			scan->hdr_gap,
-			scan->hdr_payload,
-			scan->hdr_postfix,
-			id2str(scan->next_id),
-			scan->buf_len,
-			scan->wire_len,
-			scan->scanner->sc_flags[scan->id]
-			);
+				"nid=%s buf_len=%-3d wire_len=%-3d flags=%0x",
+			id2str(scan->id), scan->offset, scan->hdr_prefix, scan->length,
+			scan->hdr_gap, scan->hdr_payload, scan->hdr_postfix, id2str(
+					scan->next_id), scan->buf_len, scan->wire_len,
+			scan->scanner->sc_flags[scan->id]);
 }
 
 /**
@@ -113,9 +103,9 @@ const char *id2str(int id) {
 /**
  * Scan packet buffer
  */
-int scan(JNIEnv *env, jobject obj, 
-		jobject jpacket, scanner_t *scanner, packet_state_t *p_packet, int first_id, 
-		char *buf, int buf_len, uint32_t wirelen) {
+int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner,
+		packet_state_t *p_packet, int first_id, char *buf, int buf_len,
+		uint32_t wirelen) {
 
 	scan_t scan; // Our current in progress scan's state information
 	scan_t *pscan = &scan;
@@ -134,14 +124,14 @@ int scan(JNIEnv *env, jobject obj,
 	scan.id = first_id;
 	scan.next_id = PAYLOAD_ID;
 	scan.flags = 0;
-	
+
 	scan.hdr_flags = 0;
 	scan.hdr_prefix = 0;
 	scan.hdr_gap = 0;
 	scan.hdr_payload = 0;
 	scan.hdr_postfix = 0;
-	
-	memset(scan.header, 0, sizeof(header_t)); 
+
+	memset(scan.header, 0, sizeof(header_t));
 
 	// Point jscan 
 	setJMemoryPhysical(env, scanner->sc_jscan, toLong(&scan));
@@ -150,8 +140,8 @@ int scan(JNIEnv *env, jobject obj,
 	register uint64_t mask;
 
 #ifdef DEBUG
-debug_enter("scan");
-debug_trace("processing packet", "#%d", p_packet->pkt_frame_num);
+	debug_enter("scan");
+	debug_trace("processing packet", "#%d", p_packet->pkt_frame_num);
 #endif
 
 	/*
@@ -160,14 +150,14 @@ debug_trace("processing packet", "#%d", p_packet->pkt_frame_num);
 	 */
 	while (scan.id != END_OF_HEADERS) {
 #ifdef DEBUG
-debug_trace("", "");
-debug_trace("processing header", id2str(scan.id));
-debug_scan("loop-top", &scan);
+		debug_trace("", "");
+		debug_trace("processing header", id2str(scan.id));
+		debug_scan("loop-top", &scan);
 #endif
 
 		/* A flag that keeps track of header recording. Set in record_header()*/
 		scan.is_recorded = 0;
-		
+
 		/*
 		 * If debugging is compiled in, we can also call on each protocols
 		 * debug_* function to print out details about the protocol header
@@ -178,7 +168,7 @@ debug_scan("loop-top", &scan);
 			native_debug[scan.id](scan.buf + scan.offset);
 		}
 #endif
-		
+
 		/* 
 		 * Scan of each protocol is done through a dispatch function table.
 		 * Each protocol that has a protocol header scanner attached, a scanner
@@ -204,12 +194,12 @@ debug_scan("loop-top", &scan);
 		}
 
 #ifdef DEBUG
-debug_scan("loop-middle", &scan);
+		debug_scan("loop-middle", &scan);
 #endif
 
 		if (scan.length == 0) {
 #ifdef DEBUG
-debug_scan("loop-length==0", &scan);
+			debug_scan("loop-length==0", &scan);
 #endif
 			if (scan.id == PAYLOAD_ID) {
 				scan.next_id = END_OF_HEADERS;
@@ -218,9 +208,9 @@ debug_scan("loop-length==0", &scan);
 			}
 
 		} else { // length != 0
-			
+
 #ifdef DEBUG
-debug_scan("loop-length > 0", &scan);
+			debug_scan("loop-length > 0", &scan);
 #endif
 
 			/******************************************************
@@ -232,12 +222,11 @@ debug_scan("loop-length > 0", &scan);
 			 ******************************************************/
 			if (scanner->sc_flags[scan.id] & FLAG_OVERRIDE_BINDING) {
 #ifdef DEBUG
-debug_scan("TCP OVERRIDE", &scan); 
+				debug_scan("TCP OVERRIDE", &scan);
 #endif
 				scan.next_id = PAYLOAD_ID;
 			}
-			
-			
+
 			/******************************************************
 			 * ****************************************************
 			 * * Now do HEURISTIC discovery scans if the appropriate
@@ -246,8 +235,8 @@ debug_scan("TCP OVERRIDE", &scan);
 			 * * guess). 
 			 * ****************************************************
 			 ******************************************************/
-			if (scanner->sc_flags[scan.id] & FLAG_HEURISTIC_BINDING) { 
-				
+			if (scanner->sc_flags[scan.id] & FLAG_HEURISTIC_BINDING) {
+
 				/* 
 				 * Save these critical properties, in case heuristic changes them
 				 * for this current header, not the next one its supposed to
@@ -255,12 +244,12 @@ debug_scan("TCP OVERRIDE", &scan);
 				 */
 				int saved_offset = scan.offset;
 				int saved_length = scan.length;
-				
+
 				/* Advance offset to next header, so that heuristics can get a 
 				 * peek. It will be restored at the end of heuristics block.
 				 */
 				scan.offset += scan.length + scan.hdr_gap;
-				
+
 				/*
 				 * 2 types of heuristic bindings. Pre and post.
 				 * Pre - heuristics are run before the direct discovery method
@@ -277,85 +266,83 @@ debug_scan("TCP OVERRIDE", &scan);
 				 * call the heuristic function, check its scan.next_id if it
 				 * was set, if it was, then use that instead. Otherwise if it
 				 * wasn't restore the original next_id and continue on normally.
-				 */ 
+				 */
 				if (scanner->sc_flags[scan.id] & FLAG_HEURISTIC_PRE_BINDING) {
 #ifdef DEBUG
-debug_scan("heurists_pre", &scan); 
+					debug_scan("heurists_pre", &scan);
 #endif
-			
+
 					int saved_next_id = scan.next_id;
 					scan.next_id = PAYLOAD_ID;
-					
-					
-					for (int i = 0; i < MAX_ID_COUNT; i ++) {
+
+					for (int i = 0; i < MAX_ID_COUNT; i++) {
 						native_validate_func_t validate_func;
-						validate_func = scanner->sc_heuristics_table[scan.id][i];
-						
+						validate_func
+								= scanner->sc_heuristics_table[scan.id][i];
+
 						if (validate_func == NULL) {
-							break; 
+							break;
 						}
-						
 
 						if ((scan.next_id = validate_func(&scan)) != INVALID) {
 							break;
 						}
 					}
-					
+
 					if (scan.next_id == PAYLOAD_ID) {
 						scan.next_id = saved_next_id;
 					}
-					
-				} else if (scan.next_id == PAYLOAD_ID){
+
+				} else if (scan.next_id == PAYLOAD_ID) {
 #ifdef DEBUG
-debug_scan("heurists_post", &scan); 
+					debug_scan("heurists_post", &scan);
 #endif
-					for (int i = 0; i < MAX_ID_COUNT; i ++) {
+					for (int i = 0; i < MAX_ID_COUNT; i++) {
 						native_validate_func_t validate_func;
-						validate_func = scanner->sc_heuristics_table[scan.id][i];
-						
+						validate_func
+								= scanner->sc_heuristics_table[scan.id][i];
+
 						if (validate_func == NULL) {
-							break; 
+							break;
 						}
-						
 
 						if ((scan.next_id = validate_func(&scan)) != INVALID) {
-							
+
 #ifdef DEBUG
-debug_scan("heurists_post::found", &scan); 
+							debug_scan("heurists_post::found", &scan);
 #endif
 
 							break;
 						}
 					}
 				}
-				
+
 				/* Restore these 2 critical properties */
 				scan.offset = saved_offset;
 				scan.length = saved_length;
 			}
-			
+
 			/******************************************************
 			 * ****************************************************
 			 * * Now record discovered information in structures
 			 * ****************************************************
 			 ******************************************************/
 			record_header(&scan);
-			
+
 #ifdef DEBUG
-debug_header("header_t", scan.header - 1);
+			debug_header("header_t", scan.header - 1);
 #endif
 		} // End if len != 0
 
 #ifdef DEBUG
-debug_scan("loop-bottom", &scan);
+		debug_scan("loop-bottom", &scan);
 #endif
 
 		scan.id = scan.next_id;
 		scan.offset += scan.length + scan.hdr_gap;
 		scan.length = 0;
 		scan.next_id = PAYLOAD_ID;
-		
-		
+
 		if (scan.offset >= scan.buf_len) {
 			scan.id = END_OF_HEADERS;
 		}
@@ -364,15 +351,15 @@ debug_scan("loop-bottom", &scan);
 
 	/* record number of header entries found */
 	//	scan.packet->pkt_header_count = count;
-	
+
 	process_flow_key(&scan);
 
 #ifdef DEBUG
-debug_trace("loop-finished", 
-		"header_count=%d offset=%d header_map=0x%X",
-		scan.packet->pkt_header_count, scan.offset,
-		scan.packet->pkt_header_map);
-debug_exit("scan()");
+	debug_trace("loop-finished",
+			"header_count=%d offset=%d header_map=0x%X",
+			scan.packet->pkt_header_count, scan.offset,
+			scan.packet->pkt_header_map);
+	debug_exit("scan()");
 #endif
 
 	return scan.offset;
@@ -384,10 +371,10 @@ debug_exit("scan()");
 void record_header(scan_t *scan) {
 
 #ifdef DEBUG
-debug_enter("record_header");
-debug_scan("top", scan);
+	debug_enter("record_header");
+	debug_scan("top", scan);
 #endif
-	
+
 	/*
 	 * Check if already recorded
 	 */
@@ -397,12 +384,12 @@ debug_scan("top", scan);
 #endif
 		return;
 	}
-	
+
 	register int offset = scan->offset;
 	register header_t *header = scan->header;
 	register int buf_len = scan->buf_len;
 	packet_state_t *packet = scan->packet;
-	
+
 	/*
 	 * Decrease wire-length by postfix amount so that next header's payload
 	 * will be reduced and won't go over this header's postfix
@@ -411,26 +398,26 @@ debug_scan("top", scan);
 	if (buf_len > scan->wire_len) {
 		buf_len = scan->buf_len = scan->wire_len; // Make sure that buf_len and wire_len sync up
 #ifdef DEBUG
-debug_scan("adj buf_len", scan);
+		debug_scan("adj buf_len", scan);
 #endif
 	}
-	
+
 	/*
 	 * If payload length hasn't explicitly been set to some length, set it
 	 * to the remainder of the packet.
 	 */
 	if (scan->hdr_payload == 0 && scan->id != PAYLOAD_ID) {
-		scan->hdr_payload = scan->wire_len - 
-			(offset + scan->hdr_prefix + scan->length + scan->hdr_gap);
+		scan->hdr_payload = scan->wire_len - (offset + scan->hdr_prefix
+				+ scan->length + scan->hdr_gap);
 		scan->hdr_payload = (scan->hdr_payload < 0) ? 0 : scan->hdr_payload;
 #ifdef DEBUG
-debug_scan("adj payload", scan);
+		debug_scan("adj payload", scan);
 #endif
 	}
 
 	adjustForTruncatedPacket(scan);
 	register int length = scan->length;
-	
+
 	/*
 	 * Initialize the header entry in our packet header array
 	 */
@@ -439,7 +426,6 @@ debug_scan("adj payload", scan);
 	header->hdr_offset = offset + scan->hdr_prefix;
 	header->hdr_analysis = NULL;
 
-	
 	/*
 	 * This is a combination of regular header flags with cumulative flags
 	 * which are accumulated by subsequent pass to the next header and pass on
@@ -447,31 +433,31 @@ debug_scan("adj payload", scan);
 	 * the remaining header's are fragmented.
 	 */
 	header->hdr_flags = scan->hdr_flags | (scan->flags & CUMULATIVE_FLAG_MASK);
-	
+
 	header->hdr_prefix = scan->hdr_prefix;
 	header->hdr_gap = scan->hdr_gap;
 	header->hdr_payload = scan->hdr_payload;
 	header->hdr_postfix = scan->hdr_postfix;
 	header->hdr_length = length;
-	
+
 	scan->hdr_flags = 0;
 	scan->hdr_prefix = 0;
 	scan->hdr_gap = 0;
 	scan->hdr_payload = 0;
 	scan->hdr_postfix = 0;
 	scan->is_recorded = 1;
-	
-	packet->pkt_header_count ++; /* number of entries */
-	
-//	scan->id = -1; // Indicates, that header is already recorded
-	
+
+	packet->pkt_header_count++; /* number of entries */
+
+	//	scan->id = -1; // Indicates, that header is already recorded
+
 	/* Initialize key fields in a new header */
-	header = ++ scan->header; /* point to next header entry *** ptr arithmatic */
+	header = ++scan->header; /* point to next header entry *** ptr arithmatic */
 	memset(header, 0, sizeof(header_t));
-	
+
 #ifdef DEBUG
-debug_scan("bottom", scan);
-debug_exit("record_header");
+	debug_scan("bottom", scan);
+	debug_exit("record_header");
 #endif
 }
 
@@ -482,8 +468,8 @@ debug_exit("record_header");
  */
 void adjustForTruncatedPacket(scan_t *scan) {
 #ifdef DEBUG
-debug_enter("adjustForTruncatedPacket");
-debug_trace("packet", "%ld", scan->scanner->sc_cur_frame_num);
+	debug_enter("adjustForTruncatedPacket");
+	debug_trace("packet", "%ld", scan->scanner->sc_cur_frame_num);
 #endif
 
 	/*
@@ -497,96 +483,97 @@ debug_trace("packet", "%ld", scan->scanner->sc_cur_frame_num);
 	 * +-------------------------------------------+
 	 * 
 	 */
-	register int start = scan->offset + scan->hdr_prefix + scan->length + 
-		scan->hdr_gap + scan->hdr_payload; 
-	
+	register int start = scan->offset + scan->hdr_prefix + scan->length
+			+ scan->hdr_gap + scan->hdr_payload;
+
 	register int end = start + scan->hdr_postfix;
 	register int buf_len = scan->buf_len;
-	
+
 #ifdef DEBUG
-debug_trace("", "offset=%d, pre=%d, len=%d, gap=%d, pay=%d, post=%d",
-		scan->offset,
-		scan->hdr_prefix,
-		scan->length,
-		scan->hdr_gap,
-		scan->hdr_payload,
-		scan->hdr_postfix);
-debug_trace("", "start=%d end=%d buf_len=%d", start, end, buf_len);
+	debug_trace("", "offset=%d, pre=%d, len=%d, gap=%d, pay=%d, post=%d",
+			scan->offset,
+			scan->hdr_prefix,
+			scan->length,
+			scan->hdr_gap,
+			scan->hdr_payload,
+			scan->hdr_postfix);
+	debug_trace("", "start=%d end=%d buf_len=%d", start, end, buf_len);
 #endif
 
 	if (end > buf_len) { // Check if postfix extends past the end of packet
-		
+
 		/*
 		 * Because postfix is at the end, whenever the packet is truncated
 		 * postfix is always truncated, unless it wasn't set
 		 */
 		if (scan->hdr_postfix > 0) {
-			scan->hdr_flags |= HEADER_FLAG_PREFIX_TRUNCATED;			
-			scan->hdr_postfix = (start > scan->mem_len) ? 0 : scan->mem_len - start;
+			scan->hdr_flags |= HEADER_FLAG_PREFIX_TRUNCATED;
+			scan->hdr_postfix = (start > scan->mem_len) ? 0 : scan->mem_len
+					- start;
 			scan->hdr_postfix = (scan->hdr_postfix < 0) ? 0 : scan->hdr_postfix;
 #ifdef DEBUG
-debug_scan("adjust postfix", scan);
+			debug_scan("adjust postfix", scan);
 #endif
 		}
-		
+
 		/* Position at payload and process */
 		start -= scan->hdr_payload;
 		end = start + scan->hdr_payload;
-		
+
 		if (end > buf_len) {
-			scan->hdr_flags |= HEADER_FLAG_PAYLOAD_TRUNCATED;	
+			scan->hdr_flags |= HEADER_FLAG_PAYLOAD_TRUNCATED;
 			scan->hdr_payload = (start > buf_len) ? 0 : buf_len - start;
 			scan->hdr_payload = (scan->hdr_payload < 0) ? 0 : scan->hdr_payload;
 
 #ifdef DEBUG
-debug_scan("adjust payload", scan);
+			debug_scan("adjust payload", scan);
 #endif
-			
+
 			/* Position at gap and process */
 			start -= scan->hdr_gap;
 			end = start + scan->hdr_gap;
 			if (scan->hdr_gap > 0 && end > buf_len) {
-				
-				scan->hdr_flags |= HEADER_FLAG_GAP_TRUNCATED;	
+
+				scan->hdr_flags |= HEADER_FLAG_GAP_TRUNCATED;
 				scan->hdr_gap = (start > buf_len) ? 0 : buf_len - start;
 				scan->hdr_gap = (scan->hdr_gap < 0) ? 0 : scan->hdr_gap;
 #ifdef DEBUG
-debug_scan("adjust gap", scan);
+				debug_scan("adjust gap", scan);
 #endif
 			}
-			
+
 			/* Position at header and process */
 			start -= scan->length;
 			end = start + scan->length;
 
 			if (end > buf_len) {
-				scan->hdr_flags |= HEADER_FLAG_HEADER_TRUNCATED;	
+				scan->hdr_flags |= HEADER_FLAG_HEADER_TRUNCATED;
 				scan->length = (start > buf_len) ? 0 : buf_len - start;
 				scan->length = (scan->length < 0) ? 0 : scan->length;
 #ifdef DEBUG
-debug_scan("adjust header", scan);
+				debug_scan("adjust header", scan);
 #endif
 
 				/* Position at prefix and process */
 				start -= scan->hdr_prefix;
 				end = start + scan->hdr_prefix;
-				
+
 				if (0 && scan->hdr_prefix > 0 && end > buf_len) {
-					scan->hdr_flags |= HEADER_FLAG_PREFIX_TRUNCATED;	
+					scan->hdr_flags |= HEADER_FLAG_PREFIX_TRUNCATED;
 					scan->hdr_prefix = (start > buf_len) ? 0 : buf_len - start;
-					scan->hdr_prefix = (scan->hdr_prefix < 0) ? 0 : scan->hdr_prefix;
+					scan->hdr_prefix = (scan->hdr_prefix < 0) ? 0
+							: scan->hdr_prefix;
 #ifdef DEBUG
-debug_scan("adjust prefix", scan);
+					debug_scan("adjust prefix", scan);
 #endif
-				
+
 				}
 			}
 		}
-	}	
-	
+	}
 
 #ifdef DEBUG
-debug_exit("adjustForTruncatedPacket");
+	debug_exit("adjustForTruncatedPacket");
 #endif
 #undef DEBUG
 }
@@ -595,9 +582,9 @@ debug_exit("adjustForTruncatedPacket");
  * Scan packet buffer by dispatching to JBinding java objects
  */
 void callJavaHeaderScanner(scan_t *scan) {
-	
+
 #ifdef DEBUG
-debug_enter("callJavaHeaderScanner");
+	debug_enter("callJavaHeaderScanner");
 #endif
 	JNIEnv *env = scan->env;
 	jobject jscanner = scan->scanner->sc_java_header_scanners[scan->id];
@@ -606,16 +593,16 @@ debug_enter("callJavaHeaderScanner");
 		sprintf(str_buf, "java header scanner not set for ID=%d (%s)",
 				scan->id, id2str(scan->id));
 #ifdef DEBUG
-debug_error("callJavaHeaderScanner()", str_buf);
+		debug_error("callJavaHeaderScanner()", str_buf);
 #endif
 		throwException(scan->env, NULL_PTR_EXCEPTION, str_buf);
 		return;
 	}
 
 	env->CallVoidMethod(jscanner, scanHeaderMID, scan->scanner->sc_jscan);
-	
+
 #ifdef DEBUG
-debug_exit("callJavaHeaderScanner");
+	debug_exit("callJavaHeaderScanner");
 #endif
 }
 
@@ -623,10 +610,11 @@ debug_exit("callJavaHeaderScanner");
  * Prepares a scan of packet buffer
  */
 int scanJPacket(JNIEnv *env, jobject obj, jobject jpacket, jobject jstate,
-		scanner_t *scanner, int first_id, char *buf, int buf_length, uint32_t wirelen) {
-	
+		scanner_t *scanner, int first_id, char *buf, int buf_length,
+		uint32_t wirelen) {
+
 #ifdef DEBUG
-debug_enter("scanJPacket");
+	debug_enter("scanJPacket");
 #endif
 
 	/* Check if we need to wrap our entry buffer around */
@@ -635,17 +623,16 @@ debug_enter("scanJPacket");
 		scanner->sc_offset = 0;
 	}
 
-	packet_state_t *packet =(packet_state_t *)(((char *)scanner->sc_packet)
+	packet_state_t *packet = (packet_state_t *) (((char *) scanner->sc_packet)
 			+ scanner->sc_offset);
-	
+
 	/*
 	 * Peer JPacket.state to packet_state_t structure
 	 */
-//	setJMemoryPhysical(env, jstate, toLong(packet));
-//	env->SetObjectField(jstate, jmemoryKeeperFID, obj); // Set it to JScanner
+	//	setJMemoryPhysical(env, jstate, toLong(packet));
+	//	env->SetObjectField(jstate, jmemoryKeeperFID, obj); // Set it to JScanner
 	jmemoryPeer(env, jstate, packet, sizeof(packet_state_t), obj);
 
-	
 	/*
 	 * Reset the entire packet_state_t structure
 	 */
@@ -658,38 +645,37 @@ debug_enter("scanJPacket");
 	 */
 	packet->pkt_header_map = 0;
 	packet->pkt_header_count = 0;
-	packet->pkt_frame_num = scanner->sc_cur_frame_num ++;
-	packet->pkt_wirelen = (uint32_t)wirelen;
+	packet->pkt_frame_num = scanner->sc_cur_frame_num++;
+	packet->pkt_wirelen = (uint32_t) wirelen;
 	packet->pkt_flags = 0;
-	
+
 	if (buf_length != wirelen) {
 		packet->pkt_flags |= PACKET_FLAG_TRUNCATED;
 	}
-	
+
 #ifdef DEBUG
-debug_trace("before scan", "buf_len=%d wire_len=%d", buf_length, wirelen);
+	debug_trace("before scan", "buf_len=%d wire_len=%d", buf_length, wirelen);
 #endif
 
-	scanner->sc_offset +=scan(env, obj, jpacket, scanner, packet, first_id,
+	scanner->sc_offset += scan(env, obj, jpacket, scanner, packet, first_id,
 			buf, buf_length, wirelen);
 
 #ifdef DEBUG
-debug_trace("after scan",	"buf_len=%d wire_len=%d", buf_length, wirelen);
+	debug_trace("after scan", "buf_len=%d wire_len=%d", buf_length, wirelen);
 #endif
-		
-//	env->SetIntField(jstate, jmemorySizeFID, (jsize) sizeof(packet_state_t)
-//			+ sizeof(header_t) * packet->pkt_header_count);
 
-	const size_t len = sizeof(packet_state_t) + 
-		(sizeof(header_t) * packet->pkt_header_count);
+	//	env->SetIntField(jstate, jmemorySizeFID, (jsize) sizeof(packet_state_t)
+	//			+ sizeof(header_t) * packet->pkt_header_count);
+
+	const size_t len = sizeof(packet_state_t) + (sizeof(header_t)
+			* packet->pkt_header_count);
 	jmemoryResize(env, jstate, len);
 
 #ifdef DEBUG
-debug_exit("scanJPacket");
+	debug_exit("scanJPacket");
 #endif
 
 }
-
 
 /****************************************************************
  * **************************************************************
@@ -736,17 +722,17 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_initIds
  * Method:    sizeof
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScanner_sizeof
-(JNIEnv *env, jclass obj) {
-	return (jint)sizeof(scanner_t);
+JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScanner_sizeof(JNIEnv *env,
+		jclass obj) {
+	return (jint) sizeof(scanner_t);
 }
 
 /*
- * Class:     org_jnetpcap_packet_JScanner
- * Method:    cleanup_jscanner
+ * Class:     org_jnetpcap_packet_JScannerReference
+ * Method:    dispose
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_cleanup_1jscanner
+JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScannerReference_dispose
 (JNIEnv *env, jobject obj) {
 
 	scanner_t *scanner = (scanner_t *)getJMemoryPhysical(env, obj);
@@ -763,11 +749,16 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_cleanup_1jscanner
 			scanner->sc_java_header_scanners[i] = NULL;
 		}
 	}
-	
+
 	if (scanner->sc_subheader != NULL) {
 		free(scanner->sc_subheader);
 	}
 
+	/*
+	 * Same as super.dispose(): call from JScannerReference.dispose for
+	 * JMemoryReference.super.dispose.
+	 */
+	Java_org_jnetpcap_nio_JMemoryReference_dispose(env, obj);
 }
 
 /*
@@ -775,17 +766,16 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_cleanup_1jscanner
  * Method:    getFrameNumber
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_org_jnetpcap_packet_JScanner_getFrameNumber
-  (JNIEnv *env, jobject obj) {
-	
-	scanner_t *scanner = (scanner_t *)getJMemoryPhysical(env, obj);
+JNIEXPORT jlong JNICALL Java_org_jnetpcap_packet_JScanner_getFrameNumber(
+		JNIEnv *env, jobject obj) {
+
+	scanner_t *scanner = (scanner_t *) getJMemoryPhysical(env, obj);
 	if (scanner == NULL) {
 		return -1;
 	}
 
 	return (jlong) scanner->sc_cur_frame_num;
 }
-
 
 /*
  * Class:     org_jnetpcap_packet_JScanner
@@ -796,7 +786,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_init
 (JNIEnv *env, jobject obj, jobject jscan) {
 
 #ifdef DEBUG
-debug_enter("JScanner_init");
+	debug_enter("JScanner_init");
 #endif
 	if (jscan == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION,
@@ -818,20 +808,20 @@ debug_enter("JScanner_init");
 	for (int i = 0; i < MAX_ID_COUNT; i++) {
 		scanner->sc_scan_table[i] = native_protocols[i];
 	}
-	
+
 	for (int i = 0; i < MAX_ID_COUNT; i++) {
 		for (int j = 0; j < MAX_ID_COUNT; j++) {
 			scanner->sc_heuristics_table[i][j] = native_heuristics[i][j];
 		}
 	}
-	
+
 	/* Initialize sub-header area - allocate 1/10th */
 	scanner->sc_sublen = size / 10;
 	scanner->sc_subindex = 0;
 	scanner->sc_subheader = (header_t *)malloc(scanner->sc_sublen);
 
 #ifdef DEBUG
-debug_exit("JScanner_init");
+	debug_exit("JScanner_init");
 #endif
 
 }
@@ -845,9 +835,9 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_loadScanners
 (JNIEnv *env, jobject obj, jobjectArray jascanners) {
 
 #ifdef DEBUG
-debug_enter("loadScanners");
+	debug_enter("loadScanners");
 #endif
-	
+
 	scanner_t *scanner = (scanner_t *)getJMemoryPhysical(env, obj);
 	if (scanner == NULL) {
 		return;
@@ -856,7 +846,7 @@ debug_enter("loadScanners");
 	jsize size = env->GetArrayLength(jascanners);
 
 #ifdef DEBUG
-debug_trace("load", "loaded %d scanners", (int)size);
+	debug_trace("load", "loaded %d scanners", (int)size);
 #endif
 
 	if (size != MAX_ID_COUNT) {
@@ -864,8 +854,8 @@ debug_trace("load", "loaded %d scanners", (int)size);
 				ILLEGAL_ARGUMENT_EXCEPTION,
 				"size of array must be MAX_ID_COUNT size");
 #ifdef DEBUG
-debug_error("IllegalArgumentException", 
-		"size of array must be MAX_ID_COUNT size");
+		debug_error("IllegalArgumentException",
+				"size of array must be MAX_ID_COUNT size");
 #endif
 		return;
 	}
@@ -880,12 +870,12 @@ debug_error("IllegalArgumentException",
 			 * with native scanner.
 			 */
 			scanner->sc_scan_table[i] = native_protocols[i];
-//			printf("loadScanners::native(%s)\n", id2str(i));fflush(stdout);
+			//			printf("loadScanners::native(%s)\n", id2str(i));fflush(stdout);
 		} else {
-			
-//			printf("loadScanners::java(%s)\n", id2str(i));fflush(stdout);
 
-			
+			//			printf("loadScanners::java(%s)\n", id2str(i));fflush(stdout);
+
+
 			if (scanner->sc_java_header_scanners[i] != NULL) {
 				env->DeleteGlobalRef(scanner->sc_java_header_scanners[i]);
 				scanner->sc_java_header_scanners[i] = NULL;
@@ -901,9 +891,9 @@ debug_error("IllegalArgumentException",
 			env->DeleteLocalRef(loc_ref);
 		}
 	}
-	
+
 #ifdef DEBUG
-debug_exit("loadScanners");
+	debug_exit("loadScanners");
 #endif
 
 }
@@ -914,11 +904,11 @@ debug_exit("loadScanners");
  * Signature: ([I)V
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_loadFlags
-  (JNIEnv *env, jobject obj, jintArray jflags) {
+(JNIEnv *env, jobject obj, jintArray jflags) {
 #ifdef DEBUG
-debug_enter("loadFlags");
+	debug_enter("loadFlags");
 #endif
-	
+
 	scanner_t *scanner = (scanner_t *)getJMemoryPhysical(env, obj);
 	if (scanner == NULL) {
 		return;
@@ -927,7 +917,7 @@ debug_enter("loadFlags");
 	jsize size = env->GetArrayLength(jflags);
 
 #ifdef DEBUG
-debug_trace("load", "loaded %d flags", (int)size);
+	debug_trace("load", "loaded %d flags", (int)size);
 #endif
 
 	if (size != MAX_ID_COUNT) {
@@ -935,47 +925,46 @@ debug_trace("load", "loaded %d flags", (int)size);
 				ILLEGAL_ARGUMENT_EXCEPTION,
 				"size of array must be MAX_ID_COUNT size");
 #ifdef DEBUG
-debug_error("IllegalArgumentException", 
-		"size of array must be MAX_ID_COUNT size");
+		debug_error("IllegalArgumentException",
+				"size of array must be MAX_ID_COUNT size");
 #endif
 		return;
 	}
-	
+
 	env->GetIntArrayRegion(jflags, 0, size, (jint *)scanner->sc_flags);
-	
+
 #ifdef DEBUG
-debug_exit("loadFlags");
+	debug_exit("loadFlags");
 #endif
 }
-
 
 /*
  * Class:     org_jnetpcap_packet_JScanner
  * Method:    scan
  * Signature: (Lorg/jnetpcap/packet/JPacket;Lorg/jnetpcap/packet/JPacket$State;II)I
  */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScanner_scan
-(JNIEnv *env, jobject obj, jobject jpacket, jobject jstate, jint id, jint wirelen) {
+JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScanner_scan(JNIEnv *env,
+		jobject obj, jobject jpacket, jobject jstate, jint id, jint wirelen) {
 
-	scanner_t *scanner = (scanner_t *)getJMemoryPhysical(env, obj);
+	scanner_t *scanner = (scanner_t *) getJMemoryPhysical(env, obj);
 	if (scanner == NULL) {
 		return -1;
 	}
 
-	char *buf = (char *)getJMemoryPhysical(env, jpacket);
+	char *buf = (char *) getJMemoryPhysical(env, jpacket);
 	if (buf == NULL) {
 		return -1;
 	}
 
-	int size = (int)env->GetIntField(jpacket, jmemorySizeFID);
-	
+	int size = (int) env->GetIntField(jpacket, jmemorySizeFID);
+
 	if (wirelen < size) {
 		throwException(env, ILLEGAL_ARGUMENT_EXCEPTION, "wirelen < buffer len");
 		return -1;
 	}
 
-	return scanJPacket(env, obj, jpacket, jstate, scanner, id, buf, 
-			size, (uint32_t) wirelen);
+	return scanJPacket(env, obj, jpacket, jstate, scanner, id, buf, size,
+			(uint32_t) wirelen);
 }
 
 /*
@@ -984,14 +973,14 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScanner_scan
  * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScanner_setFrameNumber
-  (JNIEnv *env, jobject obj, jlong frame_no) {
-	
+(JNIEnv *env, jobject obj, jlong frame_no) {
+
 	scanner_t *scanner = (scanner_t *)getJMemoryPhysical(env, obj);
 	if (scanner == NULL) {
 		return;
 	}
 
 	scanner->sc_cur_frame_num = (uint64_t) frame_no;
-	
+
 	return;
 }
