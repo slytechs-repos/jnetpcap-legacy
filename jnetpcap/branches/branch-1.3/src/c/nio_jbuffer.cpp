@@ -852,33 +852,6 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_nio_JObjectBuffer_getObject
 
 /*
  * Class:     org_jnetpcap_nio_JObjectBuffer
- * Method:    setObject
- * Signature: (ILjava/lang/Object;)V
- */
-JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JObjectBuffer_setObject
-  (JNIEnv *env, jobject obj, jint offset, jobject object) {
-	
-	jbyte *mem = (jbyte *)getJMemoryPhysical(env, obj);
-	if (mem == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
-		return;
-	}
-	
-	if (object == NULL) {
-		return; // Nothing todo
-	}
-	
-	jobject global_ref = jmemoryRefCreate(env, obj, object);
-	if (global_ref == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "Failed to create global_ref");
-		return;
-	}
-	
-	*((jobject *)(mem + offset)) = global_ref; 
-}
-
-/*
- * Class:     org_jnetpcap_nio_JObjectBuffer
  * Method:    sizeofJObject
  * Signature: ()I
  */

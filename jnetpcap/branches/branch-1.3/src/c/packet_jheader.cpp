@@ -110,31 +110,6 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getLength
 	return (jint) header->hdr_length;
 }
 
-/*
- * Class:     org_jnetpcap_packet_JHeader_State
- * Method:    setAnalysis
- * Signature: (Lorg/jnetpcap/packet/JPacket$State;Lorg/jnetpcap/analysis/JAnalysis;)V
- */
-JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JHeader_00024State_setAnalysis
-(JNIEnv *env, jobject obj, jobject packet, jobject analysis) {
-
-	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
-	if (header == NULL) {
-		return;
-	}
-
-	if (header->hdr_analysis != NULL) {
-		/* params: packet_state_t struct and analysis JNI global reference */
-		jmemoryRefRelease(env, packet, header->hdr_analysis);
-	}
-
-	if (analysis == NULL) {
-		header->hdr_analysis = NULL;
-	} else	{
-		/* params: packet_state_t struct and analysis JNI local reference */
-		header->hdr_analysis = jmemoryRefCreate(env, packet, analysis);
-	}
-}
 
 /*
  * Class:     org_jnetpcap_packet_JHeader_State
