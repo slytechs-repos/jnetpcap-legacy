@@ -34,6 +34,21 @@ public class JMemoryReference extends DisposableReference {
 	 * @see org.jnetpcap.nio.Disposable#dispose()
 	 */
 	@Override
-	public native void dispose();
+	public void dispose() {
+		disposeNative();
+	}
+
+	public native void disposeNative();
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jnetpcap.nio.DisposableReference#remove()
+	 */
+	@Override
+	public void remove() {
+		address = 0L;
+		super.remove();
+	}
 
 }
