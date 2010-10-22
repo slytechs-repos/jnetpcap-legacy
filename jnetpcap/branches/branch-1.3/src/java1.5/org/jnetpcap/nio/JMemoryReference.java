@@ -8,7 +8,7 @@ package org.jnetpcap.nio;
  * 
  */
 public class JMemoryReference extends DisposableReference {
-	
+
 	/**
 	 * Address is modified by JNI, even though it is marked final. This prevents
 	 * anyone else from changing it, except the JNI code reponsible for management
@@ -38,7 +38,10 @@ public class JMemoryReference extends DisposableReference {
 		disposeNative();
 	}
 
-	public native void disposeNative();
+	/**
+	 * Does a native memory cleanup
+	 */
+	protected native void disposeNative();
 
 	/*
 	 * (non-Javadoc)
