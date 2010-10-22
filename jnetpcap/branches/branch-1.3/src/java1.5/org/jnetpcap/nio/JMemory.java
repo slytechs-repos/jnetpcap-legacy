@@ -701,7 +701,6 @@ public abstract class JMemory {
 		}
 		this.ref = createReference(memory.ref.address);
 
-		memory.ref.address = 0;
 		memory.ref.remove();
 		memory.ref = null;
 
