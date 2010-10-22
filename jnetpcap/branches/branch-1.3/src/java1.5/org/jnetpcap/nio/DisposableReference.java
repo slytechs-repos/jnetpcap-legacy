@@ -3,8 +3,8 @@
  */
 package org.jnetpcap.nio;
 
+import java.lang.ref.PhantomReference;
 import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
 
 
 /**
@@ -29,7 +29,7 @@ import java.lang.ref.WeakReference;
  * @author markbe
  * 
  */
-public abstract class DisposableReference extends WeakReference<Object>
+public abstract class DisposableReference extends PhantomReference<Object>
 		implements Disposable, Link<DisposableReference> {
 
 	/*
@@ -51,7 +51,7 @@ public abstract class DisposableReference extends WeakReference<Object>
 	 */
 	public DisposableReference(Object referant) {
 		super(referant, gc.refQueue);
-
+		
 		synchronized (gc.refCollection) {
 			gc.refCollection.add(this);
 		}
