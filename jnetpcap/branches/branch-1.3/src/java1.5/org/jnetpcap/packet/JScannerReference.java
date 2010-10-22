@@ -24,6 +24,7 @@ public class JScannerReference extends JMemoryReference {
 	 * all the JHeaderScanners that are kept as global references need to be
 	 * released.
 	 */
-	public native void disposeNative();
+	@Override
+	protected native void disposeNative();
 
 }
