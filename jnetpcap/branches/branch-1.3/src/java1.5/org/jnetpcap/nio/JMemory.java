@@ -212,13 +212,6 @@ public abstract class JMemory {
 	 */
 	private volatile int size;
 
-	/**
-	 * Keeps track of JNI global references. As long as there is a java object
-	 * referencing the JReference container, the JNI references will not be
-	 * released. Null means that there are no references.
-	 */
-	private JReference references;
-
 	{
 		physicalSize = 0;
 	} // Prevent compiler optimizing away to 0
@@ -419,7 +412,10 @@ public abstract class JMemory {
 					+ (offset + length) + "," + length + ") range.");
 		}
 
-		cleanup(); // Clean up any memory we own before we give it up
+		if (owner) {
+			cleanup(); // Clean up any memory we own before we give it up
+			ref.remove();
+		}
 
 		this.physical = peer.physical + offset;
 		this.size = length;
@@ -443,13 +439,6 @@ public abstract class JMemory {
 			this.keeper = peer;
 		} else {
 			this.keeper = peer.keeper;
-		}
-
-		/*
-		 * Transfer the JNI global references
-		 */
-		if (peer.references != null) {
-			this.references = peer.references;
 		}
 
 		return size;
