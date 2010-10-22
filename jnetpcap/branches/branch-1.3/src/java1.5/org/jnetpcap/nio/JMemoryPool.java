@@ -14,6 +14,7 @@ package org.jnetpcap.nio;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.nio.ByteBuffer;
 import java.sql.Time;
 import java.util.Collections;
 import java.util.Iterator;
@@ -149,7 +150,7 @@ public class JMemoryPool {
 	 * then further sub allocates per individual requests. The is the default
 	 * size.
 	 */
-	public static final int DEFAULT_BLOCK_SIZE = 128 * 1024;
+	public static final int DEFAULT_BLOCK_SIZE = 32 * 1024;
 
 	private static JMemoryPool defaultPool;
 
@@ -244,6 +245,129 @@ public class JMemoryPool {
 	}
 
 	/**
+	 * Transfers contents from src to newly allocated memory and peers dst with
+	 * that the new memory. Any previously held resources by dst are freed.
+	 * 
+	 * @param src
+	 *          source memory to copy from
+	 * @param dst
+	 *          destination object to peer with new memory containing copy of
+	 *          memory pointed to by src
+	 * @return number of bytes duplicated
+	 */
+	public int duplicate(JMemory src, JMemory dst) {
+		final int size = src.size();
+
+		final Block block = getBlock(size);
+		final int offset = block.allocate(size);
+
+		dst.peer(block, offset, size);
+
+		return size;
+	}
+
+	/**
+	 * Transfers contents from src1 and src2 to a contigues block of new memory,
+	 * then peers dst1 and dst2 with the new memory, using the same sizes as src1
+	 * and src2 respectively. This operation combines memory allocation,
+	 * transferTo call on src1 and src2 and then peering of dst1 and dst2 with new
+	 * memory in a single step.
+	 * 
+	 * @param src1
+	 *          first src for duplicate
+	 * @param src2
+	 *          second src for duplicate into the same memory
+	 * @param dst1
+	 *          peered with new memory using src1 length
+	 * @param dst2
+	 *          peered with same memory at src1.length offset using src2 length as
+	 *          length of peer
+	 * @return total number of bytes duplicated
+	 */
+	public int duplicate2(JMemory src1, JMemory src2, JMemory dst1, JMemory dst2) {
+		final int size1 = src1.size();
+		final int size2 = src2.size();
+
+		final int size = size1 + size2;
+
+		final Block block = getBlock(size);
+		final int offset = block.allocate(size);
+
+		int o = src1.transferTo(block, 0, size1, offset);
+		src2.transferTo(block, 0, size2, offset + o);
+
+		dst1.peer(block, offset, size1);
+		dst2.peer(block, offset + o, size2);
+
+		return size;
+	}
+
+	/**
+	 * Transfers contents from src1 and src2 to a contigues block of new memory,
+	 * then peers dst1 and dst2 with the new memory, using the same sizes as src1
+	 * and src2 respectively. This operation combines memory allocation,
+	 * transferTo call on src1 and src2 and then peering of dst1 and dst2 with new
+	 * memory in a single step.
+	 * 
+	 * @param src1
+	 *          first src for duplicate
+	 * @param src2
+	 *          second src for duplicate into the same memory
+	 * @param dst1
+	 *          peered with new memory using src1 length
+	 * @param dst2
+	 *          peered with same memory at src1.length offset using src2 length as
+	 *          length of peer
+	 * @return total number of bytes duplicated
+	 */
+	public int duplicate2(JMemory src1,
+			ByteBuffer src2,
+			JMemory dst1,
+			JMemory dst2) {
+
+		final int size1 = src1.size();
+		final int size2 = src2.limit() - src2.position();
+
+		final int size = size1 + size2;
+
+		final Block block = getBlock(size);
+		final int offset = block.allocate(size);
+
+		int o = src1.transferTo(block, 0, size1, offset);
+		block.transferFrom(src2, offset + o);
+
+		dst1.peer(block, offset, size1);
+		dst2.peer(block, offset + o, size2);
+
+		return size;
+	}
+
+	/**
+	 * Transfers contents from src to newly allocated memory and peers dst with
+	 * that the new memory. Any previously held resources by dst are freed.
+	 * 
+	 * @param src
+	 *          source memory to copy from
+	 * @param dst
+	 *          destination object to peer with new memory containing copy of
+	 *          memory pointed to by src
+	 * @return number of bytes duplicated
+	 */
+	public int duplicate(ByteBuffer src, JMemory dst) {
+
+		final int size = src.limit() - src.position();
+
+		final Block block = getBlock(size);
+		final int offset = block.allocate(size);
+
+		block.transferFrom(src, offset);
+
+		dst.peer(block, offset, size);
+
+		return size;
+	}
+
+	/**
 	 * Gets a block of memory that is big enough to hold at least size number of
 	 * bytes. The user must further request from the block
 	 * {@link Block#allocate(int)} the size of memory needed. The block will then
@@ -324,8 +448,8 @@ public class JMemoryPool {
 	 * @return a new block to be used for allocations
 	 */
 	private Block newBlock(final int atLeastInSize) {
-//		System.out
-//				.printf("newBlock() size=%d block=%d%n", atLeastInSize, blockSize);
+		// System.out
+		// .printf("newBlock() size=%d block=%d%n", atLeastInSize, blockSize);
 
 		return new Block((atLeastInSize > this.blockSize) ? atLeastInSize
 				: this.blockSize);

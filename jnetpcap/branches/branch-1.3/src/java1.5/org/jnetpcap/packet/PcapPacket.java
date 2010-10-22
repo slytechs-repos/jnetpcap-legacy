@@ -594,6 +594,22 @@ public class PcapPacket
 
 		return o;
 	}
+	
+	public int peer(PcapHeader header, JBuffer buffer) {
+		int o = this.header.peerTo(header, 0);
+		o += this.peer(buffer);
+		
+		return o;
+	}
+	
+	public int peerAndScan(int dlt, PcapHeader header, JBuffer buffer) {
+		int o = this.header.peerTo(header, 0);
+		o += this.peer(buffer);
+		
+		scan(dlt);
+		
+		return o;
+	}
 
 	/**
 	 * @param header
@@ -689,15 +705,7 @@ public class PcapPacket
 	 * @return number of bytes copied.
 	 */
 	public int transferHeaderAndDataFrom(PcapHeader header, ByteBuffer buffer) {
-		final int len = buffer.limit() - buffer.position();
-		JBuffer b = getMemoryBuffer(header.size() + len);
-
-		int o = header.transferTo(b, 0);
-		o += b.transferFrom(buffer, o);
-
-		peerHeaderAndData(b);
-
-		return o;
+		return getMemoryPool().duplicate2(header, buffer, this.header, this);
 	}
 
 	/**
@@ -712,14 +720,7 @@ public class PcapPacket
 	 * @return number of bytes copied.
 	 */
 	public int transferHeaderAndDataFrom(PcapHeader header, JBuffer buffer) {
-		JBuffer b = getMemoryBuffer(header.size() + buffer.size());
-
-		int o = header.transferTo(b, 0);
-		o += buffer.transferTo(b, 0, buffer.size(), o);
-
-		peerHeaderAndData(b);
-
-		return o;
+		return getMemoryPool().duplicate2(header, buffer, this.header, this);
 	}
 
 	/**
