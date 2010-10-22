@@ -729,19 +729,24 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JScanner_sizeof(JNIEnv *env,
 
 /*
  * Class:     org_jnetpcap_packet_JScannerReference
- * Method:    dispose
+ * Method:    disposeNative
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScannerReference_dispose
+JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScannerReference_disposeNative
 (JNIEnv *env, jobject obj) {
 
-	scanner_t *scanner = (scanner_t *)getJMemoryPhysical(env, obj);
+	jlong pt = env->GetLongField(obj, jmemoryRefAddressFID);
+	scanner_t *scanner = (scanner_t *)toPtr(pt);
 	if (scanner == NULL) {
 		return;
 	}
 
 	env->DeleteGlobalRef(scanner->sc_jscan);
 	scanner->sc_jscan = NULL;
+
+	if (scanner->sc_subheader != NULL) {
+		free(scanner->sc_subheader);
+	}
 
 	for (int i = 0; i < MAX_ID_COUNT; i ++) {
 		if (scanner->sc_java_header_scanners[i] != NULL) {
@@ -758,7 +763,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScannerReference_dispose
 	 * Same as super.dispose(): call from JScannerReference.dispose for
 	 * JMemoryReference.super.dispose.
 	 */
-	Java_org_jnetpcap_nio_JMemoryReference_dispose(env, obj);
+	Java_org_jnetpcap_nio_JMemoryReference_disposeNative(env, obj);
 }
 
 /*
