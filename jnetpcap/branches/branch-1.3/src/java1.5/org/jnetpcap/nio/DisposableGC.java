@@ -275,9 +275,7 @@ public final class DisposableGC {
 					DisposableReference o = refCollection.get(i);
 					if (o != null && o.get() != null) {
 						System.out.printf("DisposableGC::#%d: %s%n", i, o.get());
-					} else {
-						System.out.printf("DisposableGC::#%d: %s%n", i, null);
-					}
+					} 
 				}
 			}
 		}
