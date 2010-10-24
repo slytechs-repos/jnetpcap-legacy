@@ -12,6 +12,7 @@
  */
 package org.jnetpcap.nio;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
 import org.jnetpcap.Pcap;
@@ -168,8 +169,7 @@ public abstract class JMemory {
 	/**
 	 * Used to keep a reference tied with this memory object.
 	 */
-	@SuppressWarnings("unused")
-	private volatile Object keeper = null;
+	private Object keeper = null;
 
 	/**
 	 * Specifies if this object owns the allocated memory. Using
@@ -184,37 +184,19 @@ public abstract class JMemory {
 	 * matter.
 	 * </p>
 	 */
-	private volatile boolean owner = false;
+	private boolean owner = false;
 
 	/**
 	 * Physical address of the peered structure. This variable is modified outside
 	 * java space as C structures are bound to it. Subclasses implement methods
 	 * and fields that understand the exact structure.
 	 */
-	private volatile long physical;
-
-	/**
-	 * Only maintained when owner == true This variable is modifiable by JNI code
-	 * even though is set to final. Setting to final prevents any java code from
-	 * modifying this variable. JNI code only modifies this variable under 2
-	 * conditions. When allocating a new native memory block, it sets the size of
-	 * the memory block allocated and when its deallocated, it resets the variable
-	 * back to 0.
-	 * <p>
-	 * The variable is needed prevent anyone from changing the size field, which
-	 * can be changed at any time out of bound of actually allocated memory block.
-	 * </p>
-	 */
-	private final int physicalSize;
+	long physical;
 
 	/**
 	 * Number of byte currently allocated
 	 */
-	private volatile int size;
-
-	{
-		physicalSize = 0;
-	} // Prevent compiler optimizing away to 0
+	int size;
 
 	/**
 	 * @param peer
@@ -381,7 +363,7 @@ public abstract class JMemory {
 	 *          the object whose allocated native memory we want to peer with
 	 */
 	protected int peer(JMemory peer) {
-		return peer(peer, 0, peer.size());
+		return peer(peer, 0, peer.size);
 	}
 
 	/**
@@ -405,16 +387,20 @@ public abstract class JMemory {
 	 */
 	protected int peer(JMemory peer, int offset, int length)
 			throws IndexOutOfBoundsException {
-		if (offset < 0 || length < 0
-				|| (!peer.owner && offset + length > peer.size) || peer.owner
-				&& offset + length > peer.physicalSize) {
+
+		if (offset < 0 || length < 0 || offset + length > peer.size) {
 			throw new IllegalArgumentException("Invalid [" + offset + ","
 					+ (offset + length) + "," + length + ") range.");
 		}
 
 		if (owner) {
-			cleanup(); // Clean up any memory we own before we give it up
-			ref.remove();
+			// cleanup();
+			if (ref != null) {
+				this.ref.dispose();
+				this.ref.remove();
+				this.ref = null;
+			}
+			this.owner = false;
 		}
 
 		this.physical = peer.physical + offset;
@@ -433,39 +419,11 @@ public abstract class JMemory {
 		 * original src object would become unstable
 		 * </ul>
 		 */
-		this.owner = false;
 
-		if (peer.keeper == null) {
-			this.keeper = peer;
-		} else {
-			this.keeper = peer.keeper;
-		}
+		this.keeper = (peer.keeper == null) ? peer : peer.keeper;
 
 		return size;
 
-	}
-
-	/**
-	 * Changes the size of this memory block. The size can not be changed passed
-	 * the physical size.
-	 * 
-	 * @param size
-	 *          length in bytes for this memory buffer
-	 */
-	protected void setSize(int size) {
-		if (!owner) {
-			throw new IllegalAccessError(
-					"object not owner of the memory block. Can not change size,"
-							+ " must use peer() to change rereference properties");
-		}
-
-		if (size < 0 || size > physicalSize) {
-			throw new IllegalArgumentException(
-					"size is out of bounds (physical size=" + physicalSize
-							+ ", requested size=" + size);
-		}
-
-		this.size = size;
 	}
 
 	/**
@@ -535,20 +493,13 @@ public abstract class JMemory {
 			b.append(".class");
 			if (keeper instanceof JMemory) {
 				JMemory k = (JMemory) keeper;
-				b.append("(size=").append(k.physicalSize);
+				b.append("(size=").append(k.size);
 				b.append("/offset=").append(this.physical - k.physical);
 				b.append(')');
 			}
 		} else {
 			b.append("\n").append("JMemory: isOwner=").append(owner);
 		}
-
-		// if (references == null) {
-		// b.append("\nJMemory: references(null)");
-		// } else {
-		// b.append("\nJMemory: references(").append(
-		// references.toDebugString()).append(')');
-		// }
 
 		return b.toString();
 	}
@@ -715,7 +666,21 @@ public abstract class JMemory {
 	 * @return number of bytes copied
 	 */
 	protected int transferTo(byte[] buffer) {
+
 		return transferTo(buffer, 0, buffer.length, 0);
+	}
+
+	private final int check(int index, int len, long address) {
+		if (address == 0L) {
+			throw new NullPointerException();
+		}
+
+		if (index < 0 || index + len > size) {
+			throw new IndexOutOfBoundsException(String
+					.format("index=%d, len=%d, size=%d", index, len, size));
+		}
+
+		return index;
 	}
 
 	/**
@@ -731,7 +696,28 @@ public abstract class JMemory {
 	 *          starting offset in byte array
 	 * @return number of bytes copied
 	 */
-	protected native int transferTo(byte[] buffer,
+	protected int transferTo(byte[] buffer,
+			int srcOffset,
+			int length,
+			int dstOffset) {
+
+		if (buffer == null) {
+			throw new NullPointerException();
+		}
+
+		if (dstOffset < 0 || dstOffset + length > buffer.length) {
+			throw new ArrayIndexOutOfBoundsException();
+		}
+
+		return transferTo0(physical,
+				buffer,
+				check(srcOffset, length, physical),
+				length,
+				dstOffset);
+	}
+
+	protected static native int transferTo0(long address,
+			byte[] buffer,
 			int srcOffset,
 			int length,
 			int dstOffset);
