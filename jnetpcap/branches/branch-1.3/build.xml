@@ -301,7 +301,6 @@
 
 			<class name="org.jnetpcap.nio.JMemory" />
 			<class name="org.jnetpcap.nio.JMemoryReference" />
-			<class name="org.jnetpcap.nio.JReference" />
 			<class name="org.jnetpcap.nio.JNumber" />
 			<class name="org.jnetpcap.nio.JBuffer" />
 			<class name="org.jnetpcap.nio.JObjectBuffer" />
