@@ -36,7 +36,6 @@ extern	jclass jmemoryReferenceClass;
 extern  jmethodID jmemoryToDebugStringMID;
 
 extern	jfieldID jmemoryPhysicalFID;
-extern	jfieldID jmemoryPhysicalSizeFID;
 extern	jfieldID jmemorySizeFID;
 extern	jfieldID jmemoryOwnerFID;
 extern	jfieldID jmemoryKeeperFID;
