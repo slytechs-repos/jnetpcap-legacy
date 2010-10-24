@@ -55,7 +55,6 @@ jmethodID jmemoryToDebugStringMID = 0;
 
 jfieldID jmemoryPhysicalFID = 0;
 jfieldID jmemoryRefAddressFID = 0;
-jfieldID jmemoryPhysicalSizeFID = 0;
 jfieldID jmemorySizeFID = 0;
 jfieldID jmemoryOwnerFID = 0;
 jfieldID jmemoryKeeperFID = 0;
@@ -103,12 +102,6 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_initIDs
 	if ( ( jmemorySizeFID = env->GetFieldID(c, "size", "I")) == NULL) {
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
 				"Unable to initialize field JMemory.size:int");
-		return;
-	}
-
-	if ( ( jmemoryPhysicalSizeFID = env->GetFieldID(c, "physicalSize", "I")) == NULL) {
-		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field JMemory.physicalSize:int");
 		return;
 	}
 
@@ -414,18 +407,14 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferFromDirect(
 
 /*
  * Class:     org_jnetpcap_nio_JMemory
- * Method:    transferTo
- * Signature: ([BIII)I
+ * Method:    transferTo0
+ * Signature: (J[BIII)I
  */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferTo___3BIII(
-		JNIEnv *env, jobject obj, jbyteArray da, jint soffset, jint len,
+JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferTo0
+(JNIEnv *env, jclass clazz, jlong address, jbyteArray da, jint soffset, jint len,
 		jint doffset) {
 
-	jbyte *src = (jbyte *) getJMemoryPhysical(env, obj);
-	if (src == NULL || da == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "");
-		return -1;
-	}
+	jbyte *src = (jbyte *)toPtr(address);
 
 	env->SetByteArrayRegion(da, doffset, len, (src + soffset));
 
@@ -495,8 +484,11 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferToDirect__Ljava_nio
 	jint limit = env->CallIntMethod(jbytebuffer, bufferGetLimitMID);
 	jint position = env->CallIntMethod(jbytebuffer, bufferGetPositionMID);
 	jsize dstLen = limit - position;
-
 	size_t srcLen = env->GetIntField(obj, jmemorySizeFID);
+
+	printf("transferToDirect(): srcOffset=%d len=%d srcLen=%d\n",
+			jsrcOffset, len, srcLen); fflush(stdout);
+
 	if (jsrcOffset < 0 || (jsrcOffset + len) > srcLen) {
 		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
 
@@ -592,9 +584,8 @@ void jmemoryCleanup(JNIEnv *env, jobject obj) {
 		/*
 		 * Record statistics
 		 */
-		jint psize = env->GetIntField(obj, jmemoryPhysicalSizeFID);
 		jint size = env->GetIntField(obj, jmemorySizeFID);
-		memory_usage.total_deallocated += psize;
+		memory_usage.total_deallocated += size;
 		memory_usage.total_deallocate_calls ++;
 
 #ifdef DEBUG
@@ -605,14 +596,12 @@ void jmemoryCleanup(JNIEnv *env, jobject obj) {
 		 * Release the main structure
 		 */
 		free(mem);
-		env->SetIntField(obj, jmemoryPhysicalSizeFID, (jint) 0);
 	} else {
 #ifdef DEBUG
 		printf("%p jmemoryCleanup() %p not owner\n", env, obj);fflush(stdout);
 #endif
 	}
 
-	env->SetLongField(obj, jmemoryPhysicalFID, (jlong) 0);
 	env->SetBooleanField(obj, jmemoryOwnerFID, JNI_FALSE);
 	env->SetIntField(obj, jmemorySizeFID, (jint)0);
 	env->SetObjectField(obj, jmemoryKeeperFID, (jobject) NULL);
@@ -654,7 +643,6 @@ jint jmemoryPeer(JNIEnv *env, jobject obj, const void *ptr, size_t length,
 
 	env->SetBooleanField(obj, jmemoryOwnerFID, (owner == obj) ? JNI_TRUE
 			: JNI_FALSE);
-	env->SetIntField(obj, jmemoryPhysicalSizeFID, (owner == obj) ? (jsize) length : 0);
 
 #ifdef DEBUG
 	printf("%p jmemoryPeer() obj=%p owner=%d\n", env, obj, (owner == obj)); fflush(stdout);
