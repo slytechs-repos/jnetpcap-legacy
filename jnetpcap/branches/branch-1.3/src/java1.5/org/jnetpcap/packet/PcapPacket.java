@@ -368,7 +368,6 @@ public class PcapPacket
 	 */
 	private native static void initIds();
 
-
 	private final PcapHeader header = new PcapHeader(Type.POINTER);
 
 	/**
@@ -515,7 +514,7 @@ public class PcapPacket
 	public PcapPacket(PcapHeader header, ByteBuffer buffer) {
 		super(Type.POINTER);
 
-		transferHeaderAndDataFrom(header, buffer);
+		transferHeaderAndDataFrom0(header, buffer);
 	}
 
 	/**
@@ -531,7 +530,7 @@ public class PcapPacket
 	public PcapPacket(PcapHeader header, JBuffer buffer) {
 		super(Type.POINTER);
 
-		transferHeaderAndDataFrom(header, buffer);
+		transferHeaderAndDataFrom0(header, buffer);
 	}
 
 	/**
@@ -601,13 +600,13 @@ public class PcapPacket
 		
 		return o;
 	}
-	
+
 	public int peerAndScan(int dlt, PcapHeader header, JBuffer buffer) {
 		int o = this.header.peerTo(header, 0);
 		o += this.peer(buffer);
-		
+
 		scan(dlt);
-		
+
 		return o;
 	}
 
@@ -616,7 +615,8 @@ public class PcapPacket
 	 * @param buffer
 	 * @throws PeeringException
 	 */
-	public int peerHeaderAndData(PcapHeader header, ByteBuffer buffer) throws PeeringException {
+	public int peerHeaderAndData(PcapHeader header, ByteBuffer buffer)
+			throws PeeringException {
 		int o = this.header.peerTo(header, 0);
 		o += super.peer(buffer);
 
@@ -705,6 +705,18 @@ public class PcapPacket
 	 * @return number of bytes copied.
 	 */
 	public int transferHeaderAndDataFrom(PcapHeader header, ByteBuffer buffer) {
+		/*
+		 * The empty object is needed in order to invoke the minor GC collector int
+		 * a timely manner. Otherwise the GC is too slow to react and memory very
+		 * quickly can grow to high levels. There is very little overhead with
+		 * creating an empty object, and it does the trick very nicely.
+		 */
+		new Object() {
+		};
+		return transferHeaderAndDataFrom0(header, buffer);
+	}
+
+	private int transferHeaderAndDataFrom0(PcapHeader header, ByteBuffer buffer) {
 		return getMemoryPool().duplicate2(header, buffer, this.header, this);
 	}
 
@@ -720,6 +732,18 @@ public class PcapPacket
 	 * @return number of bytes copied.
 	 */
 	public int transferHeaderAndDataFrom(PcapHeader header, JBuffer buffer) {
+		/*
+		 * The empty object is needed in order to invoke the minor GC collector int
+		 * a timely manner. Otherwise the GC is too slow to react and memory very
+		 * quickly can grow to high levels. There is very little overhead with
+		 * creating an empty object, and it does the trick very nicely.
+		 */
+		new Object() {
+		};
+		return transferHeaderAndDataFrom0(header, buffer);
+	}
+
+	private int transferHeaderAndDataFrom0(PcapHeader header, JBuffer buffer) {
 		return getMemoryPool().duplicate2(header, buffer, this.header, this);
 	}
 
