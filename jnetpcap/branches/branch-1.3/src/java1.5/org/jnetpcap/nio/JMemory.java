@@ -242,8 +242,6 @@ public abstract class JMemory {
 		if (type != Type.POINTER) {
 			throw new IllegalArgumentException("Only POINTER types are supported");
 		}
-
-		this.size = 0;
 	}
 
 	/**
@@ -389,7 +387,7 @@ public abstract class JMemory {
 			throws IndexOutOfBoundsException {
 
 		if (offset < 0 || length < 0 || offset + length > peer.size) {
-			throw new IllegalArgumentException("Invalid [" + offset + ","
+			throw new IndexOutOfBoundsException("Invalid [" + offset + ","
 					+ (offset + length) + "," + length + ") range.");
 		}
 
@@ -423,7 +421,6 @@ public abstract class JMemory {
 		this.keeper = (peer.keeper == null) ? peer : peer.keeper;
 
 		return size;
-
 	}
 
 	/**
