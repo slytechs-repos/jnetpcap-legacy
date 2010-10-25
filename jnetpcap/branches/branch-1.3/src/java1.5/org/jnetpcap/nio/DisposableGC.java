@@ -4,9 +4,8 @@
 package org.jnetpcap.nio;
 
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.lang.ref.PhantomReference;
 import java.lang.ref.ReferenceQueue;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -24,7 +23,7 @@ public final class DisposableGC {
 	private AtomicLong cleanupTimeout =
 			new AtomicLong(DisposableGC.DEFAULT_CLEANUP_THREAD_TIMEOUT);
 	private AtomicBoolean cleanupThreadProcessing = new AtomicBoolean(false);
-	private static final long DEFAULT_CLEANUP_THREAD_TIMEOUT = 500;
+	private static final long DEFAULT_CLEANUP_THREAD_TIMEOUT = 10;
 	static final private int MANUAL_DRAING_MAX = 2;
 
 	/**
@@ -59,9 +58,29 @@ public final class DisposableGC {
 
 	final ReferenceQueue<Object> refQueue = new ReferenceQueue<Object>();
 
+	private static class Marker extends PhantomReference<Object> {
+
+		public final long id;
+
+		/**
+		 * @param id
+		 *          unique marker id
+		 */
+		public Marker(long id) {
+			super(new Object() {
+			}, DisposableGC.getDeault().markerQueue);
+
+			this.id = id;
+		}
+
+	}
+
+	final ReferenceQueue<Object> markerQueue = new ReferenceQueue<Object>();
+
 	private static DisposableGC defaultGC = new DisposableGC();
 
 	private long totalDisposed = 1;
+	private long filler;
 
 	public static DisposableGC getDeault() {
 		return defaultGC;
@@ -69,6 +88,41 @@ public final class DisposableGC {
 
 	private DisposableGC() {
 		// startCleanupThread();
+	}
+
+	public long systemMinorGc() {
+
+		final long timestamp = System.currentTimeMillis();
+		Marker marker = new Marker(timestamp); // Now we wait for Marker to be
+
+		filler = 1;
+
+		while (true) {
+			final Marker mark = (Marker) markerQueue.poll();
+
+			if (mark == marker) {
+				while (markerQueue.poll() != null) {
+					; // Drain the queue quickly
+				}
+				break;
+			} else {
+
+				filler++;
+				new Object() {
+				};
+
+				// Thread.yield();
+				try {
+					if (filler % 10000 == 0) {
+						Thread.sleep(1);
+					}
+				} catch (InterruptedException e) {
+				}
+			}
+		}
+
+		return filler;
+
 	}
 
 	void drainRefQueueBounded() {
@@ -99,6 +153,7 @@ public final class DisposableGC {
 
 		int count = 0;
 		final long timeout = cleanupTimeout.get();
+		int collectionSize = 0;
 		while (true) {
 
 			final DisposableReference ref =
@@ -106,37 +161,49 @@ public final class DisposableGC {
 
 			if (ref != null) { // We have a reference to dispose of
 				if (count == 0) { // First one
+					if (vverbose && cleanupThreadProcessing.get() == false) {
+						System.out.printf("DisposableGC: working%n");
+					}
 					cleanupThreadProcessing.set(true);
-				}
 
+					collectionSize = refCollection.size();
+				}
 				count++;
 
 				/**
 				 * Keep message coming even if we are continuesly processing.
 				 */
-				if (vverbose && (count % 1000000) == 0) {
+				if (vverbose && (count % collectionSize) == 0) {
 					System.out
-							.printf("DisposableGC:: disposed of %d entries [total=%dM]%n",
+							.printf("DisposableGC: disposed of %d entries [total=%dk/%d]%n",
 									count,
-									totalDisposed / 1000000);
+									totalDisposed / 1000,
+									filler);
 					count = 0;
 				}
 			} else if (count != 0) { // Means, we just finished processing
 				if (verbose) {
 					System.out
-							.printf("DisposableGC:: disposed of %d entries [total=%dM]%n",
+							.printf("DisposableGC: disposed of %d entries [total=%dK/%d]%n",
 									count,
-									totalDisposed / 1000000);
+									totalDisposed / 1000,
+									filler);
 				}
 
 				count = 0;
 				cleanupThreadProcessing.set(false);
+				if (vverbose) {
+					System.out.printf("DisposableGC: idle - waiting for system GC to collect more objects%n");
+				}
 			}
 
 			if (ref == null) {
 				if (cleanupThreadActive.get()) {
 					continue; // Null due to timeout
 				} else {
+					if (verbose) {
+						System.out.printf("DisposableGC: finished%n");
+					}
 					break;
 				}
 			}
@@ -145,7 +212,7 @@ public final class DisposableGC {
 		}
 
 		if (verbose && count != 0) {
-			System.out.printf("DisposableGC:: disposed of %d entries [total=%dM]%n",
+			System.out.printf("DisposableGC: disposed of %d entries [total=%dM]%n",
 					count,
 					totalDisposed / 1000000);
 			count = 0;
@@ -269,13 +336,13 @@ public final class DisposableGC {
 		System.gc();
 		while (waitForFullCleanup(5 * 1000) == false) {
 			if (verbose && !cleanupThreadProcessing.get()) {
-				System.out.printf("DisposableGC:: waiting on %d elements%n",
+				System.out.printf("DisposableGC: waiting on %d elements%n",
 						refCollection.size());
 				for (int i = 0; i < refCollection.size(); i++) {
 					DisposableReference o = refCollection.get(i);
 					if (o != null && o.get() != null) {
-						System.out.printf("DisposableGC::#%d: %s%n", i, o.get());
-					} 
+						System.out.printf("DisposableGC:#%d: %s%n", i, o.get());
+					}
 				}
 			}
 		}
