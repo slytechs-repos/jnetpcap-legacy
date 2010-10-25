@@ -638,7 +638,7 @@ jint jmemoryPeer(JNIEnv *env, jobject obj, const void *ptr, size_t length,
 	}
 
 	setJMemoryPhysical(env, obj, toLong((void *) ptr));
-	env->SetIntField(obj, jmemorySizeFID, (jsize) length);
+	env->SetIntField(obj, jmemorySizeFID, (jint) length);
 	env->SetObjectField(obj, jmemoryKeeperFID, owner);
 
 	env->SetBooleanField(obj, jmemoryOwnerFID, (owner == obj) ? JNI_TRUE
