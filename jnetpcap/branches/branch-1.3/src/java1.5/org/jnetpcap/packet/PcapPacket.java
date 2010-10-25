@@ -705,14 +705,6 @@ public class PcapPacket
 	 * @return number of bytes copied.
 	 */
 	public int transferHeaderAndDataFrom(PcapHeader header, ByteBuffer buffer) {
-		/*
-		 * The empty object is needed in order to invoke the minor GC collector int
-		 * a timely manner. Otherwise the GC is too slow to react and memory very
-		 * quickly can grow to high levels. There is very little overhead with
-		 * creating an empty object, and it does the trick very nicely.
-		 */
-		new Object() {
-		};
 		return transferHeaderAndDataFrom0(header, buffer);
 	}
 
@@ -732,14 +724,6 @@ public class PcapPacket
 	 * @return number of bytes copied.
 	 */
 	public int transferHeaderAndDataFrom(PcapHeader header, JBuffer buffer) {
-		/*
-		 * The empty object is needed in order to invoke the minor GC collector int
-		 * a timely manner. Otherwise the GC is too slow to react and memory very
-		 * quickly can grow to high levels. There is very little overhead with
-		 * creating an empty object, and it does the trick very nicely.
-		 */
-		new Object() {
-		};
 		return transferHeaderAndDataFrom0(header, buffer);
 	}
 
