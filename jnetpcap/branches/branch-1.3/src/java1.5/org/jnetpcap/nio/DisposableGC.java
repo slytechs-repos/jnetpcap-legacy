@@ -167,13 +167,14 @@ public final class DisposableGC {
 					cleanupThreadProcessing.set(true);
 
 					collectionSize = refCollection.size();
+					collectionSize = (collectionSize < 1000) ? 1000 : collectionSize;
 				}
 				count++;
 
 				/**
 				 * Keep message coming even if we are continuesly processing.
 				 */
-				if (vverbose && (count % collectionSize) == 0) {
+				if (vverbose && (count % 1000) == 0) {
 					System.out
 							.printf("DisposableGC: disposed of %d entries [total=%dk/%d]%n",
 									count,
@@ -182,7 +183,7 @@ public final class DisposableGC {
 					count = 0;
 				}
 			} else if (count != 0) { // Means, we just finished processing
-				if (verbose) {
+				if (verbose && count > 100) {
 					System.out
 							.printf("DisposableGC: disposed of %d entries [total=%dK/%d]%n",
 									count,
