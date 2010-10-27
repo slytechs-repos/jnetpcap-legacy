@@ -12,7 +12,6 @@
  */
 package org.jnetpcap.nio;
 
-import java.lang.ref.ReferenceQueue;
 import java.nio.ByteBuffer;
 
 import org.jnetpcap.Pcap;
