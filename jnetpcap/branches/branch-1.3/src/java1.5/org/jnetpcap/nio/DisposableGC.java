@@ -5,7 +5,9 @@ package org.jnetpcap.nio;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.PhantomReference;
+import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -90,7 +92,7 @@ public final class DisposableGC {
 		// startCleanupThread();
 	}
 
-	public long systemMinorGc() {
+	public long systemMinorGC() {
 
 		final long timestamp = System.currentTimeMillis();
 		Marker marker = new Marker(timestamp); // Now we wait for Marker to be
@@ -122,6 +124,26 @@ public final class DisposableGC {
 		}
 
 		return filler;
+
+	}
+
+	public void invokeSystemGCAndWait() {
+		long ts = System.currentTimeMillis();
+		@SuppressWarnings("unused")
+		final Reference<Object> marker = new WeakReference<Object>(new Object() {
+		}, markerQueue);
+		System.gc();
+		try {
+			markerQueue.remove(); // We wait for out marker object to be GCed
+			long te = System.currentTimeMillis();
+
+			if (vverbose) {
+				System.out
+						.printf("DisposableGC:: waiting for System.gc to finish: %dms%n",
+								(te - ts));
+			}
+		} catch (InterruptedException e) {
+		}
 
 	}
 
@@ -174,7 +196,7 @@ public final class DisposableGC {
 				/**
 				 * Keep message coming even if we are continuesly processing.
 				 */
-				if (vverbose && (count % 1000) == 0) {
+				if (vverbose && (count % 10000) == 0) {
 					System.out
 							.printf("DisposableGC: disposed of %d entries [total=%dk/%d]%n",
 									count,
@@ -183,7 +205,7 @@ public final class DisposableGC {
 					count = 0;
 				}
 			} else if (count != 0) { // Means, we just finished processing
-				if (verbose && count > 100) {
+				if (verbose && count > 400) {
 					System.out
 							.printf("DisposableGC: disposed of %d entries [total=%dK/%d]%n",
 									count,
@@ -194,7 +216,8 @@ public final class DisposableGC {
 				count = 0;
 				cleanupThreadProcessing.set(false);
 				if (vverbose) {
-					System.out.printf("DisposableGC: idle - waiting for system GC to collect more objects%n");
+					System.out
+							.printf("DisposableGC: idle - waiting for system GC to collect more objects%n");
 				}
 			}
 
@@ -253,7 +276,6 @@ public final class DisposableGC {
 
 		cleanupThread = new Thread(new Runnable() {
 
-			@Override
 			public void run() {
 				try {
 					drainRefQueueLoop();

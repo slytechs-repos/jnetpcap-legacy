@@ -15,8 +15,8 @@ public class JScannerReference extends JMemoryReference {
 	 * @param referant
 	 * @param address
 	 */
-	public JScannerReference(Object referant, long address) {
-		super(referant, address);
+	public JScannerReference(Object referant, long address, long size) {
+		super(referant, address, size);
 	}
 
 	/**
@@ -24,7 +24,6 @@ public class JScannerReference extends JMemoryReference {
 	 * all the JHeaderScanners that are kept as global references need to be
 	 * released.
 	 */
-	@Override
-	protected native void disposeNative();
+	protected native void disposeNative(long size);
 
 }

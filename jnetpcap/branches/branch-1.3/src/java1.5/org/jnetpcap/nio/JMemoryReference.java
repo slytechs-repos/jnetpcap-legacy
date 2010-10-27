@@ -16,16 +16,15 @@ public class JMemoryReference extends DisposableReference {
 	 * object and during the destroy call.
 	 */
 	long address;
-	{
-		address = 0L;
-	}
+	long size;
 
 	/**
 	 * @param referant
 	 */
-	public JMemoryReference(Object referant, long address) {
+	public JMemoryReference(Object referant, long address, long size) {
 		super(referant);
 		this.address = address;
+		this.size = size;
 	}
 
 	/*
@@ -35,13 +34,17 @@ public class JMemoryReference extends DisposableReference {
 	 */
 	@Override
 	public void dispose() {
-		disposeNative();
+		disposeNative(size);
 	}
 
 	/**
 	 * Does a native memory cleanup
 	 */
-	protected native void disposeNative();
+	protected void disposeNative(long size) {
+		disposeNative0(address, size);
+	}
+	
+	private native void disposeNative0(long address, long size);
 
 	/*
 	 * (non-Javadoc)
@@ -51,6 +54,7 @@ public class JMemoryReference extends DisposableReference {
 	@Override
 	public void remove() {
 		address = 0L;
+		size = 0L;
 		super.remove();
 	}
 
