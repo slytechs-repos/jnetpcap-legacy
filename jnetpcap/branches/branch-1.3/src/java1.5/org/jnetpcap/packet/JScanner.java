@@ -12,10 +12,6 @@
  */
 package org.jnetpcap.packet;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.jnetpcap.nio.JMemoryReference;
 import org.jnetpcap.nio.JStruct;
 
@@ -408,7 +404,7 @@ public class JScanner extends JStruct {
 	 * @see org.jnetpcap.nio.JMemory#createReference(long)
 	 */
 	@Override
-	protected JMemoryReference createReference(long address) {
-		return new JScannerReference(this, address);
+	protected JMemoryReference createReference(long address, long size) {
+		return new JScannerReference(this, address, size);
 	}
 }

@@ -66,7 +66,6 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 * 
 	 * @see org.jnetlib.mem.Disposable#dispose()
 	 */
-	@Override
 	public void dispose() {
 		// TODO Auto-generated method stub
 
@@ -77,7 +76,6 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 * 
 	 * @see org.jnetlib.util.Link#linkElement()
 	 */
-	@Override
 	public DisposableReference linkElement() {
 		return this;
 	}
@@ -87,7 +85,6 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 * 
 	 * @see org.jnetlib.util.Link#linkNext()
 	 */
-	@Override
 	public Link<DisposableReference> linkNext() {
 		return linkNext;
 	}
@@ -97,7 +94,6 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 * 
 	 * @see org.jnetlib.util.Link#linkNext(org.jnetlib.util.Link)
 	 */
-	@Override
 	public void linkNext(Link<DisposableReference> l) {
 		linkNext = l;
 	}
@@ -107,7 +103,6 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 * 
 	 * @see org.jnetlib.util.Link#linkPrev()
 	 */
-	@Override
 	public Link<DisposableReference> linkPrev() {
 		return linkPrev;
 	}
@@ -117,7 +112,6 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 * 
 	 * @see org.jnetlib.util.Link#linkPrev(org.jnetlib.util.Link)
 	 */
-	@Override
 	public void linkPrev(Link<DisposableReference> l) {
 		linkPrev = l;
 	}

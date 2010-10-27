@@ -23,7 +23,6 @@ public abstract class DisposableCleaner implements Disposable, Runnable {
 	 * 
 	 * @see java.lang.Runnable#run()
 	 */
-	@Override
 	public void run() {
 		if (!remove) {
 			dispose();		
