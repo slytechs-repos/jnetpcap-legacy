@@ -12,14 +12,8 @@
  */
 package org.jnetpcap.nio;
 
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.sql.Time;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.jnetpcap.nio.JMemory.Type;
 
