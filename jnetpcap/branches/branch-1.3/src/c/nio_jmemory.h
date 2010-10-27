@@ -21,6 +21,11 @@ typedef struct memory_usage_t {
 
 	uint64_t seg_0_255_bytes;
 	uint64_t seg_256_or_above_bytes;
+
+	uint64_t max_direct;
+	uint64_t reserved_direct;
+	uint64_t available_direct;
+
 } memory_usage_t;
 
 typedef struct jni_global_ref_t {
@@ -34,6 +39,7 @@ extern	jclass jmemoryPoolClass;
 extern	jclass jmemoryReferenceClass;
 
 extern  jmethodID jmemoryToDebugStringMID;
+extern  jmethodID jmemoryMaxDirectMemoryBreachMID;
 
 extern	jfieldID jmemoryPhysicalFID;
 extern	jfieldID jmemorySizeFID;
