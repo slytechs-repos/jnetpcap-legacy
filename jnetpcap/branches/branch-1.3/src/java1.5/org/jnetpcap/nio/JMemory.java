@@ -12,9 +12,7 @@
  */
 package org.jnetpcap.nio;
 
-import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 
 import org.jnetpcap.Pcap;

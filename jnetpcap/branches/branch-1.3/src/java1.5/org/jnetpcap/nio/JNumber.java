@@ -113,7 +113,6 @@ public class JNumber
 	 * where our private sizeof(int) function can use these constants to lookup
 	 * the correct primitive size
 	 */
-	@SuppressWarnings("unused")
 	private final static int BYTE_ORDINAL = 0;
 
 	private final static int CHAR_ORDINAL = 1;
