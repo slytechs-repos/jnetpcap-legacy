@@ -52,6 +52,8 @@ jclass jmemoryPoolClass = 0;
 jclass jmemoryRefClass = 0;
 
 jmethodID jmemoryToDebugStringMID = 0;
+jmethodID jmemoryMaxDirectMemoryBreachMID = 0;
+
 
 jfieldID jmemoryPhysicalFID = 0;
 jfieldID jmemoryRefAddressFID = 0;
@@ -124,10 +126,16 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_initIDs
 		return;
 	}
 
-	if ( ( jmemoryCreateReferenceMID = env->GetMethodID(c, "createReference", "(J)Lorg/jnetpcap/nio/JMemoryReference;")) == NULL) {
+	if ( ( jmemoryCreateReferenceMID = env->GetMethodID(c, "createReference", "(JJ)Lorg/jnetpcap/nio/JMemoryReference;")) == NULL) {
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
 				"Unable to initialize method JMemory.createReference()");
 		fprintf(stderr, "Unable to initialize method JMemory.createReference()");
+		return;
+	}
+	if ( ( jmemoryMaxDirectMemoryBreachMID = env->GetStaticMethodID(c, "maxDirectMemoryBreached", "()V")) == NULL) {
+		throwException(env, NO_SUCH_FIELD_EXCEPTION,
+				"Unable to initialize method JMemory.maxDirectMemoryBreached()");
+		fprintf(stderr, "Unable to initialize method JMemory.maxDirectMemoryBreached()");
 		return;
 	}
 
@@ -215,6 +223,43 @@ void init_jmemory(JNIEnv *env) {
 
 /*
  * Class:     org_jnetpcap_nio_JMemory
+ * Method:    availableDirectMemorySize
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JMemory_availableDirectMemorySize
+  (JNIEnv *env, jclass clazz) {
+	return (jlong) memory_usage.available_direct;
+}
+
+
+/*
+ * Class:     org_jnetpcap_nio_JMemory
+ * Method:    maxDirectMemorySize
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JMemory_maxDirectMemorySize
+  (JNIEnv *env, jclass clazz) {
+
+	return (jlong) memory_usage.max_direct;
+}
+
+/*
+ * Class:     org_jnetpcap_nio_JMemory
+ * Method:    setMaxDirectMemorySize
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_setMaxDirectMemorySize
+  (JNIEnv *env, jclass clazz, jlong size) {
+
+	int64_t delta = ((int64_t)size - (int64_t)memory_usage.max_direct);
+	memory_usage.max_direct = size;
+	memory_usage.available_direct += delta;
+
+}
+
+
+/*
+ * Class:     org_jnetpcap_nio_JMemory
  * Method:    totalAllocateCalls
  * Signature: ()J
  */
@@ -286,16 +331,19 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_allocate
 
 /*
  * Class:     org_jnetpcap_nio_JMemoryReference
- * Method:    disposeNative
- * Signature: ()V
+ * Method:    disposeNative0
+ * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemoryReference_disposeNative
-(JNIEnv *env, jobject obj) {
+JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemoryReference_disposeNative0
+(JNIEnv *env, jobject obj, jlong address, jlong size) {
 
-	jlong pt = env->GetLongField(obj, jmemoryRefAddressFID);
-	void * ptr = toPtr(pt);
+	void * ptr = toPtr(address);
 
 	if (ptr != NULL) {
+		memory_usage.total_deallocated += size;
+		memory_usage.total_deallocate_calls ++;
+		memory_usage.available_direct += size;
+
 		free(ptr);
 	}
 }
@@ -544,11 +592,12 @@ void setJMemoryPhysical(JNIEnv *env, jobject obj, jlong value) {
  * and create new JMemoryReference objects outside. This should only be done
  * from jmemoryAllocate and from transferOwnership methods.
  */
-static jobject jmemoryCreateReference(JNIEnv *env, jobject obj, void *address) {
+static jobject jmemoryCreateReference(JNIEnv *env, jobject obj, void *address, size_t size) {
 	return env->CallObjectMethod(
 			obj,
 			jmemoryCreateReferenceMID,
-			toLong(address));
+			toLong(address),
+			(jlong)size);
 }
 
 char *jmemoryToDebugString(JNIEnv *env, jobject obj, char *buf) {
@@ -587,6 +636,7 @@ void jmemoryCleanup(JNIEnv *env, jobject obj) {
 		jint size = env->GetIntField(obj, jmemorySizeFID);
 		memory_usage.total_deallocated += size;
 		memory_usage.total_deallocate_calls ++;
+		memory_usage.available_direct += size;
 
 #ifdef DEBUG
 		printf("%p jmemoryCleanup() free size=%d psize=%d mem=%p obj=%p jowner=%d\n", env, size, psize, mem, obj, jowner);
@@ -685,6 +735,20 @@ char *jmemoryAllocate(JNIEnv *env, size_t size, jobject obj) {
 #ifdef DEBUG
 	printf("\n%p jmemoryAllocate() ENTER\n", env); fflush(stdout);
 #endif
+	jint jsize = (jint) size;
+
+	if (memory_usage.available_direct < size) {
+		// Try to free up memory
+
+		env->CallStaticVoidMethod(jmemoryClass, jmemoryMaxDirectMemoryBreachMID);
+
+		if (memory_usage.available_direct < size) {
+			throwException(env, OUT_OF_MEMORY_ERROR, "");
+			return NULL;
+		}
+	}
+
+	memory_usage.available_direct -= size;
 
 #ifdef DEBUG
 	printf("%p jmemoryAllocate() malloc size=%d\n", env, size); fflush(stdout);
@@ -703,7 +767,7 @@ char *jmemoryAllocate(JNIEnv *env, size_t size, jobject obj) {
 	/*
 	 * Initialize allocated memory
 	 */
-	memset(mem, 0, size);
+//	memset(mem, 0, size);
 
 #ifdef DEBUG
 	printf("%p jmemoryAllocate() setup\n", env); fflush(stdout);
@@ -711,7 +775,7 @@ char *jmemoryAllocate(JNIEnv *env, size_t size, jobject obj) {
 
 	jmemoryPeer(env, obj, mem, size, obj);
 
-	jobject ref = jmemoryCreateReference(env, obj, mem);
+	jobject ref = jmemoryCreateReference(env, obj, mem, size);
 	if (ref == NULL) {
 		return NULL; // Out of memory
 	}
@@ -722,7 +786,6 @@ char *jmemoryAllocate(JNIEnv *env, size_t size, jobject obj) {
 	printf("%s\n", jmemoryToDebugString(env, obj, buf));
 #endif
 
-	jint jsize = (jint) size;
 
 #ifdef DEBUG
 	printf("%p jmemoryAllocate() usage\n", env); fflush(stdout);
