@@ -4,7 +4,6 @@
 package org.jnetpcap.nio;
 
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.lang.ref.PhantomReference;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
@@ -60,15 +59,15 @@ public final class DisposableGC {
 
 	final ReferenceQueue<Object> refQueue = new ReferenceQueue<Object>();
 
-	private static class Marker extends PhantomReference<Object> {
+/*	private static class Marker extends PhantomReference<Object> {
 
 		@SuppressWarnings("unused")
 		public final long id;
 
-		/**
+		*//**
 		 * @param id
 		 *          unique marker id
-		 */
+		 *//*
 		public Marker(long id) {
 			super(new Object() {
 			}, DisposableGC.getDeault().markerQueue);
@@ -77,13 +76,14 @@ public final class DisposableGC {
 		}
 
 	}
-
+*/
 	final ReferenceQueue<Object> markerQueue = new ReferenceQueue<Object>();
 
 	private static DisposableGC defaultGC = new DisposableGC();
 
 	private long totalDisposed = 1;
 	private long filler;
+	private boolean vvverbose;
 
 	public static DisposableGC getDeault() {
 		return defaultGC;
@@ -93,7 +93,7 @@ public final class DisposableGC {
 		// startCleanupThread();
 	}
 
-	public long systemMinorGC() {
+/*	private long systemMinorGC() {
 
 		final long timestamp = System.currentTimeMillis();
 		Marker marker = new Marker(timestamp); // Now we wait for Marker to be
@@ -127,7 +127,7 @@ public final class DisposableGC {
 		return filler;
 
 	}
-
+*/
 	public void invokeSystemGCAndWait() {
 		long ts = System.currentTimeMillis();
 		@SuppressWarnings("unused")
@@ -135,12 +135,12 @@ public final class DisposableGC {
 		}, markerQueue);
 		System.gc();
 		try {
-			markerQueue.remove(); // We wait for out marker object to be GCed
+			markerQueue.remove(200); // Wait upto 200ms, for our marker
+			Thread.sleep(10); // Fiddle time
 			long te = System.currentTimeMillis();
-
 			if (vverbose) {
 				System.out
-						.printf("DisposableGC:: waiting for System.gc to finish: %dms%n",
+						.printf("DisposableGC: waiting for System.gc to finish: %dms%n",
 								(te - ts));
 			}
 		} catch (InterruptedException e) {
@@ -184,7 +184,7 @@ public final class DisposableGC {
 
 			if (ref != null) { // We have a reference to dispose of
 				if (count == 0) { // First one
-					if (vverbose && cleanupThreadProcessing.get() == false) {
+					if (vvverbose && cleanupThreadProcessing.get() == false) {
 						System.out.printf("DisposableGC: working%n");
 					}
 					cleanupThreadProcessing.set(true);
@@ -216,7 +216,7 @@ public final class DisposableGC {
 
 				count = 0;
 				cleanupThreadProcessing.set(false);
-				if (vverbose) {
+				if (vvverbose) {
 					System.out
 							.printf("DisposableGC: idle - waiting for system GC to collect more objects%n");
 				}
@@ -399,6 +399,7 @@ public final class DisposableGC {
 
 		if (!verbose) {
 			setVVerbose(false);
+			setVVVerbose(false);
 		}
 
 	}
@@ -411,13 +412,34 @@ public final class DisposableGC {
 	}
 
 	/**
+	 * @return the vvverbose
+	 */
+	public boolean isVVVerbose() {
+		return vvverbose;
+	}
+
+	/**
 	 * @param vverbose
 	 *          the vverbose to set
 	 */
 	public void setVVerbose(boolean vverbose) {
 		if (vverbose) {
 			setVerbose(true);
+		} else {
+			setVVVerbose(false);
 		}
+		
 		this.vverbose = vverbose;
+	}
+
+	/**
+	 * @param vvverbose
+	 *          the vvverbose to set
+	 */
+	public void setVVVerbose(boolean vvverbose) {
+		if (vvverbose) {
+			setVVerbose(true);
+		}
+		this.vvverbose = vvverbose;
 	}
 }
