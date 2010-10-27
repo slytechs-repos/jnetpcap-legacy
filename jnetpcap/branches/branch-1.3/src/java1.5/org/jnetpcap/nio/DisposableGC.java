@@ -62,6 +62,7 @@ public final class DisposableGC {
 
 	private static class Marker extends PhantomReference<Object> {
 
+		@SuppressWarnings("unused")
 		public final long id;
 
 		/**
