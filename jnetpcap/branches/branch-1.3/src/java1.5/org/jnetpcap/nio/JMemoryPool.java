@@ -214,7 +214,7 @@ public class JMemoryPool {
 	 * @param memory
 	 *          memory pointer
 	 */
-	public void allocate(final int size, final JMemory memory) {
+	public synchronized void allocate(final int size, final JMemory memory) {
 
 		final Block block = getBlock(size);
 		final int offset = block.allocate(size);
@@ -247,15 +247,13 @@ public class JMemoryPool {
 	 *          memory pointed to by src
 	 * @return number of bytes duplicated
 	 */
-	public int duplicate(JMemory src, JMemory dst) {
-		final int size = src.size();
+	public synchronized int duplicate(JMemory src, JMemory dst) {
+		final Block block = getBlock(src.size);
+		final int offset = block.allocate(src.size);
 
-		final Block block = getBlock(size);
-		final int offset = block.allocate(size);
+		dst.peer(block, offset, src.size);
 
-		dst.peer(block, offset, size);
-
-		return size;
+		return src.size;
 	}
 
 	/**
@@ -276,11 +274,11 @@ public class JMemoryPool {
 	 *          length of peer
 	 * @return total number of bytes duplicated
 	 */
-	public int duplicate2(JMemory src1, JMemory src2, JMemory dst1, JMemory dst2) {
-		final int size1 = src1.size();
-		final int size2 = src2.size();
+	public synchronized int duplicate2(JMemory src1, JMemory src2, JMemory dst1, JMemory dst2) {
+		final int size1 = src1.size;
+		final int size2 = src2.size;
 
-		final int size = size1 + size2;
+		final int size = src1.size + src2.size;
 
 		final Block block = getBlock(size);
 		final int offset = block.allocate(size);
@@ -312,12 +310,12 @@ public class JMemoryPool {
 	 *          length of peer
 	 * @return total number of bytes duplicated
 	 */
-	public int duplicate2(JMemory src1,
+	public synchronized int duplicate2(JMemory src1,
 			ByteBuffer src2,
 			JMemory dst1,
 			JMemory dst2) {
 
-		final int size1 = src1.size();
+		final int size1 = src1.size;
 		final int size2 = src2.limit() - src2.position();
 
 		final int size = size1 + size2;
@@ -345,7 +343,7 @@ public class JMemoryPool {
 	 *          memory pointed to by src
 	 * @return number of bytes duplicated
 	 */
-	public int duplicate(ByteBuffer src, JMemory dst) {
+	public synchronized int duplicate(ByteBuffer src, JMemory dst) {
 
 		final int size = src.limit() - src.position();
 
