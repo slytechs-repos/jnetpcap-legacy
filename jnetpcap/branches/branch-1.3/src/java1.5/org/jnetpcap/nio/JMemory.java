@@ -217,12 +217,6 @@ public abstract class JMemory {
 			int dstOffset);
 
 	/**
-	 * A special queue we use to detect if System GC has been run.
-	 */
-	private final static ReferenceQueue<Object> markerQueue =
-			new ReferenceQueue<Object>();
-
-	/**
 	 * Used to trigger garbage collector. The method is private, but invoked from
 	 * JNI space.
 	 */
