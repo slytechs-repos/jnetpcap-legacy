@@ -14,9 +14,12 @@ package org.jnetpcap.packet;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.lang.ref.PhantomReference;
+import java.lang.ref.ReferenceQueue;
+import java.nio.ByteBuffer;
 import java.sql.Time;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.hyperic.sigar.ProcMem;
 import org.hyperic.sigar.Sigar;
@@ -28,11 +31,13 @@ import org.jnetpcap.PcapUtils;
 import org.jnetpcap.nio.DisposableGC;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory;
-import org.jnetpcap.nio.JMemoryPool;
+import org.jnetpcap.nio.JMemoryReference;
 import org.jnetpcap.packet.format.FormatUtils;
 import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.protocol.lan.Ethernet;
 import org.jnetpcap.protocol.tcpip.Tcp;
+
+import com.slytechs.protocol.fast.TcpScanner;
 
 /**
  * 1.3.b0006 coredumps on the following platforms: ubuntu, fedora and debian.
@@ -68,9 +73,34 @@ public class TestForMemoryLeaks extends TestUtils {
 
 	private final static File DIR = new File("tests");
 
-	private static final int COUNT = 3000;
+	private static final int PEER_1S = 401; // 0:0:1
+	private static final int PEER_1M = 60 * PEER_1S; // 0:1:0
+	private static final int PEER_1H = 60 * PEER_1M; // 1:0:0
+	private static final int PEER_3M_35S = 9000; // 3:35
+
+	private static final int TCP_SCAN_TRANSFERTO_1S = 100; // 0:0:1
+	private static final int TCP_SCAN_TRANSFERTO_1M = 60 * TCP_SCAN_TRANSFERTO_1S; // 0:0:1
+
+	private static final int GENERAL_SCAN_TRANSFERTO_1S = 14; // 0:0:1
+	private static final int GENERAL_SCAN_TRANSFERTO_1M =
+			60 * GENERAL_SCAN_TRANSFERTO_1S; // 0:0:1
+	
+	private static final int GENERAL_SCAN_TRANSFERTO__Q_1S = 12; // 0:0:1
+	private static final int GENERAL_SCAN_TRANSFERTO_Q_1M =
+		60 * GENERAL_SCAN_TRANSFERTO__Q_1S; // 0:0:1
+
+	private static final int COUNT = 2 * TCP_SCAN_TRANSFERTO_1M;
+
+	private static final int LINES = 10;
 
 	private StringBuilder errbuf;
+
+	private final double G = (1024. * 1024. * 1024);
+	private final double g = (1000. * 1000. * 1000);
+	private final double M = (1024. * 1024.);
+	private final double K = (1024.);
+	private final double m = (1000. * 1000.);
+	private final double k = (1000.);
 
 	@Override
 	protected void setUp() throws Exception {
@@ -235,7 +265,7 @@ public class TestForMemoryLeaks extends TestUtils {
 				base = pm.getSize();
 			}
 
-			if (i % (COUNT / 10) == 0 && i != 0) {
+			if (i % (COUNT / LINES) == 0 && i != 0) {
 				te = System.currentTimeMillis();
 				total += count;
 				bytes += b;
@@ -329,7 +359,7 @@ public class TestForMemoryLeaks extends TestUtils {
 				base = pm.getSize();
 			}
 
-			if (i % (COUNT / 10) == 0 && i != 0) {
+			if (i % (COUNT / LINES) == 0 && i != 0) {
 				te = System.currentTimeMillis();
 				total += count;
 				bytes += b;
@@ -387,7 +417,7 @@ public class TestForMemoryLeaks extends TestUtils {
 
 		});
 
-		for (int i = 0; i < COUNT/10; i++) {
+		for (int i = 0; i < COUNT / 10; i++) {
 			for (String fname : files) {
 				Pcap pcap = Pcap.openOffline(DIR.toString() + "/" + fname, errbuf);
 				assertNotNull(errbuf.toString(), pcap);
@@ -442,9 +472,7 @@ public class TestForMemoryLeaks extends TestUtils {
 						count++;
 						b += buffer.size();
 
-						packet.peer(buffer);
-						packet.getCaptureHeader().peerTo(header, 0);
-						packet.scan(Ethernet.ID);
+						packet.peerAndScan(Ethernet.ID, header, buffer);
 						h += packet.getState().getHeaderCount();
 					}
 
@@ -461,7 +489,7 @@ public class TestForMemoryLeaks extends TestUtils {
 				base = pm.getSize();
 			}
 
-			if (i % (COUNT / 10) == 0 && i != 0) {
+			if (i % (COUNT / LINES) == 0 && i != 0) {
 				loop++;
 				te = System.currentTimeMillis();
 				total += count;
@@ -531,15 +559,14 @@ public class TestForMemoryLeaks extends TestUtils {
 
 			public void nextPacket(PcapHeader header, JBuffer buffer, Object user) {
 
-				packet.peer(buffer);
-				packet.getCaptureHeader().peerTo(header, 0);
-				packet.scan(Ethernet.ID);
+				packet.peerAndScan(Ethernet.ID, header, buffer);
+
 				h += packet.getState().getHeaderCount();
 
-//				if (packet.hasHeader(tcp)) {
-//					System.out.printf("#%d: ", packet.getFrameNumber());
-//					System.out.println(packet.toString());
-//				}
+				// if (packet.hasHeader(tcp)) {
+				// System.out.printf("#%d: ", packet.getFrameNumber());
+				// System.out.println(packet.toString());
+				// }
 			}
 
 		};
@@ -561,7 +588,7 @@ public class TestForMemoryLeaks extends TestUtils {
 			// System.out.flush();
 			// }
 
-			if (i % (COUNT / 10) == 0 && i != 0) {
+			if (i % (COUNT / LINES) == 0 && i != 0) {
 				// System.out.println();
 
 				loop++;
@@ -626,7 +653,7 @@ public class TestForMemoryLeaks extends TestUtils {
 		System.out.flush();
 	}
 
-	public void privateTestStressTestQueuedJBufferHandlerFromMemory0()
+	public void testStressTestQueuedJBufferHandlerFromMemory()
 			throws SigarException, InterruptedException {
 		String[] files = getDirFileList(DIR, ".pcap");
 		JPcapRecordBuffer buffer = loadAllPacketsFromFiles(files);
@@ -643,98 +670,143 @@ public class TestForMemoryLeaks extends TestUtils {
 		long pid = sig.getPid();
 		ProcMem pm = new ProcMem();
 		long base = 0;
+
 		final PcapPacket packet = new PcapPacket(JMemory.POINTER);
-		int loop = 0;
 		final Tcp tcp = new Tcp();
-		DisposableGC.getDeault().setVVerbose(true);
+		final TcpScanner tcpScanner = new TcpScanner();
+
+		final ByteBuffer byteBuffer = ByteBuffer.allocate(8 * 1024);
+		
+		final ReferenceQueue<PcapPacket> refQueue = new ReferenceQueue<PcapPacket>();
+		
+		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+
+		int loop = 0;
+		DisposableGC.getDeault().setVerbose(false);
+//		DisposableGC.getDeault().setVerbose(true);
+//		DisposableGC.getDeault().setVVerbose(true);
 		// DisposableGC.getDeault().stopCleanupThread();
-		 DisposableGC.getDeault().startCleanupThread();
+		DisposableGC.getDeault().startCleanupThread();
 
 		final BlockingQueue<PcapPacket> queue =
-				new ArrayBlockingQueue<PcapPacket>(1000);
+				new LinkedBlockingQueue<PcapPacket>(100);
 		final JBufferHandler<Object> handler = new JBufferHandler<Object>() {
 
 			public void nextPacket(PcapHeader header, JBuffer buffer, Object user) {
-				count++;
+				final int size = buffer.size();
+
 				// long index = total + count;
 				// System.out.printf("#%d", index);
 
-				b += buffer.size();
-				PcapPacket pkt = new PcapPacket(header, buffer);
-				// pkt.scan(Ethernet.ID);
+				// b += buffer.size();
+//				 PcapPacket pkt = new PcapPacket(header, buffer);
+//				 pkt.scan(Ethernet.ID);
 				// h += pkt.getState().getHeaderCount();
 
-				// if (queue.remainingCapacity() == 0) {
-				// queue.clear();
-				// }
-				//
-				// try {
-				// queue.put(pkt);
-				// } catch (InterruptedException e) {
-				// }
+//				if (queue.remainingCapacity() == 0) {
+//					queue.clear();
+//				}
+//
+//				try {
+//					queue.put(pkt);
+//				} catch (InterruptedException e) {
+//				}
 
-				// packet.peer(buffer);
-				// packet.getCaptureHeader().peerTo(header, 0);
-				// packet.scan(Ethernet.ID);
-				// h += packet.getState().getHeaderCount();
+				// packet.peer(header, buffer);
+				
+				 b += packet.transferHeaderAndDataFrom(header, buffer);
+//				 new Object(){};
+//				 tcpScanner.scan(buffer);
+				// h += tcpScanner.getHCount();
+				
+//				 if (tcpScanner.hasTcp()) {
+//				 final int offset = tcpScanner.tcpPayloadOffset();
+//				 final int length = tcpScanner.tcpPayloadLength();
+//									
+//				 	b += buffer.transferTo(byteBuffer, offset, length);
+//				 	byteBuffer.clear();
+//									
+//				 }
+//				b += buffer.transferTo(byteBuffer, 0, size);
+//				byteBuffer.clear();
 
-				// if (packet.hasHeader(tcp)) {
-				// System.out.printf("#%d: ", packet.getFrameNumber());
-				// System.out.println(packet.toString());
-				// }
+//				 packet.scan(Ethernet.ID);
+//				packet.peerAndScan(Ethernet.ID, header, buffer);
+//				packet.peer(header, buffer);
+//				 buffer.peer(packet);
+				 
+//				b += size + header.size();
+				count++;
+//				h += packet.getState().getHeaderCount();
+				
 
-				// System.out.println();
+//				try {
+//					if (count % 20 == 0) {
+//						Thread.sleep(1);
+//					}
+//				} catch (InterruptedException e) {
+//				}
 			}
 
 		};
 
 		for (int i = 0; i < COUNT; i++) {
-			b += size;
-			count += dispatchToJBuffeHandler(buffer, handler, null);
+			dispatchToJBuffeHandler(buffer, handler, null);
 
 			/*
 			 * Skip 1 iteration to allow all the files to be opened and any allocated
 			 * resources to end up as a memory base.
 			 */
-			// if (i == 0) {
-			// base = pm.getSize();
-			// }
+			if (i == 0) {
+				base = pm.getResident();
+			}
 
 			// if (i % (COUNT / 10000) == 0 && i != 0) {
 			// System.out.printf("=");
 			// System.out.flush();
 			// }
 
-			if (i % (COUNT / 10) == 0 && i != 0) {
+			if (i % (COUNT / LINES) == 0 && i != 0) {
 				// System.out.println();
 
 				loop++;
 				te = System.currentTimeMillis();
+				pm.gather(sig, pid);
 				total += count;
 				bytes += b;
 				headers += h;
 				double delta = ((double) te - (double) ts) / 1000.;
 				double hps = ((double) h / delta);
+				double bps = ((double) b * 8 / delta);
 				double sph = 1000000000. / ((double) h / delta);
-
-				pm.gather(sig, pid);
+				sph = ((Double.isInfinite(sph)) ? 0.0 : sph);
+				double rm = (double) (pm.getResident() - base);
+				double vm = (double) (pm.getSize());
 
 				System.out.printf("#%-2d %s: ", loop, new Time(System
 						.currentTimeMillis()));
-				System.out.printf("tot=%.1fMp " + "packets=%d " + "Kpps=%.2f(%.1fus) "
-						+ "hps=%.0f(%.0fns) " + "bytes=%.2fMb/s " + "rm=%.1fMb "
-						+ "pm=%.1fb " + "vm=%dKb" + "%n",
+				System.out.printf("tot=%3.2fMp "
+						+ /* "packets=%d " + */"Kpps=%.2f(%.2fns) " + /*
+																													 * "hps=%.0f(%.0fns) "
+																													 * +
+																													 */"rate=%.2fMbps "
+						+ "rm=%.2fMb "
+						/* + "vm=%.2fMb" */
+						+ "available=%.2fMb(%.2fMb) "
+						+ "%n",
 
-				((double) total) / 1000 / 1000, // Tot
-						count, // packets
-						((double) count / delta / 1000.), // pps
-						delta * 1000000. / (double) count,
-						hps, // hdr/s
-						((Double.isInfinite(sph)) ? 0.0 : sph), // hdr ns
-						((double) b / delta / (1024. * 1024)), // bytes
-						(double) pm.getResident() / (1024 * 1024), // rm
-						((double) pm.getResident() - base) / count, // pm
-						pm.getSize() / (1024)); // vm
+				((double) total) / m, // Tot
+						/* count, */// packets
+						((double) count / delta / k), // pps
+						delta * 1000000000. / (double) count,
+						/* hps / 1000, */// hdr/s
+						/* sph, */// hdr ns
+						bps / M, // bits per second
+						rm / M // Resident Memory
+				/* vm / M */,
+					((double)JMemory.availableDirectMemorySize()) / M,
+					((double)JMemory.maxDirectMemorySize()) / M
+						); // Total Virtual Memory
 				System.out.flush();
 
 				ts = te;
@@ -755,32 +827,11 @@ public class TestForMemoryLeaks extends TestUtils {
 		long minutes = ((d / 60) % 60);
 		long hours = ((d / 3600) % 24);
 
-		System.out.printf("### %02d:%02d:%02d ", hours, minutes, seconds);
-		System.out.printf("packets=%d(%.1fKpps, %.1fns/p) "
-				+ "headers=%d(%.0fKhps, %.0fns/h) " + "MBps=%.3f(%.3fMbps) " + "%n",
+		System.out.printf("### %02d:%02d:%02d%n", hours, minutes, seconds);
 
-				total,
-				((double) total / delta / 1000),
-				delta * 1000000000. / (double) total,
-				headers,
-				hps,
-				sph,
-				((double) bytes / delta / (1024. * 1024)),
-				((double) bytes * 8 / delta / (1024. * 1024)));
 		System.out.flush();
 
 		queue.clear();
-	}
-
-	public void testStressTestQueuedJBufferHandlerFromMemory()
-			throws SigarException, InterruptedException {
-		privateTestStressTestQueuedJBufferHandlerFromMemory0();
-
-		JMemoryPool.shutdown();
-		JScanner.shutdown();
-		JPacket.shutdown();
-
-		DisposableGC.getDeault().waitForForcableCleanup();
 	}
 
 	private String[] getDirFileList(File dir, String endsWith) {
