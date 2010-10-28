@@ -124,4 +124,8 @@ public abstract class DisposableReference extends PhantomReference<Object>
 		gc.refCollection.remove(this);
 		super.clear();
 	}
+	
+	public int size() {
+		return 0;
+	}
 }

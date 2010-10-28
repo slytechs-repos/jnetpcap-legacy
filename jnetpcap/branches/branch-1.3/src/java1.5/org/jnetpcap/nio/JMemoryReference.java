@@ -58,4 +58,11 @@ public class JMemoryReference extends DisposableReference {
 		super.remove();
 	}
 
+	@Override
+	public int size() {
+		return (int) size;
+	}
+	
+	
+
 }
