@@ -42,7 +42,6 @@ public class JField {
 		 * 
 		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 		 */
-		@SuppressWarnings("unchecked")
 		public int compare(JField o1, JField o2) {
 			if (ascending) {
 				return o1.getOffset(header) - o2.getOffset(header);

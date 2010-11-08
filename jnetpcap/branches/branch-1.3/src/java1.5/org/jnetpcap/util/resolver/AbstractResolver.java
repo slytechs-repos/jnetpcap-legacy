@@ -631,7 +631,7 @@ public abstract class AbstractResolver implements Resolver,
 					return 0;
 				}
 			}
-			url = new File(dir, filename()).toURL();
+			url = new File(dir, filename()).toURI().toURL();
 		}
 
 		logger.finer("saving cache " + url.toString());

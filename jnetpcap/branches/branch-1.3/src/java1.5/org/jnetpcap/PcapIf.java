@@ -74,7 +74,6 @@ public class PcapIf {
 	 * 
 	 * @return the next
 	 */
-	@SuppressWarnings("unused")
 	private final PcapIf getNext() {
 		return this.next;
 	}

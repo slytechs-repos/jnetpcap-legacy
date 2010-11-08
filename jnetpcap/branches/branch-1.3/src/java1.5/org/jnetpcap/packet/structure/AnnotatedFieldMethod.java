@@ -101,7 +101,6 @@ public abstract class AnnotatedFieldMethod
 			}
 		}
 
-		@SuppressWarnings("unused")
 		private void setValue(boolean value) {
 			hasStaticValue = true;
 			this.value = value;

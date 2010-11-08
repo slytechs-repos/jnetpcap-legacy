@@ -26,7 +26,6 @@ import org.jnetpcap.packet.JHeader;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@SuppressWarnings("unchecked")
 @Target(ElementType.TYPE)
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

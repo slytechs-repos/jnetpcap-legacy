@@ -30,7 +30,6 @@ import java.nio.ByteBuffer;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@SuppressWarnings("unused")
 public class JNumber
     extends
     JMemory {

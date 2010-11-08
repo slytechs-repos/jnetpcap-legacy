@@ -33,7 +33,7 @@ public class HtmlParser {
 
 	private String str = null;
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	private static final JThreadLocal<ArrayList> listLocal =
 	    new JThreadLocal<ArrayList>(ArrayList.class);
 

@@ -83,7 +83,6 @@ public class TextFormatter
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	protected void fieldBefore(JHeader header, JField field, Detail detail)
 	    throws IOException {
 

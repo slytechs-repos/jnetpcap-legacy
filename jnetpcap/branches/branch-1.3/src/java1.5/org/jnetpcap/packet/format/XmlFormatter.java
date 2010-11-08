@@ -42,7 +42,6 @@ public class XmlFormatter
 	 *      org.jnetpcap.packet.format.JField,
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	protected void fieldAfter(JHeader header, JField field, Detail detail)
 	    throws IOException {
@@ -89,7 +88,6 @@ public class XmlFormatter
 	 *      org.jnetpcap.packet.format.JField,
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	protected void fieldBefore(JHeader header, JField field, Detail detail)
 	    throws IOException {

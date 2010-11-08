@@ -25,7 +25,6 @@ public final class WinPcapSamp {
 
 	private native static void initIDs(); // Initialize JNI
 
-	@SuppressWarnings("unused")
 	private volatile long physical;
 
 	static {
