@@ -120,7 +120,6 @@ public class AnnotatedHeaderLengthMethod
 		super(method);
 		this.type = type;
 
-		HeaderLength a = method.getAnnotation(HeaderLength.class);
 		this.staticLength = -1;
 	}
 

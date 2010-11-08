@@ -271,7 +271,6 @@ public class WinPcap
 	 * @param bs
 	 * @return
 	 */
-	@SuppressWarnings("unused")
 	private static String asString(byte[] bs) {
 		StringBuilder buf = new StringBuilder();
 		for (byte b : bs) {

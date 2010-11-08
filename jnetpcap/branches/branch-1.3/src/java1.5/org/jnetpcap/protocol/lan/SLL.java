@@ -12,18 +12,11 @@
  */
 package org.jnetpcap.protocol.lan;
 
-import java.nio.ByteOrder;
-
-import org.jnetpcap.PcapDLT;
-import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JHeader;
-import org.jnetpcap.packet.JRegistry;
-import org.jnetpcap.packet.JScan;
 import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
-import org.jnetpcap.packet.annotate.Scanner;
 import org.jnetpcap.protocol.JProtocol;
 
 /**

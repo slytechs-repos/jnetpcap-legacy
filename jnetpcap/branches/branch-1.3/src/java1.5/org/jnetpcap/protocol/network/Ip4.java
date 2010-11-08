@@ -19,24 +19,20 @@ import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JHeaderChecksum;
 import org.jnetpcap.packet.JHeaderMap;
 import org.jnetpcap.packet.JHeaderType;
-import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JSubHeader;
-import org.jnetpcap.packet.annotate.Bind;
 import org.jnetpcap.packet.annotate.BindingVariable;
+import org.jnetpcap.packet.annotate.BindingVariable.MatchType;
 import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FieldSetter;
 import org.jnetpcap.packet.annotate.FlowKey;
 import org.jnetpcap.packet.annotate.Header;
+import org.jnetpcap.packet.annotate.Header.Layer;
 import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.packet.annotate.Protocol;
-import org.jnetpcap.packet.annotate.ProtocolSuite;
-import org.jnetpcap.packet.annotate.BindingVariable.MatchType;
-import org.jnetpcap.packet.annotate.Header.Layer;
 import org.jnetpcap.packet.annotate.Protocol.Suite;
+import org.jnetpcap.packet.annotate.ProtocolSuite;
 import org.jnetpcap.protocol.JProtocol;
-import org.jnetpcap.protocol.lan.Ethernet;
-import org.jnetpcap.protocol.lan.IEEESnap;
 import org.jnetpcap.util.checksum.Checksum;
 
 /**

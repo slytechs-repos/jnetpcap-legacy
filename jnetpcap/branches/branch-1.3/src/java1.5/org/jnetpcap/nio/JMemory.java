@@ -219,7 +219,6 @@ public abstract class JMemory {
 	 * Used to trigger garbage collector. The method is private, but invoked from
 	 * JNI space.
 	 */
-	@SuppressWarnings("unused")
 	private static void maxDirectMemoryBreached() {
 		DisposableGC.getDeault().invokeSystemGCAndWait();
 	}

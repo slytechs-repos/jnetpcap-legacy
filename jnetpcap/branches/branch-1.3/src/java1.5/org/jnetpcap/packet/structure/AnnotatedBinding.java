@@ -22,7 +22,6 @@ import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.annotate.Bind;
-import org.jnetpcap.packet.annotate.HeaderLength;
 
 /**
  * @author Mark Bednarczyk

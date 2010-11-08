@@ -58,7 +58,6 @@ public class PcapBpfProgram {
 	 */
 	private volatile long physical = 0;
 
-	@SuppressWarnings("unused")
 	private ByteBuffer buffer;
 
 	/**

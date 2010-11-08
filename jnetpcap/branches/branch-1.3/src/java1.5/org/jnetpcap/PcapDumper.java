@@ -25,10 +25,8 @@ import org.jnetpcap.nio.JBuffer;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@SuppressWarnings("deprecation")
 public class PcapDumper {
 
-	@SuppressWarnings("unused")
 	private volatile long physical;
 
 	private static native void initIDs();

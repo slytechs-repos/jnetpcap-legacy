@@ -68,21 +68,15 @@ public class HoldQueue<T, C>
 	private final PriorityQueue<HoldHandle<C>> handles =
 	    new PriorityQueue<HoldHandle<C>>();
 
-	private final Queue<T> hidden;
-
 	private final Queue<T> exposed;
 
 	private HoldHandle<C> hold;
-
-	private final Comparator<T> comparator;
 
 	protected HoldQueue(
 	    final Queue<T> hidden,
 	    final Queue<T> exposed,
 	    Comparator<T> comparator) {
-		this.hidden = hidden;
 		this.exposed = exposed;
-		this.comparator = comparator;
 	}
 
 	/*

@@ -317,7 +317,6 @@ public abstract class JFormatter {
 	 * @param detail
 	 * @throws IOException
 	 */
-	@SuppressWarnings("unchecked")
 	public void format(JHeader header, Detail detail) throws IOException {
 		if (header == null) {
 			headerNull(header, detail);
@@ -381,7 +380,6 @@ public abstract class JFormatter {
 
 	}
 
-	@SuppressWarnings("unchecked")
 	public void format(JHeader header, JHeader subHeader, Detail detail)
 	    throws IOException {
 
@@ -732,7 +730,6 @@ public abstract class JFormatter {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private String stylizeBitField(JHeader header, JField field, Object value) {
 		StringBuilder b = new StringBuilder();
 		final JField parent = field.getParent();

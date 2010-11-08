@@ -50,7 +50,6 @@ public final class PcapAddr {
 	/**
 	 * @return the next
 	 */
-	@SuppressWarnings("unused")
 	private final PcapAddr getNext() {
 		return this.next;
 	}
@@ -91,15 +90,8 @@ public final class PcapAddr {
 		return this.dstaddr;
 	}
 
-	@SuppressWarnings( {
-	    "unchecked",
-	    "unused" })
-	private List toList() {
-
-		/**
-		 * Don't use generics to keep compatiblity pre 1.5
-		 */
-		List list = new ArrayList();
+	private List<PcapAddr> toList() {
+		List<PcapAddr> list = new ArrayList<PcapAddr>();
 
 		PcapAddr i = this;
 

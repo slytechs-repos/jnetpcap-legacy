@@ -42,8 +42,6 @@ public class FormatUtils {
 
 	private static String SPACE_CHAR = " ";
 
-	private static String MARKER_CHAR = "*";
-
 	static String[] table = new String[256];
 
 	private final static int WEEK_MILLIS = 7 * 24 * 60 * 60 * 1000;
@@ -104,7 +102,6 @@ public class FormatUtils {
 	 *          array to convert
 	 * @return the converted string
 	 */
-	@SuppressWarnings("unused")
 	public static String asString(byte[] array) {
 		return asString(array, ':');
 	}

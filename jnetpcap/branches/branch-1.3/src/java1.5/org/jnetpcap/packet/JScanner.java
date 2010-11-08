@@ -173,8 +173,6 @@ public class JScanner extends JStruct {
 
 	public static void shutdown() {
 
-		JScanner s = getThreadLocal();
-
 		localScanners.remove();
 		localScanners = null;
 	}
@@ -236,7 +234,6 @@ public class JScanner extends JStruct {
 	 * @param ids
 	 * @return
 	 */
-	@SuppressWarnings("unused")
 	private static long toBitMask(int... ids) {
 		long o = 0L;
 		for (int i = 0; i < ids.length; i++) {

@@ -30,7 +30,6 @@ public class JFlowKey
 	/**
 	 * MACRO used in native code
 	 */
-	@SuppressWarnings("unused")
 	private static final int FLOW_KEY_PAIR_COUNT = 3;
 
 	public final static String STRUCT_NAME = "flow_key_t";

@@ -394,7 +394,7 @@ public class JConfig {
 		public URL getURL(String name) throws IOException {
 			File file = getFile(name);
 			if (file != null) {
-				return file.toURL();
+				return file.toURI().toURL();
 			} else {
 				return null;
 			}
@@ -909,11 +909,6 @@ public class JConfig {
 		}
 
 		File file = null;
-
-		if (paths == null) {
-			logger.warning("null search path for resource " + name);
-			return null;
-		}
 
 		logger.log(Level.FINEST, "searching file for " + name);
 

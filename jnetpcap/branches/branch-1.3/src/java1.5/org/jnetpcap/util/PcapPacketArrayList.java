@@ -22,7 +22,6 @@ import java.util.RandomAccess;
 
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.PcapPacketHandler;
-import org.jnetpcap.packet.PcapPacket;
 
 /**
  * @author Mark Bednarczyk
