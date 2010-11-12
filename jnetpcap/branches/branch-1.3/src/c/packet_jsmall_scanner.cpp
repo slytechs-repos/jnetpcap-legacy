@@ -657,8 +657,7 @@ int scanJPacket(JNIEnv *env, jobject obj, jobject jpacket, jobject jstate,
 	debug_trace("before scan", "buf_len=%d wire_len=%d", buf_length, wirelen);
 #endif
 
-	scanner->sc_offset += scan(env, obj, jpacket, scanner, packet, first_id,
-			buf, buf_length, wirelen);
+	scan(env, obj, jpacket, scanner, packet, first_id, buf, buf_length, wirelen);
 
 #ifdef DEBUG
 	debug_trace("after scan", "buf_len=%d wire_len=%d", buf_length, wirelen);
@@ -669,6 +668,9 @@ int scanJPacket(JNIEnv *env, jobject obj, jobject jpacket, jobject jstate,
 
 	const size_t len = sizeof(packet_state_t) + (sizeof(header_t)
 			* packet->pkt_header_count);
+
+	scanner->sc_offset += len;
+
 	jmemoryResize(env, jstate, len);
 
 #ifdef DEBUG
