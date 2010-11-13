@@ -79,6 +79,8 @@
 #include "export.h"
 #include "util_debug.h"
 
+void scan_ethernet(scan_t *scan);
+
 /*
  * Array of function pointers. These functions perform a per protocol scan
  * and return the next header. They also return the length of the header.
@@ -847,7 +849,7 @@ void scan_udp(scan_t *scan) {
 		scan->packet->pkt_flow_key.header_map |= (1L << UDP_ID);
 		
 		/*
-		 * Tcp takes up one pair
+		 * Udp takes up one pair
 		 * pair[0] is tcp source and destination ports
 		 */
 		int count = scan->packet->pkt_flow_key.pair_count++;
@@ -891,6 +893,8 @@ void scan_arp(scan_t *scan) {
  */
 void scan_ip6(scan_t *scan) {
 	
+	header_t *eth;
+
 	if ((scan->buf_len - scan->offset) < sizeof(ip6_t)) {
 		return;
 	}
@@ -903,6 +907,18 @@ void scan_ip6(scan_t *scan) {
 	if(is_accessible(scan, 40) == FALSE) {
 		return;
 	}
+
+	/*
+	 * Adjust for Ethernet trailer, using ip.tot_len field.
+	 * 802.3 frames already contain data-length field so no need to rely on
+	 * IP.
+	 */
+	if (scan->hdr_count > 1 && (eth = scan->header -1)->hdr_id == ETHERNET_ID) {
+		eth->hdr_postfix = (scan->buf_len - 14 - BIG_ENDIAN16(ip6->ip6_plen) - IP6_HEADER_LENGTH);
+		eth->hdr_payload -= eth->hdr_postfix; // Adjust payload
+		scan->buf_len -= eth->hdr_postfix; // Adjust caplen
+	}
+
 
 	/*
 	 * Set the flow key pair for Ip6.
@@ -1107,6 +1123,8 @@ void dissect_ip4_headers(dissect_t *dissect) {
  */
 void scan_ip4(register scan_t *scan) {
 	
+	header_t *eth;
+
 	if ((scan->buf_len - scan->offset) < sizeof(ip4_t)) {
 		return;
 	}
@@ -1117,6 +1135,17 @@ void scan_ip4(register scan_t *scan) {
 	
 	if (is_accessible(scan, 8) == FALSE) {
 		return;
+	}
+
+	/*
+	 * Adjust for Ethernet trailer, using ip.tot_len field.
+	 * 802.3 frames already contain data-length field so no need to rely on
+	 * IP.
+	 */
+	if (scan->hdr_count > 1 && (eth = scan->header -1)->hdr_id == ETHERNET_ID) {
+		eth->hdr_postfix = (scan->buf_len - 14 - BIG_ENDIAN16(ip4->tot_len));
+		eth->hdr_payload -= eth->hdr_postfix; // Adjust payload
+		scan->buf_len -= eth->hdr_postfix; // Adjust caplen
 	}
 
 	/* Check if this IP packet is a fragment and record in flags */
@@ -1218,9 +1247,7 @@ void scan_802dot3(scan_t *scan) {
 	}
 
  	if (BIG_ENDIAN16(eth->type) >= PROTO_802_3_MAX_LEN) { // We have an Ethernet frame
-		scan->id      = ETHERNET_ID;
-		scan->next_id = validate_next(lookup_ethertype(eth->type), scan);
-		
+ 		scan_ethernet(scan);
 		return;
 		
 	} else {
@@ -1231,12 +1258,13 @@ void scan_802dot3(scan_t *scan) {
  	scan->hdr_payload = frame_len - PROTO_ETHERNET_HEADER_LENGTH;
  	scan->hdr_postfix = scan->buf_len - frame_len;
  	
+#ifdef DEBUG
  	printf("scan_802dot3(): buf=%d frame_len=%d pay=%d post=%d\n", 
  			scan->buf_len,
  			frame_len,
  			scan->hdr_payload,
  			scan->hdr_postfix);
-
+#endif
 
 	/*
 	 * Set the flow key pair for Ethernet.
@@ -1320,9 +1348,7 @@ void scan_ethernet(scan_t *scan) {
 	}
 
 	if (BIG_ENDIAN16(eth->type) < 0x600) { // We have an IEEE 802.3 frame
-		scan->id      = IEEE_802DOT3_ID;
-		scan->next_id = validate_next(IEEE_802DOT2_ID, scan); // LLC v2
-		
+		scan_802dot3(scan);
 	} else {
 		scan->next_id = validate_next(lookup_ethertype(eth->type), scan);
 	}

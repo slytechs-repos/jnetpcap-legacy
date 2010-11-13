@@ -12,10 +12,12 @@
  */
 package org.jnetpcap.protocol.lan;
 
+import java.nio.ByteOrder;
 import java.util.List;
 
 import org.jnetpcap.PcapDLT;
 import org.jnetpcap.packet.JHeader;
+import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FlowKey;
@@ -25,6 +27,7 @@ import org.jnetpcap.packet.annotate.Header.Characteristic;
 import org.jnetpcap.packet.annotate.Header.Layer;
 import org.jnetpcap.packet.structure.JField;
 import org.jnetpcap.protocol.JProtocol;
+import org.jnetpcap.util.checksum.Checksum;
 
 /**
  * Ethernet2 definition. Datalink layer ethernet frame definition.
@@ -32,17 +35,11 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@Header(
-		length = 14, 
-		dlt = {PcapDLT.EN10MB, PcapDLT.FDDI}, 
-		osi = Layer.DATALINK, 
-		characteristics = Characteristic.CSMA_CD,
-		nicname = "Eth", 
-		description = "Ethernet",
-		url = "http://en.wikipedia.org/wiki/Ethernet"
-)
-public class Ethernet
-    extends JHeader {
+@Header(length = 14, dlt = {
+		PcapDLT.EN10MB,
+		PcapDLT.FDDI
+}, osi = Layer.DATALINK, characteristics = Characteristic.CSMA_CD, nicname = "Eth", description = "Ethernet", url = "http://en.wikipedia.org/wiki/Ethernet")
+public class Ethernet extends JHeader {
 
 	/**
 	 * A table of EtherType values and their names
@@ -51,9 +48,8 @@ public class Ethernet
 	 * @author Sly Technologies, Inc.
 	 */
 	public enum EthernetType {
-		IEEE_802DOT1Q(0x8100, "vlan - IEEE 802.1q"),
-		IP4(0x800, "ip version 4"),
-		IP6(0x86DD, "ip version 6"), ;
+		IEEE_802DOT1Q(0x8100, "vlan - IEEE 802.1q"), IP4(0x800, "ip version 4"), IP6(
+				0x86DD, "ip version 6"), ;
 		public static String toString(int id) {
 			for (EthernetType t : values()) {
 				if (t.id == id) {
@@ -111,22 +107,21 @@ public class Ethernet
 
 	public static final String ORG_IEEE = "IEEE Ethernet2";
 
-	@Field(offset = 0, length = 48, format = "#mac#",	mask = 0xFFFF00000000L)
+	@Field(offset = 0 * BYTE, length = 6 * BYTE, format = "#mac#", mask = 0xFFFF00000000L)
 	public byte[] destination() {
 		return getByteArray(0, 6);
 	}
-	
+
 	@Field(parent = "destination", offset = 48 - 8, length = 1, display = "IG bit")
 	@FlowKey(index = 0)
 	public long destination_IG() {
 		return (getUByte(0) & ADDRESS_IG_BIT) >> 5;
 	}
-	
+
 	@Field(parent = "destination", offset = 48 - 7, length = 1, display = "LG bit")
 	public long destination_LG() {
 		return (getUByte(0) & ADDRESS_LG_BIT) >> 6;
 	}
-
 
 	public void destination(byte[] array) {
 		setByteArray(0, array);
@@ -136,21 +131,21 @@ public class Ethernet
 		return getByteArray(0, array);
 	}
 
-	@Field(offset = 48, length = 48, format = "#mac#",	mask = 0xFFFF00000000L)
+	@Field(offset = 6 * BYTE, length = 6 * BYTE, format = "#mac#", mask = 0xFFFF00000000L)
 	@FlowKey(index = 0)
 	public byte[] source() {
 		return getByteArray(0 + 6, 6);
 	}
-	@Field(parent = "source", offset = 48 - 8, length = 1, display = "IG bit")
+
+	@Field(parent = "source", offset = 6 * BYTE - 8, length = 1, display = "IG bit")
 	public long source_IG() {
 		return (getUByte(0) & ADDRESS_IG_BIT) >> 5;
 	}
-	
-	@Field(parent = "source", offset = 48 - 7, length = 1, display = "LG bit")
+
+	@Field(parent = "source", offset = 6 * BYTE - 7, length = 1, display = "LG bit")
 	public long source_LG() {
 		return (getUByte(0) & ADDRESS_LG_BIT) >> 6;
 	}
-
 
 	public void source(byte[] array) {
 		setByteArray(0 + 6, array);
@@ -160,7 +155,7 @@ public class Ethernet
 		return getByteArray(0 + 6, array);
 	}
 
-	@Field(offset = 96, length = 16, format = "%x")
+	@Field(offset = 12 * BYTE, length = 2 * BYTE, format = "%x")
 	@FlowKey(index = 1)
 	public int type() {
 		return getUShort(0 + 12);
@@ -174,13 +169,72 @@ public class Ethernet
 	public String typeDescription() {
 		return EthernetType.toString(type());
 	}
-	
+
 	@Format
 	public void formatHeader(List<JField> fields) {
-		
+
 	}
 
 	public EthernetType typeEnum() {
 		return EthernetType.valueOf(type());
 	}
+
+	/**
+	 * Checks if FCS is available for this Ethernet frame. FCS is typically
+	 * stripped by the OS and not provided to Libpcap/jNetPcap on most platforms.
+	 * 
+	 * @return true if FCS is present, otherwise false
+	 */
+	@Dynamic(field = "checksum", value = Field.Property.CHECK)
+	public boolean checksumCheck() {
+		return getPostfixLength() >= 4;
+	}
+
+	/**
+	 * Calculates the offset of the FCS field within the Ethernet frame.
+	 * 
+	 * @return offset, in bits, from the start of the packet buffer
+	 */
+	@Dynamic(Field.Property.OFFSET)
+	public int checksumOffset() {
+		return getPostfixOffset() * BYTE;
+	}
+
+	@Dynamic(Field.Property.DESCRIPTION)
+	public String checksumDescription() {
+		final long crc32 = calculateChecksum();
+		if (checksum() == crc32) {
+			return "correct";
+		} else {
+			return "incorrect: 0x" + Long.toHexString(crc32).toUpperCase();
+		}
+	}
+
+	/**
+	 * Retrieves the header's checksum.
+	 * 
+	 * @return header's stored checksum
+	 */
+	@Field(length = 4 * BYTE, format = "%x", display = "FCS")
+	public long checksum() {
+		final JPacket packet = getPacket();
+		packet.order(ByteOrder.BIG_ENDIAN);
+		return packet.getUInt(getPostfixOffset());
+	}
+
+	/**
+	 * Calculates a checksum using protocol specification for a header. Checksums
+	 * for partial headers or fragmented packets (unless the protocol allows it)
+	 * are not calculated.
+	 * 
+	 * @return header's calculated checksum
+	 */
+	public long calculateChecksum() {
+		final JPacket packet = getPacket();
+		final int scrc =
+				Checksum.crc32CCITT(packet, 0, packet.size() - getPostfixLength()) + 1;
+
+		return (scrc < 0) ? (long) Integer.MAX_VALUE * 2 + 1 + scrc : scrc;
+	}
+
 }
