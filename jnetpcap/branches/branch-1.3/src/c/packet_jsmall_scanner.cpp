@@ -407,7 +407,7 @@ void record_header(scan_t *scan) {
 	 * to the remainder of the packet.
 	 */
 	if (scan->hdr_payload == 0 && scan->id != PAYLOAD_ID) {
-		scan->hdr_payload = scan->wire_len - (offset + scan->hdr_prefix
+		scan->hdr_payload = scan->buf_len - (offset + scan->hdr_prefix
 				+ scan->length + scan->hdr_gap);
 		scan->hdr_payload = (scan->hdr_payload < 0) ? 0 : scan->hdr_payload;
 #ifdef DEBUG
@@ -490,14 +490,15 @@ void adjustForTruncatedPacket(scan_t *scan) {
 	register int buf_len = scan->buf_len;
 
 #ifdef DEBUG
-	debug_trace("", "offset=%d, pre=%d, len=%d, gap=%d, pay=%d, post=%d",
+	debug_scan((char *)id2str(scan->id), scan);
+	debug_trace(id2str(scan->id), "offset=%d, pre=%d, len=%d, gap=%d, pay=%d, post=%d",
 			scan->offset,
 			scan->hdr_prefix,
 			scan->length,
 			scan->hdr_gap,
 			scan->hdr_payload,
 			scan->hdr_postfix);
-	debug_trace("", "start=%d end=%d buf_len=%d", start, end, buf_len);
+	debug_trace(id2str(scan->id), "start=%d end=%d buf_len=%d", start, end, buf_len);
 #endif
 
 	if (end > buf_len) { // Check if postfix extends past the end of packet
@@ -527,6 +528,7 @@ void adjustForTruncatedPacket(scan_t *scan) {
 
 #ifdef DEBUG
 			debug_scan("adjust payload", scan);
+			debug_trace("adjust payload", "start=%d end=%d", start, end);
 #endif
 
 			/* Position at gap and process */

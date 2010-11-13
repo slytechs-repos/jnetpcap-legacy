@@ -12,11 +12,16 @@
  */
 package org.jnetpcap.protocol.lan;
 
+import java.nio.ByteOrder;
+
 import org.jnetpcap.PcapDLT;
 import org.jnetpcap.packet.JHeader;
+import org.jnetpcap.packet.JPacket;
+import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.protocol.JProtocol;
+import org.jnetpcap.util.checksum.Checksum;
 
 /**
  * IEEE 802.3 data link header definition
@@ -64,4 +69,64 @@ public class IEEE802dot3
 	public void length(int len) {
 		setUShort(0 + 12, len);
 	}
+	
+	/**
+	 * Checks if FCS is available for this Ethernet frame. FCS is typically
+	 * stripped by the OS and not provided to Libpcap/jNetPcap on most platforms.
+	 * 
+	 * @return true if FCS is present, otherwise false
+	 */
+	@Dynamic(field = "checksum", value = Field.Property.CHECK)
+	public boolean checksumCheck() {
+		return getPostfixLength() >= 4;
+	}
+
+	/**
+	 * Calculates the offset of the FCS field within the Ethernet frame.
+	 * 
+	 * @return offset, in bits, from the start of the packet buffer
+	 */
+	@Dynamic(Field.Property.OFFSET)
+	public int checksumOffset() {
+		return getPostfixOffset() * BYTE;
+	}
+
+	@Dynamic(Field.Property.DESCRIPTION)
+	public String checksumDescription() {
+		final long crc32 = calculateChecksum();
+		if (checksum() == crc32) {
+			return "correct";
+		} else {
+			return "incorrect: 0x" + Long.toHexString(crc32).toUpperCase();
+		}
+	}
+
+	/**
+	 * Retrieves the header's checksum.
+	 * 
+	 * @return header's stored checksum
+	 */
+	@Field(length = 4 * BYTE, format = "%x", display = "FCS")
+	public long checksum() {
+		final JPacket packet = getPacket();
+		packet.order(ByteOrder.BIG_ENDIAN);
+		return packet.getUInt(getPostfixOffset());
+	}
+
+	/**
+	 * Calculates a checksum using protocol specification for a header. Checksums
+	 * for partial headers or fragmented packets (unless the protocol allows it)
+	 * are not calculated.
+	 * 
+	 * @return header's calculated checksum
+	 */
+	public long calculateChecksum() {
+		final JPacket packet = getPacket();
+		final int scrc =
+				Checksum.crc32CCITT(packet, 0, packet.size() - getPostfixLength()) + 1;
+
+		return (scrc < 0) ? (long) Integer.MAX_VALUE * 2 + 1 + scrc : scrc;
+	}
+
+
 }
