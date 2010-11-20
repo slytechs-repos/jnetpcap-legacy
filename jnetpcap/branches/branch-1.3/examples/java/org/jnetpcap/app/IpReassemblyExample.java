@@ -375,6 +375,12 @@ public class IpReassemblyExample
                * Ip4 header.
                */
               packet.scan(Ip4.ID); // decode the packet
+              
+              /*
+               * Compute IP header checksum based on our new packet
+               */
+              Ip4 ip = packet.getHeader(new Ip4());
+              ip.checksum(ip.calculateChecksum());
 
               /*
                * Pretty print the packet
