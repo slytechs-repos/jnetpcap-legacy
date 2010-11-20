@@ -369,6 +369,7 @@ public class IpReassemblyExample
                */
               packet.peer(buffer);
               packet.getCaptureHeader().wirelen(buffer.size());
+              packet.getCaptureHeader().caplen(buffer.size());
 
               /*
                * Decode the packet. We know the first header is the
