@@ -197,9 +197,9 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_crc16X25CCITT
 /*
  * Class:     org_jnetpcap_util_checksum_Checksum
  * Method:    crc32CCITT
- * Signature: (Lorg/jnetpcap/nio/JBuffer;II)I
+ * Signature: (Lorg/jnetpcap/nio/JBuffer;II)J
  */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_crc32CCITT
+JNIEXPORT jlong JNICALL Java_org_jnetpcap_util_checksum_Checksum_crc32CCITT
 (JNIEnv *env, jclass clazz, jobject buf, jint offset, jint length) {
 
 	jbyte *mem = (jbyte *)getJMemoryPhysical(env, buf);
@@ -214,9 +214,9 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_crc32CCITT
 		return -1;
 	}
 
-	return (jint) crc32_ccitt(
+	return ((jlong) crc32_ccitt(
 			(const uint8_t *)(mem + offset),
-			(uint32_t)length);
+			(uint32_t)length)) & 0x00000000FFFFFFFFL;
 }
 
 /*
@@ -243,6 +243,26 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_crc32CCITTSeed
 			(const uint8_t *)(mem + offset),
 			(uint32_t)length,
 			(uint32_t) seed);
+}
+
+/*
+ * Class:     org_jnetpcap_util_checksum_Checksum
+ * Method:    crc32IEEE802
+ * Signature: (Lorg/jnetpcap/nio/JBuffer;II)J
+ */
+JNIEXPORT jlong JNICALL Java_org_jnetpcap_util_checksum_Checksum_crc32IEEE802
+  (JNIEnv *env, jclass clazz, jobject buf, jint offset, jint length) {
+
+	jlong c_crc = Java_org_jnetpcap_util_checksum_Checksum_crc32CCITT(
+			env, clazz, buf, offset, length);
+
+	/* Byte reverse. */
+	c_crc = ((unsigned char)(c_crc>>0)<<24) |
+		((unsigned char)(c_crc>>8)<<16) |
+		((unsigned char)(c_crc>>16)<<8) |
+		((unsigned char)(c_crc>>24)<<0);
+
+	return c_crc & 0x00000000FFFFFFFFL;
 }
 
 /*
