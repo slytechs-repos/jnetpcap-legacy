@@ -121,42 +121,23 @@ public abstract class JFormatter {
 	 * @author Sly Technologies, Inc.
 	 */
 	public enum Style {
-		BYTE_ARRAY_ARRAY_IP4_ADDRESS,
-		BYTE_ARRAY_COLON_ADDRESS,
-		BYTE_ARRAY_DASH_ADDRESS,
+		BYTE_ARRAY_ARRAY_IP4_ADDRESS, BYTE_ARRAY_COLON_ADDRESS, BYTE_ARRAY_DASH_ADDRESS,
 
-		BYTE_ARRAY_DOT_ADDRESS,
-		BYTE_ARRAY_HEX_DUMP,
-		BYTE_ARRAY_HEX_DUMP_ADDRESS,
-		BYTE_ARRAY_HEX_DUMP_NO_ADDRESS,
+		BYTE_ARRAY_DOT_ADDRESS, BYTE_ARRAY_HEX_DUMP, BYTE_ARRAY_HEX_DUMP_ADDRESS, BYTE_ARRAY_HEX_DUMP_NO_ADDRESS,
 
-		BYTE_ARRAY_HEX_DUMP_NO_TEXT,
-		BYTE_ARRAY_HEX_DUMP_NO_TEXT_ADDRESS,
+		BYTE_ARRAY_HEX_DUMP_NO_TEXT, BYTE_ARRAY_HEX_DUMP_NO_TEXT_ADDRESS,
 
-		BYTE_ARRAY_HEX_DUMP_TEXT,
-		BYTE_ARRAY_IP4_ADDRESS,
-		BYTE_ARRAY_IP6_ADDRESS,
-		INT_BIN,
-		INT_BITS,
-		INT_DEC,
+		BYTE_ARRAY_HEX_DUMP_TEXT, BYTE_ARRAY_IP4_ADDRESS, BYTE_ARRAY_IP6_ADDRESS, INT_BIN, INT_BITS, INT_DEC,
 		/**
 		 * Integer is converted to a hex with a preceding 0x in front
 		 */
-		INT_HEX,
-		INT_OCT,
-		INT_RADIX_10,
+		INT_HEX, INT_OCT, INT_RADIX_10,
 		/**
 		 * Integer is convert to a hex without a preceding 0x in front
 		 */
-		INT_RADIX_16,
-		INT_RADIX_2,
-		INT_RADIX_8,
-		LONG_DEC,
+		INT_RADIX_16, INT_RADIX_2, INT_RADIX_8, LONG_DEC,
 
-		LONG_HEX,
-		STRING,
-		STRING_TEXT_DUMP,
-		BOOLEAN, STRING_ARRAY,
+		LONG_HEX, STRING, STRING_TEXT_DUMP, BOOLEAN, STRING_ARRAY,
 	}
 
 	private static final Detail DEFAULT_DETAIL = Detail.MULTI_LINE_FULL_DETAIL;
@@ -287,7 +268,7 @@ public abstract class JFormatter {
 	 * @throws IOException
 	 */
 	protected abstract void fieldAfter(JHeader header, JField field, Detail detail)
-	    throws IOException;
+			throws IOException;
 
 	/**
 	 * @param header
@@ -295,10 +276,9 @@ public abstract class JFormatter {
 	 * @param detail
 	 * @throws IOException
 	 */
-	protected abstract void fieldBefore(
-	    JHeader header,
-	    JField field,
-	    Detail detail) throws IOException;
+	protected abstract void fieldBefore(JHeader header,
+			JField field,
+			Detail detail) throws IOException;
 
 	/**
 	 * @param packet
@@ -344,7 +324,6 @@ public abstract class JFormatter {
 
 	}
 
-
 	public void format(JHeader header, JField field) throws IOException {
 		format(header, field, DEFAULT_DETAIL);
 	}
@@ -356,7 +335,7 @@ public abstract class JFormatter {
 	 * @throws IOException
 	 */
 	public void format(JHeader header, JField field, Detail detail)
-	    throws IOException {
+			throws IOException {
 
 		if (header == null) {
 			headerNull(header, detail);
@@ -381,7 +360,7 @@ public abstract class JFormatter {
 	}
 
 	public void format(JHeader header, JHeader subHeader, Detail detail)
-	    throws IOException {
+			throws IOException {
 
 		final JField[] fields = subHeader.getFields();
 
@@ -442,7 +421,7 @@ public abstract class JFormatter {
 			try {
 				final JHeader header = headers.getHeader(id);
 				final Detail headerDetail =
-				    (detailsPerHeader[id] == null) ? detail : detailsPerHeader[id];
+						(detailsPerHeader[id] == null) ? detail : detailsPerHeader[id];
 
 				packet.getHeaderByIndex(i, header);
 				if (header.getLength() == 0) {
@@ -482,18 +461,22 @@ public abstract class JFormatter {
 		}
 
 		return (address.length == 16) ? FormatUtils.asStringIp6(address, true)
-		    : FormatUtils.asString(address, '.', 10).toUpperCase();
+				: FormatUtils.asString(address, '.', 10).toUpperCase();
 	}
 
 	private String formatMacAddress(byte[] address) {
 
-		String f = FormatUtils.asString(address, ':').toLowerCase();
+		String f =
+				FormatUtils.asStringZeroPad(address, ':', 16, 0, address.length)
+						.toLowerCase();
 
 		if (resolveAddresses && ouiPrefixResolver.canBeResolved(address)) {
 			String prefix = ouiPrefixResolver.resolve(address);
 			String s =
-			    prefix + "_"
-			        + FormatUtils.asString(address, ':', 16, 3, 3).toLowerCase();
+					prefix
+							+ "_"
+							+ FormatUtils.asStringZeroPad(address, ':', 16, 3, 3)
+									.toLowerCase();
 			return s + " (" + f + ")";
 		}
 
@@ -511,7 +494,7 @@ public abstract class JFormatter {
 	 *           any IO errors while sending data to output device
 	 */
 	protected abstract void headerAfter(JHeader header, Detail detail)
-	    throws IOException;
+			throws IOException;
 
 	/**
 	 * Called as the first step before the header has been formatted
@@ -524,7 +507,7 @@ public abstract class JFormatter {
 	 *           any IO errors while sending data to output device
 	 */
 	protected abstract void headerBefore(JHeader header, Detail detail)
-	    throws IOException;
+			throws IOException;
 
 	/**
 	 * @param packet
@@ -567,10 +550,10 @@ public abstract class JFormatter {
 	}
 
 	public abstract void packetAfter(JPacket packet, Detail detail)
-	    throws IOException;
+			throws IOException;
 
 	public abstract void packetBefore(JPacket packet, Detail detail)
-	    throws IOException;
+			throws IOException;
 
 	/**
 	 * @param packet
@@ -604,7 +587,7 @@ public abstract class JFormatter {
 		if (outputBuffer != null) {
 			outputBuffer.setLength(0);
 		}
-		
+
 		this.padStack.clear();
 	}
 
@@ -619,8 +602,8 @@ public abstract class JFormatter {
 	 */
 	private String resolveIp(byte[] address) {
 		String f =
-		    (address.length == 16) ? FormatUtils.asStringIp6(address, true)
-		        : FormatUtils.asString(address, '.', 10).toUpperCase();
+				(address.length == 16) ? FormatUtils.asStringIp6(address, true)
+						: FormatUtils.asString(address, '.', 10).toUpperCase();
 		String name = ipResolver.resolve(address);
 
 		if (name == null) {
@@ -722,7 +705,7 @@ public abstract class JFormatter {
 
 		if (enable == true && ouiPrefixResolver == null) {
 			this.ouiPrefixResolver =
-			    JRegistry.getResolver(ResolverType.IEEE_OUI_PREFIX);
+					JRegistry.getResolver(ResolverType.IEEE_OUI_PREFIX);
 			this.ipResolver = JRegistry.getResolver(ResolverType.IP);
 		} else {
 			ouiPrefixResolver = null;
@@ -781,7 +764,7 @@ public abstract class JFormatter {
 		b.setLength(b.length() - 1);
 
 		// for (int i = plen - 1; i >= 0; i--) {
-		//		
+		//
 		// if (i >= start && i < end) {
 		// b.append('0');
 		// } else {
@@ -806,42 +789,66 @@ public abstract class JFormatter {
 		return stylizeMultiLine(header, field, field.getStyle(), value);
 	}
 
-	protected String[] stylizeMultiLine(
-	    JHeader header,
-	    JField field,
-	    Style style,
-	    Object value) {
+	protected String[] stylizeMultiLine(JHeader header,
+			JField field,
+			Style style,
+			Object value) {
 
 		switch (style) {
-			case BYTE_ARRAY_HEX_DUMP:
-				return FormatUtils.hexdump((byte[]) value, header.getOffset(), 0, true,
-				    true, true);
+		case BYTE_ARRAY_HEX_DUMP:
+			return FormatUtils.hexdump((byte[]) value,
+					header.getOffset(),
+					0,
+					true,
+					true,
+					true);
 
-			case BYTE_ARRAY_HEX_DUMP_NO_TEXT:
-				return FormatUtils.hexdump((byte[]) value, header.getOffset(), 0, true,
-				    false, true);
+		case BYTE_ARRAY_HEX_DUMP_NO_TEXT:
+			return FormatUtils.hexdump((byte[]) value,
+					header.getOffset(),
+					0,
+					true,
+					false,
+					true);
 
-			case BYTE_ARRAY_HEX_DUMP_NO_TEXT_ADDRESS:
-				return FormatUtils.hexdump((byte[]) value, header.getOffset(), 0,
-				    false, false, true);
+		case BYTE_ARRAY_HEX_DUMP_NO_TEXT_ADDRESS:
+			return FormatUtils.hexdump((byte[]) value,
+					header.getOffset(),
+					0,
+					false,
+					false,
+					true);
 
-			case BYTE_ARRAY_HEX_DUMP_NO_ADDRESS:
-				return FormatUtils.hexdump((byte[]) value, header.getOffset(), 0,
-				    false, true, true);
+		case BYTE_ARRAY_HEX_DUMP_NO_ADDRESS:
+			return FormatUtils.hexdump((byte[]) value,
+					header.getOffset(),
+					0,
+					false,
+					true,
+					true);
 
-			case BYTE_ARRAY_HEX_DUMP_ADDRESS:
-				return FormatUtils.hexdump((byte[]) value, header.getOffset(), 0, true,
-				    false, false);
+		case BYTE_ARRAY_HEX_DUMP_ADDRESS:
+			return FormatUtils.hexdump((byte[]) value,
+					header.getOffset(),
+					0,
+					true,
+					false,
+					false);
 
-			case BYTE_ARRAY_HEX_DUMP_TEXT:
-				return FormatUtils.hexdump((byte[]) value, header.getOffset(), 0,
-				    false, true, false);
+		case BYTE_ARRAY_HEX_DUMP_TEXT:
+			return FormatUtils.hexdump((byte[]) value,
+					header.getOffset(),
+					0,
+					false,
+					true,
+					false);
 
-			case STRING_TEXT_DUMP:
-				return ((String) value).split("\r\n");
+		case STRING_TEXT_DUMP:
+			return ((String) value).split("\r\n");
 
-			default:
-				return new String[] { stylizeSingleLine(header, field, value) };
+		default:
+			return new String[] { stylizeSingleLine(header, field, value)
+			};
 		}
 	}
 
@@ -856,40 +863,49 @@ public abstract class JFormatter {
 		final Style style = field.getStyle();
 
 		switch (style) {
-			case BYTE_ARRAY_DASH_ADDRESS:
-				return FormatUtils.asString((byte[]) value, '-').toUpperCase();
+		case BYTE_ARRAY_DASH_ADDRESS:
+			return FormatUtils.asString((byte[]) value, '-').toUpperCase();
 
-			case BYTE_ARRAY_COLON_ADDRESS:
-				return formatMacAddress((byte[]) value);
+		case BYTE_ARRAY_COLON_ADDRESS:
+			return formatMacAddress((byte[]) value);
 
-			case BYTE_ARRAY_DOT_ADDRESS:
-				return FormatUtils.asString((byte[]) value, '.').toUpperCase();
+		case BYTE_ARRAY_DOT_ADDRESS:
+			return FormatUtils.asString((byte[]) value, '.').toUpperCase();
 
-			case BYTE_ARRAY_ARRAY_IP4_ADDRESS:
-			case BYTE_ARRAY_IP4_ADDRESS:
-			case BYTE_ARRAY_IP6_ADDRESS:
-				return formatIpAddress((byte[]) value);
+		case BYTE_ARRAY_ARRAY_IP4_ADDRESS:
+		case BYTE_ARRAY_IP4_ADDRESS:
+		case BYTE_ARRAY_IP6_ADDRESS:
+			return formatIpAddress((byte[]) value);
 
-			case INT_BITS:
-				return stylizeBitField(header, field, value);
+		case INT_BITS:
+			return stylizeBitField(header, field, value);
 
-			case INT_RADIX_16:
-				return Long.toHexString(((Number) value).longValue()).toUpperCase();
+		case INT_RADIX_16:
+			return Long.toHexString(((Number) value).longValue()).toUpperCase();
 
-			case INT_HEX:
-				return "0x"
-				    + Long.toHexString(((Number) value).longValue()).toUpperCase()
-				    + " (" + value.toString() + ")";
+		case INT_HEX:
+			return "0x"
+					+ Long.toHexString(((Number) value).longValue()).toUpperCase() + " ("
+					+ value.toString() + ")";
 
-			case LONG_HEX:
-				return "0x" + Long.toHexString((long) (Long) value).toUpperCase()
-				    + " (" + value.toString() + ")";
+		case LONG_HEX:
+			return "0x" + Long.toHexString((long) (Long) value).toUpperCase() + " ("
+					+ value.toString() + ")";
 
-			default:
-				return value.toString();
+		default:
+			return value.toString();
 		}
 	}
 
+	/**
+	 * @param header
+	 * @param subHeader
+	 * @param detail
+	 * @throws IOException
+	 */
+	protected abstract void subHeaderAfter(JHeader header,
+			JHeader subHeader,
+			Detail detail) throws IOException;
 
 	/**
 	 * @param header
@@ -897,21 +913,9 @@ public abstract class JFormatter {
 	 * @param detail
 	 * @throws IOException
 	 */
-	protected abstract void subHeaderAfter(
-	    JHeader header,
-	    JHeader subHeader,
-	    Detail detail) throws IOException;
-
-	/**
-	 * @param header
-	 * @param subHeader
-	 * @param detail
-	 * @throws IOException
-	 */
-	protected abstract void subHeaderBefore(
-	    JHeader header,
-	    JHeader subHeader,
-	    Detail detail) throws IOException;
+	protected abstract void subHeaderBefore(JHeader header,
+			JHeader subHeader,
+			Detail detail) throws IOException;
 
 	public String toString() {
 		return this.out.toString();
