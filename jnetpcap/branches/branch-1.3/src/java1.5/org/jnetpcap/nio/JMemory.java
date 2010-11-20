@@ -104,6 +104,14 @@ public abstract class JMemory {
 	private static native void initIDs();
 
 	/**
+	 * Used to trigger garbage collector. The method is private, but invoked from
+	 * JNI space.
+	 */
+	private static void maxDirectMemoryBreached() {
+		DisposableGC.getDeault().invokeSystemGCAndWait();
+	}
+
+	/**
 	 * Returns the hard limit for the amount of memory native is allowed to
 	 * allocate. The memory setting defaults to JVMs max memory. This setting can
 	 * be changed with JVM parameter: <code>-XX:MaxDirectMemorySize=<size></code>.
@@ -214,14 +222,6 @@ public abstract class JMemory {
 			int srcOffset,
 			int length,
 			int dstOffset);
-
-	/**
-	 * Used to trigger garbage collector. The method is private, but invoked from
-	 * JNI space.
-	 */
-	private static void maxDirectMemoryBreached() {
-		DisposableGC.getDeault().invokeSystemGCAndWait();
-	}
 
 	/**
 	 * Used to keep a reference tied with this memory object.
@@ -335,8 +335,8 @@ public abstract class JMemory {
 		}
 
 		if (index < 0 || index + len > size) {
-			throw new IndexOutOfBoundsException(String
-					.format("index=%d, len=%d, size=%d", index, len, size));
+			throw new IndexOutOfBoundsException(
+					String.format("index=%d, len=%d, size=%d", index, len, size));
 		}
 
 		return index;
@@ -511,6 +511,31 @@ public abstract class JMemory {
 	}
 
 	/**
+	 * Changes the size of the current memory buffer. The size can only be reduced
+	 * in length and can not grow. The method throws exceptions if size parameter
+	 * is greater then current size or negative.
+	 * 
+	 * @param size
+	 *          size in bytes that is smaller then existing size
+	 * 
+	 * @throws IllegalArgumentException
+	 *           if size parameter is greater then current size or size is
+	 *           negative
+	 */
+	public void setSize(int size) {
+		if (size > this.size) {
+			throw new IllegalArgumentException(
+					"size parameter must be less then buffer size");
+		}
+
+		if (size < 0) {
+			throw new IllegalArgumentException("negative size parameter");
+		}
+
+		this.size = size;
+	}
+
+	/**
 	 * Returns the size of the memory block that this peered structure is point
 	 * to. This object does not neccessarily have to be the owner of the memory
 	 * block and could simply be a portion of the over all memory block.
@@ -672,8 +697,10 @@ public abstract class JMemory {
 		if (src.isDirect()) {
 			return transferFromDirect(src, 0);
 		} else {
-			return transferFrom(src.array(), src.position(), src.limit()
-					- src.position(), 0);
+			return transferFrom(src.array(),
+					src.position(),
+					src.limit() - src.position(),
+					0);
 		}
 	}
 
