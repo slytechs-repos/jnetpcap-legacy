@@ -466,9 +466,7 @@ public abstract class JFormatter {
 
 	private String formatMacAddress(byte[] address) {
 
-		String f =
-				FormatUtils.asStringZeroPad(address, ':', 16, 0, address.length)
-						.toLowerCase();
+		String f = FormatUtils.mac(address).toLowerCase();
 
 		if (resolveAddresses && ouiPrefixResolver.canBeResolved(address)) {
 			String prefix = ouiPrefixResolver.resolve(address);

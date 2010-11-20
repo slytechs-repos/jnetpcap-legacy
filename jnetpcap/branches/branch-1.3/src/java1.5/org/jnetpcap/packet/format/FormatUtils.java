@@ -153,9 +153,9 @@ public class FormatUtils {
 			int radix,
 			int start,
 			int len) {
-		
+
 		final StringBuilder buf = new StringBuilder();
-		
+
 		for (int i = start; i < (start + len); i++) {
 			byte b = array[i];
 			if (buf.length() != 0) {
@@ -183,18 +183,23 @@ public class FormatUtils {
 			int radix,
 			int start,
 			int len) {
-		
+
 		final StringBuilder buf = new StringBuilder();
-		
+
 		for (int i = start; i < (start + len); i++) {
 			byte b = array[i];
 			if (buf.length() != 0) {
 				buf.append(separator);
 			}
 
-			String s = Integer.toString((b < 0) ? b + 256 : b, radix).toUpperCase();
+			final String s =
+					Integer.toString((b < 0) ? b + 256 : b, radix).toUpperCase();
 
-			buf.append((s.length() == 1) ? "0" + s : s);
+			if (s.length() == 1) {
+				buf.append('0');
+			}
+
+			buf.append(s);
 		}
 
 		return buf.toString();
