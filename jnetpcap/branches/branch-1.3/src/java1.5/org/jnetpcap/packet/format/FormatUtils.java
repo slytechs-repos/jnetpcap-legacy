@@ -32,7 +32,7 @@ public class FormatUtils {
 	private final static int MINUTE_MILLIS = 60 * 1000;
 
 	private final static List<String> multiLineStringList =
-	    new ArrayList<String>();
+			new ArrayList<String>();
 
 	/*
 	 * Few constants to help with breakdown of millis to various larger units of
@@ -56,7 +56,8 @@ public class FormatUtils {
 		}
 
 		for (int i = 31; i < 127; i++)
-			table[i] = new String(new byte[] { (byte) i });
+			table[i] = new String(new byte[] { (byte) i
+			});
 
 		for (int i = 127; i < 256; i++) {
 			table[i] = ".";
@@ -73,9 +74,10 @@ public class FormatUtils {
 
 		for (int i = 31; i < 127; i++)
 			table[i] = new String(new byte[] {
-			    (byte) i,
-			    ' ',
-			    ' ' });
+					(byte) i,
+					' ',
+					' '
+			});
 
 		for (int i = 127; i < 256; i++) {
 			table[i] = "\\" + Integer.toHexString(i);
@@ -146,13 +148,14 @@ public class FormatUtils {
 	 *          separator character to use in between array elements
 	 * @return the converted string
 	 */
-	public static String asString(
-	    byte[] array,
-	    char separator,
-	    int radix,
-	    int start,
-	    int len) {
+	public static String asString(byte[] array,
+			char separator,
+			int radix,
+			int start,
+			int len) {
+		
 		final StringBuilder buf = new StringBuilder();
+		
 		for (int i = start; i < (start + len); i++) {
 			byte b = array[i];
 			if (buf.length() != 0) {
@@ -160,6 +163,38 @@ public class FormatUtils {
 			}
 
 			buf.append(Integer.toString((b < 0) ? b + 256 : b, radix).toUpperCase());
+		}
+
+		return buf.toString();
+	}
+
+	/**
+	 * Convers the given byte array to a string using the supplied separator
+	 * character
+	 * 
+	 * @param array
+	 *          array to convert
+	 * @param separator
+	 *          separator character to use in between array elements
+	 * @return the converted string
+	 */
+	public static String asStringZeroPad(byte[] array,
+			char separator,
+			int radix,
+			int start,
+			int len) {
+		
+		final StringBuilder buf = new StringBuilder();
+		
+		for (int i = start; i < (start + len); i++) {
+			byte b = array[i];
+			if (buf.length() != 0) {
+				buf.append(separator);
+			}
+
+			String s = Integer.toString((b < 0) ? b + 256 : b, radix).toUpperCase();
+
+			buf.append((s.length() == 1) ? "0" + s : s);
 		}
 
 		return buf.toString();
@@ -174,7 +209,7 @@ public class FormatUtils {
 	}
 
 	public static String mac(byte[] address) {
-		return asString(address, ':');
+		return asStringZeroPad(address, ':', 16, 0, address.length);
 	}
 
 	/**
@@ -327,16 +362,20 @@ public class FormatUtils {
 	 *          flag which specifies if data should printed
 	 * @return converted string array, one array element per line of output
 	 */
-	public static String[] hexdump(
-	    byte[] array,
-	    int addressOffset,
-	    int dataOffset,
-	    boolean doAddress,
-	    boolean doText,
-	    boolean doData) {
+	public static String[] hexdump(byte[] array,
+			int addressOffset,
+			int dataOffset,
+			boolean doAddress,
+			boolean doText,
+			boolean doData) {
 
-		return hexdump(array, addressOffset, dataOffset, doAddress, doText, doData,
-		    null);
+		return hexdump(array,
+				addressOffset,
+				dataOffset,
+				doAddress,
+				doText,
+				doData,
+				null);
 	}
 
 	public static int[][] markers(JPacket.State state) {
@@ -369,20 +408,24 @@ public class FormatUtils {
 	 *          flag which specifies if data should printed
 	 * @return converted string array, one array element per line of output
 	 */
-	public static String[] hexdump(
-	    byte[] array,
-	    int addressOffset,
-	    int dataOffset,
-	    boolean doAddress,
-	    boolean doText,
-	    boolean doData,
-	    int[][] markers) {
+	public static String[] hexdump(byte[] array,
+			int addressOffset,
+			int dataOffset,
+			boolean doAddress,
+			boolean doText,
+			boolean doData,
+			int[][] markers) {
 
 		multiLineStringList.clear();
 
 		for (int i = 0; i + dataOffset < array.length; i += 16) {
-			multiLineStringList.add(hexLine(array, i + addressOffset, i + dataOffset,
-			    doAddress, doText, doData, markers));
+			multiLineStringList.add(hexLine(array,
+					i + addressOffset,
+					i + dataOffset,
+					doAddress,
+					doText,
+					doData,
+					markers));
 		}
 
 		return multiLineStringList.toArray(new String[multiLineStringList.size()]);
@@ -442,16 +485,20 @@ public class FormatUtils {
 	 *          flag which specifies if data should printed
 	 * @return converted string
 	 */
-	public static String hexdumpCombined(
-	    byte[] array,
-	    int addressOffset,
-	    int dataOffset,
-	    boolean doAddress,
-	    boolean doText,
-	    boolean doData) {
+	public static String hexdumpCombined(byte[] array,
+			int addressOffset,
+			int dataOffset,
+			boolean doAddress,
+			boolean doText,
+			boolean doData) {
 
-		return hexdumpCombined(array, addressOffset, dataOffset, doAddress, doText,
-		    doData, null);
+		return hexdumpCombined(array,
+				addressOffset,
+				dataOffset,
+				doAddress,
+				doText,
+				doData,
+				null);
 	}
 
 	/**
@@ -471,17 +518,21 @@ public class FormatUtils {
 	 *          flag which specifies if data should printed
 	 * @return converted string
 	 */
-	public static String hexdumpCombined(
-	    byte[] array,
-	    int addressOffset,
-	    int dataOffset,
-	    boolean doAddress,
-	    boolean doText,
-	    boolean doData,
-	    int[][] markers) {
+	public static String hexdumpCombined(byte[] array,
+			int addressOffset,
+			int dataOffset,
+			boolean doAddress,
+			boolean doText,
+			boolean doData,
+			int[][] markers) {
 		StringBuilder b = new StringBuilder();
-		for (String s : hexdump(array, addressOffset, dataOffset, doAddress,
-		    doText, doData, markers)) {
+		for (String s : hexdump(array,
+				addressOffset,
+				dataOffset,
+				doAddress,
+				doText,
+				doData,
+				markers)) {
 			b.append(s).append('\n');
 		}
 
@@ -505,14 +556,13 @@ public class FormatUtils {
 	 *          flag which specifies if data should printed
 	 * @return converted string array, one array element per line of output
 	 */
-	public static String hexLine(
-	    byte[] array,
-	    int addressOffset,
-	    int dataOffset,
-	    boolean doAddress,
-	    boolean doText,
-	    boolean doData,
-	    int[][] markers) {
+	public static String hexLine(byte[] array,
+			int addressOffset,
+			int dataOffset,
+			boolean doAddress,
+			boolean doText,
+			boolean doData,
+			int[][] markers) {
 
 		String s = "";
 
@@ -614,7 +664,7 @@ public class FormatUtils {
 		if (markers == null) {
 			return hexLineData(data, offset);
 		}
-		
+
 		final StringBuilder b = new StringBuilder();
 
 		final String m[] = {
@@ -630,7 +680,7 @@ public class FormatUtils {
 		for (i = 0; i + offset < data.length && i < 16; i++) {
 			final int o = i + offset;
 			if (o == 0 && o == start) {
-				b.append(m[marker%2]);
+				b.append(m[marker % 2]);
 			} else if (i == 0) {
 				b.append(SPACE_CHAR);
 			}
@@ -645,8 +695,8 @@ public class FormatUtils {
 				marker = findMarker(markers, o + 1);
 				start = markers[marker][0];
 				end = start + markers[marker][1] - 1;
-				
-				b.append(toHexString(data[o])).append(m[marker%2]);
+
+				b.append(toHexString(data[o])).append(m[marker % 2]);
 
 			} else {
 				b.append(toHexString(data[o])).append(SPACE_CHAR);
@@ -734,7 +784,7 @@ public class FormatUtils {
 		if ((s.length() % 2) != 0) {
 			System.err.println(s);
 			throw new IllegalArgumentException(
-			    "need even number of hex double digits [" + s.length() + "]");
+					"need even number of hex double digits [" + s.length() + "]");
 		}
 
 		for (int i = 0; i < s.length(); i += 2) {
