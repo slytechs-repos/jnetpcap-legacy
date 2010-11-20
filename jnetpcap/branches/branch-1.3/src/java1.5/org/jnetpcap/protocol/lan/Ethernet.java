@@ -230,11 +230,11 @@ public class Ethernet extends JHeader {
 	 * @return header's calculated checksum
 	 */
 	public long calculateChecksum() {
+		if (getPostfixLength() < 4) {
+			return 0L;
+		}
+		
 		final JPacket packet = getPacket();
-		final int scrc =
-				Checksum.crc32CCITT(packet, 0, packet.size() - getPostfixLength()) + 1;
-
-		return (scrc < 0) ? (long) Integer.MAX_VALUE * 2 + 1 + scrc : scrc;
+		return Checksum.crc32IEEE802(packet, 0, packet.size() - 4);
 	}
-
 }
