@@ -89,6 +89,8 @@ public abstract class JMemory {
 		}
 	}
 
+	private static native long allocate0(int size);
+
 	/**
 	 * Returns how much native memory is available for allocation. This is a limit
 	 * set by method {@link #setMaxDirectMemorySize(long)}.
@@ -108,6 +110,16 @@ public abstract class JMemory {
 	 * JNI space.
 	 */
 	private static void maxDirectMemoryBreached() {
+		System.out.printf("maxDirectMemoryBreached():: a=%d m=%d%n",
+				availableDirectMemorySize(),
+				maxDirectMemorySize());
+
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		DisposableGC.getDeault().invokeSystemGCAndWait();
 	}
 
@@ -311,7 +323,16 @@ public abstract class JMemory {
 	 * @param size
 	 *          number of bytes to allocate.
 	 */
-	private native void allocate(int size);
+	private long allocate(int size) {
+
+		this.physical = allocate0(size);
+		this.size = size;
+		this.owner = true;
+
+		this.ref = createReference(this.physical, size);
+
+		return physical;
+	}
 
 	/**
 	 * Checks if this peered object is initialized. This method throws
@@ -352,10 +373,6 @@ public abstract class JMemory {
 	 * neccessary.
 	 */
 	protected void cleanup() {
-		if (!owner) {
-			return;
-		}
-		
 		if (ref != null) {
 			this.ref.dispose();
 			this.ref.remove();
@@ -492,31 +509,9 @@ public abstract class JMemory {
 					+ (offset + length) + "," + length + ") range.");
 		}
 
-		if (owner) {
-			 cleanup();
-		}
-
-		this.physical = peer.physical + offset;
-		this.size = length;
-
-		/**
-		 * For specific reasons, we can never be the owner of the peered structure.
-		 * The owner should remain the object that initially created or was created
-		 * to manage the physical memory. The reasons are as follows:
-		 * <ul>
-		 * <li>Memory could be a revolving buffer
-		 * <li>Memory allocation could have been complex with sub structures that
-		 * need to be deallocated
-		 * <li>The src object may have been passed around and references stored to
-		 * it elsewhere. If we are GCed before src and we free up the memory the
-		 * original src object would become unstable
-		 * </ul>
-		 */
-
-		this.keeper = (peer.keeper == null) ? peer : peer.keeper;
-
-		return size;
+		return peer0(peer.physical + offset, length, peer.keeper);
 	}
+
 	/**
 	 * Peers the peer structure with this instance. The physical memory that the
 	 * peer object points to is set to this instance. The owner flag is not copied
@@ -537,15 +532,15 @@ public abstract class JMemory {
 	 *           bounds of peer objects address space
 	 */
 	private int peer0(long peerAddress, int length, Object keeper)
-	throws IndexOutOfBoundsException {
-		
+			throws IndexOutOfBoundsException {
+
 		if (owner) {
 			cleanup();
 		}
-		
+
 		this.physical = peerAddress;
 		this.size = length;
-		
+
 		/**
 		 * For specific reasons, we can never be the owner of the peered structure.
 		 * The owner should remain the object that initially created or was created
@@ -559,9 +554,9 @@ public abstract class JMemory {
 		 * original src object would become unstable
 		 * </ul>
 		 */
-		
+
 		this.keeper = keeper;
-		
+
 		return size;
 	}
 
@@ -580,13 +575,29 @@ public abstract class JMemory {
 	public void setSize(int size) {
 		if (size > this.size) {
 			throw new IllegalArgumentException(
-					"size parameter must be less then buffer size");
+					String
+							.format("size (%d) parameter must be less then buffer size (%d)",
+									size,
+									this.size));
 		}
 
 		if (size < 0) {
 			throw new IllegalArgumentException("negative size parameter");
 		}
 
+		this.size = size;
+	}
+
+	/**
+	 * Changes the size of the current memory buffer. This is a special private
+	 * version of setSize which does not check the bounds. Often, in the scanner
+	 * code, it is neccessary to resize JMemory peers up. This is possible since
+	 * the JScanner native buffer knows its size and allows objects to be resized.
+	 * 
+	 * @param size
+	 *          size in bytes
+	 */
+	private void setSize0(int size) {
 		this.size = size;
 	}
 
