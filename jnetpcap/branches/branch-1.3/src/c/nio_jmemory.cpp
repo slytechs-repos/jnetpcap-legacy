@@ -54,6 +54,7 @@ jclass jmemoryRefClass = 0;
 jmethodID jmemoryToDebugStringMID = 0;
 jmethodID jmemoryMaxDirectMemoryBreachMID = 0;
 jmethodID jmemoryCleanupMID = 0;
+jmethodID jmemoryPeer0MID = 0;
 
 
 jfieldID jmemoryPhysicalFID = 0;
@@ -131,6 +132,13 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_initIDs
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
 				"Unable to initialize method JMemory.cleanup()");
 		fprintf(stderr, "Unable to initialize method JMemory.cleanup()");
+		return;
+	}
+
+	if ( ( jmemoryPeer0MID = env->GetMethodID(c, "peer0", "(JILjava/lang/Object;)I")) == NULL) {
+		throwException(env, NO_SUCH_FIELD_EXCEPTION,
+				"Unable to initialize method JMemory.peer0()");
+		fprintf(stderr, "Unable to initialize method JMemory.peer0()");
 		return;
 	}
 
@@ -642,34 +650,8 @@ void jmemoryResize(JNIEnv *env, jobject obj, size_t size) {
 jint jmemoryPeer(JNIEnv *env, jobject obj, const void *ptr, size_t length,
 		jobject owner) {
 
-#ifdef DEBUG
-	char buf[1024];
-	printf("%p jmemoryPeer() obj=%p\n", env, obj);fflush(stdout);
-	printf("%s\n", jmemoryToDebugString(env, obj, buf));
-#endif
-	/*
-	 * Make sure we release any previously held resources
-	 */
-	void *mem = getJMemoryPhysical(env, obj);
-	if (mem != NULL && mem != ptr) {
-#ifdef DEBUG
-		printf("%p jmemoryPeer() doing cleanup mem=%p obj=%p owner=%p\n", env, mem, obj, owner); fflush(stdout);
-#endif
-		jmemoryCleanup(env, obj);
-	}
-
-	setJMemoryPhysical(env, obj, toLong((void *) ptr));
-	env->SetIntField(obj, jmemorySizeFID, (jint) length);
-	env->SetObjectField(obj, jmemoryKeeperFID, owner);
-
-	env->SetBooleanField(obj, jmemoryOwnerFID, (owner == obj) ? JNI_TRUE
-			: JNI_FALSE);
-
-#ifdef DEBUG
-	printf("%p jmemoryPeer() obj=%p owner=%d\n", env, obj, (owner == obj)); fflush(stdout);
-#endif
-
-	return (jint) length;
+	return env->CallIntMethod(obj, jmemoryPeer0MID,
+			(jlong) toLong((void *) ptr), (jint) length, owner);
 }
 
 /**

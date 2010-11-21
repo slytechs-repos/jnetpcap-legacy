@@ -517,6 +517,53 @@ public abstract class JMemory {
 
 		return size;
 	}
+	/**
+	 * Peers the peer structure with this instance. The physical memory that the
+	 * peer object points to is set to this instance. The owner flag is not copied
+	 * and peer remains at the same state as it did before. This instance does not
+	 * become the owner of the memory. The function allows peering to a sub
+	 * portion of the peer given the specified offset and length. The function
+	 * strictly checks and inforces the bounds of the request to guarrantee that
+	 * peer is not allowed to access physical memory outside of actual peer range.
+	 * 
+	 * @param peer
+	 *          object memory block to peer with
+	 * @param offset
+	 *          offset into the memory block
+	 * @param length
+	 *          amount of memory to peer with
+	 * @throws IndexOutOfBoundsException
+	 *           if the specified memory offset and length have negative or out of
+	 *           bounds of peer objects address space
+	 */
+	private int peer0(long peerAddress, int length, Object keeper)
+	throws IndexOutOfBoundsException {
+		
+		if (owner) {
+			cleanup();
+		}
+		
+		this.physical = peerAddress;
+		this.size = length;
+		
+		/**
+		 * For specific reasons, we can never be the owner of the peered structure.
+		 * The owner should remain the object that initially created or was created
+		 * to manage the physical memory. The reasons are as follows:
+		 * <ul>
+		 * <li>Memory could be a revolving buffer
+		 * <li>Memory allocation could have been complex with sub structures that
+		 * need to be deallocated
+		 * <li>The src object may have been passed around and references stored to
+		 * it elsewhere. If we are GCed before src and we free up the memory the
+		 * original src object would become unstable
+		 * </ul>
+		 */
+		
+		this.keeper = keeper;
+		
+		return size;
+	}
 
 	/**
 	 * Changes the size of the current memory buffer. The size can only be reduced
