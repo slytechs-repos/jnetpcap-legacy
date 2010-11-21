@@ -351,7 +351,21 @@ public abstract class JMemory {
 	 * state releasing any allocated and own memory at the same time if
 	 * neccessary.
 	 */
-	protected native void cleanup();
+	protected void cleanup() {
+		if (!owner) {
+			return;
+		}
+		
+		if (ref != null) {
+			this.ref.dispose();
+			this.ref.remove();
+			this.ref = null;
+		}
+		this.owner = false;
+		this.keeper = null;
+		this.physical = 0L;
+		this.size = 0;
+	}
 
 	/**
 	 * Creates a cleanup/dispose weak reference object. This reference object is
@@ -479,13 +493,7 @@ public abstract class JMemory {
 		}
 
 		if (owner) {
-			// cleanup();
-			if (ref != null) {
-				this.ref.dispose();
-				this.ref.remove();
-				this.ref = null;
-			}
-			this.owner = false;
+			 cleanup();
 		}
 
 		this.physical = peer.physical + offset;

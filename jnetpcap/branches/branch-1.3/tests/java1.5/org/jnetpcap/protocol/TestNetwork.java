@@ -44,6 +44,7 @@ public class TestNetwork
 		Arp arp = new Arp();
 		assertTrue(packet.hasHeader(arp));
 		assertEquals(Arp.OpCode.REQUEST, arp.operationEnum());
+		System.out.println(packet);
 	}
 	
 	public void SKIPtestRip1() throws RegistryHeaderErrors {
