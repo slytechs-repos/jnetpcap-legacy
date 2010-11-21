@@ -55,6 +55,8 @@ jmethodID jmemoryToDebugStringMID = 0;
 jmethodID jmemoryMaxDirectMemoryBreachMID = 0;
 jmethodID jmemoryCleanupMID = 0;
 jmethodID jmemoryPeer0MID = 0;
+jmethodID jmemoryAllocateMID = 0;
+jmethodID jmemorySetSize0MID = 0;
 
 
 jfieldID jmemoryPhysicalFID = 0;
@@ -135,6 +137,13 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_initIDs
 		return;
 	}
 
+	if ( ( jmemoryAllocateMID = env->GetMethodID(c, "allocate", "(I)J")) == NULL) {
+		throwException(env, NO_SUCH_FIELD_EXCEPTION,
+				"Unable to initialize method JMemory.allocate()");
+		fprintf(stderr, "Unable to initialize method JMemory.allocate()");
+		return;
+	}
+
 	if ( ( jmemoryPeer0MID = env->GetMethodID(c, "peer0", "(JILjava/lang/Object;)I")) == NULL) {
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
 				"Unable to initialize method JMemory.peer0()");
@@ -146,6 +155,13 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_initIDs
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
 				"Unable to initialize method JMemory.createReference()");
 		fprintf(stderr, "Unable to initialize method JMemory.createReference()");
+		return;
+	}
+
+	if ( ( jmemorySetSize0MID = env->GetMethodID(c, "setSize0", "(I)V")) == NULL) {
+		throwException(env, NO_SUCH_FIELD_EXCEPTION,
+				"Unable to initialize method JMemory.setSize()");
+		fprintf(stderr, "Unable to initialize method JMemory.setSize()");
 		return;
 	}
 
@@ -237,6 +253,59 @@ void init_jmemory(JNIEnv *env) {
 		fflush(stderr);
 	}
 }
+
+/*
+ * Class:     org_jnetpcap_nio_JMemory
+ * Method:    allocate0
+ * Signature: (I)J
+ */
+JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JMemory_allocate0
+  (JNIEnv *env, jclass clazz, jint size) {
+
+#ifdef DEBUG
+	printf("\n%p JMemory_allocate0() ENTER\n", env); fflush(stdout);
+#endif
+	if (memory_usage.available_direct < size) {
+		// Try to free up memory
+
+		env->CallStaticVoidMethod(jmemoryClass, jmemoryMaxDirectMemoryBreachMID);
+
+		if (memory_usage.available_direct < size) {
+			throwException(env, OUT_OF_MEMORY_ERROR, "");
+			return 0L;
+		}
+	}
+
+	memory_usage.available_direct -= size;
+
+#ifdef DEBUG
+	printf("%p JMemory_allocate0() malloc size=%d\n", env, size); fflush(stdout);
+#endif
+	void *mem = malloc(size);
+	if (mem == NULL) {
+//		printf("%p EXCEPTION mem==NULL\n", env); fflush(stdout);
+		throwException(env, OUT_OF_MEMORY_ERROR, "");
+		return 0L;
+	}
+
+
+#ifdef DEBUG
+	printf("%p jmemoryAllocate() usage\n", env); fflush(stdout);
+#endif
+	memory_usage.total_allocated += size;
+	memory_usage.total_allocate_calls ++;
+
+	if (size <= 255) {
+		memory_usage.seg_0_255_bytes ++;
+	} else {
+		memory_usage.seg_256_or_above_bytes ++;
+	}
+#ifdef DEBUG
+	printf("%p jmemoryAllocate() EXIT\n", env); fflush(stdout);
+#endif
+	return (jlong) toLong(mem);
+}
+
 
 /*
  * Class:     org_jnetpcap_nio_JMemory
@@ -640,7 +709,7 @@ void jmemoryCleanup(JNIEnv *env, jobject obj) {
  * Change the size of the peered object. The physicalSize remains unchanged.
  */
 void jmemoryResize(JNIEnv *env, jobject obj, size_t size) {
-	env->SetIntField(obj, jmemorySizeFID, (jsize) size);
+	env->CallVoidMethod(obj, jmemorySetSize0MID, (jint) size);
 }
 
 
@@ -684,75 +753,5 @@ char *jmemoryPoolAllocate(JNIEnv *env, size_t size, jobject *obj_ref) {
  *     obj under which to allocate the memory
  */
 char *jmemoryAllocate(JNIEnv *env, size_t size, jobject obj) {
-
-#ifdef DEBUG
-	printf("\n%p jmemoryAllocate() ENTER\n", env); fflush(stdout);
-#endif
-	jint jsize = (jint) size;
-
-	if (memory_usage.available_direct < size) {
-		// Try to free up memory
-
-		env->CallStaticVoidMethod(jmemoryClass, jmemoryMaxDirectMemoryBreachMID);
-
-		if (memory_usage.available_direct < size) {
-			throwException(env, OUT_OF_MEMORY_ERROR, "");
-			return NULL;
-		}
-	}
-
-	memory_usage.available_direct -= size;
-
-#ifdef DEBUG
-	printf("%p jmemoryAllocate() malloc size=%d\n", env, size); fflush(stdout);
-#endif
-	void *mem = malloc(size);
-	if (mem == NULL) {
-		printf("%p EXCEPTION mem==NULL\n", env); fflush(stdout);
-		throwException(env, OUT_OF_MEMORY_ERROR, "");
-		return NULL;
-	}
-
-#ifdef DEBUG
-	printf("%p jmemoryAllocate() set to zero mem=%p size=%d\n", env, mem, size); fflush(stdout);
-#endif
-
-	/*
-	 * Initialize allocated memory
-	 */
-//	memset(mem, 0, size);
-
-#ifdef DEBUG
-	printf("%p jmemoryAllocate() setup\n", env); fflush(stdout);
-#endif
-
-	jmemoryPeer(env, obj, mem, size, obj);
-
-	jobject ref = jmemoryCreateReference(env, obj, mem, size);
-	if (ref == NULL) {
-		return NULL; // Out of memory
-	}
-	env->SetObjectField(obj, jmemoryRefFID, ref);
-
-#ifdef DEBUG
-	char buf[1024];
-	printf("%s\n", jmemoryToDebugString(env, obj, buf));
-#endif
-
-
-#ifdef DEBUG
-	printf("%p jmemoryAllocate() usage\n", env); fflush(stdout);
-#endif
-	memory_usage.total_allocated += jsize;
-	memory_usage.total_allocate_calls ++;
-
-	if (jsize <= 255) {
-		memory_usage.seg_0_255_bytes ++;
-	} else {
-		memory_usage.seg_256_or_above_bytes ++;
-	}
-#ifdef DEBUG
-	printf("%p jmemoryAllocate() EXIT\n", env); fflush(stdout);
-#endif
-	return (char *)mem;
+	return (char *)toPtr(env->CallLongMethod(obj, jmemoryAllocateMID, size));
 }
