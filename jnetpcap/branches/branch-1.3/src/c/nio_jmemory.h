@@ -40,6 +40,7 @@ extern	jclass jmemoryReferenceClass;
 
 extern  jmethodID jmemoryToDebugStringMID;
 extern  jmethodID jmemoryMaxDirectMemoryBreachMID;
+extern  jmethodID jmemoryCleanupMID;
 
 extern	jfieldID jmemoryPhysicalFID;
 extern	jfieldID jmemorySizeFID;

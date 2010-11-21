@@ -53,6 +53,7 @@ jclass jmemoryRefClass = 0;
 
 jmethodID jmemoryToDebugStringMID = 0;
 jmethodID jmemoryMaxDirectMemoryBreachMID = 0;
+jmethodID jmemoryCleanupMID = 0;
 
 
 jfieldID jmemoryPhysicalFID = 0;
@@ -126,12 +127,20 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_initIDs
 		return;
 	}
 
+	if ( ( jmemoryCleanupMID = env->GetMethodID(c, "cleanup", "()V")) == NULL) {
+		throwException(env, NO_SUCH_FIELD_EXCEPTION,
+				"Unable to initialize method JMemory.cleanup()");
+		fprintf(stderr, "Unable to initialize method JMemory.cleanup()");
+		return;
+	}
+
 	if ( ( jmemoryCreateReferenceMID = env->GetMethodID(c, "createReference", "(JJ)Lorg/jnetpcap/nio/JMemoryReference;")) == NULL) {
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
 				"Unable to initialize method JMemory.createReference()");
 		fprintf(stderr, "Unable to initialize method JMemory.createReference()");
 		return;
 	}
+
 	if ( ( jmemoryMaxDirectMemoryBreachMID = env->GetStaticMethodID(c, "maxDirectMemoryBreached", "()V")) == NULL) {
 		throwException(env, NO_SUCH_FIELD_EXCEPTION,
 				"Unable to initialize method JMemory.maxDirectMemoryBreached()");
@@ -616,45 +625,7 @@ char *jmemoryToDebugString(JNIEnv *env, jobject obj, char *buf) {
 }
 
 void jmemoryCleanup(JNIEnv *env, jobject obj) {
-
-	void *mem = getJMemoryPhysical(env, obj);
-	if (mem == NULL) {
-		return; // Nothing to do
-	}
-
-#ifdef DEBUG
-	char buf[1024];
-	printf("\n%p jmemoryCleanup() obj=%p\n", env, obj);fflush(stdout);
-	printf("%s\n", jmemoryToDebugString(env, obj, buf));
-#endif
-
-	jboolean jowner = env->GetBooleanField(obj, jmemoryOwnerFID);
-	if (mem != NULL && jowner) {
-		/*
-		 * Record statistics
-		 */
-		jint size = env->GetIntField(obj, jmemorySizeFID);
-		memory_usage.total_deallocated += size;
-		memory_usage.total_deallocate_calls ++;
-		memory_usage.available_direct += size;
-
-#ifdef DEBUG
-		printf("%p jmemoryCleanup() free size=%d psize=%d mem=%p obj=%p jowner=%d\n", env, size, psize, mem, obj, jowner);
-		fflush(stdout);
-#endif
-		/*
-		 * Release the main structure
-		 */
-		free(mem);
-	} else {
-#ifdef DEBUG
-		printf("%p jmemoryCleanup() %p not owner\n", env, obj);fflush(stdout);
-#endif
-	}
-
-	env->SetBooleanField(obj, jmemoryOwnerFID, JNI_FALSE);
-	env->SetIntField(obj, jmemorySizeFID, (jint)0);
-	env->SetObjectField(obj, jmemoryKeeperFID, (jobject) NULL);
+	env->CallVoidMethod(obj, jmemoryCleanupMID);
 }
 
 /**
