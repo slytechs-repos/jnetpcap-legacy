@@ -110,9 +110,6 @@ public abstract class JMemory {
 	 * JNI space.
 	 */
 	private static void maxDirectMemoryBreached() {
-		System.out.printf("maxDirectMemoryBreached():: a=%d m=%d%n",
-				availableDirectMemorySize(),
-				maxDirectMemorySize());
 
 		try {
 			Thread.sleep(1000);
@@ -328,6 +325,7 @@ public abstract class JMemory {
 		this.physical = allocate0(size);
 		this.size = size;
 		this.owner = true;
+		this.keeper = this;
 
 		this.ref = createReference(this.physical, size);
 
@@ -534,7 +532,7 @@ public abstract class JMemory {
 	private int peer0(long peerAddress, int length, Object keeper)
 			throws IndexOutOfBoundsException {
 
-		if (owner) {
+		if (peerAddress != this.physical) {
 			cleanup();
 		}
 
