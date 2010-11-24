@@ -45,6 +45,8 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	private final static DisposableGC gc = DisposableGC.getDeault();
 	private Link<DisposableReference> linkNext;
 	private Link<DisposableReference> linkPrev;
+	private long ts = System.currentTimeMillis();
+	private LinkSequence<DisposableReference> linkCollection;
 
 	/**
 	 * @param arg0
@@ -52,8 +54,8 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	public DisposableReference(Object referant) {
 		super(referant, gc.refQueue);
 		
-		synchronized (gc.refCollection) {
-			gc.refCollection.add(this);
+		synchronized (gc.g0) {
+			gc.g0.add(this);
 		}
 
 		if (!gc.isCleanupThreadActive()) {
@@ -80,6 +82,13 @@ public abstract class DisposableReference extends PhantomReference<Object>
 		return this;
 	}
 
+	public LinkSequence<DisposableReference> linkCollection() {
+		return linkCollection;
+	}
+	
+	public void linkCollection(LinkSequence<DisposableReference> collection) {
+		this.linkCollection = collection;
+	}
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -121,11 +130,25 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	}
 
 	public void remove() {
-		gc.refCollection.remove(this);
+		linkCollection().remove(this);
 		super.clear();
 	}
 	
 	public int size() {
 		return 0;
+	}
+
+	/**
+	 * @return the ts
+	 */
+	public long getTs() {
+		return ts;
+	}
+
+	/**
+	 * @param ts the ts to set
+	 */
+	public void setTs(long ts) {
+		this.ts = ts;
 	}
 }

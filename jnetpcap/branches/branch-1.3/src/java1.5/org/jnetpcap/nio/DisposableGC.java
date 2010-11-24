@@ -26,15 +26,17 @@ public final class DisposableGC {
 	private AtomicLong cleanupTimeout = new AtomicLong(
 			DisposableGC.DEFAULT_CLEANUP_THREAD_TIMEOUT);
 	private AtomicBoolean cleanupThreadProcessing = new AtomicBoolean(false);
-	private static final long DEFAULT_CLEANUP_THREAD_TIMEOUT = 10;
+	private static final long DEFAULT_CLEANUP_THREAD_TIMEOUT = 20;
 	static final private int MANUAL_DRAING_MAX = 2;
 
 	/**
-	 * When maxDirectMemorySize is breached, this is the minimum amount of
-	 * memory to release, triggering a System.gc() if necessary.
+	 * When maxDirectMemorySize is breached, this is the minimum amount of memory
+	 * to release, triggering a System.gc() if necessary.
 	 */
 	private static final int MIN_MEMORY_RELEASE = 2 * 1024 * 1024;
 	private static final long OUT_OF_MEMORY_TIMEOUT = 5 * 1000;
+	private static final long G60 = 60 * 1000;
+	private static final long G10 = 10 * 1000;
 
 	/**
 	 * Performance in 1000s of pps using various collection types:
@@ -57,7 +59,12 @@ public final class DisposableGC {
 	// new HashSet<DisposableReference>(20000);
 	// new LinkedHashSet<DisposableReference>(20000);
 
-	final LinkSequence<DisposableReference> refCollection = new LinkSequence<DisposableReference>();
+	final LinkSequence<DisposableReference> g0 =
+			new LinkSequence<DisposableReference>("g0");
+	final LinkSequence<DisposableReference> g10 =
+			new LinkSequence<DisposableReference>("g10");
+	final LinkSequence<DisposableReference> g60 =
+			new LinkSequence<DisposableReference>("g60");
 
 	private boolean verbose = false;
 	/**
@@ -73,7 +80,7 @@ public final class DisposableGC {
 	 * @SuppressWarnings("unused") public final long id;
 	 *//**
 	 * @param id
-	 *            unique marker id
+	 *          unique marker id
 	 */
 	/*
 	 * public Marker(long id) { super(new Object() { },
@@ -88,7 +95,6 @@ public final class DisposableGC {
 	private static DisposableGC defaultGC = new DisposableGC();
 
 	private long totalDisposed = 1;
-	private long filler;
 	private boolean vvverbose;
 
 	public static DisposableGC getDeault() {
@@ -96,7 +102,7 @@ public final class DisposableGC {
 	}
 
 	private DisposableGC() {
-		 startCleanupThread();
+		startCleanupThread();
 	}
 
 	/*
@@ -125,12 +131,13 @@ public final class DisposableGC {
 
 		long ts = System.currentTimeMillis();
 		long low = JMemory.availableDirectMemorySize();
-		
+
 		try {
 			if (isCleanupThreadActive()) {
 				memorySemaphore.acquire(memorySemaphore.availablePermits());
 				memorySemaphore.tryAcquire(MIN_MEMORY_RELEASE,
-						OUT_OF_MEMORY_TIMEOUT, TimeUnit.MILLISECONDS);
+						OUT_OF_MEMORY_TIMEOUT,
+						TimeUnit.MILLISECONDS);
 			} else {
 				System.gc();
 				drainRefQueue(OUT_OF_MEMORY_TIMEOUT);
@@ -140,12 +147,10 @@ public final class DisposableGC {
 		}
 
 		if (vverbose) {
-			System.out
-					.printf("DisposableGC: waiting for System.gc to finish:"
-							+ " %dms, freed=%dMbytes%n",
-							(System.currentTimeMillis() - ts),
-							(JMemory.availableDirectMemorySize() - low)
-									/ (1024 * 1024));
+			System.out.printf("DisposableGC: waiting for System.gc to finish:"
+					+ " %dms, freed=%dMbytes%n",
+					(System.currentTimeMillis() - ts),
+					(JMemory.availableDirectMemorySize() - low) / (1024 * 1024));
 		}
 	}
 
@@ -177,11 +182,10 @@ public final class DisposableGC {
 			InterruptedException {
 
 		memorySemaphore.acquire(memorySemaphore.availablePermits()); // Grab all
-																		// of
-																		// them
+		// of
+		// them
 		while (memorySemaphore.availablePermits() < MIN_MEMORY_RELEASE) {
-			DisposableReference ref = (DisposableReference) refQueue
-					.remove(timeout);
+			DisposableReference ref = (DisposableReference) refQueue.remove(timeout);
 			if (ref == null) {
 				break;
 			}
@@ -194,11 +198,11 @@ public final class DisposableGC {
 
 		int count = 0;
 		final long timeout = cleanupTimeout.get();
-		int collectionSize = 0;
+		long ts = System.currentTimeMillis();
 		while (true) {
 
-			final DisposableReference ref = (DisposableReference) refQueue
-					.remove(timeout);
+			final DisposableReference ref =
+					(DisposableReference) refQueue.remove(timeout);
 
 			if (ref != null) { // We have a reference to dispose of
 				if (count == 0) { // First one
@@ -209,27 +213,46 @@ public final class DisposableGC {
 					synchronized (cleanupThreadProcessing) {
 						cleanupThreadProcessing.notifyAll(); // Signal start
 					}
-
-					collectionSize = refCollection.size();
-					collectionSize = (collectionSize < 1000) ? 1000
-							: collectionSize;
 				}
 				count++;
 
 				/**
-				 * Keep message coming even if we are continuesly processing.
+				 * Keep message coming even if we are continuously processing.
 				 */
 				if (vverbose && (count % 10000) == 0) {
 					System.out
-							.printf("DisposableGC: disposed of %d entries [total=%dk/%d]%n",
-									count, totalDisposed / 1000, filler);
-					count = 0;
+							.printf("DisposableGC: disposed of %4d entries " +
+									"[total=%4dk/%4d(%2dMb),%4d(%2dMb),%4d(%2dMb)/%3dMb]%n",
+									count,
+									totalDisposed / 1000,
+									g0.size(),
+									mem(g0) / (1024 * 1024),
+									g10.size(),
+									mem(g10) / (1024 * 1024),
+									g60.size(),
+									mem(g60) / (1024 * 1024),
+									memoryHeldInRefCollection() / (1024 * 1024));
 				}
-			} else if (count != 0) { // Means, we just finished processing
-				if (verbose && count > 400) {
+
+				/*
+				 * Means, we just finished processing
+				 */
+			} else if (count != 0 && (System.currentTimeMillis() - ts) >= 1000) {
+				ts = System.currentTimeMillis();
+				sortGenerations();
+				if (verbose && count > 00) {
 					System.out
-							.printf("DisposableGC: disposed of %d entries [total=%dK/%d]%n",
-									count, totalDisposed / 1000, filler);
+					.printf("DisposableGC: disposed of %4d entries " +
+							"[total=%4dk/%4d(%2dMb),%4d(%2dMb),%4d(%2dMb)/%3dMb]%n",
+									count,
+									totalDisposed / 1000,
+									g0.size(),
+									mem(g0) / (1024 * 1024),
+									g10.size(),
+									mem(g10) / (1024 * 1024),
+									g60.size(),
+									mem(g60) / (1024 * 1024),
+									memoryHeldInRefCollection() / (1024 * 1024));
 				}
 
 				count = 0;
@@ -263,19 +286,72 @@ public final class DisposableGC {
 		}
 
 		if (verbose && count != 0) {
-			System.out.printf(
-					"DisposableGC: disposed of %d entries [total=%dM]%n",
-					count, totalDisposed / 1000000);
+			System.out.printf("DisposableGC: disposed of %d entries [total=%dM]%n",
+					count,
+					totalDisposed / 1000000);
 			count = 0;
 		}
 	}
 
+	/**
+	 * 
+	 */
+	private void sortGenerations() {
+		final long ct = System.currentTimeMillis();
+
+		/*
+		 * Check for G60(64 second) old generation
+		 */
+		for (DisposableReference ref : this.g10) {
+			if ((ct - ref.getTs()) > G60) {
+				g10.remove(ref);
+				g60.add(ref);
+			} else {
+				break;
+			}
+		}
+
+		/*
+		 * Check for G10 (10 second) old generation
+		 */
+		for (DisposableReference ref : this.g0) {
+			if ((ct - ref.getTs()) > G10) {
+				g0.remove(ref);
+				g10.add(ref);
+
+				// System.out.printf("DisposableGC:: %s%n", ref);
+			} else {
+				break;
+			}
+			// System.out.printf("DisposableGC:: delta=%d%n", (ct - ref.getTs()));
+		}
+	}
+
+	private long memoryHeldInRefCollection() {
+		long size = 0;
+
+		size += mem(g0);
+		size += mem(g10);
+		size += mem(g60);
+
+		return size;
+	}
+
+	private static long mem(LinkSequence<DisposableReference> c) {
+		long size = 0;
+		for (DisposableReference ref : c) {
+			size += ref.size();
+		}
+
+		return size;
+	}
+
 	private void dispose(DisposableReference ref) {
 
-		synchronized (refCollection) {
+		synchronized (g0) {
 			totalDisposed++;
 			ref.dispose();
-			refCollection.remove(ref);
+			ref.remove();
 
 			// System.out.printf("DisposableGC: permits=%d released=1, mem=%d%n",
 			// memorySemaphore.availablePermits(),
@@ -283,8 +359,8 @@ public final class DisposableGC {
 
 			memorySemaphore.release(ref.size());
 
-			if (refCollection.isEmpty()) {
-				refCollection.notifyAll();
+			if (g0.isEmpty() && g10.isEmpty() && g60.isEmpty()) {
+				g0.notifyAll();
 			}
 		}
 
@@ -352,10 +428,10 @@ public final class DisposableGC {
 
 	public void waitForFullCleanup() throws InterruptedException {
 
-		synchronized (refCollection) {
-			while (refCollection.isEmpty() == false) {
+		synchronized (g0) {
+			while (g0.isEmpty() == false) {
 				if (isCleanupThreadActive()) {
-					refCollection.wait();
+					g0.wait();
 				} else {
 					drainRefQueue();
 				}
@@ -365,26 +441,26 @@ public final class DisposableGC {
 
 	public boolean waitForFullCleanup(long timeout) throws InterruptedException {
 
-		synchronized (refCollection) {
-			if (refCollection.isEmpty() == false) {
+		synchronized (g0) {
+			if (g0.isEmpty() == false) {
 				if (isCleanupThreadActive()) {
-					refCollection.wait(timeout);
+					g0.wait(timeout);
 				} else {
 					drainRefQueue();
-					if (refCollection.isEmpty() == false) {
+					if (g0.isEmpty() == false) {
 						Thread.sleep(timeout);
 						drainRefQueue();
 					}
 				}
 			}
 
-			return refCollection.isEmpty();
+			return g0.isEmpty();
 		}
 	}
 
 	public boolean isCleanupComplete() {
-		synchronized (refCollection) {
-			return refCollection.isEmpty();
+		synchronized (g0) {
+			return g0.isEmpty();
 		}
 	}
 
@@ -392,10 +468,9 @@ public final class DisposableGC {
 		System.gc();
 		while (waitForFullCleanup(5 * 1000) == false) {
 			if (verbose && !cleanupThreadProcessing.get()) {
-				System.out.printf("DisposableGC: waiting on %d elements%n",
-						refCollection.size());
-				for (int i = 0; i < refCollection.size(); i++) {
-					DisposableReference o = refCollection.get(i);
+				System.out.printf("DisposableGC: waiting on %d elements%n", g0.size());
+				for (int i = 0; i < g0.size(); i++) {
+					DisposableReference o = g0.get(i);
 					if (o != null && o.get() != null) {
 						System.out.printf("DisposableGC:#%d: %s%n", i, o.get());
 					}
@@ -424,7 +499,7 @@ public final class DisposableGC {
 
 	/**
 	 * @param verbose
-	 *            the verbose to set
+	 *          the verbose to set
 	 */
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
@@ -452,7 +527,7 @@ public final class DisposableGC {
 
 	/**
 	 * @param vverbose
-	 *            the vverbose to set
+	 *          the vverbose to set
 	 */
 	public void setVVerbose(boolean vverbose) {
 		if (vverbose) {
@@ -466,7 +541,7 @@ public final class DisposableGC {
 
 	/**
 	 * @param vvverbose
-	 *            the vvverbose to set
+	 *          the vvverbose to set
 	 */
 	public void setVVVerbose(boolean vvverbose) {
 		if (vvverbose) {
