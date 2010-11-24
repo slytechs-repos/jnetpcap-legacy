@@ -3,12 +3,23 @@
  */
 package org.jnetpcap.nio;
 
+import java.util.Iterator;
 
 /**
  * @author markbe
  * 
  */
-public class LinkSequence<T> {
+public class LinkSequence<T> implements Iterable<T> {
+
+	private final String name;
+
+	public LinkSequence() {
+		this.name = super.toString();
+	}
+
+	public LinkSequence(String name) {
+		this.name = name;
+	}
 
 	private Link<T> first;
 	private Link<T> last;
@@ -30,6 +41,7 @@ public class LinkSequence<T> {
 		}
 
 		size++;
+		l.linkCollection(this);
 	}
 
 	public boolean isEmpty() {
@@ -60,6 +72,7 @@ public class LinkSequence<T> {
 
 		l.linkNext(null);
 		l.linkPrev(null);
+		l.linkCollection(null);
 
 		size--;
 
@@ -67,7 +80,10 @@ public class LinkSequence<T> {
 			final T e = l.linkElement();
 			final String name = (e == null) ? null : e.getClass().getSimpleName();
 			String msg =
-					String.format("size < 0 :: culprit=%s[%s]", name, String.valueOf(e));
+					String.format("%s:: size < 0 :: culprit=%s[%s]",
+							this.name,
+							name,
+							String.valueOf(e));
 			throw new IllegalStateException(msg);
 		}
 	}
@@ -110,5 +126,36 @@ public class LinkSequence<T> {
 		b.append(']');
 
 		return b.toString();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Iterable#iterator()
+	 */
+	@Override
+	public Iterator<T> iterator() {
+		return new Iterator<T>() {
+
+			Link<T> node = first;
+
+			@Override
+			public boolean hasNext() {
+				return node != null;
+			}
+
+			@Override
+			public T next() {
+				Link<T> prev = node;
+				node = node.linkNext();
+				return prev.linkElement();
+			}
+
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+
+		};
 	}
 }

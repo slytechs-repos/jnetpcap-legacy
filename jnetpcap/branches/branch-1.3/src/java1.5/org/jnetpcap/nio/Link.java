@@ -19,4 +19,8 @@ public interface Link<T> {
 	public void linkPrev(Link<T> l);
 
 	public T linkElement();
+	
+	public LinkSequence<T> linkCollection();
+	
+	public void linkCollection(LinkSequence<T> c);
 }
