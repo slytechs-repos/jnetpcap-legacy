@@ -665,9 +665,6 @@ int scanJPacket(JNIEnv *env, jobject obj, jobject jpacket, jobject jstate,
 	debug_trace("after scan", "buf_len=%d wire_len=%d", buf_length, wirelen);
 #endif
 
-	//	env->SetIntField(jstate, jmemorySizeFID, (jsize) sizeof(packet_state_t)
-	//			+ sizeof(header_t) * packet->pkt_header_count);
-
 	const size_t len = sizeof(packet_state_t) + (sizeof(header_t)
 			* packet->pkt_header_count);
 
