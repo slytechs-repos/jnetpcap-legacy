@@ -28,7 +28,6 @@
 #include "nio_jmemory.h"
 #include "jnetpcap_utils.h"
 #include "org_jnetpcap_nio_JBuffer.h"
-#include "org_jnetpcap_nio_JObjectBuffer.h"
 #include "export.h"
 
 /****************************************************************

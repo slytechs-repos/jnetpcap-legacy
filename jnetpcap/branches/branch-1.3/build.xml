@@ -303,7 +303,6 @@
 			<class name="org.jnetpcap.nio.JMemoryReference" />
 			<class name="org.jnetpcap.nio.JNumber" />
 			<class name="org.jnetpcap.nio.JBuffer" />
-			<class name="org.jnetpcap.nio.JObjectBuffer" />
 
 			<class name="org.jnetpcap.packet.JScanner" />
 			<class name="org.jnetpcap.packet.JScannerReference" />
