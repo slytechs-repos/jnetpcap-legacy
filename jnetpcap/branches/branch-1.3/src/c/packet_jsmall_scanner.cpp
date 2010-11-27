@@ -747,6 +747,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScannerReference_disposeNative
 
 	if (scanner->sc_subheader != NULL) {
 		free(scanner->sc_subheader);
+		scanner->sc_subheader = NULL;
 	}
 
 	for (int i = 0; i < MAX_ID_COUNT; i ++) {
@@ -756,15 +757,11 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JScannerReference_disposeNative
 		}
 	}
 
-	if (scanner->sc_subheader != NULL) {
-		free(scanner->sc_subheader);
-	}
-
 	/*
 	 * Same as super.dispose(): call from JScannerReference.dispose for
 	 * JMemoryReference.super.dispose.
 	 */
-	Java_org_jnetpcap_nio_JMemoryReference_disposeNative0(env, obj, pt, size);
+//	Java_org_jnetpcap_nio_JMemoryReference_disposeNative0(env, obj, pt, size);
 }
 
 /*
