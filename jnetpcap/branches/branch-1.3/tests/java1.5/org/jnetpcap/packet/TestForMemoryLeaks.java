@@ -14,7 +14,6 @@ package org.jnetpcap.packet;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.lang.ref.PhantomReference;
 import java.lang.ref.ReferenceQueue;
 import java.nio.ByteBuffer;
 import java.sql.Time;
@@ -31,13 +30,12 @@ import org.jnetpcap.PcapUtils;
 import org.jnetpcap.nio.DisposableGC;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory;
-import org.jnetpcap.nio.JMemoryReference;
+import org.jnetpcap.packet.JPcapRecordBuffer.Record;
 import org.jnetpcap.packet.format.FormatUtils;
+import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.protocol.lan.Ethernet;
 import org.jnetpcap.protocol.tcpip.Tcp;
-
-import com.slytechs.protocol.fast.TcpScanner;
 
 /**
  * 1.3.b0006 coredumps on the following platforms: ubuntu, fedora and debian.
@@ -89,9 +87,9 @@ public class TestForMemoryLeaks extends TestUtils {
 	private static final int GENERAL_SCAN_TRANSFERTO_Q_1M =
 		60 * GENERAL_SCAN_TRANSFERTO__Q_1S; // 0:0:1
 
-	private static final int COUNT = 2 * TCP_SCAN_TRANSFERTO_1M;
+	private static final int COUNT =  1 * GENERAL_SCAN_TRANSFERTO_Q_1M;
 
-	private static final int LINES = 10;
+	private static final int LINES = 20;
 
 	private StringBuilder errbuf;
 
@@ -672,49 +670,55 @@ public class TestForMemoryLeaks extends TestUtils {
 		long base = 0;
 
 		final PcapPacket packet = new PcapPacket(JMemory.POINTER);
+		final PcapPacket.State state = packet.getState();
 		final Tcp tcp = new Tcp();
-		final TcpScanner tcpScanner = new TcpScanner();
+//		final TcpScanner tcpScanner = new TcpScanner();
 
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(8 * 1024);
 		
 		final ReferenceQueue<PcapPacket> refQueue = new ReferenceQueue<PcapPacket>();
 		
-		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+		final TextFormatter out = new TextFormatter(DEV_NULL);
+		
+		Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 
 		int loop = 0;
-		DisposableGC.getDeault().setVerbose(false);
-//		DisposableGC.getDeault().setVerbose(true);
-//		DisposableGC.getDeault().setVVerbose(true);
+//		DisposableGC.getDeault().setVerbose(false);
+		DisposableGC.getDeault().setVerbose(true);
+		DisposableGC.getDeault().setVVerbose(true);
+//		DisposableGC.getDeault().setVVVerbose(true);
 		// DisposableGC.getDeault().stopCleanupThread();
 		DisposableGC.getDeault().startCleanupThread();
+		
+//		JPacket.setFormatter(new TextFormatter(DEV_NULL));
 
 		final BlockingQueue<PcapPacket> queue =
 				new LinkedBlockingQueue<PcapPacket>(100);
 		final JBufferHandler<Object> handler = new JBufferHandler<Object>() {
 
 			public void nextPacket(PcapHeader header, JBuffer buffer, Object user) {
-				final int size = buffer.size();
+//				final int size = buffer.size();
 
 				// long index = total + count;
 				// System.out.printf("#%d", index);
 
-				// b += buffer.size();
-//				 PcapPacket pkt = new PcapPacket(header, buffer);
-//				 pkt.scan(Ethernet.ID);
+				 b += buffer.size();
+				 PcapPacket pkt = new PcapPacket(header, buffer);
+				 pkt.scan(Ethernet.ID);
 				// h += pkt.getState().getHeaderCount();
 
-//				if (queue.remainingCapacity() == 0) {
-//					queue.clear();
-//				}
-//
-//				try {
-//					queue.put(pkt);
-//				} catch (InterruptedException e) {
-//				}
+				if (queue.remainingCapacity() == 0) {
+					queue.clear();
+				}
 
-				// packet.peer(header, buffer);
+				try {
+					queue.put(pkt);
+				} catch (InterruptedException e) {
+				}
+
+//				 packet.peer(header, buffer);
 				
-				 b += packet.transferHeaderAndDataFrom(header, buffer);
+//				 b += packet.transferHeaderAndDataFrom(header, buffer);
 //				 new Object(){};
 //				 tcpScanner.scan(buffer);
 				// h += tcpScanner.getHCount();
@@ -732,7 +736,9 @@ public class TestForMemoryLeaks extends TestUtils {
 
 //				 packet.scan(Ethernet.ID);
 //				packet.peerAndScan(Ethernet.ID, header, buffer);
+//				try {out.format(packet);} catch (IOException e) {	e.printStackTrace();}
 //				packet.peer(header, buffer);
+//				state.getFrameNumber();
 //				 buffer.peer(packet);
 				 
 //				b += size + header.size();
@@ -909,15 +915,15 @@ public class TestForMemoryLeaks extends TestUtils {
 			JBufferHandler<T> handler,
 			T user) {
 
-		// for (Record record: buffer) {
-		// handler.nextPacket(record.header, record.packet, user);
-		// }
+		 for (Record record: buffer) {
+		 handler.nextPacket(record.header, record.packet, user);
+		 }
 
-		final JPcapRecordBuffer.Iterator i = buffer.iterator();
-		while (i.hasNext()) {
-			i.next(header, pkt_buf);
-			handler.nextPacket(header, pkt_buf, user);
-		}
+//		 final JPcapRecordBuffer.Iterator i = buffer.iterator();
+//		 while (i.hasNext()) {
+//		 i.next(header, pkt_buf);
+//		 handler.nextPacket(header, pkt_buf, user);
+//		 }
 
 		return buffer.getPacketRecordCount();
 	}
@@ -926,9 +932,9 @@ public class TestForMemoryLeaks extends TestUtils {
 			PcapPacketHandler<T> handler,
 			T user) {
 
-		// for (Record record: buffer) {
-		// handler.nextPacket(record.header, record.packet, user);
-		// }
+//		 for (Record record: buffer) {
+//			 handler.nextPacket(record.header, record.packet, user);
+//		 }
 
 		final JPcapRecordBuffer.Iterator i = buffer.iterator();
 		for (JPcapRecordBuffer.Record record : buffer) {
