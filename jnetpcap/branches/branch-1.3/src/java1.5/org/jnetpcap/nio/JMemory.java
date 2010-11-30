@@ -13,12 +13,11 @@
 package org.jnetpcap.nio;
 
 import java.nio.ByteBuffer;
+import java.util.Properties;
 
 import org.jnetpcap.Pcap;
 import org.jnetpcap.packet.PeeringException;
 import org.jnetpcap.packet.format.FormatUtils;
-
-import sun.misc.VM;
 
 /**
  * A base class for all other PEERED classes to native c structures. The class
@@ -66,6 +65,77 @@ public abstract class JMemory {
 	 * it easier to access.
 	 */
 	public static final JMemory.Type POINTER = JMemory.Type.POINTER;
+	
+	private static long directMemory;
+	private static long directMemorySoft;
+
+	public static long maxDirectMemory() {
+		if (directMemory != 0) {
+			return directMemory;
+		}
+
+		Properties p = System.getProperties();
+		String s = p.getProperty("org.jnetsoft.nio.MaxDirectMemorySize");
+		s = (s == null) ? p.getProperty("nio.MaxDirectMemorySize") : s;
+		s = (s == null) ? p.getProperty("org.jnetsoft.nio.mx") : s;
+		s = (s == null) ? p.getProperty("nio.mx") : s;
+
+		if (s != null) {
+			directMemorySoft = parseSize(s); // process suffixes kb,mb,gb,tb
+		} else {
+			directMemorySoft = Runtime.getRuntime().maxMemory();
+		}
+
+		return directMemory;
+	}
+
+	public static long softDirectMemory() {
+		if (directMemorySoft != 0) {
+			return directMemorySoft;
+		}
+
+		Properties p = System.getProperties();
+		String s = p.getProperty("org.jnetsoft.nio.SoftDirectMemorySize");
+		s = (s == null) ? p.getProperty("nio.SoftDirectMemorySize") : s;
+		s = (s == null) ? p.getProperty("org.jnetsoft.nio.ms") : s;
+		s = (s == null) ? p.getProperty("nio.ms") : s;
+
+		if (s != null) {
+			directMemorySoft = parseSize(s); // process suffixes kb,mb,gb,tb
+		} else {
+			directMemorySoft = Runtime.getRuntime().maxMemory();
+		}
+
+		return directMemorySoft;
+	}
+
+	private static long parseSize(String v) {
+		v = v.trim().toLowerCase();
+		long multiplier = 1;
+
+		if (v.endsWith("tb")) {
+			multiplier = 1024 * 1024 * 1024 * 1024;
+			v.substring(0, v.length() - 2);
+
+		} else if (v.endsWith("gb")) {
+			multiplier = 1024 * 1024 * 1024;
+			v.substring(0, v.length() - 2);
+
+		} else if (v.endsWith("mb")) {
+			multiplier = 1024 * 1024;
+			v.substring(0, v.length() - 2);
+
+		} else if (v.endsWith("kb")) {
+			multiplier = 1024;
+			v.substring(0, v.length() - 2);
+		}
+
+		final long size = Long.parseLong(v) * multiplier;
+
+		return size;
+	}
+
+
 
 	/**
 	 * Load the native library and initialize JNI method and class IDs.
@@ -78,7 +148,7 @@ public abstract class JMemory {
 
 			initIDs();
 
-			setMaxDirectMemorySize(VM.maxDirectMemory());
+			setMaxDirectMemorySize(maxDirectMemory());
 
 			Class.forName("org.jnetpcap.nio.JMemoryReference");
 
