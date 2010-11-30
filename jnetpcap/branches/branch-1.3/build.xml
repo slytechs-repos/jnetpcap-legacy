@@ -1147,7 +1147,7 @@ svn copy ${svn.jnp.trunk} ${svn.jnp.builds} -m "${svn.tags.comment}"
 	<!-- =================================================================== -->
 	<!-- Execute jUnit test cases -->
 	<!-- =================================================================== -->
-	<target name="test" depends="comp-test">
+	<target name="run-test">
 		<junit printsummary="withOutAndErr" fork="yes" failureproperty="test.failed">
 
 			<!-- jvmarg value="-verbose:jni" /-->
@@ -1167,6 +1167,13 @@ svn copy ${svn.jnp.trunk} ${svn.jnp.builds} -m "${svn.tags.comment}"
 		</junit>
 
 	</target>
+	
+	<!-- =================================================================== -->
+	<!-- Execute jUnit test cases -->
+	<!-- =================================================================== -->
+	<target name="test" depends="comp-test,run-test">
+	</target>
+
 
 	<!-- =================================================================== -->
 	<!-- Execute jUnit test cases requiring super user privileges            -->
