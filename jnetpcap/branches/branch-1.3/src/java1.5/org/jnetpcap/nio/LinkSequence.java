@@ -133,25 +133,21 @@ public class LinkSequence<T> implements Iterable<T> {
 	 * 
 	 * @see java.lang.Iterable#iterator()
 	 */
-	@Override
 	public Iterator<T> iterator() {
 		return new Iterator<T>() {
 
 			Link<T> node = first;
 
-			@Override
 			public boolean hasNext() {
 				return node != null;
 			}
 
-			@Override
 			public T next() {
 				Link<T> prev = node;
 				node = node.linkNext();
 				return prev.linkElement();
 			}
 
-			@Override
 			public void remove() {
 				throw new UnsupportedOperationException();
 			}
