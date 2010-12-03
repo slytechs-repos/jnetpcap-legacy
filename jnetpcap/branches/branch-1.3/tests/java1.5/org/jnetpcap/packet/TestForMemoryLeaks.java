@@ -103,7 +103,6 @@ public class TestForMemoryLeaks extends TestUtils {
 	@Override
 	protected void setUp() throws Exception {
 		errbuf = new StringBuilder();
-		DisposableGC.getDeault().setVVerbose(true);
 		// System.out.println(System.getProperties());
 	}
 
