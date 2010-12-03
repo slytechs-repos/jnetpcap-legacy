@@ -85,6 +85,14 @@ public abstract class JMemory {
 	 */
 	public static final String JNETPCAP_LIBRARY_NAME = "jnetpcap";
 	/**
+	 * The default maximum value for 'nio.mx' system property, if not set. The
+	 * actual runtime default value for 'nio.mx' property is calculated to be the
+	 * lower of either {@link #MAX_DIRECT_MEMORY_DEFAULT} constant or the value
+	 * specified on the JVM command line using '-Xmx<size>' option.
+	 */
+	public static final long MAX_DIRECT_MEMORY_DEFAULT = 64 * Units.MEBIBYTE;
+
+	/**
 	 * Convenience constant that is synonym as JMemory.Type.POINTER. Since this
 	 * type constant is used so often, it is made as a in-class constant to make
 	 * it easier to access.
@@ -123,13 +131,6 @@ public abstract class JMemory {
 	 * @return the difference between maxDirectMemory and reservedDirectMemory
 	 */
 	public static native long availableDirectMemory();
-
-	/**
-	 * Returns how much native memory has be used so far.
-	 * 
-	 * @return amount of memory reserved/allocated at this moment
-	 */
-	public static native long reservedDirectMemory();
 
 	/**
 	 * Initializes JNI ids.
@@ -181,7 +182,7 @@ public abstract class JMemory {
 		}
 
 		if (directMemory == 0) {
-			directMemory = Runtime.getRuntime().maxMemory();
+			directMemory = maxDirectoryMemoryDefault();
 		}
 
 		return directMemory;
@@ -193,6 +194,30 @@ public abstract class JMemory {
 	 */
 	private static void maxDirectMemoryBreached() {
 		DisposableGC.getDeault().invokeSystemGCAndWait();
+	}
+
+	/**
+	 * Calculates the default value for max direct memory when 'nio.mx' system
+	 * property is not given. The calculated value is the lower of either the
+	 * constant {@link #MAX_DIRECT_MEMORY_DEFAULT} or '-Xmx' cmd option, if
+	 * specified.
+	 * <p>
+	 * The reason for the complexity with this calcualtion and we just don't
+	 * default to '-Xmx' or JVM deault, is that JVM on 64-bit system defaults
+	 * to 512Mb, which way too much to also reserve our nio use. Without this
+	 * algorithm, the combined total on 64-bit system is 1Gb of memory.  
+	 * </p>
+	 * 
+	 * @return the runtime default value for direct memory
+	 */
+	private static long maxDirectoryMemoryDefault() {
+		long max = Runtime.getRuntime().maxMemory();
+
+		if (max > MAX_DIRECT_MEMORY_DEFAULT) {
+			max = MAX_DIRECT_MEMORY_DEFAULT;
+		}
+
+		return max;
 	}
 
 	private static long parseSize(String v) {
@@ -220,6 +245,13 @@ public abstract class JMemory {
 
 		return size;
 	}
+
+	/**
+	 * Returns how much native memory has be used so far.
+	 * 
+	 * @return amount of memory reserved/allocated at this moment
+	 */
+	public static native long reservedDirectMemory();
 
 	/**
 	 * Sets a hard limit for the amount of memory native is allowed to allocate.
