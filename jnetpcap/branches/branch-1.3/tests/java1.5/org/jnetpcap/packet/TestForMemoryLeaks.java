@@ -82,12 +82,12 @@ public class TestForMemoryLeaks extends TestUtils {
 	private static final int GENERAL_SCAN_TRANSFERTO_1S = 14; // 0:0:1
 	private static final int GENERAL_SCAN_TRANSFERTO_1M =
 			60 * GENERAL_SCAN_TRANSFERTO_1S; // 0:0:1
-	
+
 	private static final int GENERAL_SCAN_TRANSFERTO__Q_1S = 12; // 0:0:1
 	private static final int GENERAL_SCAN_TRANSFERTO_Q_1M =
-		60 * GENERAL_SCAN_TRANSFERTO__Q_1S; // 0:0:1
+			60 * GENERAL_SCAN_TRANSFERTO__Q_1S; // 0:0:1
 
-	private static final int COUNT =  6 * 60 * 8 * GENERAL_SCAN_TRANSFERTO_1M;
+	private static final int COUNT = 6 * 60 * 8 * GENERAL_SCAN_TRANSFERTO_1M;
 
 	private static final int LINES = 200;
 
@@ -148,88 +148,88 @@ public class TestForMemoryLeaks extends TestUtils {
 						+ "00000002 00060000 00000000"
 
 				// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						//
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						//
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						//
-						//		        
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
-						// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				//
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				//
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				//
+				//
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
+				// + "00000002 00060000 00000000 00000000"
 
 						));
 		final PcapHeader header = new PcapHeader(buf.size(), buf.size());
@@ -497,8 +497,9 @@ public class TestForMemoryLeaks extends TestUtils {
 
 				pm.gather(sig, pid);
 
-				System.out.printf("#%-2d %s: ", loop, new Time(System
-						.currentTimeMillis()));
+				System.out.printf("#%-2d %s: ",
+						loop,
+						new Time(System.currentTimeMillis()));
 				System.out
 						.printf("tot=%.1fMp packets=%d pps=%.0f bytes=%.0fMb/s hdr=%.0f/s "
 								+ "hdr=%.0fus rm=%.1fMb pm=%.1fb vm=%dKb\n",
@@ -600,8 +601,9 @@ public class TestForMemoryLeaks extends TestUtils {
 
 				pm.gather(sig, pid);
 
-				System.out.printf("#%-2d %s: ", loop, new Time(System
-						.currentTimeMillis()));
+				System.out.printf("#%-2d %s: ",
+						loop,
+						new Time(System.currentTimeMillis()));
 				System.out.printf("tot=%.1fMp " + "packets=%d " + "pps=%.0f(%.1fus) "
 						+ "hps=%.0f(%.0fns) " + "bytes=%.0fMb/s " + "rm=%.1fMb "
 						+ "pm=%.1fb " + "vm=%dKb" + "%n",
@@ -672,88 +674,95 @@ public class TestForMemoryLeaks extends TestUtils {
 		final PcapPacket packet = new PcapPacket(JMemory.POINTER);
 		final PcapPacket.State state = packet.getState();
 		final Tcp tcp = new Tcp();
-//		final TcpScanner tcpScanner = new TcpScanner();
+		// final TcpScanner tcpScanner = new TcpScanner();
 
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(8 * 1024);
-		
-		final ReferenceQueue<PcapPacket> refQueue = new ReferenceQueue<PcapPacket>();
-		
+
+		final ReferenceQueue<PcapPacket> refQueue =
+				new ReferenceQueue<PcapPacket>();
+
 		final TextFormatter out = new TextFormatter(DEV_NULL);
-		
-//		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+
+		// Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 		Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
-//		Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+		// Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 
 		int loop = 0;
 		DisposableGC.getDeault().setVerbose(false);
-		DisposableGC.getDeault().setVerbose(true);
-//		DisposableGC.getDeault().setVVerbose(true);
-//		DisposableGC.getDeault().setVVVerbose(true);
+		DisposableGC.getDeault().setVerbose(Boolean.parseBoolean(System
+				.getProperty("nio.v", "false")));
+		DisposableGC.getDeault().setVVerbose(Boolean.parseBoolean(System
+				.getProperty("nio.vv", "false")));
+		DisposableGC.getDeault().setVVVerbose(Boolean.parseBoolean(System
+				.getProperty("nio.vvv", "false")));
+//		DisposableGC.getDeault().setVerbose(true);
+		// DisposableGC.getDeault().setVVerbose(true);
+		// DisposableGC.getDeault().setVVVerbose(true);
 		// DisposableGC.getDeault().stopCleanupThread();
 		DisposableGC.getDeault().startCleanupThread();
-		
-//		JPacket.setFormatter(new TextFormatter(DEV_NULL));
+
+		// JPacket.setFormatter(new TextFormatter(DEV_NULL));
 
 		final BlockingQueue<PcapPacket> queue =
 				new LinkedBlockingQueue<PcapPacket>(10);
 		final JBufferHandler<Object> handler = new JBufferHandler<Object>() {
 
 			public void nextPacket(PcapHeader header, JBuffer buffer, Object user) {
-//				final int size = buffer.size();
+				// final int size = buffer.size();
 
 				// long index = total + count;
 				// System.out.printf("#%d", index);
 
-//				 b += buffer.size();
-//				 PcapPacket pkt = new PcapPacket(header, buffer);
-//				 pkt.scan(Ethernet.ID);
+				// b += buffer.size();
+				// PcapPacket pkt = new PcapPacket(header, buffer);
+				// pkt.scan(Ethernet.ID);
 				// h += pkt.getState().getHeaderCount();
 
-//				if (queue.remainingCapacity() == 0) {
-//					queue.clear();
-//				}
-//
-//				try {
-//					queue.put(pkt);
-//				} catch (InterruptedException e) {
-//				}
+				// if (queue.remainingCapacity() == 0) {
+				// queue.clear();
+				// }
+				//
+				// try {
+				// queue.put(pkt);
+				// } catch (InterruptedException e) {
+				// }
 
-//				 packet.peer(header, buffer);
-				
-				 b += packet.transferHeaderAndDataFrom(header, buffer);
-//				 new Object(){};
-//				 tcpScanner.scan(buffer);
+				// packet.peer(header, buffer);
+
+				b += packet.transferHeaderAndDataFrom(header, buffer);
+				// new Object(){};
+				// tcpScanner.scan(buffer);
 				// h += tcpScanner.getHCount();
-				
-//				 if (tcpScanner.hasTcp()) {
-//				 final int offset = tcpScanner.tcpPayloadOffset();
-//				 final int length = tcpScanner.tcpPayloadLength();
-//									
-//				 	b += buffer.transferTo(byteBuffer, offset, length);
-//				 	byteBuffer.clear();
-//									
-//				 }
-//				b += buffer.transferTo(byteBuffer, 0, size);
-//				byteBuffer.clear();
 
-//				 packet.scan(Ethernet.ID);
-//				packet.peerAndScan(Ethernet.ID, header, buffer);
-//				try {out.format(packet);} catch (IOException e) {	e.printStackTrace();}
-//				packet.peer(header, buffer);
-//				state.getFrameNumber();
-//				 buffer.peer(packet);
-				 
-//				b += size + header.size();
+				// if (tcpScanner.hasTcp()) {
+				// final int offset = tcpScanner.tcpPayloadOffset();
+				// final int length = tcpScanner.tcpPayloadLength();
+				//
+				// b += buffer.transferTo(byteBuffer, offset, length);
+				// byteBuffer.clear();
+				//
+				// }
+				// b += buffer.transferTo(byteBuffer, 0, size);
+				// byteBuffer.clear();
+
+				// packet.scan(Ethernet.ID);
+				// packet.peerAndScan(Ethernet.ID, header, buffer);
+				// try {out.format(packet);} catch (IOException e) {
+				// e.printStackTrace();}
+				// packet.peer(header, buffer);
+				// state.getFrameNumber();
+				// buffer.peer(packet);
+
+				// b += size + header.size();
 				count++;
-//				h += packet.getState().getHeaderCount();
-				
+				// h += packet.getState().getHeaderCount();
 
-//				try {
-//					if (count % 20 == 0) {
-//						Thread.sleep(1);
-//					}
-//				} catch (InterruptedException e) {
-//				}
+				// try {
+				// if (count % 20 == 0) {
+				// Thread.sleep(1);
+				// }
+				// } catch (InterruptedException e) {
+				// }
 			}
 
 		};
@@ -791,8 +800,9 @@ public class TestForMemoryLeaks extends TestUtils {
 				double rm = (double) (pm.getResident() - base);
 				double vm = (double) (pm.getSize());
 
-				System.out.printf("#%-2d %s: ", loop, new Time(System
-						.currentTimeMillis()));
+				System.out.printf("#%-2d %s: ",
+						loop,
+						new Time(System.currentTimeMillis()));
 				System.out.printf("tot=%3.2fMp "
 						+ /* "packets=%d " + */"Kpps=%.2f(%.2fns) " + /*
 																													 * "hps=%.0f(%.0fns) "
@@ -800,8 +810,7 @@ public class TestForMemoryLeaks extends TestUtils {
 																													 */"rate=%.2fMbps "
 						+ "rm=%.2fMb "
 						/* + "vm=%.2fMb" */
-						+ "available=%.2fMb(%.2fMb) "
-						+ "%n",
+						+ "available=%.2fMb(%.2fMb) " + "%n",
 
 				((double) total) / m, // Tot
 						/* count, */// packets
@@ -811,10 +820,9 @@ public class TestForMemoryLeaks extends TestUtils {
 						/* sph, */// hdr ns
 						bps / M, // bits per second
 						rm / M // Resident Memory
-				/* vm / M */,
-					((double)JMemory.availableDirectMemory()) / M,
-					((double)JMemory.maxDirectMemory()) / M
-						); // Total Virtual Memory
+						/* vm / M */,
+						((double) JMemory.availableDirectMemory()) / M,
+						((double) JMemory.maxDirectMemory()) / M); // Total Virtual Memory
 				System.out.flush();
 
 				ts = te;
@@ -917,15 +925,15 @@ public class TestForMemoryLeaks extends TestUtils {
 			JBufferHandler<T> handler,
 			T user) {
 
-		 for (Record record: buffer) {
-		 handler.nextPacket(record.header, record.packet, user);
-		 }
+		for (Record record : buffer) {
+			handler.nextPacket(record.header, record.packet, user);
+		}
 
-//		 final JPcapRecordBuffer.Iterator i = buffer.iterator();
-//		 while (i.hasNext()) {
-//		 i.next(header, pkt_buf);
-//		 handler.nextPacket(header, pkt_buf, user);
-//		 }
+		// final JPcapRecordBuffer.Iterator i = buffer.iterator();
+		// while (i.hasNext()) {
+		// i.next(header, pkt_buf);
+		// handler.nextPacket(header, pkt_buf, user);
+		// }
 
 		return buffer.getPacketRecordCount();
 	}
@@ -934,9 +942,9 @@ public class TestForMemoryLeaks extends TestUtils {
 			PcapPacketHandler<T> handler,
 			T user) {
 
-//		 for (Record record: buffer) {
-//			 handler.nextPacket(record.header, record.packet, user);
-//		 }
+		// for (Record record: buffer) {
+		// handler.nextPacket(record.header, record.packet, user);
+		// }
 
 		final JPcapRecordBuffer.Iterator i = buffer.iterator();
 		for (JPcapRecordBuffer.Record record : buffer) {
