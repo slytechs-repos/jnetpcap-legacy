@@ -688,16 +688,7 @@ public class TestForMemoryLeaks extends TestUtils {
 		// Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 
 		int loop = 0;
-		DisposableGC.getDeault().setVerbose(false);
-		DisposableGC.getDeault().setVerbose(Boolean.parseBoolean(System
-				.getProperty("nio.v", "false")));
-		DisposableGC.getDeault().setVVerbose(Boolean.parseBoolean(System
-				.getProperty("nio.vv", "false")));
-		DisposableGC.getDeault().setVVVerbose(Boolean.parseBoolean(System
-				.getProperty("nio.vvv", "false")));
-//		DisposableGC.getDeault().setVerbose(true);
-		// DisposableGC.getDeault().setVVerbose(true);
-		// DisposableGC.getDeault().setVVVerbose(true);
+		
 		// DisposableGC.getDeault().stopCleanupThread();
 		DisposableGC.getDeault().startCleanupThread();
 
