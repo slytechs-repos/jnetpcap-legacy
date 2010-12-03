@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Exchanger;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -47,7 +47,6 @@ import org.jnetpcap.PcapBpfProgram;
 import org.jnetpcap.PcapHeader;
 import org.jnetpcap.PcapIf;
 import org.jnetpcap.PcapTask;
-import org.jnetpcap.PcapUtils;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.protocol.JProtocol;
 
@@ -72,7 +71,7 @@ public class TestUtils extends TestCase {
 	public final static String L2TP = "tests/test-l2tp.pcap";
 
 	public final static String MYSQL = "tests/test-mysql.pcap";
-	
+
 	public final static int WIRESHARK_INDEX = 1;
 
 	/**
@@ -97,11 +96,11 @@ public class TestUtils extends TestCase {
 	};
 
 	/**
-	 * Scans a packet that has been initialized but not scanned. Assumes
-	 * ethernet is the DLT protocol
+	 * Scans a packet that has been initialized but not scanned. Assumes ethernet
+	 * is the DLT protocol
 	 * 
 	 * @param packet
-	 *            packet to scan
+	 *          packet to scan
 	 * @return offset into the packet
 	 */
 	public static int scanPacket(JPacket packet) {
@@ -112,9 +111,9 @@ public class TestUtils extends TestCase {
 	 * Scans a packet that has been initialized but not scanned.
 	 * 
 	 * @param packet
-	 *            packet to scan
+	 *          packet to scan
 	 * @param id
-	 *            id of the DLT protocol
+	 *          id of the DLT protocol
 	 * @return offset into the packet
 	 */
 	public static int scanPacket(JPacket packet, int id) {
@@ -131,8 +130,9 @@ public class TestUtils extends TestCase {
 
 		};
 	}
-	
-	public static Iterable<PcapPacket> getIterable(final String file, final String filter) {
+
+	public static Iterable<PcapPacket> getIterable(final String file,
+			final String filter) {
 		return new Iterable<PcapPacket>() {
 
 			public Iterator<PcapPacket> iterator() {
@@ -142,43 +142,40 @@ public class TestUtils extends TestCase {
 		};
 	}
 
-	
 	/**
-	 * Creates a packet iterator that iterates over packets within specified
-	 * index range. If Integer.MAX_VALUE is used for end, means to the end of
-	 * file.
+	 * Creates a packet iterator that iterates over packets within specified index
+	 * range. If Integer.MAX_VALUE is used for end, means to the end of file.
 	 * 
 	 * @param file
-	 *            pcap file to open
+	 *          pcap file to open
 	 * @param start
-	 *            starting packet index within the file
+	 *          starting packet index within the file
 	 * @param end
-	 *            end index or if Integer.MAX_VALUE to the end of the file
+	 *          end index or if Integer.MAX_VALUE to the end of the file
 	 * @return iterator with packets
 	 */
 	public static Iterator<PcapPacket> getPcapPacketIterator(final String file,
-			final int start, final int end) {
+			final int start,
+			final int end) {
 		return getPcapPacketIterator(file, start, end, null);
 	}
-	
-	
-
 
 	/**
-	 * Creates a packet iterator that iterates over packets within specified
-	 * index range. If Integer.MAX_VALUE is used for end, means to the end of
-	 * file.
+	 * Creates a packet iterator that iterates over packets within specified index
+	 * range. If Integer.MAX_VALUE is used for end, means to the end of file.
 	 * 
 	 * @param file
-	 *            pcap file to open
+	 *          pcap file to open
 	 * @param start
-	 *            starting packet index within the file
+	 *          starting packet index within the file
 	 * @param end
-	 *            end index or if Integer.MAX_VALUE to the end of the file
+	 *          end index or if Integer.MAX_VALUE to the end of the file
 	 * @return iterator with packets
 	 */
 	public static Iterator<PcapPacket> getPcapPacketIterator(final String file,
-			final int start, final int end, String filter) {
+			final int start,
+			final int end,
+			String filter) {
 
 		/***************************************************************************
 		 * First, open offline file
@@ -196,71 +193,74 @@ public class TestUtils extends TestCase {
 			}
 			pcap.setFilter(prog);
 		}
-		final BlockingQueue<PcapPacket> queue = new ArrayBlockingQueue<PcapPacket>(
-				100);
+
+		final Exchanger<PcapPacket> barrier = new Exchanger<PcapPacket>();
 
 		/***************************************************************************
-		 * Third, Enter our loop and count packets until we reach the index of
-		 * the packet we are looking for.
+		 * Third, Enter our loop and count packets until we reach the index of the
+		 * packet we are looking for.
 		 **************************************************************************/
 
 		final PcapTask<Pcap> task = new PcapTask<Pcap>(pcap, end - start, pcap) {
 
 			public void run() {
-				this.result = pcap.loop(end - start,
-						new PcapPacketHandler<Pcap>() {
-							int i = 0;
+				try {
+					barrier.exchange(null);
+				} catch (InterruptedException e1) {
+				}
+				
+				this.result = pcap.loop(end - start, new PcapPacketHandler<Pcap>() {
+					int i = 0;
 
-							public void nextPacket(PcapPacket packet, Pcap pcap) {
+					public void nextPacket(PcapPacket packet, Pcap pcap) {
 
-								assertNotNull(packet);
+						assertNotNull(packet);
 
-								if (i >= start) {
-									queue.offer(packet);
-								}
-
-								i++;
+						if (i >= start) {
+							try {
+								barrier.exchange(packet);
+							} catch (InterruptedException e) {
+								throw new IllegalStateException(e);
 							}
+						}
 
-						}, pcap);
+						i++;
+					}
+
+				}, pcap);
+
+				try {
+					barrier.exchange(null, 1000, TimeUnit.MILLISECONDS);
+				} catch (Exception e) {
+					throw new IllegalStateException(e);
+				}
 			}
 
 		};
 
 		try {
 			task.start();
+			barrier.exchange(null); // Synchronize startup
 		} catch (InterruptedException e1) {
 			throw new IllegalStateException(e1);
 		}
 
 		return new Iterator<PcapPacket>() {
-			private Pcap p = pcap;
 
-			private int id = JRegistry.mapDLTToId(pcap.datalink());
+			PcapPacket packet;
 
 			public boolean hasNext() {
-				if (p != null && task.isAlive() == false) {
-					p.close();
-					p = null;
+				try {
+					packet = barrier.exchange(null, 1000, TimeUnit.MILLISECONDS);
+					return packet != null;
+
+				} catch (Exception e) {
+					return false;
 				}
-				return queue.isEmpty() == false || p != null;
 			}
 
 			public PcapPacket next() {
-				try {
-					/*
-					 * We take the packet from the queue and scan it. We scan
-					 * here not in the dispatcher loop, because we want the
-					 * dispatcher thread to be as fast as possible. We have a
-					 * queue, so packets can queue up on it, while in the user
-					 * thread we scan the packets, possibly creating a backlog
-					 * on the queue.
-					 */
-					PcapPacket packet = queue.take();
-					return packet;
-				} catch (InterruptedException e) {
-					throw new IllegalStateException(e);
-				}
+				return packet;
 			}
 
 			public void remove() {
@@ -275,9 +275,9 @@ public class TestUtils extends TestCase {
 	 * Retrieves a specific single packet from a file
 	 * 
 	 * @param file
-	 *            capture file containing our packet
+	 *          capture file containing our packet
 	 * @param index
-	 *            0 based index of the packet to get
+	 *          0 based index of the packet to get
 	 * @return the requested packet
 	 */
 	public static PcapPacket getPcapPacket(final String file, final int index) {
@@ -294,39 +294,35 @@ public class TestUtils extends TestCase {
 		}
 
 		/***************************************************************************
-		 * Second, setup a packet we're going to copy the captured contents
-		 * into. Allocate 2K native memory block to hold both state and buffer.
-		 * Notice that the packet has to be marked "final" in order for the
-		 * JPacketHandler to be able to access that variable from within the
-		 * loop.
+		 * Second, setup a packet we're going to copy the captured contents into.
+		 * Allocate 2K native memory block to hold both state and buffer. Notice
+		 * that the packet has to be marked "final" in order for the JPacketHandler
+		 * to be able to access that variable from within the loop.
 		 **************************************************************************/
 		final PcapPacket result = new PcapPacket(2 * 1024);
 
 		/***************************************************************************
-		 * Third, Enter our loop and count packets until we reach the index of
-		 * the packet we are looking for.
+		 * Third, Enter our loop and count packets until we reach the index of the
+		 * packet we are looking for.
 		 **************************************************************************/
 		try {
 			pcap.loop(Pcap.LOOP_INFINATE, new JBufferHandler<Pcap>() {
 				int i = 0;
 
-				public void nextPacket(PcapHeader header, JBuffer buffer,
-						Pcap pcap) {
+				public void nextPacket(PcapHeader header, JBuffer buffer, Pcap pcap) {
 
 					/*********************************************************************
-					 * Forth, once we reach our packet transfer the capture data
-					 * from our temporary, shared packet, to our preallocated
-					 * permanent packet. The method transferStateAndDataTo will
-					 * do a deep copy of the packet contents and state to the
-					 * destination packet. The copy is done natively with
-					 * memcpy. The packet content in destination packet is
-					 * layout in memory as follows. At the front of the buffer
-					 * is the packet_state_t structure followed immediately by
-					 * the packet data buffer and its size is adjusted to the
-					 * exact size of the temporary buffer. The remainder of the
-					 * allocated memory block is unused, but needed to be
-					 * allocated large enough to hold a decent size packet. To
-					 * break out of the Pcap.loop we call Pcap.breakLoop().
+					 * Forth, once we reach our packet transfer the capture data from our
+					 * temporary, shared packet, to our preallocated permanent packet. The
+					 * method transferStateAndDataTo will do a deep copy of the packet
+					 * contents and state to the destination packet. The copy is done
+					 * natively with memcpy. The packet content in destination packet is
+					 * layout in memory as follows. At the front of the buffer is the
+					 * packet_state_t structure followed immediately by the packet data
+					 * buffer and its size is adjusted to the exact size of the temporary
+					 * buffer. The remainder of the allocated memory block is unused, but
+					 * needed to be allocated large enough to hold a decent size packet.
+					 * To break out of the Pcap.loop we call Pcap.breakLoop().
 					 ********************************************************************/
 					if (i++ == index) {
 						PcapPacket packet = new PcapPacket(header, buffer);
@@ -378,13 +374,13 @@ public class TestUtils extends TestCase {
 	 * @return
 	 */
 	public static Iterable<JPacket> getJPacketIterable(final String file,
-			final int start, final int end) {
+			final int start,
+			final int end) {
 
 		return new Iterable<JPacket>() {
 
 			public Iterator<JPacket> iterator() {
-				final Iterator<PcapPacket> i = getPcapPacketIterator(file,
-						start, end);
+				final Iterator<PcapPacket> i = getPcapPacketIterator(file, start, end);
 				return new Iterator<JPacket>() {
 
 					public boolean hasNext() {
@@ -409,7 +405,8 @@ public class TestUtils extends TestCase {
 		openOffline(file, handler, null);
 	}
 
-	public static void openOffline(String file, JPacketHandler<Pcap> handler,
+	public static void openOffline(String file,
+			JPacketHandler<Pcap> handler,
 			String filter) {
 		StringBuilder errbuf = new StringBuilder();
 
@@ -448,9 +445,12 @@ public class TestUtils extends TestCase {
 			throw new IllegalStateException(errbuf.toString());
 		}
 
-		Pcap pcap = Pcap.openLive(alldevs.get(0).getName(),
-				Pcap.DEFAULT_SNAPLEN, Pcap.DEFAULT_PROMISC,
-				Pcap.DEFAULT_TIMEOUT, errbuf);
+		Pcap pcap =
+				Pcap.openLive(alldevs.get(0).getName(),
+						Pcap.DEFAULT_SNAPLEN,
+						Pcap.DEFAULT_PROMISC,
+						Pcap.DEFAULT_TIMEOUT,
+						errbuf);
 		if (pcap == null) {
 			throw new IllegalArgumentException(errbuf.toString());
 		}
@@ -459,6 +459,10 @@ public class TestUtils extends TestCase {
 	}
 
 	public static class JImagePanel extends JPanel {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		private Image img;
 
 		public final Image getImg() {
@@ -526,14 +530,20 @@ public class TestUtils extends TestCase {
 			int y = h / 2 - img.getHeight(this) / 2;
 
 			g.drawImage(img, x, y, this);
-			g.drawString("(w=" + img.getWidth(this) + ", h="
-					+ img.getHeight(this) + ")", 20, 20);
+			g.drawString("(w=" + img.getWidth(this) + ", h=" + img.getHeight(this)
+					+ ")", 20, 20);
 		}
 
 	}
 
 	public static class ListOfPanels extends JPanel implements
 			ListSelectionListener {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 7220988908581321871L;
+
+		@SuppressWarnings("unused")
 		private static class Entry {
 			Image img;
 
@@ -603,13 +613,10 @@ public class TestUtils extends TestCase {
 			listPanel.add(label);
 			listPanel.add(Box.createRigidArea(new Dimension(0, 5)));
 			listPanel.add(listScroller);
-			listPanel
-					.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+			listPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-			jlist.setBorder(BorderFactory
-					.createBevelBorder(BevelBorder.LOWERED));
-			listPanel.setBorder(BorderFactory
-					.createBevelBorder(BevelBorder.RAISED));
+			jlist.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+			listPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 			listPanel.setPreferredSize(new Dimension(100, 200));
 
 			if (list.isEmpty() == false) {
@@ -634,8 +641,7 @@ public class TestUtils extends TestCase {
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see
-		 * javax.swing.event.ListSelectionListener#valueChanged(javax.swing.
+		 * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.
 		 * event.ListSelectionEvent)
 		 */
 		public void valueChanged(ListSelectionEvent e) {
@@ -678,13 +684,13 @@ public class TestUtils extends TestCase {
 	}
 
 	/**
-	 * A special method that resets the position of an offline capture back to
-	 * the begining. This method is only intended for certain jUnit testcases
-	 * and not intended for production use. The pcap object must open for an
-	 * offline capture and not dead or live. Otherwise an error will occur.
+	 * A special method that resets the position of an offline capture back to the
+	 * begining. This method is only intended for certain jUnit testcases and not
+	 * intended for production use. The pcap object must open for an offline
+	 * capture and not dead or live. Otherwise an error will occur.
 	 * 
 	 * @param pcap
-	 *            open offline capture
+	 *          open offline capture
 	 */
 	protected native void pcapOfflineReset(Pcap pcap);
 
