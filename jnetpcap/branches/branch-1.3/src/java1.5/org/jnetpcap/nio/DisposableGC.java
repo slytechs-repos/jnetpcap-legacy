@@ -140,11 +140,12 @@ public final class DisposableGC {
 		startCleanupThread();
 
 		try {
-		verbose = Boolean.parseBoolean(System.getProperty("nio.verbose", "false"));
-		vverbose =
-				Boolean.parseBoolean(System.getProperty("nio.vverbose", "false"));
-		vvverbose =
-				Boolean.parseBoolean(System.getProperty("nio.vvverbose", "false"));
+			setVerbose(Boolean.parseBoolean(System
+					.getProperty("nio.verbose", "false")));
+			setVVerbose(Boolean.parseBoolean(System.getProperty("nio.vverbose",
+					"false")));
+			setVVVerbose(Boolean.parseBoolean(System.getProperty("nio.vvverbose",
+					"false")));
 		} catch (Exception e) {
 			// Ignore any formatting exceptions from the command line
 		}
