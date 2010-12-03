@@ -23,6 +23,7 @@ typedef struct memory_usage_t {
 	uint64_t seg_256_or_above_bytes;
 
 	uint64_t max_direct;
+	uint64_t soft_direct;
 	uint64_t reserved_direct;
 	uint64_t available_direct;
 
@@ -40,6 +41,7 @@ extern	jclass jmemoryReferenceClass;
 
 extern  jmethodID jmemoryToDebugStringMID;
 extern  jmethodID jmemoryMaxDirectMemoryBreachMID;
+extern  jmethodID jmemorySoftDirectMemoryBreachMID;
 extern  jmethodID jmemoryCleanupMID;
 extern  jmethodID jmemoryPeer0MID;
 extern  jmethodID jmemoryAllocateMID;

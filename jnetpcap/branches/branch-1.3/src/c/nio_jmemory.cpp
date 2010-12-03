@@ -53,6 +53,7 @@ jclass jmemoryRefClass = 0;
 
 jmethodID jmemoryToDebugStringMID = 0;
 jmethodID jmemoryMaxDirectMemoryBreachMID = 0;
+jmethodID jmemorySoftDirectMemoryBreachMID = 0;
 jmethodID jmemoryCleanupMID = 0;
 jmethodID jmemoryPeer0MID = 0;
 jmethodID jmemoryAllocateMID = 0;
@@ -166,9 +167,15 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_initIDs
 	}
 
 	if ( ( jmemoryMaxDirectMemoryBreachMID = env->GetStaticMethodID(c, "maxDirectMemoryBreached", "()V")) == NULL) {
-		throwException(env, NO_SUCH_FIELD_EXCEPTION,
+		throwException(env, NO_SUCH_METHOD_EXCEPTION,
 				"Unable to initialize method JMemory.maxDirectMemoryBreached()");
 		fprintf(stderr, "Unable to initialize method JMemory.maxDirectMemoryBreached()");
+		return;
+	}
+	if ( ( jmemorySoftDirectMemoryBreachMID = env->GetStaticMethodID(c, "softDirectMemoryBreached", "()V")) == NULL) {
+		throwException(env, NO_SUCH_METHOD_EXCEPTION,
+				"Unable to initialize method JMemory.softDirectMemoryBreached()");
+		fprintf(stderr, "Unable to initialize method JMemory.softDirectMemoryBreached()");
 		return;
 	}
 
@@ -266,7 +273,9 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JMemory_allocate0
 	printf("\n%p JMemory_allocate0() ENTER\n", env); fflush(stdout);
 #endif
 	if (memory_usage.available_direct < size) {
-		// Try to free up memory
+		/*
+		 * Try to free up memory - blocking
+		 */
 
 		env->CallStaticVoidMethod(jmemoryClass, jmemoryMaxDirectMemoryBreachMID);
 
@@ -274,9 +283,16 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JMemory_allocate0
 			throwException(env, OUT_OF_MEMORY_ERROR, "");
 			return 0L;
 		}
+	} else if (memory_usage.reserved_direct > memory_usage.soft_direct) {
+		/*
+		 * Try to free up memory - non-blocking
+		 * Also can only be invoked consecutively after a certain amount of time
+		 */
+		env->CallStaticVoidMethod(jmemoryClass, jmemorySoftDirectMemoryBreachMID);
 	}
 
 	memory_usage.available_direct -= size;
+	memory_usage.reserved_direct += size;
 
 #ifdef DEBUG
 	printf("%p JMemory_allocate0() malloc size=%d\n", env, size); fflush(stdout);
@@ -309,24 +325,22 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JMemory_allocate0
 
 /*
  * Class:     org_jnetpcap_nio_JMemory
- * Method:    availableDirectMemorySize
+ * Method:    availableDirectMemory
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JMemory_availableDirectMemorySize
+JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JMemory_availableDirectMemory
   (JNIEnv *env, jclass clazz) {
 	return (jlong) memory_usage.available_direct;
 }
 
-
 /*
  * Class:     org_jnetpcap_nio_JMemory
- * Method:    maxDirectMemorySize
+ * Method:    reservedDirectMemory
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JMemory_maxDirectMemorySize
+JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JMemory_reservedDirectMemory
   (JNIEnv *env, jclass clazz) {
-
-	return (jlong) memory_usage.max_direct;
+	return (jlong) memory_usage.reserved_direct;
 }
 
 /*
@@ -341,6 +355,17 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_setMaxDirectMemorySize
 	memory_usage.max_direct = size;
 	memory_usage.available_direct += delta;
 
+}
+
+/*
+ * Class:     org_jnetpcap_nio_JMemory
+ * Method:    setSoftDirectMemorySize
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_setSoftDirectMemorySize
+  (JNIEnv *env, jclass clazz, jlong size) {
+
+	memory_usage.soft_direct = size;
 }
 
 
@@ -429,6 +454,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemoryReference_disposeNative0
 		memory_usage.total_deallocated += size;
 		memory_usage.total_deallocate_calls ++;
 		memory_usage.available_direct += size;
+		memory_usage.reserved_direct -= size;
 
 		free(ptr);
 	}
