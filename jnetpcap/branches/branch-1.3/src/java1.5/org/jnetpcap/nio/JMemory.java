@@ -220,7 +220,7 @@ public abstract class JMemory {
 		return max;
 	}
 
-	private static long parseSize(String v) {
+	static long parseSize(String v) {
 		v = v.trim().toLowerCase();
 		long multiplier = 1;
 
