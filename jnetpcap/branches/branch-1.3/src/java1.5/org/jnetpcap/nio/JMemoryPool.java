@@ -14,6 +14,7 @@ package org.jnetpcap.nio;
 
 import java.nio.ByteBuffer;
 import java.sql.Time;
+import java.util.Properties;
 
 import org.jnetpcap.nio.JMemory.Type;
 
@@ -180,13 +181,13 @@ public class JMemoryPool {
 	 * Current default block size when creating new memory blocks. This is user
 	 * modifiable.
 	 */
-	private int blockSize = DEFAULT_BLOCK_SIZE;
+	private int blockSize;
 
 	/**
 	 * Uses default allocation size and strategy.
 	 */
 	public JMemoryPool() {
-		// Empty
+		blockSize = getBlockSize();
 	}
 
 	/**
@@ -408,6 +409,38 @@ public class JMemoryPool {
 			defaultPool.block = null;
 			defaultPool = null;
 		}
+	}
+
+	/**
+	 * @return the blockSize
+	 */
+	public int getBlockSize() {
+		if (blockSize != 0) {
+			return blockSize;
+		}
+		
+		Properties p = System.getProperties();
+		String s = p.getProperty("org.jnetsoft.nio.BlockSize");
+		s = (s == null) ? p.getProperty("nio.BlockSize") : s;
+		s = (s == null) ? p.getProperty("org.jnetsoft.nio.blocksize") : s;
+		s = (s == null) ? p.getProperty("nio.blocksize") : s;
+
+		if (s != null) {
+			blockSize = (int)JMemory.parseSize(s); // process suffixes kb,mb,gb,tb
+		}
+
+		if (blockSize == 0) {
+			blockSize = DEFAULT_BLOCK_SIZE;
+		}
+
+		return blockSize;
+	}
+
+	/**
+	 * @param blockSize the blockSize to set
+	 */
+	public void setBlockSize(int blockSize) {
+		this.blockSize = blockSize;
 	}
 
 }
