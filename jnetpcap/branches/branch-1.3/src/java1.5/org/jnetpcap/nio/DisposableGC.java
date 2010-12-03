@@ -134,21 +134,25 @@ public final class DisposableGC {
 	 */
 	private boolean vverbose = false;
 
-	private boolean vvverbose;
+	private boolean vvverbose = false;
 
 	private DisposableGC() {
 		startCleanupThread();
+
+		try {
+		verbose = Boolean.parseBoolean(System.getProperty("nio.verbose", "false"));
+		vverbose =
+				Boolean.parseBoolean(System.getProperty("nio.vverbose", "false"));
+		vvverbose =
+				Boolean.parseBoolean(System.getProperty("nio.vvverbose", "false"));
+		} catch (Exception e) {
+			// Ignore any formatting exceptions from the command line
+		}
 	}
 
 	private void dispose(DisposableReference ref) {
 
 		synchronized (g0) {
-
-			// System.out.printf("DisposableGC: availablePermits=%d released=%d, mem=%d%n",
-			// memorySemaphore.availablePermits(),
-			// ref.size(),
-			// JMemory.availableDirectMemorySize());
-
 			memorySemaphore.release(ref.size());
 
 			totalDisposed++;
