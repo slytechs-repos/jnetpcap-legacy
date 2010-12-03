@@ -18,6 +18,7 @@ import java.util.Properties;
 import org.jnetpcap.Pcap;
 import org.jnetpcap.packet.PeeringException;
 import org.jnetpcap.packet.format.FormatUtils;
+import org.jnetpcap.util.Units;
 
 /**
  * A base class for all other PEERED classes to native c structures. The class
@@ -55,87 +56,40 @@ public abstract class JMemory {
 	}
 
 	/**
+	 * The maximum amount of direct memory we are allowed to allocate. When the
+	 * limit is breached, we block the allocating thread and try to free up memory
+	 * from any unused references (using DisposableGC class). If that fails and a
+	 * timeout occurs on the blocked thread, an OutOfMemory exception is thrown.
+	 * 
+	 * @see #maxDirectMemory()
+	 */
+	private static long directMemory;
+
+	/**
+	 * A soft limit for the amount of direct memory we are allowed to allocate.
+	 * When a soft memory limit is breached, the allocating thread is not blocked
+	 * and continues to honor memory allocations, at the same time (using
+	 * DisposableGC class), we kick off memory cleanup and try to free up memory.
+	 * The key feature is that memory allocation does not stop, while forced
+	 * cleaned up of released references is initiated.
+	 * <p>
+	 * If directMemorySoft == 0 or directMemorySoft == directMemory, this property
+	 * is ignored and only the directMemory property and its algorithm is used.
+	 * 
+	 * @see #softDirectMemory()
+	 */
+	private static long directMemorySoft;
+
+	/**
 	 * Name of the native library that wraps around libpcap and extensions
 	 */
 	public static final String JNETPCAP_LIBRARY_NAME = "jnetpcap";
-
 	/**
 	 * Convenience constant that is synonym as JMemory.Type.POINTER. Since this
 	 * type constant is used so often, it is made as a in-class constant to make
 	 * it easier to access.
 	 */
 	public static final JMemory.Type POINTER = JMemory.Type.POINTER;
-	
-	private static long directMemory;
-	private static long directMemorySoft;
-
-	public static long maxDirectMemory() {
-		if (directMemory != 0) {
-			return directMemory;
-		}
-
-		Properties p = System.getProperties();
-		String s = p.getProperty("org.jnetsoft.nio.MaxDirectMemorySize");
-		s = (s == null) ? p.getProperty("nio.MaxDirectMemorySize") : s;
-		s = (s == null) ? p.getProperty("org.jnetsoft.nio.mx") : s;
-		s = (s == null) ? p.getProperty("nio.mx") : s;
-
-		if (s != null) {
-			directMemorySoft = parseSize(s); // process suffixes kb,mb,gb,tb
-		} else {
-			directMemorySoft = Runtime.getRuntime().maxMemory();
-		}
-
-		return directMemory;
-	}
-
-	public static long softDirectMemory() {
-		if (directMemorySoft != 0) {
-			return directMemorySoft;
-		}
-
-		Properties p = System.getProperties();
-		String s = p.getProperty("org.jnetsoft.nio.SoftDirectMemorySize");
-		s = (s == null) ? p.getProperty("nio.SoftDirectMemorySize") : s;
-		s = (s == null) ? p.getProperty("org.jnetsoft.nio.ms") : s;
-		s = (s == null) ? p.getProperty("nio.ms") : s;
-
-		if (s != null) {
-			directMemorySoft = parseSize(s); // process suffixes kb,mb,gb,tb
-		} else {
-			directMemorySoft = Runtime.getRuntime().maxMemory();
-		}
-
-		return directMemorySoft;
-	}
-
-	private static long parseSize(String v) {
-		v = v.trim().toLowerCase();
-		long multiplier = 1;
-
-		if (v.endsWith("tb")) {
-			multiplier = 1024 * 1024 * 1024 * 1024;
-			v.substring(0, v.length() - 2);
-
-		} else if (v.endsWith("gb")) {
-			multiplier = 1024 * 1024 * 1024;
-			v.substring(0, v.length() - 2);
-
-		} else if (v.endsWith("mb")) {
-			multiplier = 1024 * 1024;
-			v.substring(0, v.length() - 2);
-
-		} else if (v.endsWith("kb")) {
-			multiplier = 1024;
-			v.substring(0, v.length() - 2);
-		}
-
-		final long size = Long.parseLong(v) * multiplier;
-
-		return size;
-	}
-
-
 
 	/**
 	 * Load the native library and initialize JNI method and class IDs.
@@ -149,6 +103,7 @@ public abstract class JMemory {
 			initIDs();
 
 			setMaxDirectMemorySize(maxDirectMemory());
+			setSoftDirectMemorySize(softDirectMemory());
 
 			Class.forName("org.jnetpcap.nio.JMemoryReference");
 
@@ -165,15 +120,72 @@ public abstract class JMemory {
 	 * Returns how much native memory is available for allocation. This is a limit
 	 * set by method {@link #setMaxDirectMemorySize(long)}.
 	 * 
-	 * @return the difference between maxDirectMemorySize and
-	 *         reservedDirectMemorySize
+	 * @return the difference between maxDirectMemory and reservedDirectMemory
 	 */
-	public static native long availableDirectMemorySize();
+	public static native long availableDirectMemory();
+
+	/**
+	 * Returns how much native memory has be used so far.
+	 * 
+	 * @return amount of memory reserved/allocated at this moment
+	 */
+	public static native long reservedDirectMemory();
 
 	/**
 	 * Initializes JNI ids.
 	 */
 	private static native void initIDs();
+
+	/**
+	 * Returns the hard limit for the amount of memory native is allowed to
+	 * allocate. The memory setting defaults to JVMs max memory which can be
+	 * specified with JVM command line option '-Xmx&lt;size&gt;.Once the 'nio.mx'
+	 * limit is reached, the allocating thread is blocked and a JVM GC request is
+	 * issued. The allocating thread continues to wait, until sufficient minimum
+	 * amount (Default: {@value DisposableGC#MIN_MEMORY_RELEASE})of native memory
+	 * was cleaned up or a timeout (Default:
+	 * {@value DisposableGC#OUT_OF_MEMORY_TIMEOUT} ms) occurs.
+	 * <p>
+	 * This limit can be set at startup of the application using the following
+	 * system properties, which are checked in the order listed below:
+	 * <ol>
+	 * <li><code>org.jnetsoft.nio.MaxDirectMemorySize</code>
+	 * <li><code>nio.MaxDirectMemorySize</code>
+	 * <li><code>org.jnetsoft.nio.mx</code>
+	 * <li><code>nio.mx</code>
+	 * </ol>
+	 * The different property names, from the most fully qualified to the least,
+	 * are provided to property name conflict resolution. For convenience, it is
+	 * recommended that the user choose the least qualified property name to use.
+	 * In the unlikely event that another library within the same runtime
+	 * application uses the same property name, one of the more qualified (or
+	 * longer) property names can be used to resolve the conflict.
+	 * </p>
+	 * 
+	 * @return the limit in number of bytes
+	 */
+
+	public static long maxDirectMemory() {
+		if (directMemory != 0) {
+			return directMemory;
+		}
+
+		Properties p = System.getProperties();
+		String s = p.getProperty("org.jnetsoft.nio.MaxDirectMemorySize");
+		s = (s == null) ? p.getProperty("nio.MaxDirectMemorySize") : s;
+		s = (s == null) ? p.getProperty("org.jnetsoft.nio.mx") : s;
+		s = (s == null) ? p.getProperty("nio.mx") : s;
+
+		if (s != null) {
+			directMemory = parseSize(s); // process suffixes kb,mb,gb,tb
+		}
+
+		if (directMemory == 0) {
+			directMemory = Runtime.getRuntime().maxMemory();
+		}
+
+		return directMemory;
+	}
 
 	/**
 	 * Used to trigger garbage collector. The method is private, but invoked from
@@ -183,23 +195,31 @@ public abstract class JMemory {
 		DisposableGC.getDeault().invokeSystemGCAndWait();
 	}
 
-	/**
-	 * Returns the hard limit for the amount of memory native is allowed to
-	 * allocate. The memory setting defaults to JVMs max memory. This setting can
-	 * be changed with JVM parameter: <code>-XX:MaxDirectMemorySize=<size></code>.
-	 * <p>
-	 * This is the same option used by
-	 * <code>java.nio.ByteBuffer.allocateDirect</code>. The ByteBuffer and
-	 * jNetPcap versions do not share the same allocation state, therefore the
-	 * limit is applied twice, once for each implementation. If for example the
-	 * limit is set to 32Mb, then ByteBuffer implementation and jNetPcap
-	 * implementation will be limited to max of 32Mb separately. That is the
-	 * combined theoretical limit is actually 64Mb.
-	 * </p>
-	 * 
-	 * @return the limit in number of bytes
-	 */
-	public static native long maxDirectMemorySize();
+	private static long parseSize(String v) {
+		v = v.trim().toLowerCase();
+		long multiplier = 1;
+
+		if (v.endsWith("tb")) {
+			multiplier = Units.TEBIBYTE;
+			v = v.substring(0, v.length() - 2);
+
+		} else if (v.endsWith("gb")) {
+			multiplier = Units.GIGIBYTE;
+			v = v.substring(0, v.length() - 2);
+
+		} else if (v.endsWith("mb")) {
+			multiplier = Units.MEBIBYTE;
+			v = v.substring(0, v.length() - 2);
+
+		} else if (v.endsWith("kb")) {
+			multiplier = Units.KIBIBYTE;
+			v = v.substring(0, v.length() - 2);
+		}
+
+		final long size = Long.parseLong(v) * multiplier;
+
+		return size;
+	}
 
 	/**
 	 * Sets a hard limit for the amount of memory native is allowed to allocate.
@@ -207,7 +227,7 @@ public abstract class JMemory {
 	 * OutOfMemoryException is thrown by the allocate function.
 	 * <p>
 	 * jNetPcap keeps track of all memory allocated and freed. The following JVM
-	 * options set the limits: <code>-XX:MaxDirectMemorySize=_size_</code>
+	 * options set the limits: <code>-Dnio.mx=_size_</code>
 	 * </p>
 	 * 
 	 * 
@@ -215,6 +235,83 @@ public abstract class JMemory {
 	 *          size in bytes
 	 */
 	private static native void setMaxDirectMemorySize(long size);
+
+	/**
+	 * Sets a soft limit for the amount of memory native is allowed to allocate.
+	 * When the limit is reached, and a GC collection can is invoked but with out
+	 * blocking and memory allocation continues until the hard limit is reached.
+	 * <p>
+	 * jNetPcap keeps track of all memory allocated and freed. The following JVM
+	 * options set the limits: <code>-Dnio.ms=_size_</code>
+	 * </p>
+	 * 
+	 * 
+	 * @param size
+	 *          size in bytes
+	 */
+	private static native void setSoftDirectMemorySize(long size);
+
+	/**
+	 * Returns the soft limit for native memory allocation. When the soft memory
+	 * allocation limit is reached, memory continues to be allocated without
+	 * interruption or blocking. At the same the a JVM GC request is issued to
+	 * start collecting unused objects and potentially cleanup memory. The JVM GC
+	 * request may be repeated while the current memory allocation is above this
+	 * soft limit, but is limited to a minimum delay between consecutive JVM GC
+	 * requests. This process continues until memory allocation falls below this
+	 * soft limit or the hard 'nio.mx' limit is reached.
+	 * <p>
+	 * This limit can be set at startup of the application using the following
+	 * system properties, which are checked in the order listed below:
+	 * <ol>
+	 * <li><code>org.jnetsoft.nio.SoftDirectMemorySize</code>
+	 * <li><code>nio.SoftDirectMemorySize</code>
+	 * <li><code>org.jnetsoft.nio.ms</code>
+	 * <li><code>nio.ms</code>
+	 * </ol>
+	 * The different property names, from the most fully qualified to the least,
+	 * are provided to property name conflict resolution. For convenience, it is
+	 * recommended that the user choose the least qualified property name to use.
+	 * In the unlikely event that another library within the same runtime
+	 * application uses the same property name, one of the more qualified (or
+	 * longer) property names can be used to resolve the conflict.
+	 * </p>
+	 * 
+	 * @return the amount of memory, in bytes, before we start requesting a
+	 *         forcible JVM GC.
+	 */
+	public static long softDirectMemory() {
+		if (directMemorySoft != 0) {
+			return directMemorySoft;
+		}
+
+		Properties p = System.getProperties();
+		String s = p.getProperty("org.jnetsoft.nio.SoftDirectMemorySize");
+		s = (s == null) ? p.getProperty("nio.SoftDirectMemorySize") : s;
+		s = (s == null) ? p.getProperty("org.jnetsoft.nio.ms") : s;
+		s = (s == null) ? p.getProperty("nio.ms") : s;
+
+		if (s != null) {
+			directMemorySoft = parseSize(s); // process suffixes kb,mb,gb,tb
+		}
+
+		if (directMemorySoft == 0) {
+			directMemorySoft = maxDirectMemory();
+		}
+
+		return directMemorySoft;
+	}
+
+	/**
+	 * Soft limit has been reached. Invoke non-blocking JVM GC and inject a marker
+	 * reference. The marker reference will tell us when JVM GC reached the marker
+	 * and thus, at a minimum has started processing unused references. The JVM GC
+	 * can not be invoked more then once within a certain amount of time which is
+	 * defined as {@value DisposableGC#MIN_SYSTEM_GC_INVOKE_TIMEOUT}.
+	 */
+	private static void softDirectMemoryBreached() {
+		DisposableGC.getDeault().invokeSystemGCWithMarker();
+	}
 
 	/**
 	 * Returns the total number of active native memory bytes currently allocated

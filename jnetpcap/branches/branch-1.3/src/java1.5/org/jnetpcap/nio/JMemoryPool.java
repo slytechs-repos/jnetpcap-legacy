@@ -144,7 +144,7 @@ public class JMemoryPool {
 	 * then further sub allocates per individual requests. The is the default
 	 * size.
 	 */
-	public static final int DEFAULT_BLOCK_SIZE = 32 * 1024;
+	public static final int DEFAULT_BLOCK_SIZE = 1024 * 1024;
 
 	private static JMemoryPool defaultPool;
 

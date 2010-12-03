@@ -4,11 +4,16 @@
 package org.jnetpcap.nio;
 
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
+import java.sql.Time;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.jnetpcap.util.Units;
 
 /**
  * Specialized garbage-collector that invokes the
@@ -21,12 +26,8 @@ import java.util.concurrent.atomic.AtomicLong;
 public final class DisposableGC {
 	private static final long DEFAULT_CLEANUP_THREAD_TIMEOUT = 20;
 	private static DisposableGC defaultGC = new DisposableGC();
-	private final static long G = 1000L * DisposableGC.M;
 	private static final long G10 = 10 * 1000;
 	private static final long G60 = 60 * 1000;
-	private final static long K = 1000L;
-
-	private final static long M = 1000L * DisposableGC.K;
 
 	static final private int MANUAL_DRAING_MAX = 2;
 
@@ -34,11 +35,14 @@ public final class DisposableGC {
 	 * When maxDirectMemorySize is breached, this is the minimum amount of memory
 	 * to release, triggering a System.gc() if necessary.
 	 */
-	private static final int MIN_MEMORY_RELEASE = 2 * 1024 * 1024;
+	static final int MIN_MEMORY_RELEASE = 2 * Units.MEBIBYTE;
 
-	private static final long OUT_OF_MEMORY_TIMEOUT = 15 * 1000;
+	/**
+	 * Minimum delay before 2 consecutive System.gc calls can be made
+	 */
+	static final long MIN_SYSTEM_GC_INVOKE_TIMEOUT = 200;
 
-	private final static long T = 1000L * DisposableGC.G;
+	static final long OUT_OF_MEMORY_TIMEOUT = 15 * 1000;
 
 	public static DisposableGC getDeault() {
 		return defaultGC;
@@ -91,6 +95,9 @@ public final class DisposableGC {
 			new LinkSequence<DisposableReference>("g10");
 	final LinkSequence<DisposableReference> g60 =
 			new LinkSequence<DisposableReference>("g60");
+	private long lastSystemGCInvoke = 0;
+	private long firstSystemGCNeeded = 0;
+
 	/*
 	 * private static class Marker extends PhantomReference<Object> {
 	 * 
@@ -108,6 +115,8 @@ public final class DisposableGC {
 	 * }
 	 */
 	final ReferenceQueue<Object> markerQueue = new ReferenceQueue<Object>();
+
+	private Reference<Object> markerReference;
 
 	private Semaphore memorySemaphore = new Semaphore(
 			DisposableGC.MIN_MEMORY_RELEASE);
@@ -262,7 +271,7 @@ public final class DisposableGC {
 			if (ref == null) {
 				if (cleanupThreadActive.get()) {
 					if (memorySemaphore.hasQueuedThreads()) {
-						System.gc();
+						invokeSystemGC();
 					}
 
 					continue; // Null due to timeout
@@ -285,33 +294,34 @@ public final class DisposableGC {
 		}
 	}
 
-	private String f(long l, int percision) {
-		return f(l, percision, "");
-	}
-
 	private String f(long l) {
 		return f(l, -1, "");
+	}
+
+	@SuppressWarnings("unused")
+	private String f(long l, int percision) {
+		return f(l, percision, "");
 	}
 
 	private String f(long l, int percision, String post) {
 		String u = "";
 		double v = l;
 		int p = 0;
-		if (l > T) {
-			u = "T";
+		if (l > Units.TEBIBYTE) {
+			u = "t";
 			v /= 3;
 			p = 4;
-		} else if (l > G) {
-			u = "G";
-			v /= G;
+		} else if (l > Units.GIGIBYTE) {
+			u = "g";
+			v /= Units.GIGIBYTE;
 			p = 2;
-		} else if (l > M) {
-			u = "M";
-			v /= M;
+		} else if (l > Units.MEBIBYTE) {
+			u = "m";
+			v /= Units.MEBIBYTE;
 			p = 1;
-		} else if (l > K) {
-			u = "K";
-			v /= K;
+		} else if (l > Units.KIBIBYTE) {
+			u = "k";
+			v /= Units.KIBIBYTE;
 			p = 0;
 		} else {
 			p = 0;
@@ -326,16 +336,40 @@ public final class DisposableGC {
 		return String.format(f, v, u, post);
 	}
 
-	private String fb(long l, int percision) {
-		return f(l, percision, "b");
-	}
-
 	private String fb(long l) {
 		return f(l, -1, "b");
 	}
 
+	private String fb(long l, int percision) {
+		return f(l, percision, "b");
+	}
+
 	public long getCleanupThreadTimeout() {
 		return cleanupTimeout.get();
+	}
+
+	/**
+	 * Makes sure that JVM GC is not invoked more then a certain timeout value
+	 * since the last time it was invoked. Avoids too many JVM GC invocation calls
+	 * that might overlap
+	 * 
+	 * @return true if JVM GC was invoked, otherwise false
+	 */
+	private boolean invokeSystemGC() {
+
+		if ((System.currentTimeMillis() - lastSystemGCInvoke) < MIN_SYSTEM_GC_INVOKE_TIMEOUT) {
+			return false;
+		}
+
+		if (vverbose) {
+			logSystemGC();
+		}
+
+		System.gc();
+		lastSystemGCInvoke = System.currentTimeMillis();
+		firstSystemGCNeeded = 0;
+
+		return true;
 	}
 
 	/*
@@ -363,7 +397,7 @@ public final class DisposableGC {
 	public synchronized void invokeSystemGCAndWait() {
 
 		long ts = System.currentTimeMillis();
-		long low = JMemory.availableDirectMemorySize();
+		long low = JMemory.availableDirectMemory();
 
 		try {
 			if (isCleanupThreadActive()) {
@@ -372,7 +406,7 @@ public final class DisposableGC {
 						OUT_OF_MEMORY_TIMEOUT,
 						TimeUnit.MILLISECONDS);
 			} else {
-				System.gc();
+				invokeSystemGC();
 				drainRefQueue(OUT_OF_MEMORY_TIMEOUT);
 			}
 		} catch (IllegalArgumentException e) {
@@ -383,8 +417,29 @@ public final class DisposableGC {
 			System.out.printf("DisposableGC: waiting for System.gc to finish:"
 					+ " %dms, freed=%dMbytes%n",
 					(System.currentTimeMillis() - ts),
-					(JMemory.availableDirectMemorySize() - low) / (1024 * 1024));
+					(JMemory.availableDirectMemory() - low) / (1024 * 1024));
 		}
+	}
+
+	/**
+	 * Issues a JVM GC request, while injecting a marker reference to be cleaned
+	 * up by the very same JVM GC run. Until our marker reference is not cleaned
+	 * up, we do not issue another JVM GC since this means that previous GC run
+	 * has not reached our marker reference yet.
+	 */
+	public synchronized void invokeSystemGCWithMarker() {
+
+		if (markerReference != null && markerReference.get() != null
+				|| !isSystemGCReady()) {
+			return;
+		}
+
+		if (vvverbose) {
+			logMarker();
+		}
+		markerReference = new WeakReference<Object>(new Object() {
+		});
+		invokeSystemGC();
 	}
 
 	public boolean isCleanupComplete() {
@@ -395,6 +450,22 @@ public final class DisposableGC {
 
 	public boolean isCleanupThreadActive() {
 		return cleanupThreadActive.get() && cleanupThread.isAlive();
+	}
+
+	/**
+	 * Checks if JVM GC can be called upon, at this particular time. If the
+	 * previous invocation of JVM GC was less then minimum delay between
+	 * consecutive calls, this function returns false.
+	 * 
+	 * @return true if JVM GC can be invoked at this time, otherwise false
+	 */
+	private final boolean isSystemGCReady() {
+		if (firstSystemGCNeeded == 0) {
+			firstSystemGCNeeded = System.currentTimeMillis();
+		}
+
+		return cleanupThreadProcessing.get() == false
+				&& (System.currentTimeMillis() - lastSystemGCInvoke) > MIN_SYSTEM_GC_INVOKE_TIMEOUT;
 	}
 
 	/**
@@ -429,6 +500,53 @@ public final class DisposableGC {
 	private void logIdle() {
 		System.out.printf("DisposableGC: idle - "
 				+ "waiting for system GC to collect more objects%n");
+
+	}
+
+	/**
+	 * 
+	 */
+	private void logLimits() {
+		System.out
+				.printf("DisposableGC: current native memory allocation limits are max=%s, soft=%s%n",
+						fb(JMemory.maxDirectMemory()),
+						fb(JMemory.softDirectMemory()));
+
+	}
+
+	/**
+	 * 
+	 */
+	private void logMarker() {
+		long ts = System.currentTimeMillis();
+		long fs = ts - (ts / 1000) * 1000;
+
+		/*
+		 * Provide TS to fraction of a second in millis
+		 */
+		System.out.printf("DisposableGC: soft limit breached, "
+				+ "issued a marker at %s.%d, minimum delay=%dms%n",
+				new Time(ts),
+				fs,
+				MIN_SYSTEM_GC_INVOKE_TIMEOUT);
+
+	}
+
+	/**
+	 * 
+	 */
+	private void logSystemGC() {
+		long ts = System.currentTimeMillis();
+		long fs = ts - (ts / 1000) * 1000;
+		long waited = ts - firstSystemGCNeeded;
+
+		System.out
+				.printf("DisposableGC: issued JVM GC request %s.%d waited=%dms (reserved=%s, available=%s)%n",
+						new Time(ts),
+						fs,
+						waited,
+						fb(JMemory.reservedDirectMemory()),
+						fb(JMemory.availableDirectMemory()));
 
 	}
 
@@ -473,6 +591,8 @@ public final class DisposableGC {
 		if (!verbose) {
 			setVVerbose(false);
 			setVVVerbose(false);
+		} else {
+			logLimits();
 		}
 
 	}
@@ -604,7 +724,7 @@ public final class DisposableGC {
 			throws InterruptedException {
 		int count = (int) (timeout / 100) + 1;
 		while ((count-- >= 0) && waitForFullCleanup(100) == false) {
-			System.gc();
+			invokeSystemGC();
 		}
 
 		return isCleanupComplete();
