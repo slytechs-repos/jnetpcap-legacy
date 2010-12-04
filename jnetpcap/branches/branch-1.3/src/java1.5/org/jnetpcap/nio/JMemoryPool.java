@@ -424,6 +424,7 @@ public class JMemoryPool {
 		s = (s == null) ? p.getProperty("nio.BlockSize") : s;
 		s = (s == null) ? p.getProperty("org.jnetsoft.nio.blocksize") : s;
 		s = (s == null) ? p.getProperty("nio.blocksize") : s;
+		s = (s == null) ? p.getProperty("nio.bs") : s;
 
 		if (s != null) {
 			blockSize = (int)JMemory.parseSize(s); // process suffixes kb,mb,gb,tb
