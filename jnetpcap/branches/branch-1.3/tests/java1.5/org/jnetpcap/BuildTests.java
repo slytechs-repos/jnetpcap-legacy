@@ -50,6 +50,8 @@ public class BuildTests {
 	public static Test suite() {
 				
 		TestSuite suite = new TestSuite("Test for org.jnetpcap");
+		
+		for (int i = 0; i < 1; i ++) {
 		//$JUnit-BEGIN$
 		suite.addTestSuite(TestPcapUtils.class);
 		suite.addTestSuite(TestPcapPacket.class);
@@ -74,6 +76,8 @@ public class BuildTests {
 		suite.addTestSuite(TestTcpIp.class);
 		suite.addTestSuite(TestNetwork.class);
 		suite.addTestSuite(TestNoSystemOutOutput.class);
+		}
+		
 		//$JUnit-END$
 		return suite;
 	}
