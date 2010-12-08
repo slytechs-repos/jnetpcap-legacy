@@ -23,11 +23,7 @@ import org.jnetpcap.PcapHeader;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory;
 
-public class JPcapRecordBuffer
-    extends
-    JBuffer
-    implements
-    JPcapRecordIterable {
+public class JPcapRecordBuffer extends JBuffer implements JPcapRecordIterable {
 
 	private final int start = 4;
 
@@ -38,9 +34,9 @@ public class JPcapRecordBuffer
 	private final int capacity;
 
 	private int count = 0;
-	
+
 	private Record[] records;
-	
+
 	/**
 	 * @param size
 	 */
@@ -48,7 +44,7 @@ public class JPcapRecordBuffer
 		super(size);
 		this.capacity = size;
 		this.limit = capacity;
-		
+
 		this.order(ByteOrder.nativeOrder());
 	}
 
@@ -71,32 +67,32 @@ public class JPcapRecordBuffer
 
 		count++;
 	}
-	
+
 	public void close() {
 		limit = position;
 		position = start;
-		
+
 		this.setInt(0, count);
-		
+
 		JBuffer b = new JBuffer(limit);
 		b.order(ByteOrder.nativeOrder());
 		this.transferTo(b, 0, limit, 0);
-		
+
 		// Resize to smaller
-		this.peer(b, 0, b.size());
-		
+		setSize(limit);
+
 		records = new Record[count];
 
 		Iterator it = iterator();
-		for (int i = 0; i < count && it.hasNext(); i ++) {
+		for (int i = 0; i < count && it.hasNext(); i++) {
 			records[i] = new Record();
 			records[i].header = new PcapHeader(JMemory.POINTER);
 			records[i].packet = new JBuffer(JMemory.POINTER);
-			
+
 			it.next(records[i].header, records[i].packet);
 		}
 	}
-	
+
 	public static class Record {
 		public PcapHeader header;
 		public JBuffer packet;
@@ -106,60 +102,77 @@ public class JPcapRecordBuffer
 		private int offset = start;
 		private int index = 0;
 
-		/* (non-Javadoc)
-     * @see java.util.Iterator#hasNext()
-     */
-    public boolean hasNext() {
-      return index < count;
-    }
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.util.Iterator#hasNext()
+		 */
+		public boolean hasNext() {
+			return index < count;
+		}
 
-		/* (non-Javadoc)
-     * @see java.util.Iterator#next()
-     */
-    public JPcapRecordBuffer.Record next() {
-      return records[index ++];
-    }
-    
-    final int PCAP_HEADER_SIZEOF = PcapHeader.sizeof();
-    public void next(PcapHeader header, JBuffer packet) {
-      offset += header.peerTo(JPcapRecordBuffer.this, offset);
-//      offset += PCAP_HEADER_SIZEOF;
-      
-      offset += packet.peer(JPcapRecordBuffer.this, offset, header.caplen());
-//      offset += header.caplen();
-      index ++;
-   	
-    }
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.util.Iterator#next()
+		 */
+		public JPcapRecordBuffer.Record next() {
+			return records[index++];
+		}
 
-		/* (non-Javadoc)
-     * @see java.util.Iterator#remove()
-     */
-    public void remove() {
-      throw new UnsupportedOperationException("optional method not implemented");
-    }
-    
-    public void reset() {
-    	offset = start;
-    	index = 0;
-    }
+		final int PCAP_HEADER_SIZEOF = PcapHeader.sizeof();
+
+		public void next(PcapHeader header, JBuffer packet) {
+//			System.out.printf("next():: offset=%d index=%d size=%d count=%d%n",
+//					offset,
+//					index,
+//					size(),
+//					count);
+//			System.out.flush();
+			
+			offset += header.peerTo(JPcapRecordBuffer.this, offset);
+			// offset += PCAP_HEADER_SIZEOF;
+
+			offset += packet.peer(JPcapRecordBuffer.this, offset, header.caplen());
+			// offset += header.caplen();
+			index++;
+
+
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.util.Iterator#remove()
+		 */
+		public void remove() {
+			throw new UnsupportedOperationException("optional method not implemented");
+		}
+
+		public void reset() {
+			offset = start;
+			index = 0;
+		}
 
 		/**
-     * @return
-     */
-    public long getPacketRecordCount() {
-	    return count;
-    }
-		
+		 * @return
+		 */
+		public long getPacketRecordCount() {
+			return count;
+		}
+
 	}
 
-	/* (non-Javadoc)
-   * @see org.jnetpcap.packet.JPcapRecordIterable#iterator()
-   */
-  public JPcapRecordBuffer.Iterator iterator() {
-    return new JPcapRecordBuffer.Iterator();
-  }
-  
-  public String toString() {
-  	return "packets = " + count;
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jnetpcap.packet.JPcapRecordIterable#iterator()
+	 */
+	public JPcapRecordBuffer.Iterator iterator() {
+		return new JPcapRecordBuffer.Iterator();
+	}
+
+	public String toString() {
+		return "packets = " + count;
+	}
 }
