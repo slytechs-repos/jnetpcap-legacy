@@ -774,7 +774,8 @@
 		<!-- ############################################################### -->
 		<!--       Copy, license, readme, release notes, etc..  -->
 		<!-- ############################################################### -->
-		<copy file="${doc.LICENSE}" tofile="${pkg.lib.LICENSE}" />
+		<copy file="${doc.COPYING}" tofile="${pkg.lib.COPYING}" />
+		<copy file="${doc.COPYING.LESSER}" tofile="${pkg.lib.COPYING.LESSER}" />
 		<copy file="${doc.CHANGE_LOG}" tofile="${pkg.lib.CHANGE_LOG}" />
 		<copy file="${doc.RELEASE_NOTES}" tofile="${pkg.lib.RELEASE_NOTES}">
 			<filterset>
