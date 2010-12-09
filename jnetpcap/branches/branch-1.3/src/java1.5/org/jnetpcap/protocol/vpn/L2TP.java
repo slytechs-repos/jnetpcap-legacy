@@ -26,16 +26,23 @@ import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.protocol.JProtocol;
 
+// TODO: Auto-generated Javadoc
 /**
- * Layer 2 Tunneling Protocol header definition
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class L2TP.
  */
 @Header
 public class L2TP
     extends JHeader {
 
+	/**
+	 * Header length.
+	 * 
+	 * @param buffer
+	 *          the buffer
+	 * @param offset
+	 *          the offset
+	 * @return the int
+	 */
 	@HeaderLength
 	public static int headerLength(JBuffer buffer, int offset) {
 		int flags = buffer.getUShort(0);
@@ -55,30 +62,45 @@ public class L2TP
 		return len;
 	}
 
+	/** The Constant FLAG_L. */
 	public final static int FLAG_L = 0x4000;
 
+	/** The Constant FLAG_O. */
 	public final static int FLAG_O = 0x0200;
 
+	/** The Constant FLAG_P. */
 	public final static int FLAG_P = 0x0100;
 
+	/** The Constant FLAG_S. */
 	public final static int FLAG_S = 0x0800;
 
+	/** The Constant FLAG_T. */
 	public final static int FLAG_T = 0x8000;
 
+	/** The Constant ID. */
 	public static final int ID = JProtocol.L2TP_ID;
 
+	/** The Constant MASK_VERSION. */
 	public final static int MASK_VERSION = 0x000E;
 	
+	/** The Constant MASK_FLAGS. */
 	public final static int MASK_FLAGS = 0xFFF1;
 
+	/** The off id. */
 	private int offId;
 
+	/** The off length. */
 	private int offLength;
 
+	/** The off offset. */
 	private int offOffset;
 
+	/** The off sequence. */
 	private int offSequence;
 
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.JHeader#decodeHeader()
+	 */
 	public void decodeHeader() {
 
 		int flags = flags();
@@ -108,101 +130,205 @@ public class L2TP
 		}
 	}
 
+	/**
+	 * Flags.
+	 * 
+	 * @return the int
+	 */
 	@Field(offset = 0, length = 12, format = "%x")
 	public int flags() {
 		return getUShort(0) & MASK_FLAGS;
 	}
 
+	/**
+	 * Checks for length.
+	 * 
+	 * @return true, if successful
+	 */
 	@Dynamic(Field.Property.CHECK)
 	public boolean hasLength() {
 		return isSet(flags(), FLAG_L);
 	}
 
+	/**
+	 * Checks for n.
+	 * 
+	 * @return true, if successful
+	 */
 	@Dynamic(Field.Property.CHECK)
 	public boolean hasN() {
 		return isSet(flags(), FLAG_S);
 	}
 
+	/**
+	 * Checks for offset.
+	 * 
+	 * @return true, if successful
+	 */
 	@Dynamic(Field.Property.CHECK)
 	public boolean hasOffset() {
 		return isSet(flags(), FLAG_O);
 	}
 
+	/**
+	 * Checks if is sets the.
+	 * 
+	 * @param i
+	 *          the i
+	 * @param m
+	 *          the m
+	 * @return true, if is sets the
+	 */
 	private boolean isSet(int i, int m) {
 		return (i & m) != 0;
 	}
 	
 	
+	/**
+	 * Length offset.
+	 * 
+	 * @return the int
+	 */
 	@Dynamic(Field.Property.OFFSET)
 	public int lengthOffset() {
 		return offLength * 8;
 	}
 
+	/**
+	 * Length.
+	 * 
+	 * @return the int
+	 */
 	@Field(length = 16)
 	public int length() {
 		return getUShort(offLength);
 	}
 	
+	/**
+	 * Nr offset.
+	 * 
+	 * @return the int
+	 */
 	@Dynamic(Field.Property.OFFSET)
 	public int nrOffset() {
 		return (offSequence + 2) * 8;
 	}
 
+	/**
+	 * Nr.
+	 * 
+	 * @return the int
+	 */
 	@Field(length = 16)
 	public int nr() {
 		return getUShort(offSequence + 2);
 	}
 
+	/**
+	 * Ns offset.
+	 * 
+	 * @return the int
+	 */
 	@Dynamic(Field.Property.OFFSET)
 	public int nsOffset() {
 		return offSequence * 8;
 	}
 	
+	/**
+	 * Ns.
+	 * 
+	 * @return the int
+	 */
 	@Field(length = 16)
 	public int ns() {
 		return getUShort(offSequence);
 	}
 
+	/**
+	 * Offset offset.
+	 * 
+	 * @return the int
+	 */
 	@Dynamic(Field.Property.OFFSET)
 	public int offsetOffset() {
 		return offOffset * 8;
 	}
 	
+	/**
+	 * Offset.
+	 * 
+	 * @return the int
+	 */
 	@Field(length = 16)
 	public int offset() {
 		return getUShort(offOffset);
 	}
 
+	/**
+	 * Pad offset.
+	 * 
+	 * @return the int
+	 */
 	@Dynamic(Field.Property.OFFSET)
 	public int padOffset() {
 		return (offLength + 2) * 8;
 	}
 	
+	/**
+	 * Pad.
+	 * 
+	 * @return the int
+	 */
 	@Field(length = 16)
 	public int pad() {
 		return getUShort(offOffset + 2);
 	}
 
+	/**
+	 * Session id offset.
+	 * 
+	 * @return the int
+	 */
 	@Dynamic(Field.Property.OFFSET)
 	public int sessionIdOffset() {
 		return (offId * 2) * 8;
 	}
 	
+	/**
+	 * Session id.
+	 * 
+	 * @return the int
+	 */
 	@Field(length = 16)
 	public int sessionId() {
 		return getUShort(offId + 2);
 	}
 
+	/**
+	 * Tunnel id offset.
+	 * 
+	 * @return the int
+	 */
 	@Dynamic(Field.Property.OFFSET)
 	public int tunnelIdOffset() {
 		return offId * 8;
 	}
 	
+	/**
+	 * Tunnel id.
+	 * 
+	 * @return the int
+	 */
 	@Field(length = 16)
 	public int tunnelId() {
 		return getUShort(offId);
 	}
 
+	/**
+	 * Version.
+	 * 
+	 * @return the int
+	 */
 	@Field(offset = 13, length = 3)
 	public int version() {
 		return getUShort(0) & MASK_VERSION;

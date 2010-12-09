@@ -18,51 +18,48 @@
  */
 package org.jnetpcap;
 
+// TODO: Auto-generated Javadoc
 /**
- * A utility class that facilitates taking measurements and reports.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class ResourceMeasurement.
  */
 public abstract class ResourceMeasurement {
 
 	/**
-	 * Setup measurement using its defaults
+	 * Instantiates a new resource measurement.
 	 */
 	public ResourceMeasurement() {
 		reset();
 	}
 
 	/**
-	 * Initializes the test to its defaults
+	 * Reset.
 	 */
 	public abstract void reset();
 
 	/**
-	 * Takes a measurment snapshot and updates its counters. This is where
-	 * measurement calculations stem from such as packet rates or bit rates.
+	 * Snapshot.
 	 */
 	public abstract void snapshot();
 
 	/**
-	 * Generates a report and sends out to output.
+	 * Report.
 	 * 
 	 * @param out
-	 *          destination where to send the report
+	 *          the out
 	 */
 	public abstract void report(Appendable out);
 
 	/**
-	 * Generates a report and sends it out to standard output
+	 * Report.
 	 */
 	public void report() {
 		report(System.out);
 	}
 
 	/**
-	 * Generates a report and returns it as a string.
+	 * Result.
 	 * 
-	 * @return terse report generated from the measurements
+	 * @return the string
 	 */
 	public String result() {
 		StringBuilder b = new StringBuilder(10 * 1024);

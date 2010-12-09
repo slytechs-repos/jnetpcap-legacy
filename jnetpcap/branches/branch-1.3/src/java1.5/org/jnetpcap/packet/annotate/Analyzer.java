@@ -18,24 +18,19 @@
  */
 package org.jnetpcap.packet.annotate;
 
+// TODO: Auto-generated Javadoc
 /**
- * Annotation marks a method as an analyzer method which gets called during
- * analysis phase, if requested by user.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Interface Analyzer.
  */
 public @interface Analyzer {
 
-	/**
-	 * Default analyzer priority level if one is not specified explicitely
-	 */
+	/** The Constant DEFAULT_PRIORITY. */
 	public final static int DEFAULT_PRIORITY = 100;
 
 	/**
-	 * Analyzer priority when analyzers assemble themselves for packet processing
+	 * Priority.
 	 * 
-	 * @return priority of this analyzer
+	 * @return the int
 	 */
 	int priority() default DEFAULT_PRIORITY;
 }

@@ -20,63 +20,53 @@ package org.jnetpcap;
 
 import org.jnetpcap.nio.JNumber;
 
+// TODO: Auto-generated Javadoc
 /**
- * An 32-bit integer reference that can be used to pass into pcap methods that
- * require an integer pointer to be set as a return value. The object is not
- * peered with any native structures, but is set using special JNI priviledges.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
- * @deprecated replaced by JNumber
- * @see JNumber
+ * The Class PcapInteger.
  */
 public final class PcapInteger {
 
-	/**
-	 * Modified from JNI methods
-	 */
+	/** The value. */
 	private volatile int value;
 
 	/**
-	 * Initializes the object with int value
+	 * Instantiates a new pcap integer.
 	 * 
 	 * @param value
-	 *          value to initialize the object with
+	 *          the value
 	 */
 	public PcapInteger(int value) {
 		this.value = value;
 	}
 
 	/**
-	 * Creates an 0 initialized integer object
+	 * Instantiates a new pcap integer.
 	 */
 	public PcapInteger() {
 		this.value = 0;
 	}
 
 	/**
-	 * Gets the current value
+	 * Gets the modified from JNI methods.
 	 * 
-	 * @return the value
+	 * @return the modified from JNI methods
 	 */
 	public final int getValue() {
 		return this.value;
 	}
 
 	/**
-	 * Sets a new value
+	 * Sets the modified from JNI methods.
 	 * 
 	 * @param value
-	 *          the value to set
+	 *          the new modified from JNI methods
 	 */
 	public final void setValue(int value) {
 		this.value = value;
 	}
 
-	/**
-	 * Returns string representation of the integer
-	 * 
-	 * @return integer as a string
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
 	 */
 	@Override
   public String toString() {

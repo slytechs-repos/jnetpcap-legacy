@@ -41,13 +41,17 @@ import org.jnetpcap.protocol.TestVoip;
 import org.jnetpcap.util.TestExpandableString;
 import org.jnetpcap.util.TestSearchPaths;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
- *
+ * The Class BuildTests.
  */
 public class BuildTests {
 
+	/**
+	 * Suite.
+	 * 
+	 * @return the test
+	 */
 	public static Test suite() {
 				
 		TestSuite suite = new TestSuite("Test for org.jnetpcap");

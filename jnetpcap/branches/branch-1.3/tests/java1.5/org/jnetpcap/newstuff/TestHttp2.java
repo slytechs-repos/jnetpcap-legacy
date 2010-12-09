@@ -25,14 +25,15 @@ import org.jnetpcap.packet.TestUtils;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestHttp2.
  */
 public class TestHttp2
     extends
     TestUtils {
 
+	/** The out. */
 	private final JFormatter out = new TextFormatter(System.out);
 
 	/*
@@ -53,6 +54,12 @@ public class TestHttp2
 		super.tearDown();
 	}
 
+	/**
+	 * Test1.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public void test1() throws IOException {
 		JPacket packet = getPcapPacket(HTTP, 5);
 

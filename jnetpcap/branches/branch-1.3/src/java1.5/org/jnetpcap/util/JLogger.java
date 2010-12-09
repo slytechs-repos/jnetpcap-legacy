@@ -30,34 +30,18 @@ import java.util.logging.Logger;
 
 import org.jnetpcap.util.config.JConfig;
 
+// TODO: Auto-generated Javadoc
 /**
- * Java Logging mechanism. This is a slight extension to JRE's logger that
- * initializes the global logging environmet and adds a couple of convenience
- * methods that are jNetPcap specific. Default jNetPcap properties are loaded as
- * a resource found in CLASSPATH under the resources directory.
- * <p>
- * Note: standard system properties for JRE's logging system:
- * 
- * <pre>
- * &quot;java.util.logging.config.file&quot; - specifies a .properties file
- * &quot;java.util.logging.config.class&quot; - a class configures the LogManager from its 
- *    constructor
- * </pre>
- * 
- * </p>
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class JLogger.
  */
 public class JLogger
     extends Logger {
 
-	/**
-	 * Default resource file with logger configurations
-	 */
+	/** The Constant PROPERTIES_CONFIG. */
 	public static final String PROPERTIES_CONFIG =
 	    "resources/builtin-logger.properties";
 
+	/** The trigger config init. */
 	private static boolean triggerConfigInit = true;
 
 	/**
@@ -83,13 +67,24 @@ public class JLogger
 	}
 
 	/**
+	 * Instantiates a new j logger.
+	 * 
 	 * @param name
+	 *          the name
 	 * @param resourceBundleName
+	 *          the resource bundle name
 	 */
 	public JLogger(String name, String resourceBundleName) {
 		super(name, resourceBundleName);
 	}
 
+	/**
+	 * Gets the logger.
+	 * 
+	 * @param c
+	 *          the c
+	 * @return the logger
+	 */
 	public static Logger getLogger(Class<?> c) {
 		if (triggerConfigInit && c != JConfig.class) {
 			/*
@@ -107,6 +102,13 @@ public class JLogger
 		return getLogger(c.getName());
 	}
 
+	/**
+	 * Gets the logger.
+	 * 
+	 * @param p
+	 *          the p
+	 * @return the logger
+	 */
 	public static Logger getLogger(Package p) {
 		if (triggerConfigInit) {
 			/*
@@ -124,6 +126,17 @@ public class JLogger
 		return getLogger(p.getName());
 	}
 
+	/**
+	 * Read configuration.
+	 * 
+	 * @param properties
+	 *          the properties
+	 * @return the log manager
+	 * @throws SecurityException
+	 *           the security exception
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public static LogManager readConfiguration(final Properties properties)
 	    throws SecurityException, IOException {
 

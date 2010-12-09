@@ -23,25 +23,29 @@ import java.util.Properties;
 
 import org.jnetpcap.util.ExpandableString;
 
+// TODO: Auto-generated Javadoc
 /**
- * Expandable string that allows configuration variables and properties to be
- * expanded.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class ConfigString.
  */
 public class ConfigString
     extends ExpandableString {
+	
+	/** The Constant VO. */
 	private final static String VO = "${"; // Variable Open
 
+	/** The Constant VC. */
 	private final static String VC = "}"; // Variable Close
 
+	/** The Constant PO. */
 	private final static String PO = "@{"; // Property Open
 
+	/** The Constant PC. */
 	private final static String PC = "}"; // Property Close
 
+	/** The variables. */
 	private final Map<String, String> variables;
 
+	/** The properties. */
 	private final Properties properties;
 
 	// private final static String VO =
@@ -57,7 +61,14 @@ public class ConfigString
 	// JConfig.getProperty("config.syntax.property.close", "}");
 
 	/**
+	 * Instantiates a new config string.
+	 * 
 	 * @param template
+	 *          the template
+	 * @param variables
+	 *          the variables
+	 * @param properties
+	 *          the properties
 	 */
 	public ConfigString(String template, Map<String, String> variables,
 	    Properties properties) {
@@ -66,18 +77,40 @@ public class ConfigString
 		this.properties = properties;
 	}
 
+	/**
+	 * Expand.
+	 * 
+	 * @param name
+	 *          the name
+	 * @return true, if successful
+	 */
 	public boolean expand(String name) {
 		return expand(name, variables, properties);
 	}
 
+	/**
+	 * Expand.
+	 * 
+	 * @param name
+	 *          the name
+	 * @param variables
+	 *          the variables
+	 * @return true, if successful
+	 */
 	public boolean expand(String name, Map<String, String> variables) {
 		return expand(name, variables, properties);
 	}
 
 	/**
-	 * @param super
+	 * Expand.
+	 * 
 	 * @param name
-	 * @return
+	 *          the name
+	 * @param variables
+	 *          the variables
+	 * @param properties
+	 *          the properties
+	 * @return true, if successful
 	 */
 	public boolean expand(
 	    String name,
@@ -113,10 +146,30 @@ public class ConfigString
 		return false;
 	}
 
+	/**
+	 * Expand.
+	 * 
+	 * @param name
+	 *          the name
+	 * @param properties
+	 *          the properties
+	 * @return true, if successful
+	 */
 	public boolean expand(String name, Properties properties) {
 		return expand(name, null, properties);
 	}
 
+	/**
+	 * Expand properties.
+	 * 
+	 * @param name
+	 *          the name
+	 * @param variables
+	 *          the variables
+	 * @param properties
+	 *          the properties
+	 * @return true, if successful
+	 */
 	public boolean expandProperties(
 	    String name,
 	    Map<String, String> variables, Properties properties) {
@@ -147,15 +200,15 @@ public class ConfigString
 	}
 
 	/**
-	 * Replaces variables and properties with their values, and null if anything
-	 * is not defined.
+	 * Expand variables.
 	 * 
 	 * @param name
-	 *          special name variable that will replace $name$ in the string
+	 *          the name
+	 * @param variables
+	 *          the variables
 	 * @param properties
-	 *          properties
-	 * @return resulting string with all substitutions complete or null if any
-	 *         substitution failed such as undefined referenced property
+	 *          the properties
+	 * @return true, if successful
 	 */
 	public boolean expandVariables(
 	    String name,

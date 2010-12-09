@@ -30,39 +30,52 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.jnetpcap.util.Units;
 
+// TODO: Auto-generated Javadoc
 /**
- * Specialized garbage-collector that invokes the
- * {@link DisposableReference.dispose} method immediately as soon as a
- * DisposableReference becomes unreferancable and put on the main garbage
- * collector's list.
- * 
- * @author markbe
+ * The Class DisposableGC.
  */
 public final class DisposableGC {
+	
+	/** The Constant DEFAULT_CLEANUP_THREAD_TIMEOUT. */
 	private static final long DEFAULT_CLEANUP_THREAD_TIMEOUT = 20;
+	
+	/** The default gc. */
 	private static DisposableGC defaultGC = new DisposableGC();
+	
+	/** The Constant G10. */
 	private static final long G10 = 10 * 1000;
+	
+	/** The Constant G60. */
 	private static final long G60 = 60 * 1000;
 
+	/** The Constant MANUAL_DRAING_MAX. */
 	static final private int MANUAL_DRAING_MAX = 2;
 
-	/**
-	 * When maxDirectMemorySize is breached, this is the minimum amount of memory
-	 * to release, triggering a System.gc() if necessary.
-	 */
+	/** The Constant MIN_MEMORY_RELEASE. */
 	static final int MIN_MEMORY_RELEASE = 2 * Units.MEBIBYTE;
 
-	/**
-	 * Minimum delay before 2 consecutive System.gc calls can be made
-	 */
+	/** The Constant MIN_SYSTEM_GC_INVOKE_TIMEOUT. */
 	static final long MIN_SYSTEM_GC_INVOKE_TIMEOUT = 200;
 
+	/** The Constant OUT_OF_MEMORY_TIMEOUT. */
 	static final long OUT_OF_MEMORY_TIMEOUT = 15 * 1000;
 
-	public static DisposableGC getDeault() {
+	/**
+	 * Gets the default.
+	 * 
+	 * @return the default
+	 */
+	public static DisposableGC getDefault() {
 		return defaultGC;
 	}
 
+	/**
+	 * Mem.
+	 * 
+	 * @param c
+	 *          the c
+	 * @return the long
+	 */
 	private static long mem(LinkSequence<DisposableReference> c) {
 		long size = 0;
 		for (DisposableReference ref : c) {
@@ -72,31 +85,26 @@ public final class DisposableGC {
 		return size;
 	}
 
+	/** The cleanup thread. */
 	private Thread cleanupThread;
+	
+	/** The cleanup thread active. */
 	private AtomicBoolean cleanupThreadActive = new AtomicBoolean(false);
 
+	/** The cleanup thread processing. */
 	private AtomicBoolean cleanupThreadProcessing = new AtomicBoolean(false);
 
+	/** The cleanup timeout. */
 	private AtomicLong cleanupTimeout = new AtomicLong(
 			DisposableGC.DEFAULT_CLEANUP_THREAD_TIMEOUT);
 
+	/** The delta count. */
 	private long deltaCount;
 
+	/** The delta size. */
 	private long deltaSize;
-	/**
-	 * Performance in 1000s of pps using various collection types:
-	 * 
-	 * <pre>
-	 * Type           Threaded   Non-Threaded
-	 *                 min-max     min-max
-	 * ------------------------------------------------    
-	 * ArrayDeque:    43.3-44.8   42.5-44.7
-	 * ArrayList:     43.2-44.7   42.9-45.0
-	 * LinkedList:    43.7-44.8   42.6-44.5
-	 * HashSet:       43.3-44.4   41.2-43.5
-	 * LinkedHashSet: 42.4-43.5   43.2-44.3
-	 * </pre>
-	 */
+	
+	/** The g0. */
 	// final Collection<DisposableReference> refCollection3 =
 	// new ArrayDeque<DisposableReference>(20000);
 	// new ArrayList<DisposableReference>(20000);
@@ -106,21 +114,26 @@ public final class DisposableGC {
 
 	final LinkSequence<DisposableReference> g0 =
 			new LinkSequence<DisposableReference>("g0");
+	
+	/** The g10. */
 	final LinkSequence<DisposableReference> g10 =
 			new LinkSequence<DisposableReference>("g10");
+	
+	/** The g60. */
 	final LinkSequence<DisposableReference> g60 =
 			new LinkSequence<DisposableReference>("g60");
+	
+	/** The last system gc invoke. */
 	private long lastSystemGCInvoke = 0;
+	
+	/** The first system gc needed. */
 	private long firstSystemGCNeeded = 0;
 
 	/*
 	 * private static class Marker extends PhantomReference<Object> {
 	 * 
 	 * @SuppressWarnings("unused") public final long id;
-	 *//**
-	 * @param id
-	 *          unique marker id
-	 */
+	 *//** The marker queue. */
 	/*
 	 * public Marker(long id) { super(new Object() { },
 	 * DisposableGC.getDeault().markerQueue);
@@ -131,26 +144,34 @@ public final class DisposableGC {
 	 */
 	final ReferenceQueue<Object> markerQueue = new ReferenceQueue<Object>();
 
+	/** The marker reference. */
 	private Reference<Object> markerReference;
 
+	/** The memory semaphore. */
 	private Semaphore memorySemaphore = new Semaphore(
 			DisposableGC.MIN_MEMORY_RELEASE);
 
+	/** The ref queue. */
 	final ReferenceQueue<Object> refQueue = new ReferenceQueue<Object>();
 
+	/** The total disposed. */
 	private long totalDisposed = 1;
 
+	/** The total size. */
 	private long totalSize;
 
+	/** The verbose. */
 	private boolean verbose = false;
 
-	/**
-	 * A bit more verbose
-	 */
+	/** The vverbose. */
 	private boolean vverbose = false;
 
+	/** The vvverbose. */
 	private boolean vvverbose = false;
 
+	/**
+	 * Instantiates a new disposable gc.
+	 */
 	private DisposableGC() {
 		startCleanupThread();
 
@@ -166,6 +187,12 @@ public final class DisposableGC {
 		}
 	}
 
+	/**
+	 * Dispose.
+	 * 
+	 * @param ref
+	 *          the ref
+	 */
 	private void dispose(DisposableReference ref) {
 
 		synchronized (g0) {
@@ -183,6 +210,9 @@ public final class DisposableGC {
 
 	}
 
+	/**
+	 * Drain ref queue.
+	 */
 	public void drainRefQueue() {
 		while (true) {
 			DisposableReference ref = (DisposableReference) refQueue.poll();
@@ -194,6 +224,16 @@ public final class DisposableGC {
 		}
 	}
 
+	/**
+	 * Drain ref queue.
+	 * 
+	 * @param timeout
+	 *          the timeout
+	 * @throws IllegalArgumentException
+	 *           the illegal argument exception
+	 * @throws InterruptedException
+	 *           the interrupted exception
+	 */
 	public void drainRefQueue(long timeout) throws IllegalArgumentException,
 			InterruptedException {
 
@@ -221,6 +261,9 @@ public final class DisposableGC {
 		}
 	}
 
+	/**
+	 * Drain ref queue bounded.
+	 */
 	void drainRefQueueBounded() {
 		int iterations = 0;
 		while (iterations < MANUAL_DRAING_MAX) {
@@ -234,6 +277,12 @@ public final class DisposableGC {
 		}
 	}
 
+	/**
+	 * Drain ref queue loop.
+	 * 
+	 * @throws InterruptedException
+	 *           the interrupted exception
+	 */
 	void drainRefQueueLoop() throws InterruptedException {
 
 		deltaCount = 0;
@@ -314,15 +363,42 @@ public final class DisposableGC {
 		}
 	}
 
+	/**
+	 * F.
+	 * 
+	 * @param l
+	 *          the l
+	 * @return the string
+	 */
 	private String f(long l) {
 		return f(l, -1, "");
 	}
 
+	/**
+	 * F.
+	 * 
+	 * @param l
+	 *          the l
+	 * @param percision
+	 *          the percision
+	 * @return the string
+	 */
 	@SuppressWarnings("unused")
 	private String f(long l, int percision) {
 		return f(l, percision, "");
 	}
 
+	/**
+	 * F.
+	 * 
+	 * @param l
+	 *          the l
+	 * @param percision
+	 *          the percision
+	 * @param post
+	 *          the post
+	 * @return the string
+	 */
 	private String f(long l, int percision, String post) {
 		String u = "";
 		double v = l;
@@ -356,24 +432,43 @@ public final class DisposableGC {
 		return String.format(f, v, u, post);
 	}
 
+	/**
+	 * Fb.
+	 * 
+	 * @param l
+	 *          the l
+	 * @return the string
+	 */
 	private String fb(long l) {
 		return f(l, -1, "b");
 	}
 
+	/**
+	 * Fb.
+	 * 
+	 * @param l
+	 *          the l
+	 * @param percision
+	 *          the percision
+	 * @return the string
+	 */
 	private String fb(long l, int percision) {
 		return f(l, percision, "b");
 	}
 
+	/**
+	 * Gets the cleanup thread timeout.
+	 * 
+	 * @return the cleanup thread timeout
+	 */
 	public long getCleanupThreadTimeout() {
 		return cleanupTimeout.get();
 	}
 
 	/**
-	 * Makes sure that JVM GC is not invoked more then a certain timeout value
-	 * since the last time it was invoked. Avoids too many JVM GC invocation calls
-	 * that might overlap
+	 * Invoke system gc.
 	 * 
-	 * @return true if JVM GC was invoked, otherwise false
+	 * @return true, if successful
 	 */
 	private boolean invokeSystemGC() {
 
@@ -414,6 +509,9 @@ public final class DisposableGC {
 	 * 
 	 * }
 	 */
+	/**
+	 * Invoke system gc and wait.
+	 */
 	public synchronized void invokeSystemGCAndWait() {
 
 		long ts = System.currentTimeMillis();
@@ -442,10 +540,7 @@ public final class DisposableGC {
 	}
 
 	/**
-	 * Issues a JVM GC request, while injecting a marker reference to be cleaned
-	 * up by the very same JVM GC run. Until our marker reference is not cleaned
-	 * up, we do not issue another JVM GC since this means that previous GC run
-	 * has not reached our marker reference yet.
+	 * Invoke system gc with marker.
 	 */
 	public synchronized void invokeSystemGCWithMarker() {
 
@@ -462,22 +557,30 @@ public final class DisposableGC {
 		invokeSystemGC();
 	}
 
+	/**
+	 * Checks if is cleanup complete.
+	 * 
+	 * @return true, if is cleanup complete
+	 */
 	public boolean isCleanupComplete() {
 		synchronized (g0) {
 			return g0.isEmpty();
 		}
 	}
 
+	/**
+	 * Checks if is the cleanup thread active.
+	 * 
+	 * @return the cleanup thread active
+	 */
 	public boolean isCleanupThreadActive() {
 		return cleanupThreadActive.get() && cleanupThread.isAlive();
 	}
 
 	/**
-	 * Checks if JVM GC can be called upon, at this particular time. If the
-	 * previous invocation of JVM GC was less then minimum delay between
-	 * consecutive calls, this function returns false.
+	 * Checks if is system gc ready.
 	 * 
-	 * @return true if JVM GC can be invoked at this time, otherwise false
+	 * @return true, if is system gc ready
 	 */
 	private final boolean isSystemGCReady() {
 		if (firstSystemGCNeeded == 0) {
@@ -489,6 +592,8 @@ public final class DisposableGC {
 	}
 
 	/**
+	 * Checks if is the verbose.
+	 * 
 	 * @return the verbose
 	 */
 	public boolean isVerbose() {
@@ -496,27 +601,40 @@ public final class DisposableGC {
 	}
 
 	/**
-	 * @return the vverbose
+	 * Checks if is v verbose.
+	 * 
+	 * @return true, if is v verbose
 	 */
 	public boolean isVVerbose() {
 		return vverbose;
 	}
 
 	/**
-	 * @return the vvverbose
+	 * Checks if is vV verbose.
+	 * 
+	 * @return true, if is vV verbose
 	 */
 	public boolean isVVVerbose() {
 		return vvverbose;
 	}
 
+	/**
+	 * Log busy.
+	 */
 	private void logBusy() {
 		System.out.printf("DisposableGC: busy%n");
 	}
 
+	/**
+	 * Log finished.
+	 */
 	private void logFinished() {
 		System.out.printf("DisposableGC: finished%n");
 	}
 
+	/**
+	 * Log idle.
+	 */
 	private void logIdle() {
 		System.out.printf("DisposableGC: idle - "
 				+ "waiting for system GC to collect more objects%n");
@@ -524,7 +642,7 @@ public final class DisposableGC {
 	}
 
 	/**
-	 * 
+	 * Log limits.
 	 */
 	private void logLimits() {
 		System.out
@@ -535,7 +653,7 @@ public final class DisposableGC {
 	}
 
 	/**
-	 * 
+	 * Log marker.
 	 */
 	private void logMarker() {
 		long ts = System.currentTimeMillis();
@@ -553,7 +671,7 @@ public final class DisposableGC {
 	}
 
 	/**
-	 * 
+	 * Log system gc.
 	 */
 	private void logSystemGC() {
 		long ts = System.currentTimeMillis();
@@ -570,6 +688,9 @@ public final class DisposableGC {
 
 	}
 
+	/**
+	 * Log usage.
+	 */
 	private void logUsage() {
 		System.out.printf("DisposableGC: [immediate=%3s(%4s)]=%3s(%7s) "
 				+ "[0sec=%3s(%6s),10sec=%3s(%6s),60sec=%3s(%6s)]=%6s%n",
@@ -587,6 +708,11 @@ public final class DisposableGC {
 
 	}
 
+	/**
+	 * Memory held in ref collection.
+	 * 
+	 * @return the long
+	 */
 	private long memoryHeldInRefCollection() {
 		long size = 0;
 
@@ -597,13 +723,21 @@ public final class DisposableGC {
 		return size;
 	}
 
+	/**
+	 * Sets the cleanup thread timeout.
+	 * 
+	 * @param timeout
+	 *          the new cleanup thread timeout
+	 */
 	public void setCleanupThreadTimeout(long timeout) {
 		cleanupTimeout.set(timeout);
 	}
 
 	/**
+	 * Sets the verbose.
+	 * 
 	 * @param verbose
-	 *          the verbose to set
+	 *          the new verbose
 	 */
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
@@ -618,8 +752,10 @@ public final class DisposableGC {
 	}
 
 	/**
+	 * Sets the v verbose.
+	 * 
 	 * @param vverbose
-	 *          the vverbose to set
+	 *          the new v verbose
 	 */
 	public void setVVerbose(boolean vverbose) {
 		if (vverbose) {
@@ -632,8 +768,10 @@ public final class DisposableGC {
 	}
 
 	/**
+	 * Sets the vV verbose.
+	 * 
 	 * @param vvverbose
-	 *          the vvverbose to set
+	 *          the new vV verbose
 	 */
 	public void setVVVerbose(boolean vvverbose) {
 		if (vvverbose) {
@@ -643,7 +781,7 @@ public final class DisposableGC {
 	}
 
 	/**
-	 * 
+	 * Sort generations.
 	 */
 	private void sortGenerations() {
 		final long ct = System.currentTimeMillis();
@@ -676,6 +814,9 @@ public final class DisposableGC {
 		}
 	}
 
+	/**
+	 * Start cleanup thread.
+	 */
 	public synchronized void startCleanupThread() {
 		if (isCleanupThreadActive()) {
 			return;
@@ -712,6 +853,12 @@ public final class DisposableGC {
 		cleanupThread.start();
 	}
 
+	/**
+	 * Stop cleanup thread.
+	 * 
+	 * @throws InterruptedException
+	 *           the interrupted exception
+	 */
 	public void stopCleanupThread() throws InterruptedException {
 		if (isCleanupThreadActive()) {
 			synchronized (cleanupThread) {
@@ -724,6 +871,12 @@ public final class DisposableGC {
 		}
 	}
 
+	/**
+	 * Wait for forcable cleanup.
+	 * 
+	 * @throws InterruptedException
+	 *           the interrupted exception
+	 */
 	public void waitForForcableCleanup() throws InterruptedException {
 		System.gc();
 		while (waitForFullCleanup(5 * 1000) == false) {
@@ -740,6 +893,15 @@ public final class DisposableGC {
 
 	}
 
+	/**
+	 * Wait for forcable cleanup.
+	 * 
+	 * @param timeout
+	 *          the timeout
+	 * @return true, if successful
+	 * @throws InterruptedException
+	 *           the interrupted exception
+	 */
 	public boolean waitForForcableCleanup(long timeout)
 			throws InterruptedException {
 		int count = (int) (timeout / 100) + 1;
@@ -750,6 +912,12 @@ public final class DisposableGC {
 		return isCleanupComplete();
 	}
 
+	/**
+	 * Wait for full cleanup.
+	 * 
+	 * @throws InterruptedException
+	 *           the interrupted exception
+	 */
 	public void waitForFullCleanup() throws InterruptedException {
 
 		synchronized (g0) {
@@ -763,6 +931,15 @@ public final class DisposableGC {
 		}
 	}
 
+	/**
+	 * Wait for full cleanup.
+	 * 
+	 * @param timeout
+	 *          the timeout
+	 * @return true, if successful
+	 * @throws InterruptedException
+	 *           the interrupted exception
+	 */
 	public boolean waitForFullCleanup(long timeout) throws InterruptedException {
 
 		synchronized (g0) {

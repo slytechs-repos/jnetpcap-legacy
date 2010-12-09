@@ -18,29 +18,71 @@
  */
 package org.jnetpcap.util;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author HP_Administrator
- * 
+ * The Class Units.
  */
 public class Units {
+	
+	/** The Constant TEBIBYTE. */
 	public final static long TEBIBYTE = 1024L * Units.GIGIBYTE;
+	
+	/** The Constant GIGIBYTE. */
 	public final static int GIGIBYTE = 1024 * Units.MEBIBYTE;
+	
+	/** The Constant MEBIBYTE. */
 	public final static int MEBIBYTE = 1024 * Units.KIBIBYTE;
+	
+	/** The Constant KIBIBYTE. */
 	public final static int KIBIBYTE = 1024;
 
+	/** The Constant TERABYTE. */
 	public final static long TERABYTE = 1000L * Units.GIGABYTE;
+	
+	/** The Constant GIGABYTE. */
 	public final static int GIGABYTE = 1000 * Units.MEGABYTE;
+	
+	/** The Constant MEGABYTE. */
 	public final static int MEGABYTE = 1000 * Units.KILOBYTE;
+	
+	/** The Constant KILOBYTE. */
 	public final static int KILOBYTE = 1000;
 
+	/**
+	 * F.
+	 * 
+	 * @param l
+	 *          the l
+	 * @return the string
+	 */
 	public static String f(long l) {
 		return f(l, -1, "");
 	}
 
+	/**
+	 * F.
+	 * 
+	 * @param l
+	 *          the l
+	 * @param percision
+	 *          the percision
+	 * @return the string
+	 */
 	public static String f(long l, int percision) {
 		return f(l, percision, "");
 	}
 
+	/**
+	 * F.
+	 * 
+	 * @param l
+	 *          the l
+	 * @param percision
+	 *          the percision
+	 * @param post
+	 *          the post
+	 * @return the string
+	 */
 	public static String f(long l, int percision, String post) {
 		String u = "";
 		double v = l;
@@ -74,10 +116,26 @@ public class Units {
 		return String.format(f, v, u, post);
 	}
 
+	/**
+	 * Fb.
+	 * 
+	 * @param l
+	 *          the l
+	 * @return the string
+	 */
 	public static String fb(long l) {
 		return f(l, -1, "b");
 	}
 
+	/**
+	 * Fb.
+	 * 
+	 * @param l
+	 *          the l
+	 * @param percision
+	 *          the percision
+	 * @return the string
+	 */
 	public static String fb(long l, int percision) {
 		return f(l, percision, "b");
 	}

@@ -25,15 +25,17 @@ import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.VariousInMemoryPackets;
 import org.jnetpcap.protocol.lan.Ethernet;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
- *
+ * The Class TestPeering.
  */
 public class TestPeering
     extends
     TestCase {
 	
+	/**
+	 * Test peer to j buffer.
+	 */
 	public void testPeerToJBuffer() {
 		assertNotNull(VariousInMemoryPackets.PACKET_1);
 		JPacket packet = new JMemoryPacket(VariousInMemoryPackets.PACKET_1);

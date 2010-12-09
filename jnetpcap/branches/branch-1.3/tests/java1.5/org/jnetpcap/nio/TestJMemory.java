@@ -26,9 +26,9 @@ import junit.framework.TestCase;
 import org.jnetpcap.nio.JNumber.Type;
 import org.jnetpcap.packet.PeeringException;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestJMemory.
  */
 public class TestJMemory
     extends TestCase {
@@ -51,6 +51,9 @@ public class TestJMemory
 		super.tearDown();
 	}
 
+	/**
+	 * Test peer with non direct byte buffer.
+	 */
 	public void testPeerWithNonDirectByteBuffer() {
 		ByteBuffer b = ByteBuffer.allocate(4);
 		JNumber n = new JNumber(Type.INT);
@@ -63,6 +66,12 @@ public class TestJMemory
 		}
 	}
 
+	/**
+	 * Test peer with direct byte buffer.
+	 * 
+	 * @throws PeeringException
+	 *           the peering exception
+	 */
 	public void testPeerWithDirectByteBuffer() throws PeeringException {
 		ByteBuffer b = ByteBuffer.allocateDirect(4);
 		b.order(ByteOrder.nativeOrder());
@@ -75,6 +84,9 @@ public class TestJMemory
 		assertEquals(100, n.intValue());
 	}
 
+	/**
+	 * Test transfer to direct byte buffer.
+	 */
 	public void testTransferToDirectByteBuffer() {
 		ByteBuffer b = ByteBuffer.allocateDirect(4);
 		b.order(ByteOrder.nativeOrder());
@@ -88,6 +100,9 @@ public class TestJMemory
 		assertEquals(100, b.getInt());
 	}
 
+	/**
+	 * Test transfer from direct byte buffer.
+	 */
 	public void testTransferFromDirectByteBuffer() {
 		ByteBuffer b = ByteBuffer.allocateDirect(4);
 		b.order(ByteOrder.nativeOrder());
@@ -101,6 +116,9 @@ public class TestJMemory
 
 	}
 
+	/**
+	 * Test read from uninitialized ptr.
+	 */
 	public void testReadFromUninitializedPtr() {
 		JNumber n = new JNumber(JMemory.Type.POINTER); // Uninitialized ptr
 

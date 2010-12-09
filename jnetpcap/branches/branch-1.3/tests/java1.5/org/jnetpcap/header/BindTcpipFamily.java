@@ -19,9 +19,7 @@
 package org.jnetpcap.header;
 
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
- *
+ * The Class BindTcpipFamily.
  */
 public class BindTcpipFamily {
 

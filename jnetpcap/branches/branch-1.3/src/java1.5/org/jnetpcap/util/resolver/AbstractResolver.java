@@ -43,31 +43,31 @@ import java.util.logging.Logger;
 import org.jnetpcap.util.JEvent;
 import org.jnetpcap.util.config.JConfig;
 
+// TODO: Auto-generated Javadoc
 /**
- * Default adaptor class for Resovler interface. This abstract class provides
- * the default caching mechanism for positive and negative resolver lookups. It
- * also provides a timeout mechanism to time out lookup results.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class AbstractResolver.
  */
 public abstract class AbstractResolver implements Resolver,
     PropertyChangeListener {
 
 	/**
-	 * Internal class that keeps track of timeout and which key to time out. Key
-	 * is hash of the address that was cached.
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Class TimeoutEntry.
 	 */
 	private static class TimeoutEntry {
+		
+		/** The hash. */
 		public final long hash;
 
+		/** The timeout. */
 		public final long timeout;
 
 		/**
+		 * Instantiates a new timeout entry.
+		 * 
 		 * @param key
+		 *          the key
+		 * @param timeout
+		 *          the timeout
 		 */
 		public TimeoutEntry(long key, long timeout) {
 			this.hash = key;
@@ -79,124 +79,132 @@ public abstract class AbstractResolver implements Resolver,
 		}
 	}
 
+	/** The Constant DEFAULT_BACKOFF. */
 	private static final int DEFAULT_BACKOFF = 10;
 
+	/** The Constant DEFAULT_CACHE_SUFFIX. */
 	private static final String DEFAULT_CACHE_SUFFIX = ".resolver";
 
+	/** The Constant DEFAULT_HOME. */
 	private static final String DEFAULT_HOME = "@{user.home}/@{${subdir}}";
 
+	/** The Constant DEFAULT_MAX_ENTRIES. */
 	private static final int DEFAULT_MAX_ENTRIES = 1000;
 
+	/** The Constant DEFAULT_MKDIR_HOME. */
 	private static final boolean DEFAULT_MKDIR_HOME = false;
 
+	/** The Constant DEFAULT_NEGATIVE_TIMEOUT_IN_MILLIS. */
 	private static final long DEFAULT_NEGATIVE_TIMEOUT_IN_MILLIS = 30 * 60 * 1000;
 
-	/**
-	 * Timeout of 5 years
-	 */
+	/** The Constant INFINITE_TIMEOUT. */
 	protected static final long INFINITE_TIMEOUT =
 	    1000L * 60L * 60L * 24L * 365L * 5L;
 
+	/** The Constant DEFAULT_POSITIVE_TIMEOUT_IN_MILLIS. */
 	private static final long DEFAULT_POSITIVE_TIMEOUT_IN_MILLIS =
 	    24 * 60 * 60 * 1000;
 
+	/** The Constant DEFAULT_SAVE_CACHE. */
 	private static final boolean DEFAULT_SAVE_CACHE = false;
 
+	/** The Constant NEWLINE_SEPARATOR. */
 	private static final String NEWLINE_SEPARATOR =
 	    System.getProperty("line.separator");
 
+	/** The Constant PROPERTY_BACKOFF. */
 	private static final String PROPERTY_BACKOFF = "resolver.%sbackoff";
 
+	/** The Constant PROPERTY_CACHE_SUFFIX. */
 	private static final String PROPERTY_CACHE_SUFFIX = "resolver.suffix";
 
+	/** The Constant PROPERTY_MAX_ENTRIES. */
 	private static final String PROPERTY_MAX_ENTRIES = "resolver.%smaxentries";
 
+	/** The Constant PROPERTY_MKDIR_HOME. */
 	private static final String PROPERTY_MKDIR_HOME = "resolver.home.mkdir";
 
+	/** The Constant PROPERTY_NEGATIVE_TIMEOUT. */
 	private static final String PROPERTY_NEGATIVE_TIMEOUT =
 	    "resolver.%stimeout.negative";
 
+	/** The Constant PROPERTY_POSITIVE_TIMEOUT. */
 	private static final String PROPERTY_POSITIVE_TIMEOUT =
 	    "resolver.%stimeout.positive";
 
+	/** The Constant PROPERTY_RESOLVER_HOME. */
 	private static final String PROPERTY_RESOLVER_HOME = "resolver.home";
 
+	/** The Constant PROPERTY_RESOLVER_HOME_SEARCH_PATH. */
 	private static final String PROPERTY_RESOLVER_HOME_SEARCH_PATH =
 	    "resolver.home.search.path";
 
+	/** The Constant PROPERTY_RESOLVER_FILE_SEARCH_PATH. */
 	private static final String PROPERTY_RESOLVER_FILE_SEARCH_PATH =
 	    "resolver.search.path";
 
+	/** The Constant PROPERTY_SAVE_CACHE. */
 	private static final String PROPERTY_SAVE_CACHE = "resolver.%ssave";
 
-	/**
-	 * Percentage of how many oldest entries to remove from cache
-	 */
+	/** The backoff. */
 	private int backoff = DEFAULT_BACKOFF;
 
-	/**
-	 * Main cache map. The timeout is maintaned using a priority queue, that
-	 * removes timedout entries from this map.
-	 */
+	/** The cache. */
 	private Map<Long, String> cache;
 
-	/**
-	 * Just an initial map size.
-	 */
+	/** The cache capacity. */
 	private int cacheCapacity = 100;
 
+	/** The cache load factor. */
 	private float cacheLoadFactor = 0.75f;
 
-	/**
-	 * Flag used to mark if any changes have been made to the cache that need to
-	 * be saved
-	 */
+	/** The is modified. */
 	private boolean isModified = false;
 
-	/**
-	 * Logger is supplied from subclass. This allows Abstract logger to log
-	 * messages attached to actual logger that was intended for
-	 */
+	/** The logger. */
 	protected final Logger logger;
 
-	/**
-	 * Hard limit on how many entries can be stored in a cache. When this limit is
-	 * reached, backoff percentage is used to calculate the number of oldest
-	 * entries to remove to make room for new entries.
-	 */
+	/** The maxentries. */
 	private int maxentries = DEFAULT_MAX_ENTRIES;
 
-	/**
-	 * If set to true, we are allowed to create our resolver home directory, which
-	 * defaults to jnetpcap home directory.
-	 */
+	/** The mkdir home. */
 	private boolean mkdirHome = DEFAULT_MKDIR_HOME;
 
-	/**
-	 * Name of this resolver. Same as enum constant name. Used in file names and
-	 * resolver specific properties.
-	 */
+	/** The name. */
 	private final String name;
 
-	/**
-	 * When failed to resolve to a name, store the failure information in cache
-	 * and set the negative hit timeout.
-	 */
+	/** The negative timeout. */
 	private long negativeTimeout = DEFAULT_NEGATIVE_TIMEOUT_IN_MILLIS;
 
-	/**
-	 * Resolved to a name.
-	 */
+	/** The positive timeout. */
 	private long positiveTimeout = DEFAULT_POSITIVE_TIMEOUT_IN_MILLIS;
 
+	/** The save cache. */
 	private boolean saveCache = DEFAULT_SAVE_CACHE;
 
+	/** The timeout queue. */
 	private Queue<AbstractResolver.TimeoutEntry> timeoutQueue;
 
+	/**
+	 * Instantiates a new abstract resolver.
+	 * 
+	 * @param logger
+	 *          the logger
+	 * @param type
+	 *          the type
+	 */
 	public AbstractResolver(Logger logger, ResolverType type) {
 		this(logger, type.name());
 	}
 
+	/**
+	 * Instantiates a new abstract resolver.
+	 * 
+	 * @param logger
+	 *          the logger
+	 * @param name
+	 *          the name
+	 */
 	public AbstractResolver(Logger logger, String name) {
 		this.logger = logger;
 		this.name = name;
@@ -207,6 +215,14 @@ public abstract class AbstractResolver implements Resolver,
 
 	}
 
+	/**
+	 * Adds the to cache.
+	 * 
+	 * @param hash
+	 *          the hash
+	 * @param name
+	 *          the name
+	 */
 	public void addToCache(long hash, String name) {
 		if (name != null && positiveTimeout != 0) {
 			addToCache(hash, name, positiveTimeout);
@@ -217,6 +233,16 @@ public abstract class AbstractResolver implements Resolver,
 		}
 	}
 
+	/**
+	 * Adds the to cache.
+	 * 
+	 * @param hash
+	 *          the hash
+	 * @param name
+	 *          the name
+	 * @param timeout
+	 *          the timeout
+	 */
 	public void addToCache(long hash, String name, long timeout) {
 
 		if (cache.containsKey(hash)) {
@@ -255,8 +281,8 @@ public abstract class AbstractResolver implements Resolver,
 		return resolve(address) != null;
 	}
 
-	/**
-	 * Clear cache and timeout queues
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.util.resolver.Resolver#clearCache()
 	 */
 	public void clearCache() {
 		if (cache != null) {
@@ -270,6 +296,9 @@ public abstract class AbstractResolver implements Resolver,
 		}
 	}
 
+	/**
+	 * Creates the cache.
+	 */
 	private void createCache() {
 		cache =
 		    Collections.synchronizedMap(new HashMap<Long, String>(cacheCapacity,
@@ -288,6 +317,11 @@ public abstract class AbstractResolver implements Resolver,
 
 	}
 
+	/**
+	 * Filename.
+	 * 
+	 * @return the string
+	 */
 	private String filename() {
 		String filename =
 		    this.name
@@ -296,6 +330,9 @@ public abstract class AbstractResolver implements Resolver,
 		return filename;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#finalize()
+	 */
 	@Override
 	protected void finalize() throws Throwable {
 		saveCache();
@@ -303,22 +340,49 @@ public abstract class AbstractResolver implements Resolver,
 		super.finalize();
 	}
 
+	/**
+	 * Gets the just an initial map size.
+	 * 
+	 * @return the just an initial map size
+	 */
 	public final int getCacheCapacity() {
 		return this.cacheCapacity;
 	}
 
+	/**
+	 * Gets the cache load factor.
+	 * 
+	 * @return the cache load factor
+	 */
 	public final float getCacheLoadFactor() {
 		return this.cacheLoadFactor;
 	}
 
+	/**
+	 * Gets the when failed to resolve to a name, store the failure information in
+	 * cache and set the negative hit timeout.
+	 * 
+	 * @return the when failed to resolve to a name, store the failure information
+	 *         in cache and set the negative hit timeout
+	 */
 	public final long getNegativeTimeout() {
 		return this.negativeTimeout;
 	}
 
+	/**
+	 * Gets the resolved to a name.
+	 * 
+	 * @return the resolved to a name
+	 */
 	public final long getPositiveTimeout() {
 		return this.positiveTimeout;
 	}
 
+	/**
+	 * Checks for cache file.
+	 * 
+	 * @return true, if successful
+	 */
 	protected boolean hasCacheFile() {
 		File file;
 		try {
@@ -329,11 +393,8 @@ public abstract class AbstractResolver implements Resolver,
 		return file != null && file.canRead() && file.length() > 0;
 	}
 
-	/**
-	 * Called by JRegistry when resolver when it is being retrieved. This allows
-	 * the resolver to do a late initialization, only when its actually called on
-	 * to do work. This behaviour is JRegistry specific and therefore kept package
-	 * and subclass accessible.
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.util.resolver.Resolver#initializeIfNeeded()
 	 */
 	public void initializeIfNeeded() {
 
@@ -350,6 +411,9 @@ public abstract class AbstractResolver implements Resolver,
 		}
 	}
 
+	/**
+	 * Inits the properties.
+	 */
 	private void initProperties() {
 		JConfig.addListener(this, String.format(PROPERTY_POSITIVE_TIMEOUT, ""),
 		    DEFAULT_POSITIVE_TIMEOUT_IN_MILLIS);
@@ -391,10 +455,11 @@ public abstract class AbstractResolver implements Resolver,
 	}
 
 	/**
-	 * Load cache entries using default mechanism
+	 * Load cache.
 	 * 
-	 * @return number of cache entries read
+	 * @return the int
 	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
 	 */
 	public int loadCache() throws IOException {
 
@@ -408,6 +473,15 @@ public abstract class AbstractResolver implements Resolver,
 		return loadCache(new BufferedReader(new InputStreamReader(url.openStream())));
 	}
 
+	/**
+	 * Load cache.
+	 * 
+	 * @param in
+	 *          the in
+	 * @return the int
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	private int loadCache(BufferedReader in) throws IOException {
 		long time = System.currentTimeMillis();
 		int count = 0;
@@ -465,14 +539,13 @@ public abstract class AbstractResolver implements Resolver,
 	}
 
 	/**
-	 * Load cache entries from file. Each cached entry is saved with a timeout
-	 * timestamp. If the timeout is already expired, the entry is skipped.
+	 * Load cache.
 	 * 
 	 * @param file
-	 *          file to load cache entries from
-	 * @return number of entries saved
+	 *          the file
+	 * @return the int
 	 * @throws IOException
-	 *           any IO errors
+	 *           Signals that an I/O exception has occurred.
 	 */
 	public int loadCache(String file) throws IOException {
 
@@ -486,6 +559,9 @@ public abstract class AbstractResolver implements Resolver,
 		return loadCache(in);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.util.resolver.Resolver#loadCache(java.net.URL)
+	 */
 	public int loadCache(URL url) throws IOException {
 		return loadCache(new BufferedReader(new InputStreamReader(url.openStream())));
 	}
@@ -588,37 +664,29 @@ public abstract class AbstractResolver implements Resolver,
 	}
 
 	/**
-	 * Resolves an address to a name. Performs any neccessary lookups to try and
-	 * resolve the name. The method should not access any of the cached
-	 * information. THis method is called only after the cache has already been
-	 * checked and failed to produce a positive or negative lookup entry.
+	 * Resolve to name.
 	 * 
 	 * @param address
-	 *          address to resolve
+	 *          the address
 	 * @param hash
-	 *          computed hash code for the address, identifies the address
-	 *          uniquely
+	 *          the hash
+	 * @return the string
 	 */
 	protected abstract String resolveToName(byte[] address, long hash);
 
 	/**
-	 * Resolves number to a name. Performs any neccessary lookups to try and
-	 * resolve the name. The method should not access any of the cached
-	 * information. THis method is called only after the cache has already been
-	 * checked and failed to produce a positive or negative lookup entry.
+	 * Resolve to name.
 	 * 
 	 * @param number
-	 *          a number value to resolve
+	 *          the number
 	 * @param hash
-	 *          computed hash code for the number, identifies the number uniquely
+	 *          the hash
+	 * @return the string
 	 */
 	protected abstract String resolveToName(long number, long hash);
 
-	/**
-	 * Save the cache using default mechanism, if set
-	 * 
-	 * @return number of cache entries saved
-	 * @throws IOException
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.util.resolver.Resolver#saveCache()
 	 */
 	public int saveCache() throws IOException {
 		timeoutCache();
@@ -664,6 +732,13 @@ public abstract class AbstractResolver implements Resolver,
 		return count;
 	}
 
+	/**
+	 * Save cache.
+	 * 
+	 * @param out
+	 *          the out
+	 * @return the int
+	 */
 	private int saveCache(PrintWriter out) {
 		int count = 0;
 
@@ -699,13 +774,13 @@ public abstract class AbstractResolver implements Resolver,
 	}
 
 	/**
-	 * Save the cache to file.
+	 * Save cache.
 	 * 
 	 * @param file
-	 *          file to save to
-	 * @return number of entries saved
+	 *          the file
+	 * @return the int
 	 * @throws IOException
-	 *           any IO errors
+	 *           Signals that an I/O exception has occurred.
 	 */
 	public int saveCache(String file) throws IOException {
 		File f = new File(file);
@@ -722,24 +797,53 @@ public abstract class AbstractResolver implements Resolver,
 		return saveCache(out);
 	}
 
+	/**
+	 * Sets the just an initial map size.
+	 * 
+	 * @param cacheCapacity
+	 *          the new just an initial map size
+	 */
 	public final void setCacheCapacity(int cacheCapacity) {
 		this.cacheCapacity = cacheCapacity;
 	}
 
+	/**
+	 * Sets the cache load factor.
+	 * 
+	 * @param cacheLoadFactor
+	 *          the new cache load factor
+	 */
 	public final void setCacheLoadFactor(float cacheLoadFactor) {
 		this.cacheLoadFactor = cacheLoadFactor;
 	}
 
+	/**
+	 * Sets the when failed to resolve to a name, store the failure information in
+	 * cache and set the negative hit timeout.
+	 * 
+	 * @param negativeTimeout
+	 *          the new when failed to resolve to a name, store the failure
+	 *          information in cache and set the negative hit timeout
+	 */
 	public final void setNegativeTimeout(long negativeTimeout) {
 		JConfig.setProperty(String.format(PROPERTY_NEGATIVE_TIMEOUT, this.name
 		    + "."), Long.toString(negativeTimeout));
 	}
 
+	/**
+	 * Sets the resolved to a name.
+	 * 
+	 * @param positiveTimeout
+	 *          the new resolved to a name
+	 */
 	public final void setPositiveTimeout(long positiveTimeout) {
 		JConfig.setProperty(String.format(PROPERTY_POSITIVE_TIMEOUT, this.name
 		    + "."), Long.toString(positiveTimeout));
 	}
 
+	/**
+	 * Timeout cache.
+	 */
 	private void timeoutCache() {
 		final long t = System.currentTimeMillis();
 
@@ -761,10 +865,10 @@ public abstract class AbstractResolver implements Resolver,
 	}
 
 	/**
-	 * Removes count oldest entries from the timeout cache, presumably to make
-	 * room for newer entries.
+	 * Timeout cache oldest.
 	 * 
 	 * @param count
+	 *          the count
 	 */
 	private void timeoutCacheOldest(int count) {
 		synchronized (cache) {
@@ -783,12 +887,29 @@ public abstract class AbstractResolver implements Resolver,
 		}
 	}
 
+	/**
+	 * To hash code.
+	 * 
+	 * @param address
+	 *          the address
+	 * @return the long
+	 */
 	protected abstract long toHashCode(byte[] address);
 
+	/**
+	 * To hash code.
+	 * 
+	 * @param number
+	 *          the number
+	 * @return the long
+	 */
 	protected long toHashCode(long number) {
 		return number;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	public String toString() {
 		StringBuilder out = new StringBuilder();
 		out.append(String.format("cache[count=%d], "

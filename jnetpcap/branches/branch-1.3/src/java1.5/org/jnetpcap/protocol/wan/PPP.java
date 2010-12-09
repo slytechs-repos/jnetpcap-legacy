@@ -24,16 +24,15 @@ import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.protocol.JProtocol;
 
+// TODO: Auto-generated Javadoc
 /**
- * Point to Point Protocol header definition
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class PPP.
  */
 @Header(length = 5, dlt = PcapDLT.PPP)
 public class PPP
     extends JHeader {
 
+	/** The Constant ID. */
 	public static final int ID = JProtocol.PPP_ID;
 	
 //	@Field(offset = 0, length = 8) 
@@ -41,16 +40,31 @@ public class PPP
 //		return getUByte(0);
 //	}
 
-	@Field(offset = 0, length = 8)
+	/**
+ * Address.
+ * 
+ * @return the int
+ */
+@Field(offset = 0, length = 8)
 	public int address() {
 		return getUByte(0);
 	}
 
+	/**
+	 * Control.
+	 * 
+	 * @return the int
+	 */
 	@Field(offset = 8, length = 8)
 	public int control() {
 		return getUByte(1);
 	}
 
+	/**
+	 * Protocol.
+	 * 
+	 * @return the int
+	 */
 	@Field(offset = 16, length = 16, format = "%x")
 	public int protocol() {
 		return getUShort(2);

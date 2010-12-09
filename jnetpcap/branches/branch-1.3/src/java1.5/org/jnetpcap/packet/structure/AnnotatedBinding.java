@@ -29,19 +29,30 @@ import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.annotate.Bind;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class AnnotatedBinding.
  */
 public class AnnotatedBinding implements JBinding {
 
+	/** The Constant cache. */
 	private final static Map<Class<?>, JBinding[]> cache =
 	    new HashMap<Class<?>, JBinding[]>();
 
+	/**
+	 * Clear cache.
+	 */
 	public static void clearCache() {
 		cache.clear();
 	}
 
+	/**
+	 * Creates the header from class.
+	 * 
+	 * @param c
+	 *          the c
+	 * @return the j header
+	 */
 	private static JHeader createHeaderFromClass(Class<? extends JHeader> c) {
 		try {
 			JHeader header = c.newInstance();
@@ -55,6 +66,15 @@ public class AnnotatedBinding implements JBinding {
 		}
 	}
 
+	/**
+	 * Inspect class.
+	 * 
+	 * @param c
+	 *          the c
+	 * @param errors
+	 *          the errors
+	 * @return the j binding[]
+	 */
 	public static JBinding[] inspectClass(
 	    Class<?> c,
 	    List<HeaderDefinitionError> errors) {
@@ -69,6 +89,17 @@ public class AnnotatedBinding implements JBinding {
 		return createBindings(c, bindMethods, errors);
 	}
 
+	/**
+	 * Creates the bindings.
+	 * 
+	 * @param c
+	 *          the c
+	 * @param bindMethods
+	 *          the bind methods
+	 * @param errors
+	 *          the errors
+	 * @return the j binding[]
+	 */
 	private static JBinding[] createBindings(
 	    Class<?> c,
 	    AnnotatedBindMethod[] bindMethods,
@@ -101,6 +132,17 @@ public class AnnotatedBinding implements JBinding {
 		return bindings;
 	}
 
+	/**
+	 * Inspect j header class.
+	 * 
+	 * @param <T>
+	 *          the generic type
+	 * @param c
+	 *          the c
+	 * @param errors
+	 *          the errors
+	 * @return the j binding[]
+	 */
 	public static <T extends JHeader> JBinding[] inspectJHeaderClass(
 	    Class<T> c,
 	    List<HeaderDefinitionError> errors) {
@@ -138,24 +180,41 @@ public class AnnotatedBinding implements JBinding {
 		return bindings;
 	}
 
+	/** The annotated bound. */
 	private final AnnotatedBindMethod annotatedBound;
 
+	/** The definition class. */
 	private final Class<?> definitionClass;
 
+	/** The dependencies. */
 	protected final int[] dependencies;
 
-	/**
-	 * Our working protocol header that we use to peer with packet and dispatch to
-	 * isBound method.
-	 */
+	/** The header. */
 	private final JHeader header;
 
+	/** The source id. */
 	private final int sourceId;
 
+	/** The target class. */
 	private final Class<? extends JHeader> targetClass;
 
+	/** The target id. */
 	private final int targetId;
 
+	/**
+	 * Instantiates a new annotated binding.
+	 * 
+	 * @param definitionClass
+	 *          the definition class
+	 * @param source
+	 *          the source
+	 * @param target
+	 *          the target
+	 * @param bindingMethod
+	 *          the binding method
+	 * @param dependencies
+	 *          the dependencies
+	 */
 	private AnnotatedBinding(
 	    Class<?> definitionClass,
 	    Class<? extends JHeader> source,
@@ -190,6 +249,11 @@ public class AnnotatedBinding implements JBinding {
 		return this.sourceId;
 	}
 
+	/**
+	 * Gets the target class.
+	 * 
+	 * @return the target class
+	 */
 	public Class<? extends JHeader> getTargetClass() {
 		return targetClass;
 	}
@@ -224,6 +288,9 @@ public class AnnotatedBinding implements JBinding {
 		return dependencies;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	public String toString() {
 		String def = this.definitionClass.getSimpleName();
 		String method = this.annotatedBound.getMethod().getName();
@@ -234,9 +301,13 @@ public class AnnotatedBinding implements JBinding {
 	}
 
 	/**
+	 * Inspect class.
+	 * 
 	 * @param bindingSuite
+	 *          the binding suite
 	 * @param errors
-	 * @return
+	 *          the errors
+	 * @return the j binding[]
 	 */
 	public static JBinding[] inspectClass(
 	    Object bindingSuite,
@@ -245,9 +316,13 @@ public class AnnotatedBinding implements JBinding {
 	}
 
 	/**
+	 * Inspect object.
+	 * 
 	 * @param object
+	 *          the object
 	 * @param errors
-	 * @return
+	 *          the errors
+	 * @return the j binding[]
 	 */
 	public static JBinding[] inspectObject(
 	    Object object,

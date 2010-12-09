@@ -18,19 +18,16 @@
  */
 package org.jnetpcap.util;
 
+// TODO: Auto-generated Javadoc
 /**
- * Gets the length of the object. The units of the length property are
- * implementation dependent.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Interface Length.
  */
 public interface Length {
 
 	/**
-	 * Length of the object
+	 * Length.
 	 * 
-	 * @return length of the object
+	 * @return the int
 	 */
 	public int length();
 }

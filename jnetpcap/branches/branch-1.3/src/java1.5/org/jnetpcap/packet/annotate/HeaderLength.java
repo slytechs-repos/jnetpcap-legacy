@@ -24,9 +24,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Interface HeaderLength.
  */
 @Target(ElementType.METHOD)
 @Documented
@@ -34,45 +34,30 @@ import java.lang.annotation.Target;
 public @interface HeaderLength {
 
 	/**
-	 * Table with constants for each type of get length methods supported.
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Enum Type.
 	 */
 	public enum Type {
 
-		/**
-		 * Method returns length of the prefix that is infront of the header
-		 */
+		/** The PREFIX. */
 		PREFIX,
 
-		/**
-		 * Method returns length of the header
-		 */
+		/** The HEADER. */
 		HEADER,
 
-		/**
-		 * Method returns the length of the gap that is in between the header and
-		 * the payload
-		 */
+		/** The GAP. */
 		GAP,
 
-		/**
-		 * Method returns the length of payload that follows the header and the gap
-		 */
+		/** The PAYLOAD. */
 		PAYLOAD,
 
-		/**
-		 * Method returns the length of the postfix that follows the payload
-		 */
+		/** The POSTFIX. */
 		POSTFIX
 	}
 
 	/**
-	 * Static length of a header. A return value of -1 means, that length is not
-	 * static but dynamic and the dynamic method must be invoked.
+	 * Value.
 	 * 
-	 * @return static length of this header or -1 if length is dynamic
+	 * @return the type
 	 */
 //	int value() default -1;
 

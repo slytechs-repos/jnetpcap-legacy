@@ -30,9 +30,9 @@ import org.jnetpcap.protocol.network.Ip4;
 
 
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestSubHeader.
  */
 public class TestSubHeader
     extends TestCase {
@@ -55,6 +55,12 @@ public class TestSubHeader
 		super.tearDown();
 	}
 	
+	/**
+	 * Test sub header access.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public void testSubHeaderAccess() throws IOException {
 		Ip4 ip = new Ip4();
 		Ip4.Timestamp ts = new Ip4.Timestamp();
@@ -110,6 +116,9 @@ public class TestSubHeader
 	}
 
 
+	/**
+	 * Test syntax text.
+	 */
 	public void testSyntaxText() {
 		Ip4 ip = new Ip4();
 		Ip4.Timestamp ts = new Ip4.Timestamp();
@@ -141,6 +150,12 @@ public class TestSubHeader
 		}
 	}
 
+	/**
+	 * Test1.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public void test1() throws IOException {
 		JPacket packet =
 		    TestUtils.getPcapPacket("tests/test-icmp-recordroute-opt.pcap", 0);

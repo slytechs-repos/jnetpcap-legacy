@@ -21,13 +21,17 @@ package org.jnetpcap.packet;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
- *
+ * The Class AllPacketTests.
  */
 public class AllPacketTests {
 
+	/**
+	 * Suite.
+	 * 
+	 * @return the test
+	 */
 	public static Test suite() {
 		TestSuite suite = new TestSuite("Test for org.jnetpcap.packet");
 		//$JUnit-BEGIN$

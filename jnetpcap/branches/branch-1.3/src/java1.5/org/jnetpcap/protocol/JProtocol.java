@@ -43,213 +43,200 @@ import org.jnetpcap.protocol.voip.Sip;
 import org.jnetpcap.protocol.vpn.L2TP;
 import org.jnetpcap.protocol.wan.PPP;
 
+// TODO: Auto-generated Javadoc
 /**
- * Enum table of core protocols supported by the scanner.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Enum JProtocol.
  */
 public enum JProtocol {
-	/**
-	 * Builtin header type that encapsulates the portion of the packet buffer not
-	 * matched by any protocol header
-	 */
+	
+	/** The PAYLOAD. */
 	PAYLOAD(Payload.class),
 
-	/**
-	 * DIX Ethernet2 header
-	 */
+	/** The ETHERNET. */
 	ETHERNET(Ethernet.class, PcapDLT.EN10MB),
 
-	/**
-	 * Ip version 4 header
-	 */
+	/** The I p4. */
 	IP4(Ip4.class),
 
-	/**
-	 * Ip version 6 header
-	 */
+	/** The I p6. */
 	IP6(Ip6.class),
 
-	/**
-	 * TCP/IP header
-	 */
+	/** The TCP. */
 	TCP(Tcp.class),
 
-	/**
-	 * UDP/IP header
-	 */
+	/** The UDP. */
 	UDP(Udp.class),
 
-	/**
-	 * IEEE 802.3 header type
-	 */
+	/** The IEE e_802 do t3. */
 	IEEE_802DOT3(IEEE802dot3.class, PcapDLT.IEEE802),
 
-	/**
-	 * IEEE LLC2 header
-	 */
+	/** The IEE e_802 do t2. */
 	IEEE_802DOT2(IEEE802dot2.class),
 
-	/**
-	 * IEEE SNAP header
-	 */
+	/** The IEE e_ snap. */
 	IEEE_SNAP(IEEESnap.class),
 
-	/**
-	 * IEEE VLAN tag header
-	 */
+	/** The IEE e_802 do t1 q. */
 	IEEE_802DOT1Q(IEEE802dot1q.class),
 
-	/**
-	 * Layer 2 tunneling protocol header
-	 */
+	/** The L2 tp. */
 	L2TP(L2TP.class),
 
-	/**
-	 * Point to Point Protocol header
-	 */
+	/** The PPP. */
 	PPP(PPP.class, PcapDLT.PPP),
 
-	/**
-	 * Internet Control Message Protocol header
-	 */
+	/** The ICMP. */
 	ICMP(Icmp.class),
 
-	/**
-	 * Hyper Text Transmission Protocol header
-	 */
+	/** The HTTP. */
 	HTTP(Http.class),
 
-	/**
-	 * Hyper Text Markup Language header
-	 */
+	/** The HTML. */
 	HTML(Html.class),
 
-	/**
-	 * An Image header transmitted via http
-	 */
+	/** The WE b_ image. */
 	WEB_IMAGE(WebImage.class),
 	
-	/**
-	 * Address Resolution Protocol
-	 */
+	/** The ARP. */
 	ARP(Arp.class),
 	
-	/**
-	 * Session Intiation Protocol
-	 */
+	/** The SIP. */
 	SIP(Sip.class),
 	
-	/**
-	 * Session Data Protocol
-	 */
+	/** The SDP. */
 	SDP(Sdp.class),
 	
-	/**
-	 * Realtime Transfer Protocol
-	 */
+	/** The RTP. */
 	RTP(Rtp.class),
 	
-	/**
-	 *  Linux cooked sockets
-	 */
+	/** The SLL. */
 	SLL(SLL.class, PcapDLT.LINUX_SLL),
 	
 	;
 
 	/**
-	 * A protocol suite. Meta data interface that provides general category for
-	 * the protocol as a family of related protocols.
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Interface Suite.
 	 */
 	public interface Suite {
 
 		/**
-		 * Retrieves the name of the protocol suite.
+		 * Name.
 		 * 
-		 * @return name of the protocol family
+		 * @return the string
 		 */
 		public String name();
 	}
 
-	/**
-	 * Unique ID of this protocol
-	 */
+	/** The ID. */
 	private final int ID;
 
-	/**
-	 * Main class for the network header of this protocol
-	 */
+	/** The clazz. */
 	private Class<? extends JHeader> clazz;
 
+	/** The class name. */
 	private final String className;
 
-	/**
-	 * A header scanner that capable of scanning this protocol. All protocols
-	 * defined in JProtocol are bound to a direct native scanner. While it is
-	 * possible to override this default using JRegistery with a custom scanner.
-	 */
+	/** The dlt. */
 
 	/**
 	 * A mapping to pcap dlt. If no mapping exists for a protocol, it is null.
 	 */
 	private final PcapDLT[] dlt;
 
+	/** The Constant PAYLOAD_ID. */
 	public final static int PAYLOAD_ID = 0;
 
+	/** The Constant ETHERNET_ID. */
 	public final static int ETHERNET_ID = 1;
 
+	/** The Constant IP4_ID. */
 	public final static int IP4_ID = 2;
 
+	/** The Constant IP6_ID. */
 	public final static int IP6_ID = 3;
 
+	/** The Constant TCP_ID. */
 	public final static int TCP_ID = 4;
 
+	/** The Constant UDP_ID. */
 	public final static int UDP_ID = 5;
 
+	/** The Constant IEEE_802DOT3_ID. */
 	public final static int IEEE_802DOT3_ID = 6;
 
+	/** The Constant IEEE_802DOT2_ID. */
 	public final static int IEEE_802DOT2_ID = 7;
 
+	/** The Constant IEEE_SNAP_ID. */
 	public final static int IEEE_SNAP_ID = 8;
 
+	/** The Constant IEEE_802DOT1Q_ID. */
 	public final static int IEEE_802DOT1Q_ID = 9;
 
+	/** The Constant L2TP_ID. */
 	public final static int L2TP_ID = 10;
 
+	/** The Constant PPP_ID. */
 	public final static int PPP_ID = 11;
 
+	/** The Constant ICMP_ID. */
 	public final static int ICMP_ID = 12;
 
+	/** The Constant HTTP_ID. */
 	public final static int HTTP_ID = 13;
 
+	/** The Constant HTML_ID. */
 	public final static int HTML_ID = 14;
 
+	/** The Constant WEB_IMAGE_ID. */
 	public final static int WEB_IMAGE_ID = 15;
 	
+	/** The Constant ARP_ID. */
 	public final static int ARP_ID = 16;
 	
+	/** The Constant SIP_ID. */
 	public final static int SIP_ID = 17;
 
+	/** The Constant SDP_ID. */
 	public final static int SDP_ID = 18;
 
+	/** The Constant RTP_ID. */
 	public final static int RTP_ID = 19;
 	
+	/** The Constant SLL_ID. */
 	public final static int SLL_ID = 20;
 	
+	/** The Constant LAST_ID. */
 	public final static int LAST_ID = JProtocol.values().length;
 
+	/**
+	 * Instantiates a new j protocol.
+	 * 
+	 * @param className
+	 *          the class name
+	 */
 	private JProtocol(String className) {
 		this(className, new PcapDLT[0]);
 	}
 
+	/**
+	 * Instantiates a new j protocol.
+	 * 
+	 * @param c
+	 *          the c
+	 */
 	private JProtocol(Class<? extends JHeader> c) {
 		this(c, new PcapDLT[0]);
 	}
 
+	/**
+	 * Instantiates a new j protocol.
+	 * 
+	 * @param c
+	 *          the c
+	 * @param dlt
+	 *          the dlt
+	 */
 	private JProtocol(Class<? extends JHeader> c, PcapDLT... dlt) {
 		this.clazz = c;
 		this.className = c.getCanonicalName();
@@ -257,6 +244,14 @@ public enum JProtocol {
 		this.ID = ordinal();
 	}
 
+	/**
+	 * Instantiates a new j protocol.
+	 * 
+	 * @param className
+	 *          the class name
+	 * @param dlt
+	 *          the dlt
+	 */
 	private JProtocol(String className, PcapDLT... dlt) {
 		this.className = className;
 		this.dlt = dlt;
@@ -267,6 +262,11 @@ public enum JProtocol {
 		}
 	}
 
+	/**
+	 * Gets the header class.
+	 * 
+	 * @return the header class
+	 */
 	@SuppressWarnings("unchecked")
 	public Class<? extends JHeader> getHeaderClass() {
 		if (this.clazz == null) {
@@ -280,40 +280,43 @@ public enum JProtocol {
 		return this.clazz;
 	}
 
+	/**
+	 * Gets the header class name.
+	 * 
+	 * @return the header class name
+	 */
 	public String getHeaderClassName() {
 		return this.className;
 	}
 
 	/**
-	 * Checks the supplied ID if its is one of jNetPcap's core protocol set
+	 * Checks if is core protocol.
 	 * 
 	 * @param id
-	 *          numerical ID of the header as assigned by JRegistry
-	 * @return true if header is part of the core protocol set otherwise false
+	 *          the id
+	 * @return true, if is core protocol
 	 */
 	public static boolean isCoreProtocol(int id) {
 		return id < values().length;
 	}
 
 	/**
-	 * Checks the supplied header by class if its is one of jNetPcap's core
-	 * protocol set
+	 * Checks if is core protocol.
 	 * 
 	 * @param c
-	 *          class name of the header to check
-	 * @return true if header is part of the core protocol set otherwise false
+	 *          the c
+	 * @return true, if is core protocol
 	 */
 	public static boolean isCoreProtocol(Class<? extends JHeader> c) {
 		return (valueOf(c) == null) ? false : true;
 	}
 
 	/**
-	 * Converts a protocol header to a JPRotocol constant
+	 * Value of.
 	 * 
 	 * @param c
-	 *          header class to convert
-	 * @return an enum constant or null if class is not part of the core protocol
-	 *         set
+	 *          the c
+	 * @return the j protocol
 	 */
 	public static JProtocol valueOf(Class<? extends JHeader> c) {
 		for (JProtocol p : values()) {
@@ -326,12 +329,11 @@ public enum JProtocol {
 	}
 
 	/**
-	 * Converts a protocol header to a JPRotocol constant
+	 * Value of.
 	 * 
 	 * @param id
-	 *          numerical ID of the header assigned by JRegistry
-	 * @return an enum constant or null if class is not part of the core protocol
-	 *         set
+	 *          the id
+	 * @return the j protocol
 	 */
 	public static JProtocol valueOf(int id) {
 		if (id >= values().length) {
@@ -342,28 +344,22 @@ public enum JProtocol {
 	}
 
 	/**
-	 * Gets the numerical ID of the data link header for the open pcap handle. A
-	 * call to Pcap.datalink() is made and the value translated to an appropriate
-	 * jNetPcap protocol header ID.
+	 * Value of.
 	 * 
 	 * @param pcap
-	 *          open Pcap handle
-	 * @return enum constant or the Payload header as the catch all if no headers
-	 *         are matched
+	 *          the pcap
+	 * @return the j protocol
 	 */
 	public static JProtocol valueOf(Pcap pcap) {
 		return valueOf(PcapDLT.valueOf(pcap.datalink()));
 	}
 
 	/**
-	 * Gets the numerical ID of the data link header for supplied pcap dlt
-	 * constant. A call to Pcap.datalink() is made and the value translated to an
-	 * appropriate jNetPcap protocol header ID.
+	 * Value of.
 	 * 
 	 * @param dlt
-	 *          pcap dlt constant
-	 * @return enum constant or the Payload header as the catch all if no headers
-	 *         are matched
+	 *          the dlt
+	 * @return the j protocol
 	 */
 	public static JProtocol valueOf(PcapDLT dlt) {
 		if (dlt == null) {
@@ -383,23 +379,28 @@ public enum JProtocol {
 	}
 
 	/**
-	 * Gets the corresponding Pcap defined Data Link Type.
+	 * Gets the a header scanner that capable of scanning this protocol.
 	 * 
-	 * @return the dlt dlt for this protocol
+	 * @return the a header scanner that capable of scanning this protocol
 	 */
 	public PcapDLT[] getDlt() {
 		return dlt;
 	}
 
 	/**
-	 * Gets a unique runtime numerica ID of this protocol assigned by jNetStream.
+	 * Gets the id.
 	 * 
-	 * @return the protocol id
+	 * @return the id
 	 */
 	public int getId() {
 		return ID;
 	}
 
+	/**
+	 * Gets the main class for the network header of this protocol.
+	 * 
+	 * @return the main class for the network header of this protocol
+	 */
 	public final Class<? extends JHeader> getClazz() {
   	return this.clazz;
   }

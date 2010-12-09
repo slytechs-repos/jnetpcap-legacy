@@ -19,17 +19,32 @@
 package org.jnetpcap.packet.structure;
 
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class DefaultField.
  */
 public class DefaultField
     extends JField {
 
+	/**
+	 * Instantiates a new default field.
+	 * 
+	 * @param field
+	 *          the field
+	 * @param children
+	 *          the children
+	 */
 	private DefaultField(AnnotatedField field, DefaultField[] children) {
 		super(field, children);
 	}
 
+	/**
+	 * From annotated field.
+	 * 
+	 * @param field
+	 *          the field
+	 * @return the default field
+	 */
 	public static DefaultField fromAnnotatedField(AnnotatedField field) {
 
 		DefaultField[] children = new DefaultField[field.getSubFields().size()];
@@ -44,8 +59,11 @@ public class DefaultField
 	}
 
 	/**
+	 * From annotated fields.
+	 * 
 	 * @param fields
-	 * @return
+	 *          the fields
+	 * @return the j field[]
 	 */
 	public static JField[] fromAnnotatedFields(AnnotatedField[] fields) {
 		JField[] f = new JField[fields.length];

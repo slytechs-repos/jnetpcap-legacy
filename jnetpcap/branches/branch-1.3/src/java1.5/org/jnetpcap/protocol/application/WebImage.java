@@ -31,23 +31,43 @@ import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.protocol.tcpip.Http;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class WebImage.
  */
 @Header
 public class WebImage
     extends
     JHeader {
 
+	/**
+	 * The Enum Type.
+	 */
 	public enum Type {
+		
+		/** The BMP. */
 		BMP,
+		
+		/** The GIF. */
 		GIF,
+		
+		/** The JPEG. */
 		JPEG,
+		
+		/** The SVG. */
 		SVG,
 	}
 
 
+	/**
+	 * Bind2 http.
+	 * 
+	 * @param packet
+	 *          the packet
+	 * @param http
+	 *          the http
+	 * @return true, if successful
+	 */
 	@Bind(to = Http.class)
 	public static boolean bind2Http(JPacket packet, Http http) {
 		Http.ContentType type = http.contentTypeEnum();
@@ -62,18 +82,36 @@ public class WebImage
 		}
 	}
 
+	/**
+	 * Header length.
+	 * 
+	 * @param buffer
+	 *          the buffer
+	 * @param offset
+	 *          the offset
+	 * @return the int
+	 */
 	@HeaderLength
 	public static int headerLength(JBuffer buffer, int offset) {
 		return buffer.size() - offset;
 	}
 
+	/** The data. */
 	private byte[] data;
 
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.JHeader#decodeHeader()
+	 */
 	@Override
 	protected void decodeHeader() {
 		this.data = null; // Reinitialize
 	}
 
+	/**
+	 * Gets the aWT image.
+	 * 
+	 * @return the aWT image
+	 */
 	public Image getAWTImage() {
 		if (data == null) {
 			data = super.getByteArray(0, this.size());
@@ -82,14 +120,18 @@ public class WebImage
 	}
 
 	/**
-	 * @return
+	 * Gets the input stream.
+	 * 
+	 * @return the input stream
 	 */
 	public InputStream getInputStream() {
 		return new JBufferInputStream(this);
 	}
 
 	/**
-	 * @return
+	 * Length.
+	 * 
+	 * @return the int
 	 */
 	public int length() {
 		return this.size();

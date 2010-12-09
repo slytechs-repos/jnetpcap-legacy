@@ -35,120 +35,9 @@ import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.util.checksum.Checksum;
 
+// TODO: Auto-generated Javadoc
 /**
- * Transmission Control Protocol (TCP).
- * <p>
- * The Transmission Control Protocol (TCP) is one of the core protocols of the
- * Internet Protocol Suite. TCP is one of the two original components of the
- * suite, complementing the Internet Protocol (IP) and therefore the entire
- * suite is commonly referred to as TCP/IP. TCP provides the service of
- * exchanging data reliably directly between two network hosts, whereas IP
- * handles addressing and routing message across one or more networks. In
- * particular, TCP provides reliable, ordered delivery of a stream of bytes from
- * a program on one computer to another program on another computer. TCP is the
- * protocol that major Internet applications rely on, such as the World Wide
- * Web, e-mail, and file transfer. Other applications, which do not require
- * reliable data stream service, may use the User Datagram Protocol (UDP) which
- * provides a datagram service, which emphasizes reduced latency over
- * reliability.
- * </p>
- * <p>
- * A TCP segment consists of a segment header and a data section. The TCP header
- * contains 10 mandatory fields, and an optional extension field (Options).
- * </p>
- * <p>
- * The data section follows the header. Its contents are the payload data
- * carried for the application. The length of the data section is not specified
- * in the TCP segment header. It can be calculated by subtracting the combined
- * length of the TCP header and the encapsulating IP segment header from the
- * total IP segment length (specified in the IP segment header).
- * </p>
- * <p>
- * The header structure is as follows:
- * <ul>
- * <li> Source port (16 bits) - identifies the sending port
- * <li> Destination port (16 bits) - identifies the receiving port
- * <li> Sequence number (32 bits) - has a dual role:
- * <ul>
- * <li> If the SYN flag is set, then this is the initial sequence number. The
- * sequence number of the actual first data byte (and the acknowledged number in
- * the corresponding ACK) are then this sequence number plus 1.
- * <li> If the SYN flag is clear, then this is the accumulated sequence number
- * of the first data byte of this packet for the current session.
- * </ul>
- * <li> Acknowledgment number (32 bits) - if the ACK flag is set then the value
- * of this field is the next sequence number that the receiver is expecting.
- * This acknowledges receipt of all prior bytes (if any). The first ACK sent by
- * each end acknowledges the other end's initial sequence number itself, but no
- * data.
- * <li> Data offset (4 bits) - specifies the size of the TCP header in 32-bit
- * words. The minimum size header is 5 words and the maximum is 15 words thus
- * giving the minimum size of 20 bytes and maximum of 60 bytes, allowing for up
- * to 40 bytes of options in the header. This field gets its name from the fact
- * that it is also the offset from the start of the TCP segment to the actual
- * data.
- * <li> Reserved (4 bits) - for future use and should be set to zero
- * <li> Flags (8 bits) (aka Control bits) - contains 8 1-bit flags
- * <ul>
- * <li> CWR (1 bit) - Congestion Window Reduced (CWR) flag is set by the sending
- * host to indicate that it received a TCP segment with the ECE flag set and had
- * responded in congestion control mechanism (added to header by RFC 3168).
- * <li> ECE (1 bit) - ECN-Echo indicates If the SYN flag is set, that the TCP
- * peer is ECN capable. If the SYN flag is clear, that a packet with Congestion
- * Experienced flag in IP header set is received during normal transmission
- * (added to header by RFC 3168).
- * <li>URG (1 bit) - indicates that the Urgent pointer field is significant
- * <li>ACK (1 bit) - indicates that the Acknowledgment field is significant.
- * All packets after the initial SYN packet sent by the client should have this
- * flag set.
- * <li>PSH (1 bit) - Push function. Asks to push the buffered data to the
- * receiving application.
- * <li>RST (1 bit) - Reset the connection
- * <li>SYN (1 bit) - Synchronize sequence numbers. Only the first packet sent
- * from each end should have this flag set. Some other flags change meaning
- * based on this flag, and some are only valid for when it is set, and others
- * when it is clear.
- * <li>FIN (1 bit) - No more data from sender
- * </ul>
- * <li> Window (16 bits) - the size of the receive window, which specifies the
- * number of bytes (beyond the sequence number in the acknowledgment field) that
- * the receiver is currently willing to receive (see Flow control and Window
- * Scaling)
- * <li> Checksum (16 bits) - The 16-bit checksum field is used for
- * error-checking of the header and data
- * <li> Urgent pointer (16 bits) - if the URG flag is set, then this 16-bit
- * field is an offset from the sequence number indicating the last urgent data
- * byte
- * <li> Options (Variable 0-320 bits, divisible by 32) - The length of this
- * field is determined by the data offset field. Options 0 and 1 are a single
- * byte (8 bits) in length. The remaining options indicate the total length of
- * the option (expressed in bytes) in the second byte. Some options may only be
- * sent when SYN is set; they are indicated below as [SYN].
- * <ul>
- * <li> 0 (8 bits) - End of options list
- * <li> 1 (8 bits) - No operation (NOP, Padding) This may be used to align
- * option fields on 32-bit boundaries for better performance.
- * <li>2,4,SS (32 bits) - Maximum segment size (see maximum segment size) [SYN]
- * <li>3,3,S (24 bits) - Window scale (see window scaling for details) [SYN]
- * <li>4,2 (16 bits) - Selective Acknowledgement permitted. [SYN] (See
- * selective acknowledgments for details)
- * <li>5,N,BBBB,EEEE,... (variable bits, N is either 10, 18, 26, or 34)-
- * Selective ACKnowlegement (SACK) These first two bytes are followed by a list
- * of 1-4 blocks being selectively acknowledged, specified as 32-bit begin/end
- * pointers.
- * <li>8,10,TTTT,EEEE (80 bits)- Timestamp and echo of previous timestamp (see
- * TCP Timestamps for details)
- * <li>14,3,S (24 bits) - TCP Alternate Checksum Request. [SYN]
- * <li>15,N,... (variable bits) - TCP Alternate Checksum Data.
- * </ul>
- * </ul>
- * (The remaining options are obsolete, experimental, not yet standardized, or
- * unassigned)
- * </p>
- * Description source: http://wikipedia.org/wiki/Tcp_protocol
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class Tcp.
  */
 @Header
 @SuppressWarnings("unused")
@@ -157,25 +46,7 @@ public class Tcp
     JHeaderMap<Tcp> implements JHeaderChecksum {
 
 	/**
-	 * The option described in this memo provides a mechanism to negotiate the use
-	 * of an alternate checksum at connection-establishment time, as well as a
-	 * mechanism to carry additional checksum information for algorithms that
-	 * utilize checksums that are longer than 16 bits.
-	 * <p>
-	 * Definition of the option: the TCP Alternate Checksum Request Option may be
-	 * sent in a SYN segment by a TCP to indicate that the TCP is prepared to both
-	 * generate and receive checksums based on an alternate algorithm. During
-	 * communication, the alternate checksum replaces the regular TCP checksum in
-	 * the checksum field of the TCP header. Should the alternate checksum require
-	 * more than 2 bytes to transmit, the checksum may either be moved into a TCP
-	 * Alternate Checksum Data Option and the checksum field of the TCP header be
-	 * sent as 0, or the data may be split between the header field and the
-	 * option. Alternate checksums are computed over the same data as the regular
-	 * TCP checksum.
-	 * </p>
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Class AlternateChecksum.
 	 */
 	@Header(id = 15)
 	public static class AlternateChecksum
@@ -183,14 +54,9 @@ public class Tcp
 	    TcpOption {
 
 		/**
-		 * This field is used only when the alternate checksum that is negotiated is
-		 * longer than 16 bits. These checksums will not fit in the checksum field
-		 * of the TCP header and thus at least part of them must be put in an
-		 * option. Whether the checksum is split between the checksum field in the
-		 * TCP header and the option or the entire checksum is placed in the option
-		 * is determined on a checksum by checksum basis.
+		 * Data.
 		 * 
-		 * @return variable length alternate checksum data
+		 * @return the byte[]
 		 */
 		@Field(offset = 2 * BYTE, format = "#hexdump#")
 		public byte[] data() {
@@ -198,25 +64,20 @@ public class Tcp
 		}
 
 		/**
-		 * This field is used only when the alternate checksum that is negotiated is
-		 * longer than 16 bits. These checksums will not fit in the checksum field
-		 * of the TCP header and thus at least part of them must be put in an
-		 * option. Whether the checksum is split between the checksum field in the
-		 * TCP header and the option or the entire checksum is placed in the option
-		 * is determined on a checksum by checksum basis.
+		 * Data to array.
 		 * 
 		 * @param array
-		 *          copies data into the supplied array
-		 * @return the supplied array
+		 *          the array
+		 * @return the byte[]
 		 */
 		public byte[] dataToArray(byte[] array) {
 			return getByteArray(2, array);
 		}
 
 		/**
-		 * Determines the length of this dynamic field
+		 * Data length.
 		 * 
-		 * @return length of the data field in bits
+		 * @return the int
 		 */
 		@Dynamic(Field.Property.LENGTH)
 		public int dataLength() {
@@ -225,25 +86,7 @@ public class Tcp
 	}
 
 	/**
-	 * The option described in this memo provides a mechanism to negotiate the use
-	 * of an alternate checksum at connection-establishment time, as well as a
-	 * mechanism to carry additional checksum information for algorithms that
-	 * utilize checksums that are longer than 16 bits.
-	 * <p>
-	 * Definition of the option: the TCP Alternate Checksum Request Option may be
-	 * sent in a SYN segment by a TCP to indicate that the TCP is prepared to both
-	 * generate and receive checksums based on an alternate algorithm. During
-	 * communication, the alternate checksum replaces the regular TCP checksum in
-	 * the checksum field of the TCP header. Should the alternate checksum require
-	 * more than 2 bytes to transmit, the checksum may either be moved into a TCP
-	 * Alternate Checksum Data Option and the checksum field of the TCP header be
-	 * sent as 0, or the data may be split between the header field and the
-	 * option. Alternate checksums are computed over the same data as the regular
-	 * TCP checksum.
-	 * </p>
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Class AlternateChecksumRequest.
 	 */
 	@Header(id = 14)
 	public static class AlternateChecksumRequest
@@ -251,49 +94,41 @@ public class Tcp
 	    TcpOption {
 
 		/**
-		 * A SYN segment used to originate a connection may contain the Alternate
-		 * Checksum Request Option, which specifies an alternate
-		 * checksum-calculation algorithm to be used for the connection. The
-		 * acknowledging SYN-ACK segment may also carry the option.
-		 * 
-		 * @author Mark Bednarczyk
-		 * @author Sly Technologies, Inc.
+		 * The Enum Algorithm.
 		 */
 		public enum Algorithm {
-			/**
-			 * TCP checksum.
-			 */
+			
+			/** The TC p_ checksum. */
 			TCP_CHECKSUM(0),
 
-			/**
-			 * 8-bit Fletcher's algorithm.
-			 */
+			/** The FLETCHE r_8 bit. */
 			FLETCHER_8BIT(1),
-			/**
-			 * 16-bit Fletcher's algorithm.
-			 */
+			
+			/** The FLETCHE r_16 bit. */
 			FLETCHER_16BIT(2),
 
-			/**
-			 * Redundant Checksum Avoidance.
-			 */
+			/** The AVOIDANCE. */
 			AVOIDANCE(3);
 
-			/**
-			 * Numerical type for this algorithm constant
-			 */
+			/** The type. */
 			public final int type;
 
+			/**
+			 * Instantiates a new algorithm.
+			 * 
+			 * @param type
+			 *          the type
+			 */
 			private Algorithm(int type) {
 				this.type = type;
 			}
 
 			/**
-			 * Converts a numerical algorithm type to enum constant
+			 * Value of.
 			 * 
 			 * @param type
-			 *          numerical type
-			 * @return enum constant type
+			 *          the type
+			 * @return the algorithm
 			 */
 			public static Algorithm valueOf(int type) {
 				for (Algorithm a : values()) {
@@ -307,9 +142,9 @@ public class Tcp
 		}
 
 		/**
-		 * Specifies the checksum algorithm to be used.
+		 * Algorithm.
 		 * 
-		 * @return type of algorithm
+		 * @return the int
 		 */
 		@Field(offset = 2 * BYTE, length = 1 * BYTE)
 		public int algorithm() {
@@ -317,19 +152,19 @@ public class Tcp
 		}
 
 		/**
-		 * Returns the algorithm type as enum constant
+		 * Algorithm enum.
 		 * 
-		 * @return constant representing the algorithm or null if unrecognized
+		 * @return the algorithm
 		 */
 		public Algorithm algorithmEnum() {
 			return Algorithm.valueOf(algorithm());
 		}
 
 		/**
-		 * Sets a new value for algorithm field
+		 * Algorithm.
 		 * 
 		 * @param value
-		 *          new value to set
+		 *          the value
 		 */
 		public void algorithm(int value) {
 			setUByte(2, value);
@@ -337,87 +172,40 @@ public class Tcp
 	}
 
 	/**
-	 * Flags (8 bits) (aka Control bits) - contains 8 1-bit flags
-	 * <ul>
-	 * <li> CWR (1 bit) - Congestion Window Reduced (CWR) flag is set by the
-	 * sending host to indicate that it received a TCP segment with the ECE flag
-	 * set and had responded in congestion control mechanism (added to header by
-	 * RFC 3168).
-	 * <li> ECE (1 bit) - ECN-Echo indicates If the SYN flag is set, that the TCP
-	 * peer is ECN capable. If the SYN flag is clear, that a packet with
-	 * Congestion Experienced flag in IP header set is received during normal
-	 * transmission (added to header by RFC 3168).
-	 * <li>URG (1 bit) - indicates that the Urgent pointer field is significant
-	 * <li>ACK (1 bit) - indicates that the Acknowledgment field is significant.
-	 * All packets after the initial SYN packet sent by the client should have
-	 * this flag set.
-	 * <li>PSH (1 bit) - Push function. Asks to push the buffered data to the
-	 * receiving application.
-	 * <li>RST (1 bit) - Reset the connection
-	 * <li>SYN (1 bit) - Synchronize sequence numbers. Only the first packet sent
-	 * from each end should have this flag set. Some other flags change meaning
-	 * based on this flag, and some are only valid for when it is set, and others
-	 * when it is clear.
-	 * <li>FIN (1 bit) - No more data from sender
-	 * </ul>
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Enum Flag.
 	 */
 	public enum Flag {
-		/**
-		 * ACK (1 bit) - indicates that the Acknowledgment field is significant. All
-		 * packets after the initial SYN packet sent by the client should have this
-		 * flag set.
-		 */
+		
+		/** The ACK. */
 		ACK,
-		/**
-		 * CWR (1 bit) - Congestion Window Reduced (CWR) flag is set by the sending
-		 * host to indicate that it received a TCP segment with the ECE flag set and
-		 * had responded in congestion control mechanism (added to header by RFC
-		 * 3168).
-		 */
+		
+		/** The CWR. */
 		CWR,
-		/**
-		 * ECE (1 bit) - ECN-Echo indicates If the SYN flag is set, that the TCP
-		 * peer is ECN capable. If the SYN flag is clear, that a packet with
-		 * Congestion Experienced flag in IP header set is received during normal
-		 * transmission (added to header by RFC 3168).
-		 */
+		
+		/** The ECE. */
 		ECE,
-		/**
-		 * FIN (1 bit) - No more data from sender
-		 */
+		
+		/** The FIN. */
 		FIN,
-		/**
-		 * PSH (1 bit) - Push function. Asks to push the buffered data to the
-		 * receiving application.
-		 */
+		
+		/** The PSH. */
 		PSH,
-		/**
-		 * RST (1 bit) - Reset the connection
-		 */
+		
+		/** The RST. */
 		RST,
-		/**
-		 * SYN (1 bit) - Synchronize sequence numbers. Only the first packet sent
-		 * from each end should have this flag set. Some other flags change meaning
-		 * based on this flag, and some are only valid for when it is set, and
-		 * others when it is clear.
-		 */
+		
+		/** The SYN. */
 		SYN,
-		/**
-		 * URG (1 bit) - indicates that the Urgent pointer field is significant
-		 */
+		
+		/** The URG. */
 		URG, ;
 
 		/**
-		 * Converts 8 contigeous bits of an inteteger to a set collection of enum
-		 * constants, each representing if a flag is set in the original integer.
+		 * As set.
 		 * 
 		 * @param flags
-		 *          integer containing the flags (8-bits)
-		 * @return a collection set with constants for each bit set within the
-		 *         integer
+		 *          the flags
+		 * @return the sets the
 		 */
 		public static Set<Flag> asSet(final int flags) {
 			final Set<Flag> set = EnumSet.noneOf(Tcp.Flag.class);
@@ -433,24 +221,22 @@ public class Tcp
 		}
 
 		/**
-		 * Returns a compact string representation of the bit flags that are set
-		 * within the integer.
+		 * To compact string.
 		 * 
 		 * @param flags
-		 *          integer containing the flags (8-bit)
-		 * @return a terse representation of the flags
+		 *          the flags
+		 * @return the string
 		 */
 		public static String toCompactString(final int flags) {
 			return toCompactString(asSet(flags));
 		}
 
 		/**
-		 * Returns a compact string representation of the flags contained with the
-		 * collection's set
+		 * To compact string.
 		 * 
 		 * @param flags
-		 *          a collection's set of flags
-		 * @return a terse representation of the flags
+		 *          the flags
+		 * @return the string
 		 */
 		public static String toCompactString(final Set<Flag> flags) {
 			final StringBuilder b = new StringBuilder(values().length);
@@ -463,11 +249,7 @@ public class Tcp
 	}
 
 	/**
-	 * The TCP Maximum Segment Size option can be used to specify the maximum
-	 * segment size that the receiver should use.
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Class MSS.
 	 */
 	@Header(id = 2, description = "Maximum Segment Size")
 	public static class MSS
@@ -475,11 +257,9 @@ public class Tcp
 	    TcpOption {
 
 		/**
-		 * This field must only be sent in the initial connection request (i.e., in
-		 * segments with the SYN control bit set). If this option is not used, any
-		 * segment size is allowed.
+		 * Mss.
 		 * 
-		 * @return value of the field
+		 * @return the int
 		 */
 		@Field(offset = 2 * BYTE, length = 2 * BYTE)
 		public int mss() {
@@ -487,10 +267,10 @@ public class Tcp
 		}
 
 		/**
-		 * Sets a new value in the field
+		 * Mss.
 		 * 
 		 * @param value
-		 *          new field value
+		 *          the value
 		 */
 		public void mss(int value) {
 			setUShort(2, value);
@@ -498,10 +278,7 @@ public class Tcp
 	}
 
 	/**
-	 * No operation. Consumes 1 byte. Used for aligning and padding.
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Class NoOp.
 	 */
 	@Header(id = 1)
 	public static class NoOp
@@ -510,45 +287,7 @@ public class Tcp
 	}
 
 	/**
-	 * TCP may experience poor performance when multiple packets are lost from one
-	 * window of data. With the limited information available from cumulative
-	 * acknowledgments, a TCP sender can only learn about a single lost packet per
-	 * round trip time. An aggressive sender could choose to retransmit packets
-	 * early, but such retransmitted segments may have already been successfully
-	 * received.
-	 * <p>
-	 * SACK is a strategy which corrects this behavior in the face of multiple
-	 * dropped segments. With selective acknowledgments, the data receiver can
-	 * inform the sender about all segments that have arrived successfully, so the
-	 * sender need retransmit only the segments that have actually been lost.
-	 * </p>
-	 * <p>
-	 * The SACK option is to be sent by a data receiver to inform the data sender
-	 * of non-contiguous blocks of data that have been received and queued. The
-	 * data receiver awaits the receipt of data (perhaps by means of
-	 * retransmissions) to fill the gaps in sequence space between received
-	 * blocks. When missing segments are received, the data receiver acknowledges
-	 * the data normally by advancing the left window edge in the Acknowledgement
-	 * Number Field of the TCP header. The SACK option does not change the meaning
-	 * of the Acknowledgement Number field.
-	 * </p>
-	 * <p>
-	 * This note defines an extension of the SACK option for TCP. RFC 2018
-	 * specified the use of the SACK option for acknowledging out-of-sequence data
-	 * not covered by TCP's cumulative acknowledgement field. This note extends
-	 * RFC 2018 by specifying the use of the SACK option for acknowledging
-	 * duplicate packets. This note suggests that when duplicate packets are
-	 * received, the first block of the SACK option field can be used to report
-	 * the sequence numbers of the packet that triggered the acknowledgement. This
-	 * extension to the SACK option allows the TCP sender to infer the order of
-	 * packets received at the receiver, allowing the sender to infer when it has
-	 * unnecessarily retransmitted a packet. A TCP sender could then use this
-	 * information for more robust operation in an environment of reordered
-	 * packets, ACK loss, packet replication, and/or early retransmit timeouts.
-	 * </p>
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Class SACK.
 	 */
 	@Header(id = 5)
 	public static class SACK
@@ -556,18 +295,18 @@ public class Tcp
 	    TcpOption {
 
 		/**
-		 * Calculates the number of SACK blocks within this option header
+		 * Block count.
 		 * 
-		 * @return number of 64 bit blocks
+		 * @return the int
 		 */
 		public int blockCount() {
 			return (size() - 2) / 8; // (block_size) div 64-bit-block-length
 		}
 
 		/**
-		 * Calculates the length of the block field
+		 * Blocks length.
 		 * 
-		 * @return length of the field in bits
+		 * @return the int
 		 */
 		@Dynamic(Field.Property.LENGTH)
 		public int blocksLength() {
@@ -575,15 +314,9 @@ public class Tcp
 		}
 
 		/**
-		 * Gets the block field of the option header, and returns the data as an
-		 * array of unsigned 32 bit integers (java stored as long integers to
-		 * preserve the sign). Each element of the array, is a 1 element of the 2
-		 * element block. The even elements starting at index 0 are start sequence
-		 * numbers, while the odd elements starting at index 1 are the ending
-		 * sequence numbers past the last acked byte in the stream.
+		 * Blocks.
 		 * 
-		 * @return blocks field data converted to longs to represent a 32 bit
-		 *         unsigned integer
+		 * @return the long[]
 		 */
 		@Field(offset = 2 * BYTE)
 		public long[] blocks() {
@@ -591,12 +324,10 @@ public class Tcp
 		}
 
 		/**
-		 * Copies the supplied data in the array to option header. The method also
-		 * updates the option header length field overriding any previously set
-		 * value there.
+		 * Blocks.
 		 * 
 		 * @param array
-		 *          array containing the block records
+		 *          the array
 		 */
 		public void blocks(long[] array) {
 			final int count = array.length / 2;
@@ -612,16 +343,11 @@ public class Tcp
 		}
 
 		/**
-		 * Gets the block field of the option header, and returns the data as an
-		 * array of unsigned 32 bit integers (java stored as long integers to
-		 * preserve the sign). Each element of the array, is a 1 element of the 2
-		 * element block. The even elements starting at index 0 are start sequence
-		 * numbers, while the odd elements starting at index 1 are the ending
-		 * sequence numbers past the last acked byte in the stream.
+		 * Blocks to array.
 		 * 
 		 * @param array
-		 *          preallocated array to store the data
-		 * @return the array supplied as argument
+		 *          the array
+		 * @return the long[]
 		 */
 		public long[] blocksToArray(long[] array) {
 			final int count =
@@ -636,16 +362,7 @@ public class Tcp
 	}
 
 	/**
-	 * The TCP SACK permitted option may be sent in a SYN by a TCP that has been
-	 * extended to receive the SACK option once the connection has opened. It MUST
-	 * NOT be sent on non-SYN segments.
-	 * <p>
-	 * This option has no fields. Its presence determines if TCP SACK is
-	 * permitted.
-	 * </p>
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Class SACK_PERMITTED.
 	 */
 	@Header(id = 4)
 	public static class SACK_PERMITTED
@@ -654,99 +371,52 @@ public class Tcp
 	}
 
 	/**
-	 * Options (Variable 0-320 bits, divisible by 32) - The length of this field
-	 * is determined by the data offset field. Options 0 and 1 are a single byte
-	 * (8 bits) in length. The remaining options indicate the total length of the
-	 * option (expressed in bytes) in the second byte. Some options may only be
-	 * sent when SYN is set;
-	 * <ul>
-	 * <li> 0 (8 bits) - End of options list
-	 * <li> 1 (8 bits) - No operation (NOP, Padding) This may be used to align
-	 * option fields on 32-bit boundaries for better performance.
-	 * <li>2,4,SS (32 bits) - Maximum segment size (see maximum segment size)
-	 * [SYN]
-	 * <li>3,3,S (24 bits) - Window scale (see window scaling for details) [SYN]
-	 * <li>4,2 (16 bits) - Selective Acknowledgement permitted. [SYN] (See
-	 * selective acknowledgments for details)
-	 * <li>5,N,BBBB,EEEE,... (variable bits, N is either 10, 18, 26, or 34)-
-	 * Selective ACKnowlegement (SACK) These first two bytes are followed by a
-	 * list of 1-4 blocks being selectively acknowledged, specified as 32-bit
-	 * begin/end pointers.
-	 * <li>8,10,TTTT,EEEE (80 bits)- Timestamp and echo of previous timestamp
-	 * (see TCP Timestamps for details)
-	 * <li>14,3,S (24 bits) - TCP Alternate Checksum Request. [SYN]
-	 * <li>15,N,... (variable bits) - TCP Alternate Checksum Data.
-	 * </ul>
-	 * </ul>
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Class TcpOption.
 	 */
 	public static abstract class TcpOption
 	    extends
 	    JSubHeader<Tcp> {
 
 		/**
-		 * Options (Variable 0-320 bits, divisible by 32) - The length of this field
-		 * is determined by the data offset field. Options 0 and 1 are a single byte
-		 * (8 bits) in length. The remaining options indicate the total length of
-		 * the option (expressed in bytes) in the second byte. Some options may only
-		 * be sent when SYN is set;
-		 * 
-		 * @author Mark Bednarczyk
-		 * @author Sly Technologies, Inc.
+		 * The Enum OptionCode.
 		 */
 		public enum OptionCode {
 
-			/**
-			 * 15,N,... (variable bits) - TCP Alternate Checksum Data.
-			 */
+			/** The ALTERNAT e_ checksum. */
 			ALTERNATE_CHECKSUM(15),
-			/**
-			 * 14,3,S (24 bits) - TCP Alternate Checksum Request. [SYN]
-			 */
+			
+			/** The ALTERNAT e_ checksu m_ request. */
 			ALTERNATE_CHECKSUM_REQUEST(14),
-			/**
-			 * 0 (8 bits) - End of options list
-			 */
+			
+			/** The EN d_ o f_ optio n_ list. */
 			END_OF_OPTION_LIST(0),
-			/**
-			 * 2,4,SS (32 bits) - Maximum segment size (see maximum segment size)
-			 * [SYN]
-			 */
+			
+			/** The MAXIMU m_ segmen t_ size. */
 			MAXIMUM_SEGMENT_SIZE(2),
-			/**
-			 * 1 (8 bits) - No operation (NOP, Padding) This may be used to align
-			 * option fields on 32-bit boundaries for better performance
-			 */
+			
+			/** The N o_ op. */
 			NO_OP(1),
-			/**
-			 * 5,N,BBBB,EEEE,... (variable bits, N is either 10, 18, 26, or 34)-
-			 * Selective ACKnowlegement (SACK) These first two bytes are followed by a
-			 * list of 1-4 blocks being selectively acknowledged, specified as 32-bit
-			 * begin/end pointers.
-			 */
+			
+			/** The SACK. */
 			SACK(5),
-			/**
-			 * 4,2 (16 bits) - Selective Acknowledgement permitted. [SYN]
-			 */
+			
+			/** The SAC k_ permitted. */
 			SACK_PERMITTED(4),
-			/**
-			 * 8,10,TTTT,EEEE (80 bits)- Timestamp and echo of previous timestamp
-			 */
+			
+			/** The TIMESTAP. */
 			TIMESTAP(8),
-			/**
-			 * 3,3,S (24 bits) - Window scale (see window scaling for details) [SYN]
-			 */
+			
+			/** The WINDO w_ scale. */
 			WINDOW_SCALE(3)
 
 			;
+			
 			/**
-			 * Converts a numerical op code to a enum constant
+			 * Value of.
 			 * 
 			 * @param id
-			 *          numerical constant to convert
-			 * @return enum constant
+			 *          the id
+			 * @return the option code
 			 */
 			public static OptionCode valueOf(int id) {
 				for (OptionCode c : values()) {
@@ -758,15 +428,14 @@ public class Tcp
 				return null;
 			}
 
-			/**
-			 * OP CODE for this option
-			 */
+			/** The id. */
 			public final int id;
 
 			/**
-			 * Initialize to static op code
+			 * Instantiates a new option code.
 			 * 
 			 * @param id
+			 *          the id
 			 */
 			private OptionCode(int id) {
 				this.id = id;
@@ -775,9 +444,9 @@ public class Tcp
 		}
 
 		/**
-		 * Option header op-code (8 bits)
+		 * Code.
 		 * 
-		 * @return numerical code for this field
+		 * @return the int
 		 */
 		@Field(offset = 0 * BYTE, length = 1 * BYTE)
 		public int code() {
@@ -785,21 +454,19 @@ public class Tcp
 		}
 
 		/**
-		 * Sets the ption header op-code (8 bits)
+		 * Code.
 		 * 
 		 * @param value
-		 *          new numerical code for this field
+		 *          the value
 		 */
 		public void code(int value) {
 			setUByte(0, value);
 		}
 
 		/**
-		 * Optional length of this option. Some options have implied length of 1
-		 * (NoOP and END_OF_OPTIONS), while the rest of Tcp options supply the
-		 * length of the option, including the code and length fields themselves.
+		 * Length.
 		 * 
-		 * @return number of bytes this option occupies, or 1 of implied
+		 * @return the int
 		 */
 		@Field(offset = 1 * BYTE, length = 1 * BYTE)
 		public int length() {
@@ -807,9 +474,9 @@ public class Tcp
 		}
 
 		/**
-		 * Dynamically generates additional description information.
+		 * Length description.
 		 * 
-		 * @return description of the field or null if not implied length
+		 * @return the string
 		 */
 		@Dynamic(Field.Property.DESCRIPTION)
 		public String lengthDescription() {
@@ -817,23 +484,21 @@ public class Tcp
 		}
 
 		/**
-		 * Sets a new length for the option
+		 * Length.
 		 * 
 		 * @param value
-		 *          new length in bytes to be stored in length field
+		 *          the value
 		 */
 		public void length(int value) {
 			setUByte(1, value);
 		}
 
 		/**
-		 * A runtime check if the length field is present in the option or if length
-		 * of 1 is implied by option type
+		 * Length check.
 		 * 
 		 * @param name
-		 *          ignored
-		 * @return true if length field is present, otherwise false if length field
-		 *         is not present but implied
+		 *          the name
+		 * @return true, if successful
 		 */
 		@Dynamic(field = "length", value = Field.Property.CHECK)
 		public boolean lengthCheck(String name) {
@@ -842,24 +507,7 @@ public class Tcp
 	}
 
 	/**
-	 * TCP timestamps, defined in RFC 1323, help TCP compute the round-trip time
-	 * between the sender and receiver. Timestamp options include a 4-byte
-	 * timestamp value, where the sender inserts its current value of its
-	 * timestamp clock, and a 4-byte echo reply timestamp value, where the
-	 * receiver generally inserts the most recent timestamp value that it has
-	 * received. The sender uses the echo reply timestamp in an acknowledgment to
-	 * compute the total elapsed time since the acknowledged segment was sent.[2]
-	 * <p>
-	 * TCP timestamps are also used to help in the case where TCP sequence numbers
-	 * encounter their 232 bound and "wrap around" the sequence number space. This
-	 * scheme is known as Protect Against Wrapped Sequence numbers, or PAWS (see
-	 * RFC 1323 for details). Furthermore, the Eifel detection algorithm, defined
-	 * in RFC 3522, which detects unnecessary loss recovery requires TCP
-	 * timestamps.
-	 * </p>
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Class Timestamp.
 	 */
 	@Header(id = 8)
 	public static class Timestamp
@@ -867,16 +515,9 @@ public class Tcp
 	    TcpOption {
 
 		/**
-		 * This field is only valid if the ACK bit is set in the TCP header. If it
-		 * is valid, it echos a timestamp value that was sent by the remote TCP in
-		 * the TSval field of a Timestamps option. When TSecr is not valid, its
-		 * value must be zero. The TSecr value will generally be from the most
-		 * recent Timestamp option that was received; A TCP may send the Timestamp
-		 * option in an initial SYN segment (i.e., segment containing a SYN bit and
-		 * no ACK bit), and may send a TSopt in other segments only if it received a
-		 * TSopt in the initial SYN segment for the connection.
+		 * Tsecr.
 		 * 
-		 * @return timestamp value
+		 * @return the long
 		 */
 		@Field(offset = 6 * BYTE, length = 4 * BYTE)
 		public long tsecr() {
@@ -884,20 +525,19 @@ public class Tcp
 		}
 
 		/**
-		 * Sets the field's value
+		 * Tsecr.
 		 * 
 		 * @param value
-		 *          new field value
+		 *          the value
 		 */
 		public void tsecr(long value) {
 			setUInt(6, value);
 		}
 
 		/**
-		 * This field contains the current value of the timestamp clock of the TCP
-		 * sending the option (32 bits).
+		 * Tsval.
 		 * 
-		 * @return field's value
+		 * @return the long
 		 */
 		@Field(offset = 2 * BYTE, length = 4 * BYTE)
 		public long tsval() {
@@ -905,10 +545,10 @@ public class Tcp
 		}
 
 		/**
-		 * Sets the field's value
+		 * Tsval.
 		 * 
 		 * @param value
-		 *          new field value
+		 *          the value
 		 */
 		public void tsval(long value) {
 			setUInt(2, value);
@@ -916,22 +556,7 @@ public class Tcp
 	}
 
 	/**
-	 * The window scale extension expands the definition of the TCP window to 32
-	 * bits and then uses a scale factor to carry this 32 bit value in the 16 bit
-	 * Window field of the TCP header (SEG.WND in RFC-793). The scale factor is
-	 * carried in a new TCP option, Window Scale. This option is sent only in a
-	 * SYN segment (a segment with the SYN bit on), hence the window scale is
-	 * fixed in each direction when a connection is opened. (Another design choice
-	 * would be to specify the window scale in every TCP segment. It would be
-	 * incorrect to send a window scale option only when the scale factor changed,
-	 * since a TCP option in an acknowledgement segment will not be delivered
-	 * reliably (unless the ACK happens to be piggy-backed on data in the other
-	 * direction). Fixing the scale when the connection is opened has the
-	 * advantage of lower overhead but the disadvantage that the scale factor
-	 * cannot be changed during the connection.
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Class WindowScale.
 	 */
 	@Header(id = 3)
 	public static class WindowScale
@@ -939,30 +564,9 @@ public class Tcp
 	    TcpOption {
 
 		/**
-		 * The window scale extension expands the definition of the TCP window to 32
-		 * bits and then uses a scale factor to carry this 32 bit value in the 16
-		 * bit Window field of the TCP header (SEG.WND in RFC-793). The scale factor
-		 * is carried in a new TCP option, Window Scale. This option is sent only in
-		 * a SYN segment (a segment with the SYN bit on), hence the window scale is
-		 * fixed in each direction when a connection is opened. (Another design
-		 * choice would be to specify the window scale in every TCP segment. It
-		 * would be incorrect to send a window scale option only when the scale
-		 * factor changed, since a TCP option in an acknowledgement segment will not
-		 * be delivered reliably (unless the ACK happens to be piggy-backed on data
-		 * in the other direction). Fixing the scale when the connection is opened
-		 * has the advantage of lower overhead but the disadvantage that the scale
-		 * factor cannot be changed during the connection.
-		 * <p>
-		 * The three-byte Window Scale option may be sent in a SYN segment by a TCP.
-		 * It has two purposes: (1) indicate that the TCP is prepared to do both
-		 * send and receive window scaling, and (2) communicate a scale factor to be
-		 * applied to its receive window. Thus, a TCP that is prepared to scale
-		 * windows should send the option, even if its own scale factor is 1. The
-		 * scale factor is limited to a power of two and encoded logarithmically, so
-		 * it may be implemented by binary shift operations.
-		 * </p>
+		 * Scale.
 		 * 
-		 * @return scaling factor for window scale
+		 * @return the int
 		 */
 		@Field(offset = 2 * BYTE, length = 1 * BYTE)
 		public int scale() {
@@ -970,50 +574,57 @@ public class Tcp
 		}
 
 		/**
-		 * Sets a new scaling factor
+		 * Scale.
 		 * 
 		 * @param value
-		 *          value to set in the field
+		 *          the value
 		 */
 		public void scale(int value) {
 			setUByte(2, value);
 		}
 	}
 
+	/** The Constant FLAG_ACK. */
 	private static final int FLAG_ACK = 0x10;
 
+	/** The Constant FLAG_CONG. */
 	private static final int FLAG_CONG = 0x80;
 
+	/** The Constant FLAG_CWR. */
 	private static final int FLAG_CWR = 0x80;
 
+	/** The Constant FLAG_ECE. */
 	private static final int FLAG_ECE = 0x40;
 
+	/** The Constant FLAG_ECN. */
 	private static final int FLAG_ECN = 0x40;
 
+	/** The Constant FLAG_FIN. */
 	private static final int FLAG_FIN = 0x01;
 
+	/** The Constant FLAG_PSH. */
 	private static final int FLAG_PSH = 0x08;
 
+	/** The Constant FLAG_RST. */
 	private static final int FLAG_RST = 0x04;
 
+	/** The Constant FLAG_SYN. */
 	private static final int FLAG_SYN = 0x02;
 
+	/** The Constant FLAG_URG. */
 	private static final int FLAG_URG = 0x20;
 
-	/**
-	 * Unique numerical ID for this protocol header definition
-	 */
+	/** The Constant ID. */
 	public static final int ID = JProtocol.TCP_ID;
 
 	/**
-	 * Calculates the length of a tcp header
+	 * Header length.
 	 * 
 	 * @param buffer
-	 *          buffer containing packet and/or tcp header data
+	 *          the buffer
 	 * @param offset
-	 *          offset into the buffer where tcp header start (in bytes)
-	 * @return number of bytes occupied by the tcp header, including any tcp
-	 *         options
+	 *          the offset
+	 * @return the int
 	 */
 	@HeaderLength
 	public static int headerLength(final JBuffer buffer, final int offset) {
@@ -1021,28 +632,19 @@ public class Tcp
 		return hlen * 4;
 	}
 
-	/**
-	 * Hashcode computed
-	 */
+	/** The bi directional hashcode. */
 	private int biDirectionalHashcode;
 
+	/** The ip. */
 	private final Ip4 ip = new Ip4();
 
-	/**
-	 * Computed in decodeHeader. The hashcode is made up of IP address and port
-	 * number using only the destination addresses. This creates a hashcode that
-	 * is unique in a single direction.
-	 */
+	/** The uni directional hashcode. */
 	private int uniDirectionalHashcode;
 
 	/**
-	 * Acknowledgment number (32 bits). If the ACK flag is set then the value of
-	 * this field is the next sequence number that the receiver is expecting. This
-	 * acknowledges receipt of all prior bytes (if any). The first ACK sent by
-	 * each end acknowledges the other end's initial sequence number itself, but
-	 * no data.
+	 * Ack.
 	 * 
-	 * @return the value of the field
+	 * @return the long
 	 */
 	@Field(offset = 8 * BYTE, length = 16, format = "%x")
 	public long ack() {
@@ -1050,18 +652,17 @@ public class Tcp
 	}
 
 	/**
+	 * Ack.
+	 * 
 	 * @param ack
+	 *          the ack
 	 */
 	public void ack(final long ack) {
 		super.setUInt(8, ack);
 	}
 
-	/**
-	 * Calculates a checksum using protocol specification for a header. Checksums
-	 * for partial headers or fragmented packets (unless the protocol alows it)
-	 * are not calculated.
-	 * 
-	 * @return header's calculated checksum
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.JHeaderChecksum#calculateChecksum()
 	 */
 	public int calculateChecksum() {
 
@@ -1075,11 +676,8 @@ public class Tcp
 		    this.packet, ipOffset, getOffset()));
 	}
 
-	/**
-	 * Checksum (16 bits). The 16-bit checksum field is used for error-checking of
-	 * the header and data .
-	 * 
-	 * @return the field's value
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.JHeaderChecksum#checksum()
 	 */
 	@Field(offset = 16 * BYTE, length = 16, format = "%x")
 	public int checksum() {
@@ -1087,18 +685,19 @@ public class Tcp
 	}
 
 	/**
+	 * Checksum.
+	 * 
 	 * @param crc
+	 *          the crc
 	 */
 	public void checksum(final int crc) {
 		super.setUShort(16, crc);
 	}
 
 	/**
-	 * Returns a dynamic description of the checksum field. Specifically it checks
-	 * and displays, as description, the state of the checksum field, if it
-	 * matches the calculated checksum or not.
+	 * Checksum description.
 	 * 
-	 * @return additional information about the state of the checksum field
+	 * @return the string
 	 */
 	@Dynamic(Field.Property.DESCRIPTION)
 	public String checksumDescription() {
@@ -1119,11 +718,20 @@ public class Tcp
 		}
 	}
 
+	/**
+	 * Clear flag.
+	 * 
+	 * @param flag
+	 *          the flag
+	 */
 	private void clearFlag(int flag) {
 		super.setUByte(13, flags() & ~flag);
 
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.JHeader#decodeHeader()
+	 */
 	@Override
 	protected void decodeHeader() {
 		/*
@@ -1184,9 +792,9 @@ public class Tcp
 	}
 
 	/**
-	 * Destination port (16 bits). Identifies the receiving port
+	 * Destination.
 	 * 
-	 * @return the field's value
+	 * @return the int
 	 */
 	@BindingVariable
 	@Field(offset = 16, length = 16)
@@ -1196,41 +804,19 @@ public class Tcp
 	}
 
 	/**
-	 * Sets a new value for the destination field
+	 * Destination.
 	 * 
 	 * @param value
-	 *          new value for the field
+	 *          the value
 	 */
 	public void destination(final int value) {
 		super.setUShort(2, value);
 	}
 
 	/**
-	 * Flags (8 bits) (aka Control bits) - contains 8 1-bit flags
-	 * <ul>
-	 * <li> CWR (1 bit) - Congestion Window Reduced (CWR) flag is set by the
-	 * sending host to indicate that it received a TCP segment with the ECE flag
-	 * set and had responded in congestion control mechanism (added to header by
-	 * RFC 3168).
-	 * <li> ECE (1 bit) - ECN-Echo indicates If the SYN flag is set, that the TCP
-	 * peer is ECN capable. If the SYN flag is clear, that a packet with
-	 * Congestion Experienced flag in IP header set is received during normal
-	 * transmission (added to header by RFC 3168).
-	 * <li>URG (1 bit) - indicates that the Urgent pointer field is significant
-	 * <li>ACK (1 bit) - indicates that the Acknowledgment field is significant.
-	 * All packets after the initial SYN packet sent by the client should have
-	 * this flag set.
-	 * <li>PSH (1 bit) - Push function. Asks to push the buffered data to the
-	 * receiving application.
-	 * <li>RST (1 bit) - Reset the connection
-	 * <li>SYN (1 bit) - Synchronize sequence numbers. Only the first packet sent
-	 * from each end should have this flag set. Some other flags change meaning
-	 * based on this flag, and some are only valid for when it is set, and others
-	 * when it is clear.
-	 * <li>FIN (1 bit) - No more data from sender
-	 * </ul>
+	 * Flags.
 	 * 
-	 * @return the field's value
+	 * @return the int
 	 */
 	@Field(offset = 13 * BYTE, length = 8, format = "%x")
 	public int flags() {
@@ -1238,21 +824,19 @@ public class Tcp
 	}
 
 	/**
-	 * Sets a new value for the flags field (8-bits)
+	 * Flags.
 	 * 
 	 * @param value
-	 *          new value for the field
+	 *          the value
 	 */
 	public void flags(final int value) {
 		super.setUByte(13, value);
 	}
 
 	/**
-	 * ACK (1 bit) - indicates that the Acknowledgment field is significant. All
-	 * packets after the initial SYN packet sent by the client should have this
-	 * flag set.
+	 * Flags_ ack.
 	 * 
-	 * @return true if bit flag is set, otherwise false
+	 * @return true, if successful
 	 */
 	@Field(parent = "flags", offset = 4, length = 1, format = "%b", display = "ack", description = "acknowledgment")
 	public boolean flags_ACK() {
@@ -1260,22 +844,19 @@ public class Tcp
 	}
 
 	/**
-	 * Sets new value for the bit flag
+	 * Flags_ ack.
 	 * 
 	 * @param value
-	 *          sets the flag bit, false clears it
+	 *          the value
 	 */
 	public void flags_ACK(final boolean value) {
 		setFlag(value, FLAG_ACK);
 	}
 
 	/**
-	 * CWR (1 bit) - Congestion Window Reduced (CWR) flag is set by the sending
-	 * host to indicate that it received a TCP segment with the ECE flag set and
-	 * had responded in congestion control mechanism (added to header by RFC
-	 * 3168).
+	 * Flags_ cwr.
 	 * 
-	 * @return true if bit flag is set, otherwise false
+	 * @return true, if successful
 	 */
 	@Field(parent = "flags", offset = 7, length = 1, format = "%b", display = "cwr", description = "reduced (cwr)")
 	public boolean flags_CWR() {
@@ -1283,22 +864,19 @@ public class Tcp
 	}
 
 	/**
-	 * Sets new value for the bit flag
+	 * Flags_ cwr.
 	 * 
 	 * @param value
-	 *          sets the flag bit, false clears it
+	 *          the value
 	 */
 	public void flags_CWR(final boolean value) {
 		setFlag(value, FLAG_CWR);
 	}
 
 	/**
-	 * ECE (1 bit) - ECN-Echo indicates If the SYN flag is set, that the TCP peer
-	 * is ECN capable. If the SYN flag is clear, that a packet with Congestion
-	 * Experienced flag in IP header set is received during normal transmission
-	 * (added to header by RFC 3168).
+	 * Flags_ ece.
 	 * 
-	 * @return true if bit flag is set, otherwise false
+	 * @return true, if successful
 	 */
 	@Field(parent = "flags", offset = 6, length = 1, format = "%b", display = "ece", description = "ECN echo flag")
 	public boolean flags_ECE() {
@@ -1306,19 +884,19 @@ public class Tcp
 	}
 
 	/**
-	 * Sets new value for the bit flag
+	 * Flags_ ece.
 	 * 
 	 * @param value
-	 *          sets the flag bit, false clears it
+	 *          the value
 	 */
 	public void flags_ECE(final boolean value) {
 		setFlag(value, FLAG_ECE);
 	}
 
 	/**
-	 * FIN (1 bit) - No more data from sender
+	 * Flags_ fin.
 	 * 
-	 * @return true if bit flag is set, otherwise false
+	 * @return true, if successful
 	 */
 	@Field(parent = "flags", offset = 0, length = 1, format = "%b", display = "fin", description = "closing down connection")
 	public boolean flags_FIN() {
@@ -1326,20 +904,19 @@ public class Tcp
 	}
 
 	/**
-	 * Sets new value for the bit flag
+	 * Flags_ fin.
 	 * 
 	 * @param value
-	 *          sets the flag bit, false clears it
+	 *          the value
 	 */
 	public void flags_FIN(final boolean value) {
 		setFlag(value, FLAG_FIN);
 	}
 
 	/**
-	 * PSH (1 bit) - Push function. Asks to push the buffered data to the
-	 * receiving application.
+	 * Flags_ psh.
 	 * 
-	 * @return true if bit flag is set, otherwise false
+	 * @return true, if successful
 	 */
 	@Field(parent = "flags", offset = 3, length = 1, format = "%b", display = "ack", description = "push current segment of data")
 	public boolean flags_PSH() {
@@ -1347,19 +924,19 @@ public class Tcp
 	}
 
 	/**
-	 * Sets new value for the bit flag
+	 * Flags_ psh.
 	 * 
 	 * @param value
-	 *          sets the flag bit, false clears it
+	 *          the value
 	 */
 	public void flags_PSH(final boolean value) {
 		setFlag(value, FLAG_PSH);
 	}
 
 	/**
-	 * RST (1 bit) - Reset the connection
+	 * Flags_ rst.
 	 * 
-	 * @return true if bit flag is set, otherwise false
+	 * @return true, if successful
 	 */
 	@Field(parent = "flags", offset = 2, length = 1, format = "%b", display = "ack", description = "reset connection")
 	public boolean flags_RST() {
@@ -1367,22 +944,19 @@ public class Tcp
 	}
 
 	/**
-	 * Sets new value for the bit flag
+	 * Flags_ rst.
 	 * 
 	 * @param value
-	 *          sets the flag bit, false clears it
+	 *          the value
 	 */
 	public void flags_RST(final boolean value) {
 		setFlag(value, FLAG_RST);
 	}
 
 	/**
-	 * SYN (1 bit) - Synchronize sequence numbers. Only the first packet sent from
-	 * each end should have this flag set. Some other flags change meaning based
-	 * on this flag, and some are only valid for when it is set, and others when
-	 * it is clear.
+	 * Flags_ syn.
 	 * 
-	 * @return true if bit flag is set, otherwise false
+	 * @return true, if successful
 	 */
 	@Field(parent = "flags", offset = 1, length = 1, format = "%b", display = "ack", description = "synchronize connection, startup")
 	public boolean flags_SYN() {
@@ -1390,19 +964,19 @@ public class Tcp
 	}
 
 	/**
-	 * Sets new value for the bit flag
+	 * Flags_ syn.
 	 * 
 	 * @param value
-	 *          sets the flag bit, false clears it
+	 *          the value
 	 */
 	public void flags_SYN(final boolean value) {
 		setFlag(value, FLAG_SYN);
 	}
 
 	/**
-	 * URG (1 bit) - indicates that the Urgent pointer field is significant
+	 * Flags_ urg.
 	 * 
-	 * @return true if bit flag is set, otherwise false
+	 * @return true, if successful
 	 */
 	@Field(parent = "flags", offset = 5, length = 1, format = "%b", display = "ack", description = "urgent, out-of-band data")
 	public boolean flags_URG() {
@@ -1410,39 +984,35 @@ public class Tcp
 	}
 
 	/**
-	 * Sets new value for the bit flag
+	 * Flags_ urg.
 	 * 
 	 * @param value
-	 *          sets the flag bit, false clears it
+	 *          the value
 	 */
 	public void flags_URG(final boolean value) {
 		setFlag(value, FLAG_URG);
 	}
 
 	/**
-	 * Returns a compact string representation of the flags contained within flags
-	 * field
+	 * Flags compact string.
 	 * 
-	 * @return a terse representation of the flags
+	 * @return the string
 	 */
 	public String flagsCompactString() {
 		return Flag.toCompactString(flags());
 	}
 
 	/**
-	 * Retruns a collection set representation of the flags contained within the
-	 * flags field
+	 * Flags enum.
 	 * 
-	 * @return a collection set of the flags field
+	 * @return the sets the
 	 */
 	public Set<Flag> flagsEnum() {
 		return Flag.asSet(flags());
 	}
 
-	/**
-	 * Calculates the length of the TCP payload.
-	 * 
-	 * @return length of tcp segment data in bytes
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.JHeader#getPayloadLength()
 	 */
 	@Override
 	public int getPayloadLength() {
@@ -1450,14 +1020,8 @@ public class Tcp
 		return this.ip.length() - this.ip.hlen() * 4 - hlen() * 4;
 	}
 
-	/**
-	 * Returns a bi-directional hashcode for this header. The hashcode is made up
-	 * of IP source, IP destination, Tcp source and destination port numbers. It
-	 * is created in a such a way that packet's source and destination fields are
-	 * interchangable and will generate the same hashcode.
-	 * 
-	 * @return bi-directional hashcode for this TCP/IP header combination
-	 * @see #uniHashCode()
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
 	public int hashCode() {
@@ -1465,13 +1029,9 @@ public class Tcp
 	}
 
 	/**
-	 * Data offset (4 bits). Specifies the size of the TCP header in 32-bit words.
-	 * The minimum size header is 5 words and the maximum is 15 words thus giving
-	 * the minimum size of 20 bytes and maximum of 60 bytes, allowing for up to 40
-	 * bytes of options in the header. This field gets its name from the fact that
-	 * it is also the offset from the start of the TCP segment to the actual data.
+	 * Hlen.
 	 * 
-	 * @return the field's value
+	 * @return the int
 	 */
 	@Field(offset = 12 * BYTE, length = 4)
 	public int hlen() {
@@ -1479,21 +1039,17 @@ public class Tcp
 	}
 
 	/**
+	 * Hlen.
+	 * 
 	 * @param length
-	 *          in 4 byte words
+	 *          the length
 	 */
 	public void hlen(final int length) {
 		super.setUByte(12, ((getUByte(12) & 0x0F) | (length << 4)));
 	}
 
-	/**
-	 * Checks if the checksum is valid, for un-fragmented packets. If a packet is
-	 * fragmented, the checksum is not verified as data to is incomplete, but the
-	 * method returns true none the less.
-	 * 
-	 * @return true if checksum checks out or if this is a fragment, otherwise if
-	 *         the computed checksum does not match the stored checksum false is
-	 *         returned
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.JHeaderChecksum#isChecksumValid()
 	 */
 	public boolean isChecksumValid() {
 
@@ -1511,9 +1067,9 @@ public class Tcp
 	}
 
 	/**
-	 * Reserved (4 bits). For future use and should be set to zero.
+	 * Reserved.
 	 * 
-	 * @return the field's value
+	 * @return the int
 	 */
 	@Field(offset = 12 * BYTE + 4, length = 4)
 	public int reserved() {
@@ -1521,26 +1077,19 @@ public class Tcp
 	}
 
 	/**
-	 * Sets a new value for the field.
+	 * Reserved.
 	 * 
 	 * @param value
-	 *          new value (4 bits)
+	 *          the value
 	 */
 	public void reserved(final int value) {
 		setUByte(12, value & 0x0F);
 	}
 
 	/**
-	 * Sequence number (32 bits). Has a dual role:
-	 * <ul>
-	 * <li>If the SYN flag is set, then this is the initial sequence number. The
-	 * sequence number of the actual first data byte (and the acknowledged number
-	 * in the corresponding ACK) are then this sequence number plus 1.
-	 * <li>If the SYN flag is clear, then this is the accumulated sequence number
-	 * of the first data byte of this packet for the current session.
-	 * </ul>
+	 * Seq.
 	 * 
-	 * @return the field's value
+	 * @return the long
 	 */
 	@Field(offset = 4 * BYTE, length = 16, format = "%x")
 	public long seq() {
@@ -1548,12 +1097,23 @@ public class Tcp
 	}
 
 	/**
+	 * Seq.
+	 * 
 	 * @param seq
+	 *          the seq
 	 */
 	public void seq(final long seq) {
 		super.setUInt(4, seq);
 	}
 
+	/**
+	 * Sets the flag.
+	 * 
+	 * @param state
+	 *          the state
+	 * @param flag
+	 *          the flag
+	 */
 	private void setFlag(final boolean state, final int flag) {
 		if (state) {
 			setFlag(flag);
@@ -1562,14 +1122,20 @@ public class Tcp
 		}
 	}
 
+	/**
+	 * Sets the flag.
+	 * 
+	 * @param flag
+	 *          the new flag
+	 */
 	private void setFlag(final int flag) {
 		super.setUByte(13, flags() | flag);
 	}
 
 	/**
-	 * Source port (16 bits). Identifies the sending port.
+	 * Source.
 	 * 
-	 * @return the field's value
+	 * @return the int
 	 */
 	@BindingVariable
 	@Field(offset = 0, length = 16)
@@ -1579,31 +1145,28 @@ public class Tcp
 	}
 
 	/**
-	 * Sets a new value for the field (16 bits).
+	 * Source.
 	 * 
 	 * @param src
-	 *          new value (16 bits)
+	 *          the src
 	 */
 	public void source(final int src) {
 		super.setUShort(0, src);
 	}
 
 	/**
-	 * Uni-directional hashcode. A hashcode that is computed based on IP
-	 * destination and TCP destination port. This make the hashcode uni-direction
-	 * in the direction from source to destination.
+	 * Uni hash code.
 	 * 
-	 * @return a hashcode that is uni-directional
+	 * @return the int
 	 */
 	public int uniHashCode() {
 		return this.uniDirectionalHashcode;
 	}
 
 	/**
-	 * Urgent pointer (16 bits). If the URG flag is set, then this 16-bit field is
-	 * an offset from the sequence number indicating the last urgent data byte.
+	 * Urgent.
 	 * 
-	 * @return the field's value
+	 * @return the int
 	 */
 	@Field(offset = 18 * BYTE, length = 16)
 	public int urgent() {
@@ -1611,74 +1174,19 @@ public class Tcp
 	}
 
 	/**
+	 * Urgent.
+	 * 
 	 * @param urg
+	 *          the urg
 	 */
 	public void urgent(final int urg) {
 		super.setUShort(18, urg);
 	}
 
 	/**
-	 * Window (16 bits). The size of the receive window, which specifies the
-	 * number of bytes (beyond the sequence number in the acknowledgment field)
-	 * that the receiver is currently willing to receive.
-	 * <h2>Flow control</h2>
-	 * TCP uses an end-to-end flow control protocol to avoid having the sender
-	 * send data too fast for the TCP receiver to receive and process it reliably.
-	 * Having a mechanism for flow control is essential in an environment where
-	 * machines of diverse network speeds communicate. For example, if a PC sends
-	 * data to a hand-held PDA that is slowly processing received data, the PDA
-	 * must regulate data flow so as not to be overwhelmed.
-	 * <p>
-	 * TCP uses a sliding window flow control protocol. In each TCP segment, the
-	 * receiver specifies in the receive window field the amount of additional
-	 * received data (in bytes) that it is willing to buffer for the connection.
-	 * The sending host can send only up to that amount of data before it must
-	 * wait for an acknowledgment and window update from the receiving host.
-	 * </p>
-	 * <p>
-	 * When a receiver advertises a window size of 0, the sender stops sending
-	 * data and starts the persist timer. The persist timer is used to protect TCP
-	 * from a deadlock situation that could arise if the window size update from
-	 * the receiver is lost and the sender has no more data to send while the
-	 * receiver is waiting for the new window size update. When the persist timer
-	 * expires, the TCP sender sends a small packet so that the receiver sends an
-	 * acknowledgement with the new window size.
-	 * </p>
-	 * <p>
-	 * If a receiver is processing incoming data in small increments, it may
-	 * repeatedly advertise a small receive window. This is referred to as the
-	 * silly window syndrome, since it is inefficient to send only a few bytes of
-	 * data in a TCP segment, given the relatively large overhead of the TCP
-	 * header. TCP senders and receivers typically employ flow control logic to
-	 * specifically avoid repeatedly sending small segments. The sender-side silly
-	 * window syndrome avoidance logic is referred to as Nagle's algorithm.
-	 * </p>
-	 * <h2>Window scaling</h2>
-	 * For more efficient use of high bandwidth networks, a larger TCP window size
-	 * may be used. The TCP window size field controls the flow of data and its
-	 * value is limited to between 2 and 65,535 bytes.
-	 * <p>
-	 * Since the size field cannot be expanded, a scaling factor is used. The TCP
-	 * window scale option, as defined in RFC 1323, is an option used to increase
-	 * the maximum window size from 65,535 bytes to 1 Gigabyte. Scaling up to
-	 * larger window sizes is a part of what is necessary for TCP Tuning.
-	 * </p>
-	 * <p>
-	 * The window scale option is used only during the TCP 3-way handshake. The
-	 * window scale value represents the number of bits to left-shift the 16-bit
-	 * window size field. The window scale value can be set from 0 (no shift) to
-	 * 14 for each direction independently. Both sides must send the option in
-	 * their SYN segments to enable window scaling in either direction.
-	 * </p>
-	 * <p>
-	 * Some routers and packet firewalls rewrite the window scaling factor during
-	 * a transmission. This causes sending and receiving sides to assume different
-	 * TCP window sizes. The result is non-stable traffic that may be very slow.
-	 * The problem is visible on some sending and receiving sites behind the path
-	 * of defective routers.
-	 * </p>
+	 * Window.
 	 * 
-	 * @return the field's value
+	 * @return the int
 	 */
 	@Field(offset = 14 * BYTE, length = 16)
 	public int window() {
@@ -1686,49 +1194,19 @@ public class Tcp
 	}
 
 	/**
-	 * Sets the window field to new value.
+	 * Window.
 	 * 
 	 * @param value
-	 *          new value for the field
+	 *          the value
 	 */
 	public void window(final int value) {
 		super.setUShort(14, value);
 	}
 
 	/**
-	 * A scaled, window field value. The size of the receive window, which
-	 * specifies the number of bytes (beyond the sequence number in the
-	 * acknowledgment field) that the receiver is currently willing to receive.
-	 * <p>
-	 * This getter method, takes into account window scaling, as described below,
-	 * and applies the scaling factor and returning the value.
-	 * </p>
-	 * <h2>Window scaling</h2>
-	 * For more efficient use of high bandwidth networks, a larger TCP window size
-	 * may be used. The TCP window size field controls the flow of data and its
-	 * value is limited to between 2 and 65,535 bytes.
-	 * <p>
-	 * Since the size field cannot be expanded, a scaling factor is used. The TCP
-	 * window scale option, as defined in RFC 1323, is an option used to increase
-	 * the maximum window size from 65,535 bytes to 1 Gigabyte. Scaling up to
-	 * larger window sizes is a part of what is necessary for TCP Tuning.
-	 * </p>
-	 * <p>
-	 * The window scale option is used only during the TCP 3-way handshake. The
-	 * window scale value represents the number of bits to left-shift the 16-bit
-	 * window size field. The window scale value can be set from 0 (no shift) to
-	 * 14 for each direction independently. Both sides must send the option in
-	 * their SYN segments to enable window scaling in either direction.
-	 * </p>
-	 * <p>
-	 * Some routers and packet firewalls rewrite the window scaling factor during
-	 * a transmission. This causes sending and receiving sides to assume different
-	 * TCP window sizes. The result is non-stable traffic that may be very slow.
-	 * The problem is visible on some sending and receiving sites behind the path
-	 * of defective routers.
-	 * </p>
+	 * Window scaled.
 	 * 
-	 * @return the scaled value of the window field
+	 * @return the int
 	 */
 	public int windowScaled() {
 		return window() << 6;

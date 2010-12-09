@@ -26,32 +26,26 @@ import org.jnetpcap.packet.JScanner;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.PcapPacketHandler;
 
+// TODO: Auto-generated Javadoc
 /**
- * A Pcap utility class which provides certain additional and convenience
- * methods.
- * 
- * @since 1.2
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class PcapUtils.
  */
 public final class PcapUtils {
+	
 	/**
-	 * Runs the dispatch function in a background thread. The function returns
-	 * immediately and returns a PcapTask from which the user can interact with
-	 * the background task.
+	 * Dispatch in background.
 	 * 
 	 * @param <T>
-	 *          User supplied type
+	 *          the generic type
 	 * @param pcap
-	 *          an open pcap object
+	 *          the pcap
 	 * @param cnt
-	 *          number of packets to capture and exit, 0 for infinate
+	 *          the cnt
 	 * @param handler
-	 *          user supplied callback handler
+	 *          the handler
 	 * @param data
-	 *          opaque, user supplied data object dispatched back to the handler
-	 * @return a task object which allows interaction with the underlying capture
-	 *         loop and thread
+	 *          the data
+	 * @return the pcap task
 	 */
 	public static <T> PcapTask<T> dispatchInBackground(
 	    Pcap pcap,
@@ -99,22 +93,19 @@ public final class PcapUtils {
 	}
 
 	/**
-	 * Runs the dispatch function in a background thread. The function returns
-	 * immediately and returns a PcapTask from which the user can interact with
-	 * the background task.
+	 * Dispatch in background.
 	 * 
 	 * @param <T>
-	 *          user supplied type
+	 *          the generic type
 	 * @param pcap
-	 *          an open pcap object
+	 *          the pcap
 	 * @param cnt
-	 *          number of packets to capture and exit, 0 for infinate
+	 *          the cnt
 	 * @param handler
-	 *          user supplied callback handler
+	 *          the handler
 	 * @param data
-	 *          opaque, user supplied data object dispatched back to the handler
-	 * @return a task object which allows interaction with the underlying capture
-	 *         loop and thread
+	 *          the data
+	 * @return the pcap task
 	 */
 	public static <T> PcapTask<T> dispatchInBackground(
 	    Pcap pcap,
@@ -162,48 +153,44 @@ public final class PcapUtils {
 	}
 
 	/**
-	 * Retrieves a network hardware address or MAC for a network interface
+	 * Gets the hardware address.
 	 * 
-	 * @see Pcap#findAllDevs(List, StringBuilder)
 	 * @param netif
-	 *          network device as retrieved from Pcap.findAllDevs().
-	 * @return network interface hardware address or null if unable to retrieve it
+	 *          the netif
+	 * @return the hardware address
 	 * @throws IOException
-	 *           any communication errors
+	 *           Signals that an I/O exception has occurred.
 	 */
 	public static byte[] getHardwareAddress(PcapIf netif) throws IOException {
 		return getHardwareAddress(netif.getName());
 	}
 
 	/**
-	 * Retrieves a network hardware address or MAC for a network interface
+	 * Gets the hardware address.
 	 * 
 	 * @param device
-	 *          network interface name
-	 * @return network interface hardware address or null if unable to retrieve it
+	 *          the device
+	 * @return the hardware address
 	 * @throws IOException
-	 *           any communication errors
+	 *           Signals that an I/O exception has occurred.
 	 */
 	public native static byte[] getHardwareAddress(String device)
 	    throws IOException;
 
 	/**
-	 * Runs the loop function in a background thread. The function returns
-	 * immediately and returns a PcapTask from which the user can interact with
-	 * the background task.
+	 * Loop in background.
 	 * 
 	 * @param <T>
-	 *          user supplied type
+	 *          the generic type
 	 * @param pcap
-	 *          an open pcap object
+	 *          the pcap
 	 * @param cnt
-	 *          number of packets to capture and exit, 0 for infinate
+	 *          the cnt
 	 * @param handler
-	 *          user supplied callback handler
+	 *          the handler
 	 * @param data
-	 *          opaque, user supplied data object dispatched back to the handler
-	 * @return a task object which allows interaction with the underlying capture
-	 *         loop and thread
+	 *          the data
+	 * @return the pcap task
 	 */
 	public static <T> PcapTask<T> loopInBackground(
 	    Pcap pcap,
@@ -220,22 +207,19 @@ public final class PcapUtils {
 	}
 
 	/**
-	 * Runs the loop function in a background thread. The function returns
-	 * immediately and returns a PcapTask from which the user can interact with
-	 * the background task.
+	 * Loop in background.
 	 * 
 	 * @param <T>
-	 *          user supplied type
+	 *          the generic type
 	 * @param pcap
-	 *          an open pcap object
+	 *          the pcap
 	 * @param cnt
-	 *          number of packets to capture and exit, 0 for infinate
+	 *          the cnt
 	 * @param handler
-	 *          user supplied callback handler
+	 *          the handler
 	 * @param data
-	 *          opaque, user supplied data object dispatched back to the handler
-	 * @return a task object which allows interaction with the underlying capture
-	 *         loop and thread
+	 *          the data
+	 * @return the pcap task
 	 */
 	public static <T> PcapTask<T> loopInBackground(
 	    Pcap pcap,
@@ -252,19 +236,21 @@ public final class PcapUtils {
 	}
 
 	/**
+	 * Inject loop.
+	 * 
 	 * @param <T>
-	 *          user supplied type
+	 *          the generic type
 	 * @param cnt
-	 *          number of packets
+	 *          the cnt
 	 * @param id
-	 *          dlt type
+	 *          the id
 	 * @param handler
-	 *          user packet handler
+	 *          the handler
 	 * @param user
-	 *          user object
+	 *          the user
 	 * @param packet
-	 *          packet used for peering when using no copy mode
-	 * @return libpcap result code
+	 *          the packet
+	 * @return the int
 	 */
 	public static <T> int injectLoop(
 	    int cnt,
@@ -278,23 +264,27 @@ public final class PcapUtils {
 	}
 
 	/**
-	 * A special method invokes the real native loop callback with fake pcap
-	 * packets. The loop is used to test for memory leaks and performance that
-	 * bypasses libpcap calls.
+	 * Inject loop.
 	 * 
-	 * @param packet
-	 *          packet to inject into the loop and callback
-	 * @param flags
-	 *          number of packets to inject or -1 for inifinite
-	 * @param handler
-	 *          handler to dispatch the injected packet to
-	 * @param user
-	 *          user data
 	 * @param <T>
-	 *          type of user data
+	 *          the generic type
+	 * @param cnt
+	 *          the cnt
+	 * @param id
+	 *          the id
+	 * @param handler
+	 *          the handler
+	 * @param user
+	 *          the user
+	 * @param packet
+	 *          the packet
+	 * @param state
+	 *          the state
 	 * @param header
-	 *          pcap header for this packet
-	 * @return number of packets injected
+	 *          the header
+	 * @param scanner
+	 *          the scanner
+	 * @return the int
 	 */
 	private native static <T> int injectLoop(
 	    int cnt,
@@ -306,6 +296,9 @@ public final class PcapUtils {
 	    PcapHeader header,
 	    JScanner scanner);
 
+	/**
+	 * Instantiates a new pcap utils.
+	 */
 	private PcapUtils() {
 		// So no one can instatiate
 	}

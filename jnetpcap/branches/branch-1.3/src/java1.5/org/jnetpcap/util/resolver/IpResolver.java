@@ -23,17 +23,15 @@ import java.net.UnknownHostException;
 
 import org.jnetpcap.util.JLogger;
 
+// TODO: Auto-generated Javadoc
 /**
- * A resolver object that knows how to convert IP addresses into hostnames.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class IpResolver.
  */
 public class IpResolver
     extends AbstractResolver {
 
 	/**
-	 * @param type
+	 * Instantiates a new ip resolver.
 	 */
 	public IpResolver() {
 		super(JLogger.getLogger(IpResolver.class), "IP");

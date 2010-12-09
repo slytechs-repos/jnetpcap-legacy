@@ -18,20 +18,21 @@
  */
 package org.jnetpcap;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class IncompatiblePeer.
  */
 public class IncompatiblePeer
     extends Exception {
 
-	/**
-	 * 
-	 */
+	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 9081938128324891646L;
 
 	/**
+	 * Instantiates a new incompatible peer.
+	 * 
 	 * @param msg
+	 *          the msg
 	 */
 	public IncompatiblePeer(String msg) {
 		super(msg);

@@ -22,15 +22,17 @@ import junit.framework.TestCase;
 
 import org.jnetpcap.Pcap;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
- *
+ * The Class Bug2836179_negative_snaplen.
  */
 public class Bug2836179_negative_snaplen
     extends
     TestCase {
 
+	/**
+	 * Test negative snaplen.
+	 */
 	public void testNegativeSnaplen() {
 		try {
 		Pcap.openLive("", -1, 0, 0, new StringBuilder());

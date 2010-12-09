@@ -34,36 +34,46 @@ import org.jnetpcap.PcapHeader;
 import org.jnetpcap.PcapIf;
 import org.jnetpcap.PcapPktHdr;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestWinPcapExtensions.
  */
 @SuppressWarnings("deprecation")
 public class TestWinPcapExtensions
     extends TestCase {
 
+	/** The Constant device. */
 	private final static String device = "\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
 
 //	private final static String uri = "rpcap://[192.168.1.100]/\\Device\\NPF_{04BD71F0-BAD6-4C51-96A4-B05562FAD4F9}";
 
-	private final static String rdevice = "\\Device\\NPF_{04BD71F0-BAD6-4C51-96A4-B05562FAD4F9}";
+	/** The Constant rdevice. */
+private final static String rdevice = "\\Device\\NPF_{04BD71F0-BAD6-4C51-96A4-B05562FAD4F9}";
 
+	/** The Constant rhost. */
 	private final static String rhost = "192.168.1.100";
 
+	/** The Constant fname. */
 	private final static String fname = "tests/test-l2tp.pcap";
 
 //	private static final int OK = 0;
 
-	private static final int snaplen = 64 * 1024;
+	/** The Constant snaplen. */
+private static final int snaplen = 64 * 1024;
 
+	/** The Constant flags. */
 	private static final int flags = Pcap.MODE_PROMISCUOUS;
 
+	/** The Constant promisc. */
 	private static final int promisc = 1;
 
+	/** The Constant oneSecond. */
 	private static final int oneSecond = 1000;
 
+	/** The errbuf. */
 	private StringBuilder errbuf;
 
+	/** The do nothing handler. */
 	private final PcapHandler<?> doNothingHandler = new PcapHandler<Object>() {
 
 		public void nextPacket(Object userObject, long seconds, int useconds,
@@ -72,8 +82,10 @@ public class TestWinPcapExtensions
 		}
 	};
 
+	/** The print timestamp handler. */
 	private PcapHandler<String> printTimestampHandler;
 
+	/** The tmp file. */
 	private static File tmpFile;
 
 	static {
@@ -85,8 +97,8 @@ public class TestWinPcapExtensions
 
 	}
 
-	/**
-	 * @throws java.lang.Exception
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
 
@@ -108,8 +120,8 @@ public class TestWinPcapExtensions
 
 	}
 
-	/**
-	 * @throws java.lang.Exception
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
 		if (tmpFile.exists()) {
@@ -117,6 +129,9 @@ public class TestWinPcapExtensions
 		}
 	}
 
+	/**
+	 * Test is win pcap ext supported.
+	 */
 	public void testIsWinPcapExtSupported() {
 		String os = System.getProperty("os.name");
 
@@ -131,9 +146,7 @@ public class TestWinPcapExtensions
 	}
 
 	/**
-	 * Test disabled, as it requires live packets to capture. To enable the test
-	 * just rename the method, by removing the prefix SKIP. Then make sure there
-	 * are live packets to be captured.
+	 * SKI ptest open live and dispatch.
 	 */
 	public void SKIPtestOpenLiveAndDispatch() {
 
@@ -156,6 +169,9 @@ public class TestWinPcapExtensions
 		winPcap.close();
 	}
 
+	/**
+	 * SKI ptest win pcap stats.
+	 */
 	public void SKIPtestWinPcapStats() {
 
 		WinPcap pcap = WinPcap
@@ -171,6 +187,9 @@ public class TestWinPcapExtensions
 
 	}
 
+	/**
+	 * Test send queue depracated.
+	 */
 	@SuppressWarnings("deprecation")
   public void testSendQueueDepracated() {
 		WinPcapSendQueue queue = WinPcap.sendQueueAlloc(512);
@@ -198,6 +217,9 @@ public class TestWinPcapExtensions
 		WinPcap.sendQueueDestroy(queue);
 	}
 	
+  /**
+	 * Test send queue.
+	 */
   public void testSendQueue() {
 		WinPcapSendQueue queue = WinPcap.sendQueueAlloc(512);
 
@@ -225,6 +247,9 @@ public class TestWinPcapExtensions
 	}
 
 
+	/**
+	 * Test set sampling live.
+	 */
 	public void testSetSamplingLive() {
 
 		// Only setSampling only supported on live captures
@@ -243,6 +268,9 @@ public class TestWinPcapExtensions
 		pcap.close();
 	}
 
+	/**
+	 * Test set sampling offline.
+	 */
 	public void testSetSamplingOffline() {
 
 		// Only setSampling only supported on live captures
@@ -260,6 +288,9 @@ public class TestWinPcapExtensions
 		pcap.close();
 	}
 
+	/**
+	 * SKI ptest find all devs ex.
+	 */
 	public void SKIPtestFindAllDevsEx() {
 		String source = "rpcap://192.168.1.100/";
 		List<PcapIf> ifs = new ArrayList<PcapIf>();
@@ -272,6 +303,9 @@ public class TestWinPcapExtensions
 		// System.out.printf("ifs=%s\n", ifs);
 	}
 
+	/**
+	 * SKI ptest remote open.
+	 */
 	public void SKIPtestRemoteOpen() {
 
 		StringBuilder source = new StringBuilder();
@@ -292,6 +326,9 @@ public class TestWinPcapExtensions
 		pcap.close();
 	}
 
+	/**
+	 * Test live dump.
+	 */
 	public void testLiveDump() {
 
 		System.out.printf("tmpFile=%s\n", tmpFile.getAbsoluteFile());

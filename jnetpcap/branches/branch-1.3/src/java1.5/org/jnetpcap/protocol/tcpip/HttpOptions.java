@@ -18,22 +18,18 @@
  */
 package org.jnetpcap.protocol.tcpip;
 
+// TODO: Auto-generated Javadoc
 /**
- * Http protocol options
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Interface HttpOptions.
  */
 public interface HttpOptions {
 
 	/**
-	 * Http analyzer will not dispatch any incomplete http messages. Only fully
-	 * complete and reassembled messages will dispatched. Incomplete or fragmented
-	 * messages will be skipped by this analyzer.
+	 * Skip fragments.
 	 * 
 	 * @param state
-	 *          true to enable, otherwise false
-	 * @return old value
+	 *          the state
+	 * @return true, if successful
 	 */
 	public boolean skipFragments(boolean state);
 }

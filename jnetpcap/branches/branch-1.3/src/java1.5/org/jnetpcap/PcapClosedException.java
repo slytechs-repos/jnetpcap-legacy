@@ -18,22 +18,18 @@
  */
 package org.jnetpcap;
 
+// TODO: Auto-generated Javadoc
 /**
- * Thrown if Pcap object is access after it has been closed.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class PcapClosedException.
  */
 public class PcapClosedException
     extends IllegalStateException {
 
-	/**
-	 * 
-	 */
+	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 4803545074835523202L;
 
 	/**
-	 * 
+	 * Instantiates a new pcap closed exception.
 	 */
 	public PcapClosedException() {
 		super();
@@ -41,8 +37,12 @@ public class PcapClosedException
 	}
 
 	/**
+	 * Instantiates a new pcap closed exception.
+	 * 
 	 * @param message
+	 *          the message
 	 * @param cause
+	 *          the cause
 	 */
 	public PcapClosedException(String message, Throwable cause) {
 		super(message, cause);
@@ -50,7 +50,10 @@ public class PcapClosedException
 	}
 
 	/**
+	 * Instantiates a new pcap closed exception.
+	 * 
 	 * @param s
+	 *          the s
 	 */
 	public PcapClosedException(String s) {
 		super(s);
@@ -58,7 +61,10 @@ public class PcapClosedException
 	}
 
 	/**
+	 * Instantiates a new pcap closed exception.
+	 * 
 	 * @param cause
+	 *          the cause
 	 */
 	public PcapClosedException(Throwable cause) {
 		super(cause);

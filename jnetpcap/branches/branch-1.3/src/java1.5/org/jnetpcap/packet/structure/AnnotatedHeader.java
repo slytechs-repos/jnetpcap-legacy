@@ -36,15 +36,25 @@ import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.Field.Property;
 import org.jnetpcap.protocol.JProtocol.Suite;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class AnnotatedHeader.
  */
 public class AnnotatedHeader {
 
+	/** The Constant cache. */
 	private final static Map<Class<?>, AnnotatedHeader> cache =
 	    new HashMap<Class<?>, AnnotatedHeader>();
 
+	/**
+	 * Gets the sub header classes.
+	 * 
+	 * @param c
+	 *          the c
+	 * @param prefix
+	 *          the prefix
+	 * @return the sub header classes
+	 */
 	private static List<Class<?>> getSubHeaderClasses(Class<?> c, String prefix) {
 
 		final List<Class<?>> list = new ArrayList<Class<?>>();
@@ -74,13 +84,17 @@ public class AnnotatedHeader {
 		return list;
 	}
 
+	/** The description. */
 	private String description;
 
 	/**
-	 * @Header is optional on top level header. It defaults to class name as
-	 *         header name
+	 * Inspect header annotation.
+	 * 
 	 * @param c
-	 * @return
+	 *          the c
+	 * @param errors
+	 *          the errors
+	 * @return the annotated header
 	 */
 	private static AnnotatedHeader inspectHeaderAnnotation(
 	    Class<? extends JHeader> c,
@@ -157,6 +171,15 @@ public class AnnotatedHeader {
 		return header;
 	}
 
+	/**
+	 * Inspect j header class.
+	 * 
+	 * @param c
+	 *          the c
+	 * @param errors
+	 *          the errors
+	 * @return the annotated header
+	 */
 	public static AnnotatedHeader inspectJHeaderClass(
 	    Class<? extends JHeader> c,
 	    List<HeaderDefinitionError> errors) {
@@ -398,70 +421,118 @@ public class AnnotatedHeader {
 		return header;
 	}
 
+	/** The clazz. */
 	private Class<? extends JHeader> clazz;
 
+	/** The fields. */
 	private AnnotatedField[] fields;
 
+	/** The annotation. */
 	private final Header annotation;
 
+	/** The headers. */
 	private AnnotatedHeader[] headers;
 
+	/** The name. */
 	private String name;
 
+	/** The nicname. */
 	private String nicname;
 
+	/** The parent class. */
 	private Class<? extends JHeader> parentClass = null;
 
+	/** The parent. */
 	private AnnotatedHeader parent;
 
+	/**
+	 * Instantiates a new annotated header.
+	 * 
+	 * @param c
+	 *          the c
+	 */
 	private AnnotatedHeader(Class<? extends JHeader> c) {
 		this.annotation = c.getAnnotation(Header.class);
 		this.clazz = c;
 	}
 
+	/**
+	 * Gets the fields.
+	 * 
+	 * @return the fields
+	 */
 	public AnnotatedField[] getFields() {
 		return fields;
 	}
 
 	/**
-	 * @return
+	 * Gets the header class.
+	 * 
+	 * @return the header class
 	 */
 	public Class<? extends JHeader> getHeaderClass() {
 		return this.clazz;
 	}
 
+	/**
+	 * Gets the headers.
+	 * 
+	 * @return the headers
+	 */
 	public final AnnotatedHeader[] getHeaders() {
 		return this.headers;
 	}
 
 	/**
-	 * @return
+	 * Gets the id.
+	 * 
+	 * @return the id
 	 */
 	public int getId() {
 		return this.annotation.id();
 	}
 
 	/**
-	 * @return
+	 * Gets the name.
+	 * 
+	 * @return the name
 	 */
 	public String getName() {
 		return this.name;
 	}
 
+	/**
+	 * Gets the dlt.
+	 * 
+	 * @return the dlt
+	 */
 	public PcapDLT[] getDlt() {
 		return annotation.dlt();
 	}
 
+	/**
+	 * Gets the suite.
+	 * 
+	 * @return the suite
+	 */
 	public Suite getSuite() {
 		return annotation.suite();
 	}
 	
+	/**
+	 * Gets the nicname.
+	 * 
+	 * @return the nicname
+	 */
 	public final String getNicname() {
 		return this.nicname;
 	}
 
 	/**
+	 * Save fields.
+	 * 
 	 * @param fields
+	 *          the fields
 	 */
 	private void saveFields(AnnotatedField[] fields) {
 		this.fields = fields;
@@ -469,7 +540,10 @@ public class AnnotatedHeader {
 	}
 
 	/**
+	 * Save sub headers.
+	 * 
 	 * @param headers
+	 *          the headers
 	 */
 	private void saveSubHeaders(AnnotatedHeader[] headers) {
 		this.headers = headers;
@@ -479,23 +553,38 @@ public class AnnotatedHeader {
 		}
 	}
 
+	/**
+	 * Gets the parent.
+	 * 
+	 * @return the parent
+	 */
 	public final AnnotatedHeader getParent() {
 		return this.parent;
 	}
 
+	/**
+	 * Checks if is sub header.
+	 * 
+	 * @return true, if is sub header
+	 */
 	public boolean isSubHeader() {
 		return this.parent != null;
 	}
 
 	/**
-	 * @param parentClass
+	 * Sets the parent.
+	 * 
+	 * @param parent
+	 *          the new parent
 	 */
 	private void setParent(AnnotatedHeader parent) {
 		this.parent = parent;
 	}
 
 	/**
-	 * @return
+	 * Gets the description.
+	 * 
+	 * @return the description
 	 */
 	public String getDescription() {
 		return this.description;

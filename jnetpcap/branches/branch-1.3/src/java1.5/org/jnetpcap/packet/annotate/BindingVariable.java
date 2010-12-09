@@ -18,17 +18,28 @@
  */
 package org.jnetpcap.packet.annotate;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
- *
+ * The Interface BindingVariable.
  */
 public @interface BindingVariable {
 
+	/**
+	 * The Enum MatchType.
+	 */
 	public enum MatchType {
+		
+		/** The VALUE. */
 		VALUE,
+		
+		/** The FUNCTION. */
 		FUNCTION
 	}
 	
+	/**
+	 * Value.
+	 * 
+	 * @return the match type
+	 */
 	MatchType value() default MatchType.VALUE;
 }

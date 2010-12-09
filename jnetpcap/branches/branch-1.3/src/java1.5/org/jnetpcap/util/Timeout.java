@@ -18,15 +18,24 @@
  */
 package org.jnetpcap.util;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
- *
+ * The Interface Timeout.
  */
 public interface Timeout extends Comparable<Timeout> {
 	
+	/**
+	 * Checks if is timedout.
+	 * 
+	 * @param timeInMillis
+	 *          the time in millis
+	 * @return true, if is timedout
+	 */
 	public boolean isTimedout(long timeInMillis);
 	
+	/**
+	 * Timeout.
+	 */
 	public void timeout();
 
 }

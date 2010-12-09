@@ -24,24 +24,35 @@ import java.util.Map;
 
 import org.jnetpcap.packet.annotate.Field.Property;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class AnnotatedFieldRuntime.
  */
 public class AnnotatedFieldRuntime {
 
+	/** The map. */
 	private final Map<Property, AnnotatedFieldMethod> map =
 	    new HashMap<Property, AnnotatedFieldMethod>();
 
+	/** The parent. */
 	private final AnnotatedField parent;
 
+	/**
+	 * Instantiates a new annotated field runtime.
+	 * 
+	 * @param parent
+	 *          the parent
+	 */
 	public AnnotatedFieldRuntime(AnnotatedField parent) {
 		this.parent = parent;
 
 	}
 
 	/**
+	 * Finish processing.
 	 * 
+	 * @param errors
+	 *          the errors
 	 */
 	public void finishProcessing(List<HeaderDefinitionError> errors) {
 
@@ -61,12 +72,20 @@ public class AnnotatedFieldRuntime {
 	}
 
 	/**
-	 * @return
+	 * Gets the function map.
+	 * 
+	 * @return the function map
 	 */
 	public Map<Property, AnnotatedFieldMethod> getFunctionMap() {
 		return map;
 	}
 
+	/**
+	 * Sets the function.
+	 * 
+	 * @param method
+	 *          the new function
+	 */
 	public void setFunction(AnnotatedFieldMethod method) {
 		final Property function = method.getFunction();
 
@@ -87,7 +106,10 @@ public class AnnotatedFieldRuntime {
 	}
 
 	/**
+	 * Sets the function.
+	 * 
 	 * @param methods
+	 *          the methods
 	 */
 	public void setFunction(Map<Property, AnnotatedFieldMethod> methods) {
 		for (AnnotatedFieldMethod f : methods.values()) {

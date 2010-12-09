@@ -37,34 +37,37 @@ import org.jnetpcap.protocol.lan.Ethernet;
 import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.protocol.tcpip.Tcp;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestTransmitter.
  */
 @SuppressWarnings("unused")
 public class TestTransmitter
     extends
     TestCase {
 
+	/** The Constant linux. */
 	private final static String linux = "any";
 
+	/** The Constant device. */
 	private final static String device = linux;
 
+	/** The Constant OK. */
 	private static final int OK = 0;
 
+	/** The Constant snaplen. */
 	private static final int snaplen = 64 * 1024;
 
+	/** The Constant promisc. */
 	private static final int promisc = 1;
 
+	/** The Constant oneSecond. */
 	private static final int oneSecond = 1000;
 
-	/**
-	 * Will generate HTTP traffic to a website. Use start() to start in a test
-	 * method, and always put stop() in tearDown. Safe to call stop even when
-	 * never started.
-	 */
+	/** The Constant gen. */
 	private static final HttpTrafficGenerator gen = new HttpTrafficGenerator();
 
+	/** The tmp file. */
 	private static File tmpFile;
 
 	static {
@@ -78,10 +81,10 @@ public class TestTransmitter
 	}
 
 	/**
-	 * Command line launcher to run the jUnit tests cases in this test class.
+	 * The main method.
 	 * 
 	 * @param args
-	 *          -h for help
+	 *          the arguments
 	 */
 	public static void main(String[] args) {
 		if (args.length == 1 && "-h".equals(args[0])) {
@@ -128,8 +131,10 @@ public class TestTransmitter
 
 	}
 
+	/** The errbuf. */
 	private StringBuilder errbuf = new StringBuilder();
 
+	/** The do nothing handler. */
 	@SuppressWarnings("deprecation")
 	private final PcapHandler<?> doNothingHandler = new PcapHandler<Object>() {
 
@@ -144,8 +149,8 @@ public class TestTransmitter
 		}
 	};
 
-	/**
-	 * @throws java.lang.Exception
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
 
@@ -157,16 +162,14 @@ public class TestTransmitter
 
 	}
 
-	/**
-	 * @throws java.lang.Exception
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#tearDown()
 	 */
 	public void tearDown() throws Exception {
 	}
 
 	/**
-	 * This is a tricky test that must be disabled by default. We create a dummy
-	 * packet all filled with 0xFF for 14 bytes which is the size of ethernet
-	 * frame. This should produce a broadcast frame.
+	 * Test send packet using byte array.
 	 */
 	public void testSendPacketUsingByteArray() {
 
@@ -197,9 +200,7 @@ public class TestTransmitter
 	}
 
 	/**
-	 * This is a tricky test that must be disabled by default. We create a dummy
-	 * packet all filled with 0xFF for 14 bytes which is the size of ethernet
-	 * frame. This should produce a broadcast frame.
+	 * Test inject packet.
 	 */
 	public void testInjectPacket() {
 
@@ -219,6 +220,12 @@ public class TestTransmitter
 
 	}
 
+	/**
+	 * Test send packet using j buffer.
+	 * 
+	 * @throws UnknownHostException
+	 *           the unknown host exception
+	 */
 	public void testSendPacketUsingJBuffer() throws UnknownHostException {
 		JPacket packet =
 		    new JMemoryPacket(JProtocol.ETHERNET_ID,

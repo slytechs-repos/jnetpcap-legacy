@@ -22,17 +22,16 @@ import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.protocol.network.Ip4;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestJHeader.
  */
 public class TestJHeader
     extends
     TestUtils {
 
 	/**
-	 * Test payload getter from header. The packet is exactly 489 bytes long, the
-	 * starting offset of payload for IP header is 0x22 (34) bytes into the packet.
+	 * Test j payload accessor get payload.
 	 */
 	public void testJPayloadAccessorGetPayload() {
 		JPacket packet = TestUtils.getPcapPacket(HTTP, 5);
@@ -51,8 +50,7 @@ public class TestJHeader
 
 
 	/**
-	 * Test payload getter from header. The packet is exactly 489 bytes long, the
-	 * starting offset of payload for IP header is 0x22 (34) bytes into the packet.
+	 * Test j payload accessor transfer payload to byte array.
 	 */
 	public void testJPayloadAccessorTransferPayloadToByteArray() {
 		JPacket packet = TestUtils.getPcapPacket(HTTP, 5);
@@ -70,8 +68,7 @@ public class TestJHeader
 	}
 
 	/**
-	 * Test payload getter from header. The packet is exactly 489 bytes long, the
-	 * starting offset of payload for IP header is 0x22 (34) bytes into the packet.
+	 * Test j payload accessor peer payload to j buffer.
 	 */
 	public void testJPayloadAccessorPeerPayloadToJBuffer() {
 		JPacket packet = TestUtils.getPcapPacket(HTTP, 5);
@@ -90,8 +87,7 @@ public class TestJHeader
 	}
 
 	/**
-	 * Test payload getter from header. The packet is exactly 489 bytes long, the
-	 * starting offset of payload for IP header is 0x22 (34) bytes into the packet.
+	 * Test j payload accessor transfer payload to j buffer.
 	 */
 	public void testJPayloadAccessorTransferPayloadToJBuffer() {
 		JPacket packet = TestUtils.getPcapPacket(HTTP, 5);

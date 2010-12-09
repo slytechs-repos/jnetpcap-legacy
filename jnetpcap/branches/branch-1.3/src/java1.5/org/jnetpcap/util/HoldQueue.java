@@ -25,29 +25,54 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class HoldQueue.
+ * 
+ * @param <T>
+ *          the generic type
+ * @param <C>
+ *          the generic type
  */
 public class HoldQueue<T, C>
     extends
     AbstractQueue<T> implements Queue<T> {
 
+	/**
+	 * The Class HoldHandle.
+	 * 
+	 * @param <C>
+	 *          the generic type
+	 */
 	public static class HoldHandle<C> implements Comparable<C> {
+		
+		/** The ref. */
 		private final AtomicInteger ref = new AtomicInteger();
 
+		/** The hold. */
 		private final Comparable<C> hold;
 
+		/** The parent. */
 		private final HoldQueue<?, C> parent;
 
 		/**
+		 * Instantiates a new hold handle.
+		 * 
+		 * @param parent
+		 *          the parent
 		 * @param hold
+		 *          the hold
 		 */
 		public HoldHandle(HoldQueue<?, C> parent, Comparable<C> hold) {
 			this.hold = hold;
 			this.parent = parent;
 		}
 
+		/**
+		 * Release.
+		 * 
+		 * @return the int
+		 */
 		public int release() {
 			final int r = ref.decrementAndGet();
 			if (r < 0) {
@@ -71,13 +96,26 @@ public class HoldQueue<T, C>
 		}
 	}
 
+	/** The handles. */
 	private final PriorityQueue<HoldHandle<C>> handles =
 	    new PriorityQueue<HoldHandle<C>>();
 
+	/** The exposed. */
 	private final Queue<T> exposed;
 
+	/** The hold. */
 	private HoldHandle<C> hold;
 
+	/**
+	 * Instantiates a new hold queue.
+	 * 
+	 * @param hidden
+	 *          the hidden
+	 * @param exposed
+	 *          the exposed
+	 * @param comparator
+	 *          the comparator
+	 */
 	protected HoldQueue(
 	    final Queue<T> hidden,
 	    final Queue<T> exposed,
@@ -96,7 +134,10 @@ public class HoldQueue<T, C>
 	}
 
 	/**
-	 * @param hold
+	 * Release.
+	 * 
+	 * @param handle
+	 *          the handle
 	 */
 	private void release(HoldHandle<C> handle) {
 		handles.remove(handle);

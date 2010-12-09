@@ -56,34 +56,37 @@ import org.jnetpcap.PcapTask;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.protocol.JProtocol;
 
+// TODO: Auto-generated Javadoc
 /**
- * Various jUnit support utilities
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestUtils.
  */
 public class TestUtils extends TestCase {
 
+	/** The Constant AFS. */
 	public final static String AFS = "tests/test-afs.pcap";
 
+	/** The Constant HTTP. */
 	public final static String HTTP = "tests/test-http-jpeg.pcap";
 
+	/** The Constant VLAN. */
 	public final static String VLAN = "tests/test-vlan.pcap";
 
+	/** The Constant REASEMBLY. */
 	public final static String REASEMBLY = "tests/test-ipreassembly.pcap";
 
+	/** The Constant IP6. */
 	public final static String IP6 = "tests/test-ipv6.pcap";
 
+	/** The Constant L2TP. */
 	public final static String L2TP = "tests/test-l2tp.pcap";
 
+	/** The Constant MYSQL. */
 	public final static String MYSQL = "tests/test-mysql.pcap";
 
+	/** The Constant WIRESHARK_INDEX. */
 	public final static int WIRESHARK_INDEX = 1;
 
-	/**
-	 * Special Appendable device that throws away its output. Used in stress
-	 * testing formatters where actual output is not required.
-	 */
+	/** The Constant DEV_NULL. */
 	public final static Appendable DEV_NULL = new Appendable() {
 
 		public Appendable append(CharSequence csq) throws IOException {
@@ -102,31 +105,37 @@ public class TestUtils extends TestCase {
 	};
 
 	/**
-	 * Scans a packet that has been initialized but not scanned. Assumes ethernet
-	 * is the DLT protocol
+	 * Scan packet.
 	 * 
 	 * @param packet
-	 *          packet to scan
-	 * @return offset into the packet
+	 *          the packet
+	 * @return the int
 	 */
 	public static int scanPacket(JPacket packet) {
 		return scanPacket(packet, JProtocol.ETHERNET_ID);
 	}
 
 	/**
-	 * Scans a packet that has been initialized but not scanned.
+	 * Scan packet.
 	 * 
 	 * @param packet
-	 *          packet to scan
+	 *          the packet
 	 * @param id
-	 *          id of the DLT protocol
-	 * @return offset into the packet
+	 *          the id
+	 * @return the int
 	 */
 	public static int scanPacket(JPacket packet, int id) {
 
 		return JScanner.getThreadLocal().scan(packet, id);
 	}
 
+	/**
+	 * Gets the iterable.
+	 * 
+	 * @param file
+	 *          the file
+	 * @return the iterable
+	 */
 	public static Iterable<PcapPacket> getIterable(final String file) {
 		return new Iterable<PcapPacket>() {
 
@@ -137,6 +146,15 @@ public class TestUtils extends TestCase {
 		};
 	}
 
+	/**
+	 * Gets the iterable.
+	 * 
+	 * @param file
+	 *          the file
+	 * @param filter
+	 *          the filter
+	 * @return the iterable
+	 */
 	public static Iterable<PcapPacket> getIterable(final String file,
 			final String filter) {
 		return new Iterable<PcapPacket>() {
@@ -149,16 +167,15 @@ public class TestUtils extends TestCase {
 	}
 
 	/**
-	 * Creates a packet iterator that iterates over packets within specified index
-	 * range. If Integer.MAX_VALUE is used for end, means to the end of file.
+	 * Gets the pcap packet iterator.
 	 * 
 	 * @param file
-	 *          pcap file to open
+	 *          the file
 	 * @param start
-	 *          starting packet index within the file
+	 *          the start
 	 * @param end
-	 *          end index or if Integer.MAX_VALUE to the end of the file
-	 * @return iterator with packets
+	 *          the end
+	 * @return the pcap packet iterator
 	 */
 	public static Iterator<PcapPacket> getPcapPacketIterator(final String file,
 			final int start,
@@ -167,16 +184,17 @@ public class TestUtils extends TestCase {
 	}
 
 	/**
-	 * Creates a packet iterator that iterates over packets within specified index
-	 * range. If Integer.MAX_VALUE is used for end, means to the end of file.
+	 * Gets the pcap packet iterator.
 	 * 
 	 * @param file
-	 *          pcap file to open
+	 *          the file
 	 * @param start
-	 *          starting packet index within the file
+	 *          the start
 	 * @param end
-	 *          end index or if Integer.MAX_VALUE to the end of the file
-	 * @return iterator with packets
+	 *          the end
+	 * @param filter
+	 *          the filter
+	 * @return the pcap packet iterator
 	 */
 	public static Iterator<PcapPacket> getPcapPacketIterator(final String file,
 			final int start,
@@ -278,13 +296,13 @@ public class TestUtils extends TestCase {
 	}
 
 	/**
-	 * Retrieves a specific single packet from a file
+	 * Gets the pcap packet.
 	 * 
 	 * @param file
-	 *          capture file containing our packet
+	 *          the file
 	 * @param index
-	 *          0 based index of the packet to get
-	 * @return the requested packet
+	 *          the index
+	 * @return the pcap packet
 	 */
 	public static PcapPacket getPcapPacket(final String file, final int index) {
 
@@ -354,9 +372,11 @@ public class TestUtils extends TestCase {
 	}
 
 	/**
-	 * Opens up a pcap handle to specific file
+	 * Open offline.
 	 * 
 	 * @param fname
+	 *          the fname
+	 * @return the pcap
 	 */
 	public static Pcap openOffline(String fname) {
 		/***************************************************************************
@@ -374,10 +394,15 @@ public class TestUtils extends TestCase {
 	}
 
 	/**
+	 * Gets the j packet iterable.
+	 * 
 	 * @param file
+	 *          the file
 	 * @param start
+	 *          the start
 	 * @param end
-	 * @return
+	 *          the end
+	 * @return the j packet iterable
 	 */
 	public static Iterable<JPacket> getJPacketIterable(final String file,
 			final int start,
@@ -407,10 +432,28 @@ public class TestUtils extends TestCase {
 		};
 	}
 
+	/**
+	 * Open offline.
+	 * 
+	 * @param file
+	 *          the file
+	 * @param handler
+	 *          the handler
+	 */
 	public static void openOffline(String file, JPacketHandler<Pcap> handler) {
 		openOffline(file, handler, null);
 	}
 
+	/**
+	 * Open offline.
+	 * 
+	 * @param file
+	 *          the file
+	 * @param handler
+	 *          the handler
+	 * @param filter
+	 *          the filter
+	 */
 	public static void openOffline(String file,
 			JPacketHandler<Pcap> handler,
 			String filter) {
@@ -436,12 +479,23 @@ public class TestUtils extends TestCase {
 		pcap.close();
 	}
 
+	/**
+	 * Open live.
+	 * 
+	 * @param handler
+	 *          the handler
+	 */
 	public static void openLive(JPacketHandler<Pcap> handler) {
 		openLive(Pcap.LOOP_INFINATE, handler);
 	}
 
 	/**
+	 * Open live.
 	 * 
+	 * @param count
+	 *          the count
+	 * @param handler
+	 *          the handler
 	 */
 	public static void openLive(long count, JPacketHandler<Pcap> handler) {
 		StringBuilder errbuf = new StringBuilder();
@@ -464,21 +518,43 @@ public class TestUtils extends TestCase {
 		pcap.loop((int) count, handler, pcap);
 	}
 
+	/**
+	 * The Class JImagePanel.
+	 */
 	public static class JImagePanel extends JPanel {
-		/**
-		 * 
-		 */
+		
+		/** The Constant serialVersionUID. */
 		private static final long serialVersionUID = 1L;
+		
+		/** The img. */
 		private Image img;
 
+		/**
+		 * Gets the img.
+		 * 
+		 * @return the img
+		 */
 		public final Image getImg() {
 			return this.img;
 		}
 
+		/**
+		 * Sets the img.
+		 * 
+		 * @param img
+		 *          the new img
+		 */
 		public final void setImg(Image img) {
 			this.img = resizeToComponentSize(img);
 		}
 
+		/**
+		 * Resize to component size.
+		 * 
+		 * @param img
+		 *          the img
+		 * @return the image
+		 */
 		public Image resizeToComponentSize(Image img) {
 
 			int cw = super.getWidth();
@@ -502,19 +578,25 @@ public class TestUtils extends TestCase {
 		}
 
 		/**
-		 * @param img
+		 * Instantiates a new j image panel.
 		 */
 		public JImagePanel() {
 			super.setSize(new Dimension(100, 100));
 		}
 
 		/**
+		 * Instantiates a new j image panel.
+		 * 
 		 * @param img
+		 *          the img
 		 */
 		public JImagePanel(Image img) {
 			this.img = img;
 		}
 
+		/* (non-Javadoc)
+		 * @see javax.swing.JComponent#paint(java.awt.Graphics)
+		 */
 		@Override
 		public void paint(Graphics g) {
 			super.paint(g);
@@ -542,55 +624,104 @@ public class TestUtils extends TestCase {
 
 	}
 
+	/**
+	 * The Class ListOfPanels.
+	 */
 	public static class ListOfPanels extends JPanel implements
 			ListSelectionListener {
-		/**
-		 * 
-		 */
+		
+		/** The Constant serialVersionUID. */
 		private static final long serialVersionUID = 7220988908581321871L;
 
+		/**
+		 * The Class Entry.
+		 */
 		@SuppressWarnings("unused")
 		private static class Entry {
+			
+			/** The img. */
 			Image img;
 
+			/** The text. */
 			String text;
 
+			/**
+			 * Instantiates a new entry.
+			 * 
+			 * @param img
+			 *          the img
+			 * @param text
+			 *          the text
+			 */
 			public Entry(Image img, String text) {
 				this.img = img;
 				this.text = text;
 			}
 
+			/* (non-Javadoc)
+			 * @see java.lang.Object#toString()
+			 */
 			public String toString() {
 				return text;
 			}
 
+			/**
+			 * Gets the img.
+			 * 
+			 * @return the img
+			 */
 			public final Image getImg() {
 				return this.img;
 			}
 
+			/**
+			 * Sets the img.
+			 * 
+			 * @param img
+			 *          the new img
+			 */
 			public final void setImg(Image img) {
 				this.img = img;
 			}
 
+			/**
+			 * Gets the text.
+			 * 
+			 * @return the text
+			 */
 			public final String getText() {
 				return this.text;
 			}
 
+			/**
+			 * Sets the text.
+			 * 
+			 * @param text
+			 *          the new text
+			 */
 			public final void setText(String text) {
 				this.text = text;
 			}
 		}
 
+		/** The list. */
 		private final List<Entry> list = new ArrayList<Entry>(50);
 
+		/** The list panel. */
 		private JPanel listPanel = new JPanel();
 
+		/** The image panel. */
 		private JImagePanel imagePanel = new JImagePanel();
 
+		/** The jlist. */
 		private JList jlist;
 
+		/** The list model. */
 		private DefaultListModel listModel;
 
+		/**
+		 * Inits the.
+		 */
 		public void init() {
 			super.setPreferredSize(new Dimension(500, 800));
 			super.setLayout(new BorderLayout());
@@ -630,6 +761,14 @@ public class TestUtils extends TestCase {
 			}
 		}
 
+		/**
+		 * Adds the.
+		 * 
+		 * @param img
+		 *          the img
+		 * @param text
+		 *          the text
+		 */
 		public void add(Image img, String text) {
 			final Entry e = new Entry(img, text);
 			list.add(e);
@@ -665,7 +804,9 @@ public class TestUtils extends TestCase {
 		}
 
 		/**
-		 * @return
+		 * Checks if is empty.
+		 * 
+		 * @return true, if is empty
 		 */
 		public boolean isEmpty() {
 			return this.list.isEmpty();
@@ -673,6 +814,13 @@ public class TestUtils extends TestCase {
 
 	}
 
+	/**
+	 * Display in frame.
+	 * 
+	 * @param c
+	 *          the c
+	 * @return the j frame
+	 */
 	public static JFrame displayInFrame(JComponent c) {
 		JFrame frame = new JFrame("TestUtils");
 		frame.getContentPane().add(c);
@@ -690,13 +838,10 @@ public class TestUtils extends TestCase {
 	}
 
 	/**
-	 * A special method that resets the position of an offline capture back to the
-	 * begining. This method is only intended for certain jUnit testcases and not
-	 * intended for production use. The pcap object must open for an offline
-	 * capture and not dead or live. Otherwise an error will occur.
+	 * Pcap offline reset.
 	 * 
 	 * @param pcap
-	 *          open offline capture
+	 *          the pcap
 	 */
 	protected native void pcapOfflineReset(Pcap pcap);
 

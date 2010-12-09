@@ -32,9 +32,9 @@ import junit.textui.TestRunner;
 import org.jnetpcap.nio.JNumber;
 import org.jnetpcap.nio.JNumber.Type;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestPcapBetaJNI.
  */
 @SuppressWarnings("deprecation")
 public class TestPcapBetaJNI
@@ -43,33 +43,39 @@ public class TestPcapBetaJNI
 	// private final static String device =
 	// "\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
 
+	/** The Constant win. */
 	private final static String win =
 	    "\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
 
+	/** The Constant linux. */
 	private final static String linux = "any";
 
+	/** The Constant isWindows. */
 	private final static boolean isWindows =
 	    "Windows XP".equals(System.getProperty("os.name"));
 
+	/** The Constant device. */
 	private final static String device = (isWindows) ? win : linux;
 
+	/** The Constant fname. */
 	private final static String fname = "tests/test-l2tp.pcap";
 
+	/** The Constant OK. */
 	private static final int OK = 0;
 
+	/** The Constant snaplen. */
 	private static final int snaplen = 64 * 1024;
 
+	/** The Constant promisc. */
 	private static final int promisc = 1;
 
+	/** The Constant oneSecond. */
 	private static final int oneSecond = 1000;
 
-	/**
-	 * Will generate HTTP traffic to a website. Use start() to start in a test
-	 * method, and always put stop() in tearDown. Safe to call stop even when
-	 * never started.
-	 */
+	/** The Constant gen. */
 	private static final HttpTrafficGenerator gen = new HttpTrafficGenerator();
 
+	/** The tmp file. */
 	private static File tmpFile;
 
 	static {
@@ -83,10 +89,10 @@ public class TestPcapBetaJNI
 	}
 
 	/**
-	 * Command line launcher to run the jUnit tests cases in this test class.
+	 * The main method.
 	 * 
 	 * @param args
-	 *          -h for help
+	 *          the arguments
 	 */
 	public static void main(String[] args) {
 		if (args.length == 1 && "-h".equals(args[0])) {
@@ -133,8 +139,10 @@ public class TestPcapBetaJNI
 
 	}
 
+	/** The errbuf. */
 	private StringBuilder errbuf = new StringBuilder();
 
+	/** The do nothing handler. */
 	private final PcapHandler<?> doNothingHandler = new PcapHandler<Object>() {
 
 		public void nextPacket(Object userObject, long seconds, int useconds,
@@ -143,8 +151,8 @@ public class TestPcapBetaJNI
 		}
 	};
 
-	/**
-	 * @throws java.lang.Exception
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
 
@@ -157,9 +165,7 @@ public class TestPcapBetaJNI
 	}
 
 	/**
-	 * Test disabled, as it requires live packets to capture. To enable the test
-	 * just rename the method, by removing the prefix SKIP. Then make sure there
-	 * are live packets to be captured.
+	 * SKI ptest open live and dispatch.
 	 */
 	public void SKIPtestOpenLiveAndDispatch() {
 
@@ -184,8 +190,8 @@ public class TestPcapBetaJNI
 		pcap.close();
 	}
 
-	/**
-	 * @throws java.lang.Exception
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
 		errbuf = null;
@@ -201,6 +207,9 @@ public class TestPcapBetaJNI
 		}
 	}
 
+	/**
+	 * Test compile no pcap null ptr handling.
+	 */
 	public void testCompileNoPcapNullPtrHandling() {
 		try {
 			Pcap.compileNoPcap(1, 1, null, null, 1, 1);
@@ -210,6 +219,9 @@ public class TestPcapBetaJNI
 		}
 	}
 
+	/**
+	 * Test compile null ptr handling.
+	 */
 	public void testCompileNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
@@ -222,6 +234,9 @@ public class TestPcapBetaJNI
 		}
 	}
 
+	/**
+	 * Test data link name to val null ptr handling.
+	 */
 	public void testDataLinkNameToValNullPtrHandling() {
 		try {
 			Pcap.datalinkNameToVal(null);
@@ -231,6 +246,9 @@ public class TestPcapBetaJNI
 		}
 	}
 
+	/**
+	 * Test pcap closed exception handling.
+	 */
 	public void testPcapClosedExceptionHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		pcap.close();
@@ -243,20 +261,32 @@ public class TestPcapBetaJNI
 		}
 	}
 
+	/**
+	 * Test datalink name to value.
+	 */
 	public void testDatalinkNameToValue() {
 		assertEquals(1, Pcap.datalinkNameToVal("EN10MB"));
 	}
 
+	/**
+	 * Test datalink value to description.
+	 */
 	public void testDatalinkValueToDescription() {
 		assertEquals("Ethernet", Pcap.datalinkValToDescription(1));
 
 	}
 
+	/**
+	 * Test datalink value to name.
+	 */
 	public void testDatalinkValueToName() {
 		assertEquals("EN10MB", Pcap.datalinkValToName(1));
 
 	}
 
+	/**
+	 * Test dispatch null ptr handling.
+	 */
 	public void testDispatchNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
@@ -269,6 +299,14 @@ public class TestPcapBetaJNI
 		}
 	}
 
+	/**
+	 * Test errbuf.
+	 * 
+	 * @throws SocketException
+	 *           the socket exception
+	 * @throws InterruptedException
+	 *           the interrupted exception
+	 */
 	public void testErrbuf() throws SocketException, InterruptedException {
 
 		// Test using a bogus device name that's sure to fail
@@ -283,6 +321,9 @@ public class TestPcapBetaJNI
 		    errbuf.length() != 0);
 	}
 
+	/**
+	 * Test filter compile and set filter.
+	 */
 	public void testFilterCompileAndSetFilter() {
 		PcapBpfProgram bpf = new PcapBpfProgram();
 		String str = "host 192.168.101";
@@ -317,6 +358,9 @@ public class TestPcapBetaJNI
 		pcap.close();
 	}
 
+	/**
+	 * Test filter compile no pcap and accessors.
+	 */
 	public void testFilterCompileNoPcapAndAccessors() {
 		PcapBpfProgram bpf = new PcapBpfProgram();
 
@@ -347,6 +391,9 @@ public class TestPcapBetaJNI
 		Pcap.freecode(bpf);
 	}
 
+	/**
+	 * Test find all devs.
+	 */
 	public void testFindAllDevs() {
 		List<PcapIf> devs = new ArrayList<PcapIf>(); // List filled in by
 		// findAllDevs
@@ -358,6 +405,9 @@ public class TestPcapBetaJNI
 		// System.out.println(devs);
 	}
 
+	/**
+	 * Test find all devs null ptr handling.
+	 */
 	public void testFindAllDevsNullPtrHandling() {
 		try {
 			Pcap.findAllDevs(null, null);
@@ -367,6 +417,9 @@ public class TestPcapBetaJNI
 		}
 	}
 
+	/**
+	 * Test free all devs null ptr handling.
+	 */
 	public void testFreeAllDevsNullPtrHandling() {
 		try {
 			Pcap.freeAllDevs(null, (StringBuilder) null);
@@ -376,6 +429,9 @@ public class TestPcapBetaJNI
 		}
 	}
 
+	/**
+	 * Test free code null ptr handling.
+	 */
 	public void testFreeCodeNullPtrHandling() {
 		try {
 			Pcap.freecode(null);
@@ -385,6 +441,9 @@ public class TestPcapBetaJNI
 		}
 	}
 
+	/**
+	 * Test get non block null ptr handling.
+	 */
 	public void testGetNonBlockNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
@@ -397,10 +456,16 @@ public class TestPcapBetaJNI
 		}
 	}
 
+	/**
+	 * Test lib version.
+	 */
 	public void testLibVersion() {
 		assertNotNull(Pcap.libVersion());
 	}
 
+	/**
+	 * Test loop null ptr handling.
+	 */
 	public void testLoopNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
@@ -413,6 +478,9 @@ public class TestPcapBetaJNI
 		}
 	}
 
+	/**
+	 * Test next ex null ptr handling.
+	 */
 	public void testNextExNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
@@ -425,6 +493,9 @@ public class TestPcapBetaJNI
 		}
 	}
 
+	/**
+	 * Test next null ptr handling.
+	 */
 	public void testNextNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
@@ -437,6 +508,9 @@ public class TestPcapBetaJNI
 		}
 	}
 
+	/**
+	 * Test open dead and close.
+	 */
 	public void testOpenDeadAndClose() {
 
 		Pcap pcap = Pcap.openDead(1, 10000); // DLT, SNAPLEN
@@ -445,6 +519,14 @@ public class TestPcapBetaJNI
 		pcap.close();
 	}
 
+	/**
+	 * Test open live and datalink and close.
+	 * 
+	 * @throws SocketException
+	 *           the socket exception
+	 * @throws InterruptedException
+	 *           the interrupted exception
+	 */
 	public void testOpenLiveAndDatalinkAndClose() throws SocketException,
 	    InterruptedException {
 
@@ -468,6 +550,9 @@ public class TestPcapBetaJNI
 		}
 	}
 
+	/**
+	 * Test open live and loop with breakloop.
+	 */
 	public void testOpenLiveAndLoopWithBreakloop() {
 
 		Pcap pcap = Pcap.openLive(device, 10000, 1, 60 * 1000, errbuf);
@@ -494,6 +579,9 @@ public class TestPcapBetaJNI
 		pcap.close();
 	}
 
+	/**
+	 * Test open offline and close.
+	 */
 	public void testOpenOfflineAndClose() {
 
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
@@ -517,6 +605,9 @@ public class TestPcapBetaJNI
 		pcap.close();
 	}
 
+	/**
+	 * Test open offline and loop.
+	 */
 	public void testOpenOfflineAndLoop() {
 
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
@@ -540,6 +631,9 @@ public class TestPcapBetaJNI
 		pcap.close();
 	}
 
+	/**
+	 * Test open offline and next.
+	 */
 	public void testOpenOfflineAndNext() {
 
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
@@ -557,6 +651,9 @@ public class TestPcapBetaJNI
 		pcap.close();
 	}
 
+	/**
+	 * Test open offline and next ex.
+	 */
 	public void testOpenOfflineAndNextEx() {
 
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
@@ -578,6 +675,9 @@ public class TestPcapBetaJNI
 		pcap.close();
 	}
 
+	/**
+	 * Test pcap dlt and do name to value comparison.
+	 */
 	public void testPcapDLTAndDoNameToValueComparison() {
 		int match = 0; // counts how many constants compared OK
 
@@ -618,6 +718,9 @@ public class TestPcapBetaJNI
 		// }
 	}
 
+	/**
+	 * Test pcap open live null ptr handling.
+	 */
 	public void testPcapOpenLiveNullPtrHandling() {
 		try {
 			Pcap.openLive(null, 1, 1, 1, null);
@@ -627,6 +730,9 @@ public class TestPcapBetaJNI
 		}
 	}
 
+	/**
+	 * Test pcap open offline null ptr handling.
+	 */
 	public void testPcapOpenOfflineNullPtrHandling() {
 		try {
 			Pcap.openOffline(null, null);
@@ -636,6 +742,9 @@ public class TestPcapBetaJNI
 		}
 	}
 
+	/**
+	 * Test set and get nonblock.
+	 */
 	public void testSetAndGetNonblock() {
 		Pcap pcap = Pcap.openLive(device, 10000, 1, 60 * 1000, errbuf);
 		assertNotNull(errbuf.toString(), pcap);
@@ -645,6 +754,9 @@ public class TestPcapBetaJNI
 		pcap.close();
 	}
 
+	/**
+	 * Test set filter null ptr handling.
+	 */
 	public void testSetFilterNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
@@ -657,6 +769,9 @@ public class TestPcapBetaJNI
 		}
 	}
 
+	/**
+	 * Test set non block null ptr handling.
+	 */
 	public void testSetNonBlockNullPtrHandling() {
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
 		try {
@@ -670,30 +785,7 @@ public class TestPcapBetaJNI
 	}
 
 	/**
-	 * <p>
-	 * Test case in response to
-	 * <code>Bug #1767744 - PcapHandler object ptr error in loop() and dispatch()</code>.
-	 * The bug was that PcapHandler jobject ptr in JNI jnetpcap.cpp, was set
-	 * incorrectly to jobject of the parent which is the Pcap object itself. The
-	 * neccessary method "nextPacket" was looked up correctly using the proper
-	 * object but method execution was based on the parent Pcap object not the
-	 * PcapHandler object passed in. Therefore Java code when it was setting and
-	 * accessing properties within the PcapHandler sub-class, it was actually
-	 * clobering data within the Pcap object. Both object's states were terribly
-	 * incosinstent, private fields had bogus values, that changed for no reason,
-	 * etc... Very easy fix, the jobject for 'jhandler' was substituted for
-	 * jobject 'obj' that was used to fix this problem. The problem was both in
-	 * dispatch() and loop() methods since they are nearly an identical copy of
-	 * each other.
-	 * </p>
-	 * <p>
-	 * To test this we have to create a PcapHandler object set private fields
-	 * within it, we'll use an anonymous class, then read in the contents of the
-	 * entire contents of a test datafile, while updating the value of the field.
-	 * Then at the end we should have consitent value in that private field. Since
-	 * the problem seemed complex, but was actually a very easy fix, this should
-	 * never really break again, but we will check for it anyhow.
-	 * </p>
+	 * Test pcap handler parent override bug using loop.
 	 */
 	public void testPcapHandlerParentOverrideBugUsingLoop() {
 
@@ -741,30 +833,7 @@ public class TestPcapBetaJNI
 	}
 
 	/**
-	 * <p>
-	 * Test case in response to
-	 * <code>Bug #1767744 - PcapHandler object ptr error in loop() and dispatch()</code>.
-	 * The bug was that PcapHandler jobject ptr in JNI jnetpcap.cpp, was set
-	 * incorrectly to jobject of the parent which is the Pcap object itself. The
-	 * neccessary method "nextPacket" was looked up correctly using the proper
-	 * object but method execution was based on the parent Pcap object not the
-	 * PcapHandler object passed in. Therefore Java code when it was setting and
-	 * accessing properties within the PcapHandler sub-class, it was actually
-	 * clobering data within the Pcap object. Both object's states were terribly
-	 * incosinstent, private fields had bogus values, that changed for no reason,
-	 * etc... Very easy fix, the jobject for 'jhandler' was substituted for
-	 * jobject 'obj' that was used to fix this problem. The problem was both in
-	 * dispatch() and loop() methods since they are nearly an identical copy of
-	 * each other.
-	 * </p>
-	 * <p>
-	 * To test this we have to create a PcapHandler object set private fields
-	 * within it, we'll use an anonymous class, then read in the contents of the
-	 * entire contents of a test datafile, while updating the value of the field.
-	 * Then at the end we should have consitent value in that private field. Since
-	 * the problem seemed complex, but was actually a very easy fix, this should
-	 * never really break again, but we will check for it anyhow.
-	 * </p>
+	 * Test pcap handler parent override bug using dispatch.
 	 */
 	public void testPcapHandlerParentOverrideBugUsingDispatch() {
 
@@ -811,6 +880,9 @@ public class TestPcapBetaJNI
 		pcap.close();
 	}
 
+	/**
+	 * Test pcap dumper using loop.
+	 */
 	public void testPcapDumperUsingLoop() {
 
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
@@ -841,6 +913,9 @@ public class TestPcapBetaJNI
 		    .length(), new File(fname).length());
 	}
 
+	/**
+	 * Test pcap dumper using dispatch.
+	 */
 	public void testPcapDumperUsingDispatch() {
 
 		Pcap pcap = Pcap.openOffline(fname, errbuf);
@@ -875,6 +950,9 @@ public class TestPcapBetaJNI
 		    .length(), new File(fname).length());
 	}
 
+	/**
+	 * _test stats.
+	 */
 	public void _testStats() {
 		PcapStat stats = new PcapStat();
 
@@ -892,6 +970,9 @@ public class TestPcapBetaJNI
 		pcap.close();
 	}
 
+	/**
+	 * SKI ptest dumper.
+	 */
 	public void SKIPtestDumper() {
 
 		gen.start(); // Generate network traffic - async method
@@ -923,6 +1004,9 @@ public class TestPcapBetaJNI
 
 	}
 
+	/**
+	 * Test lookup dev and lookup net deprecated api.
+	 */
 	@SuppressWarnings("deprecation")
   public void testLookupDevAndLookupNetDeprecatedAPI() {
 		String device = Pcap.lookupDev(errbuf);
@@ -938,6 +1022,9 @@ public class TestPcapBetaJNI
 		    maskp.getValue(), errbuf.toString());
 	}
 	
+	/**
+	 * Test lookup dev and lookup net new api.
+	 */
 	@SuppressWarnings("deprecation")
   public void testLookupDevAndLookupNetNewAPI() {
 		String device = Pcap.lookupDev(errbuf);
@@ -955,7 +1042,7 @@ public class TestPcapBetaJNI
 
 	
 	/**
-	 * Bug#1855589 
+	 * Test is inject supported win32.
 	 */
 	public void testIsInjectSupportedWin32() {
 		if (System.getProperty("os.name").toLowerCase().contains("win")) {
@@ -965,6 +1052,9 @@ public class TestPcapBetaJNI
 		}
 	}
 	
+	/**
+	 * Test is sendpacket supported win32.
+	 */
 	public void testIsSendpacketSupportedWin32() {
 		if (System.getProperty("os.name").toLowerCase().contains("win")) {
 			assertTrue(Pcap.isSendPacketSupported());

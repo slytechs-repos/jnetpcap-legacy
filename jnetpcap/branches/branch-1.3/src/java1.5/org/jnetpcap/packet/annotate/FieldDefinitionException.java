@@ -21,22 +21,24 @@ package org.jnetpcap.packet.annotate;
 import org.jnetpcap.packet.structure.AnnotatedField;
 import org.jnetpcap.packet.structure.HeaderDefinitionError;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class FieldDefinitionException.
  */
 public class FieldDefinitionException
     extends HeaderDefinitionError {
 
-	/**
-	 * 
-	 */
+	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 2116907712440514743L;
 
+	/** The field. */
 	private final AnnotatedField field;
 
 	/**
+	 * Instantiates a new field definition exception.
+	 * 
 	 * @param field
+	 *          the field
 	 */
 	public FieldDefinitionException(AnnotatedField field) {
 		super(field.getDeclaringClass());
@@ -44,7 +46,10 @@ public class FieldDefinitionException
 	}
 
 	/**
+	 * Instantiates a new field definition exception.
+	 * 
 	 * @param message
+	 *          the message
 	 */
 	public FieldDefinitionException(String message) {
 		super(message);
@@ -52,8 +57,12 @@ public class FieldDefinitionException
 	}
 
 	/**
+	 * Instantiates a new field definition exception.
+	 * 
 	 * @param field
+	 *          the field
 	 * @param message
+	 *          the message
 	 */
 	public FieldDefinitionException(AnnotatedField field, String message) {
 		super(field.getDeclaringClass(), message);
@@ -61,7 +70,10 @@ public class FieldDefinitionException
 	}
 
 	/**
+	 * Instantiates a new field definition exception.
+	 * 
 	 * @param cause
+	 *          the cause
 	 */
 	public FieldDefinitionException(Throwable cause) {
 		super(cause);
@@ -69,8 +81,12 @@ public class FieldDefinitionException
 	}
 
 	/**
+	 * Instantiates a new field definition exception.
+	 * 
 	 * @param field
+	 *          the field
 	 * @param cause
+	 *          the cause
 	 */
 	public FieldDefinitionException(AnnotatedField field, Throwable cause) {
 		super(field.getDeclaringClass(), cause);
@@ -78,8 +94,12 @@ public class FieldDefinitionException
 	}
 
 	/**
+	 * Instantiates a new field definition exception.
+	 * 
 	 * @param message
+	 *          the message
 	 * @param cause
+	 *          the cause
 	 */
 	public FieldDefinitionException(String message, Throwable cause) {
 		super(message, cause);
@@ -87,9 +107,14 @@ public class FieldDefinitionException
 	}
 
 	/**
+	 * Instantiates a new field definition exception.
+	 * 
 	 * @param field
+	 *          the field
 	 * @param message
+	 *          the message
 	 * @param cause
+	 *          the cause
 	 */
 	public FieldDefinitionException(AnnotatedField field, String message,
 	    Throwable cause) {
@@ -97,10 +122,18 @@ public class FieldDefinitionException
 		this.field = field;
 	}
 
+	/**
+	 * Gets the field.
+	 * 
+	 * @return the field
+	 */
 	public final AnnotatedField getField() {
 		return this.field;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.structure.HeaderDefinitionError#getPath()
+	 */
 	protected String getPath() {
 		return super.getPath() + field.getName();
 	}

@@ -41,38 +41,25 @@ import java.util.logging.Logger;
 
 import org.jnetpcap.util.JLogger;
 
+// TODO: Auto-generated Javadoc
 /**
- * JConfig is responsible for jNetPcap configuration and global environment
- * maintentance. Its main purpose to locate resources such as config files, read
- * system properties and create an environment where resolver files can be
- * stored and maintained. The class provides various static (global) methods for
- * this purpose.
- * <p>
- * Property names and constant values:
- * <ul>
- * <li>{@value #CACHE_DIR_PROPERTY} - property defines full directory name
- * where resolver files are saved
- * <li>{@value #CACHE_FILE_SUFFIX_PROPERTY} - property defines overrides the
- * default suffix name (default value {@value #CACHE_FILE_SUFFIX})
- * <li>{@value #CACHE_SUB_DIR_PROPERTY} property overrides the default sub
- * directory name used, if explicit full directory is not defined (default value
- * {@value #CACHE_SUB_DIR})
- * <li>{@value #USER_HOME_PROPERTY} - system property which defines where the
- * current user's home dir is
- * </ul>
- * </p>
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class JConfig.
  */
 public class JConfig {
 
+	/**
+	 * The Class ClasspathSearch.
+	 */
 	protected static class ClasspathSearch implements SearchPath {
 
+		/** The resource. */
 		private final ConfigString resource;
 
 		/**
+		 * Instantiates a new classpath search.
+		 * 
 		 * @param resource
+		 *          the resource
 		 */
 		public ClasspathSearch(ConfigString resource) {
 			this.resource = resource;
@@ -124,6 +111,9 @@ public class JConfig {
 			}
 		}
 
+		/* (non-Javadoc)
+		 * @see java.lang.Object#toString()
+		 */
 		public String toString() {
 			return "Classpath(" + resource.getTemplate() + ")";
 		}
@@ -138,33 +128,44 @@ public class JConfig {
 		}
 	}
 
+	/**
+	 * The Class CompositeProperties.
+	 */
 	private static class CompositeProperties
 	    extends Properties {
 
-		/**
-		 * 
-		 */
+		/** The Constant serialVersionUID. */
 		private static final long serialVersionUID = 98826036967593082L;
 
+		/** The properties. */
 		private Properties[] properties;
 
+		/** The save. */
 		private Properties save = null;
 
 		/**
+		 * Instantiates a new composite properties.
+		 * 
 		 * @param properties
+		 *          the properties
 		 */
 		public CompositeProperties(Properties... properties) {
 			this.properties = properties;
 		}
 
 		/**
+		 * Adds the properties.
+		 * 
 		 * @param properties
-		 * @param builtinLoggerProperties
+		 *          the properties
 		 */
 		public void addProperties(Properties... properties) {
 			this.properties = properties;
 		}
 
+		/* (non-Javadoc)
+		 * @see java.util.Hashtable#contains(java.lang.Object)
+		 */
 		@Override
 		public synchronized boolean contains(Object value) {
 			for (Properties p : properties) {
@@ -176,6 +177,9 @@ public class JConfig {
 			return false;
 		}
 
+		/* (non-Javadoc)
+		 * @see java.util.Hashtable#containsKey(java.lang.Object)
+		 */
 		@Override
 		public synchronized boolean containsKey(Object key) {
 			for (Properties p : properties) {
@@ -187,6 +191,11 @@ public class JConfig {
 			return false;
 		}
 
+		/**
+		 * Flatten.
+		 * 
+		 * @return the properties
+		 */
 		private Properties flatten() {
 			Properties flat = new Properties();
 
@@ -198,11 +207,17 @@ public class JConfig {
 			return flat;
 		}
 
+		/* (non-Javadoc)
+		 * @see java.util.Properties#getProperty(java.lang.String)
+		 */
 		@Override
 		public String getProperty(String key) {
 			return getProperty(key, null);
 		}
 
+		/* (non-Javadoc)
+		 * @see java.util.Properties#getProperty(java.lang.String, java.lang.String)
+		 */
 		@Override
 		public String getProperty(String key, String defaultValue) {
 			for (Properties p : properties) {
@@ -294,7 +309,10 @@ public class JConfig {
 		}
 
 		/**
+		 * Sets the save properties.
+		 * 
 		 * @param userProperties
+		 *          the new save properties
 		 */
 		public void setSaveProperties(Properties userProperties) {
 			this.save = userProperties;
@@ -345,9 +363,20 @@ public class JConfig {
 
 	}
 
+	/**
+	 * The Class FilesystemSearch.
+	 */
 	protected static class FilesystemSearch implements SearchPath {
+		
+		/** The filename. */
 		private final ConfigString filename;
 
+		/**
+		 * Instantiates a new filesystem search.
+		 * 
+		 * @param filename
+		 *          the filename
+		 */
 		public FilesystemSearch(ConfigString filename) {
 			this.filename = filename;
 		}
@@ -406,6 +435,9 @@ public class JConfig {
 			}
 		}
 
+		/* (non-Javadoc)
+		 * @see java.lang.Object#toString()
+		 */
 		public String toString() {
 			return "File(" + filename.getTemplate() + ")";
 		}
@@ -438,23 +470,38 @@ public class JConfig {
 
 	}
 
+	/**
+	 * The Class PreprocessStream.
+	 */
 	private static class PreprocessStream
 	    extends InputStream {
 
+		/** The Constant str. */
 		private final static byte[] str = {
 		    '\\',
 		    '\r',
 		    '\n' };
 
+		/** The in. */
 		private final BufferedInputStream in;
 
 		/**
+		 * Instantiates a new preprocess stream.
+		 * 
 		 * @param in
+		 *          the in
 		 */
 		public PreprocessStream(InputStream in) {
 			this.in = new BufferedInputStream(in, 3);
 		}
 
+		/**
+		 * Match reamining chars.
+		 * 
+		 * @return true, if successful
+		 * @throws IOException
+		 *           Signals that an I/O exception has occurred.
+		 */
 		private boolean matchReaminingChars() throws IOException {
 			in.mark(2);
 
@@ -489,32 +536,67 @@ public class JConfig {
 	}
 
 	/**
-	 * Interface used to piece together specific types of search paths.
-	 * Impelementing class defines whatever mechanism, use of properties, file
-	 * checks and defualt values that are deemed neccessary to produce an IO
-	 * Stream.
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Interface SearchPath.
 	 */
 	public interface SearchPath {
+		
+		/**
+		 * Gets the file.
+		 * 
+		 * @param name
+		 *          the name
+		 * @return the file
+		 * @throws IOException
+		 *           Signals that an I/O exception has occurred.
+		 */
 		public File getFile(String name) throws IOException;
 
+		/**
+		 * Gets the input stream.
+		 * 
+		 * @param name
+		 *          the name
+		 * @return the input stream
+		 * @throws IOException
+		 *           Signals that an I/O exception has occurred.
+		 */
 		public InputStream getInputStream(String name) throws IOException;
 
+		/**
+		 * Gets the uRL.
+		 * 
+		 * @param name
+		 *          the name
+		 * @return the uRL
+		 * @throws IOException
+		 *           Signals that an I/O exception has occurred.
+		 */
 		public URL getURL(String name) throws IOException;
 
 		/**
-		 * @param object
-		 * @return
+		 * Gets the dir.
+		 * 
+		 * @param name
+		 *          the name
+		 * @return the dir
 		 */
 		public File getDir(String name);
 	}
 
+	/**
+	 * The Class URLSearch.
+	 */
 	protected static class URLSearch implements SearchPath {
 
+		/** The url. */
 		private final ConfigString url;
 
+		/**
+		 * Instantiates a new uRL search.
+		 * 
+		 * @param url
+		 *          the url
+		 */
 		public URLSearch(ConfigString url) {
 			this.url = url;
 		}
@@ -617,6 +699,9 @@ public class JConfig {
 			return null;
 		}
 
+		/* (non-Javadoc)
+		 * @see java.lang.Object#toString()
+		 */
 		public String toString() {
 			return "URL(" + url.getTemplate() + ")";
 		}
@@ -632,70 +717,62 @@ public class JConfig {
 
 	}
 
+	/** The Constant BOOTSTRAP_SEARCH_PATH. */
 	private static final String BOOTSTRAP_SEARCH_PATH =
 	    "config.bootstrap.search.path";
 
+	/** The Constant builtinDefaults. */
 	private final static Properties builtinDefaults;
 
-	/**
-	 * Java property for resolver directory where resolver files are saved.
-	 * Property name is {@value #CACHE_DIR_PROPERTY}.
-	 */
+	/** The Constant CACHE_DIR_PROPERTY. */
 	public static final String CACHE_DIR_PROPERTY = "jnetpcap.resolver.dir";
 
-	/**
-	 * Suffix of a resolver file. Default is {@value #CACHE_FILE_SUFFIX}.
-	 */
+	/** The Constant CACHE_FILE_SUFFIX. */
 	public static final String CACHE_FILE_SUFFIX = ".resolver";
 
-	/**
-	 * Suffix of a resolver file. Property name is
-	 * {@value #CACHE_FILE_SUFFIX_PROPERTY}.
-	 */
+	/** The Constant CACHE_FILE_SUFFIX_PROPERTY. */
 	public static final String CACHE_FILE_SUFFIX_PROPERTY =
 	    "jnetpcap.resolver.suffix";
 
-	/**
-	 * If resolver directory is not explicitely defined with a property, this is
-	 * the default sub directory name used in user's home directory for all
-	 * resolver files. Default is {@value #CACHE_SUB_DIR}.
-	 */
+	/** The Constant CACHE_SUB_DIR. */
 	public static final String CACHE_SUB_DIR = ".jnp";
 
-	/**
-	 * If resolver directory is not explicitely defined with a
-	 * {@value #CACHE_DIR_PROPERTY}, this is the default sub directory name used
-	 * in user's home directory for all resolver files. The property name is
-	 * {@value #CACHE_SUB_DIR_PROPERTY}.
-	 */
+	/** The Constant CACHE_SUB_DIR_PROPERTY. */
 	public static final String CACHE_SUB_DIR_PROPERTY =
 	    "jnetpcap.resolver.subdir";
 
+	/** The Constant CONFIG_PROPERTY. */
 	private static final String CONFIG_PROPERTY = "config.name";
 
+	/** The global variables. */
 	private static Map<String, String> globalVariables =
 	    new HashMap<String, String>();
 
+	/** The Constant listeners. */
 	private final static PropertyChangeSupport listeners;
 
+	/** The logger. */
 	private static Logger logger = JLogger.getLogger(JConfig.class);
 
+	/** The Constant LOGGER_NAME. */
 	private static final String LOGGER_NAME = "logger.name";
 
+	/** The Constant LOGGER_SEARCH_PATH. */
 	private static final String LOGGER_SEARCH_PATH = "logger.search.path";
 
+	/** The Constant loggingProperties. */
 	private final static CompositeProperties loggingProperties;
 
+	/** The Constant RESOURCE_SEARCH_PATH_PROPERTY. */
 	public static final String RESOURCE_SEARCH_PATH_PROPERTY = "search.path";
 
+	/** The Constant topReadOnlyProperties. */
 	private final static CompositeProperties topReadOnlyProperties;
 
-	/**
-	 * System property name used to lookup user's home directory. The property
-	 * name is {@value #USER_HOME_PROPERTY}.
-	 */
+	/** The Constant USER_HOME_PROPERTY. */
 	public static final String USER_HOME_PROPERTY = "user.home";
 
+	/** The Constant userProperties. */
 	private final static Properties userProperties;
 
 	/**
@@ -825,10 +902,12 @@ public class JConfig {
 	}
 
 	/**
-	 * Adds listener on any property change event.
+	 * Adds the listener.
 	 * 
 	 * @param listener
+	 *          the listener
 	 * @param defaults
+	 *          the defaults
 	 */
 	public static void addListener(
 	    PropertyChangeListener listener,
@@ -837,6 +916,16 @@ public class JConfig {
 		listeners.addPropertyChangeListener(listener);
 	}
 
+	/**
+	 * Adds the listener.
+	 * 
+	 * @param listener
+	 *          the listener
+	 * @param property
+	 *          the property
+	 * @param defaults
+	 *          the defaults
+	 */
 	public static void addListener(
 	    PropertyChangeListener listener,
 	    String property,
@@ -844,6 +933,16 @@ public class JConfig {
 		addListener(listener, property, Boolean.toString(defaults));
 	}
 
+	/**
+	 * Adds the listener.
+	 * 
+	 * @param listener
+	 *          the listener
+	 * @param property
+	 *          the property
+	 * @param defaults
+	 *          the defaults
+	 */
 	public static void addListener(
 	    PropertyChangeListener listener,
 	    String property,
@@ -851,6 +950,16 @@ public class JConfig {
 		addListener(listener, property, Integer.toString(defaults));
 	}
 
+	/**
+	 * Adds the listener.
+	 * 
+	 * @param listener
+	 *          the listener
+	 * @param property
+	 *          the property
+	 * @param defaults
+	 *          the defaults
+	 */
 	public static void addListener(
 	    PropertyChangeListener listener,
 	    String property,
@@ -858,6 +967,16 @@ public class JConfig {
 		addListener(listener, property, Long.toString(defaults));
 	}
 
+	/**
+	 * Adds the listener.
+	 * 
+	 * @param listener
+	 *          the listener
+	 * @param property
+	 *          the property
+	 * @param defaults
+	 *          the defaults
+	 */
 	public static void addListener(
 	    PropertyChangeListener listener,
 	    String property,
@@ -875,6 +994,13 @@ public class JConfig {
 		}
 	}
 
+	/**
+	 * Creates the search path.
+	 * 
+	 * @param property
+	 *          the property
+	 * @return the search path[]
+	 */
 	public static SearchPath[] createSearchPath(String property) {
 
 		String s = topReadOnlyProperties.getProperty(property);
@@ -889,6 +1015,12 @@ public class JConfig {
 		return path;
 	}
 
+	/**
+	 * Export properties to variables.
+	 * 
+	 * @param properties
+	 *          the properties
+	 */
 	private static void exportPropertiesToVariables(Properties properties) {
 		for (Object o : topReadOnlyProperties.keySet()) {
 			String key = (String) o;
@@ -902,10 +1034,15 @@ public class JConfig {
 	}
 
 	/**
+	 * Gets the file.
+	 * 
 	 * @param name
+	 *          the name
 	 * @param paths
-	 * @return
+	 *          the paths
+	 * @return the file
 	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
 	 */
 	public static File getFile(String name, SearchPath[] paths)
 	    throws IOException {
@@ -928,10 +1065,15 @@ public class JConfig {
 	}
 
 	/**
+	 * Gets the file.
+	 * 
 	 * @param name
+	 *          the name
 	 * @param property
-	 * @return
+	 *          the property
+	 * @return the file
 	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
 	 */
 	public static File getFile(String name, String property) throws IOException {
 		if (topReadOnlyProperties.containsKey(property) == false) {
@@ -940,6 +1082,17 @@ public class JConfig {
 		return getFile(name, createSearchPath(property));
 	}
 
+	/**
+	 * Gets the input stream.
+	 * 
+	 * @param name
+	 *          the name
+	 * @param paths
+	 *          the paths
+	 * @return the input stream
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public static InputStream getInputStream(String name, SearchPath[] paths)
 	    throws IOException {
 
@@ -960,6 +1113,17 @@ public class JConfig {
 		return in;
 	}
 
+	/**
+	 * Gets the input stream.
+	 * 
+	 * @param name
+	 *          the name
+	 * @param property
+	 *          the property
+	 * @return the input stream
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public static InputStream getInputStream(String name, String property)
 	    throws IOException {
 		if (topReadOnlyProperties.containsKey(property) == false) {
@@ -972,12 +1136,23 @@ public class JConfig {
 	}
 
 	/**
+	 * Gets the property.
+	 * 
 	 * @param property
+	 *          the property
+	 * @return the property
 	 */
 	public static String getProperty(String property) {
 		return topReadOnlyProperties.getProperty(property);
 	}
 
+	/**
+	 * Gets the expanded property.
+	 * 
+	 * @param property
+	 *          the property
+	 * @return the expanded property
+	 */
 	public static String getExpandedProperty(String property) {
 		ConfigString s =
 		    new ConfigString(getProperty(property), globalVariables,
@@ -989,6 +1164,15 @@ public class JConfig {
 		}
 	}
 
+	/**
+	 * Gets the expanded property.
+	 * 
+	 * @param property
+	 *          the property
+	 * @param defaults
+	 *          the defaults
+	 * @return the expanded property
+	 */
 	public static String getExpandedProperty(String property, String defaults) {
 		if (topReadOnlyProperties.containsKey(property) == false) {
 			return defaults;
@@ -1005,23 +1189,56 @@ public class JConfig {
 	}
 
 	/**
+	 * Gets the property.
+	 * 
 	 * @param property
+	 *          the property
 	 * @param defaults
-	 * @return
+	 *          the defaults
+	 * @return the property
 	 */
 	public static String getProperty(String property, final String defaults) {
 		return topReadOnlyProperties.getProperty(property, defaults);
 	}
 
+	/**
+	 * Gets the resource input stream.
+	 * 
+	 * @param name
+	 *          the name
+	 * @return the resource input stream
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public static InputStream getResourceInputStream(String name)
 	    throws IOException {
 		return getInputStream(name, RESOURCE_SEARCH_PATH_PROPERTY);
 	}
 
+	/**
+	 * Gets the resource url.
+	 * 
+	 * @param name
+	 *          the name
+	 * @return the resource url
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public static URL getResourceURL(String name) throws IOException {
 		return getURL(name, RESOURCE_SEARCH_PATH_PROPERTY);
 	}
 
+	/**
+	 * Gets the uRL.
+	 * 
+	 * @param name
+	 *          the name
+	 * @param paths
+	 *          the paths
+	 * @return the uRL
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	private static URL getURL(String name, SearchPath[] paths) throws IOException {
 		URL in = null;
 
@@ -1040,6 +1257,17 @@ public class JConfig {
 		return in;
 	}
 
+	/**
+	 * Gets the uRL.
+	 * 
+	 * @param name
+	 *          the name
+	 * @param property
+	 *          the property
+	 * @return the uRL
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public static URL getURL(String name, String property) throws IOException {
 		if (topReadOnlyProperties.containsKey(property) == false) {
 			return null;
@@ -1049,15 +1277,29 @@ public class JConfig {
 	}
 
 	/**
-	 * 
+	 * Inits the.
 	 */
 	public static void init() {
 	}
 
+	/**
+	 * Removes the listener.
+	 * 
+	 * @param listener
+	 *          the listener
+	 */
 	public static void removeListener(PropertyChangeListener listener) {
 		listeners.removePropertyChangeListener(listener);
 	}
 
+	/**
+	 * Removes the listener.
+	 * 
+	 * @param listener
+	 *          the listener
+	 * @param property
+	 *          the property
+	 */
 	public static void removeListener(
 	    PropertyChangeListener listener,
 	    String property) {
@@ -1065,8 +1307,13 @@ public class JConfig {
 	}
 
 	/**
+	 * Sets the property.
+	 * 
 	 * @param property
+	 *          the property
 	 * @param value
+	 *          the value
+	 * @return the string
 	 */
 	public static String setProperty(String property, String value) {
 		String old = (String) userProperties.setProperty(property, value);
@@ -1076,6 +1323,13 @@ public class JConfig {
 		return old;
 	}
 
+	/**
+	 * Gets the dir.
+	 * 
+	 * @param paths
+	 *          the paths
+	 * @return the dir
+	 */
 	public static File getDir(SearchPath[] paths) {
 		File file = null;
 
@@ -1097,8 +1351,11 @@ public class JConfig {
 	}
 
 	/**
+	 * Gets the dir.
+	 * 
 	 * @param property
-	 * @return
+	 *          the property
+	 * @return the dir
 	 */
 	public static File getDir(String property) {
 		SearchPath[] paths = createSearchPath(property);
@@ -1107,9 +1364,13 @@ public class JConfig {
 	}
 
 	/**
+	 * Creates the dir.
+	 * 
 	 * @param property
+	 *          the property
 	 * @param defaults
-	 * @return
+	 *          the defaults
+	 * @return the file
 	 */
 	public static File createDir(String property, String defaults) {
 		String s = topReadOnlyProperties.getProperty(property);
@@ -1145,22 +1406,51 @@ public class JConfig {
 		return dir;
 	}
 
+	/**
+	 * Creates the config string.
+	 * 
+	 * @param str
+	 *          the str
+	 * @return the config string
+	 */
 	public static ConfigString createConfigString(String str) {
 		return new ConfigString(str, globalVariables, topReadOnlyProperties);
 	}
 
+	/**
+	 * Creates the search string.
+	 * 
+	 * @param str
+	 *          the str
+	 * @return the searchpath string
+	 */
 	public static SearchpathString createSearchString(String str) {
 		return new SearchpathString(str, globalVariables, topReadOnlyProperties);
 	}
 
+	/**
+	 * Gets the top properties.
+	 * 
+	 * @return the top properties
+	 */
 	public static Properties getTopProperties() {
 		return topReadOnlyProperties;
 	}
 
+	/**
+	 * Gets the user properties.
+	 * 
+	 * @return the user properties
+	 */
 	public static Properties getUserProperties() {
 		return userProperties;
 	}
 
+	/**
+	 * Gets the global variables.
+	 * 
+	 * @return the global variables
+	 */
 	public static Map<String, String> getGlobalVariables() {
 		return globalVariables;
 	}

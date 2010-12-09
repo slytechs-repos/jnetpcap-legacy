@@ -23,28 +23,46 @@ import java.util.List;
 
 import org.jnetpcap.packet.structure.HeaderDefinitionError;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class RegistryHeaderErrors.
  */
 public class RegistryHeaderErrors
     extends RegistryException {
 
+	/** The errors. */
 	private final List<HeaderDefinitionError> errors;
 
+	/** The header class. */
 	private final Class<? extends JHeader> headerClass;
 
+	/**
+	 * Gets the errors.
+	 * 
+	 * @return the errors
+	 */
 	public final HeaderDefinitionError[] getErrors() {
 		return this.errors.toArray(new HeaderDefinitionError[errors.size()]);
 	}
 
+	/**
+	 * Gets the header class.
+	 * 
+	 * @return the header class
+	 */
 	public final Class<? extends JHeader> getHeaderClass() {
 		return this.headerClass;
 	}
 
 	/**
+	 * Instantiates a new registry header errors.
+	 * 
 	 * @param headerClass
+	 *          the header class
 	 * @param errors
+	 *          the errors
+	 * @param msg
+	 *          the msg
 	 */
 	public RegistryHeaderErrors(Class<? extends JHeader> headerClass,
 	    List<HeaderDefinitionError> errors, String msg) {
@@ -54,11 +72,12 @@ public class RegistryHeaderErrors
 		this.errors = new ArrayList<HeaderDefinitionError>(errors);
 	}
 
-	/**
-	 * 
-	 */
+	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = -6414263503074702593L;
 
+	/* (non-Javadoc)
+	 * @see java.lang.Throwable#getMessage()
+	 */
 	@Override
 	public String getMessage() {
 		final StringBuilder out = new StringBuilder();

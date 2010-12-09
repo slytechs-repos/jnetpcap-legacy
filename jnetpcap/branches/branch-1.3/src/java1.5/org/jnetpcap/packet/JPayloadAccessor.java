@@ -22,63 +22,52 @@ import java.nio.ByteBuffer;
 
 import org.jnetpcap.nio.JBuffer;
 
+// TODO: Auto-generated Javadoc
 /**
- * Interface which provides access to payload portion of the packet data. When
- * considered from a header's perspective, each header has a raw payload
- * portion, which may be other headers. The remaining, undecoded data at the end
- * of the packet is simply payload of the last header.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Interface JPayloadAccessor.
  */
 public interface JPayloadAccessor {
+	
 	/**
-	 * Retrieves the playload data portion of the packet right after the current
-	 * header.
+	 * Gets the payload.
 	 * 
-	 * @return newly allocated byte array containing copy of the contents of the
-	 *         header's payload from the packet.
+	 * @return the payload
 	 */
 	public byte[] getPayload();
 
 	/**
-	 * Copies the payload data portion of the packet right after the current
-	 * header to user supplied buffer.
+	 * Transfer payload to.
 	 * 
 	 * @param buffer
-	 *          buffer where the data will be written to
-	 * @return the same buffer that was passed in
+	 *          the buffer
+	 * @return the byte[]
 	 */
 	public byte[] transferPayloadTo(byte[] buffer);
 
 	/**
-	 * Peers, without copy, the user supplied buffer with payload data portion of
-	 * the packet right after the current header.
+	 * Peer payload to.
 	 * 
 	 * @param buffer
-	 *          buffer to peer the data with
-	 * @return the same buffer that was passed in
+	 *          the buffer
+	 * @return the j buffer
 	 */
 	public JBuffer peerPayloadTo(JBuffer buffer);
 
 	/**
-	 * Copies into the user supplied buffer, the payload data portion of the
-	 * packet right after the current header.
+	 * Transfer payload to.
 	 * 
 	 * @param buffer
-	 *          buffer to copy the data to
-	 * @return the same buffer that was passed in
+	 *          the buffer
+	 * @return the j buffer
 	 */
 	public JBuffer transferPayloadTo(JBuffer buffer);
 
 	/**
-	 * Copies into the user supplied buffer, the payload data portion of the
-	 * packet right after the current header. The copy will start at the current
-	 * ByteBuffer position property.
+	 * Transfer payload to.
 	 * 
 	 * @param buffer
-	 *          buffer to copy the data to
-	 * @return the same buffer that was passed in
+	 *          the buffer
+	 * @return the byte buffer
 	 */
 	public ByteBuffer transferPayloadTo(ByteBuffer buffer);
 

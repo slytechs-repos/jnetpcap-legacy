@@ -20,64 +20,99 @@ package org.jnetpcap.packet;
 
 import org.jnetpcap.packet.structure.JField;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class JSubHeader.
+ * 
+ * @param <T>
+ *          the generic type
  */
 public class JSubHeader<T extends JHeader>
     extends JHeader {
 
+	/** The length. */
 	private int length;
 
+	/** The offset. */
 	private int offset;
 
+	/** The parent. */
 	private JHeader parent;
 
+	/**
+	 * Instantiates a new j sub header.
+	 */
 	public JSubHeader() {
 		super();
 	}
 
 	/**
+	 * Instantiates a new j sub header.
+	 * 
 	 * @param id
+	 *          the id
 	 * @param fields
+	 *          the fields
 	 * @param name
+	 *          the name
 	 * @param nicname
+	 *          the nicname
 	 */
 	public JSubHeader(int id, JField[] fields, String name, String nicname) {
 		super(id, fields, name, nicname);
 	}
 
 	/**
+	 * Instantiates a new j sub header.
+	 * 
 	 * @param id
+	 *          the id
 	 * @param fields
+	 *          the fields
 	 * @param name
+	 *          the name
 	 */
 	public JSubHeader(int id, JField[] fields, String name) {
 		super(id, fields, name);
 	}
 
 	/**
+	 * Instantiates a new j sub header.
+	 * 
 	 * @param id
+	 *          the id
 	 * @param name
+	 *          the name
 	 * @param nicname
+	 *          the nicname
 	 */
 	public JSubHeader(int id, String name, String nicname) {
 		super(id, name, nicname);
 	}
 
 	/**
+	 * Instantiates a new j sub header.
+	 * 
 	 * @param id
+	 *          the id
 	 * @param name
+	 *          the name
 	 */
 	public JSubHeader(int id, String name) {
 		super(id, name);
 	}
 
 	/**
+	 * Instantiates a new j sub header.
+	 * 
 	 * @param state
+	 *          the state
 	 * @param fields
+	 *          the fields
 	 * @param name
+	 *          the name
 	 * @param nicname
+	 *          the nicname
 	 */
 	public JSubHeader(State state, JField[] fields, String name, String nicname) {
 		super(state, fields, name, nicname);
@@ -104,23 +139,38 @@ public class JSubHeader<T extends JHeader>
 	}
 
 	/**
+	 * Sets the offset.
+	 * 
 	 * @param offset
+	 *          the new offset
 	 */
 	public void setOffset(int offset) {
 		this.offset = offset;
 	}
 
 	/**
+	 * Sets the length.
+	 * 
 	 * @param length
+	 *          the new length
 	 */
 	public void setLength(int length) {
 		this.length = length;
 	}
 
+	/**
+	 * Sets the parent.
+	 * 
+	 * @param parent
+	 *          the new parent
+	 */
 	public void setParent(JHeader parent) {
 		this.parent = parent;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.JHeader#getParent()
+	 */
 	public JHeader getParent() {
 		return this.parent;
 	}

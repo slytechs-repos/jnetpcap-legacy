@@ -25,28 +25,31 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestClassicExample.
  */
 @SuppressWarnings("deprecation")
 public class TestClassicExample
     extends TestCase {
 
-	/**
-	 * @throws java.lang.Exception
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#setUp()
 	 */
 
 	public void setUp() throws Exception {
 	}
 
-	/**
-	 * @throws java.lang.Exception
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#tearDown()
 	 */
 
 	public void tearDown() throws Exception {
 	}
 
+	/**
+	 * Test infinite loop for profiling.
+	 */
 	public void testInfiniteLoopForProfiling() {
 		List<PcapIf> alldevs = new ArrayList<PcapIf>(); // Will be filled with NICs
 		StringBuilder errbuf = new StringBuilder(); // For any error msgs

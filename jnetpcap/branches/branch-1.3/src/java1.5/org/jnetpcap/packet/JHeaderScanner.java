@@ -29,62 +29,48 @@ import org.jnetpcap.packet.structure.AnnotatedHeaderLengthMethod;
 import org.jnetpcap.packet.structure.AnnotatedScannerMethod;
 import org.jnetpcap.protocol.JProtocol;
 
+// TODO: Auto-generated Javadoc
 /**
- * A header scanner, there is one per header, that is able to scan raw memory
- * buffer and determine the length of the header and the next header ID after
- * examining the current header's structure. The header scanner is bound to the
- * native direct scanner provided by the jNetPcap native implementation. The
- * header scanner can be overriden with a java implementation by simply
- * subclassing it and overriding the <code>getHeaderLength</code> and
- * <code>getNextHeader</code> methods. If either of the 2 types of methods are
- * overriden, then the user should also overriden the {@link #isDirect()} method
- * and return false to indicate that this is not a native direct scanner.
- * <p>
- * The header scanner is natively peered directly with the appropriate function
- * that performs the scan and determines the next protocol in chain of headers
- * found in the data buffer. Another words this class is peered using a function
- * pointer and dispatched appropriately when invoked to scan for length or next
- * header id.
- * </p>
- * <p>
- * Here is a typedef definition and the function pointer signature.
- * 
- * <pre>
- * typedef void (*native_protocol_func_t)(scan_t *scan);
- * </pre>
- * 
- * <b>Note</b> that scan_t structure is implemented by java class JScan which
- * is peered with that structure.
- * </p>
- * 
- * @see JScan
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class JHeaderScanner.
  */
 public class JHeaderScanner
     extends
     JFunction {
 
+	/** The Constant FUNCT_NAME. */
 	private static final String FUNCT_NAME = "scan_";
 
 	static {
 		JScanner.sizeof(); // Make sure JScanner initializes first
 	}
 
+	/** The bindings. */
 	private JBinding[] bindings = null;
 
+	/** The bindings list. */
 	private final List<JBinding> bindingsList = new ArrayList<JBinding>();
 
+	/** The id. */
 	private final int id;
 
+	/** The length methods. */
 	private AnnotatedHeaderLengthMethod[] lengthMethods;
 
+	/** The scanner method. */
 	private AnnotatedScannerMethod scannerMethod;
 
+	/** The protocol. */
 	private final JProtocol protocol;
 
+	/** The need j protocol initialization. */
 	private boolean needJProtocolInitialization;
 
+	/**
+	 * Instantiates a new j header scanner.
+	 * 
+	 * @param c
+	 *          the c
+	 */
 	public JHeaderScanner(final Class<? extends JHeader> c) {
 		super("java header scanner");
 
@@ -102,17 +88,10 @@ public class JHeaderScanner
 	}
 
 	/**
-	 * A java scanner for headers out of a native packet buffer. This constructor
-	 * allows a custom header scanner to be implemented and registered with
-	 * JRegistry. The packet scanner, JScanner, uses builtin native scanners to
-	 * scan packet buffers but also allows custom java scanners to override or
-	 * provide additional header scanners. Any new protocol header being added to
-	 * jNetPcap library of protocols, that is not officially released with this
-	 * API, will have to provide its own custom header scanner.
+	 * Instantiates a new j header scanner.
 	 * 
 	 * @param protocol
-	 *          core protocol constant for which to override its default native
-	 *          header scanner
+	 *          the protocol
 	 */
 	public JHeaderScanner(final JProtocol protocol) {
 		super(FUNCT_NAME + protocol.toString().toLowerCase());
@@ -123,6 +102,12 @@ public class JHeaderScanner
 		bindNativeScanner(this.id);
 	}
 
+	/**
+	 * Inits the from j protocol.
+	 * 
+	 * @param protocol
+	 *          the protocol
+	 */
 	private void initFromJProtocol(final JProtocol protocol) {
 
 		final Class<? extends JHeader> clazz = protocol.getHeaderClass();
@@ -138,6 +123,13 @@ public class JHeaderScanner
 		this.needJProtocolInitialization = false;
 	}
 
+	/**
+	 * Gets the length method.
+	 * 
+	 * @param type
+	 *          the type
+	 * @return the length method
+	 */
 	private AnnotatedHeaderLengthMethod getLengthMethod(
 	    final HeaderLength.Type type) {
 		if (this.needJProtocolInitialization) {
@@ -146,6 +138,11 @@ public class JHeaderScanner
 		return this.lengthMethods[type.ordinal()];
 	}
 
+	/**
+	 * Gets the scanner method.
+	 * 
+	 * @return the scanner method
+	 */
 	private AnnotatedScannerMethod getScannerMethod() {
 		if (this.needJProtocolInitialization) {
 			initFromJProtocol(this.protocol);
@@ -154,25 +151,48 @@ public class JHeaderScanner
 
 	}
 
+	/**
+	 * Adds the bindings.
+	 * 
+	 * @param bindings
+	 *          the bindings
+	 * @return true, if successful
+	 */
 	public boolean addBindings(final JBinding... bindings) {
 		this.bindings = null;
 
 		return this.bindingsList.addAll(Arrays.asList(bindings));
 	}
 
+	/**
+	 * Bind native scanner.
+	 * 
+	 * @param id
+	 *          the id
+	 */
 	private native void bindNativeScanner(int id);
 
+	/**
+	 * Clear bindings.
+	 */
 	public void clearBindings() {
 		this.bindings = null;
 		this.bindingsList.clear();
 	}
 
+	/**
+	 * Checks for bindings.
+	 * 
+	 * @return true, if successful
+	 */
 	public boolean hasBindings() {
 		return this.bindingsList.isEmpty() == false;
 	}
 
 	/**
-	 * @return
+	 * Gets the bindings.
+	 * 
+	 * @return the bindings
 	 */
 	public JBinding[] getBindings() {
 		if (this.bindings == null) {
@@ -184,38 +204,73 @@ public class JHeaderScanner
 	}
 
 	/**
-	 * Returns the length of the header this scanner is registered for
+	 * Gets the header length.
 	 * 
 	 * @param packet
-	 *          the packet object this header is bound to
+	 *          the packet
 	 * @param offset
-	 *          offset into the packet buffer in bytes of the start of this header
-	 * @return length of the header or 0 if this header is not found in the packet
-	 *         buffer
+	 *          the offset
+	 * @return the header length
 	 */
 	public int getHeaderLength(final JPacket packet, final int offset) {
 		return getLengthMethod(HeaderLength.Type.HEADER).getHeaderLength(packet,
 		    offset);
 	}
 
+	/**
+	 * Gets the prefix length.
+	 * 
+	 * @param packet
+	 *          the packet
+	 * @param offset
+	 *          the offset
+	 * @return the prefix length
+	 */
 	public int getPrefixLength(final JPacket packet, final int offset) {
 		return (getLengthMethod(HeaderLength.Type.PREFIX) == null) ? 0
 		    : getLengthMethod(HeaderLength.Type.PREFIX).getHeaderLength(packet,
 		        offset);
 	}
 
+	/**
+	 * Gets the gap length.
+	 * 
+	 * @param packet
+	 *          the packet
+	 * @param offset
+	 *          the offset
+	 * @return the gap length
+	 */
 	public int getGapLength(final JPacket packet, final int offset) {
 		return (getLengthMethod(HeaderLength.Type.GAP) == null) ? 0
 		    : getLengthMethod(HeaderLength.Type.GAP)
 		        .getHeaderLength(packet, offset);
 	}
 
+	/**
+	 * Gets the payload length.
+	 * 
+	 * @param packet
+	 *          the packet
+	 * @param offset
+	 *          the offset
+	 * @return the payload length
+	 */
 	public int getPayloadLength(final JPacket packet, final int offset) {
 		return (getLengthMethod(HeaderLength.Type.PAYLOAD) == null) ? 0
 		    : getLengthMethod(HeaderLength.Type.PAYLOAD).getHeaderLength(packet,
 		        offset);
 	}
 
+	/**
+	 * Gets the postfix length.
+	 * 
+	 * @param packet
+	 *          the packet
+	 * @param offset
+	 *          the offset
+	 * @return the postfix length
+	 */
 	public int getPostfixLength(final JPacket packet, final int offset) {
 		return (getLengthMethod(HeaderLength.Type.POSTFIX) == null) ? 0
 		    : getLengthMethod(HeaderLength.Type.POSTFIX).getHeaderLength(packet,
@@ -223,32 +278,38 @@ public class JHeaderScanner
 	}
 
 	/**
-	 * Gets the protocol header's numerical ID as assigned by JRegistry
+	 * Gets the id.
 	 * 
-	 * @return the id numerical ID of the header
+	 * @return the id
 	 */
 	public final int getId() {
 		return this.id;
 	}
 
 	/**
-	 * Checks if the scanner at the given ID is a direct or java scanner.
+	 * Checks if is direct.
 	 * 
-	 * @return true there is a native scanner for this id, otherwise false
+	 * @return true, if is direct
 	 */
 	public boolean isDirect() {
 		return super.isInitialized() && (getScannerMethod() == null);
 	}
 
 	/**
-	 * The native scanner must be initialized before this method can be called
-	 * using bindNativeScanner.
+	 * Native scan.
 	 * 
 	 * @param scan
-	 *          a work structure
+	 *          the scan
 	 */
 	private native void nativeScan(JScan scan);
 
+	/**
+	 * Removes the bindings.
+	 * 
+	 * @param bindings
+	 *          the bindings
+	 * @return true, if successful
+	 */
 	public boolean removeBindings(final JBinding... bindings) {
 		this.bindings = null;
 
@@ -256,13 +317,13 @@ public class JHeaderScanner
 	}
 
 	/**
-	 * Calculates the next header in sequence of headers within the packet buffer
+	 * Scan all bindings.
 	 * 
 	 * @param packet
-	 *          the packet object this header is bound to
+	 *          the packet
 	 * @param offset
-	 *          offset into the packet buffer in bytes of the start of this header
-	 * @return numerical ID of the next header as assigned by JRegistry
+	 *          the offset
+	 * @return the int
 	 */
 	public int scanAllBindings(final JPacket packet, final int offset) {
 		for (final JBinding b : getBindings()) {
@@ -279,12 +340,10 @@ public class JHeaderScanner
 	}
 
 	/**
-	 * The main method that this header scanner is called on by the packet
-	 * scanner, typically from native user space
+	 * Scan header.
 	 * 
 	 * @param scan
-	 *          scan state structure that is used to pass around state both in
-	 *          java and native user space
+	 *          the scan
 	 */
 	protected void scanHeader(final JScan scan) {
 
@@ -357,8 +416,14 @@ public class JHeaderScanner
 	}
 
 	/**
+	 * Sets the all lengths.
+	 * 
+	 * @param scan
+	 *          the scan
 	 * @param packet
+	 *          the packet
 	 * @param offset
+	 *          the offset
 	 */
 	private void setAllLengths(final JScan scan, final JPacket packet, int offset) {
 		if (this.needJProtocolInitialization) {
@@ -400,10 +465,19 @@ public class JHeaderScanner
 
 	}
 
+	/**
+	 * Sets the scanner method.
+	 * 
+	 * @param method
+	 *          the new scanner method
+	 */
 	public void setScannerMethod(final AnnotatedScannerMethod method) {
 		this.scannerMethod = method;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		final Formatter out = new Formatter();
@@ -426,7 +500,9 @@ public class JHeaderScanner
 	}
 
 	/**
-	 * @return
+	 * Checks for scan method.
+	 * 
+	 * @return true, if successful
 	 */
 	public boolean hasScanMethod() {
 		return getScannerMethod() != null;

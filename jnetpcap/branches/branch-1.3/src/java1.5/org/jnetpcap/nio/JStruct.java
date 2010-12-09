@@ -20,39 +20,24 @@ package org.jnetpcap.nio;
 
 import java.nio.ByteBuffer;
 
+// TODO: Auto-generated Javadoc
 /**
- * Base class for peered pure structure classes. This class purposely does not
- * extend JBuffer to allow structure fields to be read out generically as that
- * is not portable accross platforms and architectures. Most structures are
- * written specifically for local machine architecture and OS, unlike network
- * protocols which can be usually read by use of generic <code>JBuffer</code>.
- * Therefore as a general requirement each JStruct has to implement its own
- * native methods to read and write fields into the structure.
- * <p>
- * As a convention, each subclass of JStruct implements a static method
- * <code>sizeof()</code> which returns the length of the structure, if the
- * structure is static in length. If not, then no requirement to implement the
- * static method <code>sizeof()</code> exists.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class JStruct.
  */
 public class JStruct
     extends
     JMemory {
 
-	/**
-	 * Name of the native structure
-	 */
+	/** The struct name. */
 	private final String structName;
 
 	/**
-	 * Creates a new structure object
+	 * Instantiates a new j struct.
 	 * 
 	 * @param structName
-	 *          name of the native structure
+	 *          the struct name
 	 * @param type
-	 *          memory model
+	 *          the type
 	 */
 	public JStruct(String structName, Type type) {
 		super(type);
@@ -60,12 +45,12 @@ public class JStruct
 	}
 
 	/**
-	 * Creates a new structure object peered with the supplied object
+	 * Instantiates a new j struct.
 	 * 
 	 * @param structName
-	 *          name of the native structure
+	 *          the struct name
 	 * @param peer
-	 *          buffer to peer with
+	 *          the peer
 	 */
 	public JStruct(String structName, ByteBuffer peer) {
 		super(peer);
@@ -73,12 +58,12 @@ public class JStruct
 	}
 
 	/**
-	 * Creates a new structure object of specified size
+	 * Instantiates a new j struct.
 	 * 
 	 * @param structName
-	 *          name of the native structure
+	 *          the struct name
 	 * @param size
-	 *          size in bytes for this new structure object
+	 *          the size
 	 */
 	public JStruct(String structName, int size) {
 		super(size);
@@ -86,12 +71,12 @@ public class JStruct
 	}
 
 	/**
-	 * Creates a new structure object
+	 * Instantiates a new j struct.
 	 * 
 	 * @param structName
-	 *          name of the native structure
+	 *          the struct name
 	 * @param peer
-	 *          memory to peer with
+	 *          the peer
 	 */
 	public JStruct(String structName, JMemory peer) {
 		super(peer);
@@ -99,18 +84,16 @@ public class JStruct
 	}
 
 	/**
-	 * Gets the name of the native structure
+	 * Gets the struct name.
 	 * 
-	 * @return name of the structure
+	 * @return the struct name
 	 */
 	public final String getStructName() {
 		return this.structName;
 	}
 
-	/**
-	 * Debug information
-	 * 
-	 * @return debug info
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
 		return "struct " + structName;

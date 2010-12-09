@@ -28,27 +28,27 @@ import org.jnetpcap.packet.format.TextFormatter;
 
 import junit.framework.TestCase;
 
+// TODO: Auto-generated Javadoc
 /**
- * Perform various tasks that should not generate output to either System.out or
- * System.err. Redirect those to a StringBuilder (Appendable) and check for 0
- * output in the buffer. This ensure that nothing (debug messages especially)
- * has been generated inadvertantly.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestNoSystemOutOutput.
  */
 public class TestNoSystemOutOutput
     extends
     TestCase {
 
+	/** The Constant DIR. */
 	private final static File DIR = new File("tests");
 
+	/** The saved out. */
 	private PrintStream savedOut;
 
+	/** The saved err. */
 	private PrintStream savedErr;
 
+	/** The out. */
 	private ByteArrayOutputStream out;
 
+	/** The DISGAR d_ output. */
 	private TextFormatter DISGARD_OUTPUT = new TextFormatter(TestUtils.DEV_NULL);
 
 	/*
@@ -66,6 +66,9 @@ public class TestNoSystemOutOutput
 		System.setErr(new PrintStream(out));
 	}
 
+	/**
+	 * Reset.
+	 */
 	private void reset() {
 		out = new ByteArrayOutputStream();
 		System.setOut(new PrintStream(out));
@@ -83,6 +86,9 @@ public class TestNoSystemOutOutput
 		System.setErr(savedErr);
 	}
 
+	/**
+	 * Test system out redirection is working.
+	 */
 	public void testSystemOutRedirectionIsWorking() {
 		assertTrue("redirection failed", out.size() == 0);
 
@@ -91,6 +97,12 @@ public class TestNoSystemOutOutput
 		reset();
 	}
 
+	/**
+	 * Test no output from core protocols.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public void testNoOutputFromCoreProtocols() throws IOException {
 
 		String[] files = DIR.list(new FilenameFilter() {

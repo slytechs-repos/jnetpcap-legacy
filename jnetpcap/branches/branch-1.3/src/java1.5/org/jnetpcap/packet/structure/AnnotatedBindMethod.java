@@ -34,16 +34,23 @@ import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.annotate.Bind;
 
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class AnnotatedBindMethod.
  */
 public class AnnotatedBindMethod
     extends AnnotatedMethod {
 
+	/** The Constant cache. */
 	private final static Map<Class<?>, AnnotatedBindMethod[]> cache =
 	    new HashMap<Class<?>, AnnotatedBindMethod[]>();
 
+	/**
+	 * Check signature.
+	 * 
+	 * @param method
+	 *          the method
+	 */
 	private static void checkSignature(final Method method) {
 
 		final Class<?> declaringClass = method.getDeclaringClass();
@@ -70,6 +77,12 @@ public class AnnotatedBindMethod
 		}
 	}
 
+	/**
+	 * Check non static signature.
+	 * 
+	 * @param method
+	 *          the method
+	 */
 	private static void checkNonStaticSignature(final Method method) {
 
 		final Class<?> declaringClass = method.getDeclaringClass();
@@ -96,10 +109,22 @@ public class AnnotatedBindMethod
 		}
 	}
 
+	/**
+	 * Clear cache.
+	 */
 	public static void clearCache() {
 		cache.clear();
 	}
 
+	/**
+	 * Inspect class.
+	 * 
+	 * @param c
+	 *          the c
+	 * @param errors
+	 *          the errors
+	 * @return the annotated bind method[]
+	 */
 	public static AnnotatedBindMethod[] inspectClass(
 	    final Class<?> c,
 	    final List<HeaderDefinitionError> errors) {
@@ -148,6 +173,17 @@ public class AnnotatedBindMethod
 		return bounds;
 	}
 
+	/**
+	 * Inspect any class.
+	 * 
+	 * @param <T>
+	 *          the generic type
+	 * @param c
+	 *          the c
+	 * @param errors
+	 *          the errors
+	 * @return the annotated bind method[]
+	 */
 	private static <T extends JHeader> AnnotatedBindMethod[] inspectAnyClass(
 	    final Class<?> c,
 	    final List<HeaderDefinitionError> errors) {
@@ -187,6 +223,15 @@ public class AnnotatedBindMethod
 		return isBounds;
 	}
 
+	/**
+	 * Inspect object.
+	 * 
+	 * @param object
+	 *          the object
+	 * @param errors
+	 *          the errors
+	 * @return the annotated bind method[]
+	 */
 	public static AnnotatedBindMethod[] inspectObject(
 	    final Object object,
 	    final List<HeaderDefinitionError> errors) {
@@ -235,6 +280,17 @@ public class AnnotatedBindMethod
 		return binds;
 	}
 
+	/**
+	 * Inspect j header class.
+	 * 
+	 * @param <T>
+	 *          the generic type
+	 * @param c
+	 *          the c
+	 * @param errors
+	 *          the errors
+	 * @return the annotated bind method[]
+	 */
 	public static <T extends JHeader> AnnotatedBindMethod[] inspectJHeaderClass(
 	    final Class<? extends JHeader> c,
 	    final List<HeaderDefinitionError> errors) {
@@ -242,16 +298,45 @@ public class AnnotatedBindMethod
 		return inspectAnyClass(c, errors);
 	}
 
+	/**
+	 * Instantiates a new annotated bind method.
+	 * 
+	 * @param target
+	 *          the target
+	 * @param method
+	 *          the method
+	 * @param object
+	 *          the object
+	 */
 	private AnnotatedBindMethod(final Class<? extends JHeader> target,
 	    final Method method, final Object object) {
 		super(method, object);
 	}
 
+	/**
+	 * Instantiates a new annotated bind method.
+	 * 
+	 * @param target
+	 *          the target
+	 * @param method
+	 *          the method
+	 */
 	private AnnotatedBindMethod(final Class<? extends JHeader> target,
 	    final Method method) {
 		super(method);
 	}
 
+	/**
+	 * Checks if is bound.
+	 * 
+	 * @param packet
+	 *          the packet
+	 * @param offset
+	 *          the offset
+	 * @param header
+	 *          the header
+	 * @return true, if is bound
+	 */
 	public boolean isBound(
 	    final JPacket packet,
 	    final int offset,
@@ -268,6 +353,9 @@ public class AnnotatedBindMethod
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.structure.AnnotatedMethod#validateSignature(java.lang.reflect.Method)
+	 */
 	@Override
 	protected void validateSignature(final Method method) {
 		

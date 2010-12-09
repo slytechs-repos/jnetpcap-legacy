@@ -20,27 +20,50 @@ package org.jnetpcap.nio;
 
 import java.util.Iterator;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author markbe
+ * The Class LinkSequence.
  * 
+ * @param <T>
+ *          the generic type
  */
 public class LinkSequence<T> implements Iterable<T> {
 
+	/** The name. */
 	private final String name;
 
+	/**
+	 * Instantiates a new link sequence.
+	 */
 	public LinkSequence() {
 		this.name = super.toString();
 	}
 
+	/**
+	 * Instantiates a new link sequence.
+	 * 
+	 * @param name
+	 *          the name
+	 */
 	public LinkSequence(String name) {
 		this.name = name;
 	}
 
+	/** The first. */
 	private Link<T> first;
+	
+	/** The last. */
 	private Link<T> last;
 
+	/** The size. */
 	private int size;
 
+	/**
+	 * Adds the.
+	 * 
+	 * @param l
+	 *          the l
+	 */
 	public void add(Link<T> l) {
 		if (l.linkNext() != null || l.linkPrev() != null) {
 			throw new IllegalStateException("link element already part of list");
@@ -59,10 +82,21 @@ public class LinkSequence<T> implements Iterable<T> {
 		l.linkCollection(this);
 	}
 
+	/**
+	 * Checks if is empty.
+	 * 
+	 * @return true, if is empty
+	 */
 	public boolean isEmpty() {
 		return size == 0;
 	}
 
+	/**
+	 * Removes the.
+	 * 
+	 * @param l
+	 *          the l
+	 */
 	public void remove(Link<T> l) {
 		final Link<T> p = l.linkPrev();
 		final Link<T> n = l.linkNext();
@@ -103,10 +137,22 @@ public class LinkSequence<T> implements Iterable<T> {
 		}
 	}
 
+	/**
+	 * Size.
+	 * 
+	 * @return the int
+	 */
 	public synchronized int size() {
 		return size;
 	}
 
+	/**
+	 * Gets the.
+	 * 
+	 * @param index
+	 *          the index
+	 * @return the t
+	 */
 	public synchronized T get(int index) {
 		if (index < 0 || index >= size) {
 			throw new IndexOutOfBoundsException(String.format("index=%d, size=%d",
@@ -124,6 +170,9 @@ public class LinkSequence<T> implements Iterable<T> {
 		return (l == null) ? null : l.linkElement();
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	public String toString() {
 		StringBuilder b = new StringBuilder();
 

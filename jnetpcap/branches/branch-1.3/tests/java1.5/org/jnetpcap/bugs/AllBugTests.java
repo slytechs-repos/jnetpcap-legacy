@@ -21,16 +21,16 @@ package org.jnetpcap.bugs;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class AllBugTests.
  */
 public class AllBugTests {
 
 	/**
-	 * Run all the bugs
+	 * Suite.
 	 * 
-	 * @return test
+	 * @return the test
 	 */
 	public static Test suite() {
 

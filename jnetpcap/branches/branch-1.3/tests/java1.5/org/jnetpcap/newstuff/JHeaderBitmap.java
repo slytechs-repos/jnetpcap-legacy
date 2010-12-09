@@ -25,29 +25,43 @@ import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JSubHeader;
 import org.jnetpcap.packet.structure.AnnotatedHeader;
 
+// TODO: Auto-generated Javadoc
 /**
+ * The Class JHeaderBitmap.
+ * 
  * @param <B>
- *          header baseclass that all sub-header's should be enclosed in
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ *          the generic type
  */
 @SuppressWarnings("unused")
 public class JHeaderBitmap<B extends JHeader> implements JHeaderContainer<B> {
 
+	/** The Constant MAX_HEADERS. */
 	public final static int MAX_HEADERS = 64;
 
+	/** The options bitmap. */
 	protected long optionsBitmap = -1;
 
+	/** The options offsets. */
 	protected int[] optionsOffsets = new int[MAX_HEADERS];
 
+	/** The options length. */
 	protected int[] optionsLength = new int[MAX_HEADERS];
 
+	/** The X_ headers. */
 	protected final JHeader[] X_HEADERS = new JHeader[MAX_HEADERS];
 
+	/** The parent. */
 	private final JHeader parent;
 
+	/** The count. */
 	private int count;
 
+	/**
+	 * Instantiates a new j header bitmap.
+	 * 
+	 * @param parent
+	 *          the parent
+	 */
 	public JHeaderBitmap(JHeader parent) {
 		super();
 		this.parent = parent;
@@ -59,6 +73,13 @@ public class JHeaderBitmap<B extends JHeader> implements JHeaderContainer<B> {
 		    .getHeaders()));
 	}
 
+	/**
+	 * Creates the header instances.
+	 * 
+	 * @param headers
+	 *          the headers
+	 * @return the j header[]
+	 */
 	private static JHeader[] createHeaderInstances(AnnotatedHeader... headers) {
 		JHeader[] h = new JHeader[headers.length];
 
@@ -69,6 +90,13 @@ public class JHeaderBitmap<B extends JHeader> implements JHeaderContainer<B> {
 		return h;
 	}
 
+	/**
+	 * Creates the header instance.
+	 * 
+	 * @param header
+	 *          the header
+	 * @return the j header
+	 */
 	private static JHeader createHeaderInstance(AnnotatedHeader header) {
 		try {
 			return header.getHeaderClass().newInstance();
@@ -79,10 +107,25 @@ public class JHeaderBitmap<B extends JHeader> implements JHeaderContainer<B> {
 		}
 	}
 
+	/**
+	 * Sets the sub headers.
+	 * 
+	 * @param headers
+	 *          the new sub headers
+	 */
 	public void setSubHeaders(JHeader[] headers) {
 		reorderAndSave(headers);
 	}
 
+	/**
+	 * Gets the header.
+	 * 
+	 * @param <T>
+	 *          the generic type
+	 * @param header
+	 *          the header
+	 * @return the header
+	 */
 	public <T extends JSubHeader<B>> T getHeader(T header) {
 
 		final int offset = optionsOffsets[header.getId()];
@@ -96,6 +139,9 @@ public class JHeaderBitmap<B extends JHeader> implements JHeaderContainer<B> {
 		return header;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.newstuff.JHeaderContainer#getHeader(org.jnetpcap.packet.JHeader)
+	 */
 	@SuppressWarnings("unchecked")
 	public JHeader getHeader(JHeader header) {
 
@@ -112,6 +158,11 @@ public class JHeaderBitmap<B extends JHeader> implements JHeaderContainer<B> {
 		return header;
 	}
 
+	/**
+	 * Gets the headers.
+	 * 
+	 * @return the headers
+	 */
 	public JHeader[] getHeaders() {
 		List<JHeader> headers = new ArrayList<JHeader>();
 		for (int i = 0; i < MAX_HEADERS; i++) {
@@ -124,10 +175,26 @@ public class JHeaderBitmap<B extends JHeader> implements JHeaderContainer<B> {
 		return headers.toArray(new JHeader[headers.size()]);
 	}
 
+	/**
+	 * Checks for sub header.
+	 * 
+	 * @param id
+	 *          the id
+	 * @return true, if successful
+	 */
 	public boolean hasSubHeader(int id) {
 		return (optionsBitmap & (1 << id)) > 0;
 	}
 
+	/**
+	 * Checks for sub header.
+	 * 
+	 * @param <T>
+	 *          the generic type
+	 * @param header
+	 *          the header
+	 * @return true, if successful
+	 */
 	public <T extends JSubHeader<B>> boolean hasSubHeader(T header) {
 		if (hasSubHeader(header.getId())) {
 			getHeader(header);
@@ -138,6 +205,12 @@ public class JHeaderBitmap<B extends JHeader> implements JHeaderContainer<B> {
 		}
 	}
 
+	/**
+	 * Reorder and save.
+	 * 
+	 * @param unordered
+	 *          the unordered
+	 */
 	private void reorderAndSave(JHeader[] unordered) {
 
 		for (JHeader u : unordered) {
@@ -145,10 +218,25 @@ public class JHeaderBitmap<B extends JHeader> implements JHeaderContainer<B> {
 		}
 	}
 
+	/**
+	 * Checks for headers.
+	 * 
+	 * @return true, if successful
+	 */
 	public boolean hasHeaders() {
 		return this.optionsBitmap != 0;
 	}
 
+	/**
+	 * Sets the header.
+	 * 
+	 * @param id
+	 *          the id
+	 * @param offset
+	 *          the offset
+	 * @param length
+	 *          the length
+	 */
 	private void setHeader(int id, int offset, int length) {
 		this.optionsBitmap |= (1L << id);
 		this.optionsLength[id] = length;
@@ -186,6 +274,17 @@ public class JHeaderBitmap<B extends JHeader> implements JHeaderContainer<B> {
 	 * 
 	 * @see org.jnetpcap.newstuff.JHeaderContainer#getHeader(org.jnetpcap.packet.JHeader,
 	 *      int)
+	 */
+	/**
+	 * Gets the header.
+	 * 
+	 * @param <T>
+	 *          the generic type
+	 * @param header
+	 *          the header
+	 * @param instance
+	 *          the instance
+	 * @return the header
 	 */
 	public <T extends JSubHeader<B>> T getHeader(T header, int instance) {
 		if (instance > 1) {

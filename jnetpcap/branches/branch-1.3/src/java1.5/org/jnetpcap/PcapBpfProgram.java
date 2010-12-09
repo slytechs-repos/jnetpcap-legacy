@@ -20,28 +20,15 @@ package org.jnetpcap;
 
 import java.nio.ByteBuffer;
 
+// TODO: Auto-generated Javadoc
 /**
- * <p>
- * Class peered with native <code>bpf_program</code> structure. Instance of a
- * compiled Berkley Packet Filter program. The program is an interpreted binary
- * byte program. Most modern unix and windows systems have a BPF interpreter
- * builtin and execute the code very efficiently, close to the source of the
- * capture and use the filter to permit or reject packets early.
- * </p>
- * <p>
- * <b>Special note:</b><br>
- * There also 2 private constructors which allow the object to be initialized in
- * Java space with a BPF program. The corresponding native C structures are
- * created and can be passed to <code>Pcap.setFilter</code> method. At this
- * time, the constructors are kept private for further testing. At some point
- * these private constructors will be made public and will allow outside filters
- * to be used with <em>Pcap</em> capture sessions.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class PcapBpfProgram.
  */
 public class PcapBpfProgram {
 
+	/**
+	 * Inits the i ds.
+	 */
 	private native static void initIDs();
 
 	static {
@@ -59,22 +46,14 @@ public class PcapBpfProgram {
 		}
 	}
 
-	/**
-	 * Native address of the bpf_program C structure
-	 */
+	/** The physical. */
 	private volatile long physical = 0;
 
+	/** The buffer. */
 	private ByteBuffer buffer;
 
 	/**
-	 * Special constructor that allows creation of empty object ready for
-	 * initialization. The object is only suitable for passing to Pcap.compile or
-	 * Pcap.compileNoPcap which will initiliaze it. Using any of the getter
-	 * methods before the PcapBpfProgram object is succesfully initialized will
-	 * result in IllegalStateException being thrown.
-	 * 
-	 * @see Pcap#compile(PcapBpfProgram, String, int, int)
-	 * @see Pcap#compileNoPcap(int, int, PcapBpfProgram, String, int, int)
+	 * Instantiates a new pcap bpf program.
 	 */
 	public PcapBpfProgram() {
 		initPeer();
@@ -82,17 +61,15 @@ public class PcapBpfProgram {
 	}
 
 	/**
-	 * Allocates object's peered C structure bpf_program.
+	 * Inits the peer.
 	 */
 	private native void initPeer();
 
 	/**
-	 * Allocates a peering C structure and initializes it with data from the
-	 * supplied buffer
+	 * Instantiates a new pcap bpf program.
 	 * 
-	 * @since 1.2
 	 * @param instructions
-	 *          buffer containing BPF instructions
+	 *          the instructions
 	 */
 	public PcapBpfProgram(byte[] instructions) {
 		buffer = null;
@@ -119,12 +96,10 @@ public class PcapBpfProgram {
 	}
 
 	/**
-	 * Allocates a peering C structure and initializes it with data from the
-	 * supplied buffer
+	 * Instantiates a new pcap bpf program.
 	 * 
-	 * @since 1.2
 	 * @param instructions
-	 *          buffer containing BPF instructions
+	 *          the instructions
 	 */
 	public PcapBpfProgram(ByteBuffer instructions) {
 		if (instructions == null) {
@@ -160,9 +135,8 @@ public class PcapBpfProgram {
 		}
 	}
 
-	/**
-	 * Cleans up JNI resources and releases any unreleased BPF programs in native
-	 * land.
+	/* (non-Javadoc)
+	 * @see java.lang.Object#finalize()
 	 */
 	@Override
   protected void finalize() {
@@ -173,16 +147,15 @@ public class PcapBpfProgram {
 	}
 
 	/**
-	 * Cleans up the object, releasing any resource held at native JNI level.
+	 * Cleanup.
 	 */
 	private native void cleanup();
 
 	/**
-	 * Allocates new bpf_program structure and enough space for code in the array
-	 * and makes a copy.
+	 * Inits the from array.
 	 * 
 	 * @param array
-	 *          bpf instruction array
+	 *          the array
 	 */
 	private void initFromArray(byte[] array) {
 		buffer = ByteBuffer.allocateDirect(array.length);
@@ -192,41 +165,33 @@ public class PcapBpfProgram {
 	}
 
 	/**
-	 * Allocates new bpf_program structure and references the native memory
-	 * location of the direct type buffer. The length of the buffer is its
-	 * capacity. Position and limit properties are ignored for security and
-	 * stability reasons as no program updates would occur if these properties
-	 * were changed at a later time. The direct byte buffer is explicity
-	 * referenced by peered C structure, therefore any changes to the buffer
-	 * content are also directly chaged in memory. Therefore care should be taken.
+	 * Inits the from buffer.
 	 * 
 	 * @param buffer
-	 *          bpf instruction buffer
+	 *          the buffer
 	 */
 	private native void initFromBuffer(ByteBuffer buffer);
 
 	/**
-	 * Gets the exact number of BPF instructions within this program.
+	 * Gets the instruction count.
 	 * 
-	 * @return number of 8 byte instructions within this program
+	 * @return the instruction count
 	 */
 	public native int getInstructionCount();
 
 	/**
-	 * Retrieves a single BPF instruction which is 8 bytes long and is encoded
-	 * into the long interger returned.
+	 * Gets the instruction.
 	 * 
 	 * @param index
-	 *          index of the instruction
-	 * @return entire instruction
+	 *          the index
+	 * @return the instruction
 	 */
 	public native long getInstruction(int index);
 
 	/**
-	 * Retrieves a program as an array of longs.
+	 * To long array.
 	 * 
-	 * @since 1.2
-	 * @return array containing the program
+	 * @return the long[]
 	 */
 	public long[] toLongArray() {
 		final int count = getInstructionCount();

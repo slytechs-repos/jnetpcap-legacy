@@ -30,10 +30,9 @@ import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.protocol.tcpip.Udp;
 import org.jnetpcap.util.checksum.Checksum;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
- *
+ * The Class Bug2878768_jmemory_packet_int.
  */
 public class Bug2878768_jmemory_packet_int
     extends
@@ -53,6 +52,9 @@ public class Bug2878768_jmemory_packet_int
 		super.tearDown();
 	}
 	
+	/**
+	 * Test1.
+	 */
 	public void test1() {
 		
 		JMemoryPacket packet = new JMemoryPacket(64);

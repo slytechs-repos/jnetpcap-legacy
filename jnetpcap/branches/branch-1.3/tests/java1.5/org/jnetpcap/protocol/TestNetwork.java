@@ -25,18 +25,21 @@ import org.jnetpcap.packet.TestUtils;
 import org.jnetpcap.protocol.network.Arp;
 import org.jnetpcap.protocol.network.Rip1;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
- *
+ * The Class TestNetwork.
  */
 public class TestNetwork
     extends
     TestUtils {
 	
+	/** The Constant RIP_V1. */
 	public final static String RIP_V1 = "tests/Rip_V1.pcap";
 
 
+	/**
+	 * Test arp.
+	 */
 	public void testArp() {
 		JPacket packet = super.getPcapPacket(VLAN, 189 - 1);
 		
@@ -48,6 +51,12 @@ public class TestNetwork
 		System.out.println(packet);
 	}
 	
+	/**
+	 * SKI ptest rip1.
+	 * 
+	 * @throws RegistryHeaderErrors
+	 *           the registry header errors
+	 */
 	public void SKIPtestRip1() throws RegistryHeaderErrors {
 		final int RIP1_ID = JRegistry.register(Rip1.class);
 		

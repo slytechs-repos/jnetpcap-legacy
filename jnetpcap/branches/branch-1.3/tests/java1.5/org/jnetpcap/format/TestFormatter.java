@@ -28,15 +28,16 @@ import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.packet.format.XmlFormatter;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestFormatter.
  */
 public class TestFormatter
     extends TestCase {
 	
 //private final static Appendable OUT = TestUtils.DEV_NULL;
-	private final static Appendable OUT = System.out;
+	/** The Constant OUT. */
+private final static Appendable OUT = System.out;
 
 	/*
 	 * (non-Javadoc)
@@ -56,6 +57,12 @@ public class TestFormatter
 		super.tearDown();
 	}
 
+	/**
+	 * Test text formatter.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public void testTextFormatter() throws IOException {
 		JFormatter out = new TextFormatter(OUT);
 		
@@ -68,6 +75,12 @@ public class TestFormatter
     }
 	}
 
+	/**
+	 * Test xml formatter.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public void testXmlFormatter() throws IOException {
 		JFormatter out = new XmlFormatter(OUT);
 		
@@ -76,6 +89,12 @@ public class TestFormatter
 		out.format(packet);
 	}
 	
+	/**
+	 * Test xml ip4 record route opt.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public void testXmlIp4RecordRouteOpt() throws IOException {
 		JFormatter out = new XmlFormatter(OUT);
 		
@@ -85,6 +104,12 @@ public class TestFormatter
 	}
 
 	
+	/**
+	 * Test sub header.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public void testSubHeader() throws IOException {
 		JFormatter out = new TextFormatter(OUT);
 		

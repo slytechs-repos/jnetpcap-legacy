@@ -18,23 +18,22 @@
  */
 package org.jnetpcap.nio;
 
+// TODO: Auto-generated Javadoc
 /**
- * A special memory peer to a function pointer
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class JFunction.
  */
 public class JFunction
     extends
     JMemory {
 
+	/** The name. */
 	private final String name;
 
 	/**
-	 * Creates an empty function object suitable for peering
+	 * Instantiates a new j function.
 	 * 
 	 * @param name
-	 *          name of this function
+	 *          the name
 	 */
 	public JFunction(String name) {
 		super(Type.POINTER);
@@ -42,6 +41,8 @@ public class JFunction
 	}
 
 	/**
+	 * Gets the name.
+	 * 
 	 * @return the name
 	 */
 	public final String getName() {

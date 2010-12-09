@@ -21,13 +21,17 @@ package org.jnetpcap.nio;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
- *
+ * The Class AllNioTests.
  */
 public class AllNioTests {
 
+	/**
+	 * Suite.
+	 * 
+	 * @return the test
+	 */
 	public static Test suite() {
 		TestSuite suite = new TestSuite("Test for org.jnetpcap.nio");
 		//$JUnit-BEGIN$

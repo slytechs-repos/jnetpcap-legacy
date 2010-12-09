@@ -18,18 +18,16 @@
  */
 package org.jnetpcap.util;
 
+// TODO: Auto-generated Javadoc
 /**
- * Gets an offset for the object.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Interface Offset.
  */
 public interface Offset {
 
 	/**
-	 * Offset of the object
+	 * Offset.
 	 * 
-	 * @return a zero based offset
+	 * @return the int
 	 */
 	public int offset();
 }

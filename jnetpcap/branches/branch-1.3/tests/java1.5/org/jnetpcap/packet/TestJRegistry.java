@@ -40,27 +40,28 @@ import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.protocol.network.Ip6;
 
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestJRegistry.
  */
 public class TestJRegistry
     extends TestCase {
 
 	/**
-	 * A test class that simplifies creation of test bindings by not having it
-	 * abstract :)
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Class TestBinding.
 	 */
 	public static class TestBinding
 	    extends DefaultJBinding {
 
 		/**
+		 * Instantiates a new test binding.
+		 * 
 		 * @param myId
+		 *          the my id
 		 * @param targetId
+		 *          the target id
 		 * @param dependencyIds
+		 *          the dependency ids
 		 */
 		public TestBinding(int myId, int targetId, int... dependencyIds) {
 			super(myId, targetId, dependencyIds);
@@ -71,6 +72,15 @@ public class TestJRegistry
 		 * 
 		 * @see org.jnetpcap.packet.JBinding#checkLength(org.jnetpcap.packet.JPacket,
 		 *      int)
+		 */
+		/**
+		 * Scan for next header.
+		 * 
+		 * @param packet
+		 *          the packet
+		 * @param offset
+		 *          the offset
+		 * @return the int
 		 */
 		public int scanForNextHeader(JPacket packet, int offset) {
 			throw new UnsupportedOperationException("Not implemented yet");
@@ -99,6 +109,7 @@ public class TestJRegistry
 
 	};
 
+	/** The errors. */
 	private List<HeaderDefinitionError> errors =
 	    new ArrayList<HeaderDefinitionError>();
 
@@ -137,6 +148,12 @@ public class TestJRegistry
 		}
 	}
 
+	/**
+	 * Test core protocol registration by j protocol.
+	 * 
+	 * @throws UnregisteredHeaderException
+	 *           the unregistered header exception
+	 */
 	public void testCoreProtocolRegistrationByJProtocol()
 	    throws UnregisteredHeaderException {
 
@@ -145,6 +162,12 @@ public class TestJRegistry
 		}
 	}
 
+	/**
+	 * Test core protocol registration by class.
+	 * 
+	 * @throws UnregisteredHeaderException
+	 *           the unregistered header exception
+	 */
 	public void testCoreProtocolRegistrationByClass()
 	    throws UnregisteredHeaderException {
 
@@ -155,6 +178,12 @@ public class TestJRegistry
 		}
 	}
 
+	/**
+	 * Test core protocol registration by name.
+	 * 
+	 * @throws UnregisteredHeaderException
+	 *           the unregistered header exception
+	 */
 	public void testCoreProtocolRegistrationByName()
 	    throws UnregisteredHeaderException {
 
@@ -163,10 +192,16 @@ public class TestJRegistry
 		assertEquals(Ip6.ID, JRegistry.lookupId(Ip6.class));
 	}
 
+	/**
+	 * Test extract binding from j header.
+	 */
 	public void testExtractBindingFromJHeader() {
 		AnnotatedBinding.inspectJHeaderClass(MyHeader.class, errors);
 	}
 
+	/**
+	 * Test j header annotated binding with packet.
+	 */
 	public void testJHeaderAnnotatedBindingWithPacket() {
 		JBinding[] bindings =
 		    AnnotatedBinding.inspectJHeaderClass(MyHeader.class, errors);
@@ -178,6 +213,9 @@ public class TestJRegistry
 		assertTrue("ethernet binding", bindEthernet.isBound(packet, 0));
 	}
 
+	/**
+	 * Test all class annotated binding with packet.
+	 */
 	public void testAllClassAnnotatedBindingWithPacket() {
 		JBinding[] bindings =
 		    AnnotatedBinding.inspectClass(BindNetworkFamily.class, errors);
@@ -192,8 +230,21 @@ public class TestJRegistry
 
 	}
 
+	/**
+	 * The Class TestBindings.
+	 */
 	@SuppressWarnings("unused")
 	private static class TestBindings {
+		
+		/**
+		 * Bind ip4 to ethernet.
+		 * 
+		 * @param packet
+		 *          the packet
+		 * @param eth
+		 *          the eth
+		 * @return true, if successful
+		 */
 		@Bind(from = Ip4.class, to = Ethernet.class)
 		public static boolean bindIp4ToEthernet(JPacket packet, Ethernet eth) {
 			return eth.type() == 0x800;
@@ -201,26 +252,47 @@ public class TestJRegistry
 
 	};
 
+	/**
+	 * The Class TestHeader.
+	 */
 	@SuppressWarnings("unused")
 	private static class TestHeader
 	    extends JHeader {
 
+		/**
+		 * Field1.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 0, length = 8)
 		public int field1() {
 			return super.getUByte(0);
 		}
 
+		/**
+		 * Field2.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 8)
 		public int field2() {
 			return super.getUByte(0);
 		}
 
+		/**
+		 * Field2 length.
+		 * 
+		 * @return the int
+		 */
 		@Dynamic(Field.Property.LENGTH)
 		public int field2Length() {
 			return field1() * 8;
 		}
 	}
 
+	/**
+	 * Test annonymous binding.
+	 */
 	public void testAnnonymousBinding() {
 
 		new AbstractBinding<Ethernet>(Ip4.class, Ethernet.class) {
@@ -243,6 +315,12 @@ public class TestJRegistry
 		AnnotatedBinding.inspectObject(o, errors);
 	}
 
+	/**
+	 * Test registry dump.
+	 * 
+	 * @throws RegistryHeaderErrors
+	 *           the registry header errors
+	 */
 	public void testRegistryDump() throws RegistryHeaderErrors {
 		JRegistry.register(MyHeader.class);
 

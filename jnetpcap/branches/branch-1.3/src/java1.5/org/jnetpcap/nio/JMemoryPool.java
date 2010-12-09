@@ -24,56 +24,31 @@ import java.util.Properties;
 
 import org.jnetpcap.nio.JMemory.Type;
 
+// TODO: Auto-generated Javadoc
 /**
- * Provides a mechanism for allocating memory to JMemory objects. This class is
- * intended to be used when for example JPacket objects need to be kept around
- * for longer periods of time than a single loop cycle. Since libpcap library
- * utilizes a round-robin memory buffer for returning packet data buffers, this
- * class provides a mechanism for copying that data into more permanent storage
- * very efficiently.
- * <p>
- * The pool works by allocating a memory blocks which are given out to any
- * JMemory class that requests a chunk. That memory is given out, out of the
- * pool, until the block is completely exhausted, then a new block is allocated
- * and continues to give out the memory. The memory blocks are released and
- * deallocated when the last JMemory block that receive any of the memory is
- * garbage collected. When that happens the original memory block is deallocated
- * with a native C free() call. The user does not have to do anything special,
- * the memory management is done completely behind the scene, very efficiently
- * and automatically using java's garbage collection mechanism.
- * </p>
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class JMemoryPool.
  */
 public class JMemoryPool {
 
 	/**
-	 * A block of native memory allocated with malloc. This block is further sub
-	 * allocated on a per request basis using the method {@link #allocate(int)}.
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Class Block.
 	 */
 	public static class Block extends JMemory {
 
-		/**
-		 * How many bytes are available for allocation in this current block
-		 */
+		/** The available. */
 		private int available = 0;
 
-		/**
-		 * Position into the block where the next available byte resides
-		 */
+		/** The current. */
 		private int current = 0;
 
+		/** The created on. */
 		private long createdOn;
 
 		/**
-		 * Constructor for allocating a block of a requested size
+		 * Instantiates a new block.
 		 * 
 		 * @param size
-		 *          number of bytes to allocate for this block
+		 *          the size
 		 */
 		Block(final int size) {
 			super(size);
@@ -82,10 +57,10 @@ public class JMemoryPool {
 		}
 
 		/**
-		 * Peers this block with another memory object
+		 * Instantiates a new block.
 		 * 
 		 * @param peer
-		 *          memory object to peer with
+		 *          the peer
 		 */
 		Block(final JMemory peer) {
 			super(peer);
@@ -93,11 +68,11 @@ public class JMemoryPool {
 		}
 
 		/**
-		 * Allocates requested size number of bytes from existing memory block
+		 * Allocate.
 		 * 
 		 * @param size
-		 *          number of bytes
-		 * @return offset into the buffer where the allocated memory begins
+		 *          the size
+		 * @return the int
 		 */
 		public synchronized int allocate(int size) {
 
@@ -115,15 +90,20 @@ public class JMemoryPool {
 		}
 
 		/**
-		 * Frees the existing memory to be put back in the memory pool.
+		 * Free.
 		 * 
 		 * @param offset
+		 *          the offset
 		 * @param length
+		 *          the length
 		 */
 		public void free(final int offset, final int length) {
 			// Do nothing for now
 		}
 
+		/* (non-Javadoc)
+		 * @see java.lang.Object#toString()
+		 */
 		public String toString() {
 			StringBuilder b = new StringBuilder(80);
 			b.append("JMemoryPool::Block");
@@ -139,28 +119,21 @@ public class JMemoryPool {
 		}
 	}
 
-	/**
-	 * The size of the native integer which is also the bus-size in bytes of the
-	 * hardware architecture. We use the BUS_WIDTH to align our allocated memory
-	 * on that boundary.
-	 */
+	/** The Constant BUS_WIDTH. */
 	private final static int BUS_WIDTH = JNumber.Type.INT.size;
 
-	/**
-	 * Default block size. JMemoryPool allocates memory in a large block which
-	 * then further sub allocates per individual requests. The is the default
-	 * size.
-	 */
+	/** The Constant DEFAULT_BLOCK_SIZE. */
 	public static final int DEFAULT_BLOCK_SIZE = 32 * 1024;
 
+	/** The default pool. */
 	private static JMemoryPool defaultPool;
 
 	/**
-	 * Allocates requested size of memory from the global memory pool.
+	 * Buffer.
 	 * 
 	 * @param size
-	 *          allocation size in bytes
-	 * @return buffer which references the allocated memory
+	 *          the size
+	 * @return the j buffer
 	 */
 	public static JBuffer buffer(final int size) {
 		final JBuffer buffer = new JBuffer(Type.POINTER);
@@ -170,50 +143,47 @@ public class JMemoryPool {
 	}
 
 	/**
+	 * Malloc.
+	 * 
 	 * @param size
+	 *          the size
 	 * @param storage
+	 *          the storage
 	 */
 	public static void malloc(final int size, final JMemory storage) {
 		defaultMemoryPool().allocate(size, storage);
 	}
 
-	/**
-	 * Currently active block from which memory allocations take place if its big
-	 * enough to fullfil the requests
-	 */
+	/** The block. */
 	private Block block;
 
-	/**
-	 * Current default block size when creating new memory blocks. This is user
-	 * modifiable.
-	 */
+	/** The block size. */
 	private int blockSize;
 
 	/**
-	 * Uses default allocation size and strategy.
+	 * Instantiates a new j memory pool.
 	 */
 	public JMemoryPool() {
 		blockSize = getBlockSize();
 	}
 
 	/**
-	 * Allocates blocks in specified size
+	 * Instantiates a new j memory pool.
 	 * 
 	 * @param defaultBlockSize
-	 *          minimum memory block allocation size
+	 *          the default block size
 	 */
 	public JMemoryPool(final int defaultBlockSize) {
 		this.blockSize = defaultBlockSize;
 	}
 
 	/**
-	 * Allocates size bytes of memory and initializes the supplied memory pointer
-	 * class.
+	 * Allocate.
 	 * 
 	 * @param size
-	 *          number of bytes
+	 *          the size
 	 * @param memory
-	 *          memory pointer
+	 *          the memory
 	 */
 	public synchronized void allocate(final int size, final JMemory memory) {
 
@@ -224,12 +194,11 @@ public class JMemoryPool {
 	}
 
 	/**
-	 * Allocates an exclusive block of native memory that once returned is not
-	 * referenced by JMemoryPool.
+	 * Allocate exclusive.
 	 * 
 	 * @param size
-	 *          amount of native memory to allocate in bytes
-	 * @return object which is the owner of the allocated memory
+	 *          the size
+	 * @return the j memory
 	 */
 	public JMemory allocateExclusive(final int size) {
 		return new JMemory(size) {
@@ -238,15 +207,13 @@ public class JMemoryPool {
 	}
 
 	/**
-	 * Transfers contents from src to newly allocated memory and peers dst with
-	 * that the new memory. Any previously held resources by dst are freed.
+	 * Duplicate.
 	 * 
 	 * @param src
-	 *          source memory to copy from
+	 *          the src
 	 * @param dst
-	 *          destination object to peer with new memory containing copy of
-	 *          memory pointed to by src
-	 * @return number of bytes duplicated
+	 *          the dst
+	 * @return the int
 	 */
 	public synchronized int duplicate(JMemory src, JMemory dst) {
 		final Block block = getBlock(src.size);
@@ -258,22 +225,17 @@ public class JMemoryPool {
 	}
 
 	/**
-	 * Transfers contents from src1 and src2 to a contigues block of new memory,
-	 * then peers dst1 and dst2 with the new memory, using the same sizes as src1
-	 * and src2 respectively. This operation combines memory allocation,
-	 * transferTo call on src1 and src2 and then peering of dst1 and dst2 with new
-	 * memory in a single step.
+	 * Duplicate2.
 	 * 
 	 * @param src1
-	 *          first src for duplicate
+	 *          the src1
 	 * @param src2
-	 *          second src for duplicate into the same memory
+	 *          the src2
 	 * @param dst1
-	 *          peered with new memory using src1 length
+	 *          the dst1
 	 * @param dst2
-	 *          peered with same memory at src1.length offset using src2 length as
-	 *          length of peer
-	 * @return total number of bytes duplicated
+	 *          the dst2
+	 * @return the int
 	 */
 	public synchronized int duplicate2(JMemory src1, JMemory src2, JMemory dst1, JMemory dst2) {
 		final int size1 = src1.size;
@@ -294,22 +256,17 @@ public class JMemoryPool {
 	}
 
 	/**
-	 * Transfers contents from src1 and src2 to a contigues block of new memory,
-	 * then peers dst1 and dst2 with the new memory, using the same sizes as src1
-	 * and src2 respectively. This operation combines memory allocation,
-	 * transferTo call on src1 and src2 and then peering of dst1 and dst2 with new
-	 * memory in a single step.
+	 * Duplicate2.
 	 * 
 	 * @param src1
-	 *          first src for duplicate
+	 *          the src1
 	 * @param src2
-	 *          second src for duplicate into the same memory
+	 *          the src2
 	 * @param dst1
-	 *          peered with new memory using src1 length
+	 *          the dst1
 	 * @param dst2
-	 *          peered with same memory at src1.length offset using src2 length as
-	 *          length of peer
-	 * @return total number of bytes duplicated
+	 *          the dst2
+	 * @return the int
 	 */
 	public synchronized int duplicate2(JMemory src1,
 			ByteBuffer src2,
@@ -334,15 +291,13 @@ public class JMemoryPool {
 	}
 
 	/**
-	 * Transfers contents from src to newly allocated memory and peers dst with
-	 * that the new memory. Any previously held resources by dst are freed.
+	 * Duplicate.
 	 * 
 	 * @param src
-	 *          source memory to copy from
+	 *          the src
 	 * @param dst
-	 *          destination object to peer with new memory containing copy of
-	 *          memory pointed to by src
-	 * @return number of bytes duplicated
+	 *          the dst
+	 * @return the int
 	 */
 	public synchronized int duplicate(ByteBuffer src, JMemory dst) {
 
@@ -359,19 +314,11 @@ public class JMemoryPool {
 	}
 
 	/**
-	 * Gets a block of memory that is big enough to hold at least size number of
-	 * bytes. The user must further request from the block
-	 * {@link Block#allocate(int)} the size of memory needed. The block will then
-	 * return an offset into the memory which has been reserved for this
-	 * allocation. The pool of used blocks with potential of some available memory
-	 * in them is maintained using a WeakReference. This allows the blocks to be
-	 * GCed when no references to them exist, even if there is still a bit of
-	 * available memory left in them.
+	 * Gets the block.
 	 * 
-	 * @see Block#allocate(int)
 	 * @param size
-	 *          minimum available amount of memory in a block
-	 * @return block big enough to hold size number of bytes
+	 *          the size
+	 * @return the block
 	 */
 	public Block getBlock(int size) {
 
@@ -386,12 +333,11 @@ public class JMemoryPool {
 	}
 
 	/**
-	 * Creates a new block to be used for memory allocations of atLeast the size
-	 * supplied or possibly bigger.
+	 * New block.
 	 * 
 	 * @param atLeastInSize
-	 *          minimum number of bytes to allocate
-	 * @return a new block to be used for allocations
+	 *          the at least in size
+	 * @return the block
 	 */
 	private Block newBlock(final int atLeastInSize) {
 		return new Block((atLeastInSize > this.blockSize) ? atLeastInSize
@@ -399,9 +345,9 @@ public class JMemoryPool {
 	}
 
 	/**
-	 * Gets the global default memory pool.
+	 * Default memory pool.
 	 * 
-	 * @return the default pool
+	 * @return the j memory pool
 	 */
 	public static JMemoryPool defaultMemoryPool() {
 		if (defaultPool == null) {
@@ -410,6 +356,9 @@ public class JMemoryPool {
 		return defaultPool;
 	}
 
+	/**
+	 * Shutdown.
+	 */
 	public static void shutdown() {
 		if (defaultPool != null) {
 			defaultPool.block = null;
@@ -418,7 +367,9 @@ public class JMemoryPool {
 	}
 
 	/**
-	 * @return the blockSize
+	 * Gets the block size.
+	 * 
+	 * @return the block size
 	 */
 	public int getBlockSize() {
 		if (blockSize != 0) {
@@ -444,7 +395,10 @@ public class JMemoryPool {
 	}
 
 	/**
-	 * @param blockSize the blockSize to set
+	 * Sets the block size.
+	 * 
+	 * @param blockSize
+	 *          the new block size
 	 */
 	public void setBlockSize(int blockSize) {
 		this.blockSize = blockSize;

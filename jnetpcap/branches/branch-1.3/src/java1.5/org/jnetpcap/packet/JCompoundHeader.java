@@ -18,18 +18,50 @@
  */
 package org.jnetpcap.packet;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
- *
+ * The Interface JCompoundHeader.
+ * 
+ * @param <B>
+ *          the generic type
  */
 public interface JCompoundHeader<B extends JHeader> {
 
+	/**
+	 * Checks for sub header.
+	 * 
+	 * @param id
+	 *          the id
+	 * @return true, if successful
+	 */
 	public boolean hasSubHeader(int id);
 	
+	/**
+	 * Checks for sub header.
+	 * 
+	 * @param <T>
+	 *          the generic type
+	 * @param header
+	 *          the header
+	 * @return true, if successful
+	 */
 	public <T extends JSubHeader<B>> boolean hasSubHeader(T header);
 	
+	/**
+	 * Gets the sub header.
+	 * 
+	 * @param <T>
+	 *          the generic type
+	 * @param header
+	 *          the header
+	 * @return the sub header
+	 */
 	public <T extends JSubHeader<B>> T getSubHeader(T header);
 	
+	/**
+	 * Checks for sub headers.
+	 * 
+	 * @return true, if successful
+	 */
 	public boolean hasSubHeaders();
 }

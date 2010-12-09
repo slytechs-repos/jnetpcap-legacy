@@ -25,23 +25,30 @@ import java.util.List;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.PcapPacketHandler;
 
+// TODO: Auto-generated Javadoc
 /**
- * A utility class that dispatches a PcapPacket to any number of listeners. The
- * packet is simply forwarded to any listeners as is.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class PcapPacketSupport.
  */
 public class PcapPacketSupport implements PcapPacketHandler<Object>{
 
+	/**
+	 * The Class Entry.
+	 */
 	private static class Entry {
+		
+		/** The handler. */
 		public PcapPacketHandler<Object> handler;
 
+		/** The user. */
 		public Object user;
 
 		/**
+		 * Instantiates a new entry.
+		 * 
 		 * @param handler
+		 *          the handler
 		 * @param user
+		 *          the user
 		 */
 		@SuppressWarnings("unchecked")
 		public Entry(PcapPacketHandler<?> handler, Object user) {
@@ -51,16 +58,36 @@ public class PcapPacketSupport implements PcapPacketHandler<Object>{
 
 	}
 
+	/** The listeners. */
 	private List<Entry> listeners = new ArrayList<Entry>();
 
+	/** The listeners array. */
 	private Entry[] listenersArray = null;
 
+	/**
+	 * Adds the.
+	 * 
+	 * @param <T>
+	 *          the generic type
+	 * @param o
+	 *          the o
+	 * @param user
+	 *          the user
+	 * @return true, if successful
+	 */
 	public <T> boolean add(PcapPacketHandler<T> o, T user) {
 		listenersArray = null; // reset
 
 		return this.listeners.add(new Entry(o, user));
 	}
 
+	/**
+	 * Removes the.
+	 * 
+	 * @param o
+	 *          the o
+	 * @return true, if successful
+	 */
 	public boolean remove(PcapPacketHandler<?> o) {
 		listenersArray = null;
 
@@ -77,6 +104,12 @@ public class PcapPacketSupport implements PcapPacketHandler<Object>{
 		return false;
 	}
 
+	/**
+	 * Fire next packet.
+	 * 
+	 * @param packet
+	 *          the packet
+	 */
 	public void fireNextPacket(PcapPacket packet) {
 		if (listenersArray == null) {
 			listenersArray = listeners.toArray(new Entry[listeners.size()]);

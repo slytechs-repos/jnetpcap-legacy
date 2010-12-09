@@ -26,9 +26,9 @@ import org.jnetpcap.packet.TestUtils;
 import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.protocol.lan.Ethernet;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestDiameter.
  */
 public class TestDiameter
     extends TestCase {
@@ -52,6 +52,9 @@ public class TestDiameter
 	}
 
 
+	/**
+	 * Test diameter header.
+	 */
 	public void testDiameterHeader() {
 		Diameter diameter = new Diameter(); // Need an instance so we can check on sub header
 		// Wireshark packet # 29 (1-based)

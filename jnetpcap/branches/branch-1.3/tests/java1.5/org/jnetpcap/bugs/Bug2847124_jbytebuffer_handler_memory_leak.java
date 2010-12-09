@@ -39,76 +39,75 @@ import org.jnetpcap.packet.TestUtils;
 import org.jnetpcap.packet.format.FormatUtils;
 import org.jnetpcap.protocol.JProtocol;
 
+// TODO: Auto-generated Javadoc
 /**
- * 1.3.b0006 coredumps on the following platforms: ubuntu, fedora and debian.
- * 
- * <pre>
- * Stack: [0x9f13b000,0x9f18c000], sp=0x9f18abfc, free space=318k
- * Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native
- * code)
- * C [libc.so.6+0x7b3d1] memcpy+0x61
- * 
- * [error occurred during error reporting (printing native stack), id 0xb]
- * 
- * Java frames: (J=compiled Java code, j=interpreted, Vv=VM code)
- * J
- * org.jnetpcap.Pcap.dispatch(IILorg/jnetpcap/packet/JPacketHandler;Ljava/lang
- * /Object;Lorg/jnetpcap/packet/JPacket;Lorg/jnetpcap/packet/JPacket$State;Lor
- * g/jnetpcap/PcapHeader;Lorg/jnetpcap/packet/JScanner;)I
- * J
- * org.jnetpcap.Pcap.dispatch(ILorg/jnetpcap/packet/JPacketHandler;Ljava/lang/
- * Object;Lorg/jnetpcap/packet/JScanner;)I
- * J
- * com.abcompany.XXX.XXX.XXX.executeDispatch(Ljava/util/concurrent/BlockingQue
- * ue;)Z
- * J com.abcompany.CCC.CCC.CCC$3.run()V
- * j java.lang.Thread.run()V+11
- * v &tilde;StubRoutines::call_stub
- * </pre>
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class Bug2847124_jbytebuffer_handler_memory_leak.
  */
 public class Bug2847124_jbytebuffer_handler_memory_leak
     extends
     TestUtils {
 
+	/** The Constant DIR. */
 	private final static File DIR = new File("tests");
 
+	/** The Constant COUNT. */
 	private static final int COUNT = 10;
 
+	/** The errbuf. */
 	private StringBuilder errbuf;
 
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#setUp()
+	 */
 	@Override
 	protected void setUp() throws Exception {
 		errbuf = new StringBuilder();
 	}
 
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#tearDown()
+	 */
 	@Override
 	protected void tearDown() throws Exception {
 		errbuf = null;
 	}
 
+	/** The b. */
 	int b = 0;
 
+	/** The bytes. */
 	int bytes = 0;
 
+	/** The h. */
 	int h = 0;
 
+	/** The headers. */
 	int headers = 0;
 
+	/** The total. */
 	int total = 0;
 
+	/** The start. */
 	long start = 0;
 
+	/** The end. */
 	long end = 0;
 
+	/** The count. */
 	int count = 0;
 
+	/** The ts. */
 	long ts = 0;
 
+	/** The te. */
 	long te = 0;
 
+	/**
+	 * Test inject test j packet handler.
+	 * 
+	 * @throws SigarException
+	 *           the sigar exception
+	 */
 	public void testInjectTestJPacketHandler() throws SigarException {
 
 		start = ts = System.currentTimeMillis();
@@ -279,6 +278,12 @@ public class Bug2847124_jbytebuffer_handler_memory_leak
 
 	}
 
+	/**
+	 * Test stress test j packet handler.
+	 * 
+	 * @throws SigarException
+	 *           the sigar exception
+	 */
 	public void testStressTestJPacketHandler() throws SigarException {
 		String[] files = DIR.list(new FilenameFilter() {
 
@@ -366,6 +371,9 @@ public class Bug2847124_jbytebuffer_handler_memory_leak
 
 	}
 
+	/**
+	 * Test stress test pcap packet handler.
+	 */
 	public void testStressTestPcapPacketHandler() {
 		String[] files = DIR.list(new FilenameFilter() {
 
@@ -399,6 +407,12 @@ public class Bug2847124_jbytebuffer_handler_memory_leak
 		System.out.println();
 	}
 
+	/**
+	 * Test stress test j buffer handler.
+	 * 
+	 * @throws SigarException
+	 *           the sigar exception
+	 */
 	public void testStressTestJBufferHandler() throws SigarException {
 		String[] files = DIR.list(new FilenameFilter() {
 

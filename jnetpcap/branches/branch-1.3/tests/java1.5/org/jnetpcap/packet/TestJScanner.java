@@ -32,14 +32,15 @@ import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.protocol.lan.Ethernet;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestJScanner.
  */
 public class TestJScanner
     extends
     TestUtils {
 
+	/** The flags. */
 	private int[] flags;
 
 	/*
@@ -61,16 +62,28 @@ public class TestJScanner
 		JRegistry.setAllFlags(flags);
 	}
 
+	/**
+	 * _test j scanner init.
+	 */
 	public void _testJScannerInit() {
 		// May seem simple, but has detected a bug already in initializer :)
 		new JScanner();
 	}
 
+	/**
+	 * _test j scanner size of.
+	 */
 	public void _testJScannerSizeOf() {
 		assertTrue("sizeof=" + JScanner.sizeof(), JScanner.sizeof() > 0
 		    && JScanner.sizeof() < 100000);
 	}
 
+	/**
+	 * _test scan one packet.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public void _testScanOnePacket() throws IOException {
 		JPacket packet = new JMemoryPacket(new byte[] {
 		    (byte) 0xa0,
@@ -97,6 +110,12 @@ public class TestJScanner
 		out.format(packet);
 	}
 
+	/**
+	 * _test scan file bb handler.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public void _testScanFileBBHandler() throws IOException {
 		StringBuilder errbuf = new StringBuilder();
 		final Pcap pcap = Pcap.openOffline("tests/test-l2tp.pcap", errbuf);
@@ -145,6 +164,12 @@ public class TestJScanner
 		pcap.close();
 	}
 
+	/**
+	 * _test scan file jb handler.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public void _testScanFileJBHandler() throws IOException {
 		StringBuilder errbuf = new StringBuilder();
 		final Pcap pcap = Pcap.openOffline("tests/test-l2tp.pcap", errbuf);
@@ -189,6 +214,12 @@ public class TestJScanner
 		pcap.close();
 	}
 
+	/**
+	 * Test scan file jp handler.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public void testScanFileJPHandler() throws IOException {
 		StringBuilder errbuf = new StringBuilder();
 		final Pcap pcap = Pcap.openOffline("tests/test-vlan.pcap", errbuf);
@@ -225,14 +256,16 @@ public class TestJScanner
 	}
 
 	/**
-	 * Test if annotated MyHeader.class will throw any errors. It contains
-	 * annotated bindings and header length getter
+	 * Test scanner constructor annotated my header class.
 	 */
 	public void testScannerConstructorAnnotatedMyHeaderClass() {
 
 		new JHeaderScanner(MyHeader.class);
 	}
 
+	/**
+	 * Test invoke get header length annotated.
+	 */
 	public void testInvokeGetHeaderLengthAnnotated() {
 
 		JPacket packet = TestUtils.getPcapPacket("tests/test-afs.pcap", 0);
@@ -245,6 +278,9 @@ public class TestJScanner
 		    Ethernet.LENGTH), packet.getUByte(Ethernet.LENGTH) & 0x0F);
 	}
 
+	/**
+	 * Test flag non override.
+	 */
 	public void testFlagNonOverride() {
 		PcapPacket packet = getPcapPacket(HTTP, 5);
 
@@ -254,6 +290,9 @@ public class TestJScanner
 		assertTrue(packet.hasHeader(JProtocol.HTTP_ID));
 	}
 
+	/**
+	 * Test flag override.
+	 */
 	public void testFlagOverride() {
 		JScanner.bindingOverride(JProtocol.TCP_ID, true);
 		JScanner.heuristicCheck(JProtocol.TCP_ID, false);
@@ -271,6 +310,9 @@ public class TestJScanner
 
 	}
 
+	/**
+	 * Test flag post heuristics.
+	 */
 	public void testFlagPostHeuristics() {
 		JScanner.bindingOverride(JProtocol.TCP_ID, true);
 		JScanner.heuristicPostCheck(JProtocol.TCP_ID, true);
@@ -283,6 +325,9 @@ public class TestJScanner
 		assertTrue(packet.hasHeader(JProtocol.HTTP_ID));
 	}
 
+	/**
+	 * Test packet state.
+	 */
 	public void testPacketState() {
 
 		PcapPacket packet = getPcapPacket(HTTP, 5);
@@ -291,12 +336,18 @@ public class TestJScanner
 		System.out.println(packet.getState().toDebugString());
 	}
 
+	/**
+	 * Test get frame number.
+	 */
 	public void testGetFrameNumber() {
 		assertTrue(JScanner.getThreadLocal().getFrameNumber() != 0);
 		System.out.printf("frameNumber=%d\n", JScanner.getThreadLocal()
 		    .getFrameNumber());
 	}
 
+	/**
+	 * Test set frame number.
+	 */
 	public void testSetFrameNumber() {
 		long n = JScanner.getThreadLocal().getFrameNumber();
 

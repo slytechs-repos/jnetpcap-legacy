@@ -28,9 +28,9 @@ import org.jnetpcap.packet.TestUtils;
 import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.protocol.application.Html;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestHtml.
  */
 public class TestHtml
     extends
@@ -54,6 +54,12 @@ public class TestHtml
 		super.tearDown();
 	}
 
+	/**
+	 * Test http formatting with resolve address disabled.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public void testHttpFormattingWithResolveAddressDisabled() throws IOException {
 
 		PcapPacket packet = TestUtils.getPcapPacket("tests/test-http-jpeg.pcap", 5);

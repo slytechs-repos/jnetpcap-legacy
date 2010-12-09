@@ -26,43 +26,46 @@ import junit.framework.TestCase;
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapIf;
 
+// TODO: Auto-generated Javadoc
 /**
- * All the examples that have been documented within WinPcap extension, go here
- * to verify syntax and functionality. This jUnit class makes sure that all the
- * examples listed are valid and properly working. The examples sometimes may
- * strip out try/catch, import and method declaration statements, but in reality
- * they are based on fully working examples, which we test here.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestWinPcapCommentExamples.
  */
 public class TestWinPcapCommentExamples
     extends TestCase {
 
+	/** The source. */
 	String source = "rpcap://\\Device\\NPF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
 
+	/** The snaplen. */
 	int snaplen = 64 * 1024;
 
+	/** The flags. */
 	int flags = Pcap.MODE_NON_PROMISCUOUS;
 
+	/** The timeout. */
 	int timeout = 1000;
 
+	/** The auth. */
 	WinPcapRmtAuth auth = null;
 
+	/** The errbuf. */
 	StringBuilder errbuf = new StringBuilder();
 
-	/**
-	 * @throws java.lang.Exception
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#setUp()
 	 */
 	public void setUp() throws Exception {
 	}
 
-	/**
-	 * @throws java.lang.Exception
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#tearDown()
 	 */
 	public void tearDown() throws Exception {
 	}
 
+	/**
+	 * Test win pcap main comment ex1.
+	 */
 	public void testWinPcapMainCommentEx1() {
 		assertTrue("WinPcap extension not supported on this platform", WinPcap
 		    .isSupported());
@@ -72,6 +75,9 @@ public class TestWinPcapCommentExamples
 		pcap.close();
 	}
 
+	/**
+	 * Test win pcap main comment ex2.
+	 */
 	public void testWinPcapMainCommentEx2() {
 		String source = "rpcap://\\Device\\PF_{BC81C4FC-242F-4F1C-9DAD-EA9523CC992D}";
 		int snaplen = 64 * 1024;
@@ -88,6 +94,9 @@ public class TestWinPcapCommentExamples
 		pcap.close();
 	}
 
+	/**
+	 * Test win pcap main comment find all devs ex.
+	 */
 	public void testWinPcapMainCommentFindAllDevsEx() {
 		String source = "rpcap://";
 		List<PcapIf> alldevs = new ArrayList<PcapIf>();
@@ -102,6 +111,9 @@ public class TestWinPcapCommentExamples
 
 	}
 
+	/**
+	 * Test win pcap main comment create str.
+	 */
 	public void testWinPcapMainCommentCreateStr() {
 		String source = "rpcap://";
 		List<PcapIf> alldevs = new ArrayList<PcapIf>();

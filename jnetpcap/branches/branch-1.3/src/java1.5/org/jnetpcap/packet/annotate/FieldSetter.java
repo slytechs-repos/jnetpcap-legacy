@@ -25,8 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Interface FieldSetter.
  */
 @Target(ElementType.METHOD)
 @Documented

@@ -31,16 +31,24 @@ import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.JScan;
 import org.jnetpcap.packet.annotate.Scanner;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class AnnotatedScannerMethod.
  */
 public class AnnotatedScannerMethod
     extends AnnotatedMethod {
 
+	/** The Constant cache. */
 	private final static Map<Class<?>, AnnotatedScannerMethod[]> cache =
 	    new HashMap<Class<?>, AnnotatedScannerMethod[]>();
 
+	/**
+	 * Inspect j header class.
+	 * 
+	 * @param c
+	 *          the c
+	 * @return the annotated scanner method[]
+	 */
 	public static AnnotatedScannerMethod[] inspectJHeaderClass(
 	    Class<? extends JHeader> c) {
 
@@ -68,6 +76,13 @@ public class AnnotatedScannerMethod
 		}
 	}
 
+	/**
+	 * Inspect class.
+	 * 
+	 * @param c
+	 *          the c
+	 * @return the annotated scanner method[]
+	 */
 	public static AnnotatedScannerMethod[] inspectClass(Class<? extends JHeader> c) {
 
 		if (cache.containsKey(c)) {
@@ -97,6 +112,13 @@ public class AnnotatedScannerMethod
 		return m;
 	}
 
+	/**
+	 * Inspect object.
+	 * 
+	 * @param container
+	 *          the container
+	 * @return the annotated scanner method[]
+	 */
 	public static AnnotatedScannerMethod[] inspectObject(Object container) {
 		Class<?> c = container.getClass();
 
@@ -124,10 +146,16 @@ public class AnnotatedScannerMethod
 		return m;
 	}
 
+	/** The id. */
 	private final int id;
 
 	/**
+	 * Instantiates a new annotated scanner method.
+	 * 
 	 * @param method
+	 *          the method
+	 * @param c
+	 *          the c
 	 */
 	private AnnotatedScannerMethod(Method method, Class<? extends JHeader> c) {
 		super(method);
@@ -136,9 +164,14 @@ public class AnnotatedScannerMethod
 	}
 
 	/**
+	 * Instantiates a new annotated scanner method.
+	 * 
 	 * @param method
-	 * @param value
+	 *          the method
+	 * @param c
+	 *          the c
 	 * @param container
+	 *          the container
 	 */
 	public AnnotatedScannerMethod(Method method, Class<? extends JHeader> c,
 	    Object container) {
@@ -147,6 +180,12 @@ public class AnnotatedScannerMethod
 		this.id = JRegistry.lookupId(c);
 	}
 
+	/**
+	 * Scan.
+	 * 
+	 * @param scan
+	 *          the scan
+	 */
 	public void scan(JScan scan) {
 		try {
 			method.invoke(object, scan);
@@ -190,6 +229,11 @@ public class AnnotatedScannerMethod
 		}
 	}
 
+	/**
+	 * Gets the id.
+	 * 
+	 * @return the id
+	 */
 	public int getId() {
 		return this.id;
 	}

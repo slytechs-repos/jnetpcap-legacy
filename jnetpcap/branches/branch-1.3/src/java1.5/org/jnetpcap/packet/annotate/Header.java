@@ -27,64 +27,180 @@ import java.lang.annotation.Target;
 import org.jnetpcap.PcapDLT;
 import org.jnetpcap.packet.JHeader;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Interface Header.
  */
 @Target(ElementType.TYPE)
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Header {
+	
+	/**
+	 * The Enum Layer.
+	 */
 	public enum Layer {
+		
+		/** The NULL. */
 		NULL,
+		
+		/** The PHYSICAL. */
 		PHYSICAL,
+		
+		/** The DATALINK. */
 		DATALINK,
+		
+		/** The NETWORK. */
 		NETWORK,
+		
+		/** The TRANSPORT. */
 		TRANSPORT,
+		
+		/** The SESSION. */
 		SESSION,
+		
+		/** The PRESENTATION. */
 		PRESENTATION,
+		
+		/** The APPLICATION. */
 		APPLICATION,
 	}
 	
+	/**
+	 * The Enum Characteristic.
+	 */
 	public enum Characteristic {
+		
+		/** The NULL. */
 		NULL,
+		
+		/** The POIN t_ t o_ point. */
 		POINT_TO_POINT,
+		
+		/** The POIN t_ t o_ multipoint. */
 		POINT_TO_MULTIPOINT,
+		
+		/** The CSM a_ cd. */
 		CSMA_CD,
 
 	}
 	
+	/**
+	 * Characteristics.
+	 * 
+	 * @return the characteristic[]
+	 */
 	Characteristic[] characteristics() default {};
 
+	/**
+	 * Description.
+	 * 
+	 * @return the string
+	 */
 	String description() default "";
 	
+	/**
+	 * Dlt.
+	 * 
+	 * @return the pcap dl t[]
+	 */
 	PcapDLT[] dlt() default {};
 	
+	/**
+	 * Format.
+	 * 
+	 * @return the string
+	 */
 	String format() default "";
 	
+	/**
+	 * Id.
+	 * 
+	 * @return the int
+	 */
 	int id() default -1;
 	
+	/**
+	 * Length.
+	 * 
+	 * @return the int
+	 */
 	int length() default -1;
 	
+	/**
+	 * Prefix.
+	 * 
+	 * @return the int
+	 */
 	int prefix() default -1;
 	
+	/**
+	 * Gap.
+	 * 
+	 * @return the int
+	 */
 	int gap() default  -1;
 	
+	/**
+	 * Payload.
+	 * 
+	 * @return the int
+	 */
 	int payload() default -1;
 	
+	/**
+	 * Postfix.
+	 * 
+	 * @return the int
+	 */
 	int postfix() default -1;
 	
+	/**
+	 * Name.
+	 * 
+	 * @return the string
+	 */
 	String name() default "";
 	
+	/**
+	 * Nicname.
+	 * 
+	 * @return the string
+	 */
 	String nicname() default "";
 	
+	/**
+	 * Suite.
+	 * 
+	 * @return the protocol suite
+	 */
 	ProtocolSuite suite() default ProtocolSuite.OTHER;
 	
+	/**
+	 * Osi.
+	 * 
+	 * @return the layer
+	 */
 	Layer osi() default Layer.NULL;
 	
+	/**
+	 * Parent.
+	 * 
+	 * @return the class<? extends j header>
+	 */
 	Class<? extends JHeader> parent() default JHeader.class;
 	
+	/**
+	 * Spec.
+	 * 
+	 * @return the string[]
+	 */
 	String[] spec() default {};
 
+	/**
+	 * Url.
+	 * 
+	 * @return the string
+	 */
 	String url() default "";
 }

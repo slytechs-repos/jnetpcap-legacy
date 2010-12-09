@@ -22,51 +22,34 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+// TODO: Auto-generated Javadoc
 /**
- * <p>
- * A utility class that is used in conjunction with jUnit test cases that makes
- * a HTTP connection to some website and pulls webpages down. This in tern
- * creates packets for jUnit test cases to catch and perform their tests.
- * Without a forced traffic generator, tests cases have to wait for random
- * packets to arrive.
- * </p>
- * <p>
- * The generator runs in a separate thread and uses a URL object to a website to
- * open a connection in a loop, with lots of delays, to generate a very small
- * amount of traffic for jUnit tests to assert against. The tearDown() method
- * should invoke the HttpTrafficGenerator.stop method, weather the generator was
- * ever started or not. Its always to call stop, even when not running. This is
- * the safest way to guarrantee that we don't end up with some runaway
- * generators. Also as a backup fail mechanism generator only runs for 5 seconds
- * and then stops automatically.
- * </p>
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class HttpTrafficGenerator.
  */
 public class HttpTrafficGenerator implements Runnable {
 
+	/** The Constant SLEEP. */
 	private static final long SLEEP = 100; // 100 millis
 
+	/** The timeout. */
 	private long timeout = 5 * 1000; // Timeout in 5 seconds
 
-	/**
-	 * Allows multiple threads to access/modify at the same time without synchs.
-	 */
+	/** The runflag. */
 	private final AtomicBoolean runflag = new AtomicBoolean(false);
 
+	/** The worker. */
 	private final Thread worker;
 
+	/** The website. */
 	private URL website;
 
 	/**
-	 * Sets the timeout and website to connect to which in tern generates the
-	 * traffic.
+	 * Instantiates a new http traffic generator.
 	 * 
 	 * @param timeout
-	 *          in millis
+	 *          the timeout
 	 * @param website
-	 *          valid website
+	 *          the website
 	 */
 	public HttpTrafficGenerator(long timeout, URL website) {
 		this.timeout = timeout;
@@ -76,10 +59,10 @@ public class HttpTrafficGenerator implements Runnable {
 	}
 
 	/**
-	 * Sets the timeout after which the generator stops on its own. A safety
-	 * percaution.
+	 * Instantiates a new http traffic generator.
 	 * 
 	 * @param timeout
+	 *          the timeout
 	 */
 	public HttpTrafficGenerator(long timeout) {
 		this.timeout = timeout;
@@ -93,8 +76,7 @@ public class HttpTrafficGenerator implements Runnable {
 	}
 
 	/**
-	 * Use default timeout of 5 seconds, then generator stops on its own. A safety
-	 * percaution.
+	 * Instantiates a new http traffic generator.
 	 */
 	public HttpTrafficGenerator() {
 
@@ -107,9 +89,7 @@ public class HttpTrafficGenerator implements Runnable {
 	}
 
 	/**
-	 * Starts up the worker thread in the background. Can only be called after
-	 * stop. The worker thread can not be running nor can the runflag be set to
-	 * true, otherwise exception will be thrown.
+	 * Start.
 	 */
 	public void start() {
 
@@ -165,7 +145,7 @@ public class HttpTrafficGenerator implements Runnable {
 	}
 
 	/**
-	 * Signals the worker thread to end as soon as possible.
+	 * Stop.
 	 */
 	public void stop() {
 		runflag.set(false);

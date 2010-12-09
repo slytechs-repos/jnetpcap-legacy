@@ -18,19 +18,18 @@
  */
 package org.jnetpcap.winpcap;
 
+// TODO: Auto-generated Javadoc
 /**
- * Class peered with native <code>pcap_samp</code> structure. This class can
- * change the capture algorithm used by WinPcap. By changing the values within
- * this specially peered object, before any capture takes place, you can
- * influence the sampling algorithm used during capture.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class WinPcapSamp.
  */
 public final class WinPcapSamp {
 
+	/**
+	 * Inits the i ds.
+	 */
 	private native static void initIDs(); // Initialize JNI
 
+	/** The physical. */
 	private volatile long physical;
 
 	static {
@@ -38,89 +37,56 @@ public final class WinPcapSamp {
 	}
 
 	/**
-	 * This constructor called from JNI to initialize new object
+	 * Instantiates a new win pcap samp.
 	 * 
 	 * @param addr
-	 *          physical address of pcap_samp structure
+	 *          the addr
 	 */
 	private WinPcapSamp(long addr) {
 		this.physical = addr;
 	}
 
-	/**
-	 * No sampling has to be done on the current capture. In this case, no
-	 * sampling algorithms are applied to the current capture.
-	 */
+	/** The Constant NO_SAMP. */
 	public final static int NO_SAMP = 0;
 
-	/**
-	 * It defines that only 1 out of N packets must be returned to the user. In
-	 * this case, the 'value' field of the 'pcap_samp' structure indicates the
-	 * number of packets (minus 1) that must be discarded before one packet got
-	 * accepted. In other words, if 'value = 10', the first packet is returned to
-	 * the caller, while the following 9 are discarded.
-	 */
+	/** The Constant ONE_EVERY_N. */
 	public final static int ONE_EVERY_N = 1;
 
-	/**
-	 * It defines that we have to return 1 packet every N milliseconds. In this
-	 * case, the 'value' field of the 'WinPcapSamp' class indicates the 'waiting
-	 * time' in milliseconds before one packet got accepted. In other words, if
-	 * 'value = 10', the first packet is returned to the caller; the next returned
-	 * one will be the first packet that arrives when 10ms have elapsed.
-	 */
+	/** The Constant FIRST_AFTER_N_MS. */
 	public final static int FIRST_AFTER_N_MS = 2;
 
 	/**
-	 * Gets the current method type for capture sampling.
+	 * Gets the method.
 	 * 
-	 * @return the return value specifies the sampling type:
-	 *         <ul>
-	 *         <li> 0 - {@link #NO_SAMP} - No sampling has to be done on the
-	 *         current capture</li>
-	 *         <li> 1 - {@link #ONE_EVERY_N} - only 1 out of N packets must be
-	 *         returned to the user</li>
-	 *         <li> 2 - {@link #FIRST_AFTER_N_MS} - return 1 packet every N
-	 *         milliseconds</li>
-	 *         </ul>
+	 * @return the method
 	 */
 	public native int getMethod();
 
 	/**
-	 * Sets the current method type for capturing sampling. The algorithm is
-	 * changed for the current capture, as long as no packets have been captured
-	 * or entered any dispatchable loops.
+	 * Sets the method.
 	 * 
 	 * @param method
-	 *          sampling type:
-	 *          <ul>
-	 *          <li> 0 - {@link #NO_SAMP} - No sampling has to be done on the
-	 *          current capture</li>
-	 *          <li> 1 - {@link #ONE_EVERY_N} - only 1 out of N packets must be
-	 *          returned to the user</li>
-	 *          <li> 2 - {@link #FIRST_AFTER_N_MS} - return 1 packet every N
-	 *          milliseconds</li>
-	 *          </ul>
+	 *          the new method
 	 */
 	public native void setMethod(int method);
 
 	/**
-	 * This value depends on the sampling method defined.
+	 * Gets the value.
 	 * 
-	 * @return this value depends on the sampling method defined
+	 * @return the value
 	 */
 	public native int getValue();
 
 	/**
-	 * Sets the value. this value depends on the sampling method defined.
+	 * Sets the value.
 	 * 
 	 * @param value
-	 *          new value; this value depends on the sampling method defined
+	 *          the new value
 	 */
 	public native void setValue(int value);
 
-	/**
-	 * Returns the current values of this object as strings.
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
 		return "method:" + getMethod() + ", value:" + getValue();

@@ -18,42 +18,49 @@
  */
 package org.jnetpcap.packet;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
- *
+ * The Class RegistryRuntimeException.
  */
 public class RegistryRuntimeException
     extends RuntimeException {
 
-	/**
-   * 
-   */
+	/** The Constant serialVersionUID. */
   private static final long serialVersionUID = 2093913023976126160L;
 
 	/**
-	 * 
+	 * Instantiates a new registry runtime exception.
 	 */
 	public RegistryRuntimeException() {
 	}
 
 	/**
+	 * Instantiates a new registry runtime exception.
+	 * 
 	 * @param message
+	 *          the message
 	 */
 	public RegistryRuntimeException(String message) {
 		super(message);
 	}
 
 	/**
+	 * Instantiates a new registry runtime exception.
+	 * 
 	 * @param cause
+	 *          the cause
 	 */
 	public RegistryRuntimeException(Throwable cause) {
 		super(cause);
 	}
 
 	/**
+	 * Instantiates a new registry runtime exception.
+	 * 
 	 * @param message
+	 *          the message
 	 * @param cause
+	 *          the cause
 	 */
 	public RegistryRuntimeException(String message, Throwable cause) {
 		super(message, cause);

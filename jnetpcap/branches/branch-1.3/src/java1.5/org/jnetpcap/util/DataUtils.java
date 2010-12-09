@@ -20,20 +20,20 @@ package org.jnetpcap.util;
 
 import org.jnetpcap.nio.JBuffer;
 
+// TODO: Auto-generated Javadoc
 /**
- * Various data manipulation utilities.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class DataUtils.
  */
 public class DataUtils {
 	
 	/**
-	 * Returns the difference between b1 and b2. b1 is subtracted from b2.
+	 * Diff.
 	 * 
 	 * @param b1
+	 *          the b1
 	 * @param b2
-	 * @return array containing the different between b1 and b2
+	 *          the b2
+	 * @return the byte[]
 	 */
 	public static byte[] diff(final JBuffer b1, final JBuffer b2) {
 		return diff(b1.getByteArray(0, b1.size()), b2.getByteArray(0, b2.size()));
@@ -41,22 +41,26 @@ public class DataUtils {
 
 	
 	/**
-	 * Returns the difference between b1 and b2. b1 is subtracted from b2.
+	 * Diff.
 	 * 
 	 * @param b1
+	 *          the b1
 	 * @param b2
-	 * @return array containing the different between b1 and b2
+	 *          the b2
+	 * @return the byte[]
 	 */
 	public static byte[] diff(final byte[] b1, final JBuffer b2) {
 		return diff(b1, b2.getByteArray(0, b2.size()));
 	}
 
 	/**
-	 * Returns the difference between b1 and b2. b1 is subtracted from b2.
+	 * Diff.
 	 * 
 	 * @param b1
+	 *          the b1
 	 * @param b2
-	 * @return array containing the different between b1 and b2
+	 *          the b2
+	 * @return the byte[]
 	 */
 	public static byte[] diff(final byte[] b1, final byte[] b2) {
 

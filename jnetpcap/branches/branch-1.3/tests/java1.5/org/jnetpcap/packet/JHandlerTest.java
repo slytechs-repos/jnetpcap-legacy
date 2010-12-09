@@ -34,9 +34,9 @@ import org.jnetpcap.protocol.lan.Ethernet;
 import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.protocol.network.Ip6;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class JHandlerTest.
  */
 public class JHandlerTest
     extends
@@ -46,18 +46,27 @@ public class JHandlerTest
     JBufferHandler<String>,
     JPacketHandler<String> {
 
+	/** The ethernet. */
 	private Ethernet ethernet = new Ethernet();
 
+	/** The ip4. */
 	private Ip4 ip4 = new Ip4();
 
+	/** The ip6. */
 	private Ip6 ip6 = new Ip6();
 
+	/** The packet. */
 	private PcapPacket packet = new PcapPacket(Type.POINTER);
 
+	/** The scanner. */
 	private JScanner scanner = new JScanner();
 
+	/** The pcap. */
 	private Pcap pcap;
 
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#setUp()
+	 */
 	@Override
 	protected void setUp() throws Exception {
 
@@ -65,31 +74,43 @@ public class JHandlerTest
 		assertNotNull(pcap);
 	}
 
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#tearDown()
+	 */
 	@Override
 	protected void tearDown() throws Exception {
 		assertNotNull(pcap);
 		pcap.close();
 	}
 
+	/**
+	 * Test j scanner handler.
+	 */
 	public void testJScannerHandler() {
 
 		pcap.dispatch(2, JProtocol.ETHERNET_ID, (JPacketHandler<String>) this,
 		    "JPacket - testcase");
 	}
 
+	/**
+	 * Test j buffer handler.
+	 */
 	public void testJBufferHandler() {
 
 		pcap.dispatch(2, (JBufferHandler<String>) this, "JBuffer - testcase");
 	}
 
+	/**
+	 * Test pcap handler.
+	 */
 	public void testPcapHandler() {
 
 		pcap.dispatch(2, (ByteBufferHandler<String>) this,
 		    "Pcap handler - testcase");
 	}
 
-	/**
-	 * 
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.JBufferHandler#nextPacket(org.jnetpcap.PcapHeader, org.jnetpcap.nio.JBuffer, java.lang.Object)
 	 */
 	public void nextPacket(PcapHeader pcapHdr, JBuffer jbuf, String user) {
 

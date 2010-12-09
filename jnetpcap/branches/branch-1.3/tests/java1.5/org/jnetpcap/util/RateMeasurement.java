@@ -20,18 +20,21 @@ package org.jnetpcap.util;
 
 import java.io.IOException;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class RateMeasurement.
  */
 public class RateMeasurement
     extends
     Measurement {
 
+	/** The ts. */
 	long ts;
 
+	/** The te. */
 	long te;
 
+	/** The rate. */
 	private float rate;
 
 	/*
@@ -46,12 +49,18 @@ public class RateMeasurement
 		out.append(Float.toString(rate));
 	}
 
+	/**
+	 * Calc rate.
+	 */
 	private void calcRate() {
 		this.te = System.currentTimeMillis();
 
 		rate = ((float) counter) / (te - ts);
 	}
 	
+  /* (non-Javadoc)
+   * @see org.jnetpcap.util.Measurement#snapshot()
+   */
   public void snapshot() {
     super.snapshot();
     
