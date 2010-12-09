@@ -22,20 +22,35 @@ import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.packet.structure.AnnotatedHeaderLengthMethod;
 import org.jnetpcap.packet.structure.HeaderDefinitionError;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class AbstractBinding.
+ * 
+ * @param <H>
+ *          the generic type
  */
 public abstract class AbstractBinding<H extends JHeader> implements JBinding {
 
+	/** The target id. */
 	private final int targetId;
 
+	/** The source id. */
 	private final int sourceId;
 
+	/** The header. */
 	private final H header;
 
+	/** The length methods. */
 	private AnnotatedHeaderLengthMethod[] lengthMethods;
 
+	/**
+	 * Instantiates a new abstract binding.
+	 * 
+	 * @param sourceClass
+	 *          the source class
+	 * @param targetClass
+	 *          the target class
+	 */
 	public AbstractBinding(
 	    Class<? extends JHeader> sourceClass,
 	    Class<H> targetClass) {
@@ -98,6 +113,15 @@ public abstract class AbstractBinding<H extends JHeader> implements JBinding {
 		return isBound(packet, header);
 	}
 
+	/**
+	 * Checks if is bound.
+	 * 
+	 * @param packet
+	 *          the packet
+	 * @param header
+	 *          the header
+	 * @return true, if is bound
+	 */
 	public abstract boolean isBound(JPacket packet, H header);
 
 	/*

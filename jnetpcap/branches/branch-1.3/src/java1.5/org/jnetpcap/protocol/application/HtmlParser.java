@@ -25,24 +25,33 @@ import org.jnetpcap.protocol.application.Html.HtmlTag;
 import org.jnetpcap.protocol.application.Html.Tag;
 import org.jnetpcap.util.JThreadLocal;
 
+// TODO: Auto-generated Javadoc
 /**
- * Html header parser.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class HtmlParser.
  */
 public class HtmlParser {
 
+	/** The e. */
 	private int e = 0;
 
+	/** The s. */
 	private int s = 0;
 
+	/** The str. */
 	private String str = null;
 
+	/** The Constant listLocal. */
 	@SuppressWarnings("rawtypes")
 	private static final JThreadLocal<ArrayList> listLocal =
 	    new JThreadLocal<ArrayList>(ArrayList.class);
 
+	/**
+	 * Decode all tags.
+	 * 
+	 * @param page
+	 *          the page
+	 * @return the html tag[]
+	 */
 	@SuppressWarnings("unchecked")
 	public HtmlTag[] decodeAllTags(String page) {
 		this.e = 0;
@@ -74,6 +83,13 @@ public class HtmlParser {
 		return list.toArray(new HtmlTag[list.size()]);
 	}
 
+	/**
+	 * Decode links.
+	 * 
+	 * @param tags
+	 *          the tags
+	 * @return the html tag[]
+	 */
 	@SuppressWarnings("unchecked")
 	public HtmlTag[] decodeLinks(HtmlTag[] tags) {
 		List<HtmlTag> links = listLocal.get();
@@ -95,6 +111,17 @@ public class HtmlParser {
 		return links.toArray(new HtmlTag[links.size()]);
 	}
 
+	/**
+	 * Extract bounded.
+	 * 
+	 * @param str
+	 *          the str
+	 * @param start
+	 *          the start
+	 * @param end
+	 *          the end
+	 * @return the string
+	 */
 	private String extractBounded(String str, char start, char end) {
 		if (this.str != str) {
 			this.s = 0;
@@ -109,6 +136,17 @@ public class HtmlParser {
 		    .replace("\r\n", "");
 	}
 
+	/**
+	 * Next tag.
+	 * 
+	 * @param str
+	 *          the str
+	 * @param start
+	 *          the start
+	 * @param end
+	 *          the end
+	 * @return the html tag
+	 */
 	private HtmlTag nextTag(String str, char start, char end) {
 
 		String tagString = extractBounded(str, start, end);
@@ -135,8 +173,11 @@ public class HtmlParser {
 	}
 
 	/**
-	 * @param tagString
-	 * @return
+	 * Format.
+	 * 
+	 * @param str
+	 *          the str
+	 * @return the string
 	 */
 	public String format(String str) {
 

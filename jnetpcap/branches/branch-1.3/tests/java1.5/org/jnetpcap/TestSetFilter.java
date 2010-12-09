@@ -21,11 +21,22 @@ package org.jnetpcap;
 import java.nio.ByteBuffer;
 import java.util.Date;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class TestSetFilter.
+ */
 @SuppressWarnings("deprecation")
 public class TestSetFilter {
 
+	/** The fname. */
 	private static String fname = "tests/test-l2tp.pcap";
 	
+	/**
+	 * The main method.
+	 * 
+	 * @param args
+	 *          the arguments
+	 */
 	public static void main(String[] args) {
 
 

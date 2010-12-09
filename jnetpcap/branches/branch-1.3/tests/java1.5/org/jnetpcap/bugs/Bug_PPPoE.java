@@ -31,14 +31,15 @@ import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.protocol.lan.Ethernet;
 import org.jnetpcap.protocol.network.Ip4;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class Bug_PPPoE.
  */
 public class Bug_PPPoE
     extends
     TestUtils {
 
+	/** The Constant FILE. */
 	public final static String FILE =
 	    "C:\\Documents and Settings\\markbe.DESKTOP-HP.000\\My Documents\\Sly Techs\\Support\\Puneetkhanal\\tcppackets.pcap";
 
@@ -60,11 +61,23 @@ public class Bug_PPPoE
 		super.tearDown();
 	}
 
+	/**
+	 * The Class MyPPPoE.
+	 */
 	@Header(length = 8)
 	public static class MyPPPoE
 	    extends
 	    JHeader {
 
+		/**
+		 * Bind to ethernet.
+		 * 
+		 * @param packet
+		 *          the packet
+		 * @param eth
+		 *          the eth
+		 * @return true, if successful
+		 */
 		@Bind(to = Ethernet.class)
 		public static boolean bindToEthernet(JPacket packet, Ethernet eth) {
 			return eth.type() == 0x8864;
@@ -77,37 +90,73 @@ public class Bug_PPPoE
 //			return p.nextId() == 0x21;
 //		}
 
-		@Field(offset = 0, length = 4)
+		/**
+ * Version.
+ * 
+ * @return the int
+ */
+@Field(offset = 0, length = 4)
 		public int version() {
 			return getUByte(0) & 0x0F;
 		}
 
+		/**
+		 * Type.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 4, length = 4)
 		public int type() {
 			return (getUByte(0) & 0xF0) >> 4;
 		}
 
+		/**
+		 * Code.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 1 * BYTE, length = 1 * BYTE)
 		public int code() {
 			return getUByte(1);
 		}
 
+		/**
+		 * Session id.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 2 * BYTE, length = 2 * BYTE)
 		public int sessionId() {
 			return getUShort(2);
 		}
 
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 4 * BYTE, length = 2 * BYTE)
 		public int length() {
 			return getUShort(4);
 		}
 
+		/**
+		 * Next id.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 6 * BYTE, length = 2 * BYTE, format="%x")
 		public int nextId() {
 			return getUShort(6);
 		}
 	};
 
+	/**
+	 * Test1 pp po e.
+	 * 
+	 * @throws RegistryHeaderErrors
+	 *           the registry header errors
+	 */
 	public void test1PPPoE() throws RegistryHeaderErrors {
 
 		final int myId = JRegistry.register(MyPPPoE.class);

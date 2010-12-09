@@ -20,40 +20,39 @@ package org.jnetpcap.util;
 
 import java.io.IOException;
 
+// TODO: Auto-generated Javadoc
 /**
- * A utility class that facilitates taking measurements and reports.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class Measurement.
  */
 public abstract class Measurement {
 
+	/** The counter. */
 	protected long counter;
+	
+	/** The total. */
 	protected long total;
 
 	/**
-	 * Setup measurement using its defaults
+	 * Instantiates a new measurement.
 	 */
 	public Measurement() {
 		reset();
 	}
 
 	/**
-	 * Measurement takes a snapshot which it then uses as a baseline (zeroed out
-	 * starting point) for whatever measurement it is taking. So for example
+	 * Snapshot baseline.
 	 */
 	public void snapshotBaseline() {
 		// Empty
 	}
 
 	/**
-	 * Initializes the test to its defaults
+	 * Reset.
 	 */
 	public abstract void reset();
 
 	/**
-	 * Takes a measurment snapshot and updates its counters. This is where
-	 * measurement calculations stem from such as packet rates or bit rates.
+	 * Snapshot.
 	 */
   public void snapshot() {
     
@@ -62,27 +61,29 @@ public abstract class Measurement {
   }
 
 	/**
-	 * Generates a report and sends out to output.
+	 * Report.
 	 * 
 	 * @param out
-	 *          destination where to send the report
+	 *          the out
 	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
 	 */
 	public abstract void report(Appendable out) throws IOException;
 
 	/**
-	 * Generates a report and sends it out to standard output
+	 * Report.
 	 * 
 	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
 	 */
 	public void report() throws IOException {
 		report(System.out);
 	}
 
 	/**
-	 * Generates a report and returns it as a string.
+	 * Result.
 	 * 
-	 * @return terse report generated from the measurements
+	 * @return the string
 	 */
 	public String result() {
 		final StringBuilder b = new StringBuilder(10 * 1024);

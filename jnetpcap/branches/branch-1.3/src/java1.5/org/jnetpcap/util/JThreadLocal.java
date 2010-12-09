@@ -20,24 +20,33 @@ package org.jnetpcap.util;
 
 import java.lang.reflect.Constructor;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
- *
+ * The Class JThreadLocal.
+ * 
+ * @param <T>
+ *          the generic type
  */
 public class JThreadLocal<T>
     extends ThreadLocal<T> {
 
+	/** The constructor. */
 	private final Constructor<T> constructor;
 
 	/**
-	 * 
+	 * Instantiates a new j thread local.
 	 */
 	public JThreadLocal() {
 		super();
 		constructor = null;
 	}
 	
+	/**
+	 * Instantiates a new j thread local.
+	 * 
+	 * @param c
+	 *          the c
+	 */
 	public JThreadLocal(Class<T> c) {
 		try {
 	    constructor = c.getConstructor();
@@ -46,6 +55,9 @@ public class JThreadLocal<T>
     } 
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.ThreadLocal#initialValue()
+	 */
 	@Override
   protected T initialValue() {
 		if (constructor == null) {

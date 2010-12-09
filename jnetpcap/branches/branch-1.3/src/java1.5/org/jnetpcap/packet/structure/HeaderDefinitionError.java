@@ -18,22 +18,24 @@
  */
 package org.jnetpcap.packet.structure;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class HeaderDefinitionError.
  */
 public class HeaderDefinitionError
     extends RuntimeException {
 
-	/**
-	 * 
-	 */
+	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = -1034165417637411714L;
 
+	/** The c. */
 	private final Class<?> c;
 
 	/**
+	 * Instantiates a new header definition error.
 	 * 
+	 * @param c
+	 *          the c
 	 */
 	public HeaderDefinitionError(Class<?> c) {
 		super();
@@ -41,7 +43,10 @@ public class HeaderDefinitionError
 	}
 
 	/**
+	 * Instantiates a new header definition error.
+	 * 
 	 * @param message
+	 *          the message
 	 */
 	public HeaderDefinitionError(String message) {
 		super(message);
@@ -49,7 +54,12 @@ public class HeaderDefinitionError
 	}
 
 	/**
+	 * Instantiates a new header definition error.
+	 * 
+	 * @param c
+	 *          the c
 	 * @param message
+	 *          the message
 	 */
 	public HeaderDefinitionError(Class<?> c, String message) {
 		super(message);
@@ -57,7 +67,10 @@ public class HeaderDefinitionError
 	}
 
 	/**
+	 * Instantiates a new header definition error.
+	 * 
 	 * @param cause
+	 *          the cause
 	 */
 	public HeaderDefinitionError(Throwable cause) {
 		super(cause);
@@ -66,7 +79,12 @@ public class HeaderDefinitionError
 	}
 
 	/**
+	 * Instantiates a new header definition error.
+	 * 
+	 * @param c
+	 *          the c
 	 * @param cause
+	 *          the cause
 	 */
 	public HeaderDefinitionError(Class<?> c, Throwable cause) {
 		super(cause);
@@ -75,8 +93,12 @@ public class HeaderDefinitionError
 	}
 
 	/**
+	 * Instantiates a new header definition error.
+	 * 
 	 * @param message
+	 *          the message
 	 * @param cause
+	 *          the cause
 	 */
 	public HeaderDefinitionError(String message, Throwable cause) {
 		super(message, cause);
@@ -85,18 +107,32 @@ public class HeaderDefinitionError
 	}
 
 	/**
+	 * Instantiates a new header definition error.
+	 * 
+	 * @param c
+	 *          the c
 	 * @param message
+	 *          the message
 	 * @param cause
+	 *          the cause
 	 */
 	public HeaderDefinitionError(Class<?> c, String message, Throwable cause) {
 		super(message, cause);
 		this.c = c;
 	}
 
+	/**
+	 * Gets the header.
+	 * 
+	 * @return the header
+	 */
 	public Class<?> getHeader() {
 		return c;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Throwable#getMessage()
+	 */
 	@Override
 	public String getMessage() {
 		if (c != null) {
@@ -107,6 +143,11 @@ public class HeaderDefinitionError
 		}
 	}
 	
+	/**
+	 * Gets the path.
+	 * 
+	 * @return the path
+	 */
 	protected String getPath() {
 		String ci = "";
 		for (Class<?> p = c; p != null; p = p.getEnclosingClass()) {

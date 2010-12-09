@@ -24,11 +24,9 @@ import java.nio.ByteOrder;
 
 import org.jnetpcap.packet.PeeringException;
 
+// TODO: Auto-generated Javadoc
 /**
- * A direct buffer stored in native memory
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class JBuffer.
  */
 public class JBuffer extends JMemory {
 
@@ -40,52 +38,68 @@ public class JBuffer extends JMemory {
 	}
 
 	/**
-	 * JNI Ids
+	 * Inits the ids.
 	 */
 	private native static void initIds();
 
-	/**
-	 * True means BIG endian, false means LITTLE endian byte order
-	 */
+	/** The order. */
 	private volatile boolean order =
 			(ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN);
 
-	/**
-	 * True means buffer is readonly, false means read/write buffer type
-	 */
+	/** The readonly. */
 	private boolean readonly = false;
 
 	/**
-	 * Creates a
+	 * Instantiates a new j buffer.
 	 * 
 	 * @param type
-	 *          memory model
+	 *          the type
 	 */
 	public JBuffer(Type type) {
 		super(type);
 	}
 
 	/**
+	 * Instantiates a new j buffer.
+	 * 
 	 * @param peer
+	 *          the peer
 	 */
 	public JBuffer(final ByteBuffer peer) {
 		super(peer);
 	}
 
 	/**
+	 * Instantiates a new j buffer.
+	 * 
 	 * @param size
+	 *          the size
 	 */
 	public JBuffer(final int size) {
 		super(size);
 	}
 
 	/**
+	 * Instantiates a new j buffer.
+	 * 
 	 * @param peer
+	 *          the peer
 	 */
 	public JBuffer(final JMemory peer) {
 		super(peer);
 	}
 
+	/**
+	 * Check.
+	 * 
+	 * @param index
+	 *          the index
+	 * @param len
+	 *          the len
+	 * @param address
+	 *          the address
+	 * @return the int
+	 */
 	private final int check(int index, int len, long address) {
 		if (address == 0L) {
 			throw new NullPointerException();
@@ -99,7 +113,10 @@ public class JBuffer extends JMemory {
 	}
 
 	/**
+	 * Instantiates a new j buffer.
+	 * 
 	 * @param data
+	 *          the data
 	 */
 	public JBuffer(byte[] data) {
 		super(data.length);
@@ -107,59 +124,65 @@ public class JBuffer extends JMemory {
 	}
 
 	/**
-	 * Gets a signed 8-bit value.
+	 * Gets the byte.
 	 * 
 	 * @param index
-	 *          offset into the buffer
-	 * @return value from the buffer
+	 *          the index
+	 * @return the byte
 	 */
 	public byte getByte(int index) {
 		return getByte0(physical, check(index, 1, physical));
 	}
 
+	/**
+	 * Gets the byte0.
+	 * 
+	 * @param address
+	 *          the address
+	 * @param index
+	 *          the index
+	 * @return the byte0
+	 */
 	private native static byte getByte0(long address, int index);
 
 	/**
-	 * Gets byte data from buffer and stores it in supplied array buffer
+	 * Gets the byte array.
 	 * 
 	 * @param index
-	 *          offset into the buffer
+	 *          the index
 	 * @param array
-	 *          byte array used to store the result where the length of the byte
-	 *          array determines the number of bytes to be copied from the buffer
-	 * @return same array object passed in
+	 *          the array
+	 * @return the byte array
 	 */
 	public byte[] getByteArray(int index, byte[] array) {
 		return getByteArray(index, array, 0, array.length);
 	}
 
 	/**
-	 * Gets the byte data from buffer and stores into newly allocated byte array
+	 * Gets the byte array.
 	 * 
 	 * @param index
-	 *          offset into the buffer
+	 *          the index
 	 * @param size
-	 *          number of bytes to copy and the size of the newly allocated byte
-	 *          array
-	 * @return reference to new byte array containing the copied data
+	 *          the size
+	 * @return the byte array
 	 */
 	public byte[] getByteArray(int index, int size) {
 		return getByteArray(index, new byte[size], 0, size);
 	}
 
 	/**
-	 * Reads data from JBuffer into user supplied array.
+	 * Gets the byte array.
 	 * 
 	 * @param index
-	 *          starting position in the JBuffer
+	 *          the index
 	 * @param array
-	 *          destination array
+	 *          the array
 	 * @param offset
-	 *          starting position in the destination array
+	 *          the offset
 	 * @param length
-	 *          maximum number of bytes to copy
-	 * @return the actual number of bytes copied which could be less then
-	 *         requested due to size of the JBuffer
+	 *          the length
+	 * @return the byte array
 	 */
 	public byte[] getByteArray(int index, byte[] array, int offset, int length) {
 
@@ -179,6 +202,23 @@ public class JBuffer extends JMemory {
 				length);
 	}
 
+	/**
+	 * Gets the byte array0.
+	 * 
+	 * @param address
+	 *          the address
+	 * @param index
+	 *          the index
+	 * @param array
+	 *          the array
+	 * @param arrayLength
+	 *          the array length
+	 * @param offset
+	 *          the offset
+	 * @param length
+	 *          the length
+	 * @return the byte array0
+	 */
 	private static native byte[] getByteArray0(long address,
 			int index,
 			byte[] array,
@@ -187,123 +227,203 @@ public class JBuffer extends JMemory {
 			int length);
 
 	/**
-	 * Gets the java double value out of the buffer
+	 * Gets the double.
 	 * 
 	 * @param index
-	 *          offset into the buffer
-	 * @return value read from the buffer
+	 *          the index
+	 * @return the double
 	 */
 	public double getDouble(int index) {
 		return getDouble0(physical, order, check(index, 8, physical));
 	}
 
+	/**
+	 * Gets the double0.
+	 * 
+	 * @param address
+	 *          the address
+	 * @param order
+	 *          the order
+	 * @param index
+	 *          the index
+	 * @return the double0
+	 */
 	private static native double getDouble0(long address, boolean order, int index);
 
 	/**
-	 * Gets the java float value out of the buffer
+	 * Gets the float.
 	 * 
 	 * @param index
-	 *          offset into the buffer
-	 * @return value read from the buffer
+	 *          the index
+	 * @return the float
 	 */
 	public float getFloat(int index) {
 		return getFloat0(physical, order, check(index, 4, physical));
 	}
 
+	/**
+	 * Gets the float0.
+	 * 
+	 * @param address
+	 *          the address
+	 * @param order
+	 *          the order
+	 * @param index
+	 *          the index
+	 * @return the float0
+	 */
 	private static native float getFloat0(long address, boolean order, int index);
 
 	/**
-	 * Gets the java signed integer value from the buffer
+	 * Gets the int.
 	 * 
 	 * @param index
-	 *          offset into the buffer
-	 * @return value read from the buffer
+	 *          the index
+	 * @return the int
 	 */
 	public int getInt(int index) {
 		return getInt0(physical, order, check(index, 4, physical));
 	}
 
+	/**
+	 * Gets the int0.
+	 * 
+	 * @param address
+	 *          the address
+	 * @param order
+	 *          the order
+	 * @param index
+	 *          the index
+	 * @return the int0
+	 */
 	private static native int getInt0(long address, boolean order, int index);
 
 	/**
-	 * Gets the java signed long value from the buffer
+	 * Gets the long.
 	 * 
 	 * @param index
-	 *          offset into the buffer
-	 * @return value read from the buffer
+	 *          the index
+	 * @return the long
 	 */
 	public long getLong(int index) {
 		return getLong0(physical, order, check(index, 8, physical));
 	}
 
+	/**
+	 * Gets the long0.
+	 * 
+	 * @param address
+	 *          the address
+	 * @param order
+	 *          the order
+	 * @param index
+	 *          the index
+	 * @return the long0
+	 */
 	private static native long getLong0(long address, boolean order, int index);
 
 	/**
-	 * Gets the java signed short value from the buffer
+	 * Gets the short.
 	 * 
 	 * @param index
-	 *          offset into the buffer
-	 * @return value read from the buffer
+	 *          the index
+	 * @return the short
 	 */
 	public short getShort(int index) {
 		return getShort0(physical, order, check(index, 2, physical));
 	}
 
+	/**
+	 * Gets the short0.
+	 * 
+	 * @param address
+	 *          the address
+	 * @param order
+	 *          the order
+	 * @param index
+	 *          the index
+	 * @return the short0
+	 */
 	private static native short getShort0(long address, boolean order, int index);
 
 	/**
-	 * Gets the java usigned byte value
+	 * Gets the u byte.
 	 * 
 	 * @param index
-	 *          offset into the buffer
-	 * @return value read from the buffer as next bigger java primitive type so
-	 *         that the sign of the value can be preserved since java does not
-	 *         allow unsigned primitives
+	 *          the index
+	 * @return the u byte
 	 */
 	public int getUByte(int index) {
 		return getUByte0(physical, check(index, 1, physical));
 	}
 
+	/**
+	 * Gets the u byte0.
+	 * 
+	 * @param address
+	 *          the address
+	 * @param index
+	 *          the index
+	 * @return the u byte0
+	 */
 	private static native int getUByte0(long address, int index);
 
 	/**
-	 * Gets the java usigned int value
+	 * Gets the u int.
 	 * 
 	 * @param index
-	 *          offset into the buffer
-	 * @return value read from the buffer as next bigger java primitive type so
-	 *         that the sign of the value can be preserved since java does not
-	 *         allow unsigned primitives
+	 *          the index
+	 * @return the u int
 	 */
 	public long getUInt(int index) {
 		return getUInt0(physical, order, check(index, 4, physical));
 	}
 
+	/**
+	 * Gets the u int0.
+	 * 
+	 * @param address
+	 *          the address
+	 * @param order
+	 *          the order
+	 * @param index
+	 *          the index
+	 * @return the u int0
+	 */
 	private static native long getUInt0(long address, boolean order, int index);
 
 	/**
-	 * Gets the java usigned short value
+	 * Gets the u short.
 	 * 
 	 * @param index
-	 *          offset into the buffer
-	 * @return value read from the buffer as next bigger java primitive type so
-	 *         that the sign of the value can be preserved since java does not
-	 *         allow unsigned primitives
+	 *          the index
+	 * @return the u short
 	 */
 	public int getUShort(int index) {
 		return getUShort0(physical, order, check(index, 2, physical));
 	}
 
+	/**
+	 * Gets the u short0.
+	 * 
+	 * @param address
+	 *          the address
+	 * @param order
+	 *          the order
+	 * @param index
+	 *          the index
+	 * @return the u short0
+	 */
 	private static native int getUShort0(long address, boolean order, int index);
 
 	/**
-	 * Find the delimiter array of chars within the buffer.
+	 * Find ut f8 string.
 	 * 
 	 * @param index
-	 *          starting offset into the buffer
+	 *          the index
 	 * @param delimeter
-	 *          array of chars to search for
-	 * @return number of delimeter chars matched
+	 *          the delimeter
+	 * @return the int
 	 */
 	public int findUTF8String(int index, char... delimeter) {
 
@@ -336,16 +456,15 @@ public class JBuffer extends JMemory {
 	}
 
 	/**
-	 * Retrieves all the characters from the buffer upto the delimiter char
-	 * sequence.
+	 * Gets the uT f8 string.
 	 * 
 	 * @param index
-	 *          offset into the buffer
+	 *          the index
 	 * @param buf
-	 *          string buffer where to store the string retrieved from the buffer
+	 *          the buf
 	 * @param delimeter
-	 *          array of chars which will mark the end of the string
-	 * @return the string buffer containing the retrieved string
+	 *          the delimeter
+	 * @return the uT f8 string
 	 */
 	public StringBuilder getUTF8String(int index,
 			StringBuilder buf,
@@ -378,14 +497,13 @@ public class JBuffer extends JMemory {
 	}
 
 	/**
-	 * Retrieves all the characters from the buffer upto the delimiter char
-	 * sequence.
+	 * Gets the uT f8 string.
 	 * 
 	 * @param index
-	 *          offset into the buffer
+	 *          the index
 	 * @param delimeter
-	 *          array of chars which will mark the end of the string
-	 * @return the string retrieved from the buffer
+	 *          the delimeter
+	 * @return the uT f8 string
 	 */
 	public String getUTF8String(int index, char... delimeter) {
 		final StringBuilder buf =
@@ -395,16 +513,15 @@ public class JBuffer extends JMemory {
 	}
 
 	/**
-	 * Converts raw bytes to a java string. The length is the maximum length of
-	 * the string to return.
+	 * Gets the uT f8 string.
 	 * 
 	 * @param index
-	 *          byte index into the buffer to start
+	 *          the index
 	 * @param buf
-	 *          string buffer where the retrieved string is stored
+	 *          the buf
 	 * @param length
-	 *          number of bytes to convert
-	 * @return buffer containing the retrieved string
+	 *          the length
+	 * @return the uT f8 string
 	 */
 	public StringBuilder getUTF8String(int index, StringBuilder buf, int length) {
 		final int len = index + ((size() < length) ? size() : length);
@@ -418,66 +535,59 @@ public class JBuffer extends JMemory {
 	}
 
 	/**
-	 * Gets the specified number of characters as a string.
+	 * Gets the uT f8 string.
 	 * 
 	 * @param index
-	 *          offset into the buffer
+	 *          the index
 	 * @param length
-	 *          number of UTF8 characters to retrieve
-	 * @return retrived string
+	 *          the length
+	 * @return the uT f8 string
 	 */
 	public String getUTF8String(int index, int length) {
 		return getUTF8String(index, new StringBuilder(), length).toString();
 	}
 
 	/**
-	 * Converts a single byte to a java char.
+	 * Gets the uT f8 char.
 	 * 
 	 * @param index
-	 *          index into the buffer
-	 * @return converted UTF8 char
+	 *          the index
+	 * @return the uT f8 char
 	 */
 	public char getUTF8Char(int index) {
 		return (char) getUByte(index);
 	}
 
 	/**
-	 * Checks if this buffer is readonly. Read only buffers do not allow any
-	 * mutable operations to be performed on the buffer.
+	 * Checks if is the readonly.
 	 * 
-	 * @return true if this buffer is read-only, otherwise false
+	 * @return the readonly
 	 */
 	public boolean isReadonly() {
 		return readonly;
 	}
 
 	/**
-	 * Gets the byte-order of this buffer. The buffer allows big and little endian
-	 * byte ordering of the integer values accessed by this buffer.
+	 * Order.
 	 * 
-	 * @return byte order of this buffer
+	 * @return the byte order
 	 */
 	public ByteOrder order() {
 		return (order) ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
 	}
 
 	/**
-	 * Sets the byte ordering of integers for this buffer
+	 * Order.
 	 * 
 	 * @param order
-	 *          the new byte order for this integer
+	 *          the order
 	 */
 	public void order(final ByteOrder order) {
 		this.order = (order == ByteOrder.BIG_ENDIAN);
 	}
 
-	/**
-	 * Peers this buffer with a new buffer. The peer buffer's properties position
-	 * and limit are used as starting and ending offsets for the peer operation.
-	 * 
-	 * @param peer
-	 *          the buffer to peer with
-	 * @return number of byte peered
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.nio.JMemory#peer(java.nio.ByteBuffer)
 	 */
 	@Override
 	public int peer(final ByteBuffer peer) throws PeeringException {
@@ -486,12 +596,11 @@ public class JBuffer extends JMemory {
 	}
 
 	/**
-	 * Peers this buffer with the new buffer. The entire range of the buffer are
-	 * peered.
+	 * Peer.
 	 * 
 	 * @param peer
-	 *          the buffer to peer with
-	 * @return number of bytes peered
+	 *          the peer
+	 * @return the int
 	 */
 	public int peer(final JBuffer peer) {
 		setReadonly(peer.isReadonly());
@@ -499,17 +608,17 @@ public class JBuffer extends JMemory {
 	}
 
 	/**
-	 * Peers this buffer with a new buffer.
+	 * Peer.
 	 * 
 	 * @param peer
-	 *          buffer to peer with
+	 *          the peer
 	 * @param offset
-	 *          offset into the new peer buffer
+	 *          the offset
 	 * @param length
-	 *          number of bytes to peer
-	 * @return number of bytes peered
+	 *          the length
+	 * @return the int
 	 * @throws IndexOutOfBoundsException
-	 *           if offset and/or length are out of bounds
+	 *           the index out of bounds exception
 	 */
 	public int peer(final JBuffer peer, final int offset, final int length)
 			throws IndexOutOfBoundsException {
@@ -518,28 +627,36 @@ public class JBuffer extends JMemory {
 	}
 
 	/**
-	 * Sets a value in the buffer
+	 * Sets the byte.
 	 * 
 	 * @param index
-	 *          offset into the buffer
+	 *          the index
 	 * @param value
-	 *          new value to be stored in the buffer
+	 *          the value
 	 */
 	public void setByte(int index, byte value) {
 		setByte0(physical, check(index, 1, physical), value);
 	}
 
+	/**
+	 * Sets the byte0.
+	 * 
+	 * @param address
+	 *          the address
+	 * @param index
+	 *          the index
+	 * @param value
+	 *          the value
+	 */
 	private static native void setByte0(long address, int index, byte value);
 
 	/**
-	 * Sets a value in the buffer.
+	 * Sets the byte array.
 	 * 
 	 * @param index
-	 *          offset into the buffer
+	 *          the index
 	 * @param array
-	 *          Array containing data to be set within the buffer. The length of
-	 *          the buffer determines the number of bytes to be copied into the
-	 *          buffer.
+	 *          the array
 	 */
 	public void setByteArray(int index, byte[] array) {
 		setByteArray0(physical,
@@ -548,166 +665,260 @@ public class JBuffer extends JMemory {
 				array.length);
 	}
 
+	/**
+	 * Sets the byte array0.
+	 * 
+	 * @param address
+	 *          the address
+	 * @param index
+	 *          the index
+	 * @param array
+	 *          the array
+	 * @param arrayLength
+	 *          the array length
+	 */
 	private static native void setByteArray0(long address,
 			int index,
 			byte[] array,
 			int arrayLength);
 
 	/**
-	 * Sets a value in the buffer.
+	 * Sets the double.
 	 * 
 	 * @param index
-	 *          offset into the buffer
+	 *          the index
 	 * @param value
-	 *          new double value to be stored within the buffer
+	 *          the value
 	 */
 	public void setDouble(int index, double value) {
 		setDouble0(physical, order, check(index, 8, physical), value);
 	}
 
+	/**
+	 * Sets the double0.
+	 * 
+	 * @param address
+	 *          the address
+	 * @param order
+	 *          the order
+	 * @param index
+	 *          the index
+	 * @param value
+	 *          the value
+	 */
 	private static native void setDouble0(long address,
 			boolean order,
 			int index,
 			double value);
 
 	/**
-	 * Sets a value in the buffer.
+	 * Sets the float.
 	 * 
 	 * @param index
-	 *          offset into the buffer
+	 *          the index
 	 * @param value
-	 *          new float value to be stored within the buffer
+	 *          the value
 	 */
 	public void setFloat(int index, float value) {
 		setFloat0(physical, order, check(index, 4, physical), value);
 	}
 
+	/**
+	 * Sets the float0.
+	 * 
+	 * @param address
+	 *          the address
+	 * @param order
+	 *          the order
+	 * @param index
+	 *          the index
+	 * @param value
+	 *          the value
+	 */
 	private static native void setFloat0(long address,
 			boolean order,
 			int index,
 			float value);
 
 	/**
-	 * Sets a value in the buffer.
+	 * Sets the int.
 	 * 
 	 * @param index
-	 *          offset into the buffer
+	 *          the index
 	 * @param value
-	 *          new int value to be stored within the buffer
+	 *          the value
 	 */
 	public void setInt(int index, int value) {
 		setInt0(physical, order, check(index, 4, physical), value);
 	}
 
+	/**
+	 * Sets the int0.
+	 * 
+	 * @param address
+	 *          the address
+	 * @param order
+	 *          the order
+	 * @param index
+	 *          the index
+	 * @param value
+	 *          the value
+	 */
 	private static native void setInt0(long address,
 			boolean order,
 			int index,
 			int value);
 
 	/**
-	 * Sets a value in the buffer.
+	 * Sets the long.
 	 * 
 	 * @param index
-	 *          offset into the buffer
+	 *          the index
 	 * @param value
-	 *          new long value to be stored within the buffer
+	 *          the value
 	 */
 	public void setLong(int index, long value) {
 		setLong0(physical, order, check(index, 8, physical), value);
 	}
 
+	/**
+	 * Sets the long0.
+	 * 
+	 * @param address
+	 *          the address
+	 * @param order
+	 *          the order
+	 * @param index
+	 *          the index
+	 * @param value
+	 *          the value
+	 */
 	private static native void setLong0(long address,
 			boolean order,
 			int index,
 			long value);
 
 	/**
-	 * Sets a value in the buffer.
+	 * Sets the short.
 	 * 
 	 * @param index
-	 *          offset into the buffer
+	 *          the index
 	 * @param value
-	 *          new short value to be stored within the buffer
+	 *          the value
 	 */
 	public void setShort(int index, short value) {
 		setShort0(physical, order, check(index, 2, physical), value);
 	}
 
+	/**
+	 * Sets the short0.
+	 * 
+	 * @param address
+	 *          the address
+	 * @param order
+	 *          the order
+	 * @param index
+	 *          the index
+	 * @param value
+	 *          the value
+	 */
 	public static native void setShort0(long address,
 			boolean order,
 			int index,
 			short value);
 
 	/**
-	 * Sets a value in the buffer.
+	 * Sets the u byte.
 	 * 
 	 * @param index
-	 *          offset into the buffer
+	 *          the index
 	 * @param value
-	 *          new usigned byte value to be stored within the buffer
+	 *          the value
 	 */
 	public void setUByte(int index, int value) {
 		setUByte0(physical, check(index, 1, physical), value);
 	}
 
+	/**
+	 * Sets the u byte0.
+	 * 
+	 * @param address
+	 *          the address
+	 * @param index
+	 *          the index
+	 * @param value
+	 *          the value
+	 */
 	private static native void setUByte0(long address, int index, int value);
 
 	/**
-	 * Sets a value in the buffer.
+	 * Sets the u int.
 	 * 
 	 * @param index
-	 *          offset into the buffer
+	 *          the index
 	 * @param value
-	 *          new usigned int value to be stored within the buffer
+	 *          the value
 	 */
 	public void setUInt(int index, long value) {
 		setUInt0(physical, order, check(index, 4, physical), value);
 	}
 
+	/**
+	 * Sets the u int0.
+	 * 
+	 * @param address
+	 *          the address
+	 * @param order
+	 *          the order
+	 * @param index
+	 *          the index
+	 * @param value
+	 *          the value
+	 */
 	private static native void setUInt0(long address,
 			boolean order,
 			int index,
 			long value);
 
 	/**
-	 * Sets a value in the buffer.
+	 * Sets the u short.
 	 * 
 	 * @param index
-	 *          offset into the buffer
+	 *          the index
 	 * @param value
-	 *          new unsigned short value to be stored within the buffer
+	 *          the value
 	 */
 	public void setUShort(int index, int value) {
 		setUShort0(physical, order, check(index, 2, physical), value);
 	}
 
+	/**
+	 * Sets the u short0.
+	 * 
+	 * @param address
+	 *          the address
+	 * @param order
+	 *          the order
+	 * @param index
+	 *          the index
+	 * @param value
+	 *          the value
+	 */
 	private static native void setUShort0(long address,
 			boolean order,
 			int index,
 			int value);
 
-	/**
-	 * Copies contents of the supplied buffer into this buffer
-	 * 
-	 * @param buffer
-	 *          Source buffer to copy from. The array length determines the number
-	 *          of bytes to copy.
-	 * @return number of bytes copied
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.nio.JMemory#transferFrom(byte[])
 	 */
 	@Override
 	public int transferFrom(byte[] buffer) {
 		return super.transferFrom(buffer);
 	}
 
-	/**
-	 * Copies contents of the supplied buffer into this buffer
-	 * 
-	 * @param src
-	 *          Source buffer to copy from. The position and limit properties of
-	 *          the buffer determine the bounds of the copy.
-	 * @param dstOffset
-	 *          offset into this buffer where to start the copy
-	 * @return number of bytes copied
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.nio.JMemory#transferFrom(java.nio.ByteBuffer, int)
 	 */
 	@Override
 	public int transferFrom(final ByteBuffer src, final int dstOffset) {
@@ -715,27 +926,18 @@ public class JBuffer extends JMemory {
 	}
 
 	/**
-	 * Copies contents of the supplied buffer into this buffer
+	 * Transfer from.
 	 * 
 	 * @param buffer
-	 *          Source buffer. The length of the source buffer determines the
-	 *          number of bytes to be copied.
-	 * @return number of bytes copied
+	 *          the buffer
+	 * @return the int
 	 */
 	public int transferFrom(JBuffer buffer) {
 		return buffer.transferTo(this);
 	}
 
-	/**
-	 * Copies contents of this buffer into supplied buffer.
-	 * 
-	 * @param dst
-	 *          destination buffer where to copy data to
-	 * @param srcOffset
-	 *          offset into this buffer where to start the copy
-	 * @param length
-	 *          number of bytes to copy
-	 * @return number of bytes copied
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.nio.JMemory#transferTo(java.nio.ByteBuffer, int, int)
 	 */
 	@Override
 	public int transferTo(final ByteBuffer dst,
@@ -745,29 +947,18 @@ public class JBuffer extends JMemory {
 	}
 
 	/**
-	 * Copies the contents of this buffer into the supplied buffer
+	 * Transfer to.
 	 * 
 	 * @param dst
-	 *          Destination buffer where to copy to. The number of bytes copied is
-	 *          determined by the size of source buffer.
-	 * @return number of bytes copied
+	 *          the dst
+	 * @return the int
 	 */
 	public int transferTo(final JBuffer dst) {
 		return super.transferTo(dst);
 	}
 
-	/**
-	 * Copies the contents of thsi buffer into the supplied buffer
-	 * 
-	 * @param dst
-	 *          destination buffer where to copy to
-	 * @param srcOffset
-	 *          offset into the source buffer where to start copy from
-	 * @param length
-	 *          number of bytes to copy
-	 * @param dstOffset
-	 *          offset into the destination buffer where to start copy to
-	 * @return number of bytes copied
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.nio.JMemory#transferTo(org.jnetpcap.nio.JBuffer, int, int, int)
 	 */
 	@Override
 	public int transferTo(final JBuffer dst,
@@ -778,35 +969,27 @@ public class JBuffer extends JMemory {
 	}
 
 	/**
-	 * Sets this buffer as either read-only or read-write. Read-only mode disables
-	 * all mutable operations on this buffer.
+	 * Sets the readonly.
 	 * 
 	 * @param readonly
-	 *          buffer accessor mode
+	 *          the new readonly
 	 */
 	private final void setReadonly(boolean readonly) {
 		this.readonly = readonly;
 	}
 
 	/**
-	 * Sets data within this buffer
+	 * Sets the byte buffer.
 	 * 
 	 * @param index
-	 *          offset into this buffer
+	 *          the index
 	 * @param data
-	 *          data to copy into this buffer. The position and limit of the data
-	 *          buffer set the bounds of the copy
+	 *          the data
 	 */
 	public native void setByteBuffer(int index, ByteBuffer data);
 
-	/**
-	 * Peers this object with the supplied object. This object will be pointing at
-	 * the same memory as the supplied object.
-	 * 
-	 * @param src
-	 *          source object that holds the memory location and size this object
-	 *          will point to
-	 * @return size of the src and this object
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.nio.JMemory#peer(org.jnetpcap.nio.JMemory)
 	 */
 	@Override
 	public int peer(JMemory src) {

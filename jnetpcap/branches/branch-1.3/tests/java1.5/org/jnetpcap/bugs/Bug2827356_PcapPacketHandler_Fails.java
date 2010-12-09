@@ -28,28 +28,18 @@ import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.PcapPacketHandler;
 import org.jnetpcap.packet.TestUtils;
 
+// TODO: Auto-generated Javadoc
 /**
- * Once in a while an exception will be thrown by the scanner. Seems like
- * invalid header is matched and causes the scanner to reach out of bounds.
- * <p>
- * Discussion thread: http://jnetpcap.com/node/352
- * </p>
- * The issue is in native method <code>validate_http</code> where status
- * values are incorrectly returned. Protocol ID vs. INVALID are not returned
- * properly when http header is matched.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class Bug2827356_PcapPacketHandler_Fails.
  */
 public class Bug2827356_PcapPacketHandler_Fails
     extends
     TestUtils {
 
-	/**
-	 * Test file containing 5 ICMP packets that fail decoding under this bug.
-	 */
+	/** The Constant SMALL_ICMP_FILE. */
 	public final static String SMALL_ICMP_FILE = "tests/test-small-imap.pcap";
 
+	/** The pcap. */
 	private Pcap pcap;
 
 	/*
@@ -74,11 +64,8 @@ public class Bug2827356_PcapPacketHandler_Fails
 	}
 
 	/**
-   * Read special capture file with 5 ICMP packets that agravates this issue.
-   * This method uses JBufferHandler, which does not fail on assertNotNull().
-   * This method validates the libpcap wrapper part, since decoder/scanner is
-   * not involved.
-   */
+	 * Test validate http j buffer packet handler.
+	 */
   public void testValidateHttpJBufferPacketHandler() {
   
   	pcap.loop(Pcap.LOOP_INFINATE, new JBufferHandler<Pcap>() {
@@ -91,9 +78,7 @@ public class Bug2827356_PcapPacketHandler_Fails
   }
 
 	/**
-	 * Read special capture file with 5 ICMP packets that agravates this issue.
-	 * This method uses PcapPacketHandler, which fails assertNotNull(). This
-	 * method checks the full-blown packet decoding capability.
+	 * Test validate http pcap packet handler.
 	 */
 	public void testValidateHttpPcapPacketHandler() {
 
@@ -109,12 +94,7 @@ public class Bug2827356_PcapPacketHandler_Fails
 	}
 
 	/**
-	 * Read special capture file with 5 ICMP packets that agravates this issue.
-	 * This method uses JBufferHandler, which does not fail on assertNotNull().
-	 * This method uses the low level handler (no decoding) and performs manual
-	 * decoding of the buffer content. This method uses the default JPacket
-	 * scanner that all JPacket.scan method use. PcapPacketHandler utilizes a
-	 * different instance Scanner that a thread local global scanner.
+	 * Test validate http j buffer packet handler with local packet scanner.
 	 */
 	public void testValidateHttpJBufferPacketHandlerWithLocalPacketScanner() {
 
@@ -135,11 +115,7 @@ public class Bug2827356_PcapPacketHandler_Fails
 	}
 
 	/**
-	 * Read special capture file with 5 ICMP packets that agravates this issue.
-	 * This method uses JBufferHandler, which does not fail on assertNotNull().
-	 * This method uses the low level handler (no decoding) and performs manual
-	 * decoding of the buffer content. This method uses the global (thread-local)
-	 * scanner used by handlers.
+	 * Test validate http j buffer packet handler with global scanner.
 	 */
 	public void testValidateHttpJBufferPacketHandlerWithGlobalScanner() {
 

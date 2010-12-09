@@ -18,50 +18,54 @@
  */
 package org.jnetpcap;
 
+// TODO: Auto-generated Javadoc
 /**
- * Exception is thrown when a pcap extension is accessed, one of its methods,
- * while it is not supported on this particular platform. You must use
- * appropriate <code>isSupported</code> method call that is available with the
- * extension (i.e. <code>WinPcap.isSupported()</code>).
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class PcapExtensionNotAvailableException.
  */
 public class PcapExtensionNotAvailableException
     extends IllegalStateException {
 
-	/**
-	 * 
-	 */
+	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 4206020497547882412L;
 
 	/**
-   * 
-   */
+	 * Instantiates a new pcap extension not available exception.
+	 */
   public PcapExtensionNotAvailableException() {
 	  super();
 	  // TODO Auto-generated constructor stub
   }
 
 	/**
-   * @param message
-   * @param cause
-   */
+	 * Instantiates a new pcap extension not available exception.
+	 * 
+	 * @param message
+	 *          the message
+	 * @param cause
+	 *          the cause
+	 */
   public PcapExtensionNotAvailableException(String message, Throwable cause) {
 	  super(message, cause);
 	  // TODO Auto-generated constructor stub
   }
 
 	/**
-   * @param s
-   */
+	 * Instantiates a new pcap extension not available exception.
+	 * 
+	 * @param s
+	 *          the s
+	 */
   public PcapExtensionNotAvailableException(String s) {
 	  super(s);
 	  // TODO Auto-generated constructor stub
   }
 
 	/**
-   * @param cause
-   */
+	 * Instantiates a new pcap extension not available exception.
+	 * 
+	 * @param cause
+	 *          the cause
+	 */
   public PcapExtensionNotAvailableException(Throwable cause) {
 	  super(cause);
 	  // TODO Auto-generated constructor stub

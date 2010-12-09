@@ -21,46 +21,52 @@ package org.jnetpcap.packet;
 import java.util.HashMap;
 import java.util.Map;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class JFlowMap.
  */
 public class JFlowMap
     extends HashMap<JFlowKey, JFlow> implements PcapPacketHandler<Object> {
 
-	/**
-	 * 
-	 */
+	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = -5590314946675005059L;
 	
-	/**
-	 * Total packet count added.
-	 */
+	/** The count. */
 	private int count = 0;
 
 	/**
-	 * 
+	 * Instantiates a new j flow map.
 	 */
 	public JFlowMap() {
 	}
 
 	/**
+	 * Instantiates a new j flow map.
+	 * 
 	 * @param initialCapacity
+	 *          the initial capacity
 	 */
 	public JFlowMap(int initialCapacity) {
 		super(initialCapacity);
 	}
 
 	/**
+	 * Instantiates a new j flow map.
+	 * 
 	 * @param m
+	 *          the m
 	 */
 	public JFlowMap(Map<? extends JFlowKey, ? extends JFlow> m) {
 		super(m);
 	}
 
 	/**
+	 * Instantiates a new j flow map.
+	 * 
 	 * @param initialCapacity
+	 *          the initial capacity
 	 * @param loadFactor
+	 *          the load factor
 	 */
 	public JFlowMap(int initialCapacity, float loadFactor) {
 		super(initialCapacity, loadFactor);
@@ -83,10 +89,18 @@ public class JFlowMap
 		count ++;
   }
   
+  /**
+	 * Gets the total packet count.
+	 * 
+	 * @return the total packet count
+	 */
   public int getTotalPacketCount() {
   	return count;
   }
 
+  /* (non-Javadoc)
+   * @see java.util.AbstractMap#toString()
+   */
   public String toString() {
   	StringBuilder b = new StringBuilder(1024 * 50);
   	

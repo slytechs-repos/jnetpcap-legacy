@@ -43,100 +43,127 @@ import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.protocol.lan.Ethernet;
 import org.jnetpcap.protocol.tcpip.Tcp;
 
+// TODO: Auto-generated Javadoc
 /**
- * 1.3.b0006 coredumps on the following platforms: ubuntu, fedora and debian.
- * 
- * <pre>
- * Stack: [0x9f13b000,0x9f18c000], sp=0x9f18abfc, free space=318k
- * Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native
- * code)
- * C [libc.so.6+0x7b3d1] memcpy+0x61
- * 
- * [error occurred during error reporting (printing native stack), id 0xb]
- * 
- * Java frames: (J=compiled Java code, j=interpreted, Vv=VM code)
- * J
- * org.jnetpcap.Pcap.dispatch(IILorg/jnetpcap/packet/JPacketHandler;Ljava/lang
- * /Object;Lorg/jnetpcap/packet/JPacket;Lorg/jnetpcap/packet/JPacket$State;Lor
- * g/jnetpcap/PcapHeader;Lorg/jnetpcap/packet/JScanner;)I
- * J
- * org.jnetpcap.Pcap.dispatch(ILorg/jnetpcap/packet/JPacketHandler;Ljava/lang/
- * Object;Lorg/jnetpcap/packet/JScanner;)I
- * J
- * com.abcompany.XXX.XXX.XXX.executeDispatch(Ljava/util/concurrent/BlockingQue
- * ue;)Z
- * J com.abcompany.CCC.CCC.CCC$3.run()V
- * j java.lang.Thread.run()V+11
- * v &tilde;StubRoutines::call_stub
- * </pre>
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestForMemoryLeaks.
  */
 public class TestForMemoryLeaks extends TestUtils {
 
+	/** The Constant DIR. */
 	private final static File DIR = new File("tests");
 
+	/** The Constant PEER_1S. */
 	private static final int PEER_1S = 401; // 0:0:1
+	
+	/** The Constant PEER_1M. */
 	private static final int PEER_1M = 60 * PEER_1S; // 0:1:0
+	
+	/** The Constant PEER_1H. */
 	private static final int PEER_1H = 60 * PEER_1M; // 1:0:0
+	
+	/** The Constant PEER_3M_35S. */
 	private static final int PEER_3M_35S = 9000; // 3:35
 
+	/** The Constant TCP_SCAN_TRANSFERTO_1S. */
 	private static final int TCP_SCAN_TRANSFERTO_1S = 100; // 0:0:1
+	
+	/** The Constant TCP_SCAN_TRANSFERTO_1M. */
 	private static final int TCP_SCAN_TRANSFERTO_1M = 60 * TCP_SCAN_TRANSFERTO_1S; // 0:0:1
 
+	/** The Constant GENERAL_SCAN_TRANSFERTO_1S. */
 	private static final int GENERAL_SCAN_TRANSFERTO_1S = 14; // 0:0:1
+	
+	/** The Constant GENERAL_SCAN_TRANSFERTO_1M. */
 	private static final int GENERAL_SCAN_TRANSFERTO_1M =
 			60 * GENERAL_SCAN_TRANSFERTO_1S; // 0:0:1
 
+	/** The Constant GENERAL_SCAN_TRANSFERTO__Q_1S. */
 	private static final int GENERAL_SCAN_TRANSFERTO__Q_1S = 12; // 0:0:1
+	
+	/** The Constant GENERAL_SCAN_TRANSFERTO_Q_1M. */
 	private static final int GENERAL_SCAN_TRANSFERTO_Q_1M =
 			60 * GENERAL_SCAN_TRANSFERTO__Q_1S; // 0:0:1
 
+	/** The Constant COUNT. */
 	private static final int COUNT = 2* GENERAL_SCAN_TRANSFERTO_1M;
 
+	/** The Constant LINES. */
 	private static final int LINES = 10;
 
+	/** The errbuf. */
 	private StringBuilder errbuf;
 
+	/** The G. */
 	private final double G = (1024. * 1024. * 1024);
+	
+	/** The g. */
 	private final double g = (1000. * 1000. * 1000);
+	
+	/** The M. */
 	private final double M = (1024. * 1024.);
+	
+	/** The K. */
 	private final double K = (1024.);
+	
+	/** The m. */
 	private final double m = (1000. * 1000.);
+	
+	/** The k. */
 	private final double k = (1000.);
 
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#setUp()
+	 */
 	@Override
 	protected void setUp() throws Exception {
 		errbuf = new StringBuilder();
 		// System.out.println(System.getProperties());
 	}
 
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#tearDown()
+	 */
 	@Override
 	protected void tearDown() throws Exception {
 		errbuf = null;
 	}
 
+	/** The b. */
 	long b = 0;
 
+	/** The bytes. */
 	long bytes = 0;
 
+	/** The h. */
 	long h = 0;
 
+	/** The headers. */
 	long headers = 0;
 
+	/** The total. */
 	long total = 0;
 
+	/** The start. */
 	long start = 0;
 
+	/** The end. */
 	long end = 0;
 
+	/** The count. */
 	long count = 0;
 
+	/** The ts. */
 	long ts = 0;
 
+	/** The te. */
 	long te = 0;
 
+	/**
+	 * Test inject test j packet handler.
+	 * 
+	 * @throws SigarException
+	 *           the sigar exception
+	 */
 	public void testInjectTestJPacketHandler() throws SigarException {
 
 		start = ts = System.currentTimeMillis();
@@ -317,6 +344,12 @@ public class TestForMemoryLeaks extends TestUtils {
 
 	}
 
+	/**
+	 * Test stress test j packet handler.
+	 * 
+	 * @throws SigarException
+	 *           the sigar exception
+	 */
 	public void testStressTestJPacketHandler() throws SigarException {
 		String[] files = DIR.list(new FilenameFilter() {
 
@@ -411,6 +444,9 @@ public class TestForMemoryLeaks extends TestUtils {
 
 	}
 
+	/**
+	 * Test stress test pcap packet handler.
+	 */
 	public void testStressTestPcapPacketHandler() {
 		String[] files = DIR.list(new FilenameFilter() {
 
@@ -448,6 +484,12 @@ public class TestForMemoryLeaks extends TestUtils {
 		System.out.println();
 	}
 
+	/**
+	 * Test stress test j buffer handler.
+	 * 
+	 * @throws SigarException
+	 *           the sigar exception
+	 */
 	public void testStressTestJBufferHandler() throws SigarException {
 		String[] files = DIR.list(new FilenameFilter() {
 
@@ -539,6 +581,12 @@ public class TestForMemoryLeaks extends TestUtils {
 
 	}
 
+	/**
+	 * Test stress test j buffer handler from memory.
+	 * 
+	 * @throws SigarException
+	 *           the sigar exception
+	 */
 	public void testStressTestJBufferHandlerFromMemory() throws SigarException {
 		String[] files = getDirFileList(DIR, ".pcap");
 		JPcapRecordBuffer buffer = loadAllPacketsFromFiles(files);
@@ -658,6 +706,14 @@ public class TestForMemoryLeaks extends TestUtils {
 		System.out.flush();
 	}
 
+	/**
+	 * Test stress test queued j buffer handler from memory.
+	 * 
+	 * @throws SigarException
+	 *           the sigar exception
+	 * @throws InterruptedException
+	 *           the interrupted exception
+	 */
 	public void testStressTestQueuedJBufferHandlerFromMemory()
 			throws SigarException, InterruptedException {
 		String[] files = getDirFileList(DIR, ".pcap");
@@ -695,7 +751,7 @@ public class TestForMemoryLeaks extends TestUtils {
 		int loop = 0;
 		
 		// DisposableGC.getDeault().stopCleanupThread();
-		DisposableGC.getDeault().startCleanupThread();
+		DisposableGC.getDefault().startCleanupThread();
 
 		// JPacket.setFormatter(new TextFormatter(DEV_NULL));
 
@@ -846,6 +902,15 @@ public class TestForMemoryLeaks extends TestUtils {
 		queue.clear();
 	}
 
+	/**
+	 * Gets the dir file list.
+	 * 
+	 * @param dir
+	 *          the dir
+	 * @param endsWith
+	 *          the ends with
+	 * @return the dir file list
+	 */
 	private String[] getDirFileList(File dir, String endsWith) {
 		String[] files = DIR.list(new FilenameFilter() {
 
@@ -862,6 +927,13 @@ public class TestForMemoryLeaks extends TestUtils {
 		return files;
 	}
 
+	/**
+	 * Gets the file size aggregate.
+	 * 
+	 * @param files
+	 *          the files
+	 * @return the file size aggregate
+	 */
 	private long getFileSizeAggregate(String[] files) {
 		int size = 0;
 		for (String f : files) {
@@ -872,6 +944,13 @@ public class TestForMemoryLeaks extends TestUtils {
 
 	}
 
+	/**
+	 * Load all packets from files.
+	 * 
+	 * @param files
+	 *          the files
+	 * @return the j pcap record buffer
+	 */
 	private JPcapRecordBuffer loadAllPacketsFromFiles(String[] files) {
 
 		final int size = (int) getFileSizeAggregate(files);
@@ -911,12 +990,28 @@ public class TestForMemoryLeaks extends TestUtils {
 		return buf;
 	}
 
+	/** The header. */
 	final PcapHeader header = new PcapHeader(JMemory.POINTER);
 
+	/** The pkt_buf. */
 	final JBuffer pkt_buf = new JBuffer(JMemory.POINTER);
 
+	/** The packet. */
 	final PcapPacket packet = new PcapPacket(JMemory.POINTER);
 
+	/**
+	 * Dispatch to j buffe handler.
+	 * 
+	 * @param <T>
+	 *          the generic type
+	 * @param buffer
+	 *          the buffer
+	 * @param handler
+	 *          the handler
+	 * @param user
+	 *          the user
+	 * @return the long
+	 */
 	private <T> long dispatchToJBuffeHandler(JPcapRecordBuffer buffer,
 			JBufferHandler<T> handler,
 			T user) {
@@ -934,6 +1029,19 @@ public class TestForMemoryLeaks extends TestUtils {
 		return buffer.getPacketRecordCount();
 	}
 
+	/**
+	 * Dispatch to pcap packet handler.
+	 * 
+	 * @param <T>
+	 *          the generic type
+	 * @param buffer
+	 *          the buffer
+	 * @param handler
+	 *          the handler
+	 * @param user
+	 *          the user
+	 * @return the long
+	 */
 	private <T> long dispatchToPcapPacketHandler(JPcapRecordBuffer buffer,
 			PcapPacketHandler<T> handler,
 			T user) {

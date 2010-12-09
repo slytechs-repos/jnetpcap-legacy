@@ -21,15 +21,15 @@ package org.jnetpcap;
 import java.util.ArrayList;
 import java.util.List;
 
+// TODO: Auto-generated Javadoc
 /**
- * Class peered with native <code>pcap_addr</code> structure. Holds pcap
- * addresses.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class PcapAddr.
  */
 public final class PcapAddr {
 
+	/**
+	 * Inits the i ds.
+	 */
 	private native static void initIDs();
 
 	static {
@@ -43,17 +43,24 @@ public final class PcapAddr {
 
 	}
 
+	/** The next. */
 	private volatile PcapAddr next;
 
+	/** The addr. */
 	private volatile PcapSockAddr addr;
 
+	/** The netmask. */
 	private volatile PcapSockAddr netmask;
 
+	/** The broadaddr. */
 	private volatile PcapSockAddr broadaddr;
 
+	/** The dstaddr. */
 	private volatile PcapSockAddr dstaddr;
 
 	/**
+	 * Gets the next.
+	 * 
 	 * @return the next
 	 */
 	private final PcapAddr getNext() {
@@ -61,7 +68,7 @@ public final class PcapAddr {
 	}
 
 	/**
-	 * pcap_addr.addr field.
+	 * Gets the addr.
 	 * 
 	 * @return the addr
 	 */
@@ -70,7 +77,7 @@ public final class PcapAddr {
 	}
 
 	/**
-	 * pcap_addr.netmask field.
+	 * Gets the netmask.
 	 * 
 	 * @return the netmask
 	 */
@@ -79,7 +86,7 @@ public final class PcapAddr {
 	}
 
 	/**
-	 * pcap_addr.broadaddr field.
+	 * Gets the broadaddr.
 	 * 
 	 * @return the broadaddr
 	 */
@@ -88,7 +95,7 @@ public final class PcapAddr {
 	}
 
 	/**
-	 * pcap_addr.dstaddr field.
+	 * Gets the dstaddr.
 	 * 
 	 * @return the dstaddr
 	 */
@@ -96,6 +103,11 @@ public final class PcapAddr {
 		return this.dstaddr;
 	}
 
+	/**
+	 * To list.
+	 * 
+	 * @return the list
+	 */
 	private List<PcapAddr> toList() {
 		List<PcapAddr> list = new ArrayList<PcapAddr>();
 
@@ -110,10 +122,8 @@ public final class PcapAddr {
 		return list;
 	}
 
-	/**
-	 * Debug information about this address object.
-	 * 
-	 * @return debug info
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {

@@ -31,30 +31,50 @@ import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.PcapPacketHandler;
 import org.jnetpcap.packet.format.FormatUtils;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestPcapDispatchers.
  */
 public class TestPcapDispatchers
     extends TestCase {
 
+	/** The Constant COUNT. */
 	private final static int COUNT = 3;
 
+	/** The errbuf. */
 	private StringBuilder errbuf = new StringBuilder();
 
+	/** The pcap. */
 	private Pcap pcap;
 
+	/** The Constant TEST_AFS. */
 	private final static String TEST_AFS = "tests/test-afs.pcap";
 
+	/**
+	 * Open.
+	 * 
+	 * @param file
+	 *          the file
+	 * @return the pcap
+	 */
 	private Pcap open(String file) {
 		return Pcap.openOffline(file, errbuf);
 	}
 
+	/**
+	 * The Class Counter.
+	 */
 	private static class Counter {
+		
+		/** The count. */
 		public long count = 0;
 
+		/** The ts. */
 		public long ts = System.currentTimeMillis();
 
+		/**
+		 * Inc.
+		 */
 		public void inc() {
 			if (++count % 100000 == 0) {
 				long delta = System.currentTimeMillis() - ts;
@@ -74,8 +94,17 @@ public class TestPcapDispatchers
 		}
 	}
 
+	/** The Constant COUNTER. */
 	private final static Counter COUNTER = new Counter();
 
+	/**
+	 * Loop.
+	 * 
+	 * @param file
+	 *          the file
+	 * @param handler
+	 *          the handler
+	 */
 	private void loop(String file, JPacketHandler<Counter> handler) {
 		pcap = open(file);
 		assertEquals(Pcap.OK, pcap.loop(Pcap.LOOP_INFINATE, handler, COUNTER));
@@ -84,6 +113,14 @@ public class TestPcapDispatchers
 		pcap = null;
 	}
 
+	/**
+	 * Dispatch.
+	 * 
+	 * @param file
+	 *          the file
+	 * @param handler
+	 *          the handler
+	 */
 	private void dispatch(String file, JPacketHandler<Counter> handler) {
 		pcap = open(file);
 		assertEquals(Pcap.OK, pcap.dispatch(Pcap.DISPATCH_BUFFER_FULL, handler,
@@ -93,6 +130,14 @@ public class TestPcapDispatchers
 		pcap = null;
 	}
 
+	/**
+	 * Loop.
+	 * 
+	 * @param file
+	 *          the file
+	 * @param handler
+	 *          the handler
+	 */
 	private void loop(String file, PcapPacketHandler<Counter> handler) {
 		pcap = open(file);
 		assertEquals(Pcap.OK, pcap.loop(Pcap.LOOP_INFINATE, handler, COUNTER));
@@ -101,6 +146,14 @@ public class TestPcapDispatchers
 		pcap = null;
 	}
 
+	/**
+	 * Dispatch.
+	 * 
+	 * @param file
+	 *          the file
+	 * @param handler
+	 *          the handler
+	 */
 	@SuppressWarnings("deprecation")
   private void dispatch(String file, PcapPacketHandler<Counter> handler) {
 		pcap = open(file);
@@ -111,6 +164,14 @@ public class TestPcapDispatchers
 		pcap = null;
 	}
 
+	/**
+	 * Loop.
+	 * 
+	 * @param file
+	 *          the file
+	 * @param handler
+	 *          the handler
+	 */
 	private void loop(String file, JBufferHandler<Counter> handler) {
 		pcap = open(file);
 		assertEquals(Pcap.OK, pcap.loop(Pcap.LOOP_INFINATE, handler, COUNTER));
@@ -119,6 +180,14 @@ public class TestPcapDispatchers
 		pcap = null;
 	}
 
+	/**
+	 * Dispatch.
+	 * 
+	 * @param file
+	 *          the file
+	 * @param handler
+	 *          the handler
+	 */
 	private void dispatch(String file, JBufferHandler<Counter> handler) {
 		pcap = open(file);
 		assertEquals(Pcap.OK, pcap.dispatch(Pcap.DISPATCH_BUFFER_FULL, handler,
@@ -128,6 +197,14 @@ public class TestPcapDispatchers
 		pcap = null;
 	}
 
+	/**
+	 * Loop.
+	 * 
+	 * @param file
+	 *          the file
+	 * @param handler
+	 *          the handler
+	 */
 	private void loop(String file, ByteBufferHandler<Counter> handler) {
 		pcap = open(file);
 		assertEquals(Pcap.OK, pcap.loop(Pcap.LOOP_INFINATE, handler, COUNTER));
@@ -136,6 +213,14 @@ public class TestPcapDispatchers
 		pcap = null;
 	}
 
+	/**
+	 * Dispatch.
+	 * 
+	 * @param file
+	 *          the file
+	 * @param handler
+	 *          the handler
+	 */
 	private void dispatch(String file, ByteBufferHandler<Counter> handler) {
 		pcap = open(file);
 		assertEquals(Pcap.OK, pcap.dispatch(Pcap.DISPATCH_BUFFER_FULL, handler,
@@ -167,8 +252,7 @@ public class TestPcapDispatchers
 	}
 
 	/**
-	 * Test method for
-	 * {@link org.jnetpcap.Pcap#dispatch(int, org.jnetpcap.ByteBufferHandler, java.lang.Object)}.
+	 * Test dispatch int byte buffer handler of tt loop.
 	 */
 	public final void testDispatchIntByteBufferHandlerOfTTLoop() {
 		for (int i = 0; i < COUNT; i++) {
@@ -185,6 +269,9 @@ public class TestPcapDispatchers
 		}
 	}
 
+	/**
+	 * Test dispatch int byte buffer handler of tt dispatch.
+	 */
 	public final void testDispatchIntByteBufferHandlerOfTTDispatch() {
 		for (int i = 0; i < COUNT; i++) {
 			dispatch(TEST_AFS, new ByteBufferHandler<Counter>() {
@@ -200,8 +287,7 @@ public class TestPcapDispatchers
 	}
 
 	/**
-	 * Test method for
-	 * {@link org.jnetpcap.Pcap#dispatch(int, int, org.jnetpcap.packet.JPacketHandler, java.lang.Object)}.
+	 * Test dispatch int int j packet handler of tt loop.
 	 */
 	public final void testDispatchIntIntJPacketHandlerOfTTLoop() {
 		for (int i = 0; i < COUNT; i++) {
@@ -214,6 +300,9 @@ public class TestPcapDispatchers
 		}
 	}
 
+	/**
+	 * Test dispatch int int j packet handler of tt dispatch.
+	 */
 	public final void testDispatchIntIntJPacketHandlerOfTTDispatch() {
 		for (int i = 0; i < COUNT; i++) {
 			dispatch(TEST_AFS, new JPacketHandler<Counter>() {
@@ -226,8 +315,7 @@ public class TestPcapDispatchers
 	}
 
 	/**
-	 * Test method for
-	 * {@link org.jnetpcap.Pcap#dispatch(int, int, org.jnetpcap.packet.PcapPacketHandler, java.lang.Object)}.
+	 * Test dispatch int int pcap packet handler of tt loop.
 	 */
 	public final void testDispatchIntIntPcapPacketHandlerOfTTLoop() {
 		for (int i = 0; i < COUNT; i++) {
@@ -241,6 +329,9 @@ public class TestPcapDispatchers
 		}
 	}
 
+	/**
+	 * Test dispatch int int pcap packet handler of tt dispatch.
+	 */
 	public final void testDispatchIntIntPcapPacketHandlerOfTTDispatch() {
 		for (int i = 0; i < COUNT; i++) {
 			dispatch(TEST_AFS, new PcapPacketHandler<Counter>() {
@@ -253,8 +344,7 @@ public class TestPcapDispatchers
 	}
 
 	/**
-	 * Test method for
-	 * {@link org.jnetpcap.Pcap#dispatch(int, org.jnetpcap.JBufferHandler, java.lang.Object)}.
+	 * Test dispatch int j buffer handler of tt loop.
 	 */
 	public final void testDispatchIntJBufferHandlerOfTTLoop() {
 		for (int i = 0; i < COUNT; i++) {
@@ -270,6 +360,9 @@ public class TestPcapDispatchers
 		}
 	}
 
+	/**
+	 * Test dispatch int j buffer handler of tt dispatch.
+	 */
 	public final void testDispatchIntJBufferHandlerOfTTDispatch() {
 		for (int i = 0; i < COUNT; i++) {
 			dispatch(TEST_AFS, new JBufferHandler<Counter>() {
@@ -285,64 +378,56 @@ public class TestPcapDispatchers
 	}
 
 	/**
-	 * Test method for
-	 * {@link org.jnetpcap.Pcap#dispatch(int, org.jnetpcap.packet.JPacketHandler, java.lang.Object)}.
+	 * _test dispatch int j packet handler of tt.
 	 */
 	public final void _testDispatchIntJPacketHandlerOfTT() {
 		fail("Not yet implemented");
 	}
 
 	/**
-	 * Test method for
-	 * {@link org.jnetpcap.Pcap#dispatch(int, org.jnetpcap.packet.PcapPacketHandler, java.lang.Object)}.
+	 * _test dispatch int pcap packet handler of tt.
 	 */
 	public final void _testDispatchIntPcapPacketHandlerOfTT() {
 		fail("Not yet implemented");
 	}
 
 	/**
-	 * Test method for
-	 * {@link org.jnetpcap.Pcap#loop(int, org.jnetpcap.ByteBufferHandler, java.lang.Object)}.
+	 * _test loop int byte buffer handler of tt.
 	 */
 	public final void _testLoopIntByteBufferHandlerOfTT() {
 		fail("Not yet implemented");
 	}
 
 	/**
-	 * Test method for
-	 * {@link org.jnetpcap.Pcap#loop(int, int, org.jnetpcap.packet.JPacketHandler, java.lang.Object)}.
+	 * _test loop int int j packet handler of tt.
 	 */
 	public final void _testLoopIntIntJPacketHandlerOfTT() {
 		fail("Not yet implemented");
 	}
 
 	/**
-	 * Test method for
-	 * {@link org.jnetpcap.Pcap#loop(int, int, org.jnetpcap.packet.PcapPacketHandler, java.lang.Object)}.
+	 * _test loop int int pcap packet handler of tt.
 	 */
 	public final void _testLoopIntIntPcapPacketHandlerOfTT() {
 		fail("Not yet implemented");
 	}
 
 	/**
-	 * Test method for
-	 * {@link org.jnetpcap.Pcap#loop(int, org.jnetpcap.JBufferHandler, java.lang.Object)}.
+	 * _test loop int j buffer handler of tt.
 	 */
 	public final void _testLoopIntJBufferHandlerOfTT() {
 		fail("Not yet implemented");
 	}
 
 	/**
-	 * Test method for
-	 * {@link org.jnetpcap.Pcap#loop(int, org.jnetpcap.packet.JPacketHandler, java.lang.Object)}.
+	 * _test loop int j packet handler of tt.
 	 */
 	public final void _testLoopIntJPacketHandlerOfTT() {
 		fail("Not yet implemented");
 	}
 
 	/**
-	 * Test method for
-	 * {@link org.jnetpcap.Pcap#loop(int, org.jnetpcap.packet.PcapPacketHandler, java.lang.Object)}.
+	 * _test loop int pcap packet handler of tt.
 	 */
 	public final void _testLoopIntPcapPacketHandlerOfTT() {
 		fail("Not yet implemented");

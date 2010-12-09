@@ -24,23 +24,20 @@ import org.jnetpcap.packet.TestUtils;
 import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.protocol.network.Ip4;
 
+// TODO: Auto-generated Javadoc
 /**
- * 2832692 hasHeader throws NULL ptr exception. Its not handling an
- * unimplemented Ip4 option.
- * <p>
- * Several JMemoryPacket constructors do not set the required "wirelen" header
- * property. This causes exceptions to be thrown by the quick-scanner.
- * </p>
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class Bug2832692_null_ptr_in_hasHeader.
  */
 public class Bug2832692_null_ptr_in_hasHeader
     extends
     TestUtils {
 
+	/** The Constant BUG_FILE. */
 	private final static String BUG_FILE = TestUtils.L2TP;
 
+	/**
+	 * SKI p_test read entire suspect file.
+	 */
 	public void SKIP_testReadEntireSuspectFile() {
 
 		Ip4 ip = new Ip4();
@@ -63,59 +60,7 @@ public class Bug2832692_null_ptr_in_hasHeader
 	}
 
 	/**
-	 * Tests if RouterAlert Ip4 optional header is found and peered properly.
-	 * 
-	 * <pre>
-	 * 	Frame:
-	 * 	Frame:          number = 0
-	 * 	Frame:       timestamp = 1969-12-31 19:00:00.0
-	 * 	Frame:     wire length = 60 bytes
-	 * 	Frame: captured length = 0 bytes
-	 * 	Frame:
-	 * 	Eth:  ******* Ethernet - &quot;Ethernet&quot; - offset=0 (0x0) length=14 
-	 * 	Eth: 
-	 * 	Eth:      destination = 1:0:5e:0:0:16
-	 * 	Eth:                    .... ..0. .... .... = [0] LG bit
-	 * 	Eth:                    .... ...0 .... .... = [0] IG bit
-	 * 	Eth:           source = 0:3:ff:2a:7a:6c
-	 * 	Eth:                    .... ..0. .... .... = [0] LG bit
-	 * 	Eth:                    .... ...0 .... .... = [0] IG bit
-	 * 	Eth:             type = 0x800 (2048) [ip version 4]
-	 * 	Eth: 
-	 * 	Ip:  ******* Ip4 - &quot;ip version 4&quot; - offset=14 (0xE) length=24 protocol suite=NETWORK
-	 * 	Ip: 
-	 * 	Ip:          version = 4
-	 * 	Ip:             hlen = 6 [6 * 4 = 24 bytes, Ip Options Present]
-	 * 	Ip:         diffserv = 0x0 (0)
-	 * 	Ip:                    0000 00.. = [0] code point: not set
-	 * 	Ip:                    .... ..0. = [0] ECN bit: not set
-	 * 	Ip:                    .... ...0 = [0] ECE bit: not set
-	 * 	Ip:           length = 40
-	 * 	Ip:               id = 0xD704 (55044)
-	 * 	Ip:            flags = 0x0 (0)
-	 * 	Ip:                    0.. = [0] reserved
-	 * 	Ip:                    .0. = [0] DF: do not fragment: not set
-	 * 	Ip:                    ..0 = [0] MF: more fragments: not set
-	 * 	Ip:           offset = 0
-	 * 	Ip:              ttl = 1 [time to live]
-	 * 	Ip:             type = 2 [next: 2]
-	 * 	Ip:         checksum = 0xACFA (44282) [correct]
-	 * 	Ip:           source = 192.168.0.18
-	 * 	Ip:      destination = 224.0.0.22
-	 * 	Ip: 
-	 * 	Ip: + RouterAlert: offset=20 length=4
-	 * 	Ip:             code = 148
-	 * 	Ip:                    1... .... = [1] copy: copy to all fragments
-	 * 	Ip:                    .00. .... = [0] class: CONTROL
-	 * 	Ip:                    ...1 0100 = [20] type: ROUTER_ALERT
-	 * 	Ip:           length = 4
-	 * 	Ip:           action = 0 [EXAMINE_PACKET]
-	 * 	Ip: 
-	 * 	Data:  ******* Payload offset=38 (0x26) length=22 
-	 * 	Data: 
-	 * 	0026: 22 00 ea 03  00 00 00 01  04 00 00 00  ef ff ff fa    &quot;...............
-	 * 	0036: 00 00 00 00  00 00                                    ......          
-	 * </pre>
+	 * Test ip4 option router alert.
 	 */
 	public void testIp4OptionRouterAlert() {
 		String data =

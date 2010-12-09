@@ -27,16 +27,18 @@ import junit.framework.TestCase;
 
 import org.jnetpcap.winpcap.WinPcap;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestOpenCloseMultiThreaded.
  */
 @SuppressWarnings("deprecation")
 public class TestOpenCloseMultiThreaded
     extends TestCase {
 
+	/** The looping. */
 	private boolean looping = false;
 
+	/** The callback. */
 	private final PcapHandler<Pcap> callback = new PcapHandler<Pcap>() {
 
 		public void nextPacket(Pcap pcap, long seconds, int useconds, int caplen,
@@ -55,8 +57,14 @@ public class TestOpenCloseMultiThreaded
 		}
 	};
 
+	/** The exchanger. */
 	private final Exchanger<Pcap> exchanger = new Exchanger<Pcap>();
 
+	/**
+	 * Open and loop.
+	 * 
+	 * @return the pcap
+	 */
 	private Pcap openAndLoop() {
 
 		looping = false;
@@ -75,6 +83,12 @@ public class TestOpenCloseMultiThreaded
 		return pcap;
 	}
 
+	/**
+	 * Test1.
+	 * 
+	 * @throws InterruptedException
+	 *           the interrupted exception
+	 */
 	public void test1() throws InterruptedException {
 
 		final int COUNT = 30;

@@ -24,27 +24,41 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class AnnotatedMethod.
  */
 public abstract class AnnotatedMethod {
 
+	/** The method. */
 	protected final Method method;
 	
+	/** The is mapped. */
 	protected boolean isMapped = false;
 	
+	/**
+	 * Sets the checks if is mapped.
+	 * 
+	 * @param state
+	 *          the new checks if is mapped
+	 */
 	public void setIsMapped(boolean state) {
 		this.isMapped = state;
 	}
 
+	/** The declaring class. */
 	protected final Class<?> declaringClass;
 
+	/** The object. */
 	protected final Object object;
 
+	/** The cache. */
 	private static HashMap<Integer, Method[]> cache =
 	    new HashMap<Integer, Method[]>(20);
 
+	/**
+	 * Instantiates a new annotated method.
+	 */
 	public AnnotatedMethod() {
 		this.method = null;
 		this.declaringClass = null;
@@ -52,6 +66,14 @@ public abstract class AnnotatedMethod {
 		this.isMapped = false;
 	}
 
+	/**
+	 * Instantiates a new annotated method.
+	 * 
+	 * @param method
+	 *          the method
+	 * @param object
+	 *          the object
+	 */
 	public AnnotatedMethod(Method method, Object object) {
 		this.object = object;
 		this.method = method;
@@ -59,6 +81,12 @@ public abstract class AnnotatedMethod {
 
 	}
 
+	/**
+	 * Instantiates a new annotated method.
+	 * 
+	 * @param method
+	 *          the method
+	 */
 	public AnnotatedMethod(Method method) {
 		this.method = method;
 		this.declaringClass = method.getDeclaringClass();
@@ -67,12 +95,26 @@ public abstract class AnnotatedMethod {
 		validateSignature(method);
 	}
 
+	/**
+	 * Gets the method.
+	 * 
+	 * @return the method
+	 */
 	public Method getMethod() {
 		return this.method;
 	}
 
+	/**
+	 * Validate signature.
+	 * 
+	 * @param method
+	 *          the method
+	 */
 	protected abstract void validateSignature(Method method);
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	public String toString() {
 		if (method == null) {
 			return "";
@@ -82,6 +124,15 @@ public abstract class AnnotatedMethod {
 	}
 
 
+	/**
+	 * Gets the methods.
+	 * 
+	 * @param c
+	 *          the c
+	 * @param annotation
+	 *          the annotation
+	 * @return the methods
+	 */
 	public static Method[] getMethods(
 	    Class<?> c,
 	    Class<? extends Annotation> annotation) {

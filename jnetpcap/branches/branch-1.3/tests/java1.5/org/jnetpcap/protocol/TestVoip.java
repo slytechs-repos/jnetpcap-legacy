@@ -32,16 +32,18 @@ import org.jnetpcap.protocol.voip.Rtp;
 import org.jnetpcap.protocol.voip.Sdp;
 import org.jnetpcap.protocol.voip.Sip;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestVoip.
  */
 public class TestVoip
     extends
     TestUtils {
 
+	/** The Constant SIP. */
 	private static final String SIP = "tests/test-sip-rtp.pcap";
 
+	/** The Constant SIP_G711. */
 	private static final String SIP_G711 = "tests/test-sip-rtp-g711.pcap";
 
 	/*
@@ -62,6 +64,9 @@ public class TestVoip
 		super.tearDown();
 	}
 
+	/**
+	 * Test sip.
+	 */
 	public void testSip() {
 		Sip sip = new Sip();
 		Sdp sdp = new Sdp();
@@ -78,6 +83,9 @@ public class TestVoip
 		}
 	}
 
+	/**
+	 * Test rtp heuristics.
+	 */
 	public void testRtpHeuristics() {
 
 		JPacket packet = super.getPcapPacket(SIP_G711, 499 - 1);
@@ -91,6 +99,12 @@ public class TestVoip
 		assertTrue(packet.hasHeader(JProtocol.RTP_ID));
 	}
 
+	/**
+	 * SKI p_test rtp audio extract.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public void SKIP_testRtpAudioExtract() throws IOException {
 		Rtp rtp = new Rtp();
 
@@ -117,8 +131,18 @@ public class TestVoip
 		}
 	}
 
+	/** The map. */
 	Map<Long, FileOutputStream> map = new HashMap<Long, FileOutputStream>();
 
+	/**
+	 * Gets the output.
+	 * 
+	 * @param id
+	 *          the id
+	 * @return the output
+	 * @throws FileNotFoundException
+	 *           the file not found exception
+	 */
 	private FileOutputStream getOutput(long id) throws FileNotFoundException {
 		if (map.containsKey(id)) {
 			return map.get(id);

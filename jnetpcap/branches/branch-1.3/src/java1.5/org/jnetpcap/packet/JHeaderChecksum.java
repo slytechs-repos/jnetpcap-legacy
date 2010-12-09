@@ -18,39 +18,30 @@
  */
 package org.jnetpcap.packet;
 
+// TODO: Auto-generated Javadoc
 /**
- * Interface implemented by protocol headers that maintain a header and possibly
- * payload checksums.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Interface JHeaderChecksum.
  */
 public interface JHeaderChecksum {
 
 	/**
-	 * Retrieves the header's checksum.
+	 * Checksum.
 	 * 
-	 * @return header's stored checksum
+	 * @return the int
 	 */
 	public int checksum();
 
 	/**
-	 * Calculates a checksum using protocol specification for a header. Checksums
-	 * for partial headers or fragmented packets (unless the protocol alows it)
-	 * are not calculated.
+	 * Calculate checksum.
 	 * 
-	 * @return header's calculated checksum
+	 * @return the int
 	 */
 	public int calculateChecksum();
 
 	/**
-	 * Validates the header's data against the stored checksum. Checksums for
-	 * partial headers or fragmented packets (unless the protocol alows it) are
-	 * not validated and true is always returned.
+	 * Checks if is checksum valid.
 	 * 
-	 * @return Calculates a checksum and validates it against the store checksum
-	 *         in the header. If checksums match or header is a fragment true is
-	 *         returned, otherwise if the checksums don't match false is returned.
+	 * @return true, if is checksum valid
 	 */
 	public boolean isChecksumValid();
 

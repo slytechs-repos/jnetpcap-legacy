@@ -24,25 +24,34 @@ import java.util.List;
 import org.jnetpcap.packet.structure.AnnotatedHeader;
 import org.jnetpcap.packet.structure.JField;
 
+// TODO: Auto-generated Javadoc
 /**
+ * The Class JHeaderMap.
+ * 
  * @param <B>
- *          header baseclass that all sub-header's should be enclosed in
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ *          the generic type
  */
 public abstract class JHeaderMap<B extends JHeader>
     extends JHeader implements JCompoundHeader<B> {
 
+	/** The Constant MAX_HEADERS. */
 	public final static int MAX_HEADERS = 64;
 
+	/** The options bitmap. */
 	protected long optionsBitmap = -1;
 
+	/** The options offsets. */
 	protected int[] optionsOffsets = new int[MAX_HEADERS];
 
+	/** The options length. */
 	protected int[] optionsLength = new int[MAX_HEADERS];
 
+	/** The X_ headers. */
 	protected final JHeader[] X_HEADERS = new JHeader[MAX_HEADERS];
 
+	/**
+	 * Instantiates a new j header map.
+	 */
 	public JHeaderMap() {
 		super();
 
@@ -52,6 +61,13 @@ public abstract class JHeaderMap<B extends JHeader>
 		reorderAndSave(createHeaderInstances(annotatedHeader.getHeaders()));
 	}
 
+	/**
+	 * Creates the header instances.
+	 * 
+	 * @param headers
+	 *          the headers
+	 * @return the j header[]
+	 */
 	private static JHeader[] createHeaderInstances(AnnotatedHeader... headers) {
 		JHeader[] h = new JHeader[headers.length];
 
@@ -62,6 +78,13 @@ public abstract class JHeaderMap<B extends JHeader>
 		return h;
 	}
 
+	/**
+	 * Creates the header instance.
+	 * 
+	 * @param header
+	 *          the header
+	 * @return the j header
+	 */
 	private static JHeader createHeaderInstance(AnnotatedHeader header) {
 		try {
 			return header.getHeaderClass().newInstance();
@@ -73,11 +96,18 @@ public abstract class JHeaderMap<B extends JHeader>
 	}
 
 	/**
+	 * Instantiates a new j header map.
+	 * 
 	 * @param id
+	 *          the id
 	 * @param fields
+	 *          the fields
 	 * @param name
+	 *          the name
 	 * @param nicname
+	 *          the nicname
 	 * @param unordered
+	 *          the unordered
 	 */
 	public JHeaderMap(int id, JField[] fields, String name, String nicname,
 	    JHeader[] unordered) {
@@ -87,8 +117,14 @@ public abstract class JHeaderMap<B extends JHeader>
 	}
 
 	/**
+	 * Instantiates a new j header map.
+	 * 
 	 * @param id
+	 *          the id
 	 * @param name
+	 *          the name
+	 * @param unordered
+	 *          the unordered
 	 */
 	public JHeaderMap(int id, String name, JHeader[] unordered) {
 		super(id, name);
@@ -96,20 +132,33 @@ public abstract class JHeaderMap<B extends JHeader>
 	}
 
 	/**
+	 * Instantiates a new j header map.
+	 * 
 	 * @param id
+	 *          the id
 	 * @param name
+	 *          the name
 	 * @param nicname
+	 *          the nicname
+	 * @param unordered
+	 *          the unordered
 	 */
 	public JHeaderMap(int id, String name, String nicname, JHeader[] unordered) {
 		super(id, name, nicname);
 		reorderAndSave(unordered);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.JHeader#setSubHeaders(org.jnetpcap.packet.JHeader[])
+	 */
 	@Override
 	public void setSubHeaders(JHeader[] headers) {
 		reorderAndSave(headers);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.JCompoundHeader#getSubHeader(org.jnetpcap.packet.JSubHeader)
+	 */
 	public <T extends JSubHeader<B>> T getSubHeader(T header) {
 
 		final int offset = optionsOffsets[header.getId()];
@@ -123,6 +172,13 @@ public abstract class JHeaderMap<B extends JHeader>
 		return header;
 	}
 
+	/**
+	 * Gets the sub header.
+	 * 
+	 * @param header
+	 *          the header
+	 * @return the sub header
+	 */
 	@SuppressWarnings("unchecked")
 	private JHeader getSubHeader(JHeader header) {
 
@@ -139,6 +195,9 @@ public abstract class JHeaderMap<B extends JHeader>
 		return header;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.JHeader#getSubHeaders()
+	 */
 	public JHeader[] getSubHeaders() {
 		List<JHeader> headers = new ArrayList<JHeader>();
 		for (int i = 0; i < MAX_HEADERS; i++) {
@@ -151,10 +210,16 @@ public abstract class JHeaderMap<B extends JHeader>
 		return headers.toArray(new JHeader[headers.size()]);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.JCompoundHeader#hasSubHeader(int)
+	 */
 	public boolean hasSubHeader(int id) {
 		return (optionsBitmap & (1 << id)) > 0;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.JCompoundHeader#hasSubHeader(org.jnetpcap.packet.JSubHeader)
+	 */
 	public <T extends JSubHeader<B>> boolean hasSubHeader(T header) {
 		if (hasSubHeader(header.getId())) {
 			getSubHeader(header);
@@ -165,6 +230,12 @@ public abstract class JHeaderMap<B extends JHeader>
 		}
 	}
 
+	/**
+	 * Reorder and save.
+	 * 
+	 * @param unordered
+	 *          the unordered
+	 */
 	private void reorderAndSave(JHeader[] unordered) {
 
 		for (JHeader u : unordered) {
@@ -172,10 +243,23 @@ public abstract class JHeaderMap<B extends JHeader>
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.JHeader#hasSubHeaders()
+	 */
 	public boolean hasSubHeaders() {
 		return this.optionsBitmap != 0;
 	}
 	
+	/**
+	 * Sets the sub header.
+	 * 
+	 * @param id
+	 *          the id
+	 * @param offset
+	 *          the offset
+	 * @param length
+	 *          the length
+	 */
 	protected void setSubHeader(int id, int offset, int length) {
 		this.optionsBitmap |= (1L << id);
 		this.optionsLength[id] = length;

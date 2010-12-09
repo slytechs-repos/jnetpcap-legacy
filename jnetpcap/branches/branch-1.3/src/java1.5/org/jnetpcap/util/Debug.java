@@ -20,78 +20,85 @@ package org.jnetpcap.util;
 
 import org.jnetpcap.nio.JStruct;
 
+// TODO: Auto-generated Javadoc
 /**
- * Specialized debug class that provides debugging and tracing services. There
- * is a low level native debug object compiled into jnetpcap library. The native
- * trace debugger works similar to the way that java logger's do with message
- * levels that can be set which will allow debug information to be printed out.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class Debug.
  */
 public class Debug
     extends
     JStruct {
 
 	/**
-	 * Size of native debug_t structure
+	 * Sizeof.
 	 * 
-	 * @return size in bytes
+	 * @return the int
 	 */
 	public native static int sizeof();
 
 	/**
-	 * @param structName
+	 * Instantiates a new debug.
 	 */
 	public Debug() {
 		super("class Debug", sizeof());
 	}
 
 	/**
-	 * Provides access to raw level value
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Interface LevelId.
 	 */
 	public interface LevelId {
 
 		/**
-		 * Gets the numerical id for this priority level
+		 * Int value.
 		 * 
-		 * @return numerical id
-		 * @see org.jnetpcap.util.Debug.LevelId#intValue()
+		 * @return the int
 		 */
 		public int intValue();
 	}
 
 	/**
-	 * Defines various message severity levels
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Enum Level.
 	 */
 	public enum Level implements LevelId {
+		
+		/** The ERROR. */
 		ERROR(4),
+		
+		/** The WARN. */
 		WARN(6),
+		
+		/** The INFO. */
 		INFO(8),
+		
+		/** The TRACE. */
 		TRACE(10);
 
+		/** The level. */
 		private final int level;
 
+		/**
+		 * Instantiates a new level.
+		 * 
+		 * @param level
+		 *          the level
+		 */
 		private Level(int level) {
 			this.level = level;
 		}
 
-		/**
-		 * Gets the numerical id for this level constant
-		 * 
-		 * @return numerical id
+		/* (non-Javadoc)
 		 * @see org.jnetpcap.util.Debug.LevelId#intValue()
 		 */
 		public int intValue() {
 			return level;
 		}
 
+		/**
+		 * Value of.
+		 * 
+		 * @param level
+		 *          the level
+		 * @return the level
+		 */
 		public static Level valueOf(int level) {
 			for (Level l : values()) {
 				if (l.level == level) {
@@ -103,14 +110,36 @@ public class Debug
 		}
 	}
 
+	/**
+	 * Sets the level.
+	 * 
+	 * @param level
+	 *          the new level
+	 */
 	public void setLevel(Debug.LevelId level) {
 		setLevel(level.intValue());
 	}
 
+	/**
+	 * Sets the level.
+	 * 
+	 * @param level
+	 *          the new level
+	 */
 	public native void setLevel(int level);
 
+	/**
+	 * Gets the level.
+	 * 
+	 * @return the level
+	 */
 	public native int getLevel();
 
+	/**
+	 * Gets the level enum.
+	 * 
+	 * @return the level enum
+	 */
 	public Level getLevelEnum() {
 		return Level.valueOf(getLevel());
 	}

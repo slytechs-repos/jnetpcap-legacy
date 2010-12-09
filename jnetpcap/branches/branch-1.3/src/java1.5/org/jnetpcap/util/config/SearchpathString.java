@@ -30,23 +30,34 @@ import org.jnetpcap.util.config.JConfig.FilesystemSearch;
 import org.jnetpcap.util.config.JConfig.SearchPath;
 import org.jnetpcap.util.config.JConfig.URLSearch;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class SearchpathString.
  */
 public class SearchpathString
     extends ConfigString {
 
+	/** The Constant logger. */
 	private final static Logger logger = JLogger.getLogger(JConfig.class);
 
+	/** The path contents. */
 	private final List<String> pathContents = new ArrayList<String>();
 
+	/** The properties. */
 	private final Properties properties;
 
+	/** The variables. */
 	private final Map<String, String> variables;
 
 	/**
+	 * Instantiates a new searchpath string.
+	 * 
 	 * @param template
+	 *          the template
+	 * @param variables
+	 *          the variables
+	 * @param properties
+	 *          the properties
 	 */
 	public SearchpathString(String template, Map<String, String> variables,
 	    Properties properties) {
@@ -56,6 +67,9 @@ public class SearchpathString
 		this.properties = properties;
 	}
 
+	/**
+	 * Cleanup string.
+	 */
 	private void cleanupString() {
 		super.expand("", variables, properties);
 		remove("\\\r\n");
@@ -79,6 +93,11 @@ public class SearchpathString
 		return this;
 	}
 
+	/**
+	 * Split to components.
+	 * 
+	 * @return true, if successful
+	 */
 	private boolean splitToComponents() {
 
 		while (scanNext("'", "'", end + 1) && start != -1) {
@@ -96,6 +115,11 @@ public class SearchpathString
 
 	}
 
+	/**
+	 * To array.
+	 * 
+	 * @return the search path[]
+	 */
 	public SearchPath[] toArray() {
 		reset();
 		cleanupString();

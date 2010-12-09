@@ -23,38 +23,9 @@ import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.protocol.JProtocol;
 
+// TODO: Auto-generated Javadoc
 /**
- * The Session Initiation Protocol (SIP) is an IETF-defined signaling protocol,
- * widely used for controlling multimedia communication sessions such as voice
- * and video calls over Internet Protocol (IP). The protocol can be used for
- * creating, modifying and terminating two-party (unicast) or multiparty
- * (multicast) sessions consisting of one or several media streams. The
- * modification can involve changing addresses or ports, inviting more
- * participants, and adding or deleting media streams. Other feasible
- * application examples include video conferencing, streaming multimedia
- * distribution, instant messaging, presence information, file transfer and
- * online games.
- * <p>
- * SIP was originally designed by Henning Schulzrinne and Mark Handley starting
- * in 1996. The latest version of the specification is RFC 3261 from the IETF
- * Network Working Group. In November 2000, SIP was accepted as a 3GPP signaling
- * protocol and permanent element of the IP Multimedia Subsystem (IMS)
- * architecture for IP-based streaming multimedia services in cellular systems.
- * </p>
- * <p>
- * The SIP protocol is an Application Layer protocol designed to be independent
- * of the underlying transport layer; it can run on Transmission Control
- * Protocol (TCP), User Datagram Protocol (UDP), or Stream Control Transmission
- * Protocol (SCTP). It is a text-based protocol, incorporating many elements of
- * the Hypertext Transfer Protocol (HTTP) and the Simple Mail Transfer Protocol
- * (SMTP).
- * </p>
- * <p>
- * Description Source: http://en.wikipedia.org/wiki/Session_Initiation_Protocol
- * </p>
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class Sip.
  */
 @Header()
 public class Sip
@@ -62,238 +33,160 @@ public class Sip
     AbstractMessageHeader {
 
 	/**
-	 * A table of SIP protocol codes and their meanings
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Enum Code.
 	 */
 	public enum Code {
-		/**
-		 * Address incomplete field (484)
-		 */
+		
+		/** The Address_ incomplete. */
 		Address_Incomplete(484, "Address Incomplete"),
 
-		/**
-		 * Alternative service (380)
-		 */
+		/** The Alternative_ service. */
 		Alternative_Service(380, "Alternative Service"),
 
-		/**
-		 * Ambiguous (485)
-		 */
+		/** The Ambiguous. */
 		Ambiguous(485, "Ambiguous"),
 
-		/**
-		 * Bad extension (420)
-		 */
+		/** The Bad_ extension. */
 		Bad_Extension(420, "Bad Extension"),
 
-		/**
-		 * Bad gateway (502)
-		 */
+		/** The Bad_ gateway. */
 		Bad_Gateway(502, "Bad Gateway"),
 
-		/**
-		 * Bad request (400)
-		 */
+		/** The Bad_ request. */
 		Bad_Request(400, "Bad Request"),
 
-		/**
-		 * Busy everywhere (600)
-		 */
+		/** The Busy_ everywhere. */
 		Busy_Everywhere(600, "Busy Everywhere"),
 
-		/**
-		 * Busy here (486)
-		 */
+		/** The Busy_ here. */
 		Busy_Here(486, "Busy Here"),
 
-		/**
-		 * Call leg transaction does not exist (481)
-		 */
+		/** The Call_ leg_ transaction_ does_ not_ exist. */
 		Call_Leg_Transaction_Does_Not_Exist(
 		    481, "Call Leg/Transaction Does Not Exist"),
 
-		/**
-		 * Decline (603)
-		 */
+		/** The Decline. */
 		Decline(603, "Decline"),
 
-		/**
-		 * Does not exist anywhere (604)
-		 */
+		/** The Does_not_exist_anywhere. */
 		Does_not_exist_anywhere(604, "Does not exist anywhere"),
 
-		/**
-		 * Extension required (421)
-		 */
+		/** The Extension_ required. */
 		Extension_Required(421, "Extension Required"),
 
-		/**
-		 * Forbidden (403)
-		 */
+		/** The Forbidden. */
 		Forbidden(403, "Forbidden"),
 
-		/**
-		 * Gone (410)
-		 */
+		/** The Gone. */
 		Gone(410, "Gone"),
 
-		/**
-		 * Internal Server Error (500)
-		 */
+		/** The Internal_ server_ error. */
 		Internal_Server_Error(500, "Internal Server Error"),
 
-		/**
-		 * Interval too brief (423)
-		 */
+		/** The Interval_ too_ brief. */
 		Interval_Too_Brief(423, "Interval Too Brief"),
 
-		/**
-		 * Loop detected (482)
-		 */
+		/** The Loop_ detected. */
 		Loop_Detected(482, "Loop Detected"),
 
-		/**
-		 * Message too large (513)
-		 */
+		/** The Message_ too_ large. */
 		Message_Too_Large(513, "Message Too Large"),
 
-		/**
-		 * Method not allowed (405)
-		 */
+		/** The Method_ not_ allowed. */
 		Method_Not_Allowed(405, "Method Not Allowed"),
 
-		/**
-		 * Moved permanently (301)
-		 */
+		/** The Moved_ permanently. */
 		Moved_Permanently(301, "Moved Permanently"),
 
-		/**
-		 * Moved temporarily (302)
-		 */
+		/** The Moved_ temporarily. */
 		Moved_Temporarily(302, "Moved Temporarily"),
 
-		/**
-		 * Multiple choices (300)
-		 */
+		/** The MULTIPL e_ choices. */
 		MULTIPLE_CHOICES(300, "Multiple Choices"),
 
-		/**
-		 * Not acceptable here (488)
-		 */
+		/** The Not_ acceptable_ here. */
 		Not_Acceptable_Here(488, "Not Acceptable Here"),
-		/**
-		 * Not acceptable 400 (406)
-		 */
+		
+		/** The Not_ acceptable400. */
 		Not_Acceptable400(406, "Not Acceptable"),
 
-		/**
-		 * Not acceptable 600 (606)
-		 */
+		/** The Not_ acceptable600. */
 		Not_Acceptable600(606, "Not Acceptable"),
 
-		/**
-		 * Not found (404)
-		 */
+		/** The Not_ found. */
 		Not_Found(404, "Not Found"),
 
-		/**
-		 * Not implemented (501)
-		 */
+		/** The Not_ implemented. */
 		Not_Implemented(501, "Not Implemented"),
 
-		/**
-		 * OK (200)
-		 */
+		/** The OK. */
 		OK(200, "OK"),
 
-		/**
-		 * Payment required (402)
-		 */
+		/** The Payment_ required. */
 		Payment_Required(402, "Payment Required"),
 
-		/**
-		 * Proxy authentication required (407)
-		 */
+		/** The Proxy_ authentication_ required. */
 		Proxy_Authentication_Required(407, "Proxy Authentication Required"),
 
-		/**
-		 * Request entity too large (413)
-		 */
+		/** The Request_ entity_ too_ large. */
 		Request_Entity_Too_Large(413, "Request Entity Too Large"),
-		/**
-		 * Request pending (491)
-		 */
+		
+		/** The Request_ pending. */
 		Request_Pending(491, "Request Pending"),
-		/**
-		 * Request terminated (487)
-		 */
+		
+		/** The Request_ terminated. */
 		Request_Terminated(487, "Request Terminated"),
 
-		/**
-		 * Request timeout (408)
-		 */
+		/** The Request_ timeout. */
 		Request_Timeout(408, "Request Timeout"),
 
-		/**
-		 * Request uri too large (414)
-		 */
+		/** The Request_ ur i_ too_ large. */
 		Request_URI_Too_Large(414, "Request-URI Too Large"),
 
-		/**
-		 * Server timeout (504)
-		 */
+		/** The Server_ time_out. */
 		Server_Time_out(504, "Server Time-out"),
 
-		/**
-		 * Service unavailable (503)
-		 */
+		/** The Service_ unavailable. */
 		Service_Unavailable(503, "Service Unavailable"),
 
-		/**
-		 * SIP version not supported (505)
-		 */
+		/** The SI p_ version_not_supported. */
 		SIP_Version_not_supported(505, "SIP Version not supported"),
 
-		/**
-		 * Temporarily not available (480)
-		 */
+		/** The Temporarily_not_available. */
 		Temporarily_not_available(480, "Temporarily not available"),
 
-		/**
-		 * Too many hops (483)
-		 */
+		/** The Too_ many_ hops. */
 		Too_Many_Hops(483, "Too Many Hops"),
 
-		/**
-		 * Unauthorized (401)
-		 */
+		/** The Unauthorized. */
 		Unauthorized(401, "Unauthorized"),
 
-		/**
-		 * Undecipherable (493)
-		 */
+		/** The Undecipherable. */
 		Undecipherable(493, "Undecipherable"),
-		/**
-		 * Unsupported media type (415)
-		 */
+		
+		/** The Unsupported_ media_ type. */
 		Unsupported_Media_Type(415, "Unsupported Media Type"),
 
-		/**
-		 * Unsupported uri scheme (416)
-		 */
+		/** The Unsupported_ ur i_ scheme. */
 		Unsupported_URI_Scheme(416, "Unsupported URI Scheme"),
 
-		/**
-		 * Use proxy (305)
-		 */
+		/** The Use_ proxy. */
 		Use_Proxy(305, "Use Proxy");
 
+		/** The code. */
 		private final int code;
 
+		/** The description. */
 		private final String description;
 
+		/**
+		 * Instantiates a new code.
+		 * 
+		 * @param code
+		 *          the code
+		 * @param description
+		 *          the description
+		 */
 		private Code(final int code, final String description) {
 			this.code = code;
 			this.description = description;
@@ -301,29 +194,29 @@ public class Sip
 		}
 
 		/**
-		 * Returns the code for this field
+		 * Gets the code.
 		 * 
-		 * @return numerical code value of this feild
+		 * @return the code
 		 */
 		public final int getCode() {
 			return this.code;
 		}
 
 		/**
-		 * Returns a human readable description of this field
+		 * Gets the description.
 		 * 
-		 * @return a string description of this field
+		 * @return the description
 		 */
 		public final String getDescription() {
 			return this.description;
 		}
 
 		/**
-		 * Converts a numerical code into a enum constant
+		 * Value of.
 		 * 
 		 * @param code
-		 *          numerical code value
-		 * @return constant if found or null if not convertable
+		 *          the code
+		 * @return the code
 		 */
 		public Code valueOf(final int code) {
 			for (final Code c : values()) {
@@ -336,15 +229,11 @@ public class Sip
 		}
 
 		/**
-		 * Helper method which expects the code in a string and returns a
-		 * corresponding enum constant
+		 * Value of using code.
 		 * 
 		 * @param code
-		 *          string containing iteger value
-		 * @return corresponding enum code constant or null if not found
-		 * @exception NumberFormatException
-		 *              thrown if string containing integer value can not be
-		 *              converted properly to numerical equivelent
+		 *          the code
+		 * @return the code
 		 */
 		public Code valueOfUsingCode(final String code) {
 			return valueOf(Integer.parseInt(code));
@@ -353,37 +242,28 @@ public class Sip
 	}
 
 	/**
-	 * A table of SIP supported content types.
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Enum ContentType.
 	 */
 	public enum ContentType {
-		/**
-		 * Content type other
-		 */
+		
+		/** The OTHER. */
 		OTHER,
-		/**
-		 * Application pkcs7-mine type
-		 */
+		
+		/** The PKC s7_ mime. */
 		PKCS7_MIME("application/pkcs7-mime"),
 
-		/**
-		 * Application pkcs7-signature
-		 */
+		/** The PKC s7_ signature. */
 		PKCS7_SIGNATURE("application/pkcs7-signature"),
 
-		/**
-		 * DSP content type
-		 */
+		/** The SPD. */
 		SPD("application/SPD"), ;
 
 		/**
-		 * Parses a string containing content type ot a enum constant
+		 * Parses the content type.
 		 * 
 		 * @param type
-		 *          string containing content type
-		 * @return constant if found, otherwise returns ContentType.OTHER
+		 *          the type
+		 * @return the content type
 		 */
 		public static ContentType parseContentType(final String type) {
 			if (type == null) {
@@ -405,279 +285,206 @@ public class Sip
 			return OTHER;
 		}
 
+		/** The magic. */
 		private final String[] magic;
 
+		/**
+		 * Instantiates a new content type.
+		 * 
+		 * @param magic
+		 *          the magic
+		 */
 		private ContentType(final String... magic) {
 			this.magic = magic;
 		}
 	}
 
 	/**
-	 * A table of SIP specific fields found in a SIP message.
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Enum Fields.
 	 */
 	@Field
 	public enum Fields {
-		/**
-		 * Accept field
-		 */
+		
+		/** The Accept. */
 		Accept,
 
-		/**
-		 * Accept encoding field
-		 */
+		/** The Accept_ encoding. */
 		Accept_Encoding,
 
-		/**
-		 * Accept language field
-		 */
+		/** The Accept_ language. */
 		Accept_Language,
 
-		/**
-		 * Alert info field
-		 */
+		/** The Alert_ info. */
 		Alert_Info,
 
-		/**
-		 * Allow field
-		 */
+		/** The Allow. */
 		Allow,
-		/**
-		 * Authentication info field
-		 */
+		
+		/** The Authentication_ info. */
 		Authentication_Info,
 
-		/**
-		 * Authorization field
-		 */
+		/** The Authorization. */
 		Authorization,
 
-		/**
-		 * Call id field
-		 */
+		/** The Call_ id. */
 		Call_ID,
 
-		/**
-		 * Call info field
-		 */
+		/** The Call_ info. */
 		Call_Info,
 
-		/**
-		 * Contact field
-		 */
+		/** The Contact. */
 		Contact,
-		/**
-		 * Content disposition field
-		 */
+		
+		/** The Content_ disposition. */
 		Content_Disposition,
 
-		/**
-		 * Content encoding field
-		 */
+		/** The Content_ encoding. */
 		Content_Encoding,
 
-		/**
-		 * Content language field
-		 */
+		/** The Content_ language. */
 		Content_Language,
 
-		/**
-		 * Content length field (in bytes)
-		 */
+		/** The Content_ length. */
 		Content_Length,
 
-		/**
-		 * Content type field
-		 */
+		/** The Content_ type. */
 		Content_Type,
 
-		/**
-		 * CSequence field
-		 */
+		/** The C seq. */
 		CSeq,
-		/**
-		 * Date field
-		 */
+		
+		/** The Date. */
 		Date,
-		/**
-		 * Error info field
-		 */
+		
+		/** The Error_ info. */
 		Error_Info,
-		/**
-		 * Expires field
-		 */
+		
+		/** The Expires. */
 		Expires,
-		/**
-		 * From field
-		 */
+		
+		/** The From. */
 		From,
-		/**
-		 * In reply to field
-		 */
+		
+		/** The In_ reply_ to. */
 		In_Reply_To,
-		/**
-		 * MAX forwards field
-		 */
+		
+		/** The Max_ forwards. */
 		Max_Forwards,
-		/**
-		 * MIME version field
-		 */
+		
+		/** The MIM e_ version. */
 		MIME_Version,
 
-		/**
-		 * MIN expires field
-		 */
+		/** The Min_ expires. */
 		Min_Expires,
-		/**
-		 * Organization field
-		 */
+		
+		/** The Organization. */
 		Organization,
-		/**
-		 * Priority field
-		 */
+		
+		/** The Priority. */
 		Priority,
-		/**
-		 * Proxy authenticate field
-		 */
+		
+		/** The Proxy_ authenticate. */
 		Proxy_Authenticate,
-		/**
-		 * Proxy authorization field
-		 */
+		
+		/** The Proxy_ authorization. */
 		Proxy_Authorization,
-		/**
-		 * Proxy require field
-		 */
+		
+		/** The Proxy_ require. */
 		Proxy_Require,
-		/**
-		 * Record route field
-		 */
+		
+		/** The Record_ route. */
 		Record_Route,
-		/**
-		 * Reply to field
-		 */
+		
+		/** The Reply_ to. */
 		Reply_To,
-		/**
-		 * Require field
-		 */
+		
+		/** The Require. */
 		Require,
-		/**
-		 * Retry after field
-		 */
+		
+		/** The Retry_ after. */
 		Retry_After,
-		/**
-		 * Route field
-		 */
+		
+		/** The Route. */
 		Route,
-		/**
-		 * Server field
-		 */
+		
+		/** The Server. */
 		Server,
-		/**
-		 * Subject field
-		 */
+		
+		/** The Subject. */
 		Subject,
-		/**
-		 * Supported field
-		 */
+		
+		/** The Supported. */
 		Supported,
-		/**
-		 * Timestamp field
-		 */
+		
+		/** The Timestamp. */
 		Timestamp,
-		/**
-		 * To field
-		 */
+		
+		/** The To. */
 		To,
-		/**
-		 * Unsupported field
-		 */
+		
+		/** The Unsupported. */
 		Unsupported,
-		/**
-		 * User agent field
-		 */
+		
+		/** The User_ agent. */
 		User_Agent,
-		/**
-		 * Via field
-		 */
+		
+		/** The Via. */
 		Via,
-		/**
-		 * Warning field
-		 */
+		
+		/** The Warning. */
 		Warning,
 
-		/**
-		 * WWW authenticate field
-		 */
+		/** The WW w_ authenticate. */
 		WWW_Authenticate
 
 	}
 
 	/**
-	 * A table of supported Request message types
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Enum Request.
 	 */
 	@Field
 	public enum Request {
-		/**
-		 * Request type
-		 */
+		
+		/** The Request method. */
 		RequestMethod,
-		/**
-		 * URL field of the request
-		 */
+		
+		/** The Request url. */
 		RequestUrl,
-		/**
-		 * Request version
-		 */
+		
+		/** The Request version. */
 		RequestVersion,
 
-		/**
-		 * Request user agent
-		 */
+		/** The User_ agent. */
 		User_Agent,
 
 	}
 
 	/**
-	 * A table of supported Response message types
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Enum Response.
 	 */
 	@Field
 	public enum Response {
-		/**
-		 * Response url
-		 */
+		
+		/** The Request url. */
 		RequestUrl,
-		/**
-		 * Request version
-		 */
+		
+		/** The Request version. */
 		RequestVersion,
-		/**
-		 * Response code
-		 */
+		
+		/** The Response code. */
 		ResponseCode,
-		/**
-		 * Response code message
-		 */
+		
+		/** The Response code msg. */
 		ResponseCodeMsg,
 	}
 
-	/**
-	 * Constant numerial ID for this protocol's header
-	 */
+	/** The ID. */
 	public static int ID = JProtocol.SIP_ID;
 
 	/**
-	 * Returns the value of the Content_Length field if present
+	 * Content length.
 	 * 
-	 * @return returns the value of the field or 0 if field is not preset within
-	 *         the message
+	 * @return the int
 	 */
 	public int contentLength() {
 		if (hasField(Fields.Content_Length)) {
@@ -689,18 +496,18 @@ public class Sip
 	}
 
 	/**
-	 * Returns the content type of this SIP message
+	 * Content type.
 	 * 
-	 * @return A string with value of the Content_Type field
+	 * @return the string
 	 */
 	public String contentType() {
 		return fieldValue(Fields.Content_Type);
 	}
 
 	/**
-	 * Returns the content type of this SIP message as a enum constant
+	 * Content type enum.
 	 * 
-	 * @return contants from ContentType table
+	 * @return the content type
 	 */
 	public ContentType contentTypeEnum() {
 		return ContentType.parseContentType(contentType());
@@ -735,82 +542,80 @@ public class Sip
 	}
 
 	/**
-	 * Looks up a field value using Fields table
+	 * Field value.
 	 * 
 	 * @param field
-	 *          field to lookup
-	 * @return the value of the field or null if not present
+	 *          the field
+	 * @return the string
 	 */
 	public String fieldValue(final Sip.Fields field) {
 		return super.fieldValue(String.class, field);
 	}
 
 	/**
-	 * Looks up a field value using Request field constant
+	 * Field value.
 	 * 
 	 * @param field
-	 *          field to lookup
-	 * @return the value of the field or null if not present
+	 *          the field
+	 * @return the string
 	 */
 	public String fieldValue(final Sip.Request field) {
 		return super.fieldValue(String.class, field);
 	}
 
 	/**
-	 * Looks up a field value using Response field constant
+	 * Field value.
 	 * 
 	 * @param field
-	 *          field to lookup
-	 * @return the value of the field or null if not present
+	 *          the field
+	 * @return the string
 	 */
 	public String fieldValue(final Sip.Response field) {
 		return super.fieldValue(String.class, field);
 	}
 
 	/**
-	 * Checks if the message has any content defined
+	 * Checks for content.
 	 * 
-	 * @return true if Content_Type field is used within the message indicating
-	 *         that content is preset
+	 * @return true, if successful
 	 */
 	public boolean hasContent() {
 		return hasField(Fields.Content_Type) || hasField(Fields.Content_Type);
 	}
 
 	/**
-	 * Checks if Content_Type field is present within the message
+	 * Checks for content type.
 	 * 
-	 * @return true if content type field is found otherwise false
+	 * @return true, if successful
 	 */
 	public boolean hasContentType() {
 		return hasField(Fields.Content_Type);
 	}
 
 	/**
-	 * Checks if a specific field is present within the message
+	 * Checks for field.
 	 * 
 	 * @param field
-	 *          field to lookup
-	 * @return true if field is found within the message otherwise falst
+	 *          the field
+	 * @return true, if successful
 	 */
 	public boolean hasField(final Fields field) {
 		return super.hasField(field);
 	}
 
 	/**
-	 * Gets the raw header instead of reconstructing it.
+	 * Header.
 	 * 
-	 * @return original raw header
+	 * @return the string
 	 */
 	public String header() {
 		return super.rawHeader;
 	}
 
 	/**
-	 * Checks if this message is a response message
+	 * Checks if is response.
 	 * 
-	 * @return true if response message, otherwise false indicating its a request
-	 *         message type
+	 * @return true, if is response
 	 */
 	public boolean isResponse() {
 		return getMessageType() == MessageType.RESPONSE;

@@ -19,10 +19,7 @@
 package org.jnetpcap.packet;
 
 /**
- * Lists binding's protocol dependencies.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Interface JDependency.
  */
 public interface JDependency {
 

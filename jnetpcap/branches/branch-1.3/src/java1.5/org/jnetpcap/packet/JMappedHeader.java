@@ -28,89 +28,134 @@ import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.structure.JField;
 import org.jnetpcap.protocol.JProtocol;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class JMappedHeader.
  */
 public class JMappedHeader
     extends JHeader {
 
 	/**
-	 * 
+	 * Instantiates a new j mapped header.
 	 */
 	public JMappedHeader() {
 	}
 
 	/**
+	 * Instantiates a new j mapped header.
+	 * 
 	 * @param protocol
+	 *          the protocol
 	 */
 	public JMappedHeader(JProtocol protocol) {
 		super(protocol);
 	}
 
 	/**
+	 * Instantiates a new j mapped header.
+	 * 
 	 * @param id
+	 *          the id
 	 * @param fields
+	 *          the fields
 	 * @param name
+	 *          the name
 	 */
 	public JMappedHeader(int id, JField[] fields, String name) {
 		super(id, fields, name);
 	}
 
 	/**
+	 * Instantiates a new j mapped header.
+	 * 
 	 * @param id
+	 *          the id
 	 * @param fields
+	 *          the fields
 	 * @param name
+	 *          the name
 	 * @param nicname
+	 *          the nicname
 	 */
 	public JMappedHeader(int id, JField[] fields, String name, String nicname) {
 		super(id, fields, name, nicname);
 	}
 
 	/**
+	 * Instantiates a new j mapped header.
+	 * 
 	 * @param id
+	 *          the id
 	 * @param name
+	 *          the name
 	 */
 	public JMappedHeader(int id, String name) {
 		super(id, name);
 	}
 
 	/**
+	 * Instantiates a new j mapped header.
+	 * 
 	 * @param id
+	 *          the id
 	 * @param name
+	 *          the name
 	 * @param nicname
+	 *          the nicname
 	 */
 	public JMappedHeader(int id, String name, String nicname) {
 		super(id, name, nicname);
 	}
 
 	/**
+	 * Instantiates a new j mapped header.
+	 * 
 	 * @param state
+	 *          the state
 	 * @param fields
+	 *          the fields
 	 * @param name
+	 *          the name
 	 * @param nicname
+	 *          the nicname
 	 */
 	public JMappedHeader(State state, JField[] fields, String name, String nicname) {
 		super(state, fields, name, nicname);
 	}
 
+	/**
+	 * The Class Entry.
+	 */
 	private static class Entry {
 
+		/** The description. */
 		private final String description;
 
+		/** The display. */
 		private final String display;
 
+		/** The length. */
 		private final int length;
 
+		/** The offset. */
 		private final int offset;
 
+		/** The value. */
 		private final Object value;
 
 		/**
+		 * Instantiates a new entry.
+		 * 
 		 * @param value
+		 *          the value
 		 * @param offset
+		 *          the offset
 		 * @param length
+		 *          the length
+		 * @param display
+		 *          the display
 		 * @param description
+		 *          the description
 		 */
 		public Entry(Object value, int offset, int length, String display,
 		    String description) {
@@ -122,41 +167,71 @@ public class JMappedHeader
 		}
 
 		/**
+		 * Gets the value description.
+		 * 
 		 * @param mappedHeader
-		 * @return
+		 *          the mapped header
+		 * @return the value description
 		 */
 		public String getValueDescription(JHeader mappedHeader) {
 			return description;
 		}
 
 		/**
+		 * Gets the length.
+		 * 
 		 * @param mappedHeader
-		 * @return
+		 *          the mapped header
+		 * @return the length
 		 */
 		public int getLength(JMappedHeader mappedHeader) {
 			return length;
 		}
 
+		/**
+		 * Gets the display.
+		 * 
+		 * @param mappedHeader
+		 *          the mapped header
+		 * @return the display
+		 */
 		public String getDisplay(JMappedHeader mappedHeader) {
 			return display;
 		}
 
 		/**
+		 * Gets the offset.
+		 * 
 		 * @param mappedHeader
-		 * @return
+		 *          the mapped header
+		 * @return the offset
 		 */
 		public int getOffset(JMappedHeader mappedHeader) {
 			return offset;
 		}
 
 		/**
+		 * Gets the value.
+		 * 
 		 * @param mappedHeader
-		 * @return
+		 *          the mapped header
+		 * @return the value
 		 */
 		public Object getValue(JMappedHeader mappedHeader) {
 			return value;
 		}
 
+		/**
+		 * Gets the value.
+		 * 
+		 * @param <V>
+		 *          the value type
+		 * @param c
+		 *          the c
+		 * @param mappedHeader
+		 *          the mapped header
+		 * @return the value
+		 */
 		@SuppressWarnings("unchecked")
 		public <V> V getValue(Class<V> c, JMappedHeader mappedHeader) {
 			return (V) value;
@@ -164,54 +239,132 @@ public class JMappedHeader
 
 	}
 
+	/** The field map. */
 	private final Map<String, Entry> fieldMap = new HashMap<String, Entry>(50);
 
+	/**
+	 * Checks for field.
+	 * 
+	 * @param field
+	 *          the field
+	 * @return true, if successful
+	 */
 	protected boolean hasField(Enum<? extends Enum<?>> field) {
 		return fieldMap.containsKey(map(field));
 	}
 
+	/**
+	 * Checks for field.
+	 * 
+	 * @param field
+	 *          the field
+	 * @return true, if successful
+	 */
 	@Dynamic(Field.Property.CHECK)
 	protected boolean hasField(String field) {
 		return fieldMap.containsKey(map(field));
 	}
 
+	/**
+	 * Field description.
+	 * 
+	 * @param field
+	 *          the field
+	 * @return the string
+	 */
 	protected String fieldDescription(Enum<? extends Enum<?>> field) {
 		return fieldMap.get(map(field)).getValueDescription(this);
 	}
 
+	/**
+	 * Field description.
+	 * 
+	 * @param field
+	 *          the field
+	 * @return the string
+	 */
 	@Dynamic(Field.Property.DESCRIPTION)
 	protected String fieldDescription(String field) {
 		return fieldMap.get(map(field)).getValueDescription(this);
 	}
 
+	/**
+	 * Field display.
+	 * 
+	 * @param field
+	 *          the field
+	 * @return the string
+	 */
 	protected String fieldDisplay(Enum<? extends Enum<?>> field) {
 		return fieldMap.get(map(field)).getDisplay(this);
 	}
 
+	/**
+	 * Field display.
+	 * 
+	 * @param field
+	 *          the field
+	 * @return the string
+	 */
 	@Dynamic(Field.Property.DISPLAY)
 	protected String fieldDisplay(String field) {
 		return fieldMap.get(map(field)).getDisplay(this);
 	}
 
+	/**
+	 * Field length.
+	 * 
+	 * @param field
+	 *          the field
+	 * @return the int
+	 */
 	protected int fieldLength(Enum<? extends Enum<?>> field) {
 		return fieldMap.get(map(field)).getLength(this);
 	}
 
+	/**
+	 * Field length.
+	 * 
+	 * @param field
+	 *          the field
+	 * @return the int
+	 */
 	@Dynamic(Field.Property.LENGTH)
 	protected int fieldLength(String field) {
 		return fieldMap.get(map(field)).getLength(this);
 	}
 
+	/**
+	 * Field offset.
+	 * 
+	 * @param field
+	 *          the field
+	 * @return the int
+	 */
 	protected int fieldOffset(Enum<? extends Enum<?>> field) {
 		return fieldMap.get(map(field)).getOffset(this);
 	}
 	
+	/**
+	 * Map.
+	 * 
+	 * @param field
+	 *          the field
+	 * @return the string
+	 */
 	protected String map(Enum<? extends Enum<?>> field) {
 		String s = field.name().replace('_', '-').toUpperCase();
 //		System.out.printf("JMappedHeader::map(%s)=%s\n", field.name(), s);
 		return s;
 	}
 	
+	/**
+	 * Map.
+	 * 
+	 * @param field
+	 *          the field
+	 * @return the string
+	 */
 	protected String map(String field) {
 		String s = field.toUpperCase();
 //		System.out.printf("JMappedHeader::map(%s)=%s\n", field, s);
@@ -219,6 +372,13 @@ public class JMappedHeader
 	}
 
 
+	/**
+	 * Field offset.
+	 * 
+	 * @param field
+	 *          the field
+	 * @return the int
+	 */
 	@Dynamic(Field.Property.OFFSET)
 	protected int fieldOffset(String field) {
 		if (fieldMap.get(map(field)) == null) {
@@ -228,15 +388,40 @@ public class JMappedHeader
 		return fieldMap.get(map(field)).getOffset(this);
 	}
 
+	/**
+	 * Field value.
+	 * 
+	 * @param field
+	 *          the field
+	 * @return the object
+	 */
 	protected Object fieldValue(Enum<? extends Enum<?>> field) {
 		return fieldMap.get(map(field)).getValue(this);
 	}
 
+	/**
+	 * Field value.
+	 * 
+	 * @param field
+	 *          the field
+	 * @return the object
+	 */
 	@Dynamic(Field.Property.VALUE)
 	protected Object fieldValue(String field) {
 		return fieldMap.get(map(field)).getValue(this);
 	}
 
+	/**
+	 * Field value.
+	 * 
+	 * @param <V>
+	 *          the value type
+	 * @param c
+	 *          the c
+	 * @param field
+	 *          the field
+	 * @return the v
+	 */
 	protected <V> V fieldValue(Class<V> c, Enum<? extends Enum<?>> field) {
 		Entry entry = fieldMap.get(map(field));
 		if (entry == null) {
@@ -246,10 +431,26 @@ public class JMappedHeader
 		return entry.getValue(c, this);
 	}
 
+	/**
+	 * Field value.
+	 * 
+	 * @param <V>
+	 *          the value type
+	 * @param c
+	 *          the c
+	 * @param field
+	 *          the field
+	 * @return the v
+	 */
 	protected <V> V fieldValue(Class<V> c, String field) {
 		return fieldMap.get(map(field)).getValue(c, this);
 	}
 
+	/**
+	 * Field array.
+	 * 
+	 * @return the string[]
+	 */
 	public String[] fieldArray() {
 
 		final String[] r = fieldMap.keySet().toArray(new String[fieldMap.size()]);
@@ -267,20 +468,30 @@ public class JMappedHeader
 	}
 
 	/**
-	 * @param name
+	 * Adds the field.
+	 * 
+	 * @param field
+	 *          the field
 	 * @param value
+	 *          the value
 	 * @param offset
-	 * @param length
+	 *          the offset
 	 */
 	public void addField(Enum<? extends Enum<?>> field, String value, int offset) {
 		addField(field, value, offset, value.length());
 	}
 
 	/**
-	 * @param name
+	 * Adds the field.
+	 * 
+	 * @param field
+	 *          the field
 	 * @param value
+	 *          the value
 	 * @param offset
+	 *          the offset
 	 * @param length
+	 *          the length
 	 */
 	public void addField(
 	    Enum<? extends Enum<?>> field,
@@ -292,17 +503,23 @@ public class JMappedHeader
 	}
 
 	/**
+	 * Adds the field.
+	 * 
 	 * @param name
+	 *          the name
 	 * @param value
+	 *          the value
 	 * @param offset
+	 *          the offset
 	 * @param length
+	 *          the length
 	 */
 	public void addField(String name, String value, int offset, int length) {
 		this.fieldMap.put(name, new Entry(value, offset, length, name, null));
 	}
 
 	/**
-	 * 
+	 * Clear fields.
 	 */
 	public void clearFields() {
 		this.fieldMap.clear();

@@ -18,15 +18,23 @@
  */
 package org.jnetpcap.packet;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Interface JHeaderType.
  */
 public interface JHeaderType {
+	
+	/**
+	 * Gets the type values.
+	 * 
+	 * @return the type values
+	 */
 	public int[] getTypeValues();
 
 	/**
-   * @return
-   */
+	 * Ordinal.
+	 * 
+	 * @return the int
+	 */
   public int ordinal();
 }

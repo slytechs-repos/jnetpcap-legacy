@@ -26,13 +26,19 @@ import java.lang.annotation.Target;
 
 import org.jnetpcap.packet.JHeader;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Interface Scanner.
  */
 @Target(ElementType.METHOD)
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Scanner {
+	
+	/**
+	 * Value.
+	 * 
+	 * @return the class<? extends j header>
+	 */
 	Class<? extends JHeader> value() default JHeader.class;
 }

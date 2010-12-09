@@ -20,29 +20,97 @@ package org.jnetpcap.newstuff;
 
 import org.jnetpcap.packet.JHeader;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
- *
+ * The Interface JHeaderContainer.
+ * 
+ * @param <B>
+ *          the generic type
  */
 public interface JHeaderContainer<B extends JHeader> {
 	
+	/**
+	 * Adds the header.
+	 * 
+	 * @param id
+	 *          the id
+	 * @param offset
+	 *          the offset
+	 * @param length
+	 *          the length
+	 */
 	public void addHeader(int id, int offset, int length);
 	
+	/**
+	 * Checks for header.
+	 * 
+	 * @param id
+	 *          the id
+	 * @return true, if successful
+	 */
 	public boolean hasHeader(int id);
 	
+	/**
+	 * Checks for header.
+	 * 
+	 * @param id
+	 *          the id
+	 * @param instance
+	 *          the instance
+	 * @return true, if successful
+	 */
 	public boolean hasHeader(int id, int instance);
 	
+	/**
+	 * Gets the header.
+	 * 
+	 * @param header
+	 *          the header
+	 * @return the header
+	 */
 	public B getHeader(B header);
 	
+	/**
+	 * Gets the header.
+	 * 
+	 * @param header
+	 *          the header
+	 * @param instance
+	 *          the instance
+	 * @return the header
+	 */
 	public B getHeader(B header, int instance);
 	
+	/**
+	 * Gets the header by index.
+	 * 
+	 * @param header
+	 *          the header
+	 * @param index
+	 *          the index
+	 * @return the header by index
+	 */
 	public JHeader getHeaderByIndex(JHeader header, int index);
 	
+	/**
+	 * Gets the header count.
+	 * 
+	 * @return the header count
+	 */
 	public int getHeaderCount();
 	
+	/**
+	 * Checks for header.
+	 * 
+	 * @param header
+	 *          the header
+	 * @return true, if successful
+	 */
 	public boolean hasHeader(B header);
 	
+	/**
+	 * Clear.
+	 */
 	public void clear();
 
 }

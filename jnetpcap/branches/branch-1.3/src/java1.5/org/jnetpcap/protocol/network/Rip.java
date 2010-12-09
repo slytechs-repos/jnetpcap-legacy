@@ -29,12 +29,9 @@ import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
 import org.jnetpcap.protocol.tcpip.Udp;
 
+// TODO: Auto-generated Javadoc
 /**
- * Routing Information Protocol (RIP). This is a baseclass for subclasses Rip1
- * and Rip2 which parse rip version 1 and version 2 protocols.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class Rip.
  */
 @Header(suite = ProtocolSuite.TCP_IP, description = "Routing Information Protocol")
 public abstract class Rip
@@ -42,37 +39,63 @@ public abstract class Rip
     JHeader {
 
 	/**
-	 * Valid values for RIP OpCode field.
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Enum Command.
 	 */
 	public enum Command {
+		
+		/** The REQUEST. */
 		REQUEST,
+		
+		/** The REPLY. */
 		REPLY,
+		
+		/** The TRAC e_ on. */
 		TRACE_ON,
+		
+		/** The TRAC e_ off. */
 		TRACE_OFF,
+		
+		/** The SUN. */
 		SUN,
+		
+		/** The TRIGGERE d_ request. */
 		TRIGGERED_REQUEST,
+		
+		/** The TRIGGERE d_ response. */
 		TRIGGERED_RESPONSE,
+		
+		/** The TRIGGERE d_ ack. */
 		TRIGGERED_ACK,
+		
+		/** The UPDAT e_ request. */
 		UPDATE_REQUEST,
+		
+		/** The UPDAT e_ response. */
 		UPDATE_RESPONSE,
+		
+		/** The UPDAT e_ ack. */
 		UPDATE_ACK;
 
+		/**
+		 * Value of.
+		 * 
+		 * @param value
+		 *          the value
+		 * @return the command
+		 */
 		public static Command valueOf(final int value) {
 			return (value < values().length) ? values()[value] : null;
 		}
 	}
 
 	/**
-	 * Bind to UDP port 520 which is the default for RIP.
+	 * Bind to udp.
 	 * 
 	 * @param packet
-	 *          current packet
+	 *          the packet
 	 * @param udp
-	 *          udp header within this packet
-	 * @return true if binding succeeded or false if failed
+	 *          the udp
+	 * @return true, if successful
 	 */
 	@Bind(to = Udp.class)
 	public static boolean bindToUdp(
@@ -81,46 +104,74 @@ public abstract class Rip
 		return (udp.destination() == 520) || (udp.source() == 520);
 	}
 
+	/**
+	 * Header length.
+	 * 
+	 * @param buffer
+	 *          the buffer
+	 * @param offset
+	 *          the offset
+	 * @return the int
+	 */
 	@HeaderLength
 	public static int headerLength(final JBuffer buffer, final int offset) {
 		return buffer.size() - offset;
 	}
 
+	/** The count. */
 	protected int count;
 
+	/**
+	 * Command.
+	 * 
+	 * @return the int
+	 */
 	@Field(offset = 0, length = 8)
 	public int command() {
 		return super.getUByte(0);
 	}
 
+	/**
+	 * Command description.
+	 * 
+	 * @return the string
+	 */
 	@Dynamic(Field.Property.DESCRIPTION)
 	public String commandDescription() {
 		return commandEnum().toString();
 	}
 
+	/**
+	 * Command enum.
+	 * 
+	 * @return the command
+	 */
 	public Command commandEnum() {
 		return Command.valueOf(command());
 	}
 
 	/**
-	 * Gets the number of entries in the routing table
+	 * Count.
 	 * 
-	 * @return count of number of 20 byte entries in the routing table
+	 * @return the int
 	 */
 	public int count() {
 		return this.count;
 	}
 
-	/**
-	 * The routing table is the only thing that needs decoding. The routing table
-	 * is lazy decoded using {@link Rip#decodeRoutingTable()} which only then
-	 * creates routing table entries.
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.JHeader#decodeHeader()
 	 */
 	@Override
 	protected void decodeHeader() {
 		this.count = (size() - 4) / 20;
 	}
 
+	/**
+	 * Version.
+	 * 
+	 * @return the int
+	 */
 	@Field(offset = 8, length = 8)
 	public int version() {
 		return super.getUByte(1);

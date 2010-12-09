@@ -21,15 +21,15 @@ package org.jnetpcap.util;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class JNetPcapFormatter.
  */
 public class JNetPcapFormatter
     extends Formatter {
 
 	/**
-	 * 
+	 * Instantiates a new j net pcap formatter.
 	 */
 	public JNetPcapFormatter() {
 	}
@@ -66,6 +66,13 @@ public class JNetPcapFormatter
 		return String.format(prefix + " %s\n%s", msg, error);
 	}
 
+	/**
+	 * Prefix.
+	 * 
+	 * @param record
+	 *          the record
+	 * @return the string
+	 */
 	private String prefix(LogRecord record) {
 		String[] c = record.getLoggerName().split("\\.");
 

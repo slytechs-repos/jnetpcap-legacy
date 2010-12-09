@@ -23,40 +23,47 @@ import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 
+// TODO: Auto-generated Javadoc
 /**
- * Routing Information Protocol version 1 (RIP). This class provides access
- * method for reading every field in RIP version 1 protocol. The routing table
- * returned only defines accessor methods for reading version 1 fields.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
- * @See Rip2
+ * The Class Rip1.
  */
 public class Rip1
     extends
     Rip {
 
 	/**
-	 * Rip1 routing table entry definition.
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Class EntryV1.
 	 */
 	@Header
 	public static class EntryV1
 	    extends
 	    JSubHeader<Rip1> {
 
+		/**
+		 * Address.
+		 * 
+		 * @return the byte[]
+		 */
 		@Field(offset = 4 * 8, length = 32)
 		public byte[] address() {
 			return super.getByteArray(4, 4);
 		}
 
+		/**
+		 * Family.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 0 * 8, length = 16)
 		public int family() {
 			return super.getUShort(0);
 		}
 
+		/**
+		 * Metric.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 16 * 8, length = 32)
 		public int metric() {
 			return super.getInt(16);
@@ -64,12 +71,11 @@ public class Rip1
 
 	}
 
+	/** The routing table. */
 	private EntryV1[] routingTable;
 
-	/**
-	 * The routing table is the only thing that needs decoding. The routing table
-	 * is lazy decoded using {@link Rip1#decodeRoutingTable()} which only then
-	 * creates routing table entries.
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.protocol.network.Rip#decodeHeader()
 	 */
 	@Override
 	protected void decodeHeader() {
@@ -78,7 +84,7 @@ public class Rip1
 	}
 
 	/**
-	 * Do the actual decoding of the routing table.
+	 * Decode routing table.
 	 */
 	private void decodeRoutingTable() {
 
@@ -93,9 +99,9 @@ public class Rip1
 	}
 
 	/**
-	 * Gets the routing table.
+	 * Routing table.
 	 * 
-	 * @return an array of routing table entries
+	 * @return the entry v1[]
 	 */
 	@Field(offset = 4 * 8, format = "%RIP")
 	public EntryV1[] routingTable() {
@@ -107,9 +113,9 @@ public class Rip1
 	}
 
 	/**
-	 * Length of the routing table in bits.
+	 * Routing table length.
 	 * 
-	 * @return
+	 * @return the int
 	 */
 	@Dynamic(Field.Property.LENGTH)
 	public int routingTableLength() {

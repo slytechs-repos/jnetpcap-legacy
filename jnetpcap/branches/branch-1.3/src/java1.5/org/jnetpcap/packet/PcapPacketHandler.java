@@ -18,13 +18,23 @@
  */
 package org.jnetpcap.packet;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
- *
+ * The Interface PcapPacketHandler.
+ * 
+ * @param <T>
+ *          the generic type
  */
 public interface PcapPacketHandler<T> {
 	
+	/**
+	 * Next packet.
+	 * 
+	 * @param packet
+	 *          the packet
+	 * @param user
+	 *          the user
+	 */
 	public void nextPacket(PcapPacket packet, T user);
 
 }

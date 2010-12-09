@@ -29,13 +29,14 @@ import org.jnetpcap.util.config.JConfig;
 import org.jnetpcap.util.config.JConfig.SearchPath;
 import org.jnetpcap.util.resolver.Resolver;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestSearchPaths.
  */
 public class TestSearchPaths
     extends TestCase {
 
+	/** The logger. */
 	private static Logger logger = JLogger.getLogger(JConfig.class);
 
 	/*
@@ -56,6 +57,12 @@ public class TestSearchPaths
 		super.tearDown();
 	}
 
+	/**
+	 * _test cache search path.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public void _testCacheSearchPath() throws IOException {
 		logger.setLevel(Level.FINER);
 
@@ -64,6 +71,12 @@ public class TestSearchPaths
 
 	}
 
+	/**
+	 * _test resource search path oui txt file.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public void _testResourceSearchPathOuiTxtFile() throws IOException {
 		logger.setLevel(Level.FINER);
 
@@ -71,6 +84,12 @@ public class TestSearchPaths
 		    .getResourceInputStream("oui.txt"));
 	}
 
+	/**
+	 * _test resource search path oui txt url.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public void _testResourceSearchPathOuiTxtURL() throws IOException {
 		logger.setLevel(Level.FINER);
 
@@ -82,6 +101,12 @@ public class TestSearchPaths
 
 	}
 
+	/**
+	 * Test search path from property.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public void testSearchPathFromProperty() throws IOException {
 		logger.setLevel(Level.FINER);
 

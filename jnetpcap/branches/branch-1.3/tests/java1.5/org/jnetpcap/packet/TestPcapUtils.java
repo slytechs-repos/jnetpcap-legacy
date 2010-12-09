@@ -23,11 +23,9 @@ import junit.framework.TestCase;
 import org.jnetpcap.packet.format.FormatUtils;
 
 
+// TODO: Auto-generated Javadoc
 /**
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
- *
+ * The Class TestPcapUtils.
  */
 public class TestPcapUtils
     extends TestCase {
@@ -50,6 +48,9 @@ public class TestPcapUtils
 		super.tearDown();
 	}
 
+	/**
+	 * Test ip6 address conversion.
+	 */
 	public void testIp6AddressConversion() {
 
 		byte[] a = new byte[] {
@@ -76,6 +77,9 @@ public class TestPcapUtils
 
 	}
 	
+	/**
+	 * Test ip6 with middle hole.
+	 */
 	public void testIp6WithMiddleHole() {
 
 		byte[] a = new byte[] {
@@ -103,6 +107,9 @@ public class TestPcapUtils
 
 	}
 
+	/**
+	 * Test ip6 with front hole.
+	 */
 	public void testIp6WithFrontHole() {
 
 		byte[] a = new byte[] {
@@ -130,6 +137,9 @@ public class TestPcapUtils
 
 	}
 	
+	/**
+	 * Test ip6 with back hole.
+	 */
 	public void testIp6WithBackHole() {
 
 		byte[] a = new byte[] {
@@ -157,6 +167,9 @@ public class TestPcapUtils
 
 	}
 
+	/**
+	 * Test ip6 with odd hole.
+	 */
 	public void testIp6WithOddHole() {
 
 		byte[] a = new byte[] {

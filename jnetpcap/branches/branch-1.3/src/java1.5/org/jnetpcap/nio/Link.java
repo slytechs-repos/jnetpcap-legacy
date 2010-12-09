@@ -18,24 +18,64 @@
  */
 package org.jnetpcap.nio;
 
+// TODO: Auto-generated Javadoc
 /**
- * 
- * @author markbe
+ * The Interface Link.
  * 
  * @param <T>
+ *          the generic type
  */
 public interface Link<T> {
+	
+	/**
+	 * Link next.
+	 * 
+	 * @return the link
+	 */
 	public Link<T> linkNext();
 
+	/**
+	 * Link next.
+	 * 
+	 * @param l
+	 *          the l
+	 */
 	public void linkNext(Link<T> l);
 
+	/**
+	 * Link prev.
+	 * 
+	 * @return the link
+	 */
 	public Link<T> linkPrev();
 
+	/**
+	 * Link prev.
+	 * 
+	 * @param l
+	 *          the l
+	 */
 	public void linkPrev(Link<T> l);
 
+	/**
+	 * Link element.
+	 * 
+	 * @return the t
+	 */
 	public T linkElement();
 	
+	/**
+	 * Link collection.
+	 * 
+	 * @return the link sequence
+	 */
 	public LinkSequence<T> linkCollection();
 	
+	/**
+	 * Link collection.
+	 * 
+	 * @param c
+	 *          the c
+	 */
 	public void linkCollection(LinkSequence<T> c);
 }

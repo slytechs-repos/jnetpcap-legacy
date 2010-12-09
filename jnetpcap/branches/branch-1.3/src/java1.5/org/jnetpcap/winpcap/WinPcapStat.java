@@ -20,18 +20,16 @@ package org.jnetpcap.winpcap;
 
 import org.jnetpcap.PcapStat;
 
+// TODO: Auto-generated Javadoc
 /**
- * Class peered with native <code>pcap_stat</code> structure providing all
- * available extensions part of WinPcap extensions. Provides access to
- * additional statical fields as returned from a call to WinPcap.statsEx().
- * 
- * @see WinPcap#statsEx()
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class WinPcapStat.
  */
 public class WinPcapStat
     extends PcapStat {
 
+	/**
+	 * Inits the i ds.
+	 */
 	private native static void initIDs();
 
 	static {
@@ -39,36 +37,41 @@ public class WinPcapStat
 	}
 
 	/**
-	 * Empty stats structure that will be filled in after the call to
-	 * <code>statsEx</code>
+	 * Instantiates a new win pcap stat.
 	 */
 	private WinPcapStat() {
 
 	}
 
 	/**
-	 * number of packets that are received by the application
+	 * Gets the capt.
+	 * 
+	 * @return the capt
 	 */
 	public long getCapt() {
 		return super.capt;
 	}
 
 	/**
-	 * number of packets lost on the network
+	 * Gets the netdrop.
+	 * 
+	 * @return the netdrop
 	 */
 	public long getNetdrop() {
 		return super.netdrop;
 	}
 
 	/**
-	 * number of packets sent by the server on the network
+	 * Gets the sent.
+	 * 
+	 * @return the sent
 	 */
 	public long getSent() {
 		return super.sent;
 	}
 
-	/**
-	 * Dumps all the values as a string.
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.PcapStat#toString()
 	 */
 	public String toString() {
 

@@ -23,24 +23,29 @@ import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.TestUtils;
 import org.jnetpcap.packet.VariousInMemoryPackets;
 
+// TODO: Auto-generated Javadoc
 /**
- * Various DL layer tests.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestLan.
  */
 public class TestLan
     extends
     TestUtils {
 
+	/** The Constant SLL. */
 	public final static String SLL =
 	    "C:\\Documents and Settings\\markbe.DESKTOP-HP.000"
 	        + "\\My Documents\\Downloads\\CaptureDemo.cap";
 
+	/**
+	 * Test sll.
+	 */
 	public void testSLL() {
 		System.out.println(super.getPcapPacket(SLL, 1 - 1));
 	}
 
+	/**
+	 * Test802dot3 trailer.
+	 */
 	public void test802dot3Trailer() {
 		JPacket packet =
 		    new JMemoryPacket(JProtocol.IEEE_802DOT3_ID,

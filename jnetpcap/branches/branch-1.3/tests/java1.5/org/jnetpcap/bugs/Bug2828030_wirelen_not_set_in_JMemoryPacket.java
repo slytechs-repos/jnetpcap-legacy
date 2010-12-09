@@ -27,20 +27,15 @@ import org.jnetpcap.packet.PeeringException;
 import org.jnetpcap.packet.TestUtils;
 import org.jnetpcap.protocol.JProtocol;
 
+// TODO: Auto-generated Javadoc
 /**
- * 2828030 JMemoryPacket doesn't set wirelen.
- * <p>
- * Several JMemoryPacket constructors do not set the required "wirelen" header
- * property. This causes exceptions to be thrown by the quick-scanner.
- * </p>
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class Bug2828030_wirelen_not_set_in_JMemoryPacket.
  */
 public class Bug2828030_wirelen_not_set_in_JMemoryPacket
     extends
     TestUtils {
 
+	/** The data. */
 	private byte[] data;
 
 	/* (non-Javadoc)
@@ -62,7 +57,7 @@ public class Bug2828030_wirelen_not_set_in_JMemoryPacket
   }
 
 	/**
-	 * 
+	 * Test scanner exception with byte array.
 	 */
 	public void testScannerExceptionWithByteArray() {
 		
@@ -74,7 +69,7 @@ public class Bug2828030_wirelen_not_set_in_JMemoryPacket
 	}
 
 	/**
-	 * 
+	 * Test scanner exception with i byte array.
 	 */
 	public void testScannerExceptionWithIByteArray() {
 		
@@ -84,7 +79,7 @@ public class Bug2828030_wirelen_not_set_in_JMemoryPacket
 	}
 
 	/**
-	 * 
+	 * Test scanner exception with j buffer.
 	 */
 	public void testScannerExceptionWithJBuffer() {
 		
@@ -97,7 +92,7 @@ public class Bug2828030_wirelen_not_set_in_JMemoryPacket
 	}
 
 	/**
-	 * 
+	 * Test scanner exception with ij buffer.
 	 */
 	public void testScannerExceptionWithIJBuffer() {
 		
@@ -108,7 +103,10 @@ public class Bug2828030_wirelen_not_set_in_JMemoryPacket
 	}
 
 	/**
+	 * Test scanner exception with byte buffer.
+	 * 
 	 * @throws PeeringException
+	 *           the peering exception
 	 */
 	public void testScannerExceptionWithByteBuffer() throws PeeringException {
 		
@@ -123,7 +121,10 @@ public class Bug2828030_wirelen_not_set_in_JMemoryPacket
 	}
 
 	/**
+	 * Test scanner exception with i byte buffer.
+	 * 
 	 * @throws PeeringException
+	 *           the peering exception
 	 */
 	public void testScannerExceptionWithIByteBuffer() throws PeeringException {
 		

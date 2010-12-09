@@ -30,24 +30,24 @@ import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.packet.annotate.HeaderLength.Type;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class AnnotatedHeaderLengthMethod.
  */
 public class AnnotatedHeaderLengthMethod
     extends
     AnnotatedMethod {
 
+	/** The Constant cache. */
 	private final static Map<Class<?>, AnnotatedHeaderLengthMethod[]> cache =
 	    new HashMap<Class<?>, AnnotatedHeaderLengthMethod[]>();
 
 	/**
-	 * Inspect annotations within the class for length methods.
+	 * Inspect class.
 	 * 
 	 * @param c
-	 *          class to inspect
-	 * @return array containing length methods for various header "record"
-	 *         sub-structures
+	 *          the c
+	 * @return the annotated header length method[]
 	 */
 	public static AnnotatedHeaderLengthMethod[] inspectClass(
 	    Class<? extends JHeader> c) {
@@ -118,10 +118,20 @@ public class AnnotatedHeaderLengthMethod
 		return methods;
 	}
 
+	/** The static length. */
 	private int staticLength;
 
+	/** The type. */
 	private final Type type;
 
+	/**
+	 * Instantiates a new annotated header length method.
+	 * 
+	 * @param method
+	 *          the method
+	 * @param type
+	 *          the type
+	 */
 	private AnnotatedHeaderLengthMethod(Method method, HeaderLength.Type type) {
 		super(method);
 		this.type = type;
@@ -130,7 +140,14 @@ public class AnnotatedHeaderLengthMethod
 	}
 
 	/**
+	 * Instantiates a new annotated header length method.
+	 * 
+	 * @param c
+	 *          the c
 	 * @param length
+	 *          the length
+	 * @param type
+	 *          the type
 	 */
 	public AnnotatedHeaderLengthMethod(
 	    Class<? extends JHeader> c,
@@ -140,6 +157,15 @@ public class AnnotatedHeaderLengthMethod
 		this.type = type;
 	}
 
+	/**
+	 * Gets the header length.
+	 * 
+	 * @param buffer
+	 *          the buffer
+	 * @param offset
+	 *          the offset
+	 * @return the header length
+	 */
 	public int getHeaderLength(JBuffer buffer, int offset) {
 
 		if (this.staticLength != -1) {
@@ -161,20 +187,34 @@ public class AnnotatedHeaderLengthMethod
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.structure.AnnotatedMethod#getMethod()
+	 */
 	public final Method getMethod() {
 		return this.method;
 	}
 
+	/**
+	 * Checks for static length.
+	 * 
+	 * @return true, if successful
+	 */
 	public boolean hasStaticLength() {
 		return this.staticLength != -1;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.structure.AnnotatedMethod#validateSignature(java.lang.reflect.Method)
+	 */
 	protected void validateSignature(Method method) {
 		checkSignature(method);
 	}
 
 	/**
+	 * Check signature.
+	 * 
 	 * @param method
+	 *          the method
 	 */
 	private static void checkSignature(Method method) {
 
@@ -204,10 +244,16 @@ public class AnnotatedHeaderLengthMethod
 		}
 	}
 
+	/**
+	 * Clear cache.
+	 */
 	public static void clearCache() {
 		cache.clear();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.structure.AnnotatedMethod#toString()
+	 */
 	public String toString() {
 		if (method == null) {
 			String property =

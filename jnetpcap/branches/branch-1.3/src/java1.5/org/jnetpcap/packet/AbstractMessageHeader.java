@@ -22,24 +22,33 @@ import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.util.JThreadLocal;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class AbstractMessageHeader.
  */
 public abstract class AbstractMessageHeader
     extends JMappedHeader {
 
+	/**
+	 * The Enum MessageType.
+	 */
 	public enum MessageType {
+		
+		/** The REQUEST. */
 		REQUEST,
+		
+		/** The RESPONSE. */
 		RESPONSE
 	}
 
+	/** The Constant HEADER_DELIMITER. */
 	private final static char[] HEADER_DELIMITER = {
 	    '\r',
 	    '\n',
 	    '\r',
 	    '\n' };
 
+	/** The Constant VALID_CHARS. */
 	private final static String[] VALID_CHARS = {
 	    "GET",
 	    "PUT",
@@ -62,6 +71,15 @@ public abstract class AbstractMessageHeader
 	    "PRA", // PRACK
 	};
 
+	/**
+	 * Check valid first chars.
+	 * 
+	 * @param buffer
+	 *          the buffer
+	 * @param offset
+	 *          the offset
+	 * @return true, if successful
+	 */
 	private static boolean checkValidFirstChars(JBuffer buffer, int offset) {
 		final String first = buffer.getUTF8String(offset, 3);
 		for (String c : VALID_CHARS) {
@@ -73,6 +91,15 @@ public abstract class AbstractMessageHeader
 		return false;
 	}
 
+	/**
+	 * Header length.
+	 * 
+	 * @param buffer
+	 *          the buffer
+	 * @param offset
+	 *          the offset
+	 * @return the int
+	 */
 	@HeaderLength
 	public static int headerLength(JBuffer buffer, int offset) {
 
@@ -95,19 +122,26 @@ public abstract class AbstractMessageHeader
 		return len;
 	}
 
+	/** The message type. */
 	private MessageType messageType;
 
+	/** The string local. */
 	private final JThreadLocal<StringBuilder> stringLocal =
 	    new JThreadLocal<StringBuilder>(StringBuilder.class);
 
+	/** The raw header. */
 	protected String rawHeader;
 
+	/**
+	 * Decode first line.
+	 * 
+	 * @param line
+	 *          the line
+	 */
 	protected abstract void decodeFirstLine(String line);
 
-	/**
-	 * Decode the http header. First we need to convert raw bytes to a char's we
-	 * can deal with since Http header is text based. Once converted we can then
-	 * accurately determine the Http header length, type of request, etc...
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.JHeader#decodeHeader()
 	 */
 	@Override
 	protected void decodeHeader() {
@@ -177,12 +211,20 @@ public abstract class AbstractMessageHeader
 		}
 	}
 
+	/**
+	 * Gets the message type.
+	 * 
+	 * @return the message type
+	 */
 	public MessageType getMessageType() {
 		return this.messageType;
 	}
 
 	/**
+	 * Sets the message type.
+	 * 
 	 * @param type
+	 *          the new message type
 	 */
 	public void setMessageType(MessageType type) {
 		this.messageType = type;

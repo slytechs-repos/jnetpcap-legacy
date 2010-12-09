@@ -28,54 +28,57 @@ import org.jnetpcap.packet.annotate.ProtocolSuite;
 import org.jnetpcap.packet.structure.JField;
 import org.jnetpcap.protocol.JProtocol.Suite;
 
+// TODO: Auto-generated Javadoc
 /**
- * Formatter that formats packet content for human readable output. This class
- * produces pretty text based output by reading field objects from the header.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TextFormatter.
  */
 public class TextFormatter
     extends JFormatter {
 
+	/** The Constant FIELD_ARRAY_FORMAT. */
 	private final static String FIELD_ARRAY_FORMAT = "%16s[%d] = ";
 
+	/** The Constant FIELD_FORMAT. */
 	private final static String FIELD_FORMAT = "%16s = ";
 
+	/** The Constant SEPARATOR. */
 	private static final String SEPARATOR = ": ";
 
 	/*
 	 * Utility Formatter
 	 */
+	/** The uf. */
 	final Formatter uf = new Formatter();
 
 	/**
-	 * 
+	 * Instantiates a new text formatter.
 	 */
 	public TextFormatter() {
 	}
 
 	/**
-	 * Creates a test formatter which send its output to an appendable output
-	 * device
+	 * Instantiates a new text formatter.
 	 * 
 	 * @param out
-	 *          where to send output
+	 *          the out
 	 */
 	public TextFormatter(Appendable out) {
 		super(out);
 	}
 
 	/**
-	 * Creates a text formatter which sends its output to a string buffer
+	 * Instantiates a new text formatter.
 	 * 
 	 * @param out
-	 *          buffer where to send output
+	 *          the out
 	 */
 	public TextFormatter(StringBuilder out) {
 		super(out);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.format.JFormatter#fieldAfter(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.structure.JField, org.jnetpcap.packet.format.JFormatter.Detail)
+	 */
 	protected void fieldAfter(JHeader header, JField field, Detail detail)
 	    throws IOException {
 
@@ -89,6 +92,9 @@ public class TextFormatter
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.format.JFormatter#fieldBefore(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.structure.JField, org.jnetpcap.packet.format.JFormatter.Detail)
+	 */
 	protected void fieldBefore(JHeader header, JField field, Detail detail)
 	    throws IOException {
 
@@ -158,6 +164,9 @@ public class TextFormatter
 
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.format.JFormatter#headerAfter(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.format.JFormatter.Detail)
+	 */
 	protected void headerAfter(JHeader header, Detail detail) throws IOException {
 		pad();
 
@@ -165,6 +174,9 @@ public class TextFormatter
 		decLevel();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.format.JFormatter#headerBefore(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.format.JFormatter.Detail)
+	 */
 	protected void headerBefore(JHeader header, Detail detail) throws IOException {
 
 		final String name = header.getNicname();
@@ -238,6 +250,9 @@ public class TextFormatter
 		decLevel();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.format.JFormatter#packetNull(org.jnetpcap.packet.JPacket, org.jnetpcap.packet.format.JFormatter.Detail)
+	 */
 	@Override
 	protected void packetNull(JPacket packet, Detail detail) {
 		pad().format("packet: NULL");

@@ -20,6 +20,10 @@ package org.jnetpcap.packet;
 
 
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Interface JPcapRecordIterable.
+ */
 public interface JPcapRecordIterable extends java.lang.Iterable<JPcapRecordBuffer.Record> {
 
 	/* (non-Javadoc)

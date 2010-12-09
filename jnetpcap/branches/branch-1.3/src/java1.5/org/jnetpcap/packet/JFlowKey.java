@@ -22,42 +22,53 @@ import java.util.Formatter;
 
 import org.jnetpcap.nio.JStruct;
 
+// TODO: Auto-generated Javadoc
 /**
- * A unique key that identifies a flow of related packets.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class JFlowKey.
  */
 public class JFlowKey
     extends JStruct {
 
+	/** The Constant FLAG_REVERSABLE. */
 	public static final int FLAG_REVERSABLE = 0x00000001;
 
-	/**
-	 * MACRO used in native code
-	 */
+	/** The Constant FLOW_KEY_PAIR_COUNT. */
 	private static final int FLOW_KEY_PAIR_COUNT = 3;
 
+	/** The Constant STRUCT_NAME. */
 	public final static String STRUCT_NAME = "flow_key_t";
 
+	/**
+	 * Sizeof.
+	 * 
+	 * @return the int
+	 */
 	public native static int sizeof();
 
 	/**
-	 * @param structName
-	 * @param type
+	 * Instantiates a new j flow key.
 	 */
 	public JFlowKey() {
 		super(STRUCT_NAME, Type.POINTER);
 	}
 
 	/**
-	 * @param structName
+	 * Instantiates a new j flow key.
+	 * 
 	 * @param type
+	 *          the type
 	 */
 	public JFlowKey(Type type) {
 		super(STRUCT_NAME, type);
 	}
 
+	/**
+	 * Equal.
+	 * 
+	 * @param key
+	 *          the key
+	 * @return true, if successful
+	 */
 	public native boolean equal(JFlowKey key);
 
 	/*
@@ -77,20 +88,33 @@ public class JFlowKey
 	}
 
 	/**
-	 * @return
+	 * Gets the flags.
+	 * 
+	 * @return the flags
 	 */
 	public native int getFlags();
 
 	/**
-	 * Retrieves bitmap of headers that are part of this key. Each bit within the
-	 * returned bitmap represents a different header ID.
+	 * Gets the header map.
 	 * 
-	 * @return bitmap of headers that have contributed atleast one key pair
+	 * @return the header map
 	 */
 	public native long getHeaderMap();
 
+	/**
+	 * Gets the id.
+	 * 
+	 * @param index
+	 *          the index
+	 * @return the id
+	 */
 	public native int getId(int index);
 	
+	/**
+	 * Gets the ids.
+	 * 
+	 * @return the ids
+	 */
 	public int[] getIds() {
 		int[] ids = new int[getPairCount()];
 		
@@ -102,8 +126,22 @@ public class JFlowKey
 	}
 
 
+	/**
+	 * Gets the pair.
+	 * 
+	 * @param index
+	 *          the index
+	 * @param reversePairs
+	 *          the reverse pairs
+	 * @return the pair
+	 */
 	public native long getPair(int index, boolean reversePairs);
 	
+	/**
+	 * Gets the pairs.
+	 * 
+	 * @return the pairs
+	 */
 	public long[] getPairs() {
 		long[] pairs = new long[getPairCount()];
 		
@@ -114,10 +152,33 @@ public class JFlowKey
 		return pairs;
 	}
 
+	/**
+	 * Gets the pair count.
+	 * 
+	 * @return the pair count
+	 */
 	public native int getPairCount();
 
+	/**
+	 * Gets the pair p1.
+	 * 
+	 * @param index
+	 *          the index
+	 * @param reversePairs
+	 *          the reverse pairs
+	 * @return the pair p1
+	 */
 	public native int getPairP1(int index, boolean reversePairs);
 	
+	/**
+	 * Gets the pair p2.
+	 * 
+	 * @param index
+	 *          the index
+	 * @param reversePairs
+	 *          the reverse pairs
+	 * @return the pair p2
+	 */
 	public native int getPairP2(int index, boolean reversePairs);
 
 	/*
@@ -129,16 +190,21 @@ public class JFlowKey
 	public native int hashCode();
 
 	/**
-	 * Compares the flow keys and returns the direction in which the match
-	 * occured. Forward or reverse.
+	 * Match.
 	 * 
 	 * @param key
-	 *          key to compare against this key
-	 * @return 0 means key's don't match, 1 keys matched in forward direction and
-	 *         -1 means matched in reverse direction.
+	 *          the key
+	 * @return the int
 	 */
 	public native int match(JFlowKey key);
 
+	/**
+	 * Peer.
+	 * 
+	 * @param peer
+	 *          the peer
+	 * @return the int
+	 */
 	protected int peer(JPacket.State peer) {
 
 		/*
@@ -147,6 +213,9 @@ public class JFlowKey
 		return super.peer(peer);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.nio.JMemory#toDebugString()
+	 */
 	public String toDebugString() {
 		Formatter out = new Formatter();
 

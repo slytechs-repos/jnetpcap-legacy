@@ -41,21 +41,9 @@ import org.jnetpcap.packet.annotate.ProtocolSuite;
 import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.util.checksum.Checksum;
 
+// TODO: Auto-generated Javadoc
 /**
- * IP version 4. Network layer internet protocol version 4. This is the main
- * header file for Internet Protocol version 4. The header file defines various
- * accessor methods for reading directly out of the Ip4 data structure found
- * within the packet data buffer. The header is peered with the packet at
- * appropriate offset into the buffer and data can be accessed via friendly
- * accessor methods defined by this header, or by using JBuffer accessors. The
- * header also performs decoding of the header, sepecifically decoding and
- * attaching optional sub-headers to this header.
- * <p>
- * Ip4 header is the backbone of the internet.
- * </p>
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class Ip4.
  */
 @Protocol(suite = Suite.NETWORK)
 @Header(name = "Ip4", nicname = "Ip", osi = Layer.NETWORK, suite = ProtocolSuite.NETWORK, spec = "RFC792", description = "ip version 4")
@@ -64,369 +52,232 @@ public class Ip4
     JHeaderMap<Ip4> implements JHeaderChecksum {
 
 	/**
-	 * Enum table for Ip4.flags field.
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Enum Flag.
 	 */
 	public enum Flag {
+		
+		/** The DF. */
 		DF,
+		
+		/** The MF. */
 		MF
 	}
 
 	/**
-	 * A table of IpTypes and their names
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Enum Ip4Type.
 	 */
 	public enum Ip4Type implements JHeaderType {
 
-		/**
-		 * IPv6 Hop-by-Hop Option [RFC1883]
-		 */
+		/** The HOPORT. */
 		HOPORT("IPv6 Hop-by-Hop Option", 0),
 
-		/**
-		 * Internet Control Message [RFC792]
-		 */
+		/** The ICMP. */
 		ICMP("Internet Control Message", 1),
 
-		/**
-		 * Internet Group Management [RFC1112]
-		 */
+		/** The IGMP. */
 		IGMP("Internet Group Management", 2),
 
-		/**
-		 * Gateway-to-Gateway [RFC823]
-		 */
+		/** The GGP. */
 		GGP("Gateway-to-Gateway", 3),
 
-		/**
-		 * Unreliable datagram protocol
-		 */
+		/** The IP. */
 		IP("IP in IP (encapsulation)", 4),
 
-		/**
-		 * Stream [RFC1190][RFC1819]
-		 */
+		/** The ST. */
 		ST("Stream", 5),
 
-		/**
-		 * Transmission Control [RFC793]
-		 */
+		/** The TCP. */
 		TCP("Transmission Control", 6),
 
-		/**
-		 * CBT [Ballardie]
-		 */
+		/** The CBT. */
 		CBT("CBT", 7),
 
-		/**
-		 * Exterior Gateway Protocol [RFC888][DLM1]
-		 */
+		/** The EGP. */
 		EGP("Exterior Gateway Protocol", 8),
 
-		/**
-		 * any private interior gateway [IANA] (used by Cisco for their IGRP)
-		 */
+		/** The IGP. */
 		IGP("any private interior gateway", 9),
 
-		/**
-		 * BBN RCC Monitoring [SGC]
-		 */
+		/** The BB n_ rc c_ mon. */
 		BBN_RCC_MON("BBN RCC Monitoring", 10),
 
-		/**
-		 * PUP [PUP][XEROX]
-		 */
+		/** The NV p_ ii. */
 		NVP_II("Network Voice Protocol", 11),
 
-		/**
-		 * CBT [Ballardie]
-		 */
+		/** The PUP. */
 		PUP("PUP", 12),
 
-		/**
-		 * ARGUS [RWS4]
-		 */
+		/** The ARGUS. */
 		ARGUS("ARGUS", 13),
 
-		/**
-		 * EMCON [BN7]
-		 */
+		/** The EMCON. */
 		EMCON("EMCON", 14),
 
-		/**
-		 * Cross Net Debugger [IEN158][JFH2]
-		 */
+		/** The XNET. */
 		XNET("Cross Net Debugger", 15),
 
-		/**
-		 * Chaos [NC3]
-		 */
+		/** The CHAOS. */
 		CHAOS("Chaos", 16),
 
-		/**
-		 * User Datagram [RFC768][JBP]
-		 */
+		/** The UDP. */
 		UDP("User Datagram", 17),
 
-		/**
-		 * Multiplexing [IEN90][JBP]
-		 */
+		/** The MUX. */
 		MUX("Multiplexing", 18),
 
-		/**
-		 * DCN Measurement Subsystems [DLM1]
-		 */
+		/** The DC n_ meas. */
 		DCN_MEAS("DCN Measurement Subsystems", 19),
 
-		/**
-		 * Host Monitoring [RFC869][RH6]
-		 */
+		/** The HMP. */
 		HMP("Host Monitoring", 20),
 
-		/**
-		 * Packet Radio Measurement [ZSU]
-		 */
+		/** The PRM. */
 		PRM("Packet Radio Measurement", 21),
 
-		/**
-		 * XEROX NS IDP [ETHERNET][XEROX]
-		 */
+		/** The XN s_ idp. */
 		XNS_IDP("XEROX NS IDP", 22),
 
-		/**
-		 * Trunk-1 [BWB6]
-		 */
+		/** The TRUN k_1. */
 		TRUNK_1("Trunk-1", 23),
 
-		/**
-		 * Trunk-2 [BWB6]
-		 */
+		/** The TRUN k_2. */
 		TRUNK_2("Trunk-2", 24),
 
-		/**
-		 * Leaf-1 [BWB6]
-		 */
+		/** The LEA f_1. */
 		LEAF_1("Leaf-1", 25),
 
-		/**
-		 * Leaf-2 [BWB6]
-		 */
+		/** The LEA f_2. */
 		LEAF_2("Leaf-2", 26),
 
-		/**
-		 * Reliable Data Protocol [RFC908][RH6]
-		 */
+		/** The RDP. */
 		RDP("Reliable Data Protocol", 27),
 
-		/**
-		 * Internet Reliable Transaction [RFC938][TXM]
-		 */
+		/** The IRTP. */
 		IRTP("Internet Reliable Transaction", 28),
 
-		/**
-		 * ISO Transport Protocol Class 4 [RFC905][RC77]
-		 */
+		/** The IS o_ t p4. */
 		ISO_TP4("ISO Transport Protocol Class 4", 29),
 
-		/**
-		 * Bulk Data Transfer Protocol [RFC969][DDC1]
-		 */
+		/** The NETBLT. */
 		NETBLT("Bulk Data Transfer Protocol", 30),
 
-		/**
-		 * MFE Network Services Protocol [MFENET][BCH2]
-		 */
+		/** The MF e_ nsp. */
 		MFE_NSP("MFE Network Services Protocol", 31),
 
-		/**
-		 * MERIT Internodal Protocol [HWB]
-		 */
+		/** The MERI t_ inp. */
 		MERIT_INP("MERIT Internodal Protocol", 32),
 
-		/**
-		 * Datagram Congestion Control Protocol [RFC4340]
-		 */
+		/** The DCCP. */
 		DCCP("Datagram Congestion Control Protocol", 33),
 
-		/**
-		 * Third Party Connect Protocol [SAF3]
-		 */
+		/** The THIR d_ pc. */
 		THIRD_PC("Third Party Connect Protocol", 34),
 
-		/**
-		 * Inter-Domain Policy Routing Protocol [MXS1]
-		 */
+		/** The IDPR. */
 		IDPR("Inter-Domain Policy Routing Protocol", 35),
 
-		/**
-		 * XTP [GXC]
-		 */
+		/** The XTP. */
 		XTP("XTP", 36),
 
-		/**
-		 * Datagram Delivery Protocol [WXC]
-		 */
+		/** The DDP. */
 		DDP("Datagram Delivery Protocol", 37),
 
-		/**
-		 * IDPR Control Message Transport Proto [MXS1]
-		 */
+		/** The IDP r_ cmtp. */
 		IDPR_CMTP("IDPR Control Message Transport Proto", 38),
 
-		/**
-		 * TP++ Transport Protocol [DXF]
-		 */
+		/** The T p_ plus. */
 		TP_PLUS("TP++ Transport Protocol", 39),
 
-		/**
-		 * IL Transport Protocol [Presotto]
-		 */
+		/** The IL. */
 		IL("IL Transport Protocol", 40),
 
-		/**
-		 * Ipv6 [Deering]
-		 */
+		/** The I pv6. */
 		IPv6("Ipv6", 41),
 
-		/**
-		 * Source Demand Routing Protocol [DXE1]
-		 */
+		/** The SDRP. */
 		SDRP("Source Demand Routing Protocol", 42),
 
-		/**
-		 * Routing Header for IPv6 [Deering]
-		 */
+		/** The I pv6_ route. */
 		IPv6_ROUTE("Ipv6", 43),
 
-		/**
-		 * Fragment Header for IPv6 [Deering]
-		 */
+		/** The I pv6_ frag. */
 		IPv6_FRAG("Fragment Header for IPv6", 44),
 
-		/**
-		 * Inter-Domain Routing Protocol [Hares]
-		 */
+		/** The IDRP. */
 		IDRP("Inter-Domain Routing Protocol", 45),
 
-		/**
-		 * Reservation Protocol [Braden]
-		 */
+		/** The RSVP. */
 		RSVP("Reservation Protocol", 46),
 
-		/**
-		 * General Routing Encapsulation [Li]
-		 */
+		/** The GRE. */
 		GRE("General Routing Encapsulation", 47),
 
-		/**
-		 * Dynamic Source Routing Protocol [RFC4728]
-		 */
+		/** The DSR. */
 		DSR("Dynamic Source Routing Protocol", 48),
 
-		/**
-		 * BNA [Salamon]
-		 */
+		/** The BNA. */
 		BNA("BNA", 49),
 
-		/**
-		 * Encap Security Payload [RFC4303]
-		 */
+		/** The ESP. */
 		ESP("Encap Security Payload", 50),
 
-		/**
-		 * Authentication Header [RFC4302]
-		 */
+		/** The AH. */
 		AH("Authentication Header", 51),
 
-		/**
-		 * Integrated Net Layer Security TUBA [GLENN]
-		 */
+		/** The I_ nlsp. */
 		I_NLSP("Integrated Net Layer Security  TUBA", 52),
 
-		/**
-		 * IP with Encryption [JI6]
-		 */
+		/** The SWIPE. */
 		SWIPE("IP with Encryption", 53),
 
-		/**
-		 * NBMA Address Resolution Protocol [RFC1735]
-		 */
+		/** The NARP. */
 		NARP("NBMA Address Resolution Protocol", 54),
 
-		/**
-		 * IP Mobility [Perkins]
-		 */
+		/** The MOBILE. */
 		MOBILE("IP Mobility", 55),
 
-		/**
-		 * Transport Layer Security Protocol [Oberg] using Kryptonet key management
-		 */
+		/** The TLSP. */
 		TLSP("Transport Layer Security Protocol", 56),
 
-		/**
-		 * SKIP [Markson]
-		 */
+		/** The SKIP. */
 		SKIP("SKIP", 57),
 
-		/**
-		 * ICMP for IPv6 [RFC1883]
-		 */
+		/** The I pv6_ icmp. */
 		IPv6_ICMP("ICMP for IPv6", 58),
 
-		/**
-		 * No Next Header for IPv6 [RFC1883]
-		 */
+		/** The I pv6_ no nxt. */
 		IPv6_NoNxt("No Next Header for IPv6", 59),
 
-		/**
-		 * Destination Options for IPv6 [RFC1883]
-		 */
+		/** The I pv6_ opts. */
 		IPv6_Opts("Destination Options for IPv6", 60),
 
-		/**
-		 * any host internal protocol [IANA]
-		 */
+		/** The AN y_ loc. */
 		ANY_LOC("any host internal protocol", 61),
 
-		/**
-		 * IP-within-IP Encapsulation Protocol [JI6]
-		 */
+		/** The IPIP. */
 		IPIP("IP-within-IP Encapsulation Protocol", 94),
 
-		/**
-		 * Protocol Independent Multicast [Farinacci]
-		 */
+		/** The PIM. */
 		PIM("Protocol Independent Multicast", 103),
 
-		/**
-		 * IPX in IP [Lee]
-		 */
+		/** The IP x_ in_ ip. */
 		IPX_In_IP("IPX in IP", 111),
 
-		/**
-		 * Schedule Transfer Protocol [JMP]
-		 */
+		/** The STP. */
 		STP("Schedule Transfer Protocol", 118),
 
-		/**
-		 * Fibre Channel [Rajagopal]
-		 */
+		/** The FC. */
 		FC("Fibre Channel", 133),
 
-		/**
-		 * MPLS-in-IP [RFC4023]
-		 */
+		/** The MPL s_in_ ip. */
 		MPLS_in_IP("MPLS-in-IP", 137), ;
+		
 		/**
-		 * Name of the constant
+		 * To string.
 		 * 
 		 * @param type
-		 *          ip type number
-		 * @return constants name
+		 *          the type
+		 * @return the string
 		 */
 		public static String toString(int type) {
 			for (Ip4Type t : values()) {
@@ -441,11 +292,11 @@ public class Ip4
 		}
 
 		/**
-		 * Converts a numerical type to constant
+		 * Value of.
 		 * 
 		 * @param type
-		 *          Ip4 type number
-		 * @return constant or null if not found
+		 *          the type
+		 * @return the ip4 type
 		 */
 		public static Ip4Type valueOf(int type) {
 			for (Ip4Type t : values()) {
@@ -459,15 +310,31 @@ public class Ip4
 			return null;
 		}
 
+		/** The description. */
 		private final String description;
 
+		/** The type values. */
 		private final int[] typeValues;
 
+		/**
+		 * Instantiates a new ip4 type.
+		 * 
+		 * @param typeValues
+		 *          the type values
+		 */
 		private Ip4Type(int... typeValues) {
 			this.typeValues = typeValues;
 			this.description = name().toLowerCase();
 		}
 
+		/**
+		 * Instantiates a new ip4 type.
+		 * 
+		 * @param description
+		 *          the description
+		 * @param typeValues
+		 *          the type values
+		 */
 		private Ip4Type(String description, int... typeValues) {
 			this.typeValues = typeValues;
 			this.description = description;
@@ -475,18 +342,16 @@ public class Ip4
 		}
 
 		/**
-		 * Description of the type value
+		 * Gets the description.
 		 * 
-		 * @return description string
+		 * @return the description
 		 */
 		public final String getDescription() {
 			return this.description;
 		}
 
-		/**
-		 * Converts contant to numerical ip type
-		 * 
-		 * @return Ip4 type number
+		/* (non-Javadoc)
+		 * @see org.jnetpcap.packet.JHeaderType#getTypeValues()
 		 */
 		public final int[] getTypeValues() {
 			return this.typeValues;
@@ -494,64 +359,112 @@ public class Ip4
 	}
 
 	/**
-	 * Baseclass for all Ip option headers
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Class IpOption.
 	 */
 	public static abstract class IpOption
 	    extends
 	    JSubHeader<Ip4> {
 
 		/**
-		 * A table of IpOption types and their names
-		 * 
-		 * @author Mark Bednarczyk
-		 * @author Sly Technologies, Inc.
+		 * The Enum OptionCode.
 		 */
 		public enum OptionCode {
 			/* 0 */
+			/** The EN d_ o f_ optio n_ list. */
 			END_OF_OPTION_LIST(0),
 			/* 3 */
+			/** The LOOS e_ sourc e_ route. */
 			LOOSE_SOURCE_ROUTE(3),
 			/* 1 */
+			/** The N o_ op. */
 			NO_OP(1),
 			/* 7 */
+			/** The RECOR d_ route. */
 			RECORD_ROUTE(7),
 			/* 2 */
+			/** The SECURITY. */
 			SECURITY(2),
 			/* 8 */
+			/** The STREA m_ id. */
 			STREAM_ID(8),
 			/* 9 */
+			/** The STRIC t_ sourc e_ route. */
 			STRICT_SOURCE_ROUTE(9),
 			/* 4 */
+			/** The TIMESTAMP. */
 			TIMESTAMP(4),
 			/* 5 */
+			/** The UNASSIGNE d1. */
 			UNASSIGNED1(5),
 			/* 6 */
+			/** The UNASSIGNE d2. */
 			UNASSIGNED2(6),
 
+			/** The EXPERIMENTA l_ measurement. */
 			EXPERIMENTAL_MEASUREMENT(10),
+			
+			/** The MT u_ probe. */
 			MTU_PROBE(11),
+			
+			/** The MT u_ reply. */
 			MTU_REPLY(12),
+			
+			/** The EXPERIMENTA l_ flo w_ control. */
 			EXPERIMENTAL_FLOW_CONTROL(13),
+			
+			/** The EXPERIMENTA l_ acces s_ control. */
 			EXPERIMENTAL_ACCESS_CONTROL(14),
+			
+			/** The ENCODE. */
 			ENCODE(15),
+			
+			/** The IM i_ traffi c_ descriptor. */
 			IMI_TRAFFIC_DESCRIPTOR(16),
+			
+			/** The EXTENDE d_ ip. */
 			EXTENDED_IP(17),
+			
+			/** The TRACEROUTE. */
 			TRACEROUTE(18),
+			
+			/** The ADDRES s_ extension. */
 			ADDRESS_EXTENSION(19),
+			
+			/** The ROUTE r_ alert. */
 			ROUTER_ALERT(20),
+			
+			/** The SELECTIV e_ directe d_ broadcas t_ most. */
 			SELECTIVE_DIRECTED_BROADCAST_MOST(21),
+			
+			/** The DYNAMI c_ packe t_ state. */
 			DYNAMIC_PACKET_STATE(23),
+			
+			/** The UPSTREA m_ multicas t_ packet. */
 			UPSTREAM_MULTICAST_PACKET(24),
+			
+			/** The QUIC k_ start. */
 			QUICK_START(25), ;
+			
+			/** The id. */
 			public final int id;
 
+			/**
+			 * Instantiates a new option code.
+			 * 
+			 * @param id
+			 *          the id
+			 */
 			private OptionCode(int id) {
 				this.id = id;
 			}
 
+			/**
+			 * Value of.
+			 * 
+			 * @param id
+			 *          the id
+			 * @return the option code
+			 */
 			public static OptionCode valueOf(int id) {
 				for (OptionCode c : values()) {
 					if (c.id == id) {
@@ -563,19 +476,44 @@ public class Ip4
 			}
 		}
 
+		/**
+		 * The Enum CodeClass.
+		 */
 		public enum CodeClass {
+			
+			/** The CONTROL. */
 			CONTROL(0),
+			
+			/** The RESERVE d1. */
 			RESERVED1(1),
+			
+			/** The DEBUG. */
 			DEBUG(2),
+			
+			/** The RESERVE d2. */
 			RESERVED2(3), ;
 
+			/** The cl. */
 			private final int cl;
 
+			/**
+			 * Instantiates a new code class.
+			 * 
+			 * @param cl
+			 *          the cl
+			 */
 			private CodeClass(int cl) {
 				this.cl = cl;
 
 			}
 
+			/**
+			 * Value of.
+			 * 
+			 * @param cl
+			 *          the cl
+			 * @return the code class
+			 */
 			public static CodeClass valueOf(int cl) {
 				for (CodeClass c : values()) {
 					if (cl == c.cl) {
@@ -587,45 +525,24 @@ public class Ip4
 			}
 		}
 
+		/**
+		 * Header length.
+		 * 
+		 * @param buffer
+		 *          the buffer
+		 * @param offset
+		 *          the offset
+		 * @return the int
+		 */
 		@HeaderLength
 		public static int headerLength(JBuffer buffer, int offset) {
 			return buffer.getUByte(1);
 		}
 
 		/**
-		 * Gets the Ip4.code field. Specifies the optional header type.
-		 * <h3>Header Spec</h3>
-		 * <table border=1>
-		 * <tr>
-		 * <td> Protocol Header:</td>
-		 * <td> Ip4</td>
-		 * </tr>
-		 * <tr>
-		 * <td> Protocol Family:</td>
-		 * <td> Networking</td>
-		 * </tr>
-		 * <tr>
-		 * <td> OSI Layer:</td>
-		 * <td> 3</td>
-		 * </tr>
-		 * <tr>
-		 * <td> Field Property:</td>
-		 * <td> constant offset</td>
-		 * </tr>
-		 * <tr>
-		 * <td> Field Offset:</td>
-		 * <td> getUByte(0) & 0x1F</td>
-		 * </tr>
-		 * </table>
-		 * <h3>Header Diagram</h3>
+		 * Code.
 		 * 
-		 * <pre>
-		 * +------+-----------------+
-		 * | CODE | optional header |
-		 * +------+-----------------+
-		 * </pre>
-		 * 
-		 * @return code field value
+		 * @return the int
 		 */
 		@Field(offset = 0, length = 8, format = "%d")
 		public int code() {
@@ -633,155 +550,100 @@ public class Ip4
 		}
 
 		/**
-		 * Sets the Ip4.code field. Specifies the optional header type.
-		 * <h3>Header Spec</h3>
-		 * <table border=1>
-		 * <tr>
-		 * <td> Protocol Header:</td>
-		 * <td> Ip4</td>
-		 * </tr>
-		 * <tr>
-		 * <td> Protocol Family:</td>
-		 * <td> Networking</td>
-		 * </tr>
-		 * <tr>
-		 * <td> OSI Layer:</td>
-		 * <td> 3</td>
-		 * </tr>
-		 * <tr>
-		 * <td> Field Property:</td>
-		 * <td> constant offset</td>
-		 * </tr>
-		 * <tr>
-		 * <td> Field Offset:</td>
-		 * <td> getUByte(0) & 0x1F</td>
-		 * </tr>
-		 * </table>
-		 * <h3>Header Diagram</h3>
-		 * 
-		 * <pre>
-		 * +------+-----------------+
-		 * | CODE | optional header |
-		 * +------+-----------------+
-		 * </pre>
+		 * Code.
 		 * 
 		 * @param value
-		 *          new code value
+		 *          the value
 		 */
 		@FieldSetter
 		public void code(int value) {
 			setUByte(0, code() & 0xE0 | value & 0x1F);
 		}
 
+		/**
+		 * Code_ copy.
+		 * 
+		 * @return the int
+		 */
 		@Field(parent = "code", offset = 7, length = 1, display = "copy", format = "%d")
 		public int code_Copy() {
 			return (code() & 0x80) >> 7;
 		}
 
+		/**
+		 * Code_ copy description.
+		 * 
+		 * @return the string
+		 */
 		@Dynamic(Field.Property.DESCRIPTION)
 		public String code_CopyDescription() {
 			return (code_Copy() > 0) ? "copy to all fragments"
 			    : "do not copy to fragments";
 		}
 
+		/**
+		 * Code_ class.
+		 * 
+		 * @return the int
+		 */
 		@Field(parent = "code", offset = 5, length = 2, display = "class", format = "%d")
 		public int code_Class() {
 			return (code() & 0x60) >> 5;
 		}
 
+		/**
+		 * Code_ class enum.
+		 * 
+		 * @return the code class
+		 */
 		public CodeClass code_ClassEnum() {
 			return CodeClass.valueOf(code_Class());
 		}
 
+		/**
+		 * Code_ class description.
+		 * 
+		 * @return the string
+		 */
 		@Dynamic(Field.Property.DESCRIPTION)
 		public String code_ClassDescription() {
 			return code_ClassEnum().toString();
 		}
 
+		/**
+		 * Code_ type.
+		 * 
+		 * @return the int
+		 */
 		@Field(parent = "code", offset = 0, length = 5, display = "type", format = "%d")
 		public int code_Type() {
 			return (code() & 0x1F);
 		}
 
+		/**
+		 * Code_ type description.
+		 * 
+		 * @return the string
+		 */
 		@Dynamic(Field.Property.DESCRIPTION)
 		public String code_TypeDescription() {
 			return IpOption.OptionCode.valueOf(code() & 0x1F).toString();
 		}
 
 		/**
-		 * Gets the Ip4.code field. Specifies the optional header type.
-		 * <h3>Header Spec</h3>
-		 * <table border=1>
-		 * <tr>
-		 * <td> Protocol Header:</td>
-		 * <td> Ip4</td>
-		 * </tr>
-		 * <tr>
-		 * <td> Protocol Family:</td>
-		 * <td> Networking</td>
-		 * </tr>
-		 * <tr>
-		 * <td> OSI Layer:</td>
-		 * <td> 3</td>
-		 * </tr>
-		 * <tr>
-		 * <td> Field Property:</td>
-		 * <td> constant offset</td>
-		 * </tr>
-		 * <tr>
-		 * <td> Field Offset:</td>
-		 * <td> getUByte(0) & 0x1F</td>
-		 * </tr>
-		 * </table>
-		 * <h3>Header Diagram</h3>
+		 * Code enum.
 		 * 
-		 * <pre>
-		 * +------+-----------------+
-		 * | CODE | optional header |
-		 * +------+-----------------+
-		 * </pre>
-		 * 
-		 * @return code field value
+		 * @return the option code
 		 */
 		public OptionCode codeEnum() {
 			return OptionCode.values()[getUByte(0) & 0x1F];
 		}
 
 		/**
-		 * Sets the Ip4.code field. Specifies the optional header type.
-		 * <h3>Header Spec</h3>
-		 * <table border=1>
-		 * <tr>
-		 * <td> Protocol Header:</td>
-		 * <td> Ip4</td>
-		 * </tr>
-		 * <tr>
-		 * <td> Protocol Family:</td>
-		 * <td> Networking</td>
-		 * </tr>
-		 * <tr>
-		 * <td> OSI Layer:</td>
-		 * <td> 3</td>
-		 * </tr>
-		 * <tr>
-		 * <td> Field Property:</td>
-		 * <td> constant offset</td>
-		 * </tr>
-		 * <tr>
-		 * <td> Field Offset:</td>
-		 * <td> getUByte(0) & 0x1F</td>
-		 * </tr>
-		 * </table>
-		 * <h3>Header Diagram</h3>
-		 * 
-		 * <pre>
-		 * +------+-----------------+
-		 * | CODE | optional header |
-		 * +------+-----------------+
-		 * </pre>
+		 * Option code.
 		 * 
 		 * @param value
-		 *          new code value
+		 *          the value
 		 */
 		public void optionCode(OptionCode value) {
 			code(value.ordinal());
@@ -789,10 +651,7 @@ public class Ip4
 	}
 
 	/**
-	 * Ip4 optional Loose Source Route header
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Class LooseSourceRoute.
 	 */
 	@Header(id = 3)
 	public static class LooseSourceRoute
@@ -801,10 +660,7 @@ public class Ip4
 	}
 
 	/**
-	 * Ip4 optional No Operation header. Takes up exactly 1 byte of memory.
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Class NoOp.
 	 */
 	@Header(id = 1)
 	public static class NoOp
@@ -813,10 +669,7 @@ public class Ip4
 	}
 
 	/**
-	 * Ip4 optional Record Route header
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Class RecordRoute.
 	 */
 	@Header(id = 7)
 	public static class RecordRoute
@@ -825,15 +678,18 @@ public class Ip4
 	}
 
 	/**
-	 * Ip4 optional Routing header
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Class Routing.
 	 */
 	public static abstract class Routing
 	    extends
 	    IpOption {
 
+		/**
+		 * Address.
+		 * 
+		 * @param values
+		 *          the values
+		 */
 		@FieldSetter
 		public void address(byte[][] values) {
 			for (int i = 0; i < values.length; i++) {
@@ -841,14 +697,34 @@ public class Ip4
 			}
 		}
 
+		/**
+		 * Address.
+		 * 
+		 * @param index
+		 *          the index
+		 * @return the byte[]
+		 */
 		public byte[] address(int index) {
 			return getByteArray(index * 4 + 3, 4);
 		}
 
+		/**
+		 * Address.
+		 * 
+		 * @param index
+		 *          the index
+		 * @param value
+		 *          the value
+		 */
 		public void address(int index, byte[] value) {
 			setByteArray(index * 4 + 3, value);
 		}
 
+		/**
+		 * Address array.
+		 * 
+		 * @return the byte[][]
+		 */
 		@Field(offset = 24, length = 0, format = "#ip4[]#")
 		public byte[][] addressArray() {
 
@@ -861,35 +737,72 @@ public class Ip4
 			return ba;
 		}
 
+		/**
+		 * Address count.
+		 * 
+		 * @return the int
+		 */
 		public int addressCount() {
 			return (length() - 3) / 4;
 		}
 
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 8, length = 8)
 		public int length() {
 			return getUByte(1);
 		}
 
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
 		@FieldSetter
 		public void length(int value) {
 			setUByte(1, value);
 		}
 
+		/**
+		 * Length description.
+		 * 
+		 * @return the string
+		 */
 		@Dynamic(Field.Property.DESCRIPTION)
 		public String lengthDescription() {
 			return "(" + length() + " - 3)/" + 4 + " = " + addressCount() + " routes";
 		}
 
+		/**
+		 * Offset.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 16, length = 8)
 		public int offset() {
 			return getUByte(2);
 		}
 
+		/**
+		 * Offset.
+		 * 
+		 * @param value
+		 *          the value
+		 */
 		@FieldSetter
 		public void offset(int value) {
 			setUByte(2, value);
 		}
 
+		/**
+		 * Offset description.
+		 * 
+		 * @return the string
+		 */
 		@Dynamic(Field.Property.DESCRIPTION)
 		public String offsetDescription() {
 			return "offset points at route #" + (offset() / 4 - 1) + "";
@@ -897,10 +810,7 @@ public class Ip4
 	}
 
 	/**
-	 * Ip4 optional Security header.
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Class Security.
 	 */
 	@Header(id = 2)
 	public static class Security
@@ -908,21 +818,40 @@ public class Ip4
 	    IpOption {
 
 		/**
-		 * A table of security algorithm types
-		 * 
-		 * @author Mark Bednarczyk
-		 * @author Sly Technologies, Inc.
+		 * The Enum SecurityType.
 		 */
 		public enum SecurityType {
+			
+			/** The CONFIDENTIAL. */
 			CONFIDENTIAL(61749),
+			
+			/** The EFTO. */
 			EFTO(30874),
+			
+			/** The MMMM. */
 			MMMM(48205),
+			
+			/** The PROG. */
 			PROG(24102),
+			
+			/** The RESTRICTED. */
 			RESTRICTED(44819),
+			
+			/** The SECRET. */
 			SECRET(55176),
+			
+			/** The UNCLASSIFIED. */
 			UNCLASSIFIED(0)
 
 			;
+			
+			/**
+			 * Value of.
+			 * 
+			 * @param type
+			 *          the type
+			 * @return the security type
+			 */
 			public static SecurityType valueOf(int type) {
 				for (SecurityType t : values()) {
 					if (t.getType() == type) {
@@ -933,14 +862,23 @@ public class Ip4
 				return null;
 			}
 
+			/** The type. */
 			private final int type;
 
+			/**
+			 * Instantiates a new security type.
+			 * 
+			 * @param type
+			 *          the type
+			 */
 			private SecurityType(int type) {
 				this.type = type;
 
 			}
 
 			/**
+			 * Gets the type.
+			 * 
 			 * @return the type
 			 */
 			public final int getType() {
@@ -948,88 +886,167 @@ public class Ip4
 			}
 		}
 
+		/**
+		 * Compartments.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 4 * 8, length = 16)
 		public int compartments() {
 			return getUShort(4);
 		}
 
+		/**
+		 * Compartments.
+		 * 
+		 * @param value
+		 *          the value
+		 */
 		@FieldSetter
 		public void compartments(int value) {
 			setUShort(4, value);
 		}
 
+		/**
+		 * Control.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 8 * 8, length = 24)
 		public int control() {
 			return (int) (getUShort(8) << 8) | getUByte(10); // 24 bits in
 			// BIG_E
 		}
 
+		/**
+		 * Control.
+		 * 
+		 * @param value
+		 *          the value
+		 */
 		@FieldSetter
 		public void control(int value) {
 			// TODO: implement Ip4.Security.control field setter
 			throw new UnsupportedOperationException("Not implemented yet");
 		}
 
+		/**
+		 * Handling.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 6 * 8, length = 16)
 		public int handling() {
 			return getUShort(6);
 		}
 
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 8, length = 8)
 		public int length() {
 			return getUByte(1);
 		}
 
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
 		@FieldSetter
 		public void length(int value) {
 			setUByte(1, value);
 		}
 
+		/**
+		 * Security.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 16, length = 16)
 		public int security() {
 			return getUShort(2);
 		}
 
+		/**
+		 * Security.
+		 * 
+		 * @param value
+		 *          the value
+		 */
 		@FieldSetter
 		public void security(int value) {
 			setUShort(2, value);
 		}
 
+		/**
+		 * Security.
+		 * 
+		 * @param value
+		 *          the value
+		 */
 		public void security(SecurityType value) {
 			security(value.type);
 		}
 
+		/**
+		 * Security enum.
+		 * 
+		 * @return the security type
+		 */
 		public SecurityType securityEnum() {
 			return SecurityType.valueOf(security());
 		}
 	}
 
 	/**
-	 * Ip4 optional Stream ID header
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Class StreamId.
 	 */
 	@Header(id = 8)
 	public static class StreamId
 	    extends
 	    IpOption {
 
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 8, length = 8)
 		public int length() {
 			return getUByte(1);
 		}
 
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
 		@FieldSetter
 		public void length(int value) {
 			setUByte(1, value);
 		}
 
+		/**
+		 * Stream id.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 16, length = 16, format = "%x")
 		public int streamId() {
 			return getUShort(2);
 		}
 
+		/**
+		 * Stream id.
+		 * 
+		 * @param value
+		 *          the value
+		 */
 		@FieldSetter
 		public void streamId(int value) {
 			setUShort(2, value);
@@ -1037,10 +1054,7 @@ public class Ip4
 	}
 
 	/**
-	 * Ip4 optional Strict Source Route header
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Class StrictSourceRoute.
 	 */
 	@Header(id = 9)
 	public static class StrictSourceRoute
@@ -1049,52 +1063,70 @@ public class Ip4
 	};
 
 	/**
-	 * Ip4 optional Timestamp header
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Class Timestamp.
 	 */
 	@Header(id = 4)
 	public static class Timestamp
 	    extends
 	    IpOption {
 
+		/**
+		 * Header length.
+		 * 
+		 * @param buffer
+		 *          the buffer
+		 * @param offset
+		 *          the offset
+		 * @return the int
+		 */
 		@HeaderLength
 		public static int headerLength(JBuffer buffer, int offset) {
 			return buffer.getUByte(1);
 		}
 
 		/**
-		 * Ip4 optional Timestamp header - a timestamp entry
-		 * 
-		 * @author Mark Bednarczyk
-		 * @author Sly Technologies, Inc.
+		 * The Class Entry.
 		 */
 		public static class Entry {
+			
+			/** The address. */
 			public byte[] address;
 
+			/** The timestamp. */
 			public long timestamp;
 		}
 
 		/**
-		 * A table of Ip4 Timestamp header flags
-		 * 
-		 * @author Mark Bednarczyk
-		 * @author Sly Technologies, Inc.
+		 * The Enum Flag.
 		 */
 		public enum Flag {
+			
+			/** The TIMESTAM p_ wit h_ ip. */
 			TIMESTAMP_WITH_IP,
+			
+			/** The TIMESTAMP s_ prespecified. */
 			TIMESTAMPS_PRESPECIFIED
 		}
 
+		/** The Constant FLAG_TIMESTAMP_WITH_IP. */
 		public final static int FLAG_TIMESTAMP_WITH_IP = 0x01;
 
+		/** The Constant FLAG_TIMESTAMPS_PRESPECIFIED. */
 		public final static int FLAG_TIMESTAMPS_PRESPECIFIED = 0x2;
 
+		/** The Constant MASK_FLAGS. */
 		public final static int MASK_FLAGS = 0x0F;
 
+		/** The Constant MASK_OVERFLOW. */
 		public final static int MASK_OVERFLOW = 0xF0;
 
+		/**
+		 * Address.
+		 * 
+		 * @param index
+		 *          the index
+		 * @return the byte[]
+		 */
 		public byte[] address(int index) {
 			if ((flags() & FLAG_TIMESTAMP_WITH_IP) == 0) {
 				return null;
@@ -1104,11 +1136,21 @@ public class Ip4
 			}
 		}
 
+		/**
+		 * Entries length.
+		 * 
+		 * @return the int
+		 */
 		@Dynamic(Field.Property.LENGTH)
 		public int entriesLength() {
 			return (length() - 4) * 8;
 		}
 
+		/**
+		 * Entries.
+		 * 
+		 * @return the entry[]
+		 */
 		@Field(offset = 4 * 8, format = "%s")
 		public Entry[] entries() {
 			final int flags = flags();
@@ -1121,6 +1163,11 @@ public class Ip4
 			}
 		}
 
+		/**
+		 * Entries timestamp only.
+		 * 
+		 * @return the entry[]
+		 */
 		private Entry[] entriesTimestampOnly() {
 			final int length = length() - 4;
 			final Entry[] entries = new Entry[length / 4];
@@ -1134,6 +1181,11 @@ public class Ip4
 			return entries;
 		}
 
+		/**
+		 * Entries with ip.
+		 * 
+		 * @return the entry[]
+		 */
 		private Entry[] entriesWithIp() {
 			final int length = length() - 4;
 			final Entry[] entries = new Entry[length / 4];
@@ -1146,16 +1198,32 @@ public class Ip4
 			return entries;
 		}
 
+		/**
+		 * Flags.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 3 * 8 + 4, length = 4)
 		public int flags() {
 			return (getUByte(3) & MASK_FLAGS);
 		}
 
+		/**
+		 * Flags.
+		 * 
+		 * @param value
+		 *          the value
+		 */
 		@FieldSetter
 		public void flags(int value) {
 			setUByte(3, value & MASK_FLAGS);
 		}
 
+		/**
+		 * Flags enum.
+		 * 
+		 * @return the sets the
+		 */
 		public Set<Flag> flagsEnum() {
 			final Set<Flag> r = EnumSet.noneOf(Flag.class);
 			int flags = flags();
@@ -1171,36 +1239,76 @@ public class Ip4
 			return r;
 		}
 
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 1 * 8, length = 8)
 		public int length() {
 			return getUByte(1);
 		}
 
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
 		@FieldSetter
 		public void length(int value) {
 			setUByte(1, value);
 		}
 
+		/**
+		 * Offset.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 2 * 8, length = 16)
 		public int offset() {
 			return getUByte(2);
 		}
 
+		/**
+		 * Offset.
+		 * 
+		 * @param value
+		 *          the value
+		 */
 		@FieldSetter
 		public void offset(int value) {
 			setUByte(2, value);
 		}
 
+		/**
+		 * Overflow.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 3 * 8, length = 4)
 		public int overflow() {
 			return (getUByte(3) & MASK_OVERFLOW) >> 4;
 		}
 
+		/**
+		 * Overflow.
+		 * 
+		 * @param value
+		 *          the value
+		 */
 		@FieldSetter
 		public void overflow(int value) {
 			setUByte(3, value << 4 | flags());
 		}
 
+		/**
+		 * Timestamp.
+		 * 
+		 * @param index
+		 *          the index
+		 * @return the long
+		 */
 		public long timestamp(int index) {
 			if ((flags() & FLAG_TIMESTAMP_WITH_IP) == 0) {
 				return getUInt(index * 4 + 4);
@@ -1210,6 +1318,11 @@ public class Ip4
 			}
 		}
 
+		/**
+		 * Timestamps count.
+		 * 
+		 * @return the int
+		 */
 		public int timestampsCount() {
 			if ((flags() & FLAG_TIMESTAMP_WITH_IP) == 0) {
 				return (length() - 4) / 4;
@@ -1220,184 +1333,352 @@ public class Ip4
 		}
 	}
 
+	/**
+	 * The Class ExperimentalMeasurement.
+	 */
 	@Header(id = 10)
 	public static class ExperimentalMeasurement
 	    extends
 	    IpOption {
 
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 8, length = 8)
 		public int length() {
 			return getUByte(1);
 		}
 
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
 		@FieldSetter
 		public void length(int value) {
 			setUByte(1, value);
 		}
 	}
 
+	/**
+	 * The Class MtuProbe.
+	 */
 	@Header(id = 11)
 	public static class MtuProbe
 	    extends
 	    IpOption {
 
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 8, length = 8)
 		public int length() {
 			return getUByte(1);
 		}
 
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
 		@FieldSetter
 		public void length(int value) {
 			setUByte(1, value);
 		}
 	}
 
+	/**
+	 * The Class MtuReply.
+	 */
 	@Header(id = 12)
 	public static class MtuReply
 	    extends
 	    IpOption {
 
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 8, length = 8)
 		public int length() {
 			return getUByte(1);
 		}
 
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
 		@FieldSetter
 		public void length(int value) {
 			setUByte(1, value);
 		}
 	}
 
+	/**
+	 * The Class ExperimentalFlowControl.
+	 */
 	@Header(id = 13)
 	public static class ExperimentalFlowControl
 	    extends
 	    IpOption {
 
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 8, length = 8)
 		public int length() {
 			return getUByte(1);
 		}
 
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
 		@FieldSetter
 		public void length(int value) {
 			setUByte(1, value);
 		}
 	}
 
+	/**
+	 * The Class ExperimentalAccessControl.
+	 */
 	@Header(id = 14)
 	public static class ExperimentalAccessControl
 	    extends
 	    IpOption {
 
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 8, length = 8)
 		public int length() {
 			return getUByte(1);
 		}
 
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
 		@FieldSetter
 		public void length(int value) {
 			setUByte(1, value);
 		}
 	}
 
+	/**
+	 * The Class Encode.
+	 */
 	@Header(id = 15)
 	public static class Encode
 	    extends
 	    IpOption {
 
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 8, length = 8)
 		public int length() {
 			return getUByte(1);
 		}
 
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
 		@FieldSetter
 		public void length(int value) {
 			setUByte(1, value);
 		}
 	}
 
+	/**
+	 * The Class IMITrafficDescriptor.
+	 */
 	@Header(id = 16)
 	public static class IMITrafficDescriptor
 	    extends
 	    IpOption {
 
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 8, length = 8)
 		public int length() {
 			return getUByte(1);
 		}
 
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
 		@FieldSetter
 		public void length(int value) {
 			setUByte(1, value);
 		}
 	}
 
+	/**
+	 * The Class ExtendedIp.
+	 */
 	@Header(id = 17)
 	public static class ExtendedIp
 	    extends
 	    IpOption {
 
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 8, length = 8)
 		public int length() {
 			return getUByte(1);
 		}
 
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
 		@FieldSetter
 		public void length(int value) {
 			setUByte(1, value);
 		}
 	}
 
+	/**
+	 * The Class Traceroute.
+	 */
 	@Header(id = 18)
 	public static class Traceroute
 	    extends
 	    IpOption {
 
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 8, length = 8)
 		public int length() {
 			return getUByte(1);
 		}
 
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
 		@FieldSetter
 		public void length(int value) {
 			setUByte(1, value);
 		}
 	}
 
+	/**
+	 * The Class AddressExtension.
+	 */
 	@Header(id = 19)
 	public static class AddressExtension
 	    extends
 	    IpOption {
 
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 8, length = 8)
 		public int length() {
 			return getUByte(1);
 		}
 
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
 		@FieldSetter
 		public void length(int value) {
 			setUByte(1, value);
 		}
 	}
 
+	/**
+	 * The Class RouterAlert.
+	 */
 	@Header(id = 20)
 	public static class RouterAlert
 	    extends
 	    IpOption {
 
+		/**
+		 * The Enum Action.
+		 */
 		public enum Action {
+			
+			/** The EXAMIN e_ packet. */
 			EXAMINE_PACKET(0), ;
+			
+			/** The value. */
 			private final int value;
 
+			/**
+			 * Instantiates a new action.
+			 * 
+			 * @param value
+			 *          the value
+			 */
 			private Action(int value) {
 				this.value = value;
 
 			}
 
+			/**
+			 * Value.
+			 * 
+			 * @return the int
+			 */
 			public int value() {
 				return value;
 			}
 
+			/**
+			 * Value of.
+			 * 
+			 * @param action
+			 *          the action
+			 * @return the action
+			 */
 			public static Action valueOf(int action) {
 				for (Action a : values()) {
 					if (a.value == action) {
@@ -1409,59 +1690,106 @@ public class Ip4
 			}
 		}
 
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 8, length = 8)
 		public int length() {
 			return getUByte(1);
 		}
 
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
 		@FieldSetter
 		public void length(int value) {
 			setUByte(1, value);
 		}
 
+		/**
+		 * Action description.
+		 * 
+		 * @return the string
+		 */
 		@Dynamic(Field.Property.DESCRIPTION)
 		public String actionDescription() {
 			return actionEnum().toString();
 		}
 
+		/**
+		 * Action.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 16, length = 16)
 		public int action() {
 			return super.getUShort(2);
 		}
 
+		/**
+		 * Action enum.
+		 * 
+		 * @return the action
+		 */
 		public Action actionEnum() {
 			return Action.valueOf(action());
 		}
 	}
 
+	/**
+	 * The Class SelectiveDirectedBroadcastMode.
+	 */
 	@Header(id = 21)
 	public static class SelectiveDirectedBroadcastMode
 	    extends
 	    IpOption {
 
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 8, length = 8)
 		public int length() {
 			return getUByte(1);
 		}
 
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
 		@FieldSetter
 		public void length(int value) {
 			setUByte(1, value);
 		}
 	}
 
+	/** The Constant DIFF_CODEPOINT. */
 	public final static int DIFF_CODEPOINT = 0xFC;
 
+	/** The Constant DIFF_ECE. */
 	public final static int DIFF_ECE = 0x01;
 
+	/** The Constant DIFF_ECT. */
 	public final static int DIFF_ECT = 0x02;
 
+	/** The Constant FLAG_DONT_FRAGMENT. */
 	public final static int FLAG_DONT_FRAGMENT = 0x2;
 
+	/** The Constant FLAG_MORE_FRAGMENTS. */
 	public final static int FLAG_MORE_FRAGMENTS = 0x1;
 
+	/** The Constant FLAG_RESERVED. */
 	public final static int FLAG_RESERVED = 0x4;
 
+	/** The Constant ID. */
 	public final static int ID = JProtocol.IP4_ID;
 
 //	@Bind(to = Ethernet.class)
@@ -1474,13 +1802,28 @@ public class Ip4
 //		return snap.pid() == 0x800;
 //	}
 
-	@HeaderLength
+	/**
+ * Gets the header length.
+ * 
+ * @param buffer
+ *          the buffer
+ * @param offset
+ *          the offset
+ * @return the header length
+ */
+@HeaderLength
 	public static int getHeaderLength(JBuffer buffer, int offset) {
 		return (buffer.getUByte(offset) & 0x0F) * 4;
 	}
 
+	/** The hashcode. */
 	private int hashcode;
 
+	/**
+	 * Checksum description.
+	 * 
+	 * @return the string
+	 */
 	@Dynamic(Field.Property.DESCRIPTION)
 	public String checksumDescription() {
 		final int crc16 = calculateChecksum();
@@ -1491,26 +1834,43 @@ public class Ip4
 		}
 	}
 
-	/**
-	 * Retrieves the header's checksum.
-	 * 
-	 * @return header's stored checksum
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.JHeaderChecksum#checksum()
 	 */
 	@Field(offset = 10 * BYTE, length = 16, format = "%x")
 	public int checksum() {
 		return getUShort(10);
 	}
 
+	/**
+	 * Checksum.
+	 * 
+	 * @param value
+	 *          the value
+	 */
 	@FieldSetter
 	public void checksum(int value) {
 		setUShort(10, value);
 	}
 
+	/**
+	 * Check type.
+	 * 
+	 * @param type
+	 *          the type
+	 * @return true, if successful
+	 */
 	@BindingVariable(MatchType.FUNCTION)
 	public boolean checkType(int type) {
 		return type() == type && offset() == 0;
 	}
 
+	/**
+	 * Clear flags.
+	 * 
+	 * @param flags
+	 *          the flags
+	 */
 	public void clearFlags(int flags) {
 		int o = getUByte(6);
 		o &= ~(flags << 5);
@@ -1564,17 +1924,35 @@ public class Ip4
 		}
 	}
 
+	/**
+	 * Destination.
+	 * 
+	 * @return the byte[]
+	 */
 	@Field(offset = 16 * BYTE, length = 32, format = "#ip4#")
 	@FlowKey(index = 0)
 	public byte[] destination() {
 		return getByteArray(16, 4);
 	}
 
+	/**
+	 * Destination.
+	 * 
+	 * @param value
+	 *          the value
+	 */
 	@FieldSetter
 	public void destination(byte[] value) {
 		setByteArray(16, value);
 	}
 
+	/**
+	 * Destination to byte array.
+	 * 
+	 * @param address
+	 *          the address
+	 * @return the byte[]
+	 */
 	public byte[] destinationToByteArray(byte[] address) {
 		if (address.length != 4) {
 			throw new IllegalArgumentException("address must be 4 byte long");
@@ -1583,25 +1961,18 @@ public class Ip4
 	}
 
 	/**
-	 * Converts the 32 bit Ip4 destination address to a java signed 32 bit
-	 * integer. The value returned should be treated as an unsigned integer, which
-	 * java can not represent as an int. If neccessary to printout the value
-	 * returned, in order to correctly represent the unsinged value, the integer
-	 * returned should be converted to a java long type and sign appropriately
-	 * handled to take advantage of the extra length of a java long type.
+	 * Destination to int.
 	 * 
-	 * @return unsinged 32 bit integer representing the Ip4 destination address
+	 * @return the int
 	 */
 	public int destinationToInt() {
 		return getInt(16);
 	}
 
 	/**
-	 * Retrives the flags header field as an unsigned integer, length of 3 bits,
-	 * that has each Ip4 flag encoded as a bit field. The first flag is encoded in
-	 * bit number 0 of the returned usigned integer.
+	 * Flags.
 	 * 
-	 * @return 3 bits of the flag field as unsigned integer
+	 * @return the int
 	 */
 	@Field(offset = 6 * BYTE, length = 3, format = "%x")
 	public int flags() {
@@ -1609,11 +1980,9 @@ public class Ip4
 	}
 
 	/**
-	 * Retrieves the flags field as a collection's set of enum constants that
-	 * represent each flag. The flags returned are an EnumSet which efficiently
-	 * encodes the enum constants as an internal bitfield.
+	 * Flags enum.
 	 * 
-	 * @return
+	 * @return the sets the
 	 */
 	public Set<Ip4.Flag> flagsEnum() {
 		Set<Ip4.Flag> set = EnumSet.noneOf(Ip4.Flag.class);
@@ -1629,11 +1998,10 @@ public class Ip4
 	}
 
 	/**
-	 * A setter method that changes the flag bits directly in the peered Ip4
-	 * header structure within the packet data buffer.
+	 * Flags.
 	 * 
 	 * @param flags
-	 *          new flags to set
+	 *          the flags
 	 */
 	@FieldSetter
 	public void flags(int flags) {
@@ -1643,41 +2011,80 @@ public class Ip4
 		setUByte(6, o);
 	}
 
+	/**
+	 * Flags_ reserved.
+	 * 
+	 * @return the int
+	 */
 	@Field(parent = "flags", offset = 2, length = 1, display = "reserved")
 	public int flags_Reserved() {
 		return (flags() & FLAG_RESERVED) >> 3;
 	}
 
+	/**
+	 * Flags_ df.
+	 * 
+	 * @return the int
+	 */
 	@Field(parent = "flags", offset = 1, length = 1, display = "DF: do not fragment")
 	public int flags_DF() {
 		return (flags() & FLAG_DONT_FRAGMENT) >> 1;
 	}
 
+	/**
+	 * Flags_ df description.
+	 * 
+	 * @return the string
+	 */
 	@Dynamic(Field.Property.DESCRIPTION)
 	public String flags_DFDescription() {
 		return (flags_DF() > 0) ? "set" : "not set";
 	}
 
+	/**
+	 * Flags_ mf.
+	 * 
+	 * @return the int
+	 */
 	@Field(parent = "flags", offset = 0, length = 1, display = "MF: more fragments", nicname = "M")
 	public int flags_MF() {
 		return (flags() & FLAG_MORE_FRAGMENTS);
 	}
 
+	/**
+	 * Flags_ mf description.
+	 * 
+	 * @return the string
+	 */
 	@Dynamic(Field.Property.DESCRIPTION)
 	public String flags_MFDescription() {
 		return (flags_MF() > 0) ? "set" : "not set";
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
 	@Override
 	public int hashCode() {
 		return this.hashcode;
 	}
 
+	/**
+	 * Hlen.
+	 * 
+	 * @return the int
+	 */
 	@Field(offset = 0 * BYTE + 4, length = 4, format = "%d")
 	public int hlen() {
 		return getUByte(0) & 0x0F;
 	}
 
+	/**
+	 * Hlen.
+	 * 
+	 * @param value
+	 *          the value
+	 */
 	@FieldSetter
 	public void hlen(int value) {
 		int o = getUByte(0) & 0xF0;
@@ -1686,6 +2093,11 @@ public class Ip4
 		setUByte(0, o);
 	}
 
+	/**
+	 * Hlen description.
+	 * 
+	 * @return the string
+	 */
 	@Dynamic(Field.Property.DESCRIPTION)
 	public String hlenDescription() {
 		String pre = "" + hlen() + " * 4 = " + (hlen() * 4) + " bytes";
@@ -1693,48 +2105,84 @@ public class Ip4
 		    + ", Ip Options Present";
 	}
 
+	/**
+	 * Id.
+	 * 
+	 * @return the int
+	 */
 	@Field(offset = 4 * BYTE, length = 16, format = "%x")
 	public int id() {
 		return getUShort(4);
 	}
 
+	/**
+	 * Id.
+	 * 
+	 * @param value
+	 *          the value
+	 */
 	@FieldSetter
 	public void id(int value) {
 		setUShort(4, value);
 	}
 
 	/**
-	 * Checks if this is ip fragment of a larger PDU. The method checks offset and
-	 * flags.MF fields to see if there are other fragments, marked by flags and
-	 * offset, for a larger PDU.
+	 * Checks if is fragment.
 	 * 
-	 * @return true if this is a fragment, otherwise false
+	 * @return true, if is fragment
 	 */
 	public boolean isFragment() {
 		return offset() != 0 || flags_MF() > 0;
 	}
 
+	/**
+	 * Length.
+	 * 
+	 * @return the int
+	 */
 	@Field(offset = 2 * BYTE, length = 16, format = "%d")
 	public int length() {
 		return getUShort(2);
 	}
 
+	/**
+	 * Length.
+	 * 
+	 * @param value
+	 *          the value
+	 */
 	@FieldSetter
 	public void length(int value) {
 		setUShort(2, value);
 	}
 
+	/**
+	 * Offset description.
+	 * 
+	 * @return the string
+	 */
 	@Dynamic(Field.Property.DESCRIPTION)
 	public String offsetDescription() {
 		return (offset() == 0) ? null : "" + offset() + " * 8 = " + (offset() * 8)
 		    + " bytes";
 	}
 
+	/**
+	 * Offset.
+	 * 
+	 * @return the int
+	 */
 	@Field(offset = 6 * BYTE + 3, length = 13, format = "%d")
 	public int offset() {
 		return getUShort(6) & 0x1FFF;
 	}
 
+	/**
+	 * Offset.
+	 * 
+	 * @param offset
+	 *          the offset
+	 */
 	@FieldSetter
 	public void offset(int offset) {
 		int o = getUShort(6) & ~0x1FFF;
@@ -1744,14 +2192,9 @@ public class Ip4
 	}
 
 	/**
-	 * Converts the 32 bit Ip4 source address to a java signed 32 bit integer. The
-	 * value returned should be treated as an unsigned integer, which java can not
-	 * represent as an int. If neccessary to printout the value returned, in order
-	 * to correctly represent the unsinged value, the integer returned should be
-	 * converted to a java long type and sign appropriately handled to take
-	 * advantage of the extra length of a java long type.
+	 * Source.
 	 * 
-	 * @return unsinged 32 bit integer representing the Ip4 source address
+	 * @return the byte[]
 	 */
 	@Field(offset = 12 * BYTE, length = 32, format = "#ip4#")
 	@FlowKey(index = 0)
@@ -1759,11 +2202,24 @@ public class Ip4
 		return getByteArray(12, 4);
 	}
 
+	/**
+	 * Source.
+	 * 
+	 * @param value
+	 *          the value
+	 */
 	@FieldSetter
 	public void source(byte[] value) {
 		setByteArray(12, value);
 	}
 
+	/**
+	 * Source to byte array.
+	 * 
+	 * @param address
+	 *          the address
+	 * @return the byte[]
+	 */
 	public byte[] sourceToByteArray(byte[] address) {
 		if (address.length != 4) {
 			throw new IllegalArgumentException("address must be 4 byte long");
@@ -1771,75 +2227,154 @@ public class Ip4
 		return getByteArray(12, address);
 	}
 
+	/**
+	 * Source to int.
+	 * 
+	 * @return the int
+	 */
 	public int sourceToInt() {
 		return getInt(12);
 	}
 
+	/**
+	 * Tos.
+	 * 
+	 * @return the int
+	 */
 	@Field(offset = 1 * BYTE, length = 8, format = "%x", display = "diffserv")
 	public int tos() {
 		return getUByte(1);
 	}
 
+	/**
+	 * Tos.
+	 * 
+	 * @param value
+	 *          the value
+	 */
 	@FieldSetter
 	public void tos(int value) {
 		setUByte(1, value);
 	}
 
+	/**
+	 * Tos_ codepoint.
+	 * 
+	 * @return the int
+	 */
 	@Field(parent = "tos", offset = 2, length = 6, display = "code point")
 	public int tos_Codepoint() {
 		return (tos() & DIFF_CODEPOINT) >> 2;
 	}
 
+	/**
+	 * Tos_ codepoint description.
+	 * 
+	 * @return the string
+	 */
 	@Dynamic(Field.Property.DESCRIPTION)
 	public String tos_CodepointDescription() {
 		return (tos_Codepoint() > 0) ? "code point " + tos_Codepoint() : "not set";
 	}
 
+	/**
+	 * Tos_ ece.
+	 * 
+	 * @return the int
+	 */
 	@Field(parent = "tos", offset = 0, length = 1, display = "ECE bit")
 	public int tos_ECE() {
 		return (tos() & DIFF_ECE) >> 0;
 	}
 
+	/**
+	 * Tos_ ece description.
+	 * 
+	 * @return the string
+	 */
 	@Dynamic(Field.Property.DESCRIPTION)
 	public String tos_ECEDescription() {
 		return (tos_ECE() > 0) ? "set" : "not set";
 	}
 
+	/**
+	 * Tos_ ecn.
+	 * 
+	 * @return the int
+	 */
 	@Field(parent = "tos", offset = 1, length = 1, display = "ECN bit")
 	public int tos_ECN() {
 		return (tos() & DIFF_ECT) >> 1;
 	}
 
+	/**
+	 * Tos_ ecn description.
+	 * 
+	 * @return the string
+	 */
 	@Dynamic(Field.Property.DESCRIPTION)
 	public String tos_ECNDescription() {
 		return (tos_ECN() > 0) ? "set" : "not set";
 	}
 
+	/**
+	 * Ttl.
+	 * 
+	 * @return the int
+	 */
 	@Field(offset = 8 * BYTE, length = 8, format = "%d", description = "time to live")
 	public int ttl() {
 		return getUByte(8);
 	}
 
+	/**
+	 * Ttl.
+	 * 
+	 * @param value
+	 *          the value
+	 */
 	@FieldSetter
 	public void ttl(int value) {
 		setUByte(8, value);
 	}
 
+	/**
+	 * Type.
+	 * 
+	 * @return the int
+	 */
 	@Field(offset = 9 * BYTE, length = 8, format = "%d")
 	@FlowKey(index = 1)
 	public int type() {
 		return getUByte(9);
 	}
 
+	/**
+	 * Type.
+	 * 
+	 * @param value
+	 *          the value
+	 */
 	@FieldSetter
 	public void type(int value) {
 		setUByte(9, value);
 	}
 
+	/**
+	 * Type.
+	 * 
+	 * @param type
+	 *          the type
+	 */
 	public void type(Ip4Type type) {
 		setUByte(9, type.typeValues[0]);
 	}
 
+	/**
+	 * Type description.
+	 * 
+	 * @return the string
+	 */
 	@Dynamic(Field.Property.DESCRIPTION)
 	public String typeDescription() {
 		String next = Ip4Type.toString(type());
@@ -1847,37 +2382,46 @@ public class Ip4
 		    + (next == null ? "" : " of " + next + " PDU");
 	}
 
+	/**
+	 * Type enum.
+	 * 
+	 * @return the ip4 type
+	 */
 	public Ip4Type typeEnum() {
 		return Ip4Type.valueOf(type());
 	}
 
+	/**
+	 * Version.
+	 * 
+	 * @return the int
+	 */
 	@Field(offset = 0 * 8 + 0, length = 4, format = "%d")
 	public int version() {
 		return getUByte(0) >> 4;
 	}
 
+	/**
+	 * Version.
+	 * 
+	 * @param value
+	 *          the value
+	 */
 	@FieldSetter
 	public void version(int value) {
 		setUByte(0, hlen() | value << 4);
 	}
 
-	/**
-	 * Calculates a checksum using protocol specification for a header. Checksums
-	 * for partial headers or fragmented packets (unless the protocol alows it)
-	 * are not calculated.
-	 * 
-	 * @return header's calculated checksum
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.JHeaderChecksum#calculateChecksum()
 	 */
 	public int calculateChecksum() {
 		return Checksum.inChecksumShouldBe(this.checksum(), Checksum.inChecksum(
 		    this, 0, this.size()));
 	}
 
-	/**
-	 * Checks if the checksum is valid, even for fragmented packets.
-	 * 
-	 * @return true if checksum checks out, otherwise if the computed checksum
-	 *         does not match the stored checksum false is returned
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.JHeaderChecksum#isChecksumValid()
 	 */
 	public boolean isChecksumValid() {
 

@@ -24,28 +24,42 @@ import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.protocol.JProtocol;
 
+// TODO: Auto-generated Javadoc
 /**
- * IEEE SNAP header definition
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class IEEESnap.
  */
 @Header(length = 5, nicname = "snap")
 public class IEEESnap
     extends JHeader {
 
+	/** The Constant ID. */
 	public static final int ID = JProtocol.IEEE_SNAP_ID;
 	
+	/**
+	 * Oui.
+	 * 
+	 * @return the long
+	 */
 	@Field(offset = 0, length = 24, format = "%x")
 	public long oui() {
 		return getUInt(0) & 0x00FFFFFF;
 	}
 
+	/**
+	 * Pid description.
+	 * 
+	 * @return the string
+	 */
 	@Dynamic(Field.Property.DESCRIPTION)
 	public String pidDescription() {
 		return Ethernet.EthernetType.toString(pid());
 	}
 	
+	/**
+	 * Pid.
+	 * 
+	 * @return the int
+	 */
 	@Field(offset = 24, length = 16, format = "%x")
 	public int pid() {
 		return getUShort(3);

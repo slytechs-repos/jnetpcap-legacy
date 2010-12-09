@@ -48,13 +48,14 @@ import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.protocol.lan.Ethernet;
 import org.jnetpcap.protocol.network.Ip4;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestAnotatedDefinition.
  */
 public class TestAnotatedDefinition
     extends TestCase {
 
+	/** The errors. */
 	private List<HeaderDefinitionError> errors =
 	    new ArrayList<HeaderDefinitionError>();
 
@@ -93,6 +94,9 @@ public class TestAnotatedDefinition
 		}
 	}
 
+	/**
+	 * _test1.
+	 */
 	public void _test1() {
 
 		JPacket packet = TestUtils.getPcapPacket("tests/test-afs.pcap", 0);
@@ -108,56 +112,114 @@ public class TestAnotatedDefinition
 		}
 	}
 
+	/**
+	 * The Class TestHeader.
+	 */
 	@Header
 	public static class TestHeader
 	    extends JHeader {
 
+		/**
+		 * Header length.
+		 * 
+		 * @param buffer
+		 *          the buffer
+		 * @param offset
+		 *          the offset
+		 * @return the int
+		 */
 		@HeaderLength
 		public static int headerLength(JBuffer buffer, int offset) {
 			return Ethernet.LENGTH;
 		}
 
+		/**
+		 * Field a.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 0, length = 16)
 		public int fieldA() {
 			return getUShort(12);
 		}
 
+		/**
+		 * Field b.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 0, length = 16)
 		public int fieldB() {
 			return getUShort(12);
 		}
 
+		/**
+		 * Checks for field b_ sub1.
+		 * 
+		 * @return true, if successful
+		 */
 		@Dynamic(field = "fieldB_Sub1", value = Field.Property.CHECK)
 		public boolean hasFieldB_Sub1() {
 			return true;
 		}
 
+		/**
+		 * Field b_ sub1 length.
+		 * 
+		 * @return the int
+		 */
 		@Dynamic(field = "fieldB_Sub1", value = Field.Property.LENGTH)
 		public int fieldB_Sub1Length() {
 			return 1;
 		}
 
+		/**
+		 * Field b_ sub1.
+		 * 
+		 * @return the int
+		 */
 		@Field(parent = "fieldB", offset = 0)
 		public int fieldB_Sub1() {
 			return getUByte(12);
 		}
 	}
 
+	/**
+	 * The Class TestSubHeader.
+	 */
 	@Header(length = 40, id = 0)
 	public static class TestSubHeader
 	    extends JHeader {
 
+		/**
+		 * The Class Sub1.
+		 */
 		@Header(length = 30)
 		public static class Sub1
 		    extends JSubHeader<TestSubHeader> {
 
+			/**
+			 * The Class Sub2.
+			 */
 			public static class Sub2
 			    extends Sub1 {
 
+				/**
+				 * The Class Sub3.
+				 */
 				@Header(id = 1)
 				public static class Sub3
 				    extends Sub2 {
 
+					/**
+					 * Len.
+					 * 
+					 * @param buffer
+					 *          the buffer
+					 * @param offset
+					 *          the offset
+					 * @return the int
+					 */
 					@HeaderLength
 					public static int len(JBuffer buffer, int offset) {
 						return 01;
@@ -167,6 +229,9 @@ public class TestAnotatedDefinition
 		}
 	}
 
+	/**
+	 * Test2.
+	 */
 	public void test2() {
 
 		AnnotatedHeader ah1 =
@@ -181,6 +246,9 @@ public class TestAnotatedDefinition
 
 	}
 
+	/**
+	 * Test with my header.
+	 */
 	public void testWithMyHeader() {
 		@SuppressWarnings("unused")
     AnnotatedHeader ah1 =
@@ -188,6 +256,12 @@ public class TestAnotatedDefinition
 
 	}
 
+	/**
+	 * Test ip4.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public void testIp4() throws IOException {
 		AnnotatedHeader ah1 =
 		    AnnotatedHeader.inspectJHeaderClass(Ip4.class, errors);

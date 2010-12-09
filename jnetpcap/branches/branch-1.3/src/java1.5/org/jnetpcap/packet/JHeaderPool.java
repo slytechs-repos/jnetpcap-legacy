@@ -20,76 +20,56 @@ package org.jnetpcap.packet;
 
 import org.jnetpcap.protocol.JProtocol;
 
+// TODO: Auto-generated Javadoc
 /**
- * A thread local pool of instances of headers. The header pool keeps track of
- * instances of headers it allocates based on protocol and thread IDs. The class
- * allows private pools and also provides a global singleton pool which can be
- * referenced from anywhere.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class JHeaderPool.
  */
 @SuppressWarnings("unchecked")
 public class JHeaderPool {
 
+	/** The local. */
 	private static JHeaderPool local = new JHeaderPool();
 
+	/** The locals. */
 	private ThreadLocal<? extends JHeader>[] locals =
 	    new ThreadLocal[JRegistry.MAX_ID_COUNT];
 
 	/**
-	 * Gets an instance of a header for the given ID type. The headers are
-	 * allocated on a per thread basis. Eath thread uses its own pool of instance
-	 * headers. A call with the same ID and within the same thread will return the
-	 * same exact instance of a header that was returned from a previous call
-	 * using the same ID and thread.
+	 * Gets the header.
 	 * 
 	 * @param id
-	 *          numerical ID of the protocol header as assigned by JRegistry
-	 * @return a shared instance of a header per thread per ID
+	 *          the id
+	 * @return the header
 	 * @throws UnregisteredHeaderException
-	 *           thrown if ID is invalid
+	 *           the unregistered header exception
 	 */
 	public JHeader getHeader(int id) throws UnregisteredHeaderException {
 		return getHeader(JRegistry.lookupClass(id), id);
 	}
 
 	/**
-	 * Gets an instance of a header for the protocol constant. The headers are
-	 * allocated on a per thread basis. Eath thread uses its own pool of instance
-	 * headers. A call with the same ID and within the same thread will return the
-	 * same exact instance of a header that was returned from a previous call
-	 * using the same ID and thread.
-	 * <p>
-	 * This method does not throw an exception since all core protocols are always
-	 * registered and always accessible.
-	 * </p>
+	 * Gets the header.
 	 * 
+	 * @param <T>
+	 *          the generic type
 	 * @param protocol
-	 *          core protocol constant
-	 * @return a shared instance of a header per thread per ID
+	 *          the protocol
+	 * @return the header
 	 */
 	public <T extends JHeader> T getHeader(JProtocol protocol) {
 		return (T) getHeader(protocol.getHeaderClass(), protocol.getId());
 	}
 
 	/**
-	 * Gets an instance of a header for the given ID type. The headers are
-	 * allocated on a per thread basis. Eath thread uses its own pool of instance
-	 * headers. A call with the same ID and within the same thread will return the
-	 * same exact instance of a header that was returned from a previous call
-	 * using the same ID and thread.
+	 * Gets the header.
 	 * 
 	 * @param <T>
-	 *          header class name
+	 *          the generic type
 	 * @param clazz
-	 *          parameterized class name that the retrieved header instance will
-	 *          be cast to
+	 *          the clazz
 	 * @param id
-	 *          numerical ID of the protocol header as assigned by JRegistry
-	 * @return a shared instance of a header per thread per ID
-	 * @throws UnregisteredHeaderException
-	 *           thrown if ID is invalid
+	 *          the id
+	 * @return the header
 	 */
 	public <T extends JHeader> T getHeader(final Class<T> clazz, int id) {
 
@@ -114,7 +94,9 @@ public class JHeaderPool {
 	}
 
 	/**
-	 * Gets a default global instance of this header pool.
+	 * Gets the default.
+	 * 
+	 * @return the default
 	 */
 	public static JHeaderPool getDefault() {
 		return local;

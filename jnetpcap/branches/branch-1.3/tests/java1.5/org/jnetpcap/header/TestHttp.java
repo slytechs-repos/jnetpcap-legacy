@@ -39,17 +39,19 @@ import org.jnetpcap.util.JLogger;
 import org.jnetpcap.util.config.JConfig;
 import org.jnetpcap.util.resolver.Resolver;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestHttp.
  */
 public class TestHttp
     extends
     TestCase {
 
 	// private final static Appendable OUT = TestUtils.DEV_NULL;
+	/** The Constant OUT. */
 	private final static Appendable OUT = System.out;
 
+	/** The http. */
 	private Http http = new Http();
 
 	/*
@@ -70,10 +72,19 @@ public class TestHttp
 		super.tearDown();
 	}
 
+	/**
+	 * Test registration.
+	 */
 	public void testRegistration() {
 		assertTrue(JRegistry.lookupId(Http.class) > 12);
 	}
 
+	/**
+	 * Test http formatting with resolve address disabled.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public void testHttpFormattingWithResolveAddressDisabled() throws IOException {
 		JFormatter out = new TextFormatter(OUT);
 		out.setResolveAddresses(false);
@@ -105,6 +116,12 @@ public class TestHttp
 		// }
 	}
 
+	/**
+	 * Test http formatting with resolve address enabled.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public void testHttpFormattingWithResolveAddressEnabled() throws IOException {
 		JLogger.getLogger(JConfig.class).setLevel(Level.FINE);
 

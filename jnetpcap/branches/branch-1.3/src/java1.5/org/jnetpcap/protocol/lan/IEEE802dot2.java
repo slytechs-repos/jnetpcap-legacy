@@ -26,23 +26,36 @@ import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.protocol.JProtocol;
 
+// TODO: Auto-generated Javadoc
 /**
- * IEEE LLC2 header definition
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class IEEE802dot2.
  */
 @Header(nicname = "llc")
 public class IEEE802dot2
     extends JHeader {
 
+	/** The Constant ID. */
 	public static final int ID = JProtocol.IEEE_802DOT2_ID;
 
+	/**
+	 * Header length.
+	 * 
+	 * @param buffer
+	 *          the buffer
+	 * @param offset
+	 *          the offset
+	 * @return the int
+	 */
 	@HeaderLength
 	public static int headerLength(JBuffer buffer, int offset) {
 		return ((buffer.getUShort(offset + 2) & 0x3) == 0x3) ? 4 : 5;
 	}
 
+	/**
+	 * Control.
+	 * 
+	 * @return the int
+	 */
 	@Field(offset = 0, format = "%x")
 	public int control() {
 		/*
@@ -56,16 +69,31 @@ public class IEEE802dot2
 		}
 	}
 
+	/**
+	 * Control length.
+	 * 
+	 * @return the int
+	 */
 	@Dynamic(Field.Property.LENGTH)
 	public int controlLength() {
 		return ((super.getUByte(2) & 0x3) == 0x3) ? 1 * 8 : 2 * 8;
 	}
 
+	/**
+	 * Dsap.
+	 * 
+	 * @return the int
+	 */
 	@Field(offset = 0, length = 8, format = "%x")
 	public int dsap() {
 		return getUByte(0);
 	}
 
+	/**
+	 * Ssap.
+	 * 
+	 * @return the int
+	 */
 	@Field(offset = 8, length = 8, format = "%x")
 	public int ssap() {
 		return getUByte(1);

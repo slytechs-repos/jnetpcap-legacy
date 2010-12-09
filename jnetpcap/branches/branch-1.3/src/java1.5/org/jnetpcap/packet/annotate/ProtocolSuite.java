@@ -20,121 +20,76 @@ package org.jnetpcap.packet.annotate;
 
 import org.jnetpcap.protocol.JProtocol.Suite;
 
+// TODO: Auto-generated Javadoc
 /**
- * Standard protocol suite names. This table is mainly used in annotations, but
- * can be also used to retrieve meta data about a protocol.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Enum ProtocolSuite.
  */
 public enum ProtocolSuite implements Suite {
 
-	/**
-	 * OSI application layer set of protocols.
-	 */
+	/** The APPLICATION. */
 	APPLICATION,
-	/**
-	 * Tcp/Ip family of protocols.
-	 */
+	
+	/** The TC p_ ip. */
 	TCP_IP,
 
-	/**
-	 * Security related family of protocols.
-	 */
+	/** The SECURITY. */
 	SECURITY,
 
-	/**
-	 * Tunneling family of protocols.
-	 */
+	/** The VPN. */
 	VPN,
 
-	/**
-	 * Mobile communication device family of protocols.
-	 */
+	/** The MOBILE. */
 	MOBILE,
 
-	/**
-	 * OSI network layer family of protocols.
-	 */
+	/** The NETWORK. */
 	NETWORK,
 
-	/**
-	 * Wireless family of protocols.
-	 */
+	/** The WIRELESS. */
 	WIRELESS,
 
-	/**
-	 * Voice over IP family of protocols.
-	 */
+	/** The VOIP. */
 	VOIP,
 
-	/**
-	 * Local Area Network family of protocols.
-	 */
+	/** The LAN. */
 	LAN,
 
-	/**
-	 * Metropolitan Area Network family of protocols.
-	 */
+	/** The MAN. */
 	MAN,
 
-	/**
-	 * Wide Area Network family of protocols.
-	 */
+	/** The WAN. */
 	WAN,
-	/**
-	 * Storage Area Network family of protocols.
-	 */
+	
+	/** The SAN. */
 	SAN,
 
-	/**
-	 * ISO family of protocols.
-	 */
+	/** The ISO. */
 
 	ISO,
 
-	/**
-	 * SS7 family of protocols.
-	 */
+	/** The S s7. */
 	SS7,
 
-	/**
-	 * Cisco Systems family of protocols.
-	 */
+	/** The CISCO. */
 	CISCO,
 
-	/**
-	 * IBM family of protocols.
-	 */
+	/** The IBM. */
 	IBM,
 
-	/**
-	 * Microsoft Corp family of protocols.
-	 */
+	/** The MICROSOFT. */
 	MICROSOFT,
 
-	/**
-	 * Novell family of protocols.
-	 */
+	/** The NOVELL. */
 	NOVELL,
 
-	/**
-	 * Apple Corp family of protocols.
-	 */
+	/** The APPLE. */
 	APPLE,
 
-	/**
-	 * Hewlet Packard Corp family of protocols.
-	 */
+	/** The HP. */
 	HP,
 
-	/**
-	 * Sun Microsystems Corp family of protocols.
-	 */
+	/** The SUN. */
 	SUN,
 
-	/**
-	 * Catch all suite for other types of protocols.
-	 */
+	/** The OTHER. */
 	OTHER,
 }

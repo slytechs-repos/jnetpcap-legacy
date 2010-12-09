@@ -26,24 +26,32 @@ import org.jnetpcap.protocol.lan.Ethernet;
 import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.protocol.tcpip.Tcp;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class JFlow.
  */
 public class JFlow {
 
+	/** The key. */
 	private final JFlowKey key;
 
+	/** The reversable. */
 	private final boolean reversable;
 
+	/** The all. */
 	private final List<JPacket> all;
 
+	/** The forward. */
 	private final List<JPacket> forward;
 
+	/** The reverse. */
 	private final List<JPacket> reverse;
 
 	/**
+	 * Instantiates a new j flow.
+	 * 
 	 * @param key
+	 *          the key
 	 */
 	public JFlow(JFlowKey key) {
 		this.key = key;
@@ -61,12 +69,21 @@ public class JFlow {
 	}
 
 	/**
+	 * Gets the key.
+	 * 
 	 * @return the key
 	 */
 	public final JFlowKey getKey() {
 		return this.key;
 	}
 
+	/**
+	 * Adds the.
+	 * 
+	 * @param packet
+	 *          the packet
+	 * @return true, if successful
+	 */
 	public boolean add(JPacket packet) {
 		int dir = key.match(packet.getState().getFlowKey());
 		if (dir == 0) {
@@ -82,24 +99,35 @@ public class JFlow {
 	}
 
 	/**
-	 * @return the reversable
+	 * Checks if is reversable.
+	 * 
+	 * @return true, if is reversable
 	 */
 	public final boolean isReversable() {
 		return this.reversable;
 	}
 
 	/**
+	 * Gets the all.
+	 * 
 	 * @return the all
 	 */
 	public final List<JPacket> getAll() {
 		return this.all;
 	}
 	
+	/**
+	 * Size.
+	 * 
+	 * @return the int
+	 */
 	public int size() {
 		return all.size();
 	}
 
 	/**
+	 * Gets the forward.
+	 * 
 	 * @return the forward
 	 */
 	public final List<JPacket> getForward() {
@@ -107,18 +135,26 @@ public class JFlow {
 	}
 
 	/**
+	 * Gets the reverse.
+	 * 
 	 * @return the reverse
 	 */
 	public final List<JPacket> getReverse() {
 		return (this.reversable) ? this.reverse : null;
 	}
 
+	/** The tcp. */
 	private Tcp tcp = new Tcp();
 
+	/** The ip. */
 	private Ip4 ip = new Ip4();
 
+	/** The eth. */
 	private Ethernet eth = new Ethernet();
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	public String toString() {
 		if (all.isEmpty()) {
 			return key.toDebugString() + " size=" + all.size();

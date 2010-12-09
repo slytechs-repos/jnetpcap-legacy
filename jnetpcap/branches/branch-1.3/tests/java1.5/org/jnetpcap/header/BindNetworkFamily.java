@@ -22,14 +22,21 @@ import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.annotate.Bind;
 import org.jnetpcap.protocol.lan.Ethernet;
 
+// TODO: Auto-generated Javadoc
 /**
- * A collection of network layer protocol to protocol bindings.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class BindNetworkFamily.
  */
 public final class BindNetworkFamily {
 
+	/**
+	 * Bind ip4 to ethernet.
+	 * 
+	 * @param packet
+	 *          the packet
+	 * @param eth
+	 *          the eth
+	 * @return true, if successful
+	 */
 	@Bind(from = MyHeader.class, to = Ethernet.class, intValue = 0x800)
 	public static boolean bindIp4ToEthernet(JPacket packet, Ethernet eth) {
 		return (eth.type() == 0x800);

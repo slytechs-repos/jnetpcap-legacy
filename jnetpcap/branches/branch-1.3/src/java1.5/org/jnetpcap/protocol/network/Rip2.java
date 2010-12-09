@@ -20,25 +20,19 @@ package org.jnetpcap.protocol.network;
 
 import org.jnetpcap.packet.annotate.Field;
 
+// TODO: Auto-generated Javadoc
 /**
- * Routing Information Protocol version 2. Extends the basic Rip1 header by
- * supplying an extends EntryV1 definition. Both v1 and v2 entries are forward
- * and backward compatible, with Rip1 reader ignoring the rip2 specific fields.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
- * @see Rip1
+ * The Class Rip2.
  */
 public abstract class Rip2
     extends
     Rip1 {
 
+	/** The routing table. */
 	private EntryV2[] routingTable;
 
-	/**
-	 * Gets the routing table.
-	 * 
-	 * @return an array of routing table entries
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.protocol.network.Rip1#routingTable()
 	 */
 	@Field(offset = 4 * 8)
 	public EntryV2[] routingTable() {
@@ -50,7 +44,7 @@ public abstract class Rip2
 	}
 
 	/**
-	 * Do the actual decoding of the routing table.
+	 * Decode routing table.
 	 */
 	private void decodeRoutingTable() {
 
@@ -65,26 +59,37 @@ public abstract class Rip2
 	}
 
 	/**
-	 * Rip2 routing table entry definition. Overrides V1 definition and adds V2
-	 * specific fields. V2 fields are unused but reserved present in V1 structure.
-	 * 
-	 * @author Mark Bednarczyk
-	 * @author Sly Technologies, Inc.
+	 * The Class EntryV2.
 	 */
 	public static class EntryV2
 	    extends
 	    EntryV1 {
 
+		/**
+		 * Tag.
+		 * 
+		 * @return the int
+		 */
 		@Field(offset = 2 * 8, length = 16)
 		public int tag() {
 			return super.getUShort(2);
 		}
 
+		/**
+		 * Subnet.
+		 * 
+		 * @return the byte[]
+		 */
 		@Field(offset = 8 * 8, length = 32)
 		public byte[] subnet() {
 			return super.getByteArray(8, 4);
 		}
 
+		/**
+		 * Next hop.
+		 * 
+		 * @return the byte[]
+		 */
 		@Field(offset = 12 * 8, length = 32)
 		public byte[] nextHop() {
 			return super.getByteArray(12, 4);

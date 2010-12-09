@@ -30,35 +30,29 @@ import junit.framework.TestCase;
 import org.jnetpcap.util.config.ConfigString;
 import org.jnetpcap.util.config.JConfig;
 
+// TODO: Auto-generated Javadoc
 /**
- * A special StringBuilder like class that replaces instances of property names
- * and variable names with their values after doing a lookup.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestExpandableString.
  */
 public class TestExpandableString
     extends TestCase {
 
-	/**
-	 * Constant that makes result comparison easier and less error prone
-	 */
+	/** The Constant COMPANY. */
 	private final static String COMPANY = "ACNE, Inc.";
 
-	/**
-	 * Constant that makes result comparison easier and less error prone
-	 */
+	/** The Constant JNP. */
 	private final static String JNP = "org.jnetpcap";
 
-	/**
-	 * Constant that makes result comparison easier and less error prone
-	 */
+	/** The Constant SUFFIX. */
 	private final static String SUFFIX = ".ext";
 
+	/** The variables. */
 	private static Map<String, String> variables;
 
+	/** The properties. */
 	private static Properties properties;
 
+	/** The logger. */
 	private static Logger logger = JLogger.getLogger(JConfig.class);
 
 	/**
@@ -106,6 +100,9 @@ public class TestExpandableString
 		logger.setLevel(Level.OFF);
 	}
 
+	/**
+	 * Test name.
+	 */
 	public void testName() {
 		ConfigString string = new ConfigString("${name}", variables, properties);
 		assertTrue("sub failed in expand", string.expand("mark"));
@@ -114,6 +111,9 @@ public class TestExpandableString
 		string.reset(); // Reintialize
 	}
 
+	/**
+	 * Test name twice.
+	 */
 	public void testNameTwice() {
 		ConfigString string = new ConfigString("${name}${name}", variables, properties);
 		assertTrue("sub failed in expand", string.expand("mark"));
@@ -122,6 +122,9 @@ public class TestExpandableString
 		string.reset(); // Reintialize
 	}
 
+	/**
+	 * Test name trice.
+	 */
 	public void testNameTrice() {
 		ConfigString string = new ConfigString("${name}${name}-.sdfo.${name}", variables, properties);
 		assertTrue("sub failed in expand", string.expand("mark"));
@@ -130,6 +133,9 @@ public class TestExpandableString
 		string.reset(); // Reintialize
 	}
 
+	/**
+	 * Test one variable.
+	 */
 	public void testOneVariable() {
 		ConfigString string = new ConfigString("${jnp}", variables, properties);
 		assertTrue("sub failed in expand", string.expand("mark", variables));
@@ -138,6 +144,9 @@ public class TestExpandableString
 		string.reset(); // Reintialize
 	}
 
+	/**
+	 * Test name and one variable.
+	 */
 	public void testNameAndOneVariable() {
 		ConfigString string = new ConfigString("${jnp}.${name}", variables, properties);
 		assertTrue("sub failed in expand", string.expand("mark", variables));
@@ -146,6 +155,9 @@ public class TestExpandableString
 		string.reset(); // Reintialize
 	}
 
+	/**
+	 * Test name and two variables.
+	 */
 	public void testNameAndTwoVariables() {
 		ConfigString string = new ConfigString("${jnp}.${name}_${company}", variables, properties);
 		assertTrue("sub failed in expand", string.expand("mark", variables));
@@ -154,6 +166,9 @@ public class TestExpandableString
 		string.reset(); // Reintialize
 	}
 
+	/**
+	 * Test two names and two variables.
+	 */
 	public void testTwoNamesAndTwoVariables() {
 		ConfigString string =
 		    new ConfigString("${jnp}.${name}_${company} ${name}", variables, properties);
@@ -163,6 +178,9 @@ public class TestExpandableString
 		string.reset(); // Reintialize
 	}
 
+	/**
+	 * Test one property.
+	 */
 	public void testOneProperty() {
 		ConfigString string = new ConfigString("before @{a.b} after", variables, properties);
 		assertTrue("sub failed in expand", string
@@ -172,6 +190,9 @@ public class TestExpandableString
 		string.reset(); // Reintialize
 	}
 
+	/**
+	 * Test two properties.
+	 */
 	public void testTwoProperties() {
 		ConfigString string =
 		    new ConfigString("before @{a.b} after @{a.b.c}", variables, properties);
@@ -182,6 +203,9 @@ public class TestExpandableString
 		string.reset(); // Reintialize
 	}
 
+	/**
+	 * Test two same properties.
+	 */
 	public void testTwoSameProperties() {
 		ConfigString string = new ConfigString("before @{a.b} after @{a.b}", variables, properties);
 		assertTrue("sub failed in expand", string
@@ -191,6 +215,9 @@ public class TestExpandableString
 		string.reset(); // Reintialize
 	}
 
+	/**
+	 * Test one name and two properties.
+	 */
 	public void testOneNameAndTwoProperties() {
 		ConfigString string =
 		    new ConfigString("before @{a.b} ${name} @{a.b.c}", variables, properties);
@@ -201,6 +228,9 @@ public class TestExpandableString
 		string.reset(); // Reintialize
 	}
 
+	/**
+	 * Test name within a property.
+	 */
 	public void testNameWithinAProperty() {
 		ConfigString string = new ConfigString("@{a.${name}.c}", variables, properties);
 		assertTrue("sub failed in expand", string.expand("b", properties));
@@ -209,6 +239,9 @@ public class TestExpandableString
 		string.reset(); // Reintialize
 	}
 
+	/**
+	 * Test suffix variable within a property.
+	 */
 	public void testSUFFIXVariableWithinAProperty() {
 		ConfigString string = new ConfigString("@{a.${name}${suffix}}", variables, properties);
 		assertTrue("sub failed in expand", string.expand("b", variables,
@@ -218,6 +251,9 @@ public class TestExpandableString
 		string.reset(); // Reintialize
 	}
 
+	/**
+	 * Test recursive properties.
+	 */
 	public void testRecursiveProperties() {
 		ConfigString string = new ConfigString("@{a.a}", variables, properties);
 		assertTrue("sub failed in expand", string.expand("", variables,
@@ -227,6 +263,9 @@ public class TestExpandableString
 		string.reset(); // Reintialize
 	}
 	
+	/**
+	 * Test recursive variables.
+	 */
 	public void testRecursiveVariables() {
 		ConfigString string = new ConfigString("${A.A}", variables, properties);
 		assertTrue("sub failed in expand", string.expand("", variables,
@@ -236,6 +275,9 @@ public class TestExpandableString
 		string.reset(); // Reintialize
 	}
 
+	/**
+	 * Test quotes.
+	 */
 	public void testQuotes() {
 		ConfigString string = new ConfigString("'${A.A}'", variables, properties);
 		assertTrue("sub failed in expand", string.expand("", variables,
@@ -245,6 +287,9 @@ public class TestExpandableString
 		string.reset(); // Reintialize
 	}
 
+	/**
+	 * Test quotes twice.
+	 */
 	public void testQuotesTwice() {
 		ConfigString string = new ConfigString("'${A.A}' and '@{a.${b}}'", variables, properties);
 		assertTrue("sub failed in expand", string.expand("", variables,
@@ -254,6 +299,9 @@ public class TestExpandableString
 		string.reset(); // Reintialize
 	}
 	
+	/**
+	 * Test quotes with escaped sub quote.
+	 */
 	public void testQuotesWithEscapedSubQuote() {
 		ConfigString string = new ConfigString("'${A.\\'A}' and '@{a.${b}}'", variables, properties);
 		assertTrue("sub failed in expand", string.expand("", variables,
@@ -263,6 +311,9 @@ public class TestExpandableString
 		string.reset(); // Reintialize
 	}
 	
+	/**
+	 * Test complex string.
+	 */
 	public void testComplexString() {
 		String s = 
 		"'File(@{$resolver}.${name}})' \\\r\n" + 

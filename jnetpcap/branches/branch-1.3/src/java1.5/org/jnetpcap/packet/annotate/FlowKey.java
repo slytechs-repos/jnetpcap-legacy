@@ -24,16 +24,26 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
- *
+ * The Interface FlowKey.
  */
 @Target(value= {ElementType.METHOD, ElementType.TYPE, ElementType.FIELD})
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 public @interface FlowKey {
+	
+	/**
+	 * Index.
+	 * 
+	 * @return the int
+	 */
 	int index();
 	
+	/**
+	 * Reversable.
+	 * 
+	 * @return true, if successful
+	 */
 	boolean reversable() default false;
 }

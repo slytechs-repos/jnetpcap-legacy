@@ -28,24 +28,32 @@ import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.FieldDefinitionException;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class AnnotatedFieldMethod.
  */
 public abstract class AnnotatedFieldMethod
     extends AnnotatedMethod {
 
+	/**
+	 * The Class BooleanFunction.
+	 */
 	private static class BooleanFunction
 	    extends AnnotatedFieldMethod {
 
+		/** The has static value. */
 		private boolean hasStaticValue = false;
 
+		/** The value. */
 		private boolean value;
 
 		/**
+		 * Instantiates a new boolean function.
+		 * 
 		 * @param field
+		 *          the field
 		 * @param function
-		 * @param staticValue
+		 *          the function
 		 */
 		public BooleanFunction(AnnotatedField field, Field.Property function) {
 			super(field, function);
@@ -53,6 +61,14 @@ public abstract class AnnotatedFieldMethod
 			setValue(true); // Static fields are always available
 		}
 
+		/**
+		 * Instantiates a new boolean function.
+		 * 
+		 * @param method
+		 *          the method
+		 * @param function
+		 *          the function
+		 */
 		public BooleanFunction(Method method, Field.Property function) {
 			super(method, function);
 		}
@@ -67,6 +83,9 @@ public abstract class AnnotatedFieldMethod
 			return execute(header, name);
 		}
 
+		/* (non-Javadoc)
+		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#configFromField(org.jnetpcap.packet.structure.AnnotatedField)
+		 */
 		public final void configFromField(AnnotatedField field) {
 
 			switch (function) {
@@ -86,6 +105,15 @@ public abstract class AnnotatedFieldMethod
 			}
 		}
 
+		/**
+		 * Execute.
+		 * 
+		 * @param header
+		 *          the header
+		 * @param name
+		 *          the name
+		 * @return true, if successful
+		 */
 		public boolean execute(JHeader header, String name) {
 			if (hasStaticValue) {
 				return this.value;
@@ -107,19 +135,38 @@ public abstract class AnnotatedFieldMethod
 			}
 		}
 
+		/**
+		 * Sets the value.
+		 * 
+		 * @param value
+		 *          the new value
+		 */
 		private void setValue(boolean value) {
 			hasStaticValue = true;
 			this.value = value;
 		}
 	}
 
+	/**
+	 * The Class IntFunction.
+	 */
 	private static class IntFunction
 	    extends AnnotatedFieldMethod {
 
+		/** The has static value. */
 		private boolean hasStaticValue = false;
 
+		/** The value. */
 		private int value;
 
+		/**
+		 * Instantiates a new int function.
+		 * 
+		 * @param field
+		 *          the field
+		 * @param function
+		 *          the function
+		 */
 		public IntFunction(AnnotatedField field, Field.Property function) {
 			super(field, function);
 
@@ -127,6 +174,16 @@ public abstract class AnnotatedFieldMethod
 
 		}
 
+		/**
+		 * Instantiates a new int function.
+		 * 
+		 * @param field
+		 *          the field
+		 * @param function
+		 *          the function
+		 * @param staticValue
+		 *          the static value
+		 */
 		public IntFunction(AnnotatedField field, Field.Property function,
 		    int staticValue) {
 			super(field, function);
@@ -134,10 +191,21 @@ public abstract class AnnotatedFieldMethod
 			setValue(staticValue);
 		}
 
+		/**
+		 * Instantiates a new int function.
+		 * 
+		 * @param method
+		 *          the method
+		 * @param function
+		 *          the function
+		 */
 		public IntFunction(Method method, Field.Property function) {
 			super(method, function);
 		}
 
+		/* (non-Javadoc)
+		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#configFromField(org.jnetpcap.packet.structure.AnnotatedField)
+		 */
 		public final void configFromField(AnnotatedField field) {
 
 			switch (function) {
@@ -168,6 +236,15 @@ public abstract class AnnotatedFieldMethod
 
 		}
 
+		/**
+		 * Execute.
+		 * 
+		 * @param header
+		 *          the header
+		 * @param name
+		 *          the name
+		 * @return the int
+		 */
 		public int execute(JHeader header, String name) {
 			if (hasStaticValue) {
 				return this.value;
@@ -199,19 +276,38 @@ public abstract class AnnotatedFieldMethod
 			return execute(header, name);
 		}
 
+		/**
+		 * Sets the value.
+		 * 
+		 * @param value
+		 *          the new value
+		 */
 		private void setValue(int value) {
 			hasStaticValue = true;
 			this.value = value;
 		}
 	}
 
+	/**
+	 * The Class LongFunction.
+	 */
 	private static class LongFunction
 	    extends AnnotatedFieldMethod {
 
+		/** The has static value. */
 		private boolean hasStaticValue = false;
 
+		/** The value. */
 		private long value;
 
+		/**
+		 * Instantiates a new long function.
+		 * 
+		 * @param field
+		 *          the field
+		 * @param function
+		 *          the function
+		 */
 		public LongFunction(AnnotatedField field, Field.Property function) {
 			super(field, function);
 
@@ -219,6 +315,16 @@ public abstract class AnnotatedFieldMethod
 
 		}
 
+		/**
+		 * Instantiates a new long function.
+		 * 
+		 * @param field
+		 *          the field
+		 * @param function
+		 *          the function
+		 * @param staticValue
+		 *          the static value
+		 */
 		public LongFunction(AnnotatedField field, Field.Property function,
 		    long staticValue) {
 			super(field, function);
@@ -226,10 +332,21 @@ public abstract class AnnotatedFieldMethod
 			setValue(staticValue);
 		}
 
+		/**
+		 * Instantiates a new long function.
+		 * 
+		 * @param method
+		 *          the method
+		 * @param function
+		 *          the function
+		 */
 		public LongFunction(Method method, Field.Property function) {
 			super(method, function);
 		}
 
+		/* (non-Javadoc)
+		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#configFromField(org.jnetpcap.packet.structure.AnnotatedField)
+		 */
 		public final void configFromField(AnnotatedField field) {
 
 			switch (function) {
@@ -254,6 +371,15 @@ public abstract class AnnotatedFieldMethod
 
 		}
 
+		/**
+		 * Execute.
+		 * 
+		 * @param header
+		 *          the header
+		 * @param name
+		 *          the name
+		 * @return the long
+		 */
 		public long execute(JHeader header, String name) {
 			if (hasStaticValue) {
 				return this.value;
@@ -285,24 +411,52 @@ public abstract class AnnotatedFieldMethod
 			return execute(header, name);
 		}
 
+		/**
+		 * Sets the value.
+		 * 
+		 * @param mask
+		 *          the new value
+		 */
 		private void setValue(long mask) {
 			hasStaticValue = true;
 			this.value = mask;
 		}
 	}
 
+	/**
+	 * The Class ObjectFunction.
+	 */
 	private static class ObjectFunction
 	    extends AnnotatedFieldMethod {
 
+		/**
+		 * Instantiates a new object function.
+		 * 
+		 * @param field
+		 *          the field
+		 * @param fuction
+		 *          the fuction
+		 */
 		public ObjectFunction(AnnotatedField field, Field.Property fuction) {
 			super(field, fuction, field.getMethod());
 
 		}
 
+		/**
+		 * Instantiates a new object function.
+		 * 
+		 * @param method
+		 *          the method
+		 * @param function
+		 *          the function
+		 */
 		public ObjectFunction(Method method, Field.Property function) {
 			super(method, function);
 		}
 
+		/* (non-Javadoc)
+		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#configFromField(org.jnetpcap.packet.structure.AnnotatedField)
+		 */
 		public final void configFromField(AnnotatedField field) {
 
 			switch (function) {
@@ -327,6 +481,15 @@ public abstract class AnnotatedFieldMethod
 			}
 		}
 
+		/**
+		 * Execute.
+		 * 
+		 * @param header
+		 *          the header
+		 * @param name
+		 *          the name
+		 * @return the object
+		 */
 		public Object execute(JHeader header, String name) {
 
 			try {
@@ -356,16 +519,25 @@ public abstract class AnnotatedFieldMethod
 		}
 	}
 
+	/**
+	 * The Class StringFunction.
+	 */
 	private static class StringFunction
 	    extends AnnotatedFieldMethod {
 
+		/** The has static value. */
 		private boolean hasStaticValue = false;
 
+		/** The value. */
 		private String value;
 
 		/**
+		 * Instantiates a new string function.
+		 * 
 		 * @param field
+		 *          the field
 		 * @param function
+		 *          the function
 		 */
 		public StringFunction(AnnotatedField field, Field.Property function) {
 			super(field, function);
@@ -373,10 +545,21 @@ public abstract class AnnotatedFieldMethod
 			configFromField(field);
 		}
 
+		/**
+		 * Instantiates a new string function.
+		 * 
+		 * @param method
+		 *          the method
+		 * @param function
+		 *          the function
+		 */
 		public StringFunction(Method method, Field.Property function) {
 			super(method, function);
 		}
 
+		/* (non-Javadoc)
+		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#configFromField(org.jnetpcap.packet.structure.AnnotatedField)
+		 */
 		public final void configFromField(AnnotatedField field) {
 
 			switch (function) {
@@ -417,6 +600,15 @@ public abstract class AnnotatedFieldMethod
 			}
 		}
 
+		/**
+		 * Execute.
+		 * 
+		 * @param header
+		 *          the header
+		 * @param name
+		 *          the name
+		 * @return the string
+		 */
 		public String execute(JHeader header, String name) {
 			if (hasStaticValue) {
 				return this.value;
@@ -438,6 +630,12 @@ public abstract class AnnotatedFieldMethod
 			}
 		}
 
+		/**
+		 * Sets the value.
+		 * 
+		 * @param value
+		 *          the new value
+		 */
 		private void setValue(String value) {
 			hasStaticValue = true;
 			this.value = value;
@@ -455,7 +653,12 @@ public abstract class AnnotatedFieldMethod
 	}
 
 	/**
-	 * @param runtime
+	 * Check annotation.
+	 * 
+	 * @param method
+	 *          the method
+	 * @param fields
+	 *          the fields
 	 */
 	public static void checkAnnotation(Method method, List<AnnotatedField> fields) {
 
@@ -479,6 +682,14 @@ public abstract class AnnotatedFieldMethod
 		}
 	}
 
+	/**
+	 * Check signature.
+	 * 
+	 * @param method
+	 *          the method
+	 * @param c
+	 *          the c
+	 */
 	private static void checkSignature(Method method, Class<?> c) {
 		final Class<?> declaringClass = method.getDeclaringClass();
 
@@ -498,6 +709,15 @@ public abstract class AnnotatedFieldMethod
 		}
 	}
 
+	/**
+	 * Generate function.
+	 * 
+	 * @param function
+	 *          the function
+	 * @param field
+	 *          the field
+	 * @return the annotated field method
+	 */
 	public static AnnotatedFieldMethod generateFunction(
 	    Field.Property function,
 	    AnnotatedField field) {
@@ -528,6 +748,13 @@ public abstract class AnnotatedFieldMethod
 
 	}
 
+	/**
+	 * Guess field name.
+	 * 
+	 * @param name
+	 *          the name
+	 * @return the string
+	 */
 	private static String guessFieldName(String name) {
 		if (name.startsWith("has")) {
 			String cap = name.replace("has", "");
@@ -556,8 +783,11 @@ public abstract class AnnotatedFieldMethod
 	}
 
 	/**
+	 * Inspect method.
+	 * 
 	 * @param method
-	 * @return
+	 *          the method
+	 * @return the annotated field method
 	 */
 	public static AnnotatedFieldMethod inspectMethod(Method method) {
 
@@ -594,10 +824,20 @@ public abstract class AnnotatedFieldMethod
 		}
 	}
 
+	/** The field. */
 	protected final String field;
 
+	/** The function. */
 	protected final Field.Property function;
 
+	/**
+	 * Instantiates a new annotated field method.
+	 * 
+	 * @param field
+	 *          the field
+	 * @param function
+	 *          the function
+	 */
 	public AnnotatedFieldMethod(AnnotatedField field, Field.Property function) {
 		super();
 		this.function = function;
@@ -605,6 +845,16 @@ public abstract class AnnotatedFieldMethod
 		this.field = field.getName();
 	}
 
+	/**
+	 * Instantiates a new annotated field method.
+	 * 
+	 * @param field
+	 *          the field
+	 * @param function
+	 *          the function
+	 * @param method
+	 *          the method
+	 */
 	public AnnotatedFieldMethod(AnnotatedField field, Field.Property function,
 	    Method method) {
 		super(method);
@@ -614,7 +864,12 @@ public abstract class AnnotatedFieldMethod
 	}
 
 	/**
+	 * Instantiates a new annotated field method.
+	 * 
 	 * @param method
+	 *          the method
+	 * @param function
+	 *          the function
 	 */
 	public AnnotatedFieldMethod(Method method, Field.Property function) {
 		super(method);
@@ -633,31 +888,83 @@ public abstract class AnnotatedFieldMethod
 		}
 	}
 
+	/**
+	 * Boolean method.
+	 * 
+	 * @param header
+	 *          the header
+	 * @param name
+	 *          the name
+	 * @return true, if successful
+	 */
 	public boolean booleanMethod(JHeader header, String name) {
 		throw new UnsupportedOperationException(
 		    "this return type is invalid for this function type");
 	}
 
+	/**
+	 * Config from field.
+	 * 
+	 * @param field
+	 *          the field
+	 */
 	public abstract void configFromField(AnnotatedField field);
 
+	/**
+	 * Gets the field name.
+	 * 
+	 * @return the field name
+	 */
 	public String getFieldName() {
 		return field;
 	}
 
+	/**
+	 * Gets the function.
+	 * 
+	 * @return the function
+	 */
 	public final Field.Property getFunction() {
 		return this.function;
 	}
 
+	/**
+	 * Int method.
+	 * 
+	 * @param header
+	 *          the header
+	 * @param name
+	 *          the name
+	 * @return the int
+	 */
 	public int intMethod(JHeader header, String name) {
 		throw new UnsupportedOperationException(
 		    "this return type is invalid for this function type");
 	}
 
+	/**
+	 * Object method.
+	 * 
+	 * @param header
+	 *          the header
+	 * @param name
+	 *          the name
+	 * @return the object
+	 */
 	public Object objectMethod(JHeader header, String name) {
 		throw new UnsupportedOperationException(
 		    "this return type is invalid for this function type");
 	}
 
+	/**
+	 * String method.
+	 * 
+	 * @param header
+	 *          the header
+	 * @param name
+	 *          the name
+	 * @return the string
+	 */
 	public String stringMethod(JHeader header, String name) {
 		throw new UnsupportedOperationException(
 		    "this return type is invalid for this function type");
@@ -673,8 +980,13 @@ public abstract class AnnotatedFieldMethod
 	}
 
 	/**
+	 * Long method.
+	 * 
 	 * @param header
-	 * @return
+	 *          the header
+	 * @param name
+	 *          the name
+	 * @return the long
 	 */
 	public long longMethod(JHeader header, String name) {
 		throw new UnsupportedOperationException(

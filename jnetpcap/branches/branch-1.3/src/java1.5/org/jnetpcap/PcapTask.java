@@ -18,53 +18,39 @@
  */
 package org.jnetpcap;
 
+// TODO: Auto-generated Javadoc
 /**
- * A pcap background task handle. This provides status and control over the
- * background loop. The task provides 2 methods for controlling the thread.
- * {@link #start()} and {@link #stop()}. These 2 methods perform various
- * synchronization functions between the worker and the parent threads.
+ * The Class PcapTask.
  * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
- * @param <T> user supplied type
- * @since 1.2
+ * @param <T>
+ *          the generic type
  */
 public abstract class PcapTask<T> implements Runnable {
 
-	/**
-	 * Libpcap result code
-	 */
+	/** The result. */
 	protected int result = Pcap.OK;
 
-	/**
-	 * Controlling thread
-	 */
+	/** The thread. */
 	protected Thread thread;
 
-	/**
-	 * Pcap handle
-	 */
+	/** The pcap. */
 	protected final Pcap pcap;
 
-	/**
-	 * Number of packets to capture or 0 for infinate
-	 */
+	/** The count. */
 	protected final int count;
 
-	/**
-	 * User data
-	 */
+	/** The user. */
 	protected final T user;
 
 	/**
-	 * Creates a new task handle for controlling background thread.
+	 * Instantiates a new pcap task.
 	 * 
 	 * @param pcap
-	 *          pcap handle
+	 *          the pcap
 	 * @param count
-	 *          number of packets to capture or 0 for infinite
+	 *          the count
 	 * @param user
-	 *          user supplied object
+	 *          the user
 	 */
 	public PcapTask(Pcap pcap, int count, T user) {
 		this.pcap = pcap;
@@ -73,34 +59,28 @@ public abstract class PcapTask<T> implements Runnable {
 	}
 
 	/**
-	 * Returns the result code that was returned from the user supplied pcap
-	 * function.
+	 * Gets the libpcap result code.
 	 * 
-	 * @return libpcap result code
+	 * @return the libpcap result code
 	 */
 	public final int getResult() {
 		return this.result;
 	}
 
 	/**
-	 * Gets the background thread this task is using. It is highly recommended
-	 * though that the user interact with the thread using {@link #start()} and
-	 * {@link #stop()} methods.
+	 * Gets the controlling thread.
 	 * 
-	 * @return background thread
+	 * @return the controlling thread
 	 */
 	public final Thread getThread() {
 		return this.thread;
 	}
 
 	/**
-	 * Creates and starts up the background thread while synchronizing with the
-	 * background thread. The user can be assured that when this method returns,
-	 * the background thread has been started and has entered its Runnable.run
-	 * method.
+	 * Start.
 	 * 
 	 * @throws InterruptedException
-	 *           if the synchronization between threads was interrupted
+	 *           the interrupted exception
 	 */
 	public void start() throws InterruptedException {
 		if (thread != null) {
@@ -127,14 +107,10 @@ public abstract class PcapTask<T> implements Runnable {
 	}
 
 	/**
-	 * <p>
-	 * Terminates the task after making sure that the pcap session and thread are
-	 * active.
-	 * </p>
+	 * Stop.
 	 * 
 	 * @throws InterruptedException
-	 *           since this method waits for the background thread to terminate,
-	 *           it can be interrupted
+	 *           the interrupted exception
 	 */
 	public void stop() throws InterruptedException {
 		if (thread == null || thread.isAlive() == false) {
@@ -152,46 +128,43 @@ public abstract class PcapTask<T> implements Runnable {
 	}
 	
 	/**
-	 * Algorithm for breaking the loop, whatever it is. It can be overriden and a
-	 * different algorithm supplied.
+	 * Break loop.
 	 */
 	protected void breakLoop() {
 		pcap.breakloop();
 	}
 
 	/**
-	 * Checks if the background thread is running and is alive
+	 * Checks if is alive.
 	 * 
-	 * @return true means thread is alive
+	 * @return true, if is alive
 	 */
 	public boolean isAlive() {
 		return thread != null && thread.isAlive();
 	}
 
 	/**
-	 * Returns the underlying Pcap object being used by this task
+	 * Gets the pcap handle.
 	 * 
-	 * @return pcap capture session object
+	 * @return the pcap handle
 	 */
 	public final Pcap getPcap() {
 		return this.pcap;
 	}
 
 	/**
-	 * The packet count that was supplied by the user. This is the number of
-	 * packets requested by the user. 0 indicates capture forever until
-	 * {@link #stop()} is called or an error occures.
+	 * Gets the number of packets to capture or 0 for infinate.
 	 * 
-	 * @return number of packets to capture or 0 for infinite
+	 * @return the number of packets to capture or 0 for infinate
 	 */
 	public final int getCount() {
 		return this.count;
 	}
 
 	/**
-	 * User supplied data object. This is an arbitrary user object.
+	 * Gets the user data.
 	 * 
-	 * @return user object
+	 * @return the user data
 	 */
 	public final T getUser() {
 		return this.user;

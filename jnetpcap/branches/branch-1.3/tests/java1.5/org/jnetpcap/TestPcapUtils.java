@@ -24,9 +24,9 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestPcapUtils.
  */
 public class TestPcapUtils
     extends TestCase {
@@ -49,6 +49,12 @@ public class TestPcapUtils
 		super.tearDown();
 	}
 
+	/**
+	 * Test get mac addresses.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public void testGetMacAddresses() throws IOException {
 		List<PcapIf> alldevs = new ArrayList<PcapIf>();
 		StringBuilder errbuf = new StringBuilder();
@@ -65,6 +71,13 @@ public class TestPcapUtils
 		}
 	}
 	
+	/**
+	 * As string.
+	 * 
+	 * @param bs
+	 *          the bs
+	 * @return the string
+	 */
 	private static String asString(byte[] bs) {
 		StringBuilder buf = new StringBuilder();
 		for (byte b : bs) {

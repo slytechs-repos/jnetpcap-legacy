@@ -18,43 +18,47 @@
  */
 package org.jnetpcap.util;
 
+// TODO: Auto-generated Javadoc
 /**
- * Subclassible delagate StringBuilder class. All the calls to this class are
- * delegated to a private instance of StringBuilder.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class JStringBuilder.
  */
 public class JStringBuilder implements Appendable {
 
+	/** The buffer. */
 	private final StringBuilder buffer;
 
 	/**
-	 * @see java.lang.StringBuilder#StringBuilder()
+	 * Instantiates a new j string builder.
 	 */
 	public JStringBuilder() {
 		this.buffer = new StringBuilder();
 	}
 
 	/**
+	 * Instantiates a new j string builder.
+	 * 
 	 * @param seq
-	 * @see java.lang.StringBuilder#StringBuilder(java.lang.CharSequence)
+	 *          the seq
 	 */
 	public JStringBuilder(CharSequence seq) {
 		this.buffer = new StringBuilder(seq);
 	}
 
 	/**
+	 * Instantiates a new j string builder.
+	 * 
 	 * @param capacity
-	 * @see java.lang.StringBuilder#StringBuilder(int)
+	 *          the capacity
 	 */
 	public JStringBuilder(int capacity) {
 		this.buffer = new StringBuilder(capacity);
 	}
 
 	/**
+	 * Instantiates a new j string builder.
+	 * 
 	 * @param str
-	 * @see java.lang.StringBuilder#StringBuilder(String)
+	 *          the str
 	 */
 	public JStringBuilder(String str) {
 		this.buffer = new StringBuilder(str);
@@ -62,210 +66,241 @@ public class JStringBuilder implements Appendable {
 	}
 
 	/**
+	 * Append.
+	 * 
 	 * @param b
-	 * @return
-	 * @see java.lang.StringBuilder#append(boolean)
+	 *          the b
+	 * @return the string builder
 	 */
 	public StringBuilder append(boolean b) {
 		return this.buffer.append(b);
 	}
 
-	/**
-	 * @param c
-	 * @return
-	 * @see java.lang.StringBuilder#append(char)
+	/* (non-Javadoc)
+	 * @see java.lang.Appendable#append(char)
 	 */
 	public StringBuilder append(char c) {
 		return this.buffer.append(c);
 	}
 
 	/**
+	 * Append.
+	 * 
 	 * @param str
-	 * @return
-	 * @see java.lang.StringBuilder#append(char[])
+	 *          the str
+	 * @return the string builder
 	 */
 	public StringBuilder append(char[] str) {
 		return this.buffer.append(str);
 	}
 
 	/**
+	 * Append.
+	 * 
 	 * @param str
+	 *          the str
 	 * @param offset
+	 *          the offset
 	 * @param len
-	 * @return
-	 * @see java.lang.StringBuilder#append(char[], int, int)
+	 *          the len
+	 * @return the string builder
 	 */
 	public StringBuilder append(char[] str, int offset, int len) {
 		return this.buffer.append(str, offset, len);
 	}
 
-	/**
-	 * @param s
-	 * @return
-	 * @see java.lang.StringBuilder#append(java.lang.CharSequence)
+	/* (non-Javadoc)
+	 * @see java.lang.Appendable#append(java.lang.CharSequence)
 	 */
 	public StringBuilder append(CharSequence s) {
 		return this.buffer.append(s);
 	}
 
-	/**
-	 * @param s
-	 * @param start
-	 * @param end
-	 * @return
-	 * @see java.lang.StringBuilder#append(java.lang.CharSequence, int, int)
+	/* (non-Javadoc)
+	 * @see java.lang.Appendable#append(java.lang.CharSequence, int, int)
 	 */
 	public StringBuilder append(CharSequence s, int start, int end) {
 		return this.buffer.append(s, start, end);
 	}
 
 	/**
+	 * Append.
+	 * 
 	 * @param d
-	 * @return
-	 * @see java.lang.StringBuilder#append(double)
+	 *          the d
+	 * @return the string builder
 	 */
 	public StringBuilder append(double d) {
 		return this.buffer.append(d);
 	}
 
 	/**
+	 * Append.
+	 * 
 	 * @param f
-	 * @return
-	 * @see java.lang.StringBuilder#append(float)
+	 *          the f
+	 * @return the string builder
 	 */
 	public StringBuilder append(float f) {
 		return this.buffer.append(f);
 	}
 
 	/**
+	 * Append.
+	 * 
 	 * @param i
-	 * @return
-	 * @see java.lang.StringBuilder#append(int)
+	 *          the i
+	 * @return the string builder
 	 */
 	public StringBuilder append(int i) {
 		return this.buffer.append(i);
 	}
 
 	/**
+	 * Append.
+	 * 
 	 * @param lng
-	 * @return
-	 * @see java.lang.StringBuilder#append(long)
+	 *          the lng
+	 * @return the string builder
 	 */
 	public StringBuilder append(long lng) {
 		return this.buffer.append(lng);
 	}
 
 	/**
+	 * Append.
+	 * 
 	 * @param obj
-	 * @return
-	 * @see java.lang.StringBuilder#append(java.lang.Object)
+	 *          the obj
+	 * @return the string builder
 	 */
 	public StringBuilder append(Object obj) {
 		return this.buffer.append(obj);
 	}
 
 	/**
+	 * Append.
+	 * 
 	 * @param str
-	 * @return
-	 * @see java.lang.StringBuilder#append(java.lang.String)
+	 *          the str
+	 * @return the string builder
 	 */
 	public StringBuilder append(String str) {
 		return this.buffer.append(str);
 	}
 
 	/**
+	 * Append.
+	 * 
 	 * @param sb
-	 * @return
-	 * @see java.lang.StringBuilder#append(java.lang.StringBuffer)
+	 *          the sb
+	 * @return the string builder
 	 */
 	public StringBuilder append(StringBuffer sb) {
 		return this.buffer.append(sb);
 	}
 
 	/**
+	 * Append code point.
+	 * 
 	 * @param codePoint
-	 * @return
-	 * @see java.lang.StringBuilder#appendCodePoint(int)
+	 *          the code point
+	 * @return the string builder
 	 */
 	public StringBuilder appendCodePoint(int codePoint) {
 		return this.buffer.appendCodePoint(codePoint);
 	}
 
 	/**
-	 * @return
-	 * @see java.lang.AbstractStringBuilder#capacity()
+	 * Capacity.
+	 * 
+	 * @return the int
 	 */
 	public int capacity() {
 		return this.buffer.capacity();
 	}
 
 	/**
+	 * Char at.
+	 * 
 	 * @param index
-	 * @return
-	 * @see java.lang.AbstractStringBuilder#charAt(int)
+	 *          the index
+	 * @return the char
 	 */
 	public char charAt(int index) {
 		return this.buffer.charAt(index);
 	}
 
 	/**
+	 * Code point at.
+	 * 
 	 * @param index
-	 * @return
-	 * @see java.lang.AbstractStringBuilder#codePointAt(int)
+	 *          the index
+	 * @return the int
 	 */
 	public int codePointAt(int index) {
 		return this.buffer.codePointAt(index);
 	}
 
 	/**
+	 * Code point before.
+	 * 
 	 * @param index
-	 * @return
-	 * @see java.lang.AbstractStringBuilder#codePointBefore(int)
+	 *          the index
+	 * @return the int
 	 */
 	public int codePointBefore(int index) {
 		return this.buffer.codePointBefore(index);
 	}
 
 	/**
+	 * Code point count.
+	 * 
 	 * @param beginIndex
+	 *          the begin index
 	 * @param endIndex
-	 * @return
-	 * @see java.lang.AbstractStringBuilder#codePointCount(int, int)
+	 *          the end index
+	 * @return the int
 	 */
 	public int codePointCount(int beginIndex, int endIndex) {
 		return this.buffer.codePointCount(beginIndex, endIndex);
 	}
 
 	/**
+	 * Delete.
+	 * 
 	 * @param start
+	 *          the start
 	 * @param end
-	 * @return
-	 * @see java.lang.StringBuilder#delete(int, int)
+	 *          the end
+	 * @return the string builder
 	 */
 	public StringBuilder delete(int start, int end) {
 		return this.buffer.delete(start, end);
 	}
 
 	/**
+	 * Delete char at.
+	 * 
 	 * @param index
-	 * @return
-	 * @see java.lang.StringBuilder#deleteCharAt(int)
+	 *          the index
+	 * @return the string builder
 	 */
 	public StringBuilder deleteCharAt(int index) {
 		return this.buffer.deleteCharAt(index);
 	}
 
 	/**
+	 * Ensure capacity.
+	 * 
 	 * @param minimumCapacity
-	 * @see java.lang.AbstractStringBuilder#ensureCapacity(int)
+	 *          the minimum capacity
 	 */
 	public void ensureCapacity(int minimumCapacity) {
 		this.buffer.ensureCapacity(minimumCapacity);
 	}
 
-	/**
-	 * @param obj
-	 * @return
+	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	public boolean equals(Object obj) {
@@ -273,18 +308,22 @@ public class JStringBuilder implements Appendable {
 	}
 
 	/**
+	 * Gets the chars.
+	 * 
 	 * @param srcBegin
+	 *          the src begin
 	 * @param srcEnd
+	 *          the src end
 	 * @param dst
+	 *          the dst
 	 * @param dstBegin
-	 * @see java.lang.AbstractStringBuilder#getChars(int, int, char[], int)
+	 *          the dst begin
 	 */
 	public void getChars(int srcBegin, int srcEnd, char[] dst, int dstBegin) {
 		this.buffer.getChars(srcBegin, srcEnd, dst, dstBegin);
 	}
 
-	/**
-	 * @return
+	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
 	public int hashCode() {
@@ -292,260 +331,331 @@ public class JStringBuilder implements Appendable {
 	}
 
 	/**
+	 * Index of.
+	 * 
 	 * @param str
-	 * @return
-	 * @see java.lang.StringBuilder#indexOf(java.lang.String)
+	 *          the str
+	 * @return the int
 	 */
 	public int indexOf(String str) {
 		return this.buffer.indexOf(str);
 	}
 
 	/**
+	 * Index of.
+	 * 
 	 * @param str
+	 *          the str
 	 * @param fromIndex
-	 * @return
-	 * @see java.lang.StringBuilder#indexOf(java.lang.String, int)
+	 *          the from index
+	 * @return the int
 	 */
 	public int indexOf(String str, int fromIndex) {
 		return this.buffer.indexOf(str, fromIndex);
 	}
 
 	/**
+	 * Insert.
+	 * 
 	 * @param offset
+	 *          the offset
 	 * @param b
-	 * @return
-	 * @see java.lang.StringBuilder#insert(int, boolean)
+	 *          the b
+	 * @return the string builder
 	 */
 	public StringBuilder insert(int offset, boolean b) {
 		return this.buffer.insert(offset, b);
 	}
 
 	/**
+	 * Insert.
+	 * 
 	 * @param offset
+	 *          the offset
 	 * @param c
-	 * @return
-	 * @see java.lang.StringBuilder#insert(int, char)
+	 *          the c
+	 * @return the string builder
 	 */
 	public StringBuilder insert(int offset, char c) {
 		return this.buffer.insert(offset, c);
 	}
 
 	/**
+	 * Insert.
+	 * 
 	 * @param offset
+	 *          the offset
 	 * @param str
-	 * @return
-	 * @see java.lang.StringBuilder#insert(int, char[])
+	 *          the str
+	 * @return the string builder
 	 */
 	public StringBuilder insert(int offset, char[] str) {
 		return this.buffer.insert(offset, str);
 	}
 
 	/**
+	 * Insert.
+	 * 
 	 * @param index
+	 *          the index
 	 * @param str
+	 *          the str
 	 * @param offset
+	 *          the offset
 	 * @param len
-	 * @return
-	 * @see java.lang.StringBuilder#insert(int, char[], int, int)
+	 *          the len
+	 * @return the string builder
 	 */
 	public StringBuilder insert(int index, char[] str, int offset, int len) {
 		return this.buffer.insert(index, str, offset, len);
 	}
 
 	/**
+	 * Insert.
+	 * 
 	 * @param dstOffset
+	 *          the dst offset
 	 * @param s
-	 * @return
-	 * @see java.lang.StringBuilder#insert(int, java.lang.CharSequence)
+	 *          the s
+	 * @return the string builder
 	 */
 	public StringBuilder insert(int dstOffset, CharSequence s) {
 		return this.buffer.insert(dstOffset, s);
 	}
 
 	/**
+	 * Insert.
+	 * 
 	 * @param dstOffset
+	 *          the dst offset
 	 * @param s
+	 *          the s
 	 * @param start
+	 *          the start
 	 * @param end
-	 * @return
-	 * @see java.lang.StringBuilder#insert(int, java.lang.CharSequence, int, int)
+	 *          the end
+	 * @return the string builder
 	 */
 	public StringBuilder insert(int dstOffset, CharSequence s, int start, int end) {
 		return this.buffer.insert(dstOffset, s, start, end);
 	}
 
 	/**
+	 * Insert.
+	 * 
 	 * @param offset
+	 *          the offset
 	 * @param d
-	 * @return
-	 * @see java.lang.StringBuilder#insert(int, double)
+	 *          the d
+	 * @return the string builder
 	 */
 	public StringBuilder insert(int offset, double d) {
 		return this.buffer.insert(offset, d);
 	}
 
 	/**
+	 * Insert.
+	 * 
 	 * @param offset
+	 *          the offset
 	 * @param f
-	 * @return
-	 * @see java.lang.StringBuilder#insert(int, float)
+	 *          the f
+	 * @return the string builder
 	 */
 	public StringBuilder insert(int offset, float f) {
 		return this.buffer.insert(offset, f);
 	}
 
 	/**
+	 * Insert.
+	 * 
 	 * @param offset
+	 *          the offset
 	 * @param i
-	 * @return
-	 * @see java.lang.StringBuilder#insert(int, int)
+	 *          the i
+	 * @return the string builder
 	 */
 	public StringBuilder insert(int offset, int i) {
 		return this.buffer.insert(offset, i);
 	}
 
 	/**
+	 * Insert.
+	 * 
 	 * @param offset
+	 *          the offset
 	 * @param l
-	 * @return
-	 * @see java.lang.StringBuilder#insert(int, long)
+	 *          the l
+	 * @return the string builder
 	 */
 	public StringBuilder insert(int offset, long l) {
 		return this.buffer.insert(offset, l);
 	}
 
 	/**
+	 * Insert.
+	 * 
 	 * @param offset
+	 *          the offset
 	 * @param obj
-	 * @return
-	 * @see java.lang.StringBuilder#insert(int, java.lang.Object)
+	 *          the obj
+	 * @return the string builder
 	 */
 	public StringBuilder insert(int offset, Object obj) {
 		return this.buffer.insert(offset, obj);
 	}
 
 	/**
+	 * Insert.
+	 * 
 	 * @param offset
+	 *          the offset
 	 * @param str
-	 * @return
-	 * @see java.lang.StringBuilder#insert(int, java.lang.String)
+	 *          the str
+	 * @return the string builder
 	 */
 	public StringBuilder insert(int offset, String str) {
 		return this.buffer.insert(offset, str);
 	}
 
 	/**
+	 * Last index of.
+	 * 
 	 * @param str
-	 * @return
-	 * @see java.lang.StringBuilder#lastIndexOf(java.lang.String)
+	 *          the str
+	 * @return the int
 	 */
 	public int lastIndexOf(String str) {
 		return this.buffer.lastIndexOf(str);
 	}
 
 	/**
+	 * Last index of.
+	 * 
 	 * @param str
+	 *          the str
 	 * @param fromIndex
-	 * @return
-	 * @see java.lang.StringBuilder#lastIndexOf(java.lang.String, int)
+	 *          the from index
+	 * @return the int
 	 */
 	public int lastIndexOf(String str, int fromIndex) {
 		return this.buffer.lastIndexOf(str, fromIndex);
 	}
 
 	/**
-	 * @return
-	 * @see java.lang.AbstractStringBuilder#length()
+	 * Length.
+	 * 
+	 * @return the int
 	 */
 	public int length() {
 		return this.buffer.length();
 	}
 
 	/**
+	 * Offset by code points.
+	 * 
 	 * @param index
+	 *          the index
 	 * @param codePointOffset
-	 * @return
-	 * @see java.lang.AbstractStringBuilder#offsetByCodePoints(int, int)
+	 *          the code point offset
+	 * @return the int
 	 */
 	public int offsetByCodePoints(int index, int codePointOffset) {
 		return this.buffer.offsetByCodePoints(index, codePointOffset);
 	}
 
 	/**
+	 * Replace.
+	 * 
 	 * @param start
+	 *          the start
 	 * @param end
+	 *          the end
 	 * @param str
-	 * @return
-	 * @see java.lang.StringBuilder#replace(int, int, java.lang.String)
+	 *          the str
+	 * @return the string builder
 	 */
 	public StringBuilder replace(int start, int end, String str) {
 		return this.buffer.replace(start, end, str);
 	}
 
 	/**
-	 * @return
-	 * @see java.lang.StringBuilder#reverse()
+	 * Reverse.
+	 * 
+	 * @return the string builder
 	 */
 	public StringBuilder reverse() {
 		return this.buffer.reverse();
 	}
 
 	/**
+	 * Sets the char at.
+	 * 
 	 * @param index
+	 *          the index
 	 * @param ch
-	 * @see java.lang.AbstractStringBuilder#setCharAt(int, char)
+	 *          the ch
 	 */
 	public void setCharAt(int index, char ch) {
 		this.buffer.setCharAt(index, ch);
 	}
 
 	/**
+	 * Sets the length.
+	 * 
 	 * @param newLength
-	 * @see java.lang.AbstractStringBuilder#setLength(int)
+	 *          the new length
 	 */
 	public void setLength(int newLength) {
 		this.buffer.setLength(newLength);
 	}
 
 	/**
+	 * Sub sequence.
+	 * 
 	 * @param start
+	 *          the start
 	 * @param end
-	 * @return
-	 * @see java.lang.AbstractStringBuilder#subSequence(int, int)
+	 *          the end
+	 * @return the char sequence
 	 */
 	public CharSequence subSequence(int start, int end) {
 		return this.buffer.subSequence(start, end);
 	}
 
 	/**
+	 * Substring.
+	 * 
 	 * @param start
-	 * @return
-	 * @see java.lang.AbstractStringBuilder#substring(int)
+	 *          the start
+	 * @return the string
 	 */
 	public String substring(int start) {
 		return this.buffer.substring(start);
 	}
 
 	/**
+	 * Substring.
+	 * 
 	 * @param start
+	 *          the start
 	 * @param end
-	 * @return
-	 * @see java.lang.AbstractStringBuilder#substring(int, int)
+	 *          the end
+	 * @return the string
 	 */
 	public String substring(int start, int end) {
 		return this.buffer.substring(start, end);
 	}
 
-	/**
-	 * @return
-	 * @see java.lang.StringBuilder#toString()
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
 		return this.buffer.toString();
 	}
 
 	/**
-	 * @see java.lang.AbstractStringBuilder#trimToSize()
+	 * Trim to size.
 	 */
 	public void trimToSize() {
 		this.buffer.trimToSize();

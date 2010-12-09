@@ -18,135 +18,115 @@
  */
 package org.jnetpcap.packet;
 
+// TODO: Auto-generated Javadoc
 /**
- * Accessor to get a structured header from underlying buffer.
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Interface JHeaderAccessor.
  */
 public interface JHeaderAccessor {
 
 	/**
-	 * Peers the supplied header with the native header state structure and packet
-	 * data buffer.
+	 * Gets the header.
 	 * 
 	 * @param <T>
-	 *          name of the header
+	 *          the generic type
 	 * @param header
-	 *          instance of a header object
-	 * @return the supplied instance of the header
+	 *          the header
+	 * @return the header
 	 */
 	public <T extends JHeader> T getHeader(T header);
 
 	/**
-	 * Peers the supplied header with the native header state structure and packet
-	 * data buffer. This method allows retrieval of a specific instance of a
-	 * header if more than one instance has been found.
+	 * Gets the header.
 	 * 
 	 * @param <T>
-	 *          name of the header
+	 *          the generic type
 	 * @param header
-	 *          instance of a header object
+	 *          the header
 	 * @param instance
-	 *          instance number of the header since more than one header of the
-	 *          same type can exist in the same packet buffer
-	 * @return the supplied instance of the header
+	 *          the instance
+	 * @return the header
 	 */
 	public <T extends JHeader> T getHeader(T header, int instance);
 
 	/**
-	 * Peers a header with specific index, not the numerical header ID assigned by
-	 * JRegistry, of a header.
+	 * Gets the header by index.
 	 * 
 	 * @param <T>
-	 *          name of the header
-	 * @param header
-	 *          instance of a header object
+	 *          the generic type
 	 * @param index
-	 *          index into the header array the scanner has found
-	 * @return the supplied header
-	 * @throws IndexOutOfBoundsException
+	 *          the index
+	 * @param header
+	 *          the header
+	 * @return the header by index
 	 */
 	public <T extends JHeader> T getHeaderByIndex(int index, T header);
 
 	/**
-	 * Gets number of headers found within the packet header. The last header may
-	 * or may not be the builtin Payload header
+	 * Gets the header count.
 	 * 
-	 * @return number of headers present
+	 * @return the header count
 	 */
 	public int getHeaderCount();
 
 	/**
-	 * Gets the numerical ID of the header at specified index into header array as
-	 * found by the packet scanner
+	 * Gets the header id by index.
 	 * 
 	 * @param index
-	 *          index into the header array
-	 * @return numerical ID of the header found at the specific index
+	 *          the index
+	 * @return the header id by index
 	 */
 	public int getHeaderIdByIndex(int index);
 
 	/**
-	 * Gets number of headers with the same numerical ID as assigned by JRegistry
-	 * within the same packet. For example Ip4 in ip4 packet would contain 2
-	 * instances of Ip4 header.
+	 * Gets the header instance count.
 	 * 
 	 * @param id
-	 *          numerical ID of the header to search for
-	 * @return number of headers of the same type in the packet
+	 *          the id
+	 * @return the header instance count
 	 */
 	public int getHeaderInstanceCount(int id);
 
 	/**
-	 * Checks if header with specified numerical ID exists within the decoded
-	 * packet
+	 * Checks for header.
 	 * 
 	 * @param id
-	 *          protocol header ID as assigned by JRegistry
-	 * @return true header exists, otherwise false
+	 *          the id
+	 * @return true, if successful
 	 */
 	public boolean hasHeader(int id);
 
 	/**
-	 * Check if requested instance of header with specified numerical ID exists
-	 * within the decoded packet
+	 * Checks for header.
 	 * 
 	 * @param id
-	 *          protocol header ID as assigned by JRegistry
+	 *          the id
 	 * @param instance
-	 *          instance number of the specific header within the packet
-	 * @return true header exists, otherwise false
+	 *          the instance
+	 * @return true, if successful
 	 */
 	public boolean hasHeader(int id, int instance);
 
 	/**
-	 * Check if requested instance of header with specified numerical ID exists
-	 * within the decoded packet and if found peers the supplied header with the
-	 * located header within the decoded packet. This method executes as hasHeader
-	 * followed by getHeader if found more efficiently.
+	 * Checks for header.
 	 * 
 	 * @param <T>
-	 *          name of the header type
+	 *          the generic type
 	 * @param header
-	 *          protocol header object instance
-	 * @return true header exists, otherwise false
+	 *          the header
+	 * @return true, if successful
 	 */
 	public <T extends JHeader> boolean hasHeader(T header);
 
 	/**
-	 * Check if requested instance of header with specified numerical ID exists
-	 * within the decoded packet and if found peers the supplied header with the
-	 * located header within the decoded packet. This method executes as hasHeader
-	 * followed by getHeader if found more efficiently.
+	 * Checks for header.
 	 * 
 	 * @param <T>
-	 *          name of the header type
+	 *          the generic type
 	 * @param header
-	 *          protocol header object instance
+	 *          the header
 	 * @param instance
-	 *          instance number of the specific header within the packet
-	 * @return true header exists, otherwise false
+	 *          the instance
+	 * @return true, if successful
 	 */
 	public <T extends JHeader> boolean hasHeader(T header, int instance);
 }

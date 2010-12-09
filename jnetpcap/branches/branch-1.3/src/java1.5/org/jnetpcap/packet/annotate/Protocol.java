@@ -26,143 +26,127 @@ import java.lang.annotation.Target;
 
 import org.jnetpcap.packet.JHeader;
 
+// TODO: Auto-generated Javadoc
 /**
- * Specifies global protocol properties
- * 
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Interface Protocol.
  */
 @Target(ElementType.TYPE)
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Protocol {
 
+	/**
+	 * The Enum Suite.
+	 */
 	public enum Suite {
 
-		/**
-		 * OSI application layer set of protocols.
-		 */
+		/** The APPLICATION. */
 		APPLICATION,
-		/**
-		 * Tcp/Ip family of protocols.
-		 */
+		
+		/** The TC p_ ip. */
 		TCP_IP,
 
-		/**
-		 * Security related family of protocols.
-		 */
+		/** The SECURITY. */
 		SECURITY,
 
-		/**
-		 * Tunneling family of protocols.
-		 */
+		/** The VPN. */
 		VPN,
 
-		/**
-		 * Mobile communication device family of protocols.
-		 */
+		/** The MOBILE. */
 		MOBILE,
 
-		/**
-		 * OSI network layer family of protocols.
-		 */
+		/** The NETWORK. */
 		NETWORK,
 
-		/**
-		 * Wireless family of protocols.
-		 */
+		/** The WIRELESS. */
 		WIRELESS,
 
-		/**
-		 * Voice over IP family of protocols.
-		 */
+		/** The VOIP. */
 		VOIP,
 
-		/**
-		 * Local Area Network family of protocols.
-		 */
+		/** The LAN. */
 		LAN,
 
-		/**
-		 * Metropolitan Area Network family of protocols.
-		 */
+		/** The MAN. */
 		MAN,
 
-		/**
-		 * Wide Area Network family of protocols.
-		 */
+		/** The WAN. */
 		WAN,
-		/**
-		 * Storage Area Network family of protocols.
-		 */
+		
+		/** The SAN. */
 		SAN,
 
-		/**
-		 * ISO family of protocols.
-		 */
+		/** The ISO. */
 
 		ISO,
 
-		/**
-		 * SS7 family of protocols.
-		 */
+		/** The S s7. */
 		SS7,
 
-		/**
-		 * Cisco Systems family of protocols.
-		 */
+		/** The CISCO. */
 		CISCO,
 
-		/**
-		 * IBM family of protocols.
-		 */
+		/** The IBM. */
 		IBM,
 
-		/**
-		 * Microsoft Corp family of protocols.
-		 */
+		/** The MICROSOFT. */
 		MICROSOFT,
 
-		/**
-		 * Novell family of protocols.
-		 */
+		/** The NOVELL. */
 		NOVELL,
 
-		/**
-		 * Apple Corp family of protocols.
-		 */
+		/** The APPLE. */
 		APPLE,
 
-		/**
-		 * Hewlet Packard Corp family of protocols.
-		 */
+		/** The HP. */
 		HP,
 
-		/**
-		 * Sun Microsystems Corp family of protocols.
-		 */
+		/** The SUN. */
 		SUN,
 
-		/**
-		 * Catch all suite for other types of protocols.
-		 */
+		/** The OTHER. */
 		OTHER,
 	}
 
 	/**
-	 * Protocol suite this prorotocol belongs to
+	 * Suite.
 	 * 
-	 * @return protocol family for this protocol
+	 * @return the suite
 	 */
 	Suite suite() default Suite.OTHER;
 
+	/**
+	 * Headers.
+	 * 
+	 * @return the class<? extends j header>[]
+	 */
 	Class<? extends JHeader>[] headers() default JHeader.class;
 
+	/**
+	 * Description.
+	 * 
+	 * @return the string[]
+	 */
 	String[] description() default "";
 
+	/**
+	 * License.
+	 * 
+	 * @return the string[]
+	 */
 	String[] license() default "";
 
+	/**
+	 * Company.
+	 * 
+	 * @return the string
+	 */
 	String company() default "";
 
+	/**
+	 * Rfcs.
+	 * 
+	 * @return the string[]
+	 */
 	String[] rfcs() default "";
 }

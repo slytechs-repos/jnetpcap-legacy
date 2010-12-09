@@ -41,18 +41,23 @@ import org.jnetpcap.util.DataUtils;
 import org.jnetpcap.util.PcapPacketArrayList;
 import org.jnetpcap.util.checksum.Checksum;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestTcpIp.
  */
 public class TestTcpIp
     extends
     TestUtils {
 
+	/** The Constant HTTP_IP6. */
 	public final static String HTTP_IP6 = "tests/v6-http.cap";
 	
+	/** The Constant SMALL_IMAP. */
 	public final static String SMALL_IMAP = "tests/test-small-imap.pcap";
 
+	/**
+	 * Test ip4 cr c16 pkt1.
+	 */
 	public void testIp4CRC16Pkt1() {
 
 		JPacket packet = super.getPcapPacket(TestUtils.L2TP, 0);
@@ -67,6 +72,9 @@ public class TestTcpIp
 		assertTrue(ip.isChecksumValid());
 	}
 
+	/**
+	 * Test ip4 cr c16 pkt2.
+	 */
 	public void testIp4CRC16Pkt2() {
 
 		JPacket packet = super.getPcapPacket(TestUtils.L2TP, 1);
@@ -75,6 +83,9 @@ public class TestTcpIp
 		assertEquals(ip.calculateChecksum(), ip.checksum());
 	}
 
+	/**
+	 * Test ip4 cr c16 pkt50.
+	 */
 	public void testIp4CRC16Pkt50() {
 
 		JPacket packet = super.getPcapPacket(TestUtils.L2TP, 46 - 1);
@@ -86,6 +97,12 @@ public class TestTcpIp
 		// System.out.printf("ip.crc=%x computed=%x\n", ip.checksum(), crc);
 	}
 
+	/**
+	 * Test ip4 cr c16 entire file.
+	 * 
+	 * @throws InterruptedException
+	 *           the interrupted exception
+	 */
 	public void testIp4CRC16EntireFile() throws InterruptedException {
 		Ip4 ip = new Ip4();
 		for (JPacket packet : super.getIterable(TestUtils.L2TP)) {
@@ -113,6 +130,9 @@ public class TestTcpIp
 		}
 	}
 
+	/**
+	 * Test ip4 cr c16 using handler.
+	 */
 	public void testIp4CRC16UsingHandler() {
 		StringBuilder errbuf = new StringBuilder();
 		Pcap pcap = Pcap.openOffline(TestUtils.L2TP, errbuf);
@@ -145,6 +165,12 @@ public class TestTcpIp
 		    }, null);
 	}
 
+	/**
+	 * Test compare2 sets of packets.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public void testCompare2SetsOfPackets() throws IOException {
 		List<PcapPacket> l1 = getPacketList(L2TP);
 		List<PcapPacket> l2 = getPacketList(L2TP);
@@ -170,6 +196,12 @@ public class TestTcpIp
 
 	}
 
+	/**
+	 * Test compare checksum of2 sets.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public void testCompareChecksumOf2Sets() throws IOException {
 		List<PcapPacket> l1 = getPacketList(L2TP);
 		List<PcapPacket> l2 = getPacketList(L2TP);
@@ -197,6 +229,15 @@ public class TestTcpIp
 
 	}
 
+	/**
+	 * Compare j buffer.
+	 * 
+	 * @param b1
+	 *          the b1
+	 * @param b2
+	 *          the b2
+	 * @return true, if successful
+	 */
 	private boolean compareJBuffer(JBuffer b1, JBuffer b2) {
 		if (b1.size() != b2.size()) {
 			return false;
@@ -211,12 +252,24 @@ public class TestTcpIp
 		return true;
 	}
 
+	/** The checksums. */
 	List<Integer> checksums = new ArrayList<Integer>();
 
+	/** The saved. */
 	List<Integer> saved = new ArrayList<Integer>();
 
+	/** The data. */
 	List<byte[]> data = new ArrayList<byte[]>();
 
+	/**
+	 * Gets the packet list.
+	 * 
+	 * @param file
+	 *          the file
+	 * @return the packet list
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	private List<PcapPacket> getPacketList(String file) throws IOException {
 		StringBuilder errbuf = new StringBuilder();
 		Pcap pcap = Pcap.openOffline(file, errbuf);
@@ -234,6 +287,12 @@ public class TestTcpIp
 		return list;
 	}
 
+	/**
+	 * Test ip checksum.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public void testIpChecksum() throws IOException {
 		StringBuilder errbuf = new StringBuilder();
 		Pcap pcap = Pcap.openOffline(L2TP, errbuf);
@@ -291,6 +350,12 @@ public class TestTcpIp
 		pcap.close();
 	}
 
+	/**
+	 * Test compare2 sets of packets2.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
+	 */
 	public void testCompare2SetsOfPackets2() throws IOException {
 		List<PcapPacket> l1 = getPacketList(L2TP);
 		List<PcapPacket> l2 = getPacketList(L2TP);
@@ -317,6 +382,9 @@ public class TestTcpIp
 
 	}
 
+	/**
+	 * Test tcp ip4 cr c16 using handler.
+	 */
 	public void testTcpIp4CRC16UsingHandler() {
 		StringBuilder errbuf = new StringBuilder();
 		Pcap pcap = Pcap.openOffline(TestUtils.HTTP, errbuf);
@@ -359,6 +427,9 @@ public class TestTcpIp
 		}, null);
 	}
 
+	/**
+	 * Test tcp ip6 cr c16 using handler.
+	 */
 	public void testTcpIp6CRC16UsingHandler() {
 		StringBuilder errbuf = new StringBuilder();
 		Pcap pcap = Pcap.openOffline(HTTP_IP6, errbuf);
@@ -387,6 +458,9 @@ public class TestTcpIp
 		}, null);
 	}
 
+	/**
+	 * Test udp ip6 cr c16 using handler.
+	 */
 	public void testUdpIp6CRC16UsingHandler() {
 		StringBuilder errbuf = new StringBuilder();
 		Pcap pcap = Pcap.openOffline(HTTP_IP6, errbuf);
@@ -415,6 +489,9 @@ public class TestTcpIp
 		}, null);
 	}
 
+	/**
+	 * Test icmp cr c16 using handler.
+	 */
 	public void testIcmpCRC16UsingHandler() {
 		StringBuilder errbuf = new StringBuilder();
 		Pcap pcap = Pcap.openOffline(TestTcpIp.VLAN, errbuf);
@@ -448,6 +525,9 @@ public class TestTcpIp
 		}, null);
 	}
 
+	/**
+	 * Test ip4 fragment flag directly.
+	 */
 	public void testIp4FragmentFlagDirectly() {
 		JPacket packet = TestUtils.getPcapPacket(TestUtils.REASEMBLY, 1 - 1);
 		Ethernet eth = new Ethernet();
@@ -477,6 +557,9 @@ public class TestTcpIp
 
 	}
 
+	/**
+	 * Test j header is fragmented.
+	 */
 	public void testJHeaderIsFragmented() {
 		JPacket packet = TestUtils.getPcapPacket(TestUtils.REASEMBLY, 1 - 1);
 		Ethernet eth = new Ethernet();
@@ -497,6 +580,9 @@ public class TestTcpIp
 
 	}
 	
+	/**
+	 * Test tcp options.
+	 */
 	public void testTcpOptions() {
 		JPacket packet = TestUtils.getPcapPacket(SMALL_IMAP, 1 - 1);
 		System.out.println(packet.toString());

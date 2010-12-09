@@ -29,15 +29,19 @@ import org.jnetpcap.packet.annotate.Field.Property;
 import org.jnetpcap.packet.format.JFormatter.Priority;
 import org.jnetpcap.packet.format.JFormatter.Style;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class AnnotatedField.
  */
 public class AnnotatedField {
 
 	/**
+	 * Check singature.
+	 * 
 	 * @param c
+	 *          the c
 	 * @param method
+	 *          the method
 	 */
 	private static void checkSingature(Class<? extends JHeader> c, Method method) {
 
@@ -48,10 +52,17 @@ public class AnnotatedField {
 	}
 
 	/**
+	 * Inspect enum constant.
+	 * 
 	 * @param field
+	 *          the field
 	 * @param enumAnnotation
+	 *          the enum annotation
 	 * @param methods
-	 * @return
+	 *          the methods
+	 * @param c
+	 *          the c
+	 * @return the annotated field
 	 */
 	public static AnnotatedField inspectEnumConstant(
 	    String field,
@@ -81,9 +92,13 @@ public class AnnotatedField {
 	}
 
 	/**
+	 * Inspect method.
+	 * 
 	 * @param c
+	 *          the c
 	 * @param m
-	 * @return
+	 *          the m
+	 * @return the annotated field
 	 */
 	public static AnnotatedField inspectMethod(
 	    Class<? extends JHeader> c,
@@ -96,6 +111,13 @@ public class AnnotatedField {
 		return field;
 	}
 
+	/**
+	 * Map format to style.
+	 * 
+	 * @param format
+	 *          the format
+	 * @return the style
+	 */
 	private static Style mapFormatToStyle(String format) {
 		if (format.contains("%s[]")) {
 			return Style.STRING_ARRAY;
@@ -126,19 +148,31 @@ public class AnnotatedField {
 		}
 	}
 
+	/** The annotation. */
 	private final Field annotation;
 
+	/** The declaring class. */
 	private final Class<?> declaringClass;
 
+	/** The method. */
 	private final Method method;
 
+	/** The runtime. */
 	private final AnnotatedFieldRuntime runtime;
 
+	/** The sub fields. */
 	private final List<AnnotatedField> subFields =
 	    new ArrayList<AnnotatedField>();
 
+	/** The name. */
 	private String name;
 
+	/**
+	 * Instantiates a new annotated field.
+	 * 
+	 * @param method
+	 *          the method
+	 */
 	private AnnotatedField(Method method) {
 		this.method = method;
 		this.annotation = method.getAnnotation(Field.class);
@@ -147,9 +181,16 @@ public class AnnotatedField {
 	}
 
 	/**
+	 * Instantiates a new annotated field.
+	 * 
 	 * @param name
+	 *          the name
 	 * @param enumAnnotation
+	 *          the enum annotation
 	 * @param methods
+	 *          the methods
+	 * @param declaringClass
+	 *          the declaring class
 	 */
 	public AnnotatedField(
 	    String name,
@@ -167,14 +208,20 @@ public class AnnotatedField {
 	}
 
 	/**
+	 * Adds the sub field.
+	 * 
 	 * @param field
+	 *          the field
 	 */
 	public void addSubField(AnnotatedField field) {
 		this.subFields.add(field);
 	}
 
 	/**
+	 * Finish processing.
 	 * 
+	 * @param errors
+	 *          the errors
 	 */
 	public void finishProcessing(List<HeaderDefinitionError> errors) {
 		runtime.finishProcessing(errors);
@@ -185,21 +232,38 @@ public class AnnotatedField {
 	}
 
 	/**
-	 * @return
+	 * Gets the declaring class.
+	 * 
+	 * @return the declaring class
 	 */
 	public Class<?> getDeclaringClass() {
 		return this.declaringClass;
 	}
 
+	/**
+	 * Gets the description.
+	 * 
+	 * @return the description
+	 */
 	public String getDescription() {
 		return annotation.description();
 	}
 
+	/**
+	 * Gets the display.
+	 * 
+	 * @return the display
+	 */
 	public final String getDisplay() {
 		return (annotation.display().length() == 0) ? getName() : annotation
 		    .display();
 	}
 
+	/**
+	 * Gets the format.
+	 * 
+	 * @return the format
+	 */
 	public final String getFormat() {
 		if (isSubField() && annotation.format().length() == 0) {
 			return "#bitfield#";
@@ -207,24 +271,38 @@ public class AnnotatedField {
 		return (annotation.format().length() == 0) ? "%s" : annotation.format();
 	}
 
+	/**
+	 * Gets the length.
+	 * 
+	 * @return the length
+	 */
 	public int getLength() {
 		return annotation.length();
 	}
 
 	/**
-	 * @return
+	 * Gets the mask.
+	 * 
+	 * @return the mask
 	 */
 	public long getMask() {
 		return annotation.mask();
 	}
 
 	/**
-	 * @return
+	 * Gets the method.
+	 * 
+	 * @return the method
 	 */
 	public Method getMethod() {
 		return this.method;
 	}
 
+	/**
+	 * Gets the name.
+	 * 
+	 * @return the name
+	 */
 	public final String getName() {
 		if (this.name != null) {
 			return name;
@@ -233,35 +311,56 @@ public class AnnotatedField {
 		    .name();
 	}
 
+	/**
+	 * Gets the nicname.
+	 * 
+	 * @return the nicname
+	 */
 	public final String getNicname() {
 		return (annotation.nicname().length() == 0) ? getName() : annotation
 		    .nicname();
 	}
 
+	/**
+	 * Gets the offset.
+	 * 
+	 * @return the offset
+	 */
 	public int getOffset() {
 		return annotation.offset();
 	}
 
 	/**
-	 * @return
+	 * Gets the parent.
+	 * 
+	 * @return the parent
 	 */
 	public String getParent() {
 		return annotation.parent();
 	}
 
 	/**
-	 * @return
+	 * Gets the priority.
+	 * 
+	 * @return the priority
 	 */
 	public Priority getPriority() {
 		return annotation.priority();
 	}
 
+	/**
+	 * Gets the runtime.
+	 * 
+	 * @return the runtime
+	 */
 	public final AnnotatedFieldRuntime getRuntime() {
 		return this.runtime;
 	}
 
 	/**
-	 * @return
+	 * Gets the style.
+	 * 
+	 * @return the style
 	 */
 	public Style getStyle() {
 		if (isSubField()) {
@@ -272,18 +371,27 @@ public class AnnotatedField {
 	}
 
 	/**
-	 * @return
+	 * Gets the sub fields.
+	 * 
+	 * @return the sub fields
 	 */
 	public List<AnnotatedField> getSubFields() {
 		return subFields;
 	}
 
+	/**
+	 * Gets the units.
+	 * 
+	 * @return the units
+	 */
 	public String getUnits() {
 		return annotation.units();
 	}
 
 	/**
-	 * @return
+	 * Checks if is sub field.
+	 * 
+	 * @return true, if is sub field
 	 */
 	public boolean isSubField() {
 		return annotation.parent().length() != 0;

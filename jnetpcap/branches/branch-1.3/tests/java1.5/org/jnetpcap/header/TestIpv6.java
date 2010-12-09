@@ -27,13 +27,14 @@ import org.jnetpcap.packet.TestUtils;
 import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.protocol.lan.Ethernet;
 
+// TODO: Auto-generated Javadoc
 /**
- * @author Mark Bednarczyk
- * @author Sly Technologies, Inc.
+ * The Class TestIpv6.
  */
 public class TestIpv6
     extends TestCase {
 	
+	/** The Constant OUT. */
 	private final static Appendable OUT = TestUtils.DEV_NULL;
 //	private final static Appendable OUT = System.out;
 
@@ -56,11 +57,10 @@ public class TestIpv6
 	}
 
 	/**
-	 * Printing to DEV_NULL still causes entire packet structure to be decoded and
-	 * dumped to /dev/null while using every available header found in the packet.
-	 * Good stress test for Ip6 based packets.
+	 * Test scan ipv6 file.
 	 * 
 	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
 	 */
 	public void testScanIpv6File() throws IOException {
 		TextFormatter out = new TextFormatter(OUT);
