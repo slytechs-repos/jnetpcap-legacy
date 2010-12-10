@@ -1135,24 +1135,9 @@ void scan_ip4(register scan_t *scan) {
 			tot_len <= scan->buf_len &&
 			(eth = scan->header -1)->hdr_id == ETHERNET_ID) {
 
-		printf("#%d:: scan_ip4:: eth=%p, post=%d, pay=%d, buf_len=%d\n",
-				(int) scan->scanner->sc_cur_frame_num,
-				eth,
-				(int) eth->hdr_postfix,
-				(int) eth->hdr_postfix,
-				(int) scan->buf_len);
-		fflush(stdout);
-
 			eth->hdr_postfix = (scan->buf_len - 14 - tot_len);
 			eth->hdr_payload -= eth->hdr_postfix; // Adjust payload
 			scan->buf_len -= eth->hdr_postfix; // Adjust caplen
-
-		printf("#%d:: scan_ip4:: post=%d, pay=%d, buf_len=%d\n",
-				(int) scan->scanner->sc_cur_frame_num,
-				(int) eth->hdr_postfix,
-				(int) eth->hdr_postfix,
-				(int) scan->buf_len);
-		fflush(stdout);
 	}
 
 	/* Check if this IP packet is a fragment and record in flags */
