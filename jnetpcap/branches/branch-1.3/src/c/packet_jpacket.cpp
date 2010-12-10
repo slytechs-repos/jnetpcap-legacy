@@ -478,26 +478,44 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_packet_JPacket_00024State_toDebugStr
 		return env->NewStringUTF(buf);
 	}
 
+	sprintf(buf,
+			"JPacket.State#%03d   : "
+			"[%10s(%2s/%4s) | %4s |"
+			"%7s |"
+			"%7s |"
+			"%4s | "
+			"%7s | "
+			"%7s ]\n",
+			fr,
+			"Protocol",
+			"ID",
+			"Flag",
+			"Start",
+			"Prefix",
+			"Header",
+			"Gap",
+			"Payload",
+			"Postfix"
+			);
+
 	
 	for (int i = 0; i < packet->pkt_header_count; i ++) {
 		p = buf + strlen(buf);
 		
 		sprintf(p, 
 				"JPacket.State#%03d[%d]: "
-				"[id=%-2d %-10s "
-				"flags=0x%x "
-				"pre=%d "
-				"hdr_offset=%-4d "
-				"hdr_length=%-3d "
-				"gap=%d "
-				"pay=%-3d "
-				"post=%d]\n", 
+				"[%10s(%2d/%04X) | %5d | "
+				"%6d | "
+				"%6d | "
+				"%3d | "
+				"%7d | "
+				"%7d ]\n",
 				fr,	i,
-				packet->pkt_headers[i].hdr_id,
 				id2str(packet->pkt_headers[i].hdr_id),
+				packet->pkt_headers[i].hdr_id,
 				packet->pkt_headers[i].hdr_flags,
-				packet->pkt_headers[i].hdr_prefix,
 				packet->pkt_headers[i].hdr_offset,
+				packet->pkt_headers[i].hdr_prefix,
 				packet->pkt_headers[i].hdr_length,
 				packet->pkt_headers[i].hdr_gap,
 				packet->pkt_headers[i].hdr_payload,
