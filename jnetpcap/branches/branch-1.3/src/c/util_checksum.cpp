@@ -372,6 +372,10 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_pseudoTcp
 		return (jint) -1;
 	}
 	
+	if (len > size) {
+		return 0;
+	}
+
 	tcp_t *tcp_hdr = (tcp_t *)(buf + tcp);
 	int hlen = (tcp_hdr->doff << 2);
 	if ((tcp + hlen) > size) {
