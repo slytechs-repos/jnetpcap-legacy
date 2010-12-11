@@ -29,6 +29,7 @@ import org.jnetpcap.header.TestSubHeader;
 import org.jnetpcap.nio.TestJBuffer;
 import org.jnetpcap.nio.TestJMemory;
 import org.jnetpcap.packet.JHandlerTest;
+import org.jnetpcap.packet.TestHeaderState;
 import org.jnetpcap.packet.TestJHeader;
 import org.jnetpcap.packet.TestJRegistry;
 import org.jnetpcap.packet.TestJScanner;
@@ -53,37 +54,38 @@ public class BuildTests {
 	 * @return the test
 	 */
 	public static Test suite() {
-				
+
 		TestSuite suite = new TestSuite("Test for org.jnetpcap");
-		
-		for (int i = 0; i < 1; i ++) {
-		//$JUnit-BEGIN$
-		suite.addTestSuite(TestPcapUtils.class);
-		suite.addTestSuite(TestPcapPacket.class);
-		suite.addTestSuite(JHandlerTest.class);
-		suite.addTestSuite(TestJRegistry.class);
-		suite.addTestSuite(TestJScanner.class);
-		suite.addTestSuite(TestPcapUtils.class);
-		suite.addTestSuite(TestSubHeader.class);
-		suite.addTestSuite(TestIcmp.class);
-		suite.addTestSuite(TestJBuffer.class);
-		suite.addTestSuite(TestJMemory.class);
-		suite.addTestSuite(TestFormatter.class);
-/*
-		suite.addTestSuite(TestPcapDispatchers.class);
-*/
-		suite.addTestSuite(TestHttp.class);
-		suite.addTestSuite(TestIpv6.class);
-		suite.addTestSuite(TestExpandableString.class);
-		suite.addTestSuite(TestSearchPaths.class);
-		suite.addTestSuite(TestJHeader.class);
-		suite.addTestSuite(TestVoip.class);
-		suite.addTestSuite(TestTcpIp.class);
-		suite.addTestSuite(TestNetwork.class);
-		suite.addTestSuite(TestNoSystemOutOutput.class);
+
+		for (int i = 0; i < 1; i++) {
+			// $JUnit-BEGIN$
+			suite.addTestSuite(TestPcapUtils.class);
+			suite.addTestSuite(TestPcapPacket.class);
+			suite.addTestSuite(JHandlerTest.class);
+			suite.addTestSuite(TestJRegistry.class);
+			suite.addTestSuite(TestJScanner.class);
+			suite.addTestSuite(TestPcapUtils.class);
+			suite.addTestSuite(TestSubHeader.class);
+			suite.addTestSuite(TestIcmp.class);
+			suite.addTestSuite(TestJBuffer.class);
+			suite.addTestSuite(TestJMemory.class);
+			suite.addTestSuite(TestFormatter.class);
+			/*
+			 * suite.addTestSuite(TestPcapDispatchers.class);
+			 */
+			suite.addTestSuite(TestHttp.class);
+			suite.addTestSuite(TestIpv6.class);
+			suite.addTestSuite(TestExpandableString.class);
+			suite.addTestSuite(TestSearchPaths.class);
+			suite.addTestSuite(TestJHeader.class);
+			suite.addTestSuite(TestVoip.class);
+			suite.addTestSuite(TestTcpIp.class);
+			suite.addTestSuite(TestNetwork.class);
+			suite.addTestSuite(TestHeaderState.class);
+			suite.addTestSuite(TestNoSystemOutOutput.class);
 		}
-		
-		//$JUnit-END$
+
+		// $JUnit-END$
 		return suite;
 	}
 
