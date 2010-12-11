@@ -926,6 +926,13 @@ public class TestUtils extends TestCase {
 
 		return buffer;
 	}
+	
+	public static JPcapRecordBuffer loadAllPacketsFromFile(String file) {
+		JPcapRecordBuffer buffer = loadAllPacketsFromFiles(new String[] {file});
+
+		return buffer;
+	}
+
 
 	/**
 	 * Open live.
