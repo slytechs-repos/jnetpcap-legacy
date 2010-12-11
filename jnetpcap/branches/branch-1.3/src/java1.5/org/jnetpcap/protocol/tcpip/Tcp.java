@@ -41,17 +41,13 @@ import org.jnetpcap.util.checksum.Checksum;
  */
 @Header
 @SuppressWarnings("unused")
-public class Tcp
-    extends
-    JHeaderMap<Tcp> implements JHeaderChecksum {
+public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 
 	/**
 	 * The Class AlternateChecksum.
 	 */
 	@Header(id = 15)
-	public static class AlternateChecksum
-	    extends
-	    TcpOption {
+	public static class AlternateChecksum extends TcpOption {
 
 		/**
 		 * Data.
@@ -89,21 +85,19 @@ public class Tcp
 	 * The Class AlternateChecksumRequest.
 	 */
 	@Header(id = 14)
-	public static class AlternateChecksumRequest
-	    extends
-	    TcpOption {
+	public static class AlternateChecksumRequest extends TcpOption {
 
 		/**
 		 * The Enum Algorithm.
 		 */
 		public enum Algorithm {
-			
+
 			/** The TC p_ checksum. */
 			TCP_CHECKSUM(0),
 
 			/** The FLETCHE r_8 bit. */
 			FLETCHER_8BIT(1),
-			
+
 			/** The FLETCHE r_16 bit. */
 			FLETCHER_16BIT(2),
 
@@ -175,28 +169,28 @@ public class Tcp
 	 * The Enum Flag.
 	 */
 	public enum Flag {
-		
+
 		/** The ACK. */
 		ACK,
-		
+
 		/** The CWR. */
 		CWR,
-		
+
 		/** The ECE. */
 		ECE,
-		
+
 		/** The FIN. */
 		FIN,
-		
+
 		/** The PSH. */
 		PSH,
-		
+
 		/** The RST. */
 		RST,
-		
+
 		/** The SYN. */
 		SYN,
-		
+
 		/** The URG. */
 		URG, ;
 
@@ -252,9 +246,7 @@ public class Tcp
 	 * The Class MSS.
 	 */
 	@Header(id = 2, description = "Maximum Segment Size")
-	public static class MSS
-	    extends
-	    TcpOption {
+	public static class MSS extends TcpOption {
 
 		/**
 		 * Mss.
@@ -281,18 +273,14 @@ public class Tcp
 	 * The Class NoOp.
 	 */
 	@Header(id = 1)
-	public static class NoOp
-	    extends
-	    TcpOption {
+	public static class NoOp extends TcpOption {
 	}
 
 	/**
 	 * The Class SACK.
 	 */
 	@Header(id = 5)
-	public static class SACK
-	    extends
-	    TcpOption {
+	public static class SACK extends TcpOption {
 
 		/**
 		 * Block count.
@@ -351,7 +339,7 @@ public class Tcp
 		 */
 		public long[] blocksToArray(long[] array) {
 			final int count =
-			    (array.length < blockCount() * 2) ? array.length : blockCount() * 2;
+					(array.length < blockCount() * 2) ? array.length : blockCount() * 2;
 
 			for (int i = 0; i < count; i++) {
 				array[i] = getUInt(i * 4 + 2);
@@ -365,17 +353,13 @@ public class Tcp
 	 * The Class SACK_PERMITTED.
 	 */
 	@Header(id = 4)
-	public static class SACK_PERMITTED
-	    extends
-	    TcpOption {
+	public static class SACK_PERMITTED extends TcpOption {
 	}
 
 	/**
 	 * The Class TcpOption.
 	 */
-	public static abstract class TcpOption
-	    extends
-	    JSubHeader<Tcp> {
+	public static abstract class TcpOption extends JSubHeader<Tcp> {
 
 		/**
 		 * The Enum OptionCode.
@@ -384,33 +368,33 @@ public class Tcp
 
 			/** The ALTERNAT e_ checksum. */
 			ALTERNATE_CHECKSUM(15),
-			
+
 			/** The ALTERNAT e_ checksu m_ request. */
 			ALTERNATE_CHECKSUM_REQUEST(14),
-			
+
 			/** The EN d_ o f_ optio n_ list. */
 			END_OF_OPTION_LIST(0),
-			
+
 			/** The MAXIMU m_ segmen t_ size. */
 			MAXIMUM_SEGMENT_SIZE(2),
-			
+
 			/** The N o_ op. */
 			NO_OP(1),
-			
+
 			/** The SACK. */
 			SACK(5),
-			
+
 			/** The SAC k_ permitted. */
 			SACK_PERMITTED(4),
-			
+
 			/** The TIMESTAP. */
 			TIMESTAP(8),
-			
+
 			/** The WINDO w_ scale. */
 			WINDOW_SCALE(3)
 
 			;
-			
+
 			/**
 			 * Value of.
 			 * 
@@ -510,9 +494,7 @@ public class Tcp
 	 * The Class Timestamp.
 	 */
 	@Header(id = 8)
-	public static class Timestamp
-	    extends
-	    TcpOption {
+	public static class Timestamp extends TcpOption {
 
 		/**
 		 * Tsecr.
@@ -559,9 +541,7 @@ public class Tcp
 	 * The Class WindowScale.
 	 */
 	@Header(id = 3)
-	public static class WindowScale
-	    extends
-	    TcpOption {
+	public static class WindowScale extends TcpOption {
 
 		/**
 		 * Scale.
@@ -661,7 +641,9 @@ public class Tcp
 		super.setUInt(8, ack);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.jnetpcap.packet.JHeaderChecksum#calculateChecksum()
 	 */
 	public int calculateChecksum() {
@@ -672,11 +654,13 @@ public class Tcp
 
 		final int ipOffset = getPreviousHeaderOffset();
 
-		return Checksum.inChecksumShouldBe(checksum(), Checksum.pseudoTcp(
-		    this.packet, ipOffset, getOffset()));
+		return Checksum.inChecksumShouldBe(checksum(),
+				Checksum.pseudoTcp(this.packet, ipOffset, getOffset()));
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.jnetpcap.packet.JHeaderChecksum#checksum()
 	 */
 	@Field(offset = 16 * BYTE, length = 16, format = "%x")
@@ -729,7 +713,9 @@ public class Tcp
 
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.jnetpcap.packet.JHeader#decodeHeader()
 	 */
 	@Override
@@ -739,11 +725,11 @@ public class Tcp
 		 */
 		if ((getPacket() != null) && getPacket().hasHeader(this.ip)) {
 			this.biDirectionalHashcode =
-			    (this.ip.destinationToInt() + destination())
-			        ^ (this.ip.sourceToInt() + source());
+					(this.ip.destinationToInt() + destination())
+							^ (this.ip.sourceToInt() + source());
 
 			this.uniDirectionalHashcode =
-			    (this.ip.destinationToInt() + destination());
+					(this.ip.destinationToInt() + destination());
 
 		} else {
 			this.biDirectionalHashcode = super.hashCode();
@@ -765,26 +751,26 @@ public class Tcp
 				break; // We are done, something seriously wrong with the header
 			}
 
-//			System.out.printf("%s: i=%d id=%d ", code, i, id);
+			// System.out.printf("%s: i=%d id=%d ", code, i, id);
 			switch (code) {
-				case NO_OP:
-					optionsLength[id] = 1;
-					break;
+			case NO_OP:
+				optionsLength[id] = 1;
+				break;
 
-				case END_OF_OPTION_LIST:
-					optionsLength[id] = hlen - i;
-					i = hlen;
-					break;
+			case END_OF_OPTION_LIST:
+				optionsLength[id] = hlen - i;
+				i = hlen;
+				break;
 
-				default:
-					final int length = getUByte(i + 1); // Length option field
-//				System.out.printf("length=%d", length);
-					i += length -1;
-					optionsLength[id] = length;
-					break;
+			default:
+				final int length = getUByte(i + 1); // Length option field
+				// System.out.printf("length=%d", length);
+				i += length - 1;
+				optionsLength[id] = length;
+				break;
 			}
 
-//			System.out.println();
+			// System.out.println();
 			// System.out.printf("i=%d id=%d bitmap=0x%X length=%d\n", i, id,
 			// optionsBitmap, optionsLength[id]);
 		}
@@ -1011,16 +997,9 @@ public class Tcp
 		return Flag.asSet(flags());
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.packet.JHeader#getPayloadLength()
-	 */
-	@Override
-	public int getPayloadLength() {
-		getPacket().getHeader(this.ip);
-		return this.ip.length() - this.ip.hlen() * 4 - hlen() * 4;
-	}
-
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -1048,7 +1027,9 @@ public class Tcp
 		super.setUByte(12, ((getUByte(12) & 0x0F) | (length << 4)));
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.jnetpcap.packet.JHeaderChecksum#isChecksumValid()
 	 */
 	public boolean isChecksumValid() {

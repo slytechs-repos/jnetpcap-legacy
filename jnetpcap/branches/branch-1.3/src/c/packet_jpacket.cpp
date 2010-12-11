@@ -468,7 +468,7 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_packet_JPacket_00024State_toDebugStr
 			fr, packet->pkt_header_count,
 			fr, packet->pkt_wirelen);
 	
-	char *p;
+	char *p = buf;
 	
 	if (packet->pkt_header_count> 32) {
 		sprintf(buf + strlen(buf), 
@@ -478,7 +478,9 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_packet_JPacket_00024State_toDebugStr
 		return env->NewStringUTF(buf);
 	}
 
-	sprintf(buf,
+	p = buf + strlen(buf);
+
+	sprintf(p,
 			"JPacket.State#%03d   : "
 			"[%10s(%2s/%4s) | %4s |"
 			"%7s |"
