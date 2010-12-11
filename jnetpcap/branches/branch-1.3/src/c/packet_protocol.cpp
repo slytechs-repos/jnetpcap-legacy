@@ -901,10 +901,14 @@ void scan_ip6(scan_t *scan) {
 	 * IP.
 	 */
 	if (scan->hdr_count > 1 && (eth = scan->header -1)->hdr_id == ETHERNET_ID) {
-		eth->hdr_postfix = (scan->buf_len - 14 - BIG_ENDIAN16(ip6->ip6_plen)
+		int postfix = (scan->buf_len - 14 - BIG_ENDIAN16(ip6->ip6_plen)
 				- IP6_HEADER_LENGTH);
-		eth->hdr_payload -= eth->hdr_postfix; // Adjust payload
-		scan->buf_len -= eth->hdr_postfix; // Adjust caplen
+
+		if (postfix > 0) {
+			eth->hdr_postfix = (uint16_t) postfix;
+			eth->hdr_payload -= postfix; // Adjust payload
+			scan->buf_len -= postfix; // Adjust caplen
+		}
 	}
 
 
@@ -1118,7 +1122,7 @@ void scan_ip4(register scan_t *scan) {
 	}
 
 	register ip4_t *ip4 = (ip4_t *) (scan->buf + scan->offset);
-	u_int tot_len = BIG_ENDIAN16(ip4->tot_len);
+	uint16_t tot_len = BIG_ENDIAN16(ip4->tot_len);
 	scan->length = ip4->ihl * 4;
 	scan->hdr_payload = tot_len - scan->length;
 	
@@ -1131,13 +1135,16 @@ void scan_ip4(register scan_t *scan) {
 	 * 802.3 frames already contain data-length field so no need to rely on
 	 * IP.
 	 */
-	if (scan->hdr_count > 1 &&
-			tot_len <= scan->buf_len &&
+	if ((scan->hdr_count > 1) &&
+			(tot_len <= scan->buf_len) &&
 			(eth = scan->header -1)->hdr_id == ETHERNET_ID) {
 
-			eth->hdr_postfix = (scan->buf_len - 14 - tot_len);
-			eth->hdr_payload -= eth->hdr_postfix; // Adjust payload
-			scan->buf_len -= eth->hdr_postfix; // Adjust caplen
+			int postfix = (scan->buf_len - 14 - tot_len);
+			if (postfix > 0) {
+				eth->hdr_postfix = (uint16_t) postfix;
+				eth->hdr_payload -= postfix; // Adjust payload
+				scan->buf_len -= postfix; // Adjust caplen
+			}
 	}
 
 	/* Check if this IP packet is a fragment and record in flags */
