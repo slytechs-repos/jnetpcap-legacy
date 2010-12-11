@@ -36,7 +36,7 @@ public class TestHeaderState extends TestUtils {
 	final JHeader.State headerState = new JHeader.State(JMemory.POINTER);
 	private static WeakReference<JPcapRecordBuffer> bufferRef = null;
 
-	private static JPcapRecordBuffer getBuffer() {
+	protected JPcapRecordBuffer getBuffer() {
 		if (bufferRef == null || bufferRef.get() == null) {
 			bufferRef = new WeakReference<JPcapRecordBuffer>(loadAllTestPackets());
 		}
