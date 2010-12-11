@@ -372,7 +372,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_pseudoTcp
 		return (jint) -1;
 	}
 	
-	if (len > size) {
+	if (ip + len > size) {
 		return 0;
 	}
 
