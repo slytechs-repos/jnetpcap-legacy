@@ -36,7 +36,6 @@ import org.jnetpcap.PcapUtils;
 import org.jnetpcap.nio.DisposableGC;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory;
-import org.jnetpcap.packet.JPcapRecordBuffer.Record;
 import org.jnetpcap.packet.format.FormatUtils;
 import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.protocol.JProtocol;
@@ -54,38 +53,38 @@ public class TestForMemoryLeaks extends TestUtils {
 
 	/** The Constant PEER_1S. */
 	private static final int PEER_1S = 401; // 0:0:1
-	
+
 	/** The Constant PEER_1M. */
 	private static final int PEER_1M = 60 * PEER_1S; // 0:1:0
-	
+
 	/** The Constant PEER_1H. */
 	private static final int PEER_1H = 60 * PEER_1M; // 1:0:0
-	
+
 	/** The Constant PEER_3M_35S. */
 	private static final int PEER_3M_35S = 9000; // 3:35
 
 	/** The Constant TCP_SCAN_TRANSFERTO_1S. */
 	private static final int TCP_SCAN_TRANSFERTO_1S = 100; // 0:0:1
-	
+
 	/** The Constant TCP_SCAN_TRANSFERTO_1M. */
 	private static final int TCP_SCAN_TRANSFERTO_1M = 60 * TCP_SCAN_TRANSFERTO_1S; // 0:0:1
 
 	/** The Constant GENERAL_SCAN_TRANSFERTO_1S. */
 	private static final int GENERAL_SCAN_TRANSFERTO_1S = 14; // 0:0:1
-	
+
 	/** The Constant GENERAL_SCAN_TRANSFERTO_1M. */
 	private static final int GENERAL_SCAN_TRANSFERTO_1M =
 			60 * GENERAL_SCAN_TRANSFERTO_1S; // 0:0:1
 
 	/** The Constant GENERAL_SCAN_TRANSFERTO__Q_1S. */
 	private static final int GENERAL_SCAN_TRANSFERTO__Q_1S = 12; // 0:0:1
-	
+
 	/** The Constant GENERAL_SCAN_TRANSFERTO_Q_1M. */
 	private static final int GENERAL_SCAN_TRANSFERTO_Q_1M =
 			60 * GENERAL_SCAN_TRANSFERTO__Q_1S; // 0:0:1
 
 	/** The Constant COUNT. */
-	private static final int COUNT = 2* GENERAL_SCAN_TRANSFERTO_1M;
+	private static final int COUNT = 2 * GENERAL_SCAN_TRANSFERTO_1M;
 
 	/** The Constant LINES. */
 	private static final int LINES = 10;
@@ -95,23 +94,25 @@ public class TestForMemoryLeaks extends TestUtils {
 
 	/** The G. */
 	private final double G = (1024. * 1024. * 1024);
-	
+
 	/** The g. */
 	private final double g = (1000. * 1000. * 1000);
-	
+
 	/** The M. */
 	private final double M = (1024. * 1024.);
-	
+
 	/** The K. */
 	private final double K = (1024.);
-	
+
 	/** The m. */
 	private final double m = (1000. * 1000.);
-	
+
 	/** The k. */
 	private final double k = (1000.);
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	@Override
@@ -120,7 +121,9 @@ public class TestForMemoryLeaks extends TestUtils {
 		// System.out.println(System.getProperties());
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see junit.framework.TestCase#tearDown()
 	 */
 	@Override
@@ -309,10 +312,10 @@ public class TestForMemoryLeaks extends TestUtils {
 								+ "hdr=%.0fus rm=%dKb pm=%.1fb vm=%dKb\n",
 								((double) total) / 1024 / 1024,
 								count,
-								((double) count / delta),
-								((double) b / delta / 1024.),
-								((double) h / delta),
-								1000000. / ((double) h / delta),
+								(count / delta),
+								(b / delta / 1024.),
+								(h / delta),
+								1000000. / (h / delta),
 								pm.getResident() / (1024),
 								((double) pm.getResident() - base) / count,
 								pm.getSize() / (1024));
@@ -336,10 +339,10 @@ public class TestForMemoryLeaks extends TestUtils {
 		System.out
 				.printf("totals: packets=%d average=%f pps bytes=%fKb/s headers=%f/s header_scan=%fus\n",
 						count,
-						((double) total / delta),
-						((double) bytes / delta / 1024.),
-						((double) h / delta),
-						1000000. / ((double) h / delta));
+						(total / delta),
+						(bytes / delta / 1024.),
+						(h / delta),
+						1000000. / (h / delta));
 		System.out.flush();
 
 	}
@@ -409,10 +412,10 @@ public class TestForMemoryLeaks extends TestUtils {
 								+ "hdr=%.0fus rm=%dKb pm=%.1fb vm=%dKb\n",
 								((double) total) / (1000000),
 								count,
-								((double) count / delta),
-								((double) b / delta / 1024.),
-								((double) h / delta),
-								1000000. / ((double) h / delta),
+								(count / delta),
+								(b / delta / 1024.),
+								(h / delta),
+								1000000. / (h / delta),
 								pm.getResident() / (1024),
 								((double) pm.getResident() - base) / count,
 								pm.getSize() / (1024));
@@ -436,10 +439,10 @@ public class TestForMemoryLeaks extends TestUtils {
 		System.out
 				.printf("totals: packets=%d average=%f pps bytes=%fKb/s headers=%f/s header_scan=%fus\n",
 						count,
-						((double) total / delta),
-						((double) bytes / delta / 1024.),
-						((double) h / delta),
-						1000000. / ((double) h / delta));
+						(total / delta),
+						(bytes / delta / 1024.),
+						(h / delta),
+						1000000. / (h / delta));
 		System.out.flush();
 
 	}
@@ -552,10 +555,10 @@ public class TestForMemoryLeaks extends TestUtils {
 								+ "hdr=%.0fus rm=%.1fMb pm=%.1fb vm=%dKb\n",
 								((double) total) / 1000 / 1000, // Tot
 								count, // packets
-								((double) count / delta), // pps
-								((double) b / delta / (1024. * 1024)), // bytes
-								((double) h / delta), // hdr/s
-								1000000. / ((double) h / delta), // hdr us
+								(count / delta), // pps
+								(b / delta / (1024. * 1024)), // bytes
+								(h / delta), // hdr/s
+								1000000. / (h / delta), // hdr us
 								(double) pm.getResident() / (1024 * 1024), // rm
 								((double) pm.getResident() - base) / count, // pm
 								pm.getSize() / (1024)); // vm
@@ -573,10 +576,10 @@ public class TestForMemoryLeaks extends TestUtils {
 		System.out
 				.printf("totals: packets=%d average=%f pps bytes=%fKb/s headers=%f/s header_scan=%fus\n",
 						count,
-						((double) total / delta),
-						((double) bytes / delta / 1024.),
-						((double) h / delta),
-						1000000. / ((double) h / delta));
+						(total / delta),
+						(bytes / delta / 1024.),
+						(h / delta),
+						1000000. / (h / delta));
 		System.out.flush();
 
 	}
@@ -625,7 +628,7 @@ public class TestForMemoryLeaks extends TestUtils {
 
 		for (int i = 0; i < COUNT; i++) {
 			b += size;
-			count += dispatchToJBuffeHandler(buffer, handler, null);
+			count += buffer.dispatchToJBuffeHandler(handler, null);
 
 			/*
 			 * Skip 1 iteration to allow all the files to be opened and any allocated
@@ -649,8 +652,8 @@ public class TestForMemoryLeaks extends TestUtils {
 				bytes += b;
 				headers += h;
 				double delta = ((double) te - (double) ts) / 1000.;
-				double hps = ((double) h / delta);
-				double sph = 1000000000. / ((double) h / delta);
+				double hps = (h / delta);
+				double sph = 1000000000. / (h / delta);
 
 				pm.gather(sig, pid);
 
@@ -663,11 +666,11 @@ public class TestForMemoryLeaks extends TestUtils {
 
 				((double) total) / 1000 / 1000, // Tot
 						count, // packets
-						((double) count / delta), // pps
-						delta * 1000000. / (double) count,
+						(count / delta), // pps
+						delta * 1000000. / count,
 						hps, // hdr/s
 						((Double.isInfinite(sph)) ? 0.0 : sph), // hdr ns
-						((double) b / delta / (1024. * 1024)), // bytes
+						(b / delta / (1024. * 1024)), // bytes
 						(double) pm.getResident() / (1024 * 1024), // rm
 						((double) pm.getResident() - base) / count, // pm
 						pm.getSize() / (1024)); // vm
@@ -684,7 +687,7 @@ public class TestForMemoryLeaks extends TestUtils {
 		end = System.currentTimeMillis();
 		double delta = ((double) end - (double) start) / 1000.;
 		double hps = ((double) headers / 1000 / delta);
-		double sph = 1000000000. / ((double) headers / delta);
+		double sph = 1000000000. / (headers / delta);
 
 		long d = (end - start) / 1000;
 		long seconds = (d % 60);
@@ -696,12 +699,12 @@ public class TestForMemoryLeaks extends TestUtils {
 				+ "headers=%d(%.0fKhps, %.0fns/h) " + "MBps=%.3f(%.3fMbps) " + "%n",
 
 				total,
-				((double) total / delta / 1000),
-				delta * 1000000000. / (double) total,
+				(total / delta / 1000),
+				delta * 1000000000. / total,
 				headers,
 				hps,
 				sph,
-				((double) bytes / delta / (1024. * 1024)),
+				(bytes / delta / (1024. * 1024)),
 				((double) bytes * 8 / delta / (1024. * 1024)));
 		System.out.flush();
 	}
@@ -749,7 +752,7 @@ public class TestForMemoryLeaks extends TestUtils {
 		// Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 
 		int loop = 0;
-		
+
 		// DisposableGC.getDeault().stopCleanupThread();
 		DisposableGC.getDefault().startCleanupThread();
 
@@ -765,9 +768,9 @@ public class TestForMemoryLeaks extends TestUtils {
 				// long index = total + count;
 				// System.out.printf("#%d", index);
 
-				 b += buffer.size();
-				 PcapPacket pkt = new PcapPacket(header, buffer);
-				 pkt.scan(Ethernet.ID);
+				b += buffer.size();
+				PcapPacket pkt = new PcapPacket(header, buffer);
+				// pkt.scan(Ethernet.ID);
 				// h += pkt.getState().getHeaderCount();
 
 				// if (queue.remainingCapacity() == 0) {
@@ -781,7 +784,7 @@ public class TestForMemoryLeaks extends TestUtils {
 
 				// packet.peer(header, buffer);
 
-//				b += packet.transferHeaderAndDataFrom(header, buffer);
+				// b += packet.transferHeaderAndDataFrom(header, buffer);
 				// new Object(){};
 				// tcpScanner.scan(buffer);
 				// h += tcpScanner.getHCount();
@@ -820,7 +823,7 @@ public class TestForMemoryLeaks extends TestUtils {
 		};
 
 		for (int i = 0; i < COUNT; i++) {
-			dispatchToJBuffeHandler(buffer, handler, null);
+			buffer.dispatchToJBuffeHandler(handler, null);
 
 			/*
 			 * Skip 1 iteration to allow all the files to be opened and any allocated
@@ -845,12 +848,12 @@ public class TestForMemoryLeaks extends TestUtils {
 				bytes += b;
 				headers += h;
 				double delta = ((double) te - (double) ts) / 1000.;
-				double hps = ((double) h / delta);
+				double hps = (h / delta);
 				double bps = ((double) b * 8 / delta);
-				double sph = 1000000000. / ((double) h / delta);
+				double sph = 1000000000. / (h / delta);
 				sph = ((Double.isInfinite(sph)) ? 0.0 : sph);
-				double rm = (double) (pm.getResident() - base);
-				double vm = (double) (pm.getSize());
+				double rm = (pm.getResident() - base);
+				double vm = (pm.getSize());
 
 				System.out.printf("#%-2d %s: ",
 						loop,
@@ -864,17 +867,17 @@ public class TestForMemoryLeaks extends TestUtils {
 						/* + "vm=%.2fMb" */
 						+ "available=%.2fMb(%.2fMb) " + "%n",
 
-				((double) total) / m, // Tot
+				(total) / m, // Tot
 						/* count, */// packets
-						((double) count / delta / k), // pps
-						delta * 1000000000. / (double) count,
+						(count / delta / k), // pps
+						delta * 1000000000. / count,
 						/* hps / 1000, */// hdr/s
 						/* sph, */// hdr ns
 						bps / M, // bits per second
 						rm / M // Resident Memory
 						/* vm / M */,
-						((double) JMemory.availableDirectMemory()) / M,
-						((double) JMemory.maxDirectMemory()) / M); // Total Virtual Memory
+						(JMemory.availableDirectMemory()) / M,
+						(JMemory.maxDirectMemory()) / M); // Total Virtual Memory
 				System.out.flush();
 
 				ts = te;
@@ -888,7 +891,7 @@ public class TestForMemoryLeaks extends TestUtils {
 		end = System.currentTimeMillis();
 		double delta = ((double) end - (double) start) / 1000.;
 		double hps = ((double) headers / 1000 / delta);
-		double sph = 1000000000. / ((double) headers / delta);
+		double sph = 1000000000. / (headers / delta);
 
 		long d = (end - start) / 1000;
 		long seconds = (d % 60);
@@ -903,164 +906,12 @@ public class TestForMemoryLeaks extends TestUtils {
 	}
 
 	/**
-	 * Gets the dir file list.
-	 * 
-	 * @param dir
-	 *          the dir
-	 * @param endsWith
-	 *          the ends with
-	 * @return the dir file list
-	 */
-	private String[] getDirFileList(File dir, String endsWith) {
-		String[] files = DIR.list(new FilenameFilter() {
-
-			public boolean accept(File dir, String name) {
-				return name.endsWith(".pcap");
-			}
-
-		});
-
-		for (int i = 0; i < files.length; i++) {
-			files[i] = DIR.toString() + "/" + files[i];
-		}
-
-		return files;
-	}
-
-	/**
-	 * Gets the file size aggregate.
-	 * 
-	 * @param files
-	 *          the files
-	 * @return the file size aggregate
-	 */
-	private long getFileSizeAggregate(String[] files) {
-		int size = 0;
-		for (String f : files) {
-			size += new File(f).length();
-		}
-
-		return size;
-
-	}
-
-	/**
 	 * Load all packets from files.
 	 * 
 	 * @param files
 	 *          the files
 	 * @return the j pcap record buffer
 	 */
-	private JPcapRecordBuffer loadAllPacketsFromFiles(String[] files) {
-
-		final int size = (int) getFileSizeAggregate(files);
-
-		final JPcapRecordBuffer buf = new JPcapRecordBuffer(size);
-
-		for (final String fname : files) {
-			Pcap pcap = Pcap.openOffline(fname, errbuf);
-			assertNotNull(errbuf.toString(), pcap);
-
-			try {
-				pcap.loop(Pcap.LOOP_INFINATE, new JBufferHandler<String>() {
-					private int index = 1;
-
-					public void nextPacket(PcapHeader header, JBuffer buffer, String fname) {
-						buf.append(header, buffer);
-
-						// final PcapPacket packet = new PcapPacket(header, buffer);
-						// packet.scan(Ethernet.ID);
-						// System.out.printf("#%s:%d%n", fname, index++);
-						// System.out.println(packet.toHexdump());
-						// System.out.println(packet.getState().toDebugString());
-						// System.out.println(packet);
-					}
-				},
-						fname);
-			} catch (RuntimeException e) {
-				e.printStackTrace();
-				throw e;
-			} finally {
-				pcap.close();
-			}
-		}
-
-		buf.close();
-
-		return buf;
-	}
-
-	/** The header. */
-	final PcapHeader header = new PcapHeader(JMemory.POINTER);
-
-	/** The pkt_buf. */
-	final JBuffer pkt_buf = new JBuffer(JMemory.POINTER);
-
-	/** The packet. */
-	final PcapPacket packet = new PcapPacket(JMemory.POINTER);
-
-	/**
-	 * Dispatch to j buffe handler.
-	 * 
-	 * @param <T>
-	 *          the generic type
-	 * @param buffer
-	 *          the buffer
-	 * @param handler
-	 *          the handler
-	 * @param user
-	 *          the user
-	 * @return the long
-	 */
-	private <T> long dispatchToJBuffeHandler(JPcapRecordBuffer buffer,
-			JBufferHandler<T> handler,
-			T user) {
-
-		for (Record record : buffer) {
-			handler.nextPacket(record.header, record.packet, user);
-		}
-
-		// final JPcapRecordBuffer.Iterator i = buffer.iterator();
-		// while (i.hasNext()) {
-		// i.next(header, pkt_buf);
-		// handler.nextPacket(header, pkt_buf, user);
-		// }
-
-		return buffer.getPacketRecordCount();
-	}
-
-	/**
-	 * Dispatch to pcap packet handler.
-	 * 
-	 * @param <T>
-	 *          the generic type
-	 * @param buffer
-	 *          the buffer
-	 * @param handler
-	 *          the handler
-	 * @param user
-	 *          the user
-	 * @return the long
-	 */
-	private <T> long dispatchToPcapPacketHandler(JPcapRecordBuffer buffer,
-			PcapPacketHandler<T> handler,
-			T user) {
-
-		// for (Record record: buffer) {
-		// handler.nextPacket(record.header, record.packet, user);
-		// }
-
-		final JPcapRecordBuffer.Iterator i = buffer.iterator();
-		for (JPcapRecordBuffer.Record record : buffer) {
-
-			// final PcapPacket pkt = new PcapPacket(record.header, record.packet);
-			packet.transferHeaderAndDataFrom(record.header, record.packet);
-			packet.scan(Ethernet.ID);
-			handler.nextPacket(packet, user);
-		}
-
-		return buffer.getPacketRecordCount();
-	}
 
 	/*
 	 * (non-Javadoc)
