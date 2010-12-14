@@ -570,7 +570,7 @@
 
 		<echo message="Created shared JNI libary: ${build.lib.dir}/${lib.pcap.fullname}" />
 
-		<property name="jni.lib.file" value="${build.lib.dir}/${lib.pcap.fullname}" />
+		<property name="jni.lib.file" value="${build.lib.dir}/${lib.pcap.name}" />
 
 
 	</target>
@@ -672,7 +672,8 @@
 		<copy todir="${deb.build.java.dir}" file="${build.jnetpcap.jar}" />
 		<copy todir="${deb.build.doc.dir}" file="${doc.dir}/RELEASE_NOTES.txt" />
 		<copy todir="${deb.build.doc.dir}" file="${doc.dir}/CHANGE_LOG.txt" />
-		<copy todir="${deb.build.doc.dir}" file="${doc.dir}/LICENSE.txt" />
+		<copy todir="${deb.build.doc.dir}" file="${doc.dir}/COPYING" />
+		<copy todir="${deb.build.doc.dir}" file="${doc.dir}/COPYING.LESSER" />
 		<echo message="control=${deb.build.control.dir}/${deb.spec.name}" />
 		<echo message="src=${deb.buildroot.dir}" />
 		<deb destfile="${deb.file}" control="${deb.build.control.dir}">
@@ -701,7 +702,8 @@
 		<copy todir="${rpm.build.dir}/INSTALL/usr/share/java" file="${build.jnetpcap.jar}" />
 		<copy todir="${rpm.build.dir}/BUILD" file="${doc.dir}/RELEASE_NOTES.txt" />
 		<copy todir="${rpm.build.dir}/BUILD" file="${doc.dir}/CHANGE_LOG.txt" />
-		<copy todir="${rpm.build.dir}/BUILD" file="${doc.dir}/LICENSE.txt" />
+		<copy todir="${rpm.build.dir}/BUILD" file="${doc.dir}/COPYING" />
+		<copy todir="${rpm.build.dir}/BUILD" file="${doc.dir}/COPYING.LESSER" />
 
 		<rpm specfile="${rpm.spec.name}" topdir="${rpm.build.dir}" command="-bb --buildroot=${rpm.buildroot.dir}" />
 
@@ -727,7 +729,8 @@
 		<copy todir="${tar.build.pkg.dir}" file="${build.jnetpcap.jar}" />
 		<copy todir="${tar.build.pkg.dir}" file="${doc.dir}/RELEASE_NOTES.txt" />
 		<copy todir="${tar.build.pkg.dir}" file="${doc.dir}/CHANGE_LOG.txt" />
-		<copy todir="${tar.build.pkg.dir}" file="${doc.dir}/LICENSE.txt" />
+		<copy todir="${tar.build.pkg.dir}" file="${doc.dir}/COPYING" />
+		<copy todir="${tar.build.pkg.dir}" file="${doc.dir}/COPYING.LESSER" />
 
 		<tar destfile="${tar.build.file}" basedir="${tar.build.dir}" compression="gzip" casesensitive="true" />
 
@@ -834,7 +837,8 @@
 		<!-- ############################################################### -->
 		<!--       Copy, license, readme, release notes, etc..  -->
 		<!-- ############################################################### -->
-		<copy file="${doc.LICENSE}" tofile="${pkg.src.LICENSE}" />
+		<copy file="${doc.COPYING}" tofile="${pkg.src.COPYING}" />
+		<copy file="${doc.COPYING.LESSER}" tofile="${pkg.src.COPYING.LESSER}" />
 		<copy file="${doc.CHANGE_LOG}" tofile="${pkg.src.CHANGE_LOG}" />
 		<copy file="${doc.RELEASE_NOTES}" tofile="${pkg.src.RELEASE_NOTES}">
 			<filterset>
