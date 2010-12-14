@@ -266,10 +266,20 @@
 	<target name="comp-manifest" depends="prep-meta-inf" description="Create manifest file">
 
 		<!-- Create manifest -->
-		<manifest file="${build.classes.inf}">
+		<manifest file="${build.classes.inf}" >
 			<attribute name="Built-By" value="${company.name}" />
 			<attribute name="Built-On" value="${timestamp.isoformat}" />
 			<attribute name="Created-By" value="Apache Ant ${ant.version}" />
+			
+			<attribute name="Specification-Title" value="jNetPcap" />
+			<attribute name="Specification-Vendor" value="Sly Technologies, Inc." />
+			<attribute name="Specification-Version" value="${pkg.version}" />
+			
+			<attribute name="Implementation-Title" value="jNetPcap runtime" />
+			<attribute name="Implementation-Vendor" value="Sly Technologies, Inc." />
+			<attribute name="Implementation-Version" value="${pkg.version}" />
+			<attribute name="Sealed" value="false" />
+
 		</manifest>
 
 	</target>
@@ -635,7 +645,9 @@
 		<!-- ############################################################### -->
 		<!--       Create JAR file containing all the java classes  -->
 		<!-- ############################################################### -->
-		<jar destfile="${build.jnetpcap.jar}" manifest="${build.classes.inf}">
+		<jar destfile="${build.jnetpcap.jar}" 
+			manifest="${build.classes.inf}" 
+			description="jNetPcap Libpcap wrapper and packet decoder" >
 			<fileset dir="${build.classes.dir}1.5" />
 		</jar>
 	</target>
