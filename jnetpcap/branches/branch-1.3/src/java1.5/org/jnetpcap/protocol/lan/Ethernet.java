@@ -49,15 +49,14 @@ public class Ethernet extends JHeader {
 	 * The Enum EthernetType.
 	 */
 	public enum EthernetType {
-		
+
 		/** The IEE e_802 do t1 q. */
-		IEEE_802DOT1Q(0x8100, "vlan - IEEE 802.1q"), 
- /** The I p4. */
- IP4(0x800, "ip version 4"), 
- /** The I p6. */
- IP6(
-				0x86DD, "ip version 6"), ;
-		
+		IEEE_802DOT1Q(0x8100, "vlan - IEEE 802.1q"),
+		/** The I p4. */
+		IP4(0x800, "ip version 4"),
+		/** The I p6. */
+		IP6(0x86DD, "ip version 6"), ;
+
 		/**
 		 * To string.
 		 * 
@@ -145,10 +144,10 @@ public class Ethernet extends JHeader {
 
 	/** The Constant ADDRESS_IG_BIT. */
 	public static final int ADDRESS_IG_BIT = 0x40;
-	
+
 	/** The Constant ADDRESS_LG_BIT. */
 	public static final int ADDRESS_LG_BIT = 0x80;
-	
+
 	/** The Constant ID. */
 	public static final int ID = JProtocol.ETHERNET_ID;
 
@@ -361,6 +360,29 @@ public class Ethernet extends JHeader {
 	}
 
 	/**
+	 * Sets the checksum, Ethernet.FCS field in the last 4 bytes of the packet
+	 * buffer, which is also the Ethernet trailer part or jNetPcap 'postfix'. The
+	 * method checks if last 4 bytes are actually part of physical Ethernet
+	 * trailer. If not, the method returns without an error, but FCS is not set.
+	 * 
+	 * @param crc
+	 * @return true if checksum was set, otherwise if Ethernet trailer part or
+	 *         Ethernet postfix part is less then 4 bytes long, returns false
+	 */
+	public boolean checksum(long crc) {
+		if (getPostfixLength() < 4) {
+			return false;
+		}
+
+		final JPacket packet = getPacket();
+		packet.order(ByteOrder.BIG_ENDIAN);
+
+		packet.setUInt(packet.size() - 4, crc);
+
+		return true;
+	}
+
+	/**
 	 * Calculate checksum.
 	 * 
 	 * @return the long
@@ -369,7 +391,7 @@ public class Ethernet extends JHeader {
 		if (getPostfixLength() < 4) {
 			return 0L;
 		}
-		
+
 		final JPacket packet = getPacket();
 		return Checksum.crc32IEEE802(packet, 0, packet.size() - 4);
 	}
