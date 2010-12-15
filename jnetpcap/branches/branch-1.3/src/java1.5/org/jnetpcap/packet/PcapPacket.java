@@ -20,7 +20,6 @@ package org.jnetpcap.packet;
 
 import java.nio.ByteBuffer;
 
-import org.jnetpcap.IncompatiblePeer;
 import org.jnetpcap.PcapHeader;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemoryPool;
@@ -28,32 +27,33 @@ import org.jnetpcap.nio.JMemoryPool;
 // TODO: Auto-generated Javadoc
 /**
  * A pcap packet. Fully decoded packet that provides access to protocol headers
- * as determined during the decoding process. A <code>PcapPacket</code> class
- * is designed to work with pcap library. It can not be used to create a new
- * packet from an external memory buffer that only contains packet data, such as
+ * as determined during the decoding process. A <code>PcapPacket</code> class is
+ * designed to work with pcap library. It can not be used to create a new packet
+ * from an external memory buffer that only contains packet data, such as
  * preparing a packet to be sent from a network interface. You can use
  * <code>JMemoryPacket</code> to create an in memory packet from scratch.
  * PcapPackets need a PcapHeader which is provided by libpcap at the time the
  * packet was captured. Also the PcapPacket contains decoded state information
  * which can be used to query the packet for its contents using friendly java
- * API and compile-time type-safety.
- * <h2> Packet accessors</h2>
- * Once a decoded packet is received, the user can query the packet for its
- * various properties. The most important of which is the existance of any
- * particular protocol header within the packet data buffer. The data buffer is
- * scanned and decoded. Any discovery of a protocol header within, is recorded
- * in packet's state. The following accessors can be used to query if a
- * particular header has been found within a packet:
+ * API and compile-time type-safety. <h2>Packet accessors</h2> Once a decoded
+ * packet is received, the user can query the packet for its various properties.
+ * The most important of which is the existance of any particular protocol
+ * header within the packet data buffer. The data buffer is scanned and decoded.
+ * Any discovery of a protocol header within, is recorded in packet's state. The
+ * following accessors can be used to query if a particular header has been
+ * found within a packet:
  * <ul>
  * <li> <code>JPacket.hasHeader(int id):boolean</code> - id is the numerical
  * protocol ID assigned to each header type by JRegistry. The accessor returns a
  * boolean true or false if the header exists within the packet.</li>
- * <li><code>JPacket.getHeader(&lt;? extends JHeader&gt; header): &lt;? extends JHeader&gt;</code> -
- * an accessor that retrieves a specific instance of a header. A user supplied
+ * <li>
+ * <code>JPacket.getHeader(&lt;? extends JHeader&gt; header): &lt;? extends JHeader&gt;</code>
+ * - an accessor that retrieves a specific instance of a header. A user supplied
  * instance of a protocol header is used, initialized to point at the
  * appropriate memory location within the data buffer, where the protocol
  * header's state and contents reside.</li>
- * <li><code>JPacket.hasHeader(<&lt;? extends JHeader&gt; header): boolean</code> -
+ * <li>
+ * <code>JPacket.hasHeader(<&lt;? extends JHeader&gt; header): boolean</code> -
  * a convenience accessor that combines hasHeader and getHeader methods into
  * one. If the header is found within the packet, boolean true is returned and
  * at the same time the user supplied instance of the header is initialized to
@@ -132,12 +132,11 @@ import org.jnetpcap.nio.JMemoryPool;
  * </pre>
  * 
  * </p>
- * <h2>Packet's lifecycle</h2>
- * A PcapPacket is made up of 3 parts:
+ * <h2>Packet's lifecycle</h2> A PcapPacket is made up of 3 parts:
  * <ul>
- * <li> Packet data buffer - peered with packet object itself</li>
- * <li> Packet state - peered with packet state object</li>
- * <li> PcapCapture header - peered with packet header object</li>
+ * <li>Packet data buffer - peered with packet object itself</li>
+ * <li>Packet state - peered with packet state object</li>
+ * <li>PcapCapture header - peered with packet header object</li>
  * </ul>
  * <p>
  * Each part of the packet is managed independently, that is either part can be
@@ -176,18 +175,16 @@ import org.jnetpcap.nio.JMemoryPool;
  * JPacket provides a default singleton memory pool out of which all packets
  * allocate memory out of for the required space.
  * </p>
- * <h2>Advanced topiccs</h2>
- * Below are several sections that describe the lifecycle of a packet in more
- * depth. For simply usage, the termporary packets can be used immediately in
- * the handler and then the packets can be discarded. For more advanced usage
- * lets go into the detail of how packet data can be copied, preserved and
- * peered to one another.
- * <h3>Perserving packet's state and data</h3>
- * In order to preserve packet's state and data a deep copy needs to be
- * performed of all 3 components of he packet. PcapPacket class provides several
- * <code>PcapPacket.transferTo</code> methods that perform deep copies of the
- * packet. For efficiency reasons, each transferTo method are designed to copy
- * data into a memory buffer of larger size. The packet state and data are
+ * <h2>Advanced topiccs</h2> Below are several sections that describe the
+ * lifecycle of a packet in more depth. For simply usage, the termporary packets
+ * can be used immediately in the handler and then the packets can be discarded.
+ * For more advanced usage lets go into the detail of how packet data can be
+ * copied, preserved and peered to one another. <h3>Perserving packet's state
+ * and data</h3> In order to preserve packet's state and data a deep copy needs
+ * to be performed of all 3 components of he packet. PcapPacket class provides
+ * several <code>PcapPacket.transferTo</code> methods that perform deep copies
+ * of the packet. For efficiency reasons, each transferTo method are designed to
+ * copy data into a memory buffer of larger size. The packet state and data are
  * copied to the buffer with the following layout within the buffer:
  * 
  * <pre>
@@ -232,7 +229,8 @@ import org.jnetpcap.nio.JMemoryPool;
  * copy the contents. In the first case where an existing packet is being
  * reused, if that packet already contains a large enough memory buffer to hold
  * the state and data of the temporary packet, that buffer is reused. Otherwise
- * a new buffer is allocated out of the default memory pool. Here is an exmaple: *
+ * a new buffer is allocated out of the default memory pool. Here is an exmaple:
+ * *
  * 
  * <pre>
  * 
@@ -290,19 +288,18 @@ import org.jnetpcap.nio.JMemoryPool;
  * In all 3 cases, complete the packet's state and data buffer are copied to
  * external buffer.
  * </p>
- * <h2>Initializing packet from an external buffer</h2>
- * Packet state and data can be preseved in an external buffer large enough to
- * hold the entire packet with its state. PcapPacket class provides
- * transferStateAndData and peer methods that allow the external packet data to
- * be either copied into a packet or the packet be peered directly with the
- * external buffer. Peering does not need to allocate memory to hold the packet
- * state, but its state and data are directly read out of the extern buffer. If
- * you change the contents of the external buffer, the packet's state and data
- * will change as well. Care must be take with a direct reference to an external
- * buffer, as its easy to override sensitive data causing the packet to behave
- * wildly and unexpectidly. <code>JMemory</code> class prevents buffer overrun
- * attacks and any access to memory that has not been allocated. a direct
- * reference. Here is an example:
+ * <h2>Initializing packet from an external buffer</h2> Packet state and data
+ * can be preseved in an external buffer large enough to hold the entire packet
+ * with its state. PcapPacket class provides transferStateAndData and peer
+ * methods that allow the external packet data to be either copied into a packet
+ * or the packet be peered directly with the external buffer. Peering does not
+ * need to allocate memory to hold the packet state, but its state and data are
+ * directly read out of the extern buffer. If you change the contents of the
+ * external buffer, the packet's state and data will change as well. Care must
+ * be take with a direct reference to an external buffer, as its easy to
+ * override sensitive data causing the packet to behave wildly and unexpectidly.
+ * <code>JMemory</code> class prevents buffer overrun attacks and any access to
+ * memory that has not been allocated. a direct reference. Here is an example:
  * 
  * <pre>
  * pulic void nextPacket(PcapPacket packet, Queue&lt;PcapPacket&gt; queue) {
@@ -352,14 +349,12 @@ import org.jnetpcap.nio.JMemoryPool;
  * @author Sly Technologies, Inc.
  * @see JMemoryPool
  */
-public class PcapPacket
-    extends
-    JPacket {
+public class PcapPacket extends JPacket {
 
 	/** The Constant STATE_SIZE. */
-	private final static int STATE_SIZE =
-	    PcapHeader.sizeof() + JPacket.State.sizeof(DEFAULT_STATE_HEADER_COUNT);
-	
+	private final static int STATE_SIZE = PcapHeader.sizeof()
+			+ JPacket.State.sizeof(DEFAULT_STATE_HEADER_COUNT);
+
 	/**
 	 * 
 	 */
@@ -505,7 +500,7 @@ public class PcapPacket
 			((PcapPacket) src).transferStateAndDataTo(this);
 		} else {
 			throw new UnsupportedOperationException(
-			    "Unsupported packet type for this constructor");
+					"Unsupported packet type for this constructor");
 		}
 	}
 
@@ -583,6 +578,7 @@ public class PcapPacket
 	 * 
 	 * @return total size of the packet in bytes
 	 */
+	@Override
 	public int getTotalSize() {
 		return super.size() + state.size() + header.size();
 	}
@@ -601,7 +597,7 @@ public class PcapPacket
 
 		return o;
 	}
-	
+
 	/**
 	 * Peer.
 	 * 
@@ -614,7 +610,7 @@ public class PcapPacket
 	public int peer(PcapHeader header, JBuffer buffer) {
 		int o = this.header.peerTo(header, 0);
 		o += this.peer(buffer);
-		
+
 		return o;
 	}
 

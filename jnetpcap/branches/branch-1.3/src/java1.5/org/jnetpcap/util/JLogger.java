@@ -20,10 +20,7 @@ package org.jnetpcap.util;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.util.Properties;
-import java.util.concurrent.Exchanger;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -50,12 +47,11 @@ import org.jnetpcap.util.config.JConfig;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class JLogger
-    extends Logger {
+public class JLogger extends Logger {
 
 	/** Default resource file with logger configurations. */
 	public static final String PROPERTIES_CONFIG =
-	    "resources/builtin-logger.properties";
+			"resources/builtin-logger.properties";
 
 	/** The trigger config init. */
 	private static boolean triggerConfigInit = true;
@@ -66,19 +62,21 @@ public class JLogger
 	static {
 		try {
 			InputStream in =
-			    JLogger.class.getClassLoader().getResourceAsStream(PROPERTIES_CONFIG);
+					JLogger.class.getClassLoader().getResourceAsStream(PROPERTIES_CONFIG);
 			if (in == null) {
-				Logger.getLogger("").severe(
-				    "JLogger.static<>: Unable to find builtin-logger.properties. "
-				        + "Is resources directory missing in JAR File?");
+				Logger
+						.getLogger("")
+						.severe("JLogger.static<>: Unable to find builtin-logger.properties. "
+								+ "Is resources directory missing in JAR File?");
 			} else {
 				// TODO: disabled logger properties reload, causing issues for customers
 				in.close();
-//				LogManager.getLogManager().readConfiguration(in);
+				// LogManager.getLogManager().readConfiguration(in);
 			}
 		} catch (Exception e) {
 			Logger.getLogger("").log(Level.SEVERE,
-			    "Unable to find jNetPcap logger.properties", e);
+					"Unable to find jNetPcap logger.properties",
+					e);
 		}
 	}
 
@@ -154,58 +152,43 @@ public class JLogger
 	 *           Signals that an I/O exception has occurred.
 	 */
 	public static LogManager readConfiguration(final Properties properties)
-	    throws SecurityException, IOException {
+			throws SecurityException, IOException {
 
 		LogManager man = LogManager.getLogManager();
-		
+
 		// TODO: disabled logging reload. Causing issues for customers
-		if (true) {
-			return man;
-		}
-
-		final PipedOutputStream buf = new PipedOutputStream();
-		final Exchanger<IOException> io = new Exchanger<IOException>();
-		Thread worker = new Thread(new Runnable() {
-
-			public void run() {
-				IOException error = null;
-				try {
-					properties.store(buf, "");
-					buf.close();
-				} catch (IOException e) {
-					error = e;
-				}
-
-				try {
-					io.exchange(error);
-				} catch (InterruptedException e1) {
-				}
-
-			}
-
-		}, "property writer");
-
-		worker.start();
-
-		man.readConfiguration(new PipedInputStream(buf));
-
-		try {
-			IOException e = io.exchange(null);
-			if (e != null) {
-				throw e; // Rethrow original exception
-			}
-		} catch (InterruptedException e) {
-		}
-
 		return man;
-	}
+
+		/*
+		 * final PipedOutputStream buf = new PipedOutputStream(); final
+		 * Exchanger<IOException> io = new Exchanger<IOException>(); Thread worker =
+		 * new Thread(new Runnable() {
+		 * 
+		 * public void run() { IOException error = null; try { properties.store(buf,
+		 * ""); buf.close(); } catch (IOException e) { error = e; }
+		 * 
+		 * try { io.exchange(error); } catch (InterruptedException e1) { }
+		 * 
+		 * }
+		 * 
+		 * }, "property writer");
+		 * 
+		 * worker.start();
+		 * 
+		 * man.readConfiguration(new PipedInputStream(buf));
+		 * 
+		 * try { IOException e = io.exchange(null); if (e != null) { throw e; //
+		 * Rethrow original exception } } catch (InterruptedException e) { }
+		 * 
+		 * return man;
+		 */}
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see java.util.logging.Logger#setLevel(java.util.logging.Level)
 	 */
-	/** 
+	/**
 	 * @param newLevel
 	 * @throws SecurityException
 	 * @see java.util.logging.Logger#setLevel(java.util.logging.Level)

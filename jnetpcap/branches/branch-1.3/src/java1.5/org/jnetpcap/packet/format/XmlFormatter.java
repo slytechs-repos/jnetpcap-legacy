@@ -32,8 +32,7 @@ import org.jnetpcap.packet.structure.JField;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class XmlFormatter
-    extends JFormatter {
+public class XmlFormatter extends JFormatter {
 
 	private static final String PAD = "  ";
 
@@ -45,22 +44,24 @@ public class XmlFormatter
 	 * (non-Javadoc)
 	 * 
 	 * @see org.jnetpcap.packet.format.JFormatter#end(org.jnetpcap.packet.JHeader,
-	 *      org.jnetpcap.packet.format.JField,
-	 *      org.jnetpcap.packet.format.JFormatter.Detail)
+	 * org.jnetpcap.packet.format.JField,
+	 * org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	protected void fieldAfter(JHeader header, JField field, Detail detail)
-	    throws IOException {
+			throws IOException {
 
 		if (field.getStyle() == Style.BYTE_ARRAY_HEX_DUMP) {
 			decLevel();
 			pad().format(LT + "/hexdump" + GT + "\n");
-		} else if (false && field.hasSubFields()) {
-			final String v = stylizeSingleLine(header, field, field.getValue(header));
-
-			pad().format(LT + "/field" + GT);
-
-		} else if (field.getStyle() == Style.INT_BITS) {
+		} /*
+			 * else if (false && field.hasSubFields()) { final String v =
+			 * stylizeSingleLine(header, field, field.getValue(header));
+			 * 
+			 * pad().format(LT + "/field" + GT);
+			 * 
+			 * }
+			 */else if (field.getStyle() == Style.INT_BITS) {
 		}
 
 		decLevel();
@@ -90,24 +91,28 @@ public class XmlFormatter
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.packet.format.JFormatter#start(org.jnetpcap.packet.JHeader,
-	 *      org.jnetpcap.packet.format.JField,
-	 *      org.jnetpcap.packet.format.JFormatter.Detail)
+	 * @see
+	 * org.jnetpcap.packet.format.JFormatter#start(org.jnetpcap.packet.JHeader,
+	 * org.jnetpcap.packet.format.JField,
+	 * org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	protected void fieldBefore(JHeader header, JField field, Detail detail)
-	    throws IOException {
+			throws IOException {
 
 		incLevel(PAD);
 
 		if (field.getStyle() == Style.BYTE_ARRAY_HEX_DUMP) {
 			pad().format(LT + "hexdump offset=\"%d\" length=\"%d\"" + GT,
-			    field.getOffset(header), field.getLength(header));
+					field.getOffset(header),
+					field.getLength(header));
 			incLevel(PAD);
 
 			final String[] v =
-			    stylizeMultiLine(header, field, Style.BYTE_ARRAY_HEX_DUMP_NO_TEXT,
-			        field.getValue(header));
+					stylizeMultiLine(header,
+							field,
+							Style.BYTE_ARRAY_HEX_DUMP_NO_TEXT,
+							field.getValue(header));
 
 			incLevel(PAD);
 			for (String i : v) {
@@ -116,15 +121,16 @@ public class XmlFormatter
 
 			decLevel();
 
-		} else if (false && field.hasSubFields()) {
-			final String v = stylizeSingleLine(header, field, field.getValue(header));
-
-			pad().format(
-			    LT + "field name=\"%s\" value=\"%s\" offset=\"%d\" length=\"%d\""
-			        + GT, field.getName(), v, field.getOffset(header),
-			    field.getLength(header));
-
-		} else if (field.getStyle() == Style.INT_BITS) {
+		} /*
+			 * else if (false && field.hasSubFields()) { final String v =
+			 * stylizeSingleLine(header, field, field.getValue(header));
+			 * 
+			 * pad().format( LT +
+			 * "field name=\"%s\" value=\"%s\" offset=\"%d\" length=\"%d\"" + GT,
+			 * field.getName(), v, field.getOffset(header), field.getLength(header));
+			 * 
+			 * }
+			 */else if (field.getStyle() == Style.INT_BITS) {
 		} else if (field.getStyle() == Style.BYTE_ARRAY_ARRAY_IP4_ADDRESS) {
 			byte[][] table = (byte[][]) field.getValue(header);
 
@@ -137,10 +143,12 @@ public class XmlFormatter
 		} else {
 			final String v = stylizeSingleLine(header, field, field.getValue(header));
 
-			pad().format(
-			    LT + "field name=\"%s\" value=\"%s\" offset=\"%d\" length=\"%d\"/"
-			        + GT, field.getName(), v, field.getOffset(header),
-			    field.getLength(header));
+			pad().format(LT
+					+ "field name=\"%s\" value=\"%s\" offset=\"%d\" length=\"%d\"/" + GT,
+					field.getName(),
+					v,
+					field.getOffset(header),
+					field.getLength(header));
 		}
 
 	}
@@ -149,7 +157,7 @@ public class XmlFormatter
 	 * (non-Javadoc)
 	 * 
 	 * @see org.jnetpcap.packet.format.JFormatter#end(org.jnetpcap.packet.JHeader,
-	 *      org.jnetpcap.packet.format.JFormatter.Detail)
+	 * org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	protected void headerAfter(JHeader header, Detail detail) throws IOException {
@@ -161,8 +169,9 @@ public class XmlFormatter
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.packet.format.JFormatter#start(org.jnetpcap.packet.JHeader,
-	 *      org.jnetpcap.packet.format.JFormatter.Detail)
+	 * @see
+	 * org.jnetpcap.packet.format.JFormatter#start(org.jnetpcap.packet.JHeader,
+	 * org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	protected void headerBefore(JHeader header, Detail detail) throws IOException {
@@ -179,8 +188,9 @@ public class XmlFormatter
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.packet.format.JFormatter#packetAfter(org.jnetpcap.packet.JPacket,
-	 *      org.jnetpcap.packet.format.JFormatter.Detail)
+	 * @see
+	 * org.jnetpcap.packet.format.JFormatter#packetAfter(org.jnetpcap.packet.JPacket
+	 * , org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	public void packetAfter(JPacket packet, Detail detail) throws IOException {
@@ -193,8 +203,9 @@ public class XmlFormatter
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.packet.format.JFormatter#packetBefore(org.jnetpcap.packet.JPacket,
-	 *      org.jnetpcap.packet.format.JFormatter.Detail)
+	 * @see
+	 * org.jnetpcap.packet.format.JFormatter#packetBefore(org.jnetpcap.packet.
+	 * JPacket, org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	public void packetBefore(JPacket packet, Detail detail) throws IOException {
@@ -210,10 +221,10 @@ public class XmlFormatter
 		}
 
 		pad().format("timestamp=\"%s\"",
-		    new Timestamp(packet.getCaptureHeader().timestampInMillis()));
+				new Timestamp(packet.getCaptureHeader().timestampInMillis()));
 		pad().format("captureSeconds=\"%s\"", packet.getCaptureHeader().seconds());
 		pad().format("captureNanoSeconds=\"%s\"" + GT,
-		    packet.getCaptureHeader().nanos());
+				packet.getCaptureHeader().nanos());
 		pad();
 
 		decLevel();
@@ -224,13 +235,14 @@ public class XmlFormatter
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.packet.format.JFormatter#subHeaderAfter(org.jnetpcap.packet.JHeader,
-	 *      org.jnetpcap.packet.JHeader,
-	 *      org.jnetpcap.packet.format.JFormatter.Detail)
+	 * @see
+	 * org.jnetpcap.packet.format.JFormatter#subHeaderAfter(org.jnetpcap.packet
+	 * .JHeader, org.jnetpcap.packet.JHeader,
+	 * org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	protected void subHeaderAfter(JHeader header, JHeader subHeader, Detail detail)
-	    throws IOException {
+			throws IOException {
 
 		headerAfter(subHeader, detail);
 		decLevel();
@@ -239,19 +251,19 @@ public class XmlFormatter
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.packet.format.JFormatter#subHeaderBefore(org.jnetpcap.packet.JHeader,
-	 *      org.jnetpcap.packet.JHeader,
-	 *      org.jnetpcap.packet.format.JFormatter.Detail)
+	 * @see
+	 * org.jnetpcap.packet.format.JFormatter#subHeaderBefore(org.jnetpcap.packet
+	 * .JHeader, org.jnetpcap.packet.JHeader,
+	 * org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
-	protected void subHeaderBefore(
-	    JHeader header,
-	    JHeader subHeader,
-	    Detail detail) throws IOException {
-		
+	protected void subHeaderBefore(JHeader header,
+			JHeader subHeader,
+			Detail detail) throws IOException {
+
 		incLevel(PAD);
 		pad();
-		
+
 		headerBefore(subHeader, detail);
 	}
 
