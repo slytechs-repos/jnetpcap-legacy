@@ -21,6 +21,8 @@ package org.jnetpcap.util;
 // TODO: Auto-generated Javadoc
 /**
  * The Class Units.
+ * 
+ * @author HP_Administrator
  */
 public class Units {
 	

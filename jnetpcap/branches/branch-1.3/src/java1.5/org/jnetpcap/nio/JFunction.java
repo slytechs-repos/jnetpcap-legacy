@@ -20,7 +20,10 @@ package org.jnetpcap.nio;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class JFunction.
+ * A special memory peer to a function pointer.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class JFunction
     extends
@@ -30,10 +33,10 @@ public class JFunction
 	private final String name;
 
 	/**
-	 * Instantiates a new j function.
+	 * Creates an empty function object suitable for peering.
 	 * 
 	 * @param name
-	 *          the name
+	 *          name of this function
 	 */
 	public JFunction(String name) {
 		super(Type.POINTER);

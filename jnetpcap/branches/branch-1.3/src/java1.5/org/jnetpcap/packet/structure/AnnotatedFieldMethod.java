@@ -31,6 +31,9 @@ import org.jnetpcap.packet.annotate.FieldDefinitionException;
 // TODO: Auto-generated Javadoc
 /**
  * The Class AnnotatedFieldMethod.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public abstract class AnnotatedFieldMethod
     extends AnnotatedMethod {
@@ -78,12 +81,19 @@ public abstract class AnnotatedFieldMethod
 		 * 
 		 * @see org.jnetpcap.packet.AnnotatedFieldMethod#booleanMethod(org.jnetpcap.packet.JHeader)
 		 */
+		/** 
+		 * @param header
+		 * @param name
+		 * @return
+		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#booleanMethod(org.jnetpcap.packet.JHeader, java.lang.String)
+		 */
 		@Override
 		public boolean booleanMethod(JHeader header, String name) {
 			return execute(header, name);
 		}
 
-		/* (non-Javadoc)
+		/** 
+		 * @param field
 		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#configFromField(org.jnetpcap.packet.structure.AnnotatedField)
 		 */
 		public final void configFromField(AnnotatedField field) {
@@ -203,7 +213,8 @@ public abstract class AnnotatedFieldMethod
 			super(method, function);
 		}
 
-		/* (non-Javadoc)
+		/** 
+		 * @param field
 		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#configFromField(org.jnetpcap.packet.structure.AnnotatedField)
 		 */
 		public final void configFromField(AnnotatedField field) {
@@ -270,6 +281,12 @@ public abstract class AnnotatedFieldMethod
 		 * (non-Javadoc)
 		 * 
 		 * @see org.jnetpcap.packet.AnnotatedFieldMethod#intMethod(org.jnetpcap.packet.JHeader)
+		 */
+		/** 
+		 * @param header
+		 * @param name
+		 * @return
+		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#intMethod(org.jnetpcap.packet.JHeader, java.lang.String)
 		 */
 		@Override
 		public int intMethod(JHeader header, String name) {
@@ -344,7 +361,8 @@ public abstract class AnnotatedFieldMethod
 			super(method, function);
 		}
 
-		/* (non-Javadoc)
+		/** 
+		 * @param field
 		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#configFromField(org.jnetpcap.packet.structure.AnnotatedField)
 		 */
 		public final void configFromField(AnnotatedField field) {
@@ -406,6 +424,12 @@ public abstract class AnnotatedFieldMethod
 		 * 
 		 * @see org.jnetpcap.packet.AnnotatedFieldMethod#longMethod(org.jnetpcap.packet.JHeader)
 		 */
+		/** 
+		 * @param header
+		 * @param name
+		 * @return
+		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#longMethod(org.jnetpcap.packet.JHeader, java.lang.String)
+		 */
 		@Override
 		public long longMethod(JHeader header, String name) {
 			return execute(header, name);
@@ -454,7 +478,8 @@ public abstract class AnnotatedFieldMethod
 			super(method, function);
 		}
 
-		/* (non-Javadoc)
+		/** 
+		 * @param field
 		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#configFromField(org.jnetpcap.packet.structure.AnnotatedField)
 		 */
 		public final void configFromField(AnnotatedField field) {
@@ -513,6 +538,12 @@ public abstract class AnnotatedFieldMethod
 		 * 
 		 * @see org.jnetpcap.packet.AnnotatedFieldMethod#objectMethod(org.jnetpcap.packet.JHeader)
 		 */
+		/** 
+		 * @param header
+		 * @param name
+		 * @return
+		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#objectMethod(org.jnetpcap.packet.JHeader, java.lang.String)
+		 */
 		@Override
 		public Object objectMethod(JHeader header, String name) {
 			return execute(header, name);
@@ -557,7 +588,8 @@ public abstract class AnnotatedFieldMethod
 			super(method, function);
 		}
 
-		/* (non-Javadoc)
+		/** 
+		 * @param field
 		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#configFromField(org.jnetpcap.packet.structure.AnnotatedField)
 		 */
 		public final void configFromField(AnnotatedField field) {
@@ -645,6 +677,12 @@ public abstract class AnnotatedFieldMethod
 		 * (non-Javadoc)
 		 * 
 		 * @see org.jnetpcap.packet.AnnotatedFieldMethod#StringMethod(org.jnetpcap.packet.JHeader)
+		 */
+		/** 
+		 * @param header
+		 * @param name
+		 * @return
+		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#stringMethod(org.jnetpcap.packet.JHeader, java.lang.String)
 		 */
 		@Override
 		public String stringMethod(JHeader header, String name) {
@@ -974,6 +1012,10 @@ public abstract class AnnotatedFieldMethod
 	 * (non-Javadoc)
 	 * 
 	 * @see org.jnetpcap.packet.AnnotatedMethod#validateSignature(java.lang.reflect.Method)
+	 */
+	/** 
+	 * @param method
+	 * @see org.jnetpcap.packet.structure.AnnotatedMethod#validateSignature(java.lang.reflect.Method)
 	 */
 	@Override
 	protected void validateSignature(Method method) {

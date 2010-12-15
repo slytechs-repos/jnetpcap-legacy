@@ -27,7 +27,11 @@ import org.jnetpcap.packet.PcapPacketHandler;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class PcapPacketSupport.
+ * A utility class that dispatches a PcapPacket to any number of listeners. The
+ * packet is simply forwarded to any listeners as is.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class PcapPacketSupport implements PcapPacketHandler<Object>{
 
@@ -126,7 +130,12 @@ public class PcapPacketSupport implements PcapPacketHandler<Object>{
 	/* (non-Javadoc)
    * @see org.jnetpcap.packet.PcapPacketHandler#nextPacket(org.jnetpcap.packet.PcapPacket, java.lang.Object)
    */
-  public void nextPacket(PcapPacket packet, Object user) {
+  /** 
+	 * @param packet
+	 * @param user
+	 * @see org.jnetpcap.packet.PcapPacketHandler#nextPacket(org.jnetpcap.packet.PcapPacket, java.lang.Object)
+	 */
+	public void nextPacket(PcapPacket packet, Object user) {
   	fireNextPacket(packet);
   }
 

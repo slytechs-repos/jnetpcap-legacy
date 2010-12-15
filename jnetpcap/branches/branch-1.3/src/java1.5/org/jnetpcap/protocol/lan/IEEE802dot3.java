@@ -31,7 +31,10 @@ import org.jnetpcap.util.checksum.Checksum;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class IEEE802dot3.
+ * IEEE 802.3 data link header definition
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @Header(length = 14, dlt = PcapDLT.IEEE802)
 public class IEEE802dot3
@@ -123,9 +126,10 @@ public class IEEE802dot3
 	}
 	
 	/**
-	 * Checksum check.
+	 * Checks if FCS is available for this Ethernet frame. FCS is typically
+	 * stripped by the OS and not provided to Libpcap/jNetPcap on most platforms.
 	 * 
-	 * @return true, if successful
+	 * @return true if FCS is present, otherwise false
 	 */
 	@Dynamic(field = "checksum", value = Field.Property.CHECK)
 	public boolean checksumCheck() {
@@ -133,9 +137,9 @@ public class IEEE802dot3
 	}
 
 	/**
-	 * Checksum offset.
+	 * Calculates the offset of the FCS field within the Ethernet frame.
 	 * 
-	 * @return the int
+	 * @return offset, in bits, from the start of the packet buffer
 	 */
 	@Dynamic(Field.Property.OFFSET)
 	public int checksumOffset() {
@@ -158,9 +162,9 @@ public class IEEE802dot3
 	}
 
 	/**
-	 * Checksum.
+	 * Retrieves the header's checksum.
 	 * 
-	 * @return the long
+	 * @return header's stored checksum
 	 */
 	@Field(length = 4 * BYTE, format = "%x", display = "FCS")
 	public long checksum() {
@@ -170,9 +174,11 @@ public class IEEE802dot3
 	}
 
 	/**
-	 * Calculate checksum.
+	 * Calculates a checksum using protocol specification for a header. Checksums
+	 * for partial headers or fragmented packets (unless the protocol allows it)
+	 * are not calculated.
 	 * 
-	 * @return the long
+	 * @return header's calculated checksum
 	 */
 	public long calculateChecksum() {
 		if (getPostfixLength() < 4) {

@@ -26,7 +26,10 @@ import org.jnetpcap.protocol.JProtocol;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class IEEE802dot1q.
+ * IEEE Vlan header definition.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @Header(length = 4, nicname = "vlan")
 public class IEEE802dot1q

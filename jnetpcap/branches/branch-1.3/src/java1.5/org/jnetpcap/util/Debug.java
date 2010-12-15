@@ -22,41 +22,55 @@ import org.jnetpcap.nio.JStruct;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class Debug.
+ * Specialized debug class that provides debugging and tracing services. There
+ * is a low level native debug object compiled into jnetpcap library. The native
+ * trace debugger works similar to the way that java logger's do with message
+ * levels that can be set which will allow debug information to be printed out.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class Debug
     extends
     JStruct {
 
 	/**
-	 * Sizeof.
+	 * Size of native debug_t structure.
 	 * 
-	 * @return the int
+	 * @return size in bytes
 	 */
 	public native static int sizeof();
 
 	/**
 	 * Instantiates a new debug.
+	 * 
 	 */
 	public Debug() {
 		super("class Debug", sizeof());
 	}
 
 	/**
-	 * The Interface LevelId.
+	 * Provides access to raw level value.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public interface LevelId {
 
 		/**
-		 * Int value.
+		 * Gets the numerical id for this priority level.
 		 * 
-		 * @return the int
+		 * @return numerical id
+		 * @see org.jnetpcap.util.Debug.LevelId#intValue()
 		 */
 		public int intValue();
 	}
 
 	/**
-	 * The Enum Level.
+	 * Defines various message severity levels.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public enum Level implements LevelId {
 		
@@ -85,7 +99,10 @@ public class Debug
 			this.level = level;
 		}
 
-		/* (non-Javadoc)
+		/**
+		 * Gets the numerical id for this level constant.
+		 * 
+		 * @return numerical id
 		 * @see org.jnetpcap.util.Debug.LevelId#intValue()
 		 */
 		public int intValue() {

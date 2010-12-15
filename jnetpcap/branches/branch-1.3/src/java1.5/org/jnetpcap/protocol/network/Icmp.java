@@ -31,7 +31,10 @@ import org.jnetpcap.util.checksum.Checksum;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class Icmp.
+ * ICMP header definition.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @Header
 public class Icmp
@@ -39,7 +42,10 @@ public class Icmp
     JHeaderMap<Icmp> implements JHeaderChecksum {
 
 	/**
-	 * The Class DestinationUnreachable.
+	 * ICMP Destination Unreachable header definition.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	@Header(length = 4, id = IcmpType.DESTINATION_UNREACHABLE_ID, nicname = "unreach")
 	public static class DestinationUnreachable
@@ -48,7 +54,10 @@ public class Icmp
 	}
 
 	/**
-	 * The Class Echo.
+	 * ICMP Echo header (ping) baseclass definition.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public static abstract class Echo
 	    extends
@@ -76,7 +85,10 @@ public class Icmp
 	};
 
 	/**
-	 * The Class EchoReply.
+	 * ICMP Echo Reply header definition.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	@Header(id = IcmpType.ECHO_REPLY_ID, length = 4, nicname = "reply")
 	public static class EchoReply
@@ -86,7 +98,10 @@ public class Icmp
 	}
 
 	/**
-	 * The Class EchoRequest.
+	 * ICMP Echo Request header definition.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	@Header(id = IcmpType.ECHO_REQUEST_ID, length = 4, nicname = "request")
 	public static class EchoRequest
@@ -96,7 +111,10 @@ public class Icmp
 	}
 
 	/**
-	 * The Enum IcmpCode.
+	 * A table of Icmp sub-codes per Icmp type.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public enum IcmpCode {
 		
@@ -269,7 +287,10 @@ public class Icmp
 	}
 
 	/**
-	 * The Enum IcmpType.
+	 * A table of IcmpTypes and their names.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public enum IcmpType {
 		
@@ -427,7 +448,10 @@ public class Icmp
 	}
 
 	/**
-	 * The Class ParamProblem.
+	 * ICMP Paramater Protoblem header definition.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	@Header(length = 4, id = IcmpType.PARAM_PROBLEM_ID)
 	public static class ParamProblem
@@ -456,7 +480,10 @@ public class Icmp
 	}
 
 	/**
-	 * The Class Redirect.
+	 * ICMP Redirect header definition.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	@Header(length = 4, id = IcmpType.REDIRECT_ID)
 	public static class Redirect
@@ -474,7 +501,10 @@ public class Icmp
 	}
 
 	/**
-	 * The Class Reserved.
+	 * Base class for various ICMP Headers that contain a reserved field.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public static abstract class Reserved
 	    extends
@@ -491,7 +521,10 @@ public class Icmp
 	}
 
 	/**
-	 * The Class SourceQuench.
+	 * ICMP Source Quence header definition.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	@Header(length = 4, id = IcmpType.SOURCE_QUENCH_ID)
 	public static class SourceQuench
@@ -551,8 +584,10 @@ public class Icmp
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.packet.JHeaderChecksum#checksum()
+	/**
+	 * Retrieves the header's checksum.
+	 * 
+	 * @return header's stored checksum
 	 */
 	@Field(offset = 2 * 8, length = 16, format = "%x")
 	public int checksum() {
@@ -582,6 +617,10 @@ public class Icmp
 	 * (non-Javadoc)
 	 * 
 	 * @see org.jnetpcap.packet.JHeaderMap#decodeUniqueSubHeaders()
+	 */
+	/** 
+	 * 
+	 * @see org.jnetpcap.packet.JHeader#decodeHeader()
 	 */
 	@Override
 	protected void decodeHeader() {
@@ -621,8 +660,12 @@ public class Icmp
 		return IcmpType.valueOf(type());
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.packet.JHeaderChecksum#calculateChecksum()
+	/**
+	 * Calculates a checksum using protocol specification for a header. Checksums
+	 * for partial headers or fragmented packets (unless the protocol alows it)
+	 * are not calculated.
+	 * 
+	 * @return header's calculated checksum
 	 */
 	public int calculateChecksum() {
 
@@ -636,8 +679,14 @@ public class Icmp
 		    ipOffset, this.getOffset()));
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.packet.JHeaderChecksum#isChecksumValid()
+	/**
+	 * Checks if the checksum is valid, for un-fragmented packets. If a packet is
+	 * fragmented, the checksum is not verified as data to is incomplete, but the
+	 * method returns true none the less.
+	 * 
+	 * @return true if checksum checks out or if this is a fragment, otherwise if
+	 *         the computed checksum does not match the stored checksum false is
+	 *         returned
 	 */
 	public boolean isChecksumValid() {
 

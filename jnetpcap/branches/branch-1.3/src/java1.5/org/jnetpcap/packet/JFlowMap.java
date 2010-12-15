@@ -24,6 +24,9 @@ import java.util.Map;
 // TODO: Auto-generated Javadoc
 /**
  * The Class JFlowMap.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class JFlowMap
     extends HashMap<JFlowKey, JFlow> implements PcapPacketHandler<Object> {
@@ -31,7 +34,9 @@ public class JFlowMap
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = -5590314946675005059L;
 	
-	/** The count. */
+	/**
+	 * Total packet count added.
+	 */
 	private int count = 0;
 
 	/**
@@ -75,7 +80,12 @@ public class JFlowMap
 	/* (non-Javadoc)
    * @see org.jnetpcap.packet.JPacketHandler#nextPacket(org.jnetpcap.packet.JPacket, java.lang.Object)
    */
-  public void nextPacket(PcapPacket packet, Object user) {
+  /** 
+	 * @param packet
+	 * @param user
+	 * @see org.jnetpcap.packet.PcapPacketHandler#nextPacket(org.jnetpcap.packet.PcapPacket, java.lang.Object)
+	 */
+	public void nextPacket(PcapPacket packet, Object user) {
   	packet = new PcapPacket(packet); // make a copy
   	JFlowKey key = packet.getState().getFlowKey();
   	
@@ -98,7 +108,8 @@ public class JFlowMap
   	return count;
   }
 
-  /* (non-Javadoc)
+  /** 
+   * @return
    * @see java.util.AbstractMap#toString()
    */
   public String toString() {

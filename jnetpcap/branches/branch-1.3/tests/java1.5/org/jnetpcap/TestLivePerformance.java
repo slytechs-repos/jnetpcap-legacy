@@ -24,44 +24,32 @@ import java.util.List;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.TestUtils;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class TestLivePerformance.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class TestLivePerformance
     extends
     TestUtils {
 
-	/** The ts. */
 	long ts = 0;
 
-	/** The te. */
 	long te = 0;
 
-	/** The pkt. */
 	long pkt = 0;
 
-	/** The bytes. */
 	long bytes = 0;
 
-	/** The drops. */
 	long drops = 0;
 
-	/** The tot pkt. */
 	long totPkt = 0;
 
-	/** The tot bytes. */
 	long totBytes = 0;
 	
-	/** The tot ts. */
 	long totTs = 0;
 
-	/** The tot te. */
 	long totTe = 0;
 
-	/**
-	 * Start stats.
-	 */
 	public void startStats() {
 
 		if (ts == 0) {
@@ -73,9 +61,6 @@ public class TestLivePerformance
 		bytes = 0;
 	}
 
-	/**
-	 * End stats.
-	 */
 	public void endStats() {
 		te = System.currentTimeMillis();
 		totTe = te;
@@ -84,12 +69,6 @@ public class TestLivePerformance
 		totBytes += bytes;
 	}
 
-	/**
-	 * Prints the stats.
-	 * 
-	 * @param pcap
-	 *          the pcap
-	 */
 	public void printStats(Pcap pcap) {
 		PcapStat stats = new PcapStat();
 
@@ -104,12 +83,6 @@ public class TestLivePerformance
 		    bytes / pkt);
 	}
 
-	/**
-	 * Prints the summary.
-	 * 
-	 * @param pcap
-	 *          the pcap
-	 */
 	public void printSummary(Pcap pcap) {
 		PcapStat stats = new PcapStat();
 
@@ -125,13 +98,6 @@ public class TestLivePerformance
 	}
 
 
-	/**
-	 * Checks for drops.
-	 * 
-	 * @param pcap
-	 *          the pcap
-	 * @return true, if successful
-	 */
 	public boolean hasDrops(Pcap pcap) {
 		PcapStat stats = new PcapStat();
 
@@ -146,9 +112,6 @@ public class TestLivePerformance
 		}
 	}
 
-	/**
-	 * Test capture10.
-	 */
 	public void testCapture10() {
 		StringBuilder errbuf = new StringBuilder();
 		int snaplen = Pcap.DEFAULT_SNAPLEN;

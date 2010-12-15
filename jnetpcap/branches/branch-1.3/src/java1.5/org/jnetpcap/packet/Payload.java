@@ -27,7 +27,11 @@ import org.jnetpcap.protocol.JProtocol;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class Payload.
+ * Builtin header type that is a catch all for all unmatch data within a packet
+ * buffer.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @Header(nicname = "Data")
 public class Payload

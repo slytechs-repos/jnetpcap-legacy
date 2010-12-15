@@ -27,10 +27,10 @@ import org.jnetpcap.packet.structure.AnnotatedHeader;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class JHeaderBitmap.
- * 
  * @param <B>
- *          the generic type
+ *          header baseclass that all sub-header's should be enclosed in
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @SuppressWarnings("unused")
 public class JHeaderBitmap<B extends JHeader> implements JHeaderContainer<B> {

@@ -22,7 +22,13 @@ import org.jnetpcap.PcapStat;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class WinPcapStat.
+ * Class peered with native <code>pcap_stat</code> structure providing all
+ * available extensions part of WinPcap extensions. Provides access to
+ * additional statical fields as returned from a call to WinPcap.statsEx().
+ * 
+ * @see WinPcap#statsEx()
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class WinPcapStat
     extends PcapStat {
@@ -37,14 +43,15 @@ public class WinPcapStat
 	}
 
 	/**
-	 * Instantiates a new win pcap stat.
+	 * Empty stats structure that will be filled in after the call to
+	 * <code>statsEx</code>.
 	 */
 	private WinPcapStat() {
 
 	}
 
 	/**
-	 * Gets the capt.
+	 * number of packets that are received by the application.
 	 * 
 	 * @return the capt
 	 */
@@ -53,7 +60,7 @@ public class WinPcapStat
 	}
 
 	/**
-	 * Gets the netdrop.
+	 * number of packets lost on the network.
 	 * 
 	 * @return the netdrop
 	 */
@@ -62,7 +69,7 @@ public class WinPcapStat
 	}
 
 	/**
-	 * Gets the sent.
+	 * number of packets sent by the server on the network.
 	 * 
 	 * @return the sent
 	 */
@@ -70,8 +77,10 @@ public class WinPcapStat
 		return super.sent;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.PcapStat#toString()
+	/**
+	 * Dumps all the values as a string.
+	 * 
+	 * @return the string
 	 */
 	public String toString() {
 

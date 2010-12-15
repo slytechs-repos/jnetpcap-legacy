@@ -31,7 +31,8 @@ import org.jnetpcap.util.resolver.Resolver;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class TestSearchPaths.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class TestSearchPaths
     extends TestCase {

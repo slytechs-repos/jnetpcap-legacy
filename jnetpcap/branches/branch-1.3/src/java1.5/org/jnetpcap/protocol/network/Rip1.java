@@ -25,14 +25,23 @@ import org.jnetpcap.packet.annotate.Header;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class Rip1.
+ * Routing Information Protocol version 1 (RIP). This class provides access
+ * method for reading every field in RIP version 1 protocol. The routing table
+ * returned only defines accessor methods for reading version 1 fields.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
+ * @See Rip2
  */
 public class Rip1
     extends
     Rip {
 
 	/**
-	 * The Class EntryV1.
+	 * Rip1 routing table entry definition.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	@Header
 	public static class EntryV1
@@ -74,8 +83,10 @@ public class Rip1
 	/** The routing table. */
 	private EntryV1[] routingTable;
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.protocol.network.Rip#decodeHeader()
+	/**
+	 * The routing table is the only thing that needs decoding. The routing table
+	 * is lazy decoded using {@link Rip1#decodeRoutingTable()} which only then
+	 * creates routing table entries.
 	 */
 	@Override
 	protected void decodeHeader() {
@@ -84,7 +95,7 @@ public class Rip1
 	}
 
 	/**
-	 * Decode routing table.
+	 * Do the actual decoding of the routing table.
 	 */
 	private void decodeRoutingTable() {
 
@@ -99,9 +110,9 @@ public class Rip1
 	}
 
 	/**
-	 * Routing table.
+	 * Gets the routing table.
 	 * 
-	 * @return the entry v1[]
+	 * @return an array of routing table entries
 	 */
 	@Field(offset = 4 * 8, format = "%RIP")
 	public EntryV1[] routingTable() {
@@ -113,7 +124,7 @@ public class Rip1
 	}
 
 	/**
-	 * Routing table length.
+	 * Length of the routing table in bits.
 	 * 
 	 * @return the int
 	 */

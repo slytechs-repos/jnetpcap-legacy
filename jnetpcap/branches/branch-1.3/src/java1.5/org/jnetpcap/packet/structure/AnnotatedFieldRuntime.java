@@ -27,6 +27,9 @@ import org.jnetpcap.packet.annotate.Field.Property;
 // TODO: Auto-generated Javadoc
 /**
  * The Class AnnotatedFieldRuntime.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class AnnotatedFieldRuntime {
 

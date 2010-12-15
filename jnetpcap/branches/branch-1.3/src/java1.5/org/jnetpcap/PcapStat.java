@@ -20,7 +20,13 @@ package org.jnetpcap;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class PcapStat.
+ * Class peered with native <code>pcap_stat</code> structure providing only
+ * the core statistics. Class that is filled in by a call to method
+ * <code>Pcap.stats</code>. The structure keeps statisical values on an
+ * interface.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class PcapStat {
 
@@ -34,16 +40,18 @@ public class PcapStat {
 		initIDs();
 	}
 
-	/** The Constant out. */
+	/**
+	 * For toString() to build its string. Should be made thread local.
+	 */
 	protected final static StringBuilder out = new StringBuilder();
 
-	/** The recv. */
+	/** number of packets received. */
 	private long recv;
 
-	/** The drop. */
+	/** number of packets dropped. */
 	private long drop;
 
-	/** The if drop. */
+	/** drops by interface XXX not yet supported. */
 	private long ifDrop;
 
 	/*
@@ -52,44 +60,46 @@ public class PcapStat {
 	 * only accessible from WinPcapStat class.
 	 */
 
-	/** The capt. */
+	/** number of packets that are received by the application. */
 	protected long capt;
 
-	/** The sent. */
+	/** number of packets sent by the server on the network. */
 	protected long sent;
 
-	/** The netdrop. */
+	/** number of packets lost on the network. */
 	protected long netdrop;
 
 	/**
-	 * Gets the number of packets received.
+	 * Number of packets transmitted on the network
 	 * 
-	 * @return the number of packets received
+	 * @return the recv
 	 */
 	public final long getRecv() {
 		return this.recv;
 	}
 
 	/**
-	 * Gets the number of packets dropped.
+	 * number of packets dropped by the driver
 	 * 
-	 * @return the number of packets dropped
+	 * @return the drop
 	 */
 	public final long getDrop() {
 		return this.drop;
 	}
 
 	/**
-	 * Gets the drops by interface XXX not yet supported.
+	 * drops by interface. Not supported.
 	 * 
-	 * @return the drops by interface XXX not yet supported
+	 * @return the ifdrop
 	 */
 	public final long getIfDrop() {
 		return this.ifDrop;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
+	/**
+	 * Debug string return debug string.
+	 * 
+	 * @return the string
 	 */
 	@Override
   public String toString() {

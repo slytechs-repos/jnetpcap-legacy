@@ -33,6 +33,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  *          the generic type
  * @param <C>
  *          the generic type
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class HoldQueue<T, C>
     extends
@@ -91,6 +93,11 @@ public class HoldQueue<T, C>
 		 * 
 		 * @see java.lang.Comparable#compareTo(java.lang.Object)
 		 */
+		/** 
+		 * @param o
+		 * @return
+		 * @see java.lang.Comparable#compareTo(java.lang.Object)
+		 */
 		public int compareTo(C o) {
 			return hold.compareTo(o);
 		}
@@ -128,6 +135,10 @@ public class HoldQueue<T, C>
 	 * 
 	 * @see java.util.AbstractCollection#iterator()
 	 */
+	/** 
+	 * @return
+	 * @see java.util.AbstractCollection#iterator()
+	 */
 	@Override
 	public Iterator<T> iterator() {
 		return exposed.iterator();
@@ -154,6 +165,10 @@ public class HoldQueue<T, C>
 	 * 
 	 * @see java.util.AbstractCollection#size()
 	 */
+	/** 
+	 * @return
+	 * @see java.util.AbstractCollection#size()
+	 */
 	@Override
 	public int size() {
 		return exposed.size();
@@ -162,6 +177,11 @@ public class HoldQueue<T, C>
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see java.util.Queue#offer(java.lang.Object)
+	 */
+	/** 
+	 * @param o
+	 * @return
 	 * @see java.util.Queue#offer(java.lang.Object)
 	 */
 	public boolean offer(T o) {
@@ -177,6 +197,10 @@ public class HoldQueue<T, C>
 	 * 
 	 * @see java.util.Queue#peek()
 	 */
+	/** 
+	 * @return
+	 * @see java.util.Queue#peek()
+	 */
 	public T peek() {
 		return exposed.peek();
 	}
@@ -184,6 +208,10 @@ public class HoldQueue<T, C>
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see java.util.Queue#poll()
+	 */
+	/** 
+	 * @return
 	 * @see java.util.Queue#poll()
 	 */
 	public T poll() {

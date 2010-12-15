@@ -21,6 +21,9 @@ package org.jnetpcap.util;
 // TODO: Auto-generated Javadoc
 /**
  * The Interface Timeout.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public interface Timeout extends Comparable<Timeout> {
 	

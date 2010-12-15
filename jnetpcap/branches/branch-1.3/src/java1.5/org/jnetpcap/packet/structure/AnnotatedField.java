@@ -32,6 +32,9 @@ import org.jnetpcap.packet.format.JFormatter.Style;
 // TODO: Auto-generated Javadoc
 /**
  * The Class AnnotatedField.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class AnnotatedField {
 

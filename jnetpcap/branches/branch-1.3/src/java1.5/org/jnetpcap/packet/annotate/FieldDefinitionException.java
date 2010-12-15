@@ -24,6 +24,9 @@ import org.jnetpcap.packet.structure.HeaderDefinitionError;
 // TODO: Auto-generated Javadoc
 /**
  * The Class FieldDefinitionException.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class FieldDefinitionException
     extends HeaderDefinitionError {
@@ -131,7 +134,8 @@ public class FieldDefinitionException
 		return this.field;
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @return
 	 * @see org.jnetpcap.packet.structure.HeaderDefinitionError#getPath()
 	 */
 	protected String getPath() {

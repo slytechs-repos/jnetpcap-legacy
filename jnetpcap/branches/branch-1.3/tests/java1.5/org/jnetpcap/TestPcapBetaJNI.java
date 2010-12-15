@@ -34,7 +34,8 @@ import org.jnetpcap.nio.JNumber.Type;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class TestPcapBetaJNI.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @SuppressWarnings("deprecation")
 public class TestPcapBetaJNI
@@ -72,7 +73,11 @@ public class TestPcapBetaJNI
 	/** The Constant oneSecond. */
 	private static final int oneSecond = 1000;
 
-	/** The Constant gen. */
+	/**
+	 * Will generate HTTP traffic to a website. Use start() to start in a test
+	 * method, and always put stop() in tearDown. Safe to call stop even when
+	 * never started.
+	 */
 	private static final HttpTrafficGenerator gen = new HttpTrafficGenerator();
 
 	/** The tmp file. */
@@ -89,10 +94,10 @@ public class TestPcapBetaJNI
 	}
 
 	/**
-	 * The main method.
+	 * Command line launcher to run the jUnit tests cases in this test class.
 	 * 
 	 * @param args
-	 *          the arguments
+	 *          -h for help
 	 */
 	public static void main(String[] args) {
 		if (args.length == 1 && "-h".equals(args[0])) {
@@ -165,7 +170,9 @@ public class TestPcapBetaJNI
 	}
 
 	/**
-	 * SKI ptest open live and dispatch.
+	 * Test disabled, as it requires live packets to capture. To enable the test
+	 * just rename the method, by removing the prefix SKIP. Then make sure there
+	 * are live packets to be captured.
 	 */
 	public void SKIPtestOpenLiveAndDispatch() {
 
@@ -785,7 +792,30 @@ public class TestPcapBetaJNI
 	}
 
 	/**
-	 * Test pcap handler parent override bug using loop.
+	 * <p>
+	 * Test case in response to
+	 * <code>Bug #1767744 - PcapHandler object ptr error in loop() and dispatch()</code>.
+	 * The bug was that PcapHandler jobject ptr in JNI jnetpcap.cpp, was set
+	 * incorrectly to jobject of the parent which is the Pcap object itself. The
+	 * neccessary method "nextPacket" was looked up correctly using the proper
+	 * object but method execution was based on the parent Pcap object not the
+	 * PcapHandler object passed in. Therefore Java code when it was setting and
+	 * accessing properties within the PcapHandler sub-class, it was actually
+	 * clobering data within the Pcap object. Both object's states were terribly
+	 * incosinstent, private fields had bogus values, that changed for no reason,
+	 * etc... Very easy fix, the jobject for 'jhandler' was substituted for
+	 * jobject 'obj' that was used to fix this problem. The problem was both in
+	 * dispatch() and loop() methods since they are nearly an identical copy of
+	 * each other.
+	 * </p>
+	 * <p>
+	 * To test this we have to create a PcapHandler object set private fields
+	 * within it, we'll use an anonymous class, then read in the contents of the
+	 * entire contents of a test datafile, while updating the value of the field.
+	 * Then at the end we should have consitent value in that private field. Since
+	 * the problem seemed complex, but was actually a very easy fix, this should
+	 * never really break again, but we will check for it anyhow.
+	 * </p>
 	 */
 	public void testPcapHandlerParentOverrideBugUsingLoop() {
 
@@ -833,7 +863,30 @@ public class TestPcapBetaJNI
 	}
 
 	/**
-	 * Test pcap handler parent override bug using dispatch.
+	 * <p>
+	 * Test case in response to
+	 * <code>Bug #1767744 - PcapHandler object ptr error in loop() and dispatch()</code>.
+	 * The bug was that PcapHandler jobject ptr in JNI jnetpcap.cpp, was set
+	 * incorrectly to jobject of the parent which is the Pcap object itself. The
+	 * neccessary method "nextPacket" was looked up correctly using the proper
+	 * object but method execution was based on the parent Pcap object not the
+	 * PcapHandler object passed in. Therefore Java code when it was setting and
+	 * accessing properties within the PcapHandler sub-class, it was actually
+	 * clobering data within the Pcap object. Both object's states were terribly
+	 * incosinstent, private fields had bogus values, that changed for no reason,
+	 * etc... Very easy fix, the jobject for 'jhandler' was substituted for
+	 * jobject 'obj' that was used to fix this problem. The problem was both in
+	 * dispatch() and loop() methods since they are nearly an identical copy of
+	 * each other.
+	 * </p>
+	 * <p>
+	 * To test this we have to create a PcapHandler object set private fields
+	 * within it, we'll use an anonymous class, then read in the contents of the
+	 * entire contents of a test datafile, while updating the value of the field.
+	 * Then at the end we should have consitent value in that private field. Since
+	 * the problem seemed complex, but was actually a very easy fix, this should
+	 * never really break again, but we will check for it anyhow.
+	 * </p>
 	 */
 	public void testPcapHandlerParentOverrideBugUsingDispatch() {
 
@@ -1042,7 +1095,7 @@ public class TestPcapBetaJNI
 
 	
 	/**
-	 * Test is inject supported win32.
+	 * Bug#1855589 
 	 */
 	public void testIsInjectSupportedWin32() {
 		if (System.getProperty("os.name").toLowerCase().contains("win")) {

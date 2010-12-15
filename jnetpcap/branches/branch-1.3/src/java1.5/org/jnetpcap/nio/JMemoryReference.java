@@ -21,10 +21,17 @@ package org.jnetpcap.nio;
 // TODO: Auto-generated Javadoc
 /**
  * The Class JMemoryReference.
+ * 
+ * @author markbe
  */
 public class JMemoryReference extends DisposableReference {
 
-	/** The address. */
+	/**
+	 * Address is modified by JNI, even though it is marked final. This prevents
+	 * anyone else from changing it, except the JNI code reponsible for management
+	 * of this object. This value is only changed during the construction of the
+	 * object and during the destroy call.
+	 */
 	long address;
 	
 	/** The size. */
@@ -51,13 +58,17 @@ public class JMemoryReference extends DisposableReference {
 	 * 
 	 * @see org.jnetpcap.nio.Disposable#dispose()
 	 */
+	/** 
+	 * 
+	 * @see org.jnetpcap.nio.DisposableReference#dispose()
+	 */
 	@Override
 	public void dispose() {
 		disposeNative(size);
 	}
 
 	/**
-	 * Dispose native.
+	 * Does a native memory cleanup.
 	 * 
 	 * @param size
 	 *          the size
@@ -81,6 +92,10 @@ public class JMemoryReference extends DisposableReference {
 	 * 
 	 * @see org.jnetpcap.nio.DisposableReference#remove()
 	 */
+	/** 
+	 * 
+	 * @see org.jnetpcap.nio.DisposableReference#remove()
+	 */
 	@Override
 	public void remove() {
 		address = 0L;
@@ -88,7 +103,8 @@ public class JMemoryReference extends DisposableReference {
 		super.remove();
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @return
 	 * @see org.jnetpcap.nio.DisposableReference#size()
 	 */
 	@Override

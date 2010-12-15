@@ -30,7 +30,11 @@ import org.jnetpcap.protocol.JProtocol.Suite;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class TextFormatter.
+ * Formatter that formats packet content for human readable output. This class
+ * produces pretty text based output by reading field objects from the header.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class TextFormatter
     extends JFormatter {
@@ -57,26 +61,31 @@ public class TextFormatter
 	}
 
 	/**
-	 * Instantiates a new text formatter.
+	 * Creates a test formatter which send its output to an appendable output
+	 * device.
 	 * 
 	 * @param out
-	 *          the out
+	 *          where to send output
 	 */
 	public TextFormatter(Appendable out) {
 		super(out);
 	}
 
 	/**
-	 * Instantiates a new text formatter.
+	 * Creates a text formatter which sends its output to a string buffer.
 	 * 
 	 * @param out
-	 *          the out
+	 *          buffer where to send output
 	 */
 	public TextFormatter(StringBuilder out) {
 		super(out);
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @param header
+	 * @param field
+	 * @param detail
+	 * @throws IOException
 	 * @see org.jnetpcap.packet.format.JFormatter#fieldAfter(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.structure.JField, org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	protected void fieldAfter(JHeader header, JField field, Detail detail)
@@ -92,7 +101,11 @@ public class TextFormatter
 		}
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @param header
+	 * @param field
+	 * @param detail
+	 * @throws IOException
 	 * @see org.jnetpcap.packet.format.JFormatter#fieldBefore(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.structure.JField, org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	protected void fieldBefore(JHeader header, JField field, Detail detail)
@@ -164,7 +177,10 @@ public class TextFormatter
 
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @param header
+	 * @param detail
+	 * @throws IOException
 	 * @see org.jnetpcap.packet.format.JFormatter#headerAfter(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	protected void headerAfter(JHeader header, Detail detail) throws IOException {
@@ -174,7 +190,10 @@ public class TextFormatter
 		decLevel();
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @param header
+	 * @param detail
+	 * @throws IOException
 	 * @see org.jnetpcap.packet.format.JFormatter#headerBefore(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	protected void headerBefore(JHeader header, Detail detail) throws IOException {
@@ -208,6 +227,12 @@ public class TextFormatter
 	 * @see org.jnetpcap.packet.format.JFormatter#packetAfter(org.jnetpcap.packet.JPacket,
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
+	/** 
+	 * @param packet
+	 * @param detail
+	 * @throws IOException
+	 * @see org.jnetpcap.packet.format.JFormatter#packetAfter(org.jnetpcap.packet.JPacket, org.jnetpcap.packet.format.JFormatter.Detail)
+	 */
 	@Override
 	public void packetAfter(JPacket packet, Detail detail) throws IOException {
 		if (frameIndex != -1) {
@@ -221,6 +246,12 @@ public class TextFormatter
 	 * 
 	 * @see org.jnetpcap.packet.format.JFormatter#packetBefore(org.jnetpcap.packet.JPacket,
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
+	 */
+	/** 
+	 * @param packet
+	 * @param detail
+	 * @throws IOException
+	 * @see org.jnetpcap.packet.format.JFormatter#packetBefore(org.jnetpcap.packet.JPacket, org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	public void packetBefore(JPacket packet, Detail detail) throws IOException {
@@ -250,7 +281,9 @@ public class TextFormatter
 		decLevel();
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @param packet
+	 * @param detail
 	 * @see org.jnetpcap.packet.format.JFormatter#packetNull(org.jnetpcap.packet.JPacket, org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
@@ -264,6 +297,13 @@ public class TextFormatter
 	 * @see org.jnetpcap.packet.format.JFormatter#subHeaderAfter(org.jnetpcap.packet.JHeader,
 	 *      org.jnetpcap.packet.JHeader,
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
+	 */
+	/** 
+	 * @param header
+	 * @param subHeader
+	 * @param detail
+	 * @throws IOException
+	 * @see org.jnetpcap.packet.format.JFormatter#subHeaderAfter(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.JHeader, org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	protected void subHeaderAfter(JHeader header, JHeader subHeader, Detail detail)
@@ -281,6 +321,13 @@ public class TextFormatter
 	 * @see org.jnetpcap.packet.format.JFormatter#subHeaderBefore(org.jnetpcap.packet.JHeader,
 	 *      org.jnetpcap.packet.JHeader,
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
+	 */
+	/** 
+	 * @param header
+	 * @param subHeader
+	 * @param detail
+	 * @throws IOException
+	 * @see org.jnetpcap.packet.format.JFormatter#subHeaderBefore(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.JHeader, org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	protected void subHeaderBefore(

@@ -23,7 +23,9 @@ import junit.framework.TestSuite;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class AllHeaderTests.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
+ *
  */
 public class AllHeaderTests {
 

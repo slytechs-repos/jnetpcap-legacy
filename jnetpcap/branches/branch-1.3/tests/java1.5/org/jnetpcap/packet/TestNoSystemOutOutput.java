@@ -30,7 +30,13 @@ import junit.framework.TestCase;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class TestNoSystemOutOutput.
+ * Perform various tasks that should not generate output to either System.out or
+ * System.err. Redirect those to a StringBuilder (Appendable) and check for 0
+ * output in the buffer. This ensure that nothing (debug messages especially)
+ * has been generated inadvertantly.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class TestNoSystemOutOutput
     extends

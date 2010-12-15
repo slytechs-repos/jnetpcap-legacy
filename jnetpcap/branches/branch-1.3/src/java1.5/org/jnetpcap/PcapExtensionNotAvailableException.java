@@ -20,7 +20,12 @@ package org.jnetpcap;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class PcapExtensionNotAvailableException.
+ * Exception is thrown when a pcap extension is accessed, one of its methods,
+ * while it is not supported on this particular platform. You must use
+ * appropriate <code>isSupported</code> method call that is available with the
+ * extension (i.e. <code>WinPcap.isSupported()</code>).
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class PcapExtensionNotAvailableException
     extends IllegalStateException {

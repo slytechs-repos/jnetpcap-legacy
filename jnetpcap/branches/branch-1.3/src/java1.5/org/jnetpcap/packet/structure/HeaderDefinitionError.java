@@ -21,6 +21,9 @@ package org.jnetpcap.packet.structure;
 // TODO: Auto-generated Javadoc
 /**
  * The Class HeaderDefinitionError.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class HeaderDefinitionError
     extends RuntimeException {
@@ -130,7 +133,8 @@ public class HeaderDefinitionError
 		return c;
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @return
 	 * @see java.lang.Throwable#getMessage()
 	 */
 	@Override

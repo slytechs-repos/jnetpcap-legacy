@@ -21,6 +21,9 @@ package org.jnetpcap.packet;
 // TODO: Auto-generated Javadoc
 /**
  * The Class PeeringException.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class PeeringException
     extends Exception {

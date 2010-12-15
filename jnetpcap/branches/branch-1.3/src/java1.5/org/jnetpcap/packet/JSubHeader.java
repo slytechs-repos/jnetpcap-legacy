@@ -26,6 +26,8 @@ import org.jnetpcap.packet.structure.JField;
  * 
  * @param <T>
  *          the generic type
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class JSubHeader<T extends JHeader>
     extends JHeader {
@@ -123,6 +125,10 @@ public class JSubHeader<T extends JHeader>
 	 * 
 	 * @see org.jnetpcap.packet.JHeader#getLength()
 	 */
+	/** 
+	 * @return
+	 * @see org.jnetpcap.packet.JHeader#getLength()
+	 */
 	@Override
 	public int getLength() {
 		return length;
@@ -131,6 +137,10 @@ public class JSubHeader<T extends JHeader>
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see org.jnetpcap.packet.JHeader#getOffset()
+	 */
+	/** 
+	 * @return
 	 * @see org.jnetpcap.packet.JHeader#getOffset()
 	 */
 	@Override
@@ -168,7 +178,8 @@ public class JSubHeader<T extends JHeader>
 		this.parent = parent;
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @return
 	 * @see org.jnetpcap.packet.JHeader#getParent()
 	 */
 	public JHeader getParent() {

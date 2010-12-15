@@ -20,12 +20,15 @@ package org.jnetpcap.nio;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Interface Disposable.
+ * Allows resources to be deterministicly reclaimed.
+ * 
+ * @author markbe
+ * 
  */
 public interface Disposable {
 
 	/**
-	 * Dispose.
+	 * The objects underlying resources are reclaimed immediately.
 	 */
 	public void dispose();
 

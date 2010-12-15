@@ -30,7 +30,8 @@ import org.jnetpcap.protocol.application.Html;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class TestHtml.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class TestHtml
     extends

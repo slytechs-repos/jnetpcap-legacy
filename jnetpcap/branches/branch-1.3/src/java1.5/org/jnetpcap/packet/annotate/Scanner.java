@@ -29,6 +29,9 @@ import org.jnetpcap.packet.JHeader;
 // TODO: Auto-generated Javadoc
 /**
  * The Interface Scanner.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @Target(ElementType.METHOD)
 @Documented

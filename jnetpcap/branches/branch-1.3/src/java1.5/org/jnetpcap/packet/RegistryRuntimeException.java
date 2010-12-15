@@ -21,6 +21,9 @@ package org.jnetpcap.packet;
 // TODO: Auto-generated Javadoc
 /**
  * The Class RegistryRuntimeException.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class RegistryRuntimeException
     extends RuntimeException {

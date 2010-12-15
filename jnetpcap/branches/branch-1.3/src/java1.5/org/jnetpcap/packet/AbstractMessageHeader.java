@@ -25,6 +25,9 @@ import org.jnetpcap.util.JThreadLocal;
 // TODO: Auto-generated Javadoc
 /**
  * The Class AbstractMessageHeader.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public abstract class AbstractMessageHeader
     extends JMappedHeader {
@@ -140,8 +143,10 @@ public abstract class AbstractMessageHeader
 	 */
 	protected abstract void decodeFirstLine(String line);
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.packet.JHeader#decodeHeader()
+	/**
+	 * Decode the http header. First we need to convert raw bytes to a char's we
+	 * can deal with since Http header is text based. Once converted we can then
+	 * accurately determine the Http header length, type of request, etc...
 	 */
 	@Override
 	protected void decodeHeader() {

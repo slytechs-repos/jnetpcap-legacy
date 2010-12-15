@@ -25,7 +25,10 @@ import org.jnetpcap.packet.JPacket;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class FormatUtils.
+ * Various static formatting utilities.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class FormatUtils {
 
@@ -115,58 +118,62 @@ public class FormatUtils {
 	}
 
 	/**
-	 * As string.
+	 * Converts the given byte array to a string using a default separator
+	 * character.
 	 * 
 	 * @param array
-	 *          the array
-	 * @return the string
+	 *          array to convert
+	 * @return the converted string
 	 */
 	public static String asString(byte[] array) {
 		return asString(array, ':');
 	}
 
 	/**
-	 * As string.
+	 * Convers the given byte array to a string using the supplied separator
+	 * character.
 	 * 
 	 * @param array
-	 *          the array
+	 *          array to convert
 	 * @param separator
-	 *          the separator
-	 * @return the string
+	 *          separator character to use in between array elements
+	 * @return the converted string
 	 */
 	public static String asString(byte[] array, char separator) {
 		return asString(array, separator, 16); // Default HEX
 	}
 
 	/**
-	 * As string.
+	 * Converts the given byte array to a string using the supplied separator
+	 * character and radix for conversion of the numerical component.
 	 * 
 	 * @param array
-	 *          the array
+	 *          array to convert
 	 * @param separator
-	 *          the separator
+	 *          separator character to use in between array elements
 	 * @param radix
-	 *          the radix
-	 * @return the string
+	 *          numerical radix to use for numbers
+	 * @return the converted string
 	 */
 	public static String asString(byte[] array, char separator, int radix) {
 		return asString(array, separator, radix, 0, array.length);
 	}
 
 	/**
-	 * As string.
+	 * Convers the given byte array to a string using the supplied separator
+	 * character.
 	 * 
 	 * @param array
-	 *          the array
+	 *          array to convert
 	 * @param separator
-	 *          the separator
+	 *          separator character to use in between array elements
 	 * @param radix
 	 *          the radix
 	 * @param start
 	 *          the start
 	 * @param len
 	 *          the len
-	 * @return the string
+	 * @return the converted string
 	 */
 	public static String asString(byte[] array,
 			char separator,
@@ -189,19 +196,20 @@ public class FormatUtils {
 	}
 
 	/**
-	 * As string zero pad.
+	 * Convers the given byte array to a string using the supplied separator
+	 * character.
 	 * 
 	 * @param array
-	 *          the array
+	 *          array to convert
 	 * @param separator
-	 *          the separator
+	 *          separator character to use in between array elements
 	 * @param radix
 	 *          the radix
 	 * @param start
 	 *          the start
 	 * @param len
 	 *          the len
-	 * @return the string
+	 * @return the converted string
 	 */
 	public static String asStringZeroPad(byte[] array,
 			char separator,
@@ -257,13 +265,24 @@ public class FormatUtils {
 	}
 
 	/**
-	 * As string ip6.
+	 * Handles various forms of ip6 addressing
+	 * 
+	 * <pre>
+	 * 2001:0db8:0000:0000:0000:0000:1428:57ab
+	 * 2001:0db8:0000:0000:0000::1428:57ab
+	 * 2001:0db8:0:0:0:0:1428:57ab
+	 * 2001:0db8:0:0::1428:57ab
+	 * 2001:0db8::1428:57ab
+	 * 2001:db8::1428:57ab
+	 * </pre>
+	 * 
+	 * .
 	 * 
 	 * @param array
-	 *          the array
+	 *          address array
 	 * @param holes
-	 *          the holes
-	 * @return the string
+	 *          if true holes are allowed
+	 * @return formatted string
 	 */
 	public static String asStringIp6(byte[] array, boolean holes) {
 		StringBuilder buf = new StringBuilder();
@@ -328,11 +347,11 @@ public class FormatUtils {
 	}
 
 	/**
-	 * Format time in millis.
+	 * Formats a delta time.
 	 * 
 	 * @param millis
-	 *          the millis
-	 * @return the string
+	 *          delta timestamp in millis
+	 * @return formatted string
 	 */
 	public static String formatTimeInMillis(long millis) {
 
@@ -381,21 +400,21 @@ public class FormatUtils {
 	}
 
 	/**
-	 * Hexdump.
+	 * Formats a byte array to a hexdump string.
 	 * 
 	 * @param array
-	 *          the array
+	 *          array to convert
 	 * @param addressOffset
-	 *          the address offset
+	 *          offset of the address space reported
 	 * @param dataOffset
-	 *          the data offset
+	 *          offset of the data space reported
 	 * @param doAddress
-	 *          the do address
+	 *          flag which specifies if address should be printed
 	 * @param doText
-	 *          the do text
+	 *          flag which specifies if text should printed
 	 * @param doData
-	 *          the do data
-	 * @return the string[]
+	 *          flag which specifies if data should printed
+	 * @return converted string array, one array element per line of output
 	 */
 	public static String[] hexdump(byte[] array,
 			int addressOffset,
@@ -434,23 +453,23 @@ public class FormatUtils {
 	}
 
 	/**
-	 * Hexdump.
+	 * Formats a byte array to a hexdump string.
 	 * 
 	 * @param array
-	 *          the array
+	 *          array to convert
 	 * @param addressOffset
-	 *          the address offset
+	 *          offset of the address space reported
 	 * @param dataOffset
-	 *          the data offset
+	 *          offset of the data space reported
 	 * @param doAddress
-	 *          the do address
+	 *          flag which specifies if address should be printed
 	 * @param doText
-	 *          the do text
+	 *          flag which specifies if text should printed
 	 * @param doData
-	 *          the do data
+	 *          flag which specifies if data should printed
 	 * @param markers
 	 *          the markers
-	 * @return the string[]
+	 * @return converted string array, one array element per line of output
 	 */
 	public static String[] hexdump(byte[] array,
 			int addressOffset,
@@ -476,56 +495,60 @@ public class FormatUtils {
 	}
 
 	/**
-	 * Hexdump.
+	 * Formats the supplied array for single line combined hexdump output using
+	 * all possible options turned on.
 	 * 
 	 * @param array
-	 *          the array
-	 * @return the string
+	 *          source array
+	 * @return a multi-line string containing verbose hexdump
 	 */
 	public static String hexdump(byte[] array) {
 		return hexdumpCombined(array, 0, 0, true, true, true);
 	}
 
 	/**
-	 * Hexdump.
+	 * Formats the supplied packet for single line combined hexdump output using
+	 * all possible options turned on. Also displays markers which mark boundaries
+	 * between each header.
 	 * 
 	 * @param packet
-	 *          the packet
-	 * @return the string
+	 *          source of data
+	 * @return a multi-line string containing verbose hexdump
 	 */
 	public static String hexdump(JPacket packet) {
 		return hexdump(packet.getByteArray(0, packet.size()), packet.getState());
 	}
 
 	/**
-	 * Hexdump.
+	 * Formats the supplied array for single line combined hexdump output using
+	 * all possible options turned on.
 	 * 
 	 * @param array
-	 *          the array
+	 *          source array
 	 * @param state
 	 *          the state
-	 * @return the string
+	 * @return a multi-line string containing verbose hexdump
 	 */
 	public static String hexdump(byte[] array, JPacket.State state) {
 		return hexdumpCombined(array, 0, 0, true, true, true, markers(state));
 	}
 
 	/**
-	 * Hexdump combined.
+	 * Converts the byte arra to hexdump string.
 	 * 
 	 * @param array
-	 *          the array
+	 *          array to convert
 	 * @param addressOffset
-	 *          the address offset
+	 *          offset of the address space reported
 	 * @param dataOffset
-	 *          the data offset
+	 *          offset of the data space reported
 	 * @param doAddress
-	 *          the do address
+	 *          flag which specifies if address should be printed
 	 * @param doText
-	 *          the do text
+	 *          flag which specifies if text should printed
 	 * @param doData
-	 *          the do data
-	 * @return the string
+	 *          flag which specifies if data should printed
+	 * @return converted string
 	 */
 	public static String hexdumpCombined(byte[] array,
 			int addressOffset,
@@ -544,23 +567,23 @@ public class FormatUtils {
 	}
 
 	/**
-	 * Hexdump combined.
+	 * Converts the byte arra to hexdump string.
 	 * 
 	 * @param array
-	 *          the array
+	 *          array to convert
 	 * @param addressOffset
-	 *          the address offset
+	 *          offset of the address space reported
 	 * @param dataOffset
-	 *          the data offset
+	 *          offset of the data space reported
 	 * @param doAddress
-	 *          the do address
+	 *          flag which specifies if address should be printed
 	 * @param doText
-	 *          the do text
+	 *          flag which specifies if text should printed
 	 * @param doData
-	 *          the do data
+	 *          flag which specifies if data should printed
 	 * @param markers
 	 *          the markers
-	 * @return the string
+	 * @return converted string
 	 */
 	public static String hexdumpCombined(byte[] array,
 			int addressOffset,
@@ -584,23 +607,23 @@ public class FormatUtils {
 	}
 
 	/**
-	 * Hex line.
+	 * Converts the byte arra to hexdump string.
 	 * 
 	 * @param array
-	 *          the array
+	 *          array to convert
 	 * @param addressOffset
-	 *          the address offset
+	 *          offset of the address space reported
 	 * @param dataOffset
-	 *          the data offset
+	 *          offset of the data space reported
 	 * @param doAddress
-	 *          the do address
+	 *          flag which specifies if address should be printed
 	 * @param doText
-	 *          the do text
+	 *          flag which specifies if text should printed
 	 * @param doData
-	 *          the do data
+	 *          flag which specifies if data should printed
 	 * @param markers
 	 *          the markers
-	 * @return the string
+	 * @return converted string array, one array element per line of output
 	 */
 	public static String hexLine(byte[] array,
 			int addressOffset,
@@ -633,11 +656,11 @@ public class FormatUtils {
 	}
 
 	/**
-	 * Hex line address.
+	 * Format an address.
 	 * 
 	 * @param address
-	 *          the address
-	 * @return the string
+	 *          integer address
+	 * @return formatted address string
 	 */
 	public static String hexLineAddress(int address) {
 		String s = "";
@@ -651,13 +674,13 @@ public class FormatUtils {
 	}
 
 	/**
-	 * Hex line data.
+	 * Formats the data array as a hexdump.
 	 * 
 	 * @param data
-	 *          the data
+	 *          data array
 	 * @param offset
-	 *          the offset
-	 * @return the string
+	 *          offset into the array
+	 * @return formatted string
 	 */
 	public static String hexLineData(byte[] data, int offset) {
 		String s = "";
@@ -697,15 +720,15 @@ public class FormatUtils {
 	}
 
 	/**
-	 * Hex line data.
+	 * Formats the data array as a hexdump.
 	 * 
 	 * @param data
-	 *          the data
+	 *          data array
 	 * @param offset
-	 *          the offset
+	 *          offset into the array
 	 * @param markers
 	 *          the markers
-	 * @return the string
+	 * @return formatted string
 	 */
 	public static String hexLineData(byte[] data, int offset, int[][] markers) {
 
@@ -791,13 +814,14 @@ public class FormatUtils {
 	}
 
 	/**
-	 * Hex line text.
+	 * Formats the array data to human readable text that appears at the end of a
+	 * hexline of a hexdump.
 	 * 
 	 * @param data
-	 *          the data
+	 *          data array
 	 * @param offset
-	 *          the offset
-	 * @return the string
+	 *          offset into data array
+	 * @return formatted string
 	 */
 	public static String hexLineText(byte[] data, int offset) {
 
@@ -825,11 +849,11 @@ public class FormatUtils {
 	}
 
 	/**
-	 * To byte array.
+	 * Parses a string containing hex numbers to a byte array.
 	 * 
 	 * @param source
-	 *          the source
-	 * @return the byte[]
+	 *          source string
+	 * @return byte array from the parsed data
 	 */
 	public static byte[] toByteArray(String source) {
 
@@ -853,11 +877,11 @@ public class FormatUtils {
 	}
 
 	/**
-	 * To hex string.
+	 * Formats a number to hext.
 	 * 
 	 * @param b
-	 *          the b
-	 * @return the string
+	 *          input byte
+	 * @return formatted string
 	 */
 	public static String toHexString(byte b) {
 		String s = Integer.toHexString(((int) b) & 0xFF);

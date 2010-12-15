@@ -21,6 +21,9 @@ package org.jnetpcap.packet.annotate;
 // TODO: Auto-generated Javadoc
 /**
  * The Interface BindingVariable.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public @interface BindingVariable {
 

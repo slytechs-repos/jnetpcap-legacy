@@ -24,6 +24,7 @@ package org.jnetpcap.nio;
  * 
  * @param <T>
  *          the generic type
+ * @author markbe
  */
 public interface Link<T> {
 	

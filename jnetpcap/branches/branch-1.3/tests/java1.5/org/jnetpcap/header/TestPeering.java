@@ -27,7 +27,9 @@ import org.jnetpcap.protocol.lan.Ethernet;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class TestPeering.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
+ *
  */
 public class TestPeering
     extends

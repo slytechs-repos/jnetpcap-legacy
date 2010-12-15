@@ -33,7 +33,8 @@ import org.jnetpcap.packet.format.FormatUtils;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class TestPcapDispatchers.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class TestPcapDispatchers
     extends TestCase {

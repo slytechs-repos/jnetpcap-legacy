@@ -33,6 +33,9 @@ import org.jnetpcap.packet.annotate.HeaderLength.Type;
 // TODO: Auto-generated Javadoc
 /**
  * The Class AnnotatedHeaderLengthMethod.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class AnnotatedHeaderLengthMethod
     extends
@@ -43,11 +46,12 @@ public class AnnotatedHeaderLengthMethod
 	    new HashMap<Class<?>, AnnotatedHeaderLengthMethod[]>();
 
 	/**
-	 * Inspect class.
+	 * Inspect annotations within the class for length methods.
 	 * 
 	 * @param c
-	 *          the c
-	 * @return the annotated header length method[]
+	 *          class to inspect
+	 * @return array containing length methods for various header "record"
+	 *         sub-structures
 	 */
 	public static AnnotatedHeaderLengthMethod[] inspectClass(
 	    Class<? extends JHeader> c) {
@@ -187,7 +191,8 @@ public class AnnotatedHeaderLengthMethod
 		}
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @return
 	 * @see org.jnetpcap.packet.structure.AnnotatedMethod#getMethod()
 	 */
 	public final Method getMethod() {
@@ -203,7 +208,8 @@ public class AnnotatedHeaderLengthMethod
 		return this.staticLength != -1;
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @param method
 	 * @see org.jnetpcap.packet.structure.AnnotatedMethod#validateSignature(java.lang.reflect.Method)
 	 */
 	protected void validateSignature(Method method) {
@@ -251,7 +257,8 @@ public class AnnotatedHeaderLengthMethod
 		cache.clear();
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @return
 	 * @see org.jnetpcap.packet.structure.AnnotatedMethod#toString()
 	 */
 	public String toString() {

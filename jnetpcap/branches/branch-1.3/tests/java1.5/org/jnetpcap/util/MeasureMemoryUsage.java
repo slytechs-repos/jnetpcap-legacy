@@ -20,7 +20,9 @@ package org.jnetpcap.util;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class MeasureMemoryUsage.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
+ *
  */
 public class MeasureMemoryUsage
     extends

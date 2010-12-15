@@ -20,14 +20,31 @@ package org.jnetpcap.winpcap;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class WinPcapRmtAuth.
+ * Class peered with native <code>pcap_rmtauth</code> structure. Provides
+ * authentication data for establishing remote capture and lookup operations
+ * using WinPcap extensions.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public final class WinPcapRmtAuth {
 
-	/** The Constant RMT_AUTH_NULL. */
+	/**
+	 * It defines the NULL authentication. This value has to be used within the
+	 * 'type' member of the pcap_rmtauth structure. The 'NULL' authentication has
+	 * to be equal to 'zero', so that old applications can just put every field of
+	 * struct pcap_rmtauth to zero, and it does work.
+	 */
 	public final static int RMT_AUTH_NULL = 0;
 
-	/** The Constant RMT_AUTH_PWD. */
+	/**
+	 * It defines the username/password authentication. With this type of
+	 * authentication, the RPCAP protocol will use the username/ password provided
+	 * to authenticate the user on the remote machine. If the authentication is
+	 * successful (and the user has the right to open network devices) the RPCAP
+	 * connection will continue; otherwise it will be dropped. This value has to
+	 * be used within the 'type' member of the pcap_rmtauth structure.
+	 */
 	public final static int RMT_AUTH_PWD = 1;
 
 	/**
@@ -49,21 +66,23 @@ public final class WinPcapRmtAuth {
 	private String password;
 
 	/**
-	 * Instantiates a new win pcap rmt auth.
+	 * Allocates an empty authentication object so that it may be setup.
 	 */
 	public WinPcapRmtAuth() {
 
 	}
 
 	/**
-	 * Instantiates a new win pcap rmt auth.
+	 * Allocates and configures authentication object.
 	 * 
 	 * @param type
-	 *          the type
+	 *          authentication type; values of 0 or 1 permitted
 	 * @param username
-	 *          the username
+	 *          string containing the username that has to be used on the remote
+	 *          machine for authentication
 	 * @param password
-	 *          the password
+	 *          string containing the password that has to be used on the remote
+	 *          machine for authentication
 	 */
 	public WinPcapRmtAuth(int type, String username, String password) {
 		this.type = type;
@@ -72,26 +91,27 @@ public final class WinPcapRmtAuth {
 	}
 
 	/**
-	 * Gets the type.
+	 * Gets the type of the authentication required.
 	 * 
-	 * @return the type
+	 * @return Type of the authentication required.
 	 */
 	public final int getType() {
 		return this.type;
 	}
 
 	/**
-	 * Sets the type.
+	 * Type of the authentication required.
 	 * 
 	 * @param type
-	 *          the new type
+	 *          the type to set
 	 */
 	public final void setType(int type) {
 		this.type = type;
 	}
 
 	/**
-	 * Gets the username.
+	 * String containing the username that has to be used on the remote machine
+	 * for authentication.
 	 * 
 	 * @return the username
 	 */
@@ -100,17 +120,19 @@ public final class WinPcapRmtAuth {
 	}
 
 	/**
-	 * Sets the username.
+	 * Sets the string containing the username that has to be used on the remote
+	 * machine for authentication.
 	 * 
 	 * @param username
-	 *          the new username
+	 *          the username to set
 	 */
 	public final void setUsername(String username) {
 		this.username = username;
 	}
 
 	/**
-	 * Gets the password.
+	 * Gets the string containing the password that has to be used on the remote
+	 * machine for authentication.
 	 * 
 	 * @return the password
 	 */
@@ -119,10 +141,11 @@ public final class WinPcapRmtAuth {
 	}
 
 	/**
-	 * Sets the password.
+	 * Sets the string containing the password that has to be used on the remote
+	 * machine for authentication.
 	 * 
 	 * @param password
-	 *          the new password
+	 *          the password to set
 	 */
 	public final void setPassword(String password) {
 		this.password = password;

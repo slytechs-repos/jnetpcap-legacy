@@ -41,7 +41,8 @@ import org.jnetpcap.util.resolver.Resolver;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class TestHttp.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class TestHttp
     extends

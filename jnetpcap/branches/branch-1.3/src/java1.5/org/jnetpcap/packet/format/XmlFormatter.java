@@ -25,20 +25,20 @@ import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.structure.JField;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class XmlFormatter.
+ * This formatter products XML output for a packet. A packet content is output
+ * as XML sheet based on field objects read from each header within a packet.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class XmlFormatter
     extends JFormatter {
 
-	/** The Constant PAD. */
 	private static final String PAD = "  ";
 
-	/** The Constant LT. */
 	private static final String LT = "<";
 
-	/** The Constant GT. */
 	private static final String GT = ">";
 
 	/*
@@ -67,27 +67,21 @@ public class XmlFormatter
 	}
 
 	/**
-	 * Instantiates a new xml formatter.
+	 * 
 	 */
 	public XmlFormatter() {
 		super();
 	}
 
 	/**
-	 * Instantiates a new xml formatter.
-	 * 
 	 * @param out
-	 *          the out
 	 */
 	public XmlFormatter(Appendable out) {
 		super(out);
 	}
 
 	/**
-	 * Instantiates a new xml formatter.
-	 * 
 	 * @param out
-	 *          the out
 	 */
 	public XmlFormatter(StringBuilder out) {
 		super(out);

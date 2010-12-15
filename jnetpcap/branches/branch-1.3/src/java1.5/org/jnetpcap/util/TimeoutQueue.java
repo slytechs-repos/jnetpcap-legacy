@@ -26,10 +26,21 @@ import java.util.Queue;
 // TODO: Auto-generated Javadoc
 /**
  * The Class TimeoutQueue.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class TimeoutQueue {
 
-	/** The timeout queue. */
+	/**
+	 * This queue contains various analysis objects that are time constrained.
+	 * Such as IP fragmentation. If all the fragments don't arrive within a
+	 * reassembly time window, then we timeout that analysis object, remove it
+	 * from maps and notify any listeners that analysis expired. The time is taken
+	 * from all arriving packets as they are read. Their timestamp determines the
+	 * current processing time (which is different from current system clock as we
+	 * might be reading from a file using saved timestamps.
+	 */
 	private Queue<Timeout> timeoutQueue = new PriorityQueue<Timeout>();
 
 	/**

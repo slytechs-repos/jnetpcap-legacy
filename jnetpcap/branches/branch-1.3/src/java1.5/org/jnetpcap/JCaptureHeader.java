@@ -20,56 +20,73 @@ package org.jnetpcap;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Interface JCaptureHeader.
+ * Interface to to capture header provided by the capturing library. For example
+ * <code>PcapHeader</code>, the capture header provided by libpcap,
+ * implements this interface which provides access to minimum set of information
+ * about the capture packet.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public interface JCaptureHeader {
 
 	/**
-	 * Caplen.
+	 * Retrieves the length of the packet that was actually captured. This could
+	 * be only a portion of the original packet if snaplen filter was set during
+	 * Pcap.openXXX call. If the packet was not trucated, this length should equal
+	 * the length returned by {@link #wirelen()}.
 	 * 
-	 * @return the int
+	 * @return length in bytes
 	 */
 	public abstract int caplen();
 
 	/**
-	 * Wirelen.
+	 * Retrieves the length of the packet before any of it was truncated by the
+	 * capture mechanism. This is the size of the orignal packet as it was send
+	 * accross the network.
 	 * 
-	 * @return the int
+	 * @return length in bytes
 	 */
 	public abstract int wirelen();
 
 	/**
-	 * Seconds.
+	 * Capture timestamp in UNIX seconds.
 	 * 
-	 * @return the long
+	 * @return timestamp in seconds since 1970
 	 */
 	public abstract long seconds();
 
 	/**
-	 * Nanos.
+	 * Fractional part of the second when the packet was captured. If the
+	 * resolution of the original capture timestamp is lower than nano seconds,
+	 * they are converted to nano seconds. For example of the capture timestamp is
+	 * in micro seconds, then the micro seconds fraction is multiplied by a 1000
+	 * before being returned to conform to nano second return timestamp.
 	 * 
-	 * @return the long
+	 * @return Number of nano seconds at the time of the packet capture. The valid
+	 *         value returned by this method is from 0 to 999,999,999.
 	 */
 	public abstract long nanos();
 
 	/**
-	 * Timestamp in millis.
+	 * Converts the timestamp into a java style timestamp suitable for usage with
+	 * <code>Date</code> class.
 	 * 
-	 * @return the long
+	 * @return capture timestamp in milli-seconds
 	 */
 	public abstract long timestampInMillis();
 
 	/**
-	 * Timestamp in nanos.
+	 * Gets the absolute capture timestamp in nano seconds (10e-9).
 	 * 
-	 * @return the long
+	 * @return timestamp in nano seconds
 	 */
 	public abstract long timestampInNanos();
 
 	/**
-	 * Timestamp in micros.
+	 * Gets the absolute capture timestam pin micro seconds (10e-6).
 	 * 
-	 * @return the long
+	 * @return timestamp in micro seconds
 	 */
 	public abstract long timestampInMicros();
 

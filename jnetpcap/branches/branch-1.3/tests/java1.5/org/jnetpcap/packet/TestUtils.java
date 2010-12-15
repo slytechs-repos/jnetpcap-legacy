@@ -64,7 +64,10 @@ import org.jnetpcap.protocol.JProtocol;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class TestUtils.
+ * Various jUnit support utilities
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class TestUtils extends TestCase {
 

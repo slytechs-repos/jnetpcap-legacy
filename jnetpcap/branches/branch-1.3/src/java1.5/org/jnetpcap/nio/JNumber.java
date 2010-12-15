@@ -22,39 +22,57 @@ import java.nio.ByteBuffer;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class JNumber.
+ * A peered number pointer class that stores and retrieves number values from
+ * native/direct memory locations. This class facilitates exchange of number
+ * values (from bytes to doubles) to various native functions. The key being
+ * that these numbers at JNI level can be passed in as pointers and thus allows
+ * natives methods to both send and receive values between native and java
+ * space. The methods are named similarly like java.lang.Number class, with the
+ * exception of existance of setter methods.
+ * <p>
+ * Typical usage for JNumber is to use it wherever a function requests a
+ * primitive type pointer.
+ * </p>
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class JNumber
     extends
     JMemory {
 
 	/**
-	 * The Enum Type.
+	 * Used to request a specific type of primitive that this number will be
+	 * dealing with possibly allocating memory more efficiently to fit the
+	 * primitive type.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public enum Type {
 		
-		/** The BYTE. */
+		/** 8-bit integer. */
 		BYTE,
 
-		/** The CHAR. */
+		/** 16-bit UTF character. */
 		CHAR,
 
-		/** The INT. */
+		/** 32-bit integer. */
 		INT,
 
-		/** The SHORT. */
+		/** 16-bit integer. */
 		SHORT,
 
-		/** The LONG. */
+		/** 64-bit integer. */
 		LONG,
 
-		/** The FLOAT. */
+		/** A floating point value. */
 		FLOAT,
 
-		/** The DOUBLE. */
+		/** A long floating point value. */
 		DOUBLE;
 
-		/** The size. */
+		/** Size in bytes for this native type on this machine. */
 		public final int size;
 
 		/** The biggest size. */
@@ -68,9 +86,9 @@ public class JNumber
 		}
 
 		/**
-		 * Gets the biggest size.
+		 * Returns the size of the biggets primitive.
 		 * 
-		 * @return the biggest size
+		 * @return size in bytes of the biggest primitive on this platform
 		 */
 		public static int getBiggestSize() {
 			if (biggestSize == 0) {
@@ -118,27 +136,29 @@ public class JNumber
 	private final static int MAX_SIZE_ORDINAL = 8;
 
 	/**
-	 * Instantiates a new j number.
+	 * Allocates a JNumber object capable of storing the biggest primitive on this
+	 * platform.
 	 */
 	public JNumber() {
 		super(Type.getBiggestSize());
 	}
 
 	/**
-	 * Instantiates a new j number.
+	 * Allocates a number of the specified size and type.
 	 * 
 	 * @param type
-	 *          the type
+	 *          primitive type for which to allocate memory
 	 */
 	public JNumber(Type type) {
 		super(type.size);
 	}
 
 	/**
-	 * Instantiates a new j number.
+	 * Creates a number pointer, which does not allocate any memory on its own,
+	 * but needs to be peered with primitive pointer.
 	 * 
 	 * @param type
-	 *          the type
+	 *          memory model
 	 */
 	public JNumber(JMemory.Type type) {
 		super(type);
@@ -154,132 +174,137 @@ public class JNumber
 	private native static int sizeof(int oridnal);
 
 	/**
-	 * Int value.
+	 * Returns the data from this JNUmber as a signed integer.
 	 * 
-	 * @return the int
+	 * @return java signed integer
 	 */
 	public native int intValue();
 
 	/**
-	 * Int value.
+	 * Sets new value in native memory.
 	 * 
 	 * @param value
-	 *          the value
+	 *          new value
 	 */
 	public native void intValue(int value);
 
 	/**
-	 * Byte value.
+	 * Gets value from native memory.
 	 * 
-	 * @return the byte
+	 * @return java signed byte
 	 */
 	public native byte byteValue();
 
 	/**
-	 * Byte value.
+	 * Sets new value in native memory.
 	 * 
 	 * @param value
-	 *          the value
+	 *          new value
 	 */
 	public native void byteValue(byte value);
 
 	/**
-	 * Short value.
+	 * Gets value from native memory.
 	 * 
-	 * @return the short
+	 * @return java signed short
 	 */
 	public native short shortValue();
 
 	/**
-	 * Short value.
+	 * Sets new value in native memory.
 	 * 
 	 * @param value
-	 *          the value
+	 *          new value
 	 */
 	public native void shortValue(short value);
 
 	/**
-	 * Long value.
+	 * Gets value from native memory.
 	 * 
-	 * @return the long
+	 * @return java signed long
 	 */
 	public native long longValue();
 
 	/**
-	 * Long value.
+	 * Sets new value in native memory.
 	 * 
 	 * @param value
-	 *          the value
+	 *          new value
 	 */
 	public native void longValue(long value);
 
 	/**
-	 * Float value.
+	 * Gets value from native memory.
 	 * 
-	 * @return the float
+	 * @return java float
 	 */
 	public native float floatValue();
 
 	/**
-	 * Float value.
+	 * Sets new value in native memory.
 	 * 
 	 * @param value
-	 *          the value
+	 *          new value
 	 */
 	public native void floatValue(float value);
 
 	/**
-	 * Double value.
+	 * Gets value from native memory.
 	 * 
-	 * @return the double
+	 * @return java double float
 	 */
 	public native double doubleValue();
 
 	/**
-	 * Double value.
+	 * Sets new value in native memory.
 	 * 
 	 * @param value
-	 *          the value
+	 *          new value
 	 */
 	public native void doubleValue(double value);
 
 	/**
-	 * Peer.
+	 * Peers with supplied number object.
 	 * 
 	 * @param number
-	 *          the number
-	 * @return the int
+	 *          number object to peer with
+	 * @return number of bytes peered
 	 */
 	public int peer(JNumber number) {
 		return super.peer(number);
 	}
 
 	/**
-	 * Peer.
+	 * Peers with supplied buffer object.
 	 * 
 	 * @param buffer
-	 *          the buffer
-	 * @return the int
+	 *          buffer to peer with
+	 * @return number of bytes peered
 	 */
 	public int peer(JBuffer buffer) {
 		return super.peer(buffer, 0, size());
 	}
 
 	/**
-	 * Peer.
+	 * Peers with supplied buffer object.
 	 * 
 	 * @param buffer
-	 *          the buffer
+	 *          buffer to peer with
 	 * @param offset
-	 *          the offset
-	 * @return the int
+	 *          offset into supplied buffer
+	 * @return number of bytes peered
 	 */
 	public int peer(JBuffer buffer, int offset) {
 		return super.peer(buffer, offset, size());
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.nio.JMemory#transferFrom(java.nio.ByteBuffer)
+	/**
+	 * Copies data out of the supplied buffer into this number object.
+	 * 
+	 * @param buffer
+	 *          buffer to copy data out of. Buffer's position and limit properties
+	 *          set the bounds for the copy
+	 * @return number of bytes copied
 	 */
 	@Override
   public int transferFrom(ByteBuffer buffer) {

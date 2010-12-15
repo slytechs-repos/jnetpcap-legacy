@@ -23,7 +23,13 @@ import org.jnetpcap.nio.JStruct;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class JScan.
+ * A inprogress working scan structure. Used by JScanner to pass around
+ * information between various scan routines. This class is peered with scan_t
+ * structure that is used to pass information both between native header
+ * scanners and java scanners.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class JScan
     extends
@@ -32,21 +38,25 @@ public class JScan
 	/** The Constant STRUCT_NAME. */
 	private static final String STRUCT_NAME = "scan_t";
 
-	/** The Constant END_OF_HEADERS_ID. */
+	/**
+	 * Special header ID that when used with a scanner's next_id variable,
+	 * indicates that this is the last header and scanner should exit its loop.
+	 * The constant can be used both in java and in JNI code.
+	 */
 	public final static int END_OF_HEADERS_ID = -1;
 
 	/**
-	 * Instantiates a new j scan.
+	 * Alocates and creates scan_t structure in native memory.
 	 */
 	public JScan() {
 		super(STRUCT_NAME, sizeof());
 	}
 
 	/**
-	 * Instantiates a new j scan.
+	 * Creates an uninitialized scan structure.
 	 * 
 	 * @param type
-	 *          the type
+	 *          memory type
 	 */
 	public JScan(Type type) {
 		super(STRUCT_NAME, type);
@@ -174,18 +184,18 @@ public class JScan
 	public native void record_header(int value);
 
 	/**
-	 * Scan_set_lengths.
+	 * Sets all the various lengths in the header structure all at once.
 	 * 
 	 * @param prefix
-	 *          the prefix
+	 *          prefix length in bytes before the header
 	 * @param header
-	 *          the header
+	 *          length of the header (same as {@link #scan_length(int)})
 	 * @param gap
-	 *          the gap
+	 *          length of the gap between header and payload
 	 * @param payload
-	 *          the payload
+	 *          length of payload
 	 * @param postfix
-	 *          the postfix
+	 *          length of postfix after the payload
 	 */
 	public native void scan_set_lengths(
 	    int prefix,
@@ -195,47 +205,47 @@ public class JScan
 	    int postfix);
 
 	/**
-	 * Sizeof.
+	 * Size in bytes of the native scan_t structure on this particular platform.
 	 * 
-	 * @return the int
+	 * @return size in bytes
 	 */
 	public native static int sizeof();
 
 	/**
-	 * Scan_buf.
+	 * Gets the current packet data buffer.
 	 * 
 	 * @param buffer
-	 *          the buffer
+	 *          packet data buffer
 	 */
 	public native void scan_buf(JBuffer buffer);
 
 	/**
-	 * Scan_buf_len.
+	 * Size of packet data.
 	 * 
 	 * @param size
-	 *          the size
+	 *          length in bytes
 	 */
 	public native void scan_buf_len(int size);
 
 	/**
-	 * Scan_offset.
+	 * Sets the current offset by the scanner into the packet buffer.
 	 * 
 	 * @param offset
-	 *          the offset
+	 *          offset in bytes
 	 */
 	public native void scan_offset(int offset);
 
 	/**
-	 * Scan_packet.
+	 * Java packet that is being processed.
 	 * 
-	 * @return the j packet
+	 * @return the packet instance being currently processed
 	 */
 	public native JPacket scan_packet();
 
 	/**
-	 * Scan_offset.
+	 * Gets teh curren offset by the dscanner into the packet buffer.
 	 * 
-	 * @return the int
+	 * @return offset in bytes
 	 */
 	public native int scan_offset();
 }

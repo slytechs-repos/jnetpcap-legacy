@@ -24,7 +24,12 @@ import java.util.List;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class PcapIf.
+ * Class peered with native <code>pcap_if_t</code> structure. Addresses is
+ * replaced as a list to simulate a linked list of address structures. This is not a JNI peering
+ * class, and is only a read-only object.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class PcapIf {
 
@@ -43,7 +48,10 @@ public class PcapIf {
 		}
 	}
 
-	/** The next. */
+	/**
+	 * The field is initialized to the next object in native linked list, but is
+	 * not accessible from java.
+	 */
 	private volatile PcapIf next;
 
 	/** The name. */
@@ -52,25 +60,33 @@ public class PcapIf {
 	/** The description. */
 	private volatile String description;
 
-	/** The addresses. */
+	/**
+	 * Preallocate the list. The list will be filled in based on pcap_addr
+	 * structure from JNI. The field can be assigned to any kind of list since JNI
+	 * does dynamic lookup on the List.add method. We allocate a more efficient
+	 * ArrayList with only 2 addresses max for its initial capacity, as its very
+	 * rare to have interfaces assigned multiple addresses. The list will resize
+	 * incase there are more then 2 automatically.
+	 */
 	private List<PcapAddr> addresses = new ArrayList<PcapAddr>(2);
 
 	/** The flags. */
 	private volatile int flags;
 
 	/**
-	 * Gets the field is initialized to the next object in native linked list, but
-	 * is not accessible from java.
+	 * pcap_if.next field is unimportant since this java API fills in all the
+	 * entries into a List. Since the field does exist, though we leave the method
+	 * but make it private and not user accessible. This avoid when next is null
+	 * issues.
 	 * 
-	 * @return the field is initialized to the next object in native linked list,
-	 *         but is not accessible from java
+	 * @return the next
 	 */
 	private final PcapIf getNext() {
 		return this.next;
 	}
 
 	/**
-	 * Gets the name.
+	 * pcap_if.name field.
 	 * 
 	 * @return the name
 	 */
@@ -79,7 +95,7 @@ public class PcapIf {
 	}
 
 	/**
-	 * Gets the description.
+	 * pcap_if.description field.
 	 * 
 	 * @return the description
 	 */
@@ -88,16 +104,18 @@ public class PcapIf {
 	}
 
 	/**
-	 * Gets the preallocate the list.
+	 * A list of addresses for this field. The native C linked list of
+	 * <code>pcap_if</code> structures is turned into a java <code>List</code>
+	 * for convenience.
 	 * 
-	 * @return the preallocate the list
+	 * @return the addresses
 	 */
 	public final List<PcapAddr> getAddresses() {
 		return this.addresses;
 	}
 
 	/**
-	 * Gets the flags.
+	 * pcap_if.flags field.
 	 * 
 	 * @return the flags
 	 */
@@ -106,18 +124,23 @@ public class PcapIf {
 	}
 
 	/**
-	 * Gets the hardware address.
+	 * Retrieves the hardware address of this network interface. The native OS is
+	 * queried via the appropriate OS calls to retrive the hardware address of the
+	 * interface (MAC address). This is a direct call, not cached data.
 	 * 
-	 * @return the hardware address
+	 * @return hardware address as an array of bytes; this method returns null if
+	 *         interface doesn't have or is incapable of having a hardware address
+	 *         such as loopback interfaces and others
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *           if there was a problem retrieving the address
 	 */
 	public byte[] getHardwareAddress() throws IOException {
 		return PcapUtils.getHardwareAddress(this);
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
+	/**
+	 * Debug string.
+	 * @return debug string
 	 */
 	@Override
   public String toString() {

@@ -24,7 +24,9 @@ import org.jnetpcap.Pcap;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class Bug2836179_negative_snaplen.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
+ *
  */
 public class Bug2836179_negative_snaplen
     extends

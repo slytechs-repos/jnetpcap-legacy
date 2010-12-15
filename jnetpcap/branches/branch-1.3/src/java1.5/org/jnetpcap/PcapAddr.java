@@ -23,7 +23,11 @@ import java.util.List;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class PcapAddr.
+ * Class peered with native <code>pcap_addr</code> structure. Holds pcap
+ * addresses.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public final class PcapAddr {
 
@@ -68,7 +72,7 @@ public final class PcapAddr {
 	}
 
 	/**
-	 * Gets the addr.
+	 * pcap_addr.addr field.
 	 * 
 	 * @return the addr
 	 */
@@ -77,7 +81,7 @@ public final class PcapAddr {
 	}
 
 	/**
-	 * Gets the netmask.
+	 * pcap_addr.netmask field.
 	 * 
 	 * @return the netmask
 	 */
@@ -86,7 +90,7 @@ public final class PcapAddr {
 	}
 
 	/**
-	 * Gets the broadaddr.
+	 * pcap_addr.broadaddr field.
 	 * 
 	 * @return the broadaddr
 	 */
@@ -95,7 +99,7 @@ public final class PcapAddr {
 	}
 
 	/**
-	 * Gets the dstaddr.
+	 * pcap_addr.dstaddr field.
 	 * 
 	 * @return the dstaddr
 	 */
@@ -122,8 +126,10 @@ public final class PcapAddr {
 		return list;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
+	/**
+	 * Debug information about this address object.
+	 * 
+	 * @return debug info
 	 */
 	@Override
 	public String toString() {

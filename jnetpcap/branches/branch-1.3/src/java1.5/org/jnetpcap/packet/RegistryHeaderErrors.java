@@ -26,6 +26,9 @@ import org.jnetpcap.packet.structure.HeaderDefinitionError;
 // TODO: Auto-generated Javadoc
 /**
  * The Class RegistryHeaderErrors.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class RegistryHeaderErrors
     extends RegistryException {
@@ -75,7 +78,8 @@ public class RegistryHeaderErrors
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = -6414263503074702593L;
 
-	/* (non-Javadoc)
+	/** 
+	 * @return
 	 * @see java.lang.Throwable#getMessage()
 	 */
 	@Override

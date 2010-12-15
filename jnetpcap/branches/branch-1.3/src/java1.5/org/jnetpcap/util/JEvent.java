@@ -22,7 +22,10 @@ import java.beans.PropertyChangeEvent;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class JEvent.
+ * An event object and event related utilities.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class JEvent {
 

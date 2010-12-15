@@ -24,6 +24,8 @@ package org.jnetpcap.packet;
  * 
  * @param <T>
  *          the generic type
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public interface PcapPacketHandler<T> {
 	

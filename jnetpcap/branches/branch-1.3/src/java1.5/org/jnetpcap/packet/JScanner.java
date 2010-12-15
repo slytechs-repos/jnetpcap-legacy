@@ -23,14 +23,96 @@ import org.jnetpcap.nio.JStruct;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class JScanner.
+ * JMemory with struct scanner_t, binding_t, packet_t and header_t structures.
+ * JScanner utilizes unique numerical IDs assigned to each header to optimize
+ * access and recording of information about the presence of each header in
+ * various lookup array and bit masks. It also allocates a large memory block
+ * natively and sub-allocates structures per packet and for each header. When
+ * the end of the buffer is reached the buffer pointer is repositioned at the
+ * beginning of the buffer and the memory block is reused, another words
+ * round-robin algorithm is used over a single large buffer.
+ * <p>
+ * JScanner keeps a global jRegistry of header to ID mappings, bindings between
+ * various headers and depedencies which are used to efficiently apply the
+ * registered bindings. Further more, each JScanner instance can be customized
+ * with a custom set of bindings and dependencies on a per instance basis. The
+ * default is to use the global jRegistry. Therefore it is possible to override
+ * certain bindings on a scanner basis such as overriding default binding for an
+ * application level protocol to TCP port numbers for example.
+ * </p>
+ * <p>
+ * The main scanner method is called <code>scan()</code>. This is a native
+ * method that scans the contents of the supplied JBuffer which also contains
+ * its data in native memory block typically allocated by libpcap, and records
+ * the output of the scan into series of native structures and bitmaps. This
+ * information is referenced by JPacket object. The JPacket memory pointer is
+ * the only thing changed and thus a single JPacket object can very quickly be
+ * repositioned to a new packet state.
+ * </p>
+ * 
+ * <pre>
+ * typedef struct header_t {
+ *  int32_t hdr_id; // header ID
+ *  int32_t hdr_offset; // offset into the packet_t-&gt;data buffer
+ *  int32_t hdr_length; // length of the header in packet_t-&gt;data buffer
+ * } header_t;
+ * 
+ * typedef struct packet_t {
+ *  uint64_t pkt_header_map; // bit map of presence of headers
+ * 
+ *  // Keep track of how many instances of each header we have
+ *  uint8_t pkt_instance_counts[MAX_ID_COUNT];
+ *  char *pkt_data; // packet data buffer
+ * 
+ *  int32_t pkt_header_count; // total number of headers found
+ *  header_t pkt_headers[]; // One per header + 1 more for payload
+ *  } packet_t;
+ * 
+ *  typedef struct binding_t {
+ *  int32_t bnd_id; // ID of the header that this binding is for
+ *  // Map of required headers that must already processed in this packet
+ *  uint64_t bnd_dependency_map;
+ *  jobject bnd_jbinding; // JBinding object
+ * } java_binding_t;
+ * 
+ * typedef struct scanner_t {
+ *  int32_t sc_len; // bytes allocated for sc_packets buffer
+ *  int32_t sc_offset; // offset into sc_packets for next packet
+ * 
+ *  // Cumulative map of dependencies that must already exist in the packet
+ *  uint64_t sc_dependency_map[MAX_ID_COUNT];
+ * 
+ *  // Array of binding structures; The second array is NULL terminated 
+ *  binding_t sc_bindings[MAX_ID_COUNT][MAX_BINDING_COUNT];
+ * 
+ *  uint64_t sc_binding_map; // bit mapping of java bindings 
+ * 
+ *  // Overrides CORE protocol bindings
+ *  uint64_t sc_override_map[MAX_ID_COUNT];
+ *  packet_t *sc_packet; // ptr into scanner_t where the first packet begins
+ * } scanner_t;
+ * 
+ * </pre>
+ * 
+ * <p>
+ * Note that a packet scanner (JScanner) is not a lightweight object but
+ * actually fairely heavy to initialize and run. The scanner typically allocates
+ * on the order of 100Kb of internal native memory for its state structures and
+ * buffer. It is advisable to use its thread local getter methods which maintain
+ * a pool of scanners on a per thread basis. Of course a new instance of a
+ * scanner can be instantiated and configured differently from the default case
+ * which uses the information in the global registry.
+ * </p>
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class JScanner extends JStruct {
 
 	/** The count. */
 	private static int count = 0;
 
-	/** The Constant DEFAULT_BLOCKSIZE. */
+	/** Default allocation for memory block/buffer. */
 	public static final int DEFAULT_BLOCKSIZE = 100 * 1024; // 100K
 
 	/** The local scanners. */
@@ -49,13 +131,13 @@ public class JScanner extends JStruct {
 
 			};
 
-	/** The Constant MAX_ENTRY_COUNT. */
+	/** Maximum number of header entries allowed per packet buffer by the scanner. */
 	public static final int MAX_ENTRY_COUNT = 64;
 
-	/** The Constant MAX_ID_COUNT. */
+	/** Maximum number of ID entries allowed by the scanner. */
 	public static final int MAX_ID_COUNT = 64;
 
-	/** The Constant STRUCT_NAME. */
+	/** Name of the peered native structure. */
 	public final static String STRUCT_NAME = "scanner_t";
 
 	static {
@@ -86,9 +168,9 @@ public class JScanner extends JStruct {
 	}
 
 	/**
-	 * Gets the thread local.
+	 * Maintains and allocates a pool of packet scanners.
 	 * 
-	 * @return the thread local
+	 * @return a thread local global scanner
 	 */
 	public static JScanner getThreadLocal() {
 		// JScanner s = localScanners.get();
@@ -166,7 +248,7 @@ public class JScanner extends JStruct {
 	}
 
 	/**
-	 * Inits the ids.
+	 * Initialized JNI method and fields IDs.
 	 */
 	private native static void initIds();
 
@@ -180,9 +262,10 @@ public class JScanner extends JStruct {
 	}
 
 	/**
-	 * Sizeof.
+	 * Size of the entire scanner_t structure. Does not include the entire
+	 * allocated memory block managed by this object.
 	 * 
-	 * @return the int
+	 * @return result from sizeof(scanner_t) statement
 	 */
 	native static int sizeof();
 
@@ -203,7 +286,8 @@ public class JScanner extends JStruct {
 	}
 
 	/**
-	 * Instantiates a new j scanner.
+	 * Allocates a default scanner using {@literal #DEFAULT_BLOCKSIZE} buffer
+	 * size.
 	 */
 	public JScanner() {
 		this(DEFAULT_BLOCKSIZE);
@@ -217,7 +301,7 @@ public class JScanner extends JStruct {
 	}
 
 	/**
-	 * Instantiates a new j scanner.
+	 * Allocates the requested blocksize of memory + the sizeof(scanner_t).
 	 * 
 	 * @param blocksize
 	 *          the blocksize
@@ -237,25 +321,26 @@ public class JScanner extends JStruct {
 	}
 
 	/**
-	 * Gets the frame number.
+	 * Retrieves the current frame number assigned by this scanner.
 	 * 
-	 * @return the frame number
+	 * @return current frame counter value
 	 */
 	public native long getFrameNumber();
 
 	/**
-	 * Inits the.
+	 * Initializes the scanner_t structure within the allocated block.
 	 * 
 	 * @param scan
-	 *          the scan
+	 *          a uninitialized JScan object to be used internally by JScanner for
+	 *          its interaction with java space.
 	 */
 	private native void init(JScan scan);
 
 	/**
-	 * Load flags.
+	 * Downloads flags for each protocol to the scanner's native implementation.
 	 * 
 	 * @param flags
-	 *          the flags
+	 *          array of flags, one for each protocol ID
 	 */
 	private native void loadFlags(int[] flags);
 
@@ -268,7 +353,8 @@ public class JScanner extends JStruct {
 	private native void loadScanners(JHeaderScanner[] scanners);
 
 	/**
-	 * Reload all.
+	 * Reloads the scanner and bindings table from JRegistry down to native
+	 * scanner structures.
 	 */
 	public void reloadAll() {
 		JHeaderScanner[] scanners = JRegistry.getHeaderScanners();
@@ -294,28 +380,34 @@ public class JScanner extends JStruct {
 	}
 
 	/**
-	 * Scan.
+	 * Performs a scan on a packet that has been peered with a packet data buffer.
+	 * The state structure o the packet is filled in and peered at the time of the
+	 * packet scan.
 	 * 
 	 * @param packet
-	 *          the packet
+	 *          packet to process
 	 * @param id
-	 *          the id
-	 * @return the int
+	 *          numerical ID of the data link protocol, or first header within the
+	 *          data buffer
+	 * @return number of bytes processed
 	 */
 	public int scan(JPacket packet, int id) {
 		return scan(packet, id, packet.getPacketWirelen());
 	}
 
 	/**
-	 * Scan.
+	 * Performs a scan on a packet that has been peered with a packet data buffer.
+	 * The state structure o the packet is filled in and peered at the time of the
+	 * packet scan.
 	 * 
 	 * @param packet
-	 *          the packet
+	 *          packet to process
 	 * @param id
-	 *          the id
+	 *          numerical ID of the data link protocol, or first header within the
+	 *          data buffer
 	 * @param wirelen
-	 *          the wirelen
-	 * @return the int
+	 *          original packet length
+	 * @return number of bytes processed
 	 */
 	public int scan(JPacket packet, int id, int wirelen) {
 		final JPacket.State state = packet.getState();
@@ -324,17 +416,17 @@ public class JScanner extends JStruct {
 	}
 
 	/**
-	 * Scan.
+	 * Performs the actual scan.
 	 * 
 	 * @param packet
-	 *          the packet
+	 *          packet to scan
 	 * @param state
 	 *          the state
 	 * @param id
-	 *          the id
+	 *          id of dlt protocol
 	 * @param wirelen
 	 *          the wirelen
-	 * @return the int
+	 * @return number of bytes processed
 	 */
 	private native int scan(JPacket packet,
 			JPacket.State state,
@@ -342,10 +434,12 @@ public class JScanner extends JStruct {
 			int wirelen);
 
 	/**
-	 * Sets the frame number.
+	 * Sets the scanner's current frame number to user specified value. This
+	 * allows scanner's frame numbers it assigns and keeps track of to be reset
+	 * back to 0 or some other value if needed.
 	 * 
 	 * @param frameNo
-	 *          the new frame number
+	 *          new frame number
 	 */
 	public native void setFrameNumber(long frameNo);
 
@@ -353,6 +447,12 @@ public class JScanner extends JStruct {
 	 * (non-Javadoc)
 	 * 
 	 * @see org.jnetpcap.nio.JMemory#createReference(long)
+	 */
+	/** 
+	 * @param address
+	 * @param size
+	 * @return
+	 * @see org.jnetpcap.nio.JMemory#createReference(long, long)
 	 */
 	@Override
 	protected JMemoryReference createReference(long address, long size) {

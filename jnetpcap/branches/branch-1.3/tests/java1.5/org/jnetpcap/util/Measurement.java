@@ -22,37 +22,41 @@ import java.io.IOException;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class Measurement.
+ * A utility class that facilitates taking measurements and reports.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public abstract class Measurement {
 
-	/** The counter. */
 	protected long counter;
 	
 	/** The total. */
 	protected long total;
 
 	/**
-	 * Instantiates a new measurement.
+	 * Setup measurement using its defaults
 	 */
 	public Measurement() {
 		reset();
 	}
 
 	/**
-	 * Snapshot baseline.
+	 * Measurement takes a snapshot which it then uses as a baseline (zeroed out
+	 * starting point) for whatever measurement it is taking. So for example
 	 */
 	public void snapshotBaseline() {
 		// Empty
 	}
 
 	/**
-	 * Reset.
+	 * Initializes the test to its defaults
 	 */
 	public abstract void reset();
 
 	/**
-	 * Snapshot.
+	 * Takes a measurment snapshot and updates its counters. This is where
+	 * measurement calculations stem from such as packet rates or bit rates.
 	 */
   public void snapshot() {
     
@@ -61,17 +65,16 @@ public abstract class Measurement {
   }
 
 	/**
-	 * Report.
+	 * Generates a report and sends out to output.
 	 * 
 	 * @param out
-	 *          the out
+	 *          destination where to send the report
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
 	 */
 	public abstract void report(Appendable out) throws IOException;
 
 	/**
-	 * Report.
+	 * Generates a report and sends it out to standard output
 	 * 
 	 * @throws IOException
 	 *           Signals that an I/O exception has occurred.
@@ -81,9 +84,9 @@ public abstract class Measurement {
 	}
 
 	/**
-	 * Result.
+	 * Generates a report and returns it as a string.
 	 * 
-	 * @return the string
+	 * @return terse report generated from the measurements
 	 */
 	public String result() {
 		final StringBuilder b = new StringBuilder(10 * 1024);

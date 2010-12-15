@@ -27,7 +27,9 @@ import org.jnetpcap.packet.structure.JField;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class JFieldMap.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
+ *
  */
 public class JFieldMap {
 	

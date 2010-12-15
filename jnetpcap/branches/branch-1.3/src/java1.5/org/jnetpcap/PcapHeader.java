@@ -23,39 +23,53 @@ import org.jnetpcap.nio.JStruct;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class PcapHeader.
+ * <pre>
+ * struct pkt_header {
+ *  struct timeval ts; // ts.tv_sec, ts.tv_usec
+ *  uint32 caplen;     // captured length
+ *  uint32 len;        // original length
+ * }
+ * </pre>
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class PcapHeader
     extends
     JStruct implements JCaptureHeader {
 
-	/** The Constant STRUCT_NAME. */
+	/** Name of the native structure. */
 	public static final String STRUCT_NAME = "pcap_pkthdr";
 
 	/**
-	 * Sizeof.
+	 * Size of the pcap_pkthdr structure in bytes.
 	 * 
-	 * @return the int
+	 * @return size of structure
 	 */
 	public native static int sizeof();
 
-	/** The Constant LENGTH. */
+	/**
+	 * Length of the libpcap pcap header in bytes. This may differ from what
+	 * <code>sizeof()</code> method returns due to native compiler padding for
+	 * byte aligment.
+	 */
 	public final static int LENGTH = 16;
 
 	/**
-	 * Instantiates a new pcap header.
+	 * Creates a header structure with allocated memory. All fields are
+	 * initialized to defaults.
 	 */
 	public PcapHeader() {
 		super(STRUCT_NAME, LENGTH);
 	}
 
 	/**
-	 * Instantiates a new pcap header.
+	 * Creates a header structure with initial values.
 	 * 
 	 * @param caplen
-	 *          the caplen
+	 *          buffer size
 	 * @param wirelen
-	 *          the wirelen
+	 *          original packet length
 	 */
 	public PcapHeader(int caplen, int wirelen) {
 		super(STRUCT_NAME, LENGTH);
@@ -72,137 +86,146 @@ public class PcapHeader
 	}
 
 	/**
-	 * Instantiates a new pcap header.
+	 * Creates an empty pcap header suitable for peering.
 	 * 
 	 * @param type
-	 *          the type
+	 *          memory allocation model type
 	 */
 	public PcapHeader(Type type) {
 		super(STRUCT_NAME, type);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.JCaptureHeader#caplen()
+	/**
+	 * Gets the caplen field from the structure.
+	 * 
+	 * @return size of the capture packet data
 	 */
 	public int caplen() {
 		return hdr_len();
 	}
 
 	/**
-	 * Hdr_len.
+	 * Gets the hdr_len field from the structure.
 	 * 
-	 * @return the int
+	 * @return value of the hdr_len field
 	 */
 	public native int hdr_len();
 
 	/**
-	 * Hdr_len.
+	 * Sets the hdr_len field.
 	 * 
 	 * @param len
-	 *          the len
+	 *          new value for hdr_len field
 	 */
 	public native void hdr_len(int len);
 
 	/**
-	 * Hdr_sec.
+	 * Gets the hdr_sec field value.
 	 * 
-	 * @return the long
+	 * @return value of the hdr_sec field
 	 */
 	public native long hdr_sec();
 
 	/**
-	 * Hdr_sec.
+	 * Sets the hdr_sec field.
 	 * 
 	 * @param ts
-	 *          the ts
+	 *          new value for hdr_sec field
 	 */
 	public native void hdr_sec(long ts);
 
 	/**
-	 * Hdr_usec.
+	 * Gets the hdr_usec field.
 	 * 
-	 * @return the int
+	 * @return value of the hdr_usec field
 	 */
 	public native int hdr_usec();
 
 	/**
-	 * Hdr_usec.
+	 * Sets the hdr_usec field.
 	 * 
 	 * @param ts
-	 *          the ts
+	 *          new value for hdr_usec field
 	 */
 	public native void hdr_usec(int ts);
 
 	/**
-	 * Hdr_wirelen.
+	 * Gets the hdr_wirelen field.
 	 * 
-	 * @return the int
+	 * @return value of the hdr_wirelen field
 	 */
 	public native int hdr_wirelen();
 
 	/**
-	 * Hdr_wirelen.
+	 * Sets the hdr_wirelen field.
 	 * 
 	 * @param len
-	 *          the len
+	 *          new value for hdr_wirelen field
 	 */
 	public native void hdr_wirelen(int len);
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.JCaptureHeader#nanos()
+	/**
+	 * Converts hdr_usec field into nano seconds.
+	 * 
+	 * @return converted value of the hdr_usec field
 	 */
 	public long nanos() {
 		return hdr_usec() * 1000;
 	}
 
 	/**
-	 * Peer.
+	 * Peers this header object with the supplied memory object.
 	 * 
 	 * @param memory
-	 *          the memory
+	 *          object to peer with this header
 	 * @param offset
-	 *          the offset
-	 * @return the int
+	 *          offset into memory object
+	 * @return number of bytes peered
 	 */
 	public int peer(JBuffer memory, int offset) {
 		return super.peer(memory, offset, sizeof());
 	}
 
 	/**
-	 * Peer to.
+	 * Peers this header with the supplied buffer.
 	 * 
 	 * @param buffer
-	 *          the buffer
+	 *          buffer to peer with
 	 * @param offset
-	 *          the offset
-	 * @return the int
+	 *          offset into the buffer
+	 * @return number of bytes peered
 	 */
 	public int peerTo(JBuffer buffer, int offset) {
 		return super.peer(buffer, offset, sizeof());
 	}
 
 	/**
-	 * Peer to.
+	 * Peers this header to the user supplied header.
 	 * 
 	 * @param header
-	 *          the header
+	 *          header to peer with
 	 * @param offset
-	 *          the offset
-	 * @return the int
+	 *          offset into the supplied header
+	 * @return number of bytes peered
 	 */
 	public int peerTo(PcapHeader header, int offset) {
 		return super.peer(header, offset, header.size());
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.JCaptureHeader#seconds()
+	/**
+	 * Gets the hdr_sec field.
+	 * 
+	 * @return value of the hdr_sec field
 	 */
 	public long seconds() {
 		return hdr_sec();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.JCaptureHeader#timestampInMillis()
+	/**
+	 * Converts the hdr_sec and hdr_usec fields into a java style absolute
+	 * timestamp suitable for usage with java's <code>Date</code> object.
+	 * 
+	 * @return absolute capture timestamp in milli-seconds
 	 */
 	public long timestampInMillis() {
 		long l = hdr_sec() * 1000 + hdr_usec() / 1000;
@@ -211,82 +234,105 @@ public class PcapHeader
 	}
 
 	/**
-	 * Transfer to.
+	 * Copies contents of this header to supplied buffer.
 	 * 
 	 * @param m
-	 *          the m
+	 *          buffer to copy to
 	 * @param offset
-	 *          the offset
-	 * @return the int
+	 *          offset into the buffer
+	 * @return number of bytes copied
 	 */
 	public int transferTo(JBuffer m, int offset) {
 		return super.transferTo(m, 0, size(), offset);
 	}
 
 	/**
-	 * Transfer to.
+	 * Copies contents of this buffer into supplied byte array buffer.
 	 * 
 	 * @param m
-	 *          the m
+	 *          buffer to copy to
 	 * @param offset
-	 *          the offset
-	 * @return the int
+	 *          offset into the buffer
+	 * @return number of bytes copied
 	 */
 	public int transferTo(byte[] m, int offset) {
 		return super.transferTo(m, 0, size(), offset);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.JCaptureHeader#wirelen()
+	/**
+	 * Gets the value of hdr_wirelen field.
+	 * 
+	 * @return value of hdr_wirelen field
 	 */
 	public int wirelen() {
 		return hdr_wirelen();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.JCaptureHeader#caplen(int)
+	/**
+	 * Unsupported operation.
+	 * 
+	 * @param caplen
+	 *          ignored
 	 */
 	public void caplen(int caplen) {
 		throw new UnsupportedOperationException("Not allowed on PcapHeader");
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.JCaptureHeader#nanos(long)
+	/**
+	 * Unsupported operation.
+	 * 
+	 * @param nanos
+	 *          ignored
 	 */
 	public void nanos(long nanos) {
 		throw new UnsupportedOperationException("Not allowed on PcapHeader");
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.JCaptureHeader#seconds(long)
+	/**
+	 * Unsupported operation.
+	 * 
+	 * @param seconds
+	 *          ignored
 	 */
 	public void seconds(long seconds) {
 		throw new UnsupportedOperationException("Not allowed on PcapHeader");
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.JCaptureHeader#wirelen(int)
+	/**
+	 * Unsupported operation.
+	 * 
+	 * @param wirelen
+	 *          ignored
 	 */
 	public void wirelen(int wirelen) {
 		throw new UnsupportedOperationException("Not allowed on PcapHeader");
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.JCaptureHeader#initFrom(org.jnetpcap.JCaptureHeader)
+	/**
+	 * Unsupported operation.
+	 * 
+	 * @param captureHeader
+	 *          ignored
 	 */
 	public void initFrom(JCaptureHeader captureHeader) {
 		throw new UnsupportedOperationException("Not allowed on PcapHeader");
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.JCaptureHeader#timestampInNanos()
+	/**
+	 * Converts the hdr_sec and hdr_usec fields into a nano second absolute
+	 * timestamp. The timestamp still maintains micro-second resolution.
+	 * 
+	 * @return absolute timestamp in nano seconds
 	 */
 	public long timestampInNanos() {
 		return hdr_sec() * 1000000000 + hdr_usec() * 1000;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.JCaptureHeader#timestampInMicros()
+	/**
+	 * Converts the hdr_sec and hdr_usec fields into a micro second absolute
+	 * timestamp.
+	 * 
+	 * @return absolute timestamp in micro seconds
 	 */
 	public long timestampInMicros() {
 		return hdr_sec() * 1000000 + hdr_usec();

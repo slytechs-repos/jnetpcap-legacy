@@ -29,7 +29,8 @@ import org.jnetpcap.protocol.lan.Ethernet;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class TestIpv6.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class TestIpv6
     extends TestCase {
@@ -57,7 +58,9 @@ public class TestIpv6
 	}
 
 	/**
-	 * Test scan ipv6 file.
+	 * Printing to DEV_NULL still causes entire packet structure to be decoded and
+	 * dumped to /dev/null while using every available header found in the packet.
+	 * Good stress test for Ip6 based packets.
 	 * 
 	 * @throws IOException
 	 *           Signals that an I/O exception has occurred.

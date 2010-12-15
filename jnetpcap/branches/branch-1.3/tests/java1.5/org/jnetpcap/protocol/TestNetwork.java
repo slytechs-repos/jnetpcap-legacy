@@ -27,7 +27,9 @@ import org.jnetpcap.protocol.network.Rip1;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class TestNetwork.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
+ *
  */
 public class TestNetwork
     extends

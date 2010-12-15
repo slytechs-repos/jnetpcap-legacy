@@ -22,6 +22,9 @@ package org.jnetpcap.packet.structure;
 // TODO: Auto-generated Javadoc
 /**
  * The Class AnnotatedMethodException.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class AnnotatedMethodException
     extends HeaderDefinitionError {
@@ -122,7 +125,8 @@ public class AnnotatedMethodException
 		this.c = c;
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @return
 	 * @see org.jnetpcap.packet.structure.HeaderDefinitionError#getHeader()
 	 */
 	public Class<?> getHeader() {

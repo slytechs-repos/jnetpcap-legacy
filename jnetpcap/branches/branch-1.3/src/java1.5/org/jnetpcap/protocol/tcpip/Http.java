@@ -27,18 +27,24 @@ import org.jnetpcap.protocol.JProtocol;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class Http.
+ * Hyper Text Transfer Protocol header definition.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @Header(suite = ProtocolSuite.TCP_IP)
 public class Http
     extends
     AbstractMessageHeader {
 
-	/** The Constant ID. */
+	/** Constant numerical ID assigned to this protocol. */
 	public final static int ID = JProtocol.HTTP_ID;
 
 	/**
-	 * The Enum ContentType.
+	 * Http content type table.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public enum ContentType {
 		
@@ -99,7 +105,10 @@ public class Http
 	}
 
 	/**
-	 * The Enum Request.
+	 * HTTP Request fields.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	@Field
 	public enum Request {
@@ -172,7 +181,10 @@ public class Http
 	}
 
 	/**
-	 * The Enum Response.
+	 * HTTP Response fields.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	@Field
 	public enum Response {
@@ -251,7 +263,11 @@ public class Http
 	}
 
 	/**
-	 * The Class Chunk.
+	 * A http chunk that has been encoded during transfer as "Transfer-Encoding:
+	 * chuncked".
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public static class Chunk
 	    extends
@@ -287,7 +303,8 @@ public class Http
 		return new Chunk[0];
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @param line
 	 * @see org.jnetpcap.packet.AbstractMessageHeader#decodeFirstLine(java.lang.String)
 	 */
 	@Override
@@ -387,9 +404,9 @@ public class Http
 	}
 
 	/**
-	 * Header.
+	 * Gets the raw header instead of reconstructing it.
 	 * 
-	 * @return the string
+	 * @return original raw header
 	 */
 	public String header() {
 		return super.rawHeader;

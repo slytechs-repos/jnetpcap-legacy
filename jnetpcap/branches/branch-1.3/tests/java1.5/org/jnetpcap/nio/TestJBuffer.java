@@ -30,7 +30,9 @@ import org.jnetpcap.packet.PeeringException;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class TestJBuffer.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
+ *
  */
 public class TestJBuffer
     extends TestCase {
@@ -50,10 +52,8 @@ public class TestJBuffer
 	}
 
 	/**
-	 * Test get byte array int byte array.
-	 * 
-	 * @throws PeeringException
-	 *           the peering exception
+	 * Test method for {@link org.jnetpcap.nio.JBuffer#getByteArray(int, byte[])}.
+	 * @throws PeeringException 
 	 */
 	public final void testGetByteArrayIntByteArray() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
@@ -80,10 +80,8 @@ public class TestJBuffer
 	}
 
 	/**
-	 * Test get byte array int int.
-	 * 
-	 * @throws PeeringException
-	 *           the peering exception
+	 * Test method for {@link org.jnetpcap.nio.JBuffer#getByteArray(int, int)}.
+	 * @throws PeeringException 
 	 */
 	public final void testGetByteArrayIntInt() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
@@ -110,10 +108,8 @@ public class TestJBuffer
 	}
 
 	/**
-	 * Test is readonly.
-	 * 
-	 * @throws PeeringException
-	 *           the peering exception
+	 * Test method for {@link org.jnetpcap.nio.JBuffer#isReadonly()}.
+	 * @throws PeeringException 
 	 */
 	public final void testIsReadonly() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
@@ -142,7 +138,7 @@ public class TestJBuffer
 	}
 
 	/**
-	 * Test order.
+	 * Test method for {@link org.jnetpcap.nio.JBuffer#order()}.
 	 */
 	public final void testOrder() {
 		JBuffer b = new JBuffer(Type.POINTER);
@@ -151,7 +147,7 @@ public class TestJBuffer
 	}
 
 	/**
-	 * Test order byte order.
+	 * Test method for {@link org.jnetpcap.nio.JBuffer#order(java.nio.ByteOrder)}.
 	 */
 	public final void testOrderByteOrder() {
 		JBuffer b = new JBuffer(Type.POINTER);
@@ -164,10 +160,8 @@ public class TestJBuffer
 	}
 
 	/**
-	 * Test set byte.
-	 * 
-	 * @throws PeeringException
-	 *           the peering exception
+	 * Test method for {@link org.jnetpcap.nio.JBuffer#setByte(int, byte)}.
+	 * @throws PeeringException 
 	 */
 	public final void testSetByte() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(4);
@@ -184,10 +178,8 @@ public class TestJBuffer
 	}
 
 	/**
-	 * Test set byte array.
-	 * 
-	 * @throws PeeringException
-	 *           the peering exception
+	 * Test method for {@link org.jnetpcap.nio.JBuffer#setByteArray(int, byte[])}.
+	 * @throws PeeringException 
 	 */
 	public final void testSetByteArray() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
@@ -216,10 +208,8 @@ public class TestJBuffer
 	}
 
 	/**
-	 * Test set double.
-	 * 
-	 * @throws PeeringException
-	 *           the peering exception
+	 * Test method for {@link org.jnetpcap.nio.JBuffer#setDouble(int, double)}.
+	 * @throws PeeringException 
 	 */
 	public final void testSetDouble() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
@@ -242,10 +232,8 @@ public class TestJBuffer
 	}
 
 	/**
-	 * Test set float.
-	 * 
-	 * @throws PeeringException
-	 *           the peering exception
+	 * Test method for {@link org.jnetpcap.nio.JBuffer#setFloat(int, float)}.
+	 * @throws PeeringException 
 	 */
 	public final void testSetFloat() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(4);
@@ -268,10 +256,8 @@ public class TestJBuffer
 	}
 
 	/**
-	 * Test set int.
-	 * 
-	 * @throws PeeringException
-	 *           the peering exception
+	 * Test method for {@link org.jnetpcap.nio.JBuffer#setInt(int, int)}.
+	 * @throws PeeringException 
 	 */
 	public final void testSetInt() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(4);
@@ -294,10 +280,8 @@ public class TestJBuffer
 	}
 
 	/**
-	 * Test set long.
-	 * 
-	 * @throws PeeringException
-	 *           the peering exception
+	 * Test method for {@link org.jnetpcap.nio.JBuffer#setLong(int, long)}.
+	 * @throws PeeringException 
 	 */
 	public final void testSetLong() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
@@ -320,10 +304,8 @@ public class TestJBuffer
 	}
 
 	/**
-	 * Test set short.
-	 * 
-	 * @throws PeeringException
-	 *           the peering exception
+	 * Test method for {@link org.jnetpcap.nio.JBuffer#setShort(int, short)}.
+	 * @throws PeeringException 
 	 */
 	public final void testSetShort() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
@@ -346,10 +328,8 @@ public class TestJBuffer
 	}
 
 	/**
-	 * Test set u byte.
-	 * 
-	 * @throws PeeringException
-	 *           the peering exception
+	 * Test method for {@link org.jnetpcap.nio.JBuffer#setUByte(int, int)}.
+	 * @throws PeeringException 
 	 */
 	public final void testSetUByte() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
@@ -372,10 +352,8 @@ public class TestJBuffer
 	}
 
 	/**
-	 * Test set u int.
-	 * 
-	 * @throws PeeringException
-	 *           the peering exception
+	 * Test method for {@link org.jnetpcap.nio.JBuffer#setUInt(int, long)}.
+	 * @throws PeeringException 
 	 */
 	public final void testSetUInt() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
@@ -398,10 +376,8 @@ public class TestJBuffer
 	}
 
 	/**
-	 * Test set u short.
-	 * 
-	 * @throws PeeringException
-	 *           the peering exception
+	 * Test method for {@link org.jnetpcap.nio.JBuffer#setUShort(int, int)}.
+	 * @throws PeeringException 
 	 */
 	public final void testSetUShort() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
@@ -424,7 +400,7 @@ public class TestJBuffer
 	}
 
 	/**
-	 * Test transfer to j buffer.
+	 * Test method for {@link org.jnetpcap.nio.JBuffer#transferTo(org.jnetpcap.nio.JBuffer)}.
 	 */
 	public final void testTransferToJBuffer() {
 		JBuffer src = new JBuffer(8);
@@ -448,7 +424,7 @@ public class TestJBuffer
 	}
 
 	/**
-	 * Test transfer to j buffer int int int.
+	 * Test method for {@link org.jnetpcap.nio.JBuffer#transferTo(org.jnetpcap.nio.JBuffer, int, int, int)}.
 	 */
 	public final void testTransferToJBufferIntIntInt() {
 		JBuffer src = new JBuffer(8);

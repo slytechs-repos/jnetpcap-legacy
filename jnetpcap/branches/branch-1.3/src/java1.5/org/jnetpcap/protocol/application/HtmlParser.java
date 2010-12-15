@@ -27,7 +27,10 @@ import org.jnetpcap.util.JThreadLocal;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class HtmlParser.
+ * Html header parser.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class HtmlParser {
 

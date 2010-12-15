@@ -41,33 +41,41 @@ import org.jnetpcap.protocol.network.Ip4;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class MyHeader.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @Header(name = "ip4", nicname = "ip")
 public class MyHeader
     extends JHeaderMap<MyHeader> {
 
   	/**
-		 * The Enum Ip4Type.
-		 */
+  	 * A table of IpTypes and their names
+  	 * 
+  	 * @author Mark Bednarczyk
+  	 * @author Sly Technologies, Inc.
+  	 */
   	public enum Ip4Type implements JHeaderType {
-  		
-		  /** The ICMP. */
+  		/**
+  		 * Internet control messaging protocol
+  		 */
   		ICMP("icmp", 1),
 
-  		/** The TCP. */
+  		/**
+  		 * Ttransmission control protocol
+  		 */
   		TCP("tcp", 6),
 
-  		/** The UDP. */
+  		/**
+  		 * Unreliable datagram protocol
+  		 */
   		UDP("udp", 17), ;
-  		
-		  /**
-			 * To string.
-			 * 
-			 * @param type
-			 *          the type
-			 * @return the string
-			 */
+  		/**
+  		 * Name of the constant
+  		 * 
+  		 * @param type
+  		 *          ip type number
+  		 * @return constants name
+  		 */
   		public static String toString(int type) {
   			for (Ip4Type t : values()) {
   				for (int i : t.typeValues) {
@@ -81,12 +89,12 @@ public class MyHeader
   		}
 
   		/**
-			 * Value of.
-			 * 
-			 * @param type
-			 *          the type
-			 * @return the ip4 type
-			 */
+  		 * Converts a numerical type to constant
+  		 * 
+  		 * @param type
+  		 *          Ip4 type number
+  		 * @return constant or null if not found
+  		 */
   		public static Ip4Type valueOf(int type) {
   			for (Ip4Type t : values()) {
   				for (int i : t.typeValues) {
@@ -131,31 +139,39 @@ public class MyHeader
   		}
 
   		/**
-			 * Gets the description.
-			 * 
-			 * @return the description
-			 */
+  		 * Description of the type value
+  		 * 
+  		 * @return description string
+  		 */
   		public final String getDescription() {
   			return this.description;
   		}
 
-  		/* (non-Javadoc)
-		   * @see org.jnetpcap.packet.JHeaderType#getTypeValues()
-		   */
+  		/**
+  		 * Converts contant to numerical ip type
+  		 * 
+  		 * @return Ip4 type number
+  		 */
   		public final int[] getTypeValues() {
   			return this.typeValues;
   		}
   	}
 
   	/**
-		 * The Class IpOption.
-		 */
+  	 * Baseclass for all Ip option headers
+  	 * 
+  	 * @author Mark Bednarczyk
+  	 * @author Sly Technologies, Inc.
+  	 */
   	public static abstract class IpOption
   	    extends JSubHeader<Ip4> {
 
   		/**
-			 * The Enum OptionCode.
-			 */
+  		 * A table of IpOption types and their names
+  		 * 
+  		 * @author Mark Bednarczyk
+  		 * @author Sly Technologies, Inc.
+  		 */
   		public enum OptionCode {
   			/* 0 */
   			/** The EN d_ o f_ optio n_ list. */
@@ -236,73 +252,205 @@ public class MyHeader
 
 
   		/**
-			 * Code.
-			 * 
-			 * @return the int
-			 */
+  		 * Gets the Ip4.code field. Specifies the optional header type.
+  		 * <h3>Header Spec</h3>
+  		 * <table border=1>
+  		 * <tr>
+  		 * <td> Protocol Header:</td>
+  		 * <td> Ip4</td>
+  		 * </tr>
+  		 * <tr>
+  		 * <td> Protocol Family:</td>
+  		 * <td> Networking</td>
+  		 * </tr>
+  		 * <tr>
+  		 * <td> OSI Layer:</td>
+  		 * <td> 3</td>
+  		 * </tr>
+  		 * <tr>
+  		 * <td> Field Property:</td>
+  		 * <td> constant offset</td>
+  		 * </tr>
+  		 * <tr>
+  		 * <td> Field Offset:</td>
+  		 * <td> getUByte(0) & 0x1F</td>
+  		 * </tr>
+  		 * </table>
+  		 * <h3>Header Diagram</h3>
+  		 * 
+  		 * <pre>
+  		 * +------+-----------------+
+  		 * | CODE | optional header |
+  		 * +------+-----------------+
+  		 * </pre>
+  		 * 
+  		 * @return code field value
+  		 */
   		@Field(offset = 0, length = 3, format = "%d")
   		public int code() {
   			return getUByte(0) & 0x1F;
   		}
 
   		/**
-			 * Code.
-			 * 
-			 * @param value
-			 *          the value
-			 */
+  		 * Sets the Ip4.code field. Specifies the optional header type.
+  		 * <h3>Header Spec</h3>
+  		 * <table border=1>
+  		 * <tr>
+  		 * <td> Protocol Header:</td>
+  		 * <td> Ip4</td>
+  		 * </tr>
+  		 * <tr>
+  		 * <td> Protocol Family:</td>
+  		 * <td> Networking</td>
+  		 * </tr>
+  		 * <tr>
+  		 * <td> OSI Layer:</td>
+  		 * <td> 3</td>
+  		 * </tr>
+  		 * <tr>
+  		 * <td> Field Property:</td>
+  		 * <td> constant offset</td>
+  		 * </tr>
+  		 * <tr>
+  		 * <td> Field Offset:</td>
+  		 * <td> getUByte(0) & 0x1F</td>
+  		 * </tr>
+  		 * </table>
+  		 * <h3>Header Diagram</h3>
+  		 * 
+  		 * <pre>
+  		 * +------+-----------------+
+  		 * | CODE | optional header |
+  		 * +------+-----------------+
+  		 * </pre>
+  		 * 
+  		 * @param value
+  		 *          new code value
+  		 */
   		@FieldSetter
   		public void code(int value) {
   			setUByte(0, code() & 0xE0 | value & 0x1F);
   		}
 
   		/**
-			 * Code enum.
-			 * 
-			 * @return the option code
-			 */
+  		 * Gets the Ip4.code field. Specifies the optional header type.
+  		 * <h3>Header Spec</h3>
+  		 * <table border=1>
+  		 * <tr>
+  		 * <td> Protocol Header:</td>
+  		 * <td> Ip4</td>
+  		 * </tr>
+  		 * <tr>
+  		 * <td> Protocol Family:</td>
+  		 * <td> Networking</td>
+  		 * </tr>
+  		 * <tr>
+  		 * <td> OSI Layer:</td>
+  		 * <td> 3</td>
+  		 * </tr>
+  		 * <tr>
+  		 * <td> Field Property:</td>
+  		 * <td> constant offset</td>
+  		 * </tr>
+  		 * <tr>
+  		 * <td> Field Offset:</td>
+  		 * <td> getUByte(0) & 0x1F</td>
+  		 * </tr>
+  		 * </table>
+  		 * <h3>Header Diagram</h3>
+  		 * 
+  		 * <pre>
+  		 * +------+-----------------+
+  		 * | CODE | optional header |
+  		 * +------+-----------------+
+  		 * </pre>
+  		 * 
+  		 * @return code field value
+  		 */
   		public OptionCode codeEnum() {
   			return OptionCode.values()[getUByte(0) & 0x1F];
   		}
 
   		/**
-			 * Option code.
-			 * 
-			 * @param value
-			 *          the value
-			 */
+  		 * Sets the Ip4.code field. Specifies the optional header type.
+  		 * <h3>Header Spec</h3>
+  		 * <table border=1>
+  		 * <tr>
+  		 * <td> Protocol Header:</td>
+  		 * <td> Ip4</td>
+  		 * </tr>
+  		 * <tr>
+  		 * <td> Protocol Family:</td>
+  		 * <td> Networking</td>
+  		 * </tr>
+  		 * <tr>
+  		 * <td> OSI Layer:</td>
+  		 * <td> 3</td>
+  		 * </tr>
+  		 * <tr>
+  		 * <td> Field Property:</td>
+  		 * <td> constant offset</td>
+  		 * </tr>
+  		 * <tr>
+  		 * <td> Field Offset:</td>
+  		 * <td> getUByte(0) & 0x1F</td>
+  		 * </tr>
+  		 * </table>
+  		 * <h3>Header Diagram</h3>
+  		 * 
+  		 * <pre>
+  		 * +------+-----------------+
+  		 * | CODE | optional header |
+  		 * +------+-----------------+
+  		 * </pre>
+  		 * 
+  		 * @param value
+  		 *          new code value
+  		 */
   		public void optionCode(OptionCode value) {
   			code(value.ordinal());
   		}
   	}
 
   	/**
-		 * The Class LooseSourceRoute.
-		 */
+  	 * Ip4 optional Loose Source Route header
+  	 * 
+  	 * @author Mark Bednarczyk
+  	 * @author Sly Technologies, Inc.
+  	 */
   	@Header(id=3)
   	public static class LooseSourceRoute
   	    extends Routing {
   	}
 
   	/**
-		 * The Class NoOp.
-		 */
+  	 * Ip4 optional No Operation header. Takes up exactly 1 byte of memory.
+  	 * 
+  	 * @author Mark Bednarczyk
+  	 * @author Sly Technologies, Inc.
+  	 */
   	@Header(id=1)
   	public static class NoOp
   	    extends IpOption {
   	}
 
   	/**
-		 * The Class RecordRoute.
-		 */
+  	 * Ip4 optional Record Route header
+  	 * 
+  	 * @author Mark Bednarczyk
+  	 * @author Sly Technologies, Inc.
+  	 */
   	@Header(id=7)
   	public static class RecordRoute
   	    extends Routing {
   	}
 
   	/**
-		 * The Class Routing.
-		 */
+  	 * Ip4 optional Routing header
+  	 * 
+  	 * @author Mark Bednarczyk
+  	 * @author Sly Technologies, Inc.
+  	 */
   	public static abstract class Routing
   	    extends IpOption {
 
@@ -432,15 +580,21 @@ public class MyHeader
   	}
 
   	/**
-		 * The Class Security.
-		 */
+  	 * Ip4 optional Security header.
+  	 * 
+  	 * @author Mark Bednarczyk
+  	 * @author Sly Technologies, Inc.
+  	 */
   	@Header(id=2)
   	public static class Security
   	    extends IpOption {
 
   		/**
-			 * The Enum SecurityType.
-			 */
+  		 * A table of security algorithm types
+  		 * 
+  		 * @author Mark Bednarczyk
+  		 * @author Sly Technologies, Inc.
+  		 */
   		public enum SecurityType {
   			
 			  /** The CONFIDENTIAL. */
@@ -624,8 +778,11 @@ public class MyHeader
   	}
 
   	/**
-		 * The Class StreamId.
-		 */
+  	 * Ip4 optional Stream ID header
+  	 * 
+  	 * @author Mark Bednarczyk
+  	 * @author Sly Technologies, Inc.
+  	 */
   	@Header(id=8)
   	public static class StreamId
   	    extends IpOption {
@@ -674,16 +831,22 @@ public class MyHeader
   	}
 
   	/**
-		 * The Class StrictSourceRoute.
-		 */
+  	 * Ip4 optional Strict Source Route header
+  	 * 
+  	 * @author Mark Bednarczyk
+  	 * @author Sly Technologies, Inc.
+  	 */
   	@Header(id=9)
   	public static class StrictSourceRoute
   	    extends Routing {
   	};
 
   	/**
-		 * The Class Timestamp.
-		 */
+  	 * Ip4 optional Timestamp header
+  	 * 
+  	 * @author Mark Bednarczyk
+  	 * @author Sly Technologies, Inc.
+  	 */
   	@Header(id=4)
   	public static class Timestamp
   	    extends IpOption {
@@ -703,8 +866,11 @@ public class MyHeader
   		}
 
   		/**
-			 * The Class Entry.
-			 */
+  		 * Ip4 optional Timestamp header - a timestamp entry
+  		 * 
+  		 * @author Mark Bednarczyk
+  		 * @author Sly Technologies, Inc.
+  		 */
   		public static class Entry {
   			
 			  /** The address. */
@@ -715,8 +881,11 @@ public class MyHeader
   		}
 
   		/**
-			 * The Enum Flag.
-			 */
+  		 * A table of Ip4 Timestamp header flags
+  		 * 
+  		 * @author Mark Bednarczyk
+  		 * @author Sly Technologies, Inc.
+  		 */
   		public enum Flag {
   			
 			  /** The TIMESTAM p_ wit h_ ip. */

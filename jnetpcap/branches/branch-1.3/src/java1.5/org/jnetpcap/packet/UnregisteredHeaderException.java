@@ -20,7 +20,10 @@ package org.jnetpcap.packet;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class UnregisteredHeaderException.
+ * Thrown when a lookup on a header in JRegistry fails.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class UnregisteredHeaderException
     extends RegistryRuntimeException {

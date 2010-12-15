@@ -1,5 +1,5 @@
 /*
- * Copyrig ht (C) 2005, 2006, 2007, 2008, 2009, 2010 Sly Technologies, Inc.
+ * Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010 Sly Technologies, Inc.
  *
  * This file is part of jNetPcap.
  *
@@ -20,21 +20,25 @@ package org.jnetpcap;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Interface DataLinkType.
+ * Describes a data-link type or the first header within a packet buffer.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public interface DataLinkType {
 
 	/**
-	 * Gets the value.
+	 * The integer value for this type of data-link.
 	 * 
-	 * @return the value
+	 * @return ID of the dlt
 	 */
 	public int getValue();
 
 	/**
-	 * Gets the description.
+	 * Retrieves a description of the data-link type if avaiable.
 	 * 
-	 * @return the description
+	 * @return description of the datalink type or null if description is not
+	 *         avaialable.
 	 */
 	public String getDescription();
 }

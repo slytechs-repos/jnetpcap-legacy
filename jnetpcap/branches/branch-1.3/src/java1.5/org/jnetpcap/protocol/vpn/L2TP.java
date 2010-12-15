@@ -28,7 +28,10 @@ import org.jnetpcap.protocol.JProtocol;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class L2TP.
+ * Layer 2 Tunneling Protocol header definition.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @Header
 public class L2TP
@@ -98,7 +101,8 @@ public class L2TP
 	/** The off sequence. */
 	private int offSequence;
 
-	/* (non-Javadoc)
+	/** 
+	 * 
 	 * @see org.jnetpcap.packet.JHeader#decodeHeader()
 	 */
 	public void decodeHeader() {

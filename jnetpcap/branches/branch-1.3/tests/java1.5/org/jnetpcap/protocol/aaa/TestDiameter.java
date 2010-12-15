@@ -28,7 +28,8 @@ import org.jnetpcap.protocol.lan.Ethernet;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class TestDiameter.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class TestDiameter
     extends TestCase {

@@ -43,7 +43,20 @@ import org.jnetpcap.util.checksum.Checksum;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class Ip4.
+ * IP version 4. Network layer internet protocol version 4. This is the main
+ * header file for Internet Protocol version 4. The header file defines various
+ * accessor methods for reading directly out of the Ip4 data structure found
+ * within the packet data buffer. The header is peered with the packet at
+ * appropriate offset into the buffer and data can be accessed via friendly
+ * accessor methods defined by this header, or by using JBuffer accessors. The
+ * header also performs decoding of the header, sepecifically decoding and
+ * attaching optional sub-headers to this header.
+ * <p>
+ * Ip4 header is the backbone of the internet.
+ * </p>
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @Protocol(suite = Suite.NETWORK)
 @Header(name = "Ip4", nicname = "Ip", osi = Layer.NETWORK, suite = ProtocolSuite.NETWORK, spec = "RFC792", description = "ip version 4")
@@ -52,7 +65,10 @@ public class Ip4
     JHeaderMap<Ip4> implements JHeaderChecksum {
 
 	/**
-	 * The Enum Flag.
+	 * Enum table for Ip4.flags field.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public enum Flag {
 		
@@ -64,220 +80,225 @@ public class Ip4
 	}
 
 	/**
-	 * The Enum Ip4Type.
+	 * A table of IpTypes and their names.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public enum Ip4Type implements JHeaderType {
 
-		/** The HOPORT. */
+		/** IPv6 Hop-by-Hop Option [RFC1883]. */
 		HOPORT("IPv6 Hop-by-Hop Option", 0),
 
-		/** The ICMP. */
+		/** Internet Control Message [RFC792]. */
 		ICMP("Internet Control Message", 1),
 
-		/** The IGMP. */
+		/** Internet Group Management [RFC1112]. */
 		IGMP("Internet Group Management", 2),
 
-		/** The GGP. */
+		/** Gateway-to-Gateway [RFC823]. */
 		GGP("Gateway-to-Gateway", 3),
 
-		/** The IP. */
+		/** Unreliable datagram protocol. */
 		IP("IP in IP (encapsulation)", 4),
 
-		/** The ST. */
+		/** Stream [RFC1190][RFC1819]. */
 		ST("Stream", 5),
 
-		/** The TCP. */
+		/** Transmission Control [RFC793]. */
 		TCP("Transmission Control", 6),
 
-		/** The CBT. */
+		/** CBT [Ballardie]. */
 		CBT("CBT", 7),
 
-		/** The EGP. */
+		/** Exterior Gateway Protocol [RFC888][DLM1]. */
 		EGP("Exterior Gateway Protocol", 8),
 
-		/** The IGP. */
+		/** any private interior gateway [IANA] (used by Cisco for their IGRP). */
 		IGP("any private interior gateway", 9),
 
-		/** The BB n_ rc c_ mon. */
+		/** BBN RCC Monitoring [SGC]. */
 		BBN_RCC_MON("BBN RCC Monitoring", 10),
 
-		/** The NV p_ ii. */
+		/** PUP [PUP][XEROX]. */
 		NVP_II("Network Voice Protocol", 11),
 
-		/** The PUP. */
+		/** CBT [Ballardie]. */
 		PUP("PUP", 12),
 
-		/** The ARGUS. */
+		/** ARGUS [RWS4]. */
 		ARGUS("ARGUS", 13),
 
-		/** The EMCON. */
+		/** EMCON [BN7]. */
 		EMCON("EMCON", 14),
 
-		/** The XNET. */
+		/** Cross Net Debugger [IEN158][JFH2]. */
 		XNET("Cross Net Debugger", 15),
 
-		/** The CHAOS. */
+		/** Chaos [NC3]. */
 		CHAOS("Chaos", 16),
 
-		/** The UDP. */
+		/** User Datagram [RFC768][JBP]. */
 		UDP("User Datagram", 17),
 
-		/** The MUX. */
+		/** Multiplexing [IEN90][JBP]. */
 		MUX("Multiplexing", 18),
 
-		/** The DC n_ meas. */
+		/** DCN Measurement Subsystems [DLM1]. */
 		DCN_MEAS("DCN Measurement Subsystems", 19),
 
-		/** The HMP. */
+		/** Host Monitoring [RFC869][RH6]. */
 		HMP("Host Monitoring", 20),
 
-		/** The PRM. */
+		/** Packet Radio Measurement [ZSU]. */
 		PRM("Packet Radio Measurement", 21),
 
-		/** The XN s_ idp. */
+		/** XEROX NS IDP [ETHERNET][XEROX]. */
 		XNS_IDP("XEROX NS IDP", 22),
 
-		/** The TRUN k_1. */
+		/** Trunk-1 [BWB6]. */
 		TRUNK_1("Trunk-1", 23),
 
-		/** The TRUN k_2. */
+		/** Trunk-2 [BWB6]. */
 		TRUNK_2("Trunk-2", 24),
 
-		/** The LEA f_1. */
+		/** Leaf-1 [BWB6]. */
 		LEAF_1("Leaf-1", 25),
 
-		/** The LEA f_2. */
+		/** Leaf-2 [BWB6]. */
 		LEAF_2("Leaf-2", 26),
 
-		/** The RDP. */
+		/** Reliable Data Protocol [RFC908][RH6]. */
 		RDP("Reliable Data Protocol", 27),
 
-		/** The IRTP. */
+		/** Internet Reliable Transaction [RFC938][TXM]. */
 		IRTP("Internet Reliable Transaction", 28),
 
-		/** The IS o_ t p4. */
+		/** ISO Transport Protocol Class 4 [RFC905][RC77]. */
 		ISO_TP4("ISO Transport Protocol Class 4", 29),
 
-		/** The NETBLT. */
+		/** Bulk Data Transfer Protocol [RFC969][DDC1]. */
 		NETBLT("Bulk Data Transfer Protocol", 30),
 
-		/** The MF e_ nsp. */
+		/** MFE Network Services Protocol [MFENET][BCH2]. */
 		MFE_NSP("MFE Network Services Protocol", 31),
 
-		/** The MERI t_ inp. */
+		/** MERIT Internodal Protocol [HWB]. */
 		MERIT_INP("MERIT Internodal Protocol", 32),
 
-		/** The DCCP. */
+		/** Datagram Congestion Control Protocol [RFC4340]. */
 		DCCP("Datagram Congestion Control Protocol", 33),
 
-		/** The THIR d_ pc. */
+		/** Third Party Connect Protocol [SAF3]. */
 		THIRD_PC("Third Party Connect Protocol", 34),
 
-		/** The IDPR. */
+		/** Inter-Domain Policy Routing Protocol [MXS1]. */
 		IDPR("Inter-Domain Policy Routing Protocol", 35),
 
-		/** The XTP. */
+		/** XTP [GXC]. */
 		XTP("XTP", 36),
 
-		/** The DDP. */
+		/** Datagram Delivery Protocol [WXC]. */
 		DDP("Datagram Delivery Protocol", 37),
 
-		/** The IDP r_ cmtp. */
+		/** IDPR Control Message Transport Proto [MXS1]. */
 		IDPR_CMTP("IDPR Control Message Transport Proto", 38),
 
-		/** The T p_ plus. */
+		/** TP++ Transport Protocol [DXF]. */
 		TP_PLUS("TP++ Transport Protocol", 39),
 
-		/** The IL. */
+		/** IL Transport Protocol [Presotto]. */
 		IL("IL Transport Protocol", 40),
 
-		/** The I pv6. */
+		/** Ipv6 [Deering]. */
 		IPv6("Ipv6", 41),
 
-		/** The SDRP. */
+		/** Source Demand Routing Protocol [DXE1]. */
 		SDRP("Source Demand Routing Protocol", 42),
 
-		/** The I pv6_ route. */
+		/** Routing Header for IPv6 [Deering]. */
 		IPv6_ROUTE("Ipv6", 43),
 
-		/** The I pv6_ frag. */
+		/** Fragment Header for IPv6 [Deering]. */
 		IPv6_FRAG("Fragment Header for IPv6", 44),
 
-		/** The IDRP. */
+		/** Inter-Domain Routing Protocol [Hares]. */
 		IDRP("Inter-Domain Routing Protocol", 45),
 
-		/** The RSVP. */
+		/** Reservation Protocol [Braden]. */
 		RSVP("Reservation Protocol", 46),
 
-		/** The GRE. */
+		/** General Routing Encapsulation [Li]. */
 		GRE("General Routing Encapsulation", 47),
 
-		/** The DSR. */
+		/** Dynamic Source Routing Protocol [RFC4728]. */
 		DSR("Dynamic Source Routing Protocol", 48),
 
-		/** The BNA. */
+		/** BNA [Salamon]. */
 		BNA("BNA", 49),
 
-		/** The ESP. */
+		/** Encap Security Payload [RFC4303]. */
 		ESP("Encap Security Payload", 50),
 
-		/** The AH. */
+		/** Authentication Header [RFC4302]. */
 		AH("Authentication Header", 51),
 
-		/** The I_ nlsp. */
+		/** Integrated Net Layer Security TUBA [GLENN]. */
 		I_NLSP("Integrated Net Layer Security  TUBA", 52),
 
-		/** The SWIPE. */
+		/** IP with Encryption [JI6]. */
 		SWIPE("IP with Encryption", 53),
 
-		/** The NARP. */
+		/** NBMA Address Resolution Protocol [RFC1735]. */
 		NARP("NBMA Address Resolution Protocol", 54),
 
-		/** The MOBILE. */
+		/** IP Mobility [Perkins]. */
 		MOBILE("IP Mobility", 55),
 
-		/** The TLSP. */
+		/**
+		 * Transport Layer Security Protocol [Oberg] using Kryptonet key management.
+		 */
 		TLSP("Transport Layer Security Protocol", 56),
 
-		/** The SKIP. */
+		/** SKIP [Markson]. */
 		SKIP("SKIP", 57),
 
-		/** The I pv6_ icmp. */
+		/** ICMP for IPv6 [RFC1883]. */
 		IPv6_ICMP("ICMP for IPv6", 58),
 
-		/** The I pv6_ no nxt. */
+		/** No Next Header for IPv6 [RFC1883]. */
 		IPv6_NoNxt("No Next Header for IPv6", 59),
 
-		/** The I pv6_ opts. */
+		/** Destination Options for IPv6 [RFC1883]. */
 		IPv6_Opts("Destination Options for IPv6", 60),
 
-		/** The AN y_ loc. */
+		/** any host internal protocol [IANA]. */
 		ANY_LOC("any host internal protocol", 61),
 
-		/** The IPIP. */
+		/** IP-within-IP Encapsulation Protocol [JI6]. */
 		IPIP("IP-within-IP Encapsulation Protocol", 94),
 
-		/** The PIM. */
+		/** Protocol Independent Multicast [Farinacci]. */
 		PIM("Protocol Independent Multicast", 103),
 
-		/** The IP x_ in_ ip. */
+		/** IPX in IP [Lee]. */
 		IPX_In_IP("IPX in IP", 111),
 
-		/** The STP. */
+		/** Schedule Transfer Protocol [JMP]. */
 		STP("Schedule Transfer Protocol", 118),
 
-		/** The FC. */
+		/** Fibre Channel [Rajagopal]. */
 		FC("Fibre Channel", 133),
 
-		/** The MPL s_in_ ip. */
+		/** MPLS-in-IP [RFC4023]. */
 		MPLS_in_IP("MPLS-in-IP", 137), ;
 		
 		/**
-		 * To string.
+		 * Name of the constant.
 		 * 
 		 * @param type
-		 *          the type
-		 * @return the string
+		 *          ip type number
+		 * @return constants name
 		 */
 		public static String toString(int type) {
 			for (Ip4Type t : values()) {
@@ -292,11 +313,11 @@ public class Ip4
 		}
 
 		/**
-		 * Value of.
+		 * Converts a numerical type to constant.
 		 * 
 		 * @param type
-		 *          the type
-		 * @return the ip4 type
+		 *          Ip4 type number
+		 * @return constant or null if not found
 		 */
 		public static Ip4Type valueOf(int type) {
 			for (Ip4Type t : values()) {
@@ -342,16 +363,18 @@ public class Ip4
 		}
 
 		/**
-		 * Gets the description.
+		 * Description of the type value.
 		 * 
-		 * @return the description
+		 * @return description string
 		 */
 		public final String getDescription() {
 			return this.description;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.jnetpcap.packet.JHeaderType#getTypeValues()
+		/**
+		 * Converts contant to numerical ip type.
+		 * 
+		 * @return Ip4 type number
 		 */
 		public final int[] getTypeValues() {
 			return this.typeValues;
@@ -359,14 +382,20 @@ public class Ip4
 	}
 
 	/**
-	 * The Class IpOption.
+	 * Baseclass for all Ip option headers.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public static abstract class IpOption
 	    extends
 	    JSubHeader<Ip4> {
 
 		/**
-		 * The Enum OptionCode.
+		 * A table of IpOption types and their names.
+		 * 
+		 * @author Mark Bednarczyk
+		 * @author Sly Technologies, Inc.
 		 */
 		public enum OptionCode {
 			/* 0 */
@@ -540,9 +569,39 @@ public class Ip4
 		}
 
 		/**
-		 * Code.
+		 * Gets the Ip4.code field. Specifies the optional header type.
+		 * <h3>Header Spec</h3>
+		 * <table border=1>
+		 * <tr>
+		 * <td> Protocol Header:</td>
+		 * <td> Ip4</td>
+		 * </tr>
+		 * <tr>
+		 * <td> Protocol Family:</td>
+		 * <td> Networking</td>
+		 * </tr>
+		 * <tr>
+		 * <td> OSI Layer:</td>
+		 * <td> 3</td>
+		 * </tr>
+		 * <tr>
+		 * <td> Field Property:</td>
+		 * <td> constant offset</td>
+		 * </tr>
+		 * <tr>
+		 * <td> Field Offset:</td>
+		 * <td> getUByte(0) & 0x1F</td>
+		 * </tr>
+		 * </table>
+		 * <h3>Header Diagram</h3>
 		 * 
-		 * @return the int
+		 * <pre>
+		 * +------+-----------------+
+		 * | CODE | optional header |
+		 * +------+-----------------+
+		 * </pre>
+		 * 
+		 * @return code field value
 		 */
 		@Field(offset = 0, length = 8, format = "%d")
 		public int code() {
@@ -550,10 +609,40 @@ public class Ip4
 		}
 
 		/**
-		 * Code.
+		 * Sets the Ip4.code field. Specifies the optional header type.
+		 * <h3>Header Spec</h3>
+		 * <table border=1>
+		 * <tr>
+		 * <td> Protocol Header:</td>
+		 * <td> Ip4</td>
+		 * </tr>
+		 * <tr>
+		 * <td> Protocol Family:</td>
+		 * <td> Networking</td>
+		 * </tr>
+		 * <tr>
+		 * <td> OSI Layer:</td>
+		 * <td> 3</td>
+		 * </tr>
+		 * <tr>
+		 * <td> Field Property:</td>
+		 * <td> constant offset</td>
+		 * </tr>
+		 * <tr>
+		 * <td> Field Offset:</td>
+		 * <td> getUByte(0) & 0x1F</td>
+		 * </tr>
+		 * </table>
+		 * <h3>Header Diagram</h3>
+		 * 
+		 * <pre>
+		 * +------+-----------------+
+		 * | CODE | optional header |
+		 * +------+-----------------+
+		 * </pre>
 		 * 
 		 * @param value
-		 *          the value
+		 *          new code value
 		 */
 		@FieldSetter
 		public void code(int value) {
@@ -631,19 +720,79 @@ public class Ip4
 		}
 
 		/**
-		 * Code enum.
+		 * Gets the Ip4.code field. Specifies the optional header type.
+		 * <h3>Header Spec</h3>
+		 * <table border=1>
+		 * <tr>
+		 * <td> Protocol Header:</td>
+		 * <td> Ip4</td>
+		 * </tr>
+		 * <tr>
+		 * <td> Protocol Family:</td>
+		 * <td> Networking</td>
+		 * </tr>
+		 * <tr>
+		 * <td> OSI Layer:</td>
+		 * <td> 3</td>
+		 * </tr>
+		 * <tr>
+		 * <td> Field Property:</td>
+		 * <td> constant offset</td>
+		 * </tr>
+		 * <tr>
+		 * <td> Field Offset:</td>
+		 * <td> getUByte(0) & 0x1F</td>
+		 * </tr>
+		 * </table>
+		 * <h3>Header Diagram</h3>
 		 * 
-		 * @return the option code
+		 * <pre>
+		 * +------+-----------------+
+		 * | CODE | optional header |
+		 * +------+-----------------+
+		 * </pre>
+		 * 
+		 * @return code field value
 		 */
 		public OptionCode codeEnum() {
 			return OptionCode.values()[getUByte(0) & 0x1F];
 		}
 
 		/**
-		 * Option code.
+		 * Sets the Ip4.code field. Specifies the optional header type.
+		 * <h3>Header Spec</h3>
+		 * <table border=1>
+		 * <tr>
+		 * <td> Protocol Header:</td>
+		 * <td> Ip4</td>
+		 * </tr>
+		 * <tr>
+		 * <td> Protocol Family:</td>
+		 * <td> Networking</td>
+		 * </tr>
+		 * <tr>
+		 * <td> OSI Layer:</td>
+		 * <td> 3</td>
+		 * </tr>
+		 * <tr>
+		 * <td> Field Property:</td>
+		 * <td> constant offset</td>
+		 * </tr>
+		 * <tr>
+		 * <td> Field Offset:</td>
+		 * <td> getUByte(0) & 0x1F</td>
+		 * </tr>
+		 * </table>
+		 * <h3>Header Diagram</h3>
+		 * 
+		 * <pre>
+		 * +------+-----------------+
+		 * | CODE | optional header |
+		 * +------+-----------------+
+		 * </pre>
 		 * 
 		 * @param value
-		 *          the value
+		 *          new code value
 		 */
 		public void optionCode(OptionCode value) {
 			code(value.ordinal());
@@ -651,7 +800,10 @@ public class Ip4
 	}
 
 	/**
-	 * The Class LooseSourceRoute.
+	 * Ip4 optional Loose Source Route header.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	@Header(id = 3)
 	public static class LooseSourceRoute
@@ -660,7 +812,10 @@ public class Ip4
 	}
 
 	/**
-	 * The Class NoOp.
+	 * Ip4 optional No Operation header. Takes up exactly 1 byte of memory.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	@Header(id = 1)
 	public static class NoOp
@@ -669,7 +824,10 @@ public class Ip4
 	}
 
 	/**
-	 * The Class RecordRoute.
+	 * Ip4 optional Record Route header.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	@Header(id = 7)
 	public static class RecordRoute
@@ -678,7 +836,10 @@ public class Ip4
 	}
 
 	/**
-	 * The Class Routing.
+	 * Ip4 optional Routing header.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public static abstract class Routing
 	    extends
@@ -810,7 +971,10 @@ public class Ip4
 	}
 
 	/**
-	 * The Class Security.
+	 * Ip4 optional Security header.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	@Header(id = 2)
 	public static class Security
@@ -818,7 +982,10 @@ public class Ip4
 	    IpOption {
 
 		/**
-		 * The Enum SecurityType.
+		 * A table of security algorithm types.
+		 * 
+		 * @author Mark Bednarczyk
+		 * @author Sly Technologies, Inc.
 		 */
 		public enum SecurityType {
 			
@@ -1003,7 +1170,10 @@ public class Ip4
 	}
 
 	/**
-	 * The Class StreamId.
+	 * Ip4 optional Stream ID header.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	@Header(id = 8)
 	public static class StreamId
@@ -1054,7 +1224,10 @@ public class Ip4
 	}
 
 	/**
-	 * The Class StrictSourceRoute.
+	 * Ip4 optional Strict Source Route header.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	@Header(id = 9)
 	public static class StrictSourceRoute
@@ -1063,7 +1236,10 @@ public class Ip4
 	};
 
 	/**
-	 * The Class Timestamp.
+	 * Ip4 optional Timestamp header.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	@Header(id = 4)
 	public static class Timestamp
@@ -1085,7 +1261,10 @@ public class Ip4
 		}
 
 		/**
-		 * The Class Entry.
+		 * Ip4 optional Timestamp header - a timestamp entry.
+		 * 
+		 * @author Mark Bednarczyk
+		 * @author Sly Technologies, Inc.
 		 */
 		public static class Entry {
 			
@@ -1097,7 +1276,10 @@ public class Ip4
 		}
 
 		/**
-		 * The Enum Flag.
+		 * A table of Ip4 Timestamp header flags.
+		 * 
+		 * @author Mark Bednarczyk
+		 * @author Sly Technologies, Inc.
 		 */
 		public enum Flag {
 			
@@ -1834,8 +2016,10 @@ public class Ip4
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.packet.JHeaderChecksum#checksum()
+	/**
+	 * Retrieves the header's checksum.
+	 * 
+	 * @return header's stored checksum
 	 */
 	@Field(offset = 10 * BYTE, length = 16, format = "%x")
 	public int checksum() {
@@ -1882,6 +2066,10 @@ public class Ip4
 	 * (non-Javadoc)
 	 * 
 	 * @see org.jnetpcap.packet.JHeaderMap#decodeUniqueSubHeaders()
+	 */
+	/** 
+	 * 
+	 * @see org.jnetpcap.packet.JHeader#decodeHeader()
 	 */
 	@Override
 	protected void decodeHeader() {
@@ -1961,18 +2149,25 @@ public class Ip4
 	}
 
 	/**
-	 * Destination to int.
+	 * Converts the 32 bit Ip4 destination address to a java signed 32 bit
+	 * integer. The value returned should be treated as an unsigned integer, which
+	 * java can not represent as an int. If neccessary to printout the value
+	 * returned, in order to correctly represent the unsinged value, the integer
+	 * returned should be converted to a java long type and sign appropriately
+	 * handled to take advantage of the extra length of a java long type.
 	 * 
-	 * @return the int
+	 * @return unsinged 32 bit integer representing the Ip4 destination address
 	 */
 	public int destinationToInt() {
 		return getInt(16);
 	}
 
 	/**
-	 * Flags.
+	 * Retrives the flags header field as an unsigned integer, length of 3 bits,
+	 * that has each Ip4 flag encoded as a bit field. The first flag is encoded in
+	 * bit number 0 of the returned usigned integer.
 	 * 
-	 * @return the int
+	 * @return 3 bits of the flag field as unsigned integer
 	 */
 	@Field(offset = 6 * BYTE, length = 3, format = "%x")
 	public int flags() {
@@ -1980,7 +2175,9 @@ public class Ip4
 	}
 
 	/**
-	 * Flags enum.
+	 * Retrieves the flags field as a collection's set of enum constants that
+	 * represent each flag. The flags returned are an EnumSet which efficiently
+	 * encodes the enum constants as an internal bitfield.
 	 * 
 	 * @return the sets the
 	 */
@@ -1998,10 +2195,11 @@ public class Ip4
 	}
 
 	/**
-	 * Flags.
+	 * A setter method that changes the flag bits directly in the peered Ip4
+	 * header structure within the packet data buffer.
 	 * 
 	 * @param flags
-	 *          the flags
+	 *          new flags to set
 	 */
 	@FieldSetter
 	public void flags(int flags) {
@@ -2061,7 +2259,8 @@ public class Ip4
 		return (flags_MF() > 0) ? "set" : "not set";
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @return
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -2127,9 +2326,11 @@ public class Ip4
 	}
 
 	/**
-	 * Checks if is fragment.
+	 * Checks if this is ip fragment of a larger PDU. The method checks offset and
+	 * flags.MF fields to see if there are other fragments, marked by flags and
+	 * offset, for a larger PDU.
 	 * 
-	 * @return true, if is fragment
+	 * @return true if this is a fragment, otherwise false
 	 */
 	public boolean isFragment() {
 		return offset() != 0 || flags_MF() > 0;
@@ -2192,9 +2393,14 @@ public class Ip4
 	}
 
 	/**
-	 * Source.
+	 * Converts the 32 bit Ip4 source address to a java signed 32 bit integer. The
+	 * value returned should be treated as an unsigned integer, which java can not
+	 * represent as an int. If neccessary to printout the value returned, in order
+	 * to correctly represent the unsinged value, the integer returned should be
+	 * converted to a java long type and sign appropriately handled to take
+	 * advantage of the extra length of a java long type.
 	 * 
-	 * @return the byte[]
+	 * @return unsinged 32 bit integer representing the Ip4 source address
 	 */
 	@Field(offset = 12 * BYTE, length = 32, format = "#ip4#")
 	@FlowKey(index = 0)
@@ -2412,16 +2618,23 @@ public class Ip4
 		setUByte(0, hlen() | value << 4);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.packet.JHeaderChecksum#calculateChecksum()
+	/**
+	 * Calculates a checksum using protocol specification for a header. Checksums
+	 * for partial headers or fragmented packets (unless the protocol alows it)
+	 * are not calculated.
+	 * 
+	 * @return header's calculated checksum
 	 */
 	public int calculateChecksum() {
 		return Checksum.inChecksumShouldBe(this.checksum(), Checksum.inChecksum(
 		    this, 0, this.size()));
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.packet.JHeaderChecksum#isChecksumValid()
+	/**
+	 * Checks if the checksum is valid, even for fragmented packets.
+	 * 
+	 * @return true if checksum checks out, otherwise if the computed checksum
+	 *         does not match the stored checksum false is returned
 	 */
 	public boolean isChecksumValid() {
 

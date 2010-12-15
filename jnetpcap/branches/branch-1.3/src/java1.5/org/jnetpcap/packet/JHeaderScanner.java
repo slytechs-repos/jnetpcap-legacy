@@ -31,7 +31,36 @@ import org.jnetpcap.protocol.JProtocol;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class JHeaderScanner.
+ * A header scanner, there is one per header, that is able to scan raw memory
+ * buffer and determine the length of the header and the next header ID after
+ * examining the current header's structure. The header scanner is bound to the
+ * native direct scanner provided by the jNetPcap native implementation. The
+ * header scanner can be overriden with a java implementation by simply
+ * subclassing it and overriding the <code>getHeaderLength</code> and
+ * <code>getNextHeader</code> methods. If either of the 2 types of methods are
+ * overriden, then the user should also overriden the {@link #isDirect()} method
+ * and return false to indicate that this is not a native direct scanner.
+ * <p>
+ * The header scanner is natively peered directly with the appropriate function
+ * that performs the scan and determines the next protocol in chain of headers
+ * found in the data buffer. Another words this class is peered using a function
+ * pointer and dispatched appropriately when invoked to scan for length or next
+ * header id.
+ * </p>
+ * <p>
+ * Here is a typedef definition and the function pointer signature.
+ * 
+ * <pre>
+ * typedef void (*native_protocol_func_t)(scan_t *scan);
+ * </pre>
+ * 
+ * <b>Note</b> that scan_t structure is implemented by java class JScan which
+ * is peered with that structure.
+ * </p>
+ * 
+ * @see JScan
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class JHeaderScanner
     extends
@@ -88,10 +117,17 @@ public class JHeaderScanner
 	}
 
 	/**
-	 * Instantiates a new j header scanner.
+	 * A java scanner for headers out of a native packet buffer. This constructor
+	 * allows a custom header scanner to be implemented and registered with
+	 * JRegistry. The packet scanner, JScanner, uses builtin native scanners to
+	 * scan packet buffers but also allows custom java scanners to override or
+	 * provide additional header scanners. Any new protocol header being added to
+	 * jNetPcap library of protocols, that is not officially released with this
+	 * API, will have to provide its own custom header scanner.
 	 * 
 	 * @param protocol
-	 *          the protocol
+	 *          core protocol constant for which to override its default native
+	 *          header scanner
 	 */
 	public JHeaderScanner(final JProtocol protocol) {
 		super(FUNCT_NAME + protocol.toString().toLowerCase());
@@ -204,13 +240,14 @@ public class JHeaderScanner
 	}
 
 	/**
-	 * Gets the header length.
+	 * Returns the length of the header this scanner is registered for.
 	 * 
 	 * @param packet
-	 *          the packet
+	 *          the packet object this header is bound to
 	 * @param offset
-	 *          the offset
-	 * @return the header length
+	 *          offset into the packet buffer in bytes of the start of this header
+	 * @return length of the header or 0 if this header is not found in the packet
+	 *         buffer
 	 */
 	public int getHeaderLength(final JPacket packet, final int offset) {
 		return getLengthMethod(HeaderLength.Type.HEADER).getHeaderLength(packet,
@@ -278,28 +315,29 @@ public class JHeaderScanner
 	}
 
 	/**
-	 * Gets the id.
+	 * Gets the protocol header's numerical ID as assigned by JRegistry
 	 * 
-	 * @return the id
+	 * @return the id numerical ID of the header
 	 */
 	public final int getId() {
 		return this.id;
 	}
 
 	/**
-	 * Checks if is direct.
+	 * Checks if the scanner at the given ID is a direct or java scanner.
 	 * 
-	 * @return true, if is direct
+	 * @return true there is a native scanner for this id, otherwise false
 	 */
 	public boolean isDirect() {
 		return super.isInitialized() && (getScannerMethod() == null);
 	}
 
 	/**
-	 * Native scan.
+	 * The native scanner must be initialized before this method can be called
+	 * using bindNativeScanner.
 	 * 
 	 * @param scan
-	 *          the scan
+	 *          a work structure
 	 */
 	private native void nativeScan(JScan scan);
 
@@ -317,13 +355,13 @@ public class JHeaderScanner
 	}
 
 	/**
-	 * Scan all bindings.
+	 * Calculates the next header in sequence of headers within the packet buffer.
 	 * 
 	 * @param packet
-	 *          the packet
+	 *          the packet object this header is bound to
 	 * @param offset
-	 *          the offset
-	 * @return the int
+	 *          offset into the packet buffer in bytes of the start of this header
+	 * @return numerical ID of the next header as assigned by JRegistry
 	 */
 	public int scanAllBindings(final JPacket packet, final int offset) {
 		for (final JBinding b : getBindings()) {
@@ -340,10 +378,12 @@ public class JHeaderScanner
 	}
 
 	/**
-	 * Scan header.
+	 * The main method that this header scanner is called on by the packet
+	 * scanner, typically from native user space.
 	 * 
 	 * @param scan
-	 *          the scan
+	 *          scan state structure that is used to pass around state both in
+	 *          java and native user space
 	 */
 	protected void scanHeader(final JScan scan) {
 
@@ -476,6 +516,10 @@ public class JHeaderScanner
 	}
 
 	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	/** 
+	 * @return
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

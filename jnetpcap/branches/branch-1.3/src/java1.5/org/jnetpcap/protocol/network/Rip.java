@@ -31,7 +31,11 @@ import org.jnetpcap.protocol.tcpip.Udp;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class Rip.
+ * Routing Information Protocol (RIP). This is a baseclass for subclasses Rip1
+ * and Rip2 which parse rip version 1 and version 2 protocols.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @Header(suite = ProtocolSuite.TCP_IP, description = "Routing Information Protocol")
 public abstract class Rip
@@ -39,7 +43,10 @@ public abstract class Rip
     JHeader {
 
 	/**
-	 * The Enum Command.
+	 * Valid values for RIP OpCode field.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public enum Command {
 		
@@ -89,13 +96,13 @@ public abstract class Rip
 	}
 
 	/**
-	 * Bind to udp.
+	 * Bind to UDP port 520 which is the default for RIP.
 	 * 
 	 * @param packet
-	 *          the packet
+	 *          current packet
 	 * @param udp
-	 *          the udp
-	 * @return true, if successful
+	 *          udp header within this packet
+	 * @return true if binding succeeded or false if failed
 	 */
 	@Bind(to = Udp.class)
 	public static boolean bindToUdp(
@@ -151,16 +158,18 @@ public abstract class Rip
 	}
 
 	/**
-	 * Count.
+	 * Gets the number of entries in the routing table.
 	 * 
-	 * @return the int
+	 * @return count of number of 20 byte entries in the routing table
 	 */
 	public int count() {
 		return this.count;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.packet.JHeader#decodeHeader()
+	/**
+	 * The routing table is the only thing that needs decoding. The routing table
+	 * is lazy decoded using {@link Rip#decodeRoutingTable()} which only then
+	 * creates routing table entries.
 	 */
 	@Override
 	protected void decodeHeader() {

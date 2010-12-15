@@ -32,7 +32,8 @@ import org.jnetpcap.protocol.network.Ip4;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class TestSubHeader.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class TestSubHeader
     extends TestCase {

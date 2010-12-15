@@ -27,7 +27,11 @@ import org.jnetpcap.packet.JPacketHandler;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class JPacketSupport.
+ * A utility class that dispatches a JPacket to any number of listeners. The
+ * packet is simply forwarded to any listeners as is.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class JPacketSupport implements JPacketHandler<Object> {
 
@@ -128,6 +132,11 @@ public class JPacketSupport implements JPacketHandler<Object> {
 	 * 
 	 * @see org.jnetpcap.packet.JPacketHandler#nextPacket(org.jnetpcap.packet.JPacket,
 	 *      java.lang.Object)
+	 */
+	/** 
+	 * @param packet
+	 * @param user
+	 * @see org.jnetpcap.packet.JPacketHandler#nextPacket(org.jnetpcap.packet.JPacket, java.lang.Object)
 	 */
 	public void nextPacket(JPacket packet, Object user) {
 		fireNextPacket(packet);

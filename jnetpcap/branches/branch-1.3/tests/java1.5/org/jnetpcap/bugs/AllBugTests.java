@@ -23,12 +23,13 @@ import junit.framework.TestSuite;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class AllBugTests.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class AllBugTests {
 
 	/**
-	 * Suite.
+	 * Run all the bugs
 	 * 
 	 * @return the test
 	 */

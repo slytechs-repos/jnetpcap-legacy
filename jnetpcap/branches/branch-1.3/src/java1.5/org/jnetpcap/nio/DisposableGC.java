@@ -32,7 +32,13 @@ import org.jnetpcap.util.Units;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class DisposableGC.
+ * Specialized garbage-collector that invokes the.
+ * 
+ * {@link DisposableReference.dispose} method immediately as soon as a
+ * DisposableReference becomes unreferancable and put on the main garbage
+ * collector's list.
+ * 
+ * @author markbe
  */
 public final class DisposableGC {
 	
@@ -51,10 +57,15 @@ public final class DisposableGC {
 	/** The Constant MANUAL_DRAING_MAX. */
 	static final private int MANUAL_DRAING_MAX = 2;
 
-	/** The Constant MIN_MEMORY_RELEASE. */
+	/**
+	 * When maxDirectMemorySize is breached, this is the minimum amount of memory
+	 * to release, triggering a System.gc() if necessary.
+	 */
 	static final int MIN_MEMORY_RELEASE = 2 * Units.MEBIBYTE;
 
-	/** The Constant MIN_SYSTEM_GC_INVOKE_TIMEOUT. */
+	/**
+	 * Minimum delay before 2 consecutive System.gc calls can be made
+	 */
 	static final long MIN_SYSTEM_GC_INVOKE_TIMEOUT = 200;
 
 	/** The Constant OUT_OF_MEMORY_TIMEOUT. */
@@ -89,13 +100,14 @@ public final class DisposableGC {
 	private Thread cleanupThread;
 	
 	/** The cleanup thread active. */
-	private AtomicBoolean cleanupThreadActive = new AtomicBoolean(false);
+	private final AtomicBoolean cleanupThreadActive = new AtomicBoolean(false);
 
 	/** The cleanup thread processing. */
-	private AtomicBoolean cleanupThreadProcessing = new AtomicBoolean(false);
+	private final AtomicBoolean cleanupThreadProcessing =
+			new AtomicBoolean(false);
 
 	/** The cleanup timeout. */
-	private AtomicLong cleanupTimeout = new AtomicLong(
+	private final AtomicLong cleanupTimeout = new AtomicLong(
 			DisposableGC.DEFAULT_CLEANUP_THREAD_TIMEOUT);
 
 	/** The delta count. */
@@ -103,8 +115,20 @@ public final class DisposableGC {
 
 	/** The delta size. */
 	private long deltaSize;
-	
-	/** The g0. */
+	/**
+	 * Performance in 1000s of pps using various collection types:
+	 * 
+	 * <pre>
+	 * Type           Threaded   Non-Threaded
+	 *                 min-max     min-max
+	 * ------------------------------------------------    
+	 * ArrayDeque:    43.3-44.8   42.5-44.7
+	 * ArrayList:     43.2-44.7   42.9-45.0
+	 * LinkedList:    43.7-44.8   42.6-44.5
+	 * HashSet:       43.3-44.4   41.2-43.5
+	 * LinkedHashSet: 42.4-43.5   43.2-44.3
+	 * </pre>
+	 */
 	// final Collection<DisposableReference> refCollection3 =
 	// new ArrayDeque<DisposableReference>(20000);
 	// new ArrayList<DisposableReference>(20000);
@@ -148,7 +172,7 @@ public final class DisposableGC {
 	private Reference<Object> markerReference;
 
 	/** The memory semaphore. */
-	private Semaphore memorySemaphore = new Semaphore(
+	private final Semaphore memorySemaphore = new Semaphore(
 			DisposableGC.MIN_MEMORY_RELEASE);
 
 	/** The ref queue. */
@@ -163,7 +187,7 @@ public final class DisposableGC {
 	/** The verbose. */
 	private boolean verbose = false;
 
-	/** The vverbose. */
+	/** A bit more verbose. */
 	private boolean vverbose = false;
 
 	/** The vvverbose. */
@@ -466,9 +490,11 @@ public final class DisposableGC {
 	}
 
 	/**
-	 * Invoke system gc.
+	 * Makes sure that JVM GC is not invoked more then a certain timeout value
+	 * since the last time it was invoked. Avoids too many JVM GC invocation calls
+	 * that might overlap
 	 * 
-	 * @return true, if successful
+	 * @return true if JVM GC was invoked, otherwise false
 	 */
 	private boolean invokeSystemGC() {
 
@@ -540,7 +566,10 @@ public final class DisposableGC {
 	}
 
 	/**
-	 * Invoke system gc with marker.
+	 * Issues a JVM GC request, while injecting a marker reference to be cleaned
+	 * up by the very same JVM GC run. Until our marker reference is not cleaned
+	 * up, we do not issue another JVM GC since this means that previous GC run
+	 * has not reached our marker reference yet.
 	 */
 	public synchronized void invokeSystemGCWithMarker() {
 
@@ -569,18 +598,20 @@ public final class DisposableGC {
 	}
 
 	/**
-	 * Checks if is the cleanup thread active.
+	 * Checks if is cleanup thread active.
 	 * 
-	 * @return the cleanup thread active
+	 * @return true, if is cleanup thread active
 	 */
 	public boolean isCleanupThreadActive() {
 		return cleanupThreadActive.get() && cleanupThread.isAlive();
 	}
 
 	/**
-	 * Checks if is system gc ready.
+	 * Checks if JVM GC can be called upon, at this particular time. If the
+	 * previous invocation of JVM GC was less then minimum delay between
+	 * consecutive calls, this function returns false.
 	 * 
-	 * @return true, if is system gc ready
+	 * @return true if JVM GC can be invoked at this time, otherwise false
 	 */
 	private final boolean isSystemGCReady() {
 		if (firstSystemGCNeeded == 0) {
@@ -592,7 +623,7 @@ public final class DisposableGC {
 	}
 
 	/**
-	 * Checks if is the verbose.
+	 * Checks if is verbose.
 	 * 
 	 * @return the verbose
 	 */
@@ -603,7 +634,7 @@ public final class DisposableGC {
 	/**
 	 * Checks if is v verbose.
 	 * 
-	 * @return true, if is v verbose
+	 * @return the vverbose
 	 */
 	public boolean isVVerbose() {
 		return vverbose;
@@ -612,7 +643,7 @@ public final class DisposableGC {
 	/**
 	 * Checks if is vV verbose.
 	 * 
-	 * @return true, if is vV verbose
+	 * @return the vvverbose
 	 */
 	public boolean isVVVerbose() {
 		return vvverbose;
@@ -737,7 +768,7 @@ public final class DisposableGC {
 	 * Sets the verbose.
 	 * 
 	 * @param verbose
-	 *          the new verbose
+	 *          the verbose to set
 	 */
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
@@ -755,7 +786,7 @@ public final class DisposableGC {
 	 * Sets the v verbose.
 	 * 
 	 * @param vverbose
-	 *          the new v verbose
+	 *          the vverbose to set
 	 */
 	public void setVVerbose(boolean vverbose) {
 		if (vverbose) {
@@ -771,7 +802,7 @@ public final class DisposableGC {
 	 * Sets the vV verbose.
 	 * 
 	 * @param vvverbose
-	 *          the new vV verbose
+	 *          the vvverbose to set
 	 */
 	public void setVVVerbose(boolean vvverbose) {
 		if (vvverbose) {

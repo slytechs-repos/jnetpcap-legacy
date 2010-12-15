@@ -21,6 +21,9 @@ package org.jnetpcap.packet;
 // TODO: Auto-generated Javadoc
 /**
  * The Class RegistryException.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class RegistryException
     extends Exception {
