@@ -388,11 +388,9 @@ public class Ethernet extends JHeader {
 	 * @return the long
 	 */
 	public long calculateChecksum() {
-		if (getPostfixLength() < 4) {
-			return 0L;
-		}
 
 		final JPacket packet = getPacket();
-		return Checksum.crc32IEEE802(packet, 0, packet.size() - 4);
+		return Checksum.crc32IEEE802(packet, 0, getHeaderLength()
+				+ getPayloadLength());
 	}
 }
