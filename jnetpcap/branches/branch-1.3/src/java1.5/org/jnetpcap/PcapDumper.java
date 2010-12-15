@@ -24,7 +24,13 @@ import org.jnetpcap.nio.JBuffer;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class PcapDumper.
+ * Class peered with native <code>pcap_dumper</code> structure. A dumper that
+ * allows a previously opened pcap session to be dumped to a "savefile" which is
+ * a file containing captured packets in pcap file format. To get an object of
+ * type PcapDumper, use method <code>Pcap.dumpOpen</code>.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class PcapDumper {
 
@@ -41,12 +47,16 @@ public class PcapDumper {
 	}
 
 	/**
-	 * Dump.
+	 * Outputs a packet to the "savefile" opened with <code>dumpOpen</code>.
+	 * Note that the calling arguments are suitable for use with dipstach() or
+	 * loop().
 	 * 
 	 * @param hdr
-	 *          the hdr
+	 *          pcap capture header
 	 * @param packet
-	 *          the packet
+	 *          packet buffer
+	 * @deprecated use of PcapPktHdr has been replaced by PcapHeader
+	 * @see PcapHeader
 	 */
 	public void dump(PcapPktHdr hdr, ByteBuffer packet) {
 		dump(hdr.getSeconds(), hdr.getUseconds(), hdr.getCaplen(), hdr.getLen(),
@@ -54,58 +64,72 @@ public class PcapDumper {
 	}
 
 	/**
-	 * Dump.
+	 * Outputs a packet to the "savefile" opened with <code>dumpOpen</code>.
+	 * Note that the calling arguments are suitable for use with dipstach() or
+	 * loop().
 	 * 
 	 * @param hdr
-	 *          the hdr
+	 *          pcap capture header
 	 * @param packet
-	 *          the packet
+	 *          packet buffer
+	 * @since 1.2
 	 */
 	public native void dump(PcapHeader hdr, ByteBuffer packet);
 
 	/**
-	 * Dump.
+	 * Outputs a packet to the "savefile" opened with <code>dumpOpen</code>.
+	 * Note that the calling arguments are suitable for use with dipstach() or
+	 * loop().
 	 * 
 	 * @param hdr
-	 *          the hdr
+	 *          pcap capture header
 	 * @param packet
-	 *          the packet
+	 *          packet buffer
+	 * @since 1.2
 	 */
 	public native void dump(PcapHeader hdr, JBuffer packet);
 
 	/**
-	 * Dump.
+	 * Outputs a packet to the "savefile" opened with <code>dumpOpen</code>.
+	 * Note that the calling arguments are suitable for use with dipstach() or
+	 * loop(). This a convenience method, which takes the parameters of PcapPkthdr
+	 * class directly.
 	 * 
 	 * @param seconds
-	 *          the seconds
+	 *          timestamp in seconds
 	 * @param useconds
-	 *          the useconds
+	 *          timestamp fraction in microseconds
 	 * @param caplen
-	 *          the caplen
+	 *          how much was captured
 	 * @param len
-	 *          the len
+	 *          actual packet length on wire
 	 * @param packet
-	 *          the packet
+	 *          packet buffer
 	 */
 	public native void dump(long seconds, int useconds, int caplen, int len,
 	    ByteBuffer packet);
 
 	/**
-	 * Ftell.
+	 * Returns the current file position for the "savefile", representing the
+	 * number of bytes written by <code>Pcap.dumpOpen</code> and
+	 * <code>Pcap.dump</code>.
 	 * 
-	 * @return the long
+	 * @return position within the file, or -1 on error
 	 */
 	public native long ftell();
 
 	/**
-	 * Flush.
+	 * Flushes the output buffer to the "savefile", so that any packets written
+	 * with <code>Pcap.dump</code> but not yet written to the "savefile" will be
+	 * written.
 	 * 
-	 * @return the int
+	 * @return 0 on success, -1 on error
 	 */
 	public native int flush();
 
 	/**
-	 * Close.
+	 * Closes a savefile. The existing PcapDumper object on which close method was
+	 * invoked is no longer usable and needs to be discarded.
 	 */
 	public native void close();
 

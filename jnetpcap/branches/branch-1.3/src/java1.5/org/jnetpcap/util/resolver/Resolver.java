@@ -23,25 +23,35 @@ import java.net.URL;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Interface Resolver.
+ * A resolver interface that can resolver various types of addresses and
+ * specific protocol numbers and types to a human readable name. The resolver
+ * will do an appropriate type of look up is appropriate for a given protocol,
+ * to try and map a binary entity to a human assigned and readable one.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public interface Resolver {
-	
 	/**
-	 * The Enum ResolverType.
+	 * Type of resolver that can be registered with JRegistry. Resolvers job is to
+	 * convert a binary number to a human readable name associated with it. For
+	 * example IP resolver will convert ip address to hostnames.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public enum ResolverType {
 		
-		/** The IEE e_ ou i_ address. */
+		/** Converts MAC addresses to station names when defined. */
 		IEEE_OUI_ADDRESS,
 
-		/** The IEE e_ ou i_ prefix. */
+		/** Converts a MAC address manufacturer prefix to a name. */
 		IEEE_OUI_PREFIX(new IEEEOuiPrefixResolver()),
 
-		/** The IP. */
+		/** Converts Ip version 4 and 6 address to hostnames and constant labels. */
 		IP(new IpResolver()),
 
-		/** The PORT. */
+		/** Converts TCP and UDP port numbers to application names. */
 		PORT, ;
 
 		/** The resolver. */
@@ -79,59 +89,75 @@ public interface Resolver {
     "resolver.search.path";
 
 	/**
-	 * Can be resolved.
+	 * Checks if a mapping exists or can be made. This operation may trigger a
+	 * lookup which may take certain amount of time to complete, some times many
+	 * seconds or even minutes.
 	 * 
 	 * @param address
-	 *          the address
-	 * @return true, if successful
+	 *          address to check mapping for
+	 * @return true the mapping can be made, otherwise false
 	 */
 	public boolean canBeResolved(byte[] address);
 
 	/**
-	 * Clear cache.
+	 * Resets the cache to its defaults.
 	 */
 	public void clearCache();
 
 	/**
-	 * Initialize if needed.
+	 * This method is called everytime the resolver is requested from JRegistry.
+	 * This method allows the resolver to initialize itself if it isn't already
+	 * initialized.
 	 */
 	public void initializeIfNeeded();
 
 	/**
-	 * Checks if is cached.
+	 * Checks if resolver already has a mapping made for this particular address.
+	 * This operation does not block and returns immediately. The mapping may
+	 * include a negative lookup, one that failed before. None the less the
+	 * negative result is cached along with positive results.
 	 * 
 	 * @param address
-	 *          the address
-	 * @return true, if is cached
+	 *          address to check for
+	 * @return true if mapping is already cached, otherwise false
 	 */
 	public boolean isCached(byte[] address);
 
 	/**
-	 * Load cache.
+	 * Attempts to load the cache from the given URL. The format of the file
+	 * retrieved from the url is resolver specified. The default cache file format
+	 * is attempted at some point in the file scan until the file can be read or
+	 * the load fails.
 	 * 
 	 * @param url
-	 *          the url
-	 * @return the int
+	 *          URL of the resource containing the database to load
+	 * @return number of entries cached
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *           any IO errors
 	 */
 	public int loadCache(URL url) throws IOException;
 
 	/**
-	 * Resolve.
+	 * Attempts to resole an address to a human readable form. Any possible or
+	 * required look ups are performed, sometimes taking a long time to complete
+	 * if neccessary. All results, positive and negative for the lookup, are
+	 * cached for certain amount of time. Defaults are
 	 * 
 	 * @param address
-	 *          the address
-	 * @return the string
+	 *          address to try and resolve
+	 * @return human readable form if lookup succeeded (position) or null if
+	 *         lookup failed to produce a human label (negative)
+	 *         {@value #DEFAULT_POSITIVE_TIMEOUT} minutes for positive lookup and
+	 *         {@value #DEFAULT_NEGATIVE_TIMEOUT} minutes for negative.
 	 */
 	public String resolve(byte[] address);
 
 	/**
-	 * Save cache.
+	 * Forces cache contents to be saved to the default cache file.
 	 * 
-	 * @return the int
+	 * @return number of cached entries saved
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *           any IO errors during save
 	 */
 	public int saveCache() throws IOException;
 }

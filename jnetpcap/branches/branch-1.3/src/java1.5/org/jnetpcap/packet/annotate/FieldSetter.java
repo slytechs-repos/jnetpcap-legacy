@@ -26,6 +26,9 @@ import java.lang.annotation.Target;
 
 /**
  * The Interface FieldSetter.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @Target(ElementType.METHOD)
 @Documented

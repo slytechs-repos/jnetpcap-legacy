@@ -26,6 +26,8 @@ import java.lang.reflect.Constructor;
  * 
  * @param <T>
  *          the generic type
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class JThreadLocal<T>
     extends ThreadLocal<T> {
@@ -55,7 +57,8 @@ public class JThreadLocal<T>
     } 
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @return
 	 * @see java.lang.ThreadLocal#initialValue()
 	 */
 	@Override

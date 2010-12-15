@@ -24,6 +24,9 @@ import java.util.logging.LogRecord;
 // TODO: Auto-generated Javadoc
 /**
  * The Class JNetPcapFormatter.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class JNetPcapFormatter
     extends Formatter {
@@ -37,6 +40,11 @@ public class JNetPcapFormatter
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see java.util.logging.Formatter#format(java.util.logging.LogRecord)
+	 */
+	/** 
+	 * @param record
+	 * @return
 	 * @see java.util.logging.Formatter#format(java.util.logging.LogRecord)
 	 */
 	@Override

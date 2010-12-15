@@ -25,7 +25,11 @@ import org.jnetpcap.util.ExpandableString;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class ConfigString.
+ * Expandable string that allows configuration variables and properties to be
+ * expanded.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class ConfigString
     extends ExpandableString {
@@ -200,15 +204,17 @@ public class ConfigString
 	}
 
 	/**
-	 * Expand variables.
+	 * Replaces variables and properties with their values, and null if anything
+	 * is not defined.
 	 * 
 	 * @param name
-	 *          the name
+	 *          special name variable that will replace $name$ in the string
 	 * @param variables
 	 *          the variables
 	 * @param properties
-	 *          the properties
-	 * @return true, if successful
+	 *          properties
+	 * @return resulting string with all substitutions complete or null if any
+	 *         substitution failed such as undefined referenced property
 	 */
 	public boolean expandVariables(
 	    String name,
@@ -236,6 +242,10 @@ public class ConfigString
 	 * (non-Javadoc)
 	 * 
 	 * @see org.jnetpcap.util.config.ExpandableString#reset()
+	 */
+	/** 
+	 * @return
+	 * @see org.jnetpcap.util.ExpandableString#reset()
 	 */
 	@Override
 	public ConfigString reset() {

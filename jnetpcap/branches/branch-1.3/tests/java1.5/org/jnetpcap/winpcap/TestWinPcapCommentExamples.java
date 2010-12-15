@@ -26,9 +26,15 @@ import junit.framework.TestCase;
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapIf;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class TestWinPcapCommentExamples.
+ * All the examples that have been documented within WinPcap extension, go here
+ * to verify syntax and functionality. This jUnit class makes sure that all the
+ * examples listed are valid and properly working. The examples sometimes may
+ * strip out try/catch, import and method declaration statements, but in reality
+ * they are based on fully working examples, which we test here.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class TestWinPcapCommentExamples
     extends TestCase {

@@ -33,7 +33,8 @@ import org.jnetpcap.protocol.network.Ip4;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class Bug_PPPoE.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class Bug_PPPoE
     extends

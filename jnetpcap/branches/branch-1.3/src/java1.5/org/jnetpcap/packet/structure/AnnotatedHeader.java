@@ -39,6 +39,9 @@ import org.jnetpcap.protocol.JProtocol.Suite;
 // TODO: Auto-generated Javadoc
 /**
  * The Class AnnotatedHeader.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class AnnotatedHeader {
 
@@ -95,6 +98,8 @@ public class AnnotatedHeader {
 	 * @param errors
 	 *          the errors
 	 * @return the annotated header
+	 * @Header is optional on top level header. It defaults to class name as
+	 *         header name
 	 */
 	private static AnnotatedHeader inspectHeaderAnnotation(
 	    Class<? extends JHeader> c,

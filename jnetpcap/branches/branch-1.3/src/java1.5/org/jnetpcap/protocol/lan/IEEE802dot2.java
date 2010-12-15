@@ -28,7 +28,10 @@ import org.jnetpcap.protocol.JProtocol;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class IEEE802dot2.
+ * IEEE LLC2 header definition.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @Header(nicname = "llc")
 public class IEEE802dot2

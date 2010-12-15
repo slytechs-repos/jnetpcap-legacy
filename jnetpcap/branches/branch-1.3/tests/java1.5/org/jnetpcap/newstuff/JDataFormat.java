@@ -20,16 +20,21 @@ package org.jnetpcap.newstuff;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Interface JDataFormat.
+ * Formats individual data values for textual output. This interface deals with
+ * individual units of data and is not a field formatter which formats the
+ * output of a field, but only its data.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public interface JDataFormat {
 
 	/**
-	 * Format.
+	 * Formats the supplied data object for display purposes
 	 * 
 	 * @param data
-	 *          the data
-	 * @return the string
+	 *          source data to be formatted
+	 * @return formatted representation of the data
 	 */
 	public String format(Object data);
 }

@@ -27,7 +27,11 @@ import org.jnetpcap.packet.annotate.HeaderLength;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class Arp.
+ * Address Resolution Protocol header. ARP is used to translate protocol
+ * addresses to hardware interface addresses.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @Header
 public class Arp
@@ -64,7 +68,10 @@ public class Arp
 	private int tpaOffset;
 
 	/**
-	 * The Enum HardwareType.
+	 * Definitions for ARP supported hardware types.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public enum HardwareType {
 		
@@ -171,11 +178,11 @@ public class Arp
 		HW_EXP1, ;
 
 		/**
-		 * Value of.
+		 * Convert a numerical protocol type number to constant.
 		 * 
 		 * @param value
-		 *          the value
-		 * @return the hardware type
+		 *          value of the protocol type field
+		 * @return corresponding constant or null if none matched
 		 */
 		public static HardwareType valueOf(int value) {
 			return values()[value];
@@ -183,7 +190,10 @@ public class Arp
 	}
 
 	/**
-	 * The Enum ProtocolType.
+	 * Definitions for supported protocol types.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc@SuppressWarnings("unused") .
 	 */
 	public enum ProtocolType {
 		
@@ -205,11 +215,11 @@ public class Arp
 		}
 
 		/**
-		 * Value of.
+		 * Convert a numerical protocol type number to constant.
 		 * 
 		 * @param value
-		 *          the value
-		 * @return the protocol type
+		 *          value of the protocol type field
+		 * @return corresponding constant or null if none matched
 		 */
 		public static ProtocolType valueOf(int value) {
 			if (value == 0x800) {
@@ -221,7 +231,11 @@ public class Arp
 	}
 
 	/**
-	 * The Enum OpCode.
+	 * Definitions for all the possible ARP operations as specified by the
+	 * operation field.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public enum OpCode {
 		
@@ -304,11 +318,11 @@ public class Arp
 		OP_EXP2, ;
 
 		/**
-		 * Value of.
+		 * Converts the operation field value to a constant.
 		 * 
 		 * @param value
-		 *          the value
-		 * @return the op code
+		 *          operation field value
+		 * @return constant or null
 		 */
 		public static OpCode valueOf(int value) {
 			return values()[value];
@@ -532,7 +546,8 @@ public class Arp
 		return plen() * 8;
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * 
 	 * @see org.jnetpcap.packet.JHeader#decodeHeader()
 	 */
 	@Override

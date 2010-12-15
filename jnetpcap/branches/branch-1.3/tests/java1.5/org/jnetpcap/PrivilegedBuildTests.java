@@ -23,7 +23,9 @@ import junit.framework.TestSuite;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class PrivilegedBuildTests.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
+ *
  */
 public class PrivilegedBuildTests {
 

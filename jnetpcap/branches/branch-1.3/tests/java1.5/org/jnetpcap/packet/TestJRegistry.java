@@ -42,13 +42,18 @@ import org.jnetpcap.protocol.network.Ip6;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class TestJRegistry.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class TestJRegistry
     extends TestCase {
 
 	/**
-	 * The Class TestBinding.
+	 * A test class that simplifies creation of test bindings by not having it
+	 * abstract :)
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public static class TestBinding
 	    extends DefaultJBinding {

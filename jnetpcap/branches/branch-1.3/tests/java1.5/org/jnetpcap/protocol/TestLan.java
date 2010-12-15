@@ -25,7 +25,10 @@ import org.jnetpcap.packet.VariousInMemoryPackets;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class TestLan.
+ * Various DL layer tests.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class TestLan
     extends

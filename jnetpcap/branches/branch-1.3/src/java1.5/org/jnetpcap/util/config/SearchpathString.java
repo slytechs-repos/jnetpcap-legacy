@@ -33,6 +33,9 @@ import org.jnetpcap.util.config.JConfig.URLSearch;
 // TODO: Auto-generated Javadoc
 /**
  * The Class SearchpathString.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class SearchpathString
     extends ConfigString {
@@ -82,6 +85,10 @@ public class SearchpathString
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see org.jnetpcap.util.config.ConfigString#reset()
+	 */
+	/** 
+	 * @return
 	 * @see org.jnetpcap.util.config.ConfigString#reset()
 	 */
 	@Override

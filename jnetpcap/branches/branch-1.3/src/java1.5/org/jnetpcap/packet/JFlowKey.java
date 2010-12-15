@@ -24,7 +24,10 @@ import org.jnetpcap.nio.JStruct;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class JFlowKey.
+ * A unique key that identifies a flow of related packets.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class JFlowKey
     extends JStruct {
@@ -32,7 +35,7 @@ public class JFlowKey
 	/** The Constant FLAG_REVERSABLE. */
 	public static final int FLAG_REVERSABLE = 0x00000001;
 
-	/** The Constant FLOW_KEY_PAIR_COUNT. */
+	/** MACRO used in native code. */
 	private static final int FLOW_KEY_PAIR_COUNT = 3;
 
 	/** The Constant STRUCT_NAME. */
@@ -47,6 +50,7 @@ public class JFlowKey
 
 	/**
 	 * Instantiates a new j flow key.
+	 * 
 	 */
 	public JFlowKey() {
 		super(STRUCT_NAME, Type.POINTER);
@@ -76,6 +80,11 @@ public class JFlowKey
 	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
+	/** 
+	 * @param obj
+	 * @return
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof JFlowKey) {
@@ -95,9 +104,10 @@ public class JFlowKey
 	public native int getFlags();
 
 	/**
-	 * Gets the header map.
+	 * Retrieves bitmap of headers that are part of this key. Each bit within the
+	 * returned bitmap represents a different header ID.
 	 * 
-	 * @return the header map
+	 * @return bitmap of headers that have contributed atleast one key pair
 	 */
 	public native long getHeaderMap();
 
@@ -186,15 +196,21 @@ public class JFlowKey
 	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
+	/** 
+	 * @return
+	 * @see java.lang.Object#hashCode()
+	 */
 	@Override
 	public native int hashCode();
 
 	/**
-	 * Match.
+	 * Compares the flow keys and returns the direction in which the match
+	 * occured. Forward or reverse.
 	 * 
 	 * @param key
-	 *          the key
-	 * @return the int
+	 *          key to compare against this key
+	 * @return 0 means key's don't match, 1 keys matched in forward direction and
+	 *         -1 means matched in reverse direction.
 	 */
 	public native int match(JFlowKey key);
 
@@ -213,7 +229,8 @@ public class JFlowKey
 		return super.peer(peer);
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @return
 	 * @see org.jnetpcap.nio.JMemory#toDebugString()
 	 */
 	public String toDebugString() {

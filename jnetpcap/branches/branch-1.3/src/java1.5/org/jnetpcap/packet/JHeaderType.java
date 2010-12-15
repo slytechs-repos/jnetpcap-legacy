@@ -21,6 +21,9 @@ package org.jnetpcap.packet;
 // TODO: Auto-generated Javadoc
 /**
  * The Interface JHeaderType.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public interface JHeaderType {
 	

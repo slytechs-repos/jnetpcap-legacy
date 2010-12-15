@@ -33,7 +33,31 @@ import org.jnetpcap.protocol.JProtocol;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class Sdp.
+ * The Session Description Protocol (SDP) is a format for describing streaming
+ * media initialization parameters. The IETF published the original
+ * specification as an IETF Proposed Standard in April 1998,[1] and subsequently
+ * published a revised specification as an IETF Proposed Standard as RFC 4566 in
+ * July 2006.[2]
+ * <p>
+ * SDP is intended for describing multimedia communication sessions for the
+ * purposes of session announcement, session invitation, and parameter
+ * negotiation. SDP does not deliver media itself but is used for negotiation
+ * between end points of media type, format, and all associated properties. The
+ * set of properties and parameters are often called a session profile. SDP is
+ * designed to be extensible to support new media types and formats.
+ * </p>
+ * <p>
+ * SDP started off as a component of the Session Announcement Protocol (SAP),
+ * but found other uses in conjunction with Real-time Transport Protocol (RTP),
+ * Real-time Streaming Protocol (RTSP), Session Initiation Protocol (SIP) and
+ * even as a standalone format for describing multicast sessions.
+ * </p>
+ * <p>
+ * Description source: http://en.wikipedia.org/wiki/Session_Description_Protocol
+ * </p>
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @Header
 public class Sdp
@@ -41,31 +65,34 @@ public class Sdp
     JMappedHeader {
 
 	/**
-	 * The Enum Fields.
+	 * A table of various fields for SDP protocol.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	@Field
 	public enum Fields {
 		
-		/** The Connection info. */
+		/** Connection info field. */
 		ConnectionInfo,
 		
-		/** The Media. */
+		/** Media field. */
 		Media,
 		
-		/** The Owner. */
+		/** Owner field. */
 		Owner,
 		
-		/** The Session name. */
+		/** Session name field. */
 		SessionName,
 
-		/** The Time. */
+		/** Time field. */
 		Time,
 
-		/** The Version. */
+		/** Version field. */
 		Version
 	}
 
-	/** The ID. */
+	/** Constant numerial ID for this protocol's header. */
 	public static int ID = JProtocol.SDP_ID;
 
 	static {
@@ -77,13 +104,13 @@ public class Sdp
 	}
 
 	/**
-	 * Header length.
+	 * Calculates the length of this header from a static context.
 	 * 
 	 * @param buffer
-	 *          the buffer
+	 *          buffer containing the packet or this header content
 	 * @param offset
-	 *          the offset
-	 * @return the int
+	 *          offset into the buffer where this header begins
+	 * @return length in bytes for this header, excluding payload
 	 */
 	@HeaderLength
 	public static int headerLength(final JBuffer buffer, final int offset) {
@@ -103,9 +130,9 @@ public class Sdp
 	private String text;
 
 	/**
-	 * Attributes.
+	 * Returns as array of Strings with all the attributes of this message.
 	 * 
-	 * @return the string[]
+	 * @return array containing all the attributes found in this message
 	 */
 	@Field(offset = 0, length = 10, format = "%s[]")
 	public String[] attributes() {
@@ -113,9 +140,9 @@ public class Sdp
 	}
 
 	/**
-	 * Attributes length.
+	 * Returns the length of the 'attributes' field.
 	 * 
-	 * @return the int
+	 * @return length of the 'attributes' field; the length is in bits
 	 */
 	@Dynamic(Field.Property.LENGTH)
 	public int attributesLength() {
@@ -123,16 +150,17 @@ public class Sdp
 	}
 
 	/**
-	 * Attributes offset.
+	 * Returns the offset into the header for the 'attributes' field.
 	 * 
-	 * @return the int
+	 * @return offset from the start of the header; the offset is in bits
 	 */
 	@Dynamic(Field.Property.OFFSET)
 	public int attributesOffset() {
 		return this.attributesOffset;
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * 
 	 * @see org.jnetpcap.packet.JHeader#decodeHeader()
 	 */
 	@Override
@@ -188,9 +216,9 @@ public class Sdp
 	}
 
 	/**
-	 * Text.
+	 * Experimental function.
 	 * 
-	 * @return the string
+	 * @return the entire SDP header as a text string
 	 */
 	// @Field(offset = 0, format="#textdump#")
 	public String text() {
@@ -198,9 +226,9 @@ public class Sdp
 	}
 
 	/**
-	 * Text length.
+	 * Experimental function.
 	 * 
-	 * @return the int
+	 * @return size of the SDP header in bits
 	 */
 	// @Dynamic(Field.Property.LENGTH)
 	public int textLength() {

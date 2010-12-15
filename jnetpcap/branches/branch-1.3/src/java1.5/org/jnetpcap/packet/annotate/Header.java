@@ -30,6 +30,9 @@ import org.jnetpcap.packet.JHeader;
 // TODO: Auto-generated Javadoc
 /**
  * The Interface Header.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @Target(ElementType.TYPE)
 @Documented

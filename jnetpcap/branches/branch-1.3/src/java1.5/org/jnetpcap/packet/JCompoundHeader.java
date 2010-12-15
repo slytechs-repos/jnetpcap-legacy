@@ -24,6 +24,8 @@ package org.jnetpcap.packet;
  * 
  * @param <B>
  *          the generic type
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public interface JCompoundHeader<B extends JHeader> {
 

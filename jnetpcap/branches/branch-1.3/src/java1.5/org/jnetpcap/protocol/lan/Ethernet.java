@@ -37,7 +37,10 @@ import org.jnetpcap.util.checksum.Checksum;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class Ethernet.
+ * Ethernet2 definition. Datalink layer ethernet frame definition.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @Header(length = 14, dlt = {
 		PcapDLT.EN10MB,
@@ -46,17 +49,21 @@ import org.jnetpcap.util.checksum.Checksum;
 public class Ethernet extends JHeader {
 
 	/**
-	 * The Enum EthernetType.
+	 * A table of EtherType values and their names.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public enum EthernetType {
-
+		
 		/** The IEE e_802 do t1 q. */
-		IEEE_802DOT1Q(0x8100, "vlan - IEEE 802.1q"),
-		/** The I p4. */
-		IP4(0x800, "ip version 4"),
-		/** The I p6. */
-		IP6(0x86DD, "ip version 6"), ;
-
+		IEEE_802DOT1Q(0x8100, "vlan - IEEE 802.1q"), 
+ /** The I p4. */
+ IP4(0x800, "ip version 4"), 
+ /** The I p6. */
+ IP6(
+				0x86DD, "ip version 6"), ;
+		
 		/**
 		 * To string.
 		 * 
@@ -313,9 +320,10 @@ public class Ethernet extends JHeader {
 	}
 
 	/**
-	 * Checksum check.
+	 * Checks if FCS is available for this Ethernet frame. FCS is typically
+	 * stripped by the OS and not provided to Libpcap/jNetPcap on most platforms.
 	 * 
-	 * @return true, if successful
+	 * @return true if FCS is present, otherwise false
 	 */
 	@Dynamic(field = "checksum", value = Field.Property.CHECK)
 	public boolean checksumCheck() {
@@ -323,9 +331,9 @@ public class Ethernet extends JHeader {
 	}
 
 	/**
-	 * Checksum offset.
+	 * Calculates the offset of the FCS field within the Ethernet frame.
 	 * 
-	 * @return the int
+	 * @return offset, in bits, from the start of the packet buffer
 	 */
 	@Dynamic(Field.Property.OFFSET)
 	public int checksumOffset() {
@@ -348,9 +356,9 @@ public class Ethernet extends JHeader {
 	}
 
 	/**
-	 * Checksum.
+	 * Retrieves the header's checksum.
 	 * 
-	 * @return the long
+	 * @return header's stored checksum
 	 */
 	@Field(length = 4 * BYTE, format = "%x", display = "FCS")
 	public long checksum() {
@@ -366,6 +374,7 @@ public class Ethernet extends JHeader {
 	 * trailer. If not, the method returns without an error, but FCS is not set.
 	 * 
 	 * @param crc
+	 *          the crc
 	 * @return true if checksum was set, otherwise if Ethernet trailer part or
 	 *         Ethernet postfix part is less then 4 bytes long, returns false
 	 */

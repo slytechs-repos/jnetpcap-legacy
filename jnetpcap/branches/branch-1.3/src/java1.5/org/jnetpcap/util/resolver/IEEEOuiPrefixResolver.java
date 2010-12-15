@@ -34,12 +34,22 @@ import org.jnetpcap.util.config.JConfig;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class IEEEOuiPrefixResolver.
+ * A resolver that resolves the first 3 bytes of a MAC address to a manufacturer
+ * code. The resolver loads jNetPcap supplied compressed oui database of
+ * manufacturer codes and caches that information. The resolver can also
+ * download over the internet, if requested, a raw IEEE OUI database of
+ * manufacturer code, parse it and produce a cache file for future use.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class IEEEOuiPrefixResolver
     extends AbstractResolver {
 
-	/** The Constant IEEE_OUI_DATABASE_PATH. */
+	/**
+	 * Default URI path to IEEE raw oui database of manufacturer codes. The URI is
+	 * {@value #IEEE_OUI_DATABASE_PATH}.
+	 */
 	public final static String IEEE_OUI_DATABASE_PATH =
 	    "http://standards.ieee.org/regauth/oui/oui.txt";
 
@@ -61,14 +71,18 @@ public class IEEEOuiPrefixResolver
 	private boolean initialized = false;
 
 	/**
-	 * Instantiates a new iEEE oui prefix resolver.
+	 * Creates an uninitalized Oui prefix resolver. The resolver is "late"
+	 * initialized when its first called on to do work.
+	 * 
 	 */
 	public IEEEOuiPrefixResolver() {
 		super(JLogger.getLogger(IEEEOuiPrefixResolver.class), "OUI_PREFIX");
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.util.resolver.AbstractResolver#initializeIfNeeded()
+	/**
+	 * Initializes the resolver by first checking if there are any cached entries,
+	 * if none, it reads the compressed oui database supplied with jNetPcap in the
+	 * resource directory {@value #RESOURCE_COMPRESSED_OUI_DATABASE}.
 	 */
 	@Override
 	public void initializeIfNeeded() {
@@ -113,8 +127,20 @@ public class IEEEOuiPrefixResolver
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.util.resolver.AbstractResolver#loadCache(java.net.URL)
+	/**
+	 * Download IEEE supplied OUI.txt database of manufacturer prefixes and codes.
+	 * The file is downloaded using the protocol specified in the URL, parsed and
+	 * cached indefinately. The machine making the URL connection must have
+	 * internet connection available as well as neccessary security permissions
+	 * form JRE in order to make the connection.
+	 * <p>
+	 * 
+	 * @param url
+	 *          The url of the IEEE resource to load. If the url is null, the
+	 *          default uri is attempted {@value #IEEE_OUI_DATABASE_PATH}.
+	 * @return number of entries cached
+	 * @throws IOException
+	 *           any IO errors
 	 */
 	@Override
 	public int loadCache(URL url) throws IOException {
@@ -330,17 +356,19 @@ public class IEEEOuiPrefixResolver
 	}
 
 	/**
-	 * Transform.
+	 * Transform any reference to specific terms with abbrieviations. The method
+	 * also makes the sigular form plural and checks both lower and upper case
+	 * versions.
 	 * 
 	 * @param str
-	 *          the str
+	 *          string to be transformed
 	 * @param more
 	 *          the more
 	 * @param singular
-	 *          the singular
+	 *          term to look for in sigular form
 	 * @param abbr
-	 *          the abbr
-	 * @return the string
+	 *          abbreviation to substitute in place
+	 * @return new string
 	 */
 	private String transform(
 	    String str,
@@ -371,16 +399,27 @@ public class IEEEOuiPrefixResolver
 		return str;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.util.resolver.AbstractResolver#resolveToName(byte[], long)
+	/**
+	 * Resolves the supplied address to a human readable name.
+	 * 
+	 * @param address
+	 *          the address
+	 * @param hash
+	 *          the hash
+	 * @return resolved name or null if not resolved
 	 */
 	@Override
 	public String resolveToName(byte[] address, long hash) {
 		return null; // If its not in the cache, we don't know what it is
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.util.resolver.AbstractResolver#toHashCode(byte[])
+	/**
+	 * Generates a special hashcode for first 3 bytes of the address that is
+	 * unique for every address.
+	 * 
+	 * @param address
+	 *          the address
+	 * @return the long
 	 */
 	@Override
 	public long toHashCode(byte[] address) {
@@ -393,6 +432,12 @@ public class IEEEOuiPrefixResolver
 	 * (non-Javadoc)
 	 * 
 	 * @see org.jnetpcap.util.AbstractResolver#resolveToName(long, long)
+	 */
+	/** 
+	 * @param number
+	 * @param hash
+	 * @return
+	 * @see org.jnetpcap.util.resolver.AbstractResolver#resolveToName(long, long)
 	 */
 	@Override
 	protected String resolveToName(long number, long hash) {

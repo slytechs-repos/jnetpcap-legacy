@@ -24,7 +24,10 @@ import org.jnetpcap.protocol.lan.Ethernet;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class BindNetworkFamily.
+ * A collection of network layer protocol to protocol bindings.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public final class BindNetworkFamily {
 

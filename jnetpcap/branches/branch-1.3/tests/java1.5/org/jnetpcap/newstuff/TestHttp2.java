@@ -27,7 +27,8 @@ import org.jnetpcap.packet.format.TextFormatter;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class TestHttp2.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class TestHttp2
     extends

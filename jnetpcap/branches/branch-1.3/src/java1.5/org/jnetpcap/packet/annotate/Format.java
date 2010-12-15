@@ -20,6 +20,9 @@ package org.jnetpcap.packet.annotate;
 
 /**
  * The Interface Format.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public @interface Format {
 

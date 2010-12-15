@@ -32,7 +32,9 @@ import org.jnetpcap.util.checksum.Checksum;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class Bug2878768_jmemory_packet_int.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
+ *
  */
 public class Bug2878768_jmemory_packet_int
     extends

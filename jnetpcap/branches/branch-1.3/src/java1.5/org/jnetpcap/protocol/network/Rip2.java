@@ -22,7 +22,13 @@ import org.jnetpcap.packet.annotate.Field;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class Rip2.
+ * Routing Information Protocol version 2. Extends the basic Rip1 header by
+ * supplying an extends EntryV1 definition. Both v1 and v2 entries are forward
+ * and backward compatible, with Rip1 reader ignoring the rip2 specific fields.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
+ * @see Rip1
  */
 public abstract class Rip2
     extends
@@ -31,8 +37,10 @@ public abstract class Rip2
 	/** The routing table. */
 	private EntryV2[] routingTable;
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.protocol.network.Rip1#routingTable()
+	/**
+	 * Gets the routing table.
+	 * 
+	 * @return an array of routing table entries
 	 */
 	@Field(offset = 4 * 8)
 	public EntryV2[] routingTable() {
@@ -44,7 +52,7 @@ public abstract class Rip2
 	}
 
 	/**
-	 * Decode routing table.
+	 * Do the actual decoding of the routing table.
 	 */
 	private void decodeRoutingTable() {
 
@@ -59,7 +67,11 @@ public abstract class Rip2
 	}
 
 	/**
-	 * The Class EntryV2.
+	 * Rip2 routing table entry definition. Overrides V1 definition and adds V2
+	 * specific fields. V2 fields are unused but reserved present in V1 structure.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public static class EntryV2
 	    extends

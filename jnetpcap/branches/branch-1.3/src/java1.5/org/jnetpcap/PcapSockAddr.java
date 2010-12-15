@@ -20,7 +20,13 @@ package org.jnetpcap;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class PcapSockAddr.
+ * Class peered with native <code>struct sockaddr</code> structure. The class
+ * contains the same fields of the counter part C structure. In jNetPcap library
+ * its fields are initialized within the native library and returned to java
+ * space. The class is readonly, and only provides getter methods.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class PcapSockAddr {
 
@@ -33,10 +39,10 @@ public class PcapSockAddr {
 		initIDs();
 	}
 
-	/** The Constant AF_INET. */
+	/** Socket family internet version 4. */
 	public final static int AF_INET = 2;
 
-	/** The Constant AF_INET6. */
+	/** Socket family internet version 6. */
 	public final static int AF_INET6 = 23;
 
 	/** The family. */
@@ -46,7 +52,7 @@ public class PcapSockAddr {
 	private volatile byte[] data;
 
 	/**
-	 * Gets the family.
+	 * Gets the socket's protocol family identifier.
 	 * 
 	 * @return the family
 	 */
@@ -55,7 +61,8 @@ public class PcapSockAddr {
 	}
 
 	/**
-	 * Gets the data.
+	 * Gets protocol family specifiy array of bytes which contain the protocol's
+	 * address. Length of the byte[] is protocol type dependent.
 	 * 
 	 * @return the data
 	 */
@@ -74,8 +81,10 @@ public class PcapSockAddr {
 		return (b >= 0) ? b : b + 256;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
+	/**
+	 * Debug string.
+	 * 
+	 * @return debug string
 	 */
 	@Override
   public String toString() {

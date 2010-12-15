@@ -26,7 +26,8 @@ import junit.framework.TestCase;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class TestPcapUtils.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class TestPcapUtils
     extends TestCase {

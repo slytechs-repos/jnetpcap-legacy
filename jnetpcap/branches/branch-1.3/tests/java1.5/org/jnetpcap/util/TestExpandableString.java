@@ -32,18 +32,28 @@ import org.jnetpcap.util.config.JConfig;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class TestExpandableString.
+ * A special StringBuilder like class that replaces instances of property names
+ * and variable names with their values after doing a lookup.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class TestExpandableString
     extends TestCase {
 
-	/** The Constant COMPANY. */
+	/**
+	 * Constant that makes result comparison easier and less error prone
+	 */
 	private final static String COMPANY = "ACNE, Inc.";
 
-	/** The Constant JNP. */
+	/**
+	 * Constant that makes result comparison easier and less error prone
+	 */
 	private final static String JNP = "org.jnetpcap";
 
-	/** The Constant SUFFIX. */
+	/**
+	 * Constant that makes result comparison easier and less error prone
+	 */
 	private final static String SUFFIX = ".ext";
 
 	/** The variables. */

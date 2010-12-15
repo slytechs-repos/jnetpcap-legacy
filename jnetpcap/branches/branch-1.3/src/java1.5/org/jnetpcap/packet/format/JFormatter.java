@@ -34,16 +34,22 @@ import org.jnetpcap.util.resolver.Resolver.ResolverType;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class JFormatter.
+ * Formats decoded contents of a JPacket for output.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public abstract class JFormatter {
 
 	/**
-	 * The Enum Detail.
+	 * Detail level to include in formatted output.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public enum Detail {
 		
-		/** The MULT i_ lin e_ ful l_ detail. */
+		/** Full detail using multi line output if neccessary. */
 		MULTI_LINE_FULL_DETAIL {
 			public boolean isDisplayable(Priority priority) {
 				return true;
@@ -51,7 +57,7 @@ public abstract class JFormatter {
 
 		},
 
-		/** The MULT i_ lin e_ summary. */
+		/** Summary of one major component per line. */
 		MULTI_LINE_SUMMARY {
 			public boolean isDisplayable(Priority priority) {
 				return priority == Priority.MEDIUM || priority == Priority.HIGH;
@@ -59,7 +65,7 @@ public abstract class JFormatter {
 
 		},
 
-		/** The NONE. */
+		/** Supress output. */
 		NONE {
 			public boolean isDisplayable(Priority priority) {
 				return false;
@@ -67,7 +73,7 @@ public abstract class JFormatter {
 
 		},
 
-		/** The ON e_ lin e_ summary. */
+		/** Compress output to a single line of output for the entire component. */
 		ONE_LINE_SUMMARY {
 			public boolean isDisplayable(Priority priority) {
 				return priority == Priority.HIGH;
@@ -86,22 +92,32 @@ public abstract class JFormatter {
 	}
 
 	/**
-	 * The Enum Priority.
+	 * Priority assigned to JFields. The priority of a field is used to determine
+	 * which fields to include as part of format Detail.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public enum Priority {
 
-		/** The HIGH. */
+		/** High priority fields are included in every type of output. */
 		HIGH,
 
-		/** The LOW. */
+		/**
+		 * Low priority fields are only included in MULTI_LINE_FULL_DETAIL output
+		 * type.
+		 */
 		LOW,
 
-		/** The MEDIUM. */
+		/** Medium fields are included in multi line summary type output. */
 		MEDIUM
 	}
 
 	/**
-	 * The Enum Style.
+	 * Various output formatting styles for JField values.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public enum Style {
 		
@@ -130,14 +146,14 @@ public abstract class JFormatter {
  INT_BITS, /** The IN t_ dec. */
  INT_DEC,
 		
-		/** The IN t_ hex. */
+		/** Integer is converted to a hex with a preceding 0x in front. */
 		INT_HEX, 
  /** The IN t_ oct. */
  INT_OCT, 
  /** The IN t_ radi x_10. */
  INT_RADIX_10,
 		
-		/** The IN t_ radi x_16. */
+		/** Integer is convert to a hex without a preceding 0x in front. */
 		INT_RADIX_16, 
  /** The IN t_ radi x_2. */
  INT_RADIX_2, 
@@ -167,9 +183,9 @@ public abstract class JFormatter {
 	private static JFormatter global;
 
 	/**
-	 * Gets the default.
+	 * Gets the default formatter.
 	 * 
-	 * @return the default
+	 * @return default formatter
 	 */
 	public static JFormatter getDefault() {
 		if (global == null) {
@@ -190,10 +206,16 @@ public abstract class JFormatter {
 	}
 
 	/**
-	 * Sets the default display payload.
+	 * Sets a global flag that will enable or disable display of payload header in
+	 * a packet. If packet contains a payload header at the end of the packet this
+	 * flag determines if the header is displayed along with the rest of the
+	 * display or not. The default is to enable. This method sets a global flag
+	 * for all new formatters. Any existing formatters already instantiated will
+	 * not have their flag changed by this global method.
 	 * 
 	 * @param enable
-	 *          the new default display payload
+	 *          true will enable display of payload header otherwise disable
+	 * @see #setDisplayPayload(boolean)
 	 */
 	public static void setDefaultDisplayPayload(boolean enable) {
 		JFormatter.defaultDisplayPayload = enable;
@@ -255,10 +277,10 @@ public abstract class JFormatter {
 	}
 
 	/**
-	 * Instantiates a new j formatter.
+	 * Creates a formatter.
 	 * 
 	 * @param out
-	 *          the out
+	 *          appendable device where to send output
 	 */
 	public JFormatter(Appendable out) {
 		setDetail(DEFAULT_DETAIL);
@@ -268,10 +290,10 @@ public abstract class JFormatter {
 	}
 
 	/**
-	 * Instantiates a new j formatter.
+	 * Creates a formatter.
 	 * 
 	 * @param out
-	 *          the out
+	 *          buffer where to send output
 	 */
 	public JFormatter(StringBuilder out) {
 
@@ -487,14 +509,14 @@ public abstract class JFormatter {
 	}
 
 	/**
-	 * Format.
+	 * Formats a packet for output.
 	 * 
 	 * @param packet
-	 *          the packet
+	 *          packet to format
 	 * @param detail
-	 *          the detail
+	 *          detail level
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *           any IO errors when sending data to default output device
 	 */
 	public void format(JPacket packet, Detail detail) throws IOException {
 
@@ -533,12 +555,12 @@ public abstract class JFormatter {
 	}
 
 	/**
-	 * Format.
+	 * Formats a packet for output.
 	 * 
 	 * @param out
-	 *          the out
+	 *          string buffer to send output to
 	 * @param packet
-	 *          the packet
+	 *          packet to format
 	 */
 	public void format(StringBuilder out, JPacket packet) {
 
@@ -591,27 +613,27 @@ public abstract class JFormatter {
 	}
 
 	/**
-	 * Header after.
+	 * Called as the last step after the header has been formatted.
 	 * 
 	 * @param header
-	 *          the header
+	 *          headercurrently being formatted
 	 * @param detail
-	 *          the detail
+	 *          detail level to include
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *           any IO errors while sending data to output device
 	 */
 	protected abstract void headerAfter(JHeader header, Detail detail)
 			throws IOException;
 
 	/**
-	 * Header before.
+	 * Called as the first step before the header has been formatted.
 	 * 
 	 * @param header
-	 *          the header
+	 *          headercurrently being formatted
 	 * @param detail
-	 *          the detail
+	 *          detail level to include
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *           any IO errors while sending data to output device
 	 */
 	protected abstract void headerBefore(JHeader header, Detail detail)
 			throws IOException;
@@ -629,10 +651,10 @@ public abstract class JFormatter {
 	}
 
 	/**
-	 * Inc level.
+	 * Increment the padding level using default padding string.
 	 * 
 	 * @param count
-	 *          the count
+	 *          numer of pad strings to pad
 	 */
 	protected void incLevel(int count) {
 		incLevel(count, ' ');
@@ -706,9 +728,9 @@ public abstract class JFormatter {
 	}
 
 	/**
-	 * Pad.
+	 * Appends a string, a pad, to the beginning of the line.
 	 * 
-	 * @return the formatter
+	 * @return this formatter
 	 */
 	protected Formatter pad() {
 
@@ -722,7 +744,8 @@ public abstract class JFormatter {
 	}
 
 	/**
-	 * Reset.
+	 * If the current output device is a StringBuilder, it resets the buffer.
+	 * Otherwise this method does nothing.
 	 */
 	public void reset() {
 		if (outputBuffer != null) {
@@ -733,11 +756,13 @@ public abstract class JFormatter {
 	}
 
 	/**
-	 * Resolve ip.
+	 * Performs an IP address resolution. This method is not dependent of the
+	 * boolean address resolution flags.
 	 * 
 	 * @param address
-	 *          the address
-	 * @return the string
+	 *          address to convert
+	 * @return formatted string with the address resolved or address and a failure
+	 *         message
 	 */
 	private String resolveIp(byte[] address) {
 		String f =
@@ -754,10 +779,10 @@ public abstract class JFormatter {
 	}
 
 	/**
-	 * Sets the detail.
+	 * Changes the detail level that is displayed with formatted output.
 	 * 
 	 * @param detail
-	 *          the new detail
+	 *          the level of detail to set for all headers
 	 */
 	public void setDetail(Detail detail) {
 		for (int i = 0; i < JRegistry.MAX_ID_COUNT; i++) {
@@ -766,42 +791,51 @@ public abstract class JFormatter {
 	}
 
 	/**
-	 * Sets the detail.
+	 * Changes the detail level that is displayed for formatted output for a
+	 * specific header type.
 	 * 
 	 * @param detail
-	 *          the detail
+	 *          the level of detail set for this particular header
 	 * @param id
-	 *          the id
+	 *          header id
 	 */
 	public void setDetail(Detail detail, int id) {
 		detailsPerHeader[id] = detail;
 	}
 
 	/**
-	 * Sets the display payload.
+	 * Sets weather the payload header will be part of the display of a packet.
+	 * This is an instance method that defaults the global setting. You can change
+	 * this flag on an instance by instance basis.
 	 * 
 	 * @param enable
-	 *          the new display payload
+	 *          if true will include payload header in the display, otherwise it
+	 *          will not
+	 * @see #setDefaultDisplayPayload(boolean)
 	 */
 	public void setDisplayPayload(boolean enable) {
 		this.displayPayload = enable;
 	}
 
 	/**
-	 * Sets the frame index.
+	 * Sets the packet frame number, as an index. This value will be used in
+	 * display of the header. Once set to a value of 0 or more, it will be
+	 * automatically incremented for every new packet frame displayed. It can be
+	 * also set to new value between each format call.
 	 * 
 	 * @param index
-	 *          the new frame index
+	 *          initial index for frame number
 	 */
 	public void setFrameIndex(int index) {
 		this.frameIndex = index;
 	}
 
 	/**
-	 * Sets the output.
+	 * Changes the output device for this formatter. Output produced will be sent
+	 * to the specified device.
 	 * 
 	 * @param out
-	 *          the new output
+	 *          new formatter device
 	 */
 	public void setOutput(Appendable out) {
 		this.out = new Formatter(out);
@@ -809,10 +843,11 @@ public abstract class JFormatter {
 	}
 
 	/**
-	 * Sets the output.
+	 * Changes the output device for this formatter. Output produced will be sent
+	 * to the specified device.
 	 * 
 	 * @param out
-	 *          the new output
+	 *          new formatter device
 	 */
 	public void setOutput(StringBuilder out) {
 		this.outputBuffer = out;
@@ -820,10 +855,14 @@ public abstract class JFormatter {
 	}
 
 	/**
-	 * Sets the resolve addresses.
+	 * Sets a flag which will enable address resolutions. This is an instance
+	 * method setter that will change the flag only for this instance of the
+	 * formatter. The default is set to global default which is set using
 	 * 
 	 * @param enable
-	 *          the new resolve addresses
+	 *          true to enable address resolution, otherwise false
+	 *          {@link #setDefaultResolveAddress(boolean)}.
+	 * @see #setDefaultResolveAddress(boolean)
 	 */
 	public void setResolveAddresses(boolean enable) {
 		resolveAddresses = enable;
@@ -1088,7 +1127,8 @@ public abstract class JFormatter {
 			JHeader subHeader,
 			Detail detail) throws IOException;
 
-	/* (non-Javadoc)
+	/** 
+	 * @return
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {

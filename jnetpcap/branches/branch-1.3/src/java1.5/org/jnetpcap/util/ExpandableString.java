@@ -23,7 +23,23 @@ import java.util.List;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class ExpandableString.
+ * A special string that allows easy expandibility within it. The
+ * ExpandableString is made up of 2 parts. A template string and a work buffer.
+ * Whenever a reset() call is made, the buffer is replaced with the contents of
+ * the template. The various replace calls, change the buffer by replacing
+ * certain parts, recursively. Subclasses perform specific expand operations,
+ * that are suited for their needs. Substitutions between single quotes are
+ * omitted and returned untouched. Everything else that is not single quoted,
+ * can be expanded. Escape character, the back-slash, is treated with a lot of
+ * respect.
+ * <p>
+ * For example ConfigString subclass replaces variables and properties (marked
+ * with $ and &#64; signs respectively) with contents from various maps and
+ * properties.
+ * </p>
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class ExpandableString
     extends JStringBuilder {
@@ -211,7 +227,7 @@ public class ExpandableString
 	 * Sets the template.
 	 * 
 	 * @param template
-	 *          the new template
+	 *          the template to set
 	 */
 	public final void setTemplate(String template) {
 		this.template = template;
@@ -227,7 +243,8 @@ public class ExpandableString
 		return this.template;
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @return
 	 * @see org.jnetpcap.util.JStringBuilder#toString()
 	 */
 	public String toString() {

@@ -32,12 +32,28 @@ import org.jnetpcap.util.config.JConfig;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class JLogger.
+ * Java Logging mechanism. This is a slight extension to JRE's logger that
+ * initializes the global logging environmet and adds a couple of convenience
+ * methods that are jNetPcap specific. Default jNetPcap properties are loaded as
+ * a resource found in CLASSPATH under the resources directory.
+ * <p>
+ * Note: standard system properties for JRE's logging system:
+ * 
+ * <pre>
+ * &quot;java.util.logging.config.file&quot; - specifies a .properties file
+ * &quot;java.util.logging.config.class&quot; - a class configures the LogManager from its 
+ *    constructor
+ * </pre>
+ * 
+ * </p>
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class JLogger
     extends Logger {
 
-	/** The Constant PROPERTIES_CONFIG. */
+	/** Default resource file with logger configurations. */
 	public static final String PROPERTIES_CONFIG =
 	    "resources/builtin-logger.properties";
 
@@ -187,6 +203,11 @@ public class JLogger
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see java.util.logging.Logger#setLevel(java.util.logging.Level)
+	 */
+	/** 
+	 * @param newLevel
+	 * @throws SecurityException
 	 * @see java.util.logging.Logger#setLevel(java.util.logging.Level)
 	 */
 	@Override

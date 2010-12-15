@@ -50,7 +50,8 @@ import org.jnetpcap.protocol.network.Ip4;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class TestAnotatedDefinition.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class TestAnotatedDefinition
     extends TestCase {

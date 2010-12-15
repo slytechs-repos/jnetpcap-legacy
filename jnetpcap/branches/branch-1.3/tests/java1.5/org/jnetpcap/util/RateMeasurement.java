@@ -22,7 +22,8 @@ import java.io.IOException;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class RateMeasurement.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class RateMeasurement
     extends

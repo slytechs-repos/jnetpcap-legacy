@@ -20,7 +20,15 @@ package org.jnetpcap;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class PcapPktHdr.
+ * Class peered with native <code>pcap_pkthdr</code> structure. This classes
+ * fields are initialized with values from the C structure. There are no setter
+ * methods, since the <code>pcap_pkthdr</code> C structure is used in
+ * read-only fassion.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
+ * @deprecated replaced by PcapHeader
+ * @see PcapHeader
  */
 public class PcapPktHdr {
 
@@ -46,7 +54,7 @@ public class PcapPktHdr {
 	private volatile int len;
 
 	/**
-	 * Instantiates a new pcap pkt hdr.
+	 * Initializes the timestamp fields to current time and length fields to 0.
 	 */
 	public PcapPktHdr() {
 		this.seconds = System.currentTimeMillis() / 1000; // In seconds
@@ -57,12 +65,13 @@ public class PcapPktHdr {
 	}
 
 	/**
-	 * Instantiates a new pcap pkt hdr.
+	 * Allocates a new packet header and initializes the caplen and len fields.
+	 * The timestamp fields are initialized to current timestamp.
 	 * 
 	 * @param caplen
-	 *          the caplen
+	 *          amount of data captured
 	 * @param len
-	 *          the len
+	 *          original packet length
 	 */
 	public PcapPktHdr(int caplen, int len) {
 		this.caplen = caplen;
@@ -76,13 +85,13 @@ public class PcapPktHdr {
 	 * Instantiates a new pcap pkt hdr.
 	 * 
 	 * @param seconds
-	 *          the seconds
+	 *          time stamp in seconds
 	 * @param useconds
-	 *          the useconds
+	 *          a fraction of a second. Valid value is from 0 to 999,999.
 	 * @param caplen
-	 *          the caplen
+	 *          amount of data captured
 	 * @param len
-	 *          the len
+	 *          original packet length
 	 */
 	public PcapPktHdr(long seconds, int useconds, int caplen, int len) {
 		this.seconds = seconds;
@@ -92,7 +101,7 @@ public class PcapPktHdr {
 	}
 
 	/**
-	 * Gets the seconds.
+	 * Capture timestamp in seconds.
 	 * 
 	 * @return the seconds
 	 */
@@ -101,7 +110,7 @@ public class PcapPktHdr {
 	}
 
 	/**
-	 * Gets the useconds.
+	 * Capture timestamp in microseconds fraction.
 	 * 
 	 * @return the useconds
 	 */
@@ -110,7 +119,7 @@ public class PcapPktHdr {
 	}
 
 	/**
-	 * Gets the caplen.
+	 * Number of bytes actually captured.
 	 * 
 	 * @return the caplen
 	 */
@@ -119,7 +128,7 @@ public class PcapPktHdr {
 	}
 
 	/**
-	 * Gets the len.
+	 * Number of original bytes in the packet.
 	 * 
 	 * @return the len
 	 */
@@ -131,7 +140,7 @@ public class PcapPktHdr {
 	 * Sets the seconds.
 	 * 
 	 * @param seconds
-	 *          the new seconds
+	 *          the seconds to set
 	 */
 	public final void setSeconds(long seconds) {
 		this.seconds = seconds;
@@ -141,7 +150,7 @@ public class PcapPktHdr {
 	 * Sets the useconds.
 	 * 
 	 * @param useconds
-	 *          the new useconds
+	 *          the useconds to set
 	 */
 	public final void setUseconds(int useconds) {
 		this.useconds = useconds;
@@ -151,7 +160,7 @@ public class PcapPktHdr {
 	 * Sets the caplen.
 	 * 
 	 * @param caplen
-	 *          the new caplen
+	 *          the caplen to set
 	 */
 	public final void setCaplen(int caplen) {
 		this.caplen = caplen;
@@ -161,7 +170,7 @@ public class PcapPktHdr {
 	 * Sets the len.
 	 * 
 	 * @param len
-	 *          the new len
+	 *          the len to set
 	 */
 	public final void setLen(int len) {
 		this.len = len;

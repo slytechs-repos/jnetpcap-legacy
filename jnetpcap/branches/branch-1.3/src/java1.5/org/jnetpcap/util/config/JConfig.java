@@ -43,7 +43,28 @@ import org.jnetpcap.util.JLogger;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class JConfig.
+ * JConfig is responsible for jNetPcap configuration and global environment
+ * maintentance. Its main purpose to locate resources such as config files, read
+ * system properties and create an environment where resolver files can be
+ * stored and maintained. The class provides various static (global) methods for
+ * this purpose.
+ * <p>
+ * Property names and constant values:
+ * <ul>
+ * <li>{@value #CACHE_DIR_PROPERTY} - property defines full directory name
+ * where resolver files are saved
+ * <li>{@value #CACHE_FILE_SUFFIX_PROPERTY} - property defines overrides the
+ * default suffix name (default value {@value #CACHE_FILE_SUFFIX})
+ * <li>{@value #CACHE_SUB_DIR_PROPERTY} property overrides the default sub
+ * directory name used, if explicit full directory is not defined (default value
+ * {@value #CACHE_SUB_DIR})
+ * <li>{@value #USER_HOME_PROPERTY} - system property which defines where the
+ * current user's home dir is
+ * </ul>
+ * </p>
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class JConfig {
 
@@ -70,6 +91,12 @@ public class JConfig {
 		 * 
 		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getDir(java.lang.String)
 		 */
+		/** 
+		 * @param name
+		 * @return
+		 * @throws IOException
+		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getFile(java.lang.String)
+		 */
 		public File getFile(String name) throws IOException {
 			return null;
 		}
@@ -78,6 +105,12 @@ public class JConfig {
 		 * (non-Javadoc)
 		 * 
 		 * @see org.jnetpcap.util.JConfig.SearchPath#get(java.lang.String)
+		 */
+		/** 
+		 * @param name
+		 * @return
+		 * @throws IOException
+		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getInputStream(java.lang.String)
 		 */
 		public InputStream getInputStream(String name) throws IOException {
 			URL url = getURL(name);
@@ -89,6 +122,12 @@ public class JConfig {
 		 * (non-Javadoc)
 		 * 
 		 * @see org.jnetpcap.util.JConfig.SearchPath#getURL(java.lang.String)
+		 */
+		/** 
+		 * @param name
+		 * @return
+		 * @throws IOException
+		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getURL(java.lang.String)
 		 */
 		public URL getURL(String name) throws IOException {
 			resource.reset();
@@ -111,7 +150,8 @@ public class JConfig {
 			}
 		}
 
-		/* (non-Javadoc)
+		/** 
+		 * @return
 		 * @see java.lang.Object#toString()
 		 */
 		public String toString() {
@@ -121,6 +161,11 @@ public class JConfig {
 		/*
 		 * (non-Javadoc)
 		 * 
+		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getDir(java.lang.String)
+		 */
+		/** 
+		 * @param name
+		 * @return
 		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getDir(java.lang.String)
 		 */
 		public File getDir(String name) {
@@ -163,7 +208,9 @@ public class JConfig {
 			this.properties = properties;
 		}
 
-		/* (non-Javadoc)
+		/** 
+		 * @param value
+		 * @return
 		 * @see java.util.Hashtable#contains(java.lang.Object)
 		 */
 		@Override
@@ -177,7 +224,9 @@ public class JConfig {
 			return false;
 		}
 
-		/* (non-Javadoc)
+		/** 
+		 * @param key
+		 * @return
 		 * @see java.util.Hashtable#containsKey(java.lang.Object)
 		 */
 		@Override
@@ -207,7 +256,9 @@ public class JConfig {
 			return flat;
 		}
 
-		/* (non-Javadoc)
+		/** 
+		 * @param key
+		 * @return
 		 * @see java.util.Properties#getProperty(java.lang.String)
 		 */
 		@Override
@@ -215,7 +266,10 @@ public class JConfig {
 			return getProperty(key, null);
 		}
 
-		/* (non-Javadoc)
+		/** 
+		 * @param key
+		 * @param defaultValue
+		 * @return
 		 * @see java.util.Properties#getProperty(java.lang.String, java.lang.String)
 		 */
 		@Override
@@ -238,6 +292,10 @@ public class JConfig {
 		 * 
 		 * @see java.util.Hashtable#keySet()
 		 */
+		/** 
+		 * @return
+		 * @see java.util.Hashtable#keySet()
+		 */
 		@Override
 		public Set<Object> keySet() {
 			return flatten().keySet();
@@ -246,6 +304,10 @@ public class JConfig {
 		/*
 		 * (non-Javadoc)
 		 * 
+		 * @see java.util.Properties#list(java.io.PrintStream)
+		 */
+		/** 
+		 * @param out
 		 * @see java.util.Properties#list(java.io.PrintStream)
 		 */
 		@Override
@@ -258,6 +320,10 @@ public class JConfig {
 		 * 
 		 * @see java.util.Properties#list(java.io.PrintWriter)
 		 */
+		/** 
+		 * @param out
+		 * @see java.util.Properties#list(java.io.PrintWriter)
+		 */
 		@Override
 		public void list(PrintWriter out) {
 			flatten().list(out);
@@ -268,6 +334,11 @@ public class JConfig {
 		 * 
 		 * @see java.util.Properties#load(java.io.InputStream)
 		 */
+		/** 
+		 * @param inStream
+		 * @throws IOException
+		 * @see java.util.Properties#load(java.io.InputStream)
+		 */
 		@Override
 		public synchronized void load(InputStream inStream) throws IOException {
 			throw new UnsupportedOperationException("invalid operation in composite");
@@ -276,6 +347,12 @@ public class JConfig {
 		/*
 		 * (non-Javadoc)
 		 * 
+		 * @see java.util.Properties#loadFromXML(java.io.InputStream)
+		 */
+		/** 
+		 * @param in
+		 * @throws IOException
+		 * @throws InvalidPropertiesFormatException
 		 * @see java.util.Properties#loadFromXML(java.io.InputStream)
 		 */
 		@Override
@@ -289,6 +366,10 @@ public class JConfig {
 		 * 
 		 * @see java.util.Properties#propertyNames()
 		 */
+		/** 
+		 * @return
+		 * @see java.util.Properties#propertyNames()
+		 */
 		@Override
 		public Enumeration<?> propertyNames() {
 			return flatten().propertyNames();
@@ -297,6 +378,12 @@ public class JConfig {
 		/*
 		 * (non-Javadoc)
 		 * 
+		 * @see java.util.Properties#setProperty(java.lang.String, java.lang.String)
+		 */
+		/** 
+		 * @param key
+		 * @param value
+		 * @return
 		 * @see java.util.Properties#setProperty(java.lang.String, java.lang.String)
 		 */
 		@Override
@@ -323,6 +410,12 @@ public class JConfig {
 		 * 
 		 * @see java.util.Properties#store(java.io.OutputStream, java.lang.String)
 		 */
+		/** 
+		 * @param out
+		 * @param comments
+		 * @throws IOException
+		 * @see java.util.Properties#store(java.io.OutputStream, java.lang.String)
+		 */
 		@Override
 		public synchronized void store(OutputStream out, String comments)
 		    throws IOException {
@@ -338,6 +431,12 @@ public class JConfig {
 		 * @see java.util.Properties#storeToXML(java.io.OutputStream,
 		 *      java.lang.String)
 		 */
+		/** 
+		 * @param os
+		 * @param comment
+		 * @throws IOException
+		 * @see java.util.Properties#storeToXML(java.io.OutputStream, java.lang.String)
+		 */
 		@Override
 		public synchronized void storeToXML(OutputStream os, String comment)
 		    throws IOException {
@@ -350,6 +449,13 @@ public class JConfig {
 		 * 
 		 * @see java.util.Properties#storeToXML(java.io.OutputStream,
 		 *      java.lang.String, java.lang.String)
+		 */
+		/** 
+		 * @param os
+		 * @param comment
+		 * @param encoding
+		 * @throws IOException
+		 * @see java.util.Properties#storeToXML(java.io.OutputStream, java.lang.String, java.lang.String)
 		 */
 		@Override
 		public synchronized void storeToXML(
@@ -386,6 +492,12 @@ public class JConfig {
 		 * 
 		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getDir(java.lang.String)
 		 */
+		/** 
+		 * @param name
+		 * @return
+		 * @throws IOException
+		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getFile(java.lang.String)
+		 */
 		public File getFile(String name) throws IOException {
 			filename.reset();
 
@@ -412,6 +524,12 @@ public class JConfig {
 		 * 
 		 * @see org.jnetpcap.util.JConfig.SearchPath#get(java.lang.String)
 		 */
+		/** 
+		 * @param name
+		 * @return
+		 * @throws IOException
+		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getInputStream(java.lang.String)
+		 */
 		public InputStream getInputStream(String name) throws IOException {
 			File file = getFile(name);
 			if (file != null) {
@@ -426,6 +544,12 @@ public class JConfig {
 		 * 
 		 * @see org.jnetpcap.util.JConfig.SearchPath#get(java.lang.String)
 		 */
+		/** 
+		 * @param name
+		 * @return
+		 * @throws IOException
+		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getURL(java.lang.String)
+		 */
 		public URL getURL(String name) throws IOException {
 			File file = getFile(name);
 			if (file != null) {
@@ -435,7 +559,8 @@ public class JConfig {
 			}
 		}
 
-		/* (non-Javadoc)
+		/** 
+		 * @return
 		 * @see java.lang.Object#toString()
 		 */
 		public String toString() {
@@ -445,6 +570,11 @@ public class JConfig {
 		/*
 		 * (non-Javadoc)
 		 * 
+		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getDir(java.lang.String)
+		 */
+		/** 
+		 * @param name
+		 * @return
 		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getDir(java.lang.String)
 		 */
 		public File getDir(String name) {
@@ -523,6 +653,11 @@ public class JConfig {
 		 * 
 		 * @see java.io.BufferedInputStream#read()
 		 */
+		/** 
+		 * @return
+		 * @throws IOException
+		 * @see java.io.InputStream#read()
+		 */
 		@Override
 		public synchronized int read() throws IOException {
 
@@ -536,7 +671,13 @@ public class JConfig {
 	}
 
 	/**
-	 * The Interface SearchPath.
+	 * Interface used to piece together specific types of search paths.
+	 * Impelementing class defines whatever mechanism, use of properties, file
+	 * checks and defualt values that are deemed neccessary to produce an IO
+	 * Stream.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public interface SearchPath {
 		
@@ -606,6 +747,12 @@ public class JConfig {
 		 * 
 		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getDir(java.lang.String)
 		 */
+		/** 
+		 * @param name
+		 * @return
+		 * @throws IOException
+		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getFile(java.lang.String)
+		 */
 		public File getFile(String name) throws IOException {
 			return null;
 		}
@@ -614,6 +761,12 @@ public class JConfig {
 		 * (non-Javadoc)
 		 * 
 		 * @see org.jnetpcap.util.JConfig.SearchPath#get(java.lang.String)
+		 */
+		/** 
+		 * @param name
+		 * @return
+		 * @throws IOException
+		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getInputStream(java.lang.String)
 		 */
 		public InputStream getInputStream(String name) throws IOException {
 			url.reset();
@@ -659,6 +812,12 @@ public class JConfig {
 		 * 
 		 * @see org.jnetpcap.util.JConfig.SearchPath#get(java.lang.String)
 		 */
+		/** 
+		 * @param name
+		 * @return
+		 * @throws IOException
+		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getURL(java.lang.String)
+		 */
 		public URL getURL(String name) throws IOException {
 			url.reset();
 
@@ -699,7 +858,8 @@ public class JConfig {
 			return null;
 		}
 
-		/* (non-Javadoc)
+		/** 
+		 * @return
 		 * @see java.lang.Object#toString()
 		 */
 		public String toString() {
@@ -709,6 +869,11 @@ public class JConfig {
 		/*
 		 * (non-Javadoc)
 		 * 
+		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getDir(java.lang.String)
+		 */
+		/** 
+		 * @param name
+		 * @return
 		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getDir(java.lang.String)
 		 */
 		public File getDir(String name) {
@@ -724,20 +889,37 @@ public class JConfig {
 	/** The Constant builtinDefaults. */
 	private final static Properties builtinDefaults;
 
-	/** The Constant CACHE_DIR_PROPERTY. */
+	/**
+	 * Java property for resolver directory where resolver files are saved.
+	 * Property name is {@value #CACHE_DIR_PROPERTY}.
+	 */
 	public static final String CACHE_DIR_PROPERTY = "jnetpcap.resolver.dir";
 
-	/** The Constant CACHE_FILE_SUFFIX. */
+	/**
+	 * Suffix of a resolver file. Default is {@value #CACHE_FILE_SUFFIX}.
+	 */
 	public static final String CACHE_FILE_SUFFIX = ".resolver";
 
-	/** The Constant CACHE_FILE_SUFFIX_PROPERTY. */
+	/**
+	 * Suffix of a resolver file. Property name is
+	 * {@value #CACHE_FILE_SUFFIX_PROPERTY}.
+	 */
 	public static final String CACHE_FILE_SUFFIX_PROPERTY =
 	    "jnetpcap.resolver.suffix";
 
-	/** The Constant CACHE_SUB_DIR. */
+	/**
+	 * If resolver directory is not explicitely defined with a property, this is
+	 * the default sub directory name used in user's home directory for all
+	 * resolver files. Default is {@value #CACHE_SUB_DIR}.
+	 */
 	public static final String CACHE_SUB_DIR = ".jnp";
 
-	/** The Constant CACHE_SUB_DIR_PROPERTY. */
+	/**
+	 * If resolver directory is not explicitely defined with a.
+	 * {@value #CACHE_DIR_PROPERTY}, this is the default sub directory name used
+	 * in user's home directory for all resolver files. The property name is
+	 * {@value #CACHE_SUB_DIR_PROPERTY}.
+	 */
 	public static final String CACHE_SUB_DIR_PROPERTY =
 	    "jnetpcap.resolver.subdir";
 
@@ -769,7 +951,10 @@ public class JConfig {
 	/** The Constant topReadOnlyProperties. */
 	private final static CompositeProperties topReadOnlyProperties;
 
-	/** The Constant USER_HOME_PROPERTY. */
+	/**
+	 * System property name used to lookup user's home directory. The property
+	 * name is {@value #USER_HOME_PROPERTY}.
+	 */
 	public static final String USER_HOME_PROPERTY = "user.home";
 
 	/** The Constant userProperties. */
@@ -902,7 +1087,7 @@ public class JConfig {
 	}
 
 	/**
-	 * Adds the listener.
+	 * Adds listener on any property change event.
 	 * 
 	 * @param listener
 	 *          the listener

@@ -32,6 +32,8 @@ import java.util.concurrent.atomic.AtomicReference;
  * 
  * @param <T>
  *          the generic type
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 
@@ -45,10 +47,10 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	private final AtomicReference<Thread> thread = new AtomicReference<Thread>();
 
 	/**
-	 * Instantiates a new blocking queue pump.
+	 * Unlimited capacity queue.
 	 * 
 	 * @param name
-	 *          the name
+	 *          name to use for the worker thread
 	 */
 	public BlockingQueuePump(String name) {
 		this.queue = new LinkedBlockingQueue<T>();
@@ -58,12 +60,12 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
-	 * Instantiates a new blocking queue pump.
+	 * A limited in capacity queue.
 	 * 
 	 * @param name
-	 *          the name
+	 *          name to use for the workder thread
 	 * @param capacity
-	 *          the capacity
+	 *          maximum capacity of the queue
 	 */
 	public BlockingQueuePump(String name, int capacity) {
 		this.queue = new ArrayBlockingQueue<T>(capacity);
@@ -72,35 +74,44 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 		start();
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @param o
+	 * @return
 	 * @see java.util.concurrent.BlockingQueue#add(java.lang.Object)
 	 */
 	public boolean add(T o) {
 		return this.queue.add(o);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @param c
+	 * @return
 	 * @see java.util.Collection#addAll(java.util.Collection)
 	 */
 	public boolean addAll(Collection<? extends T> c) {
 		return this.queue.addAll(c);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * 
 	 * @see java.util.Collection#clear()
 	 */
 	public void clear() {
 		this.queue.clear();
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @param o
+	 * @return
 	 * @see java.util.Collection#contains(java.lang.Object)
 	 */
 	public boolean contains(Object o) {
 		return this.queue.contains(o);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @param c
+	 * @return
 	 * @see java.util.Collection#containsAll(java.util.Collection)
 	 */
 	public boolean containsAll(Collection<?> c) {
@@ -115,37 +126,48 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	 */
 	protected abstract void dispatch(T data);
 
-	/* (non-Javadoc)
+	/**
+	 * @param c
+	 * @return
 	 * @see java.util.concurrent.BlockingQueue#drainTo(java.util.Collection)
 	 */
 	public int drainTo(Collection<? super T> c) {
 		return this.queue.drainTo(c);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @param c
+	 * @param maxElements
+	 * @return
 	 * @see java.util.concurrent.BlockingQueue#drainTo(java.util.Collection, int)
 	 */
 	public int drainTo(Collection<? super T> c, int maxElements) {
 		return this.queue.drainTo(c, maxElements);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @return
 	 * @see java.util.Queue#element()
 	 */
 	public T element() {
 		return this.queue.element();
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @param o
+	 * @return
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
+	@Override
 	public boolean equals(Object o) {
 		return this.queue.equals(o);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @return
 	 * @see java.lang.Object#hashCode()
 	 */
+	@Override
 	public int hashCode() {
 		return this.queue.hashCode();
 	}
@@ -159,99 +181,127 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 		return thread.get() != null && thread.get().isAlive();
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @return
 	 * @see java.util.Collection#isEmpty()
 	 */
 	public boolean isEmpty() {
 		return this.queue.isEmpty();
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @return
 	 * @see java.util.Collection#iterator()
 	 */
 	public Iterator<T> iterator() {
 		return this.queue.iterator();
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @param o
+	 * @return
 	 * @see java.util.concurrent.BlockingQueue#offer(java.lang.Object)
 	 */
 	public boolean offer(T o) {
 		return this.queue.offer(o);
 	}
 
-	/* (non-Javadoc)
-	 * @see java.util.concurrent.BlockingQueue#offer(java.lang.Object, long, java.util.concurrent.TimeUnit)
+	/**
+	 * @param o
+	 * @param timeout
+	 * @param unit
+	 * @return
+	 * @throws InterruptedException
+	 * @see java.util.concurrent.BlockingQueue#offer(java.lang.Object, long,
+	 *      java.util.concurrent.TimeUnit)
 	 */
 	public boolean offer(T o, long timeout, TimeUnit unit)
-	    throws InterruptedException {
+			throws InterruptedException {
 		return this.queue.offer(o, timeout, unit);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @return
 	 * @see java.util.Queue#peek()
 	 */
 	public T peek() {
 		return this.queue.peek();
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @return
 	 * @see java.util.Queue#poll()
 	 */
 	public T poll() {
 		return this.queue.poll();
 	}
 
-	/* (non-Javadoc)
-	 * @see java.util.concurrent.BlockingQueue#poll(long, java.util.concurrent.TimeUnit)
+	/**
+	 * @param timeout
+	 * @param unit
+	 * @return
+	 * @throws InterruptedException
+	 * @see java.util.concurrent.BlockingQueue#poll(long,
+	 *      java.util.concurrent.TimeUnit)
 	 */
 	public T poll(long timeout, TimeUnit unit) throws InterruptedException {
 		return this.queue.poll(timeout, unit);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @param o
+	 * @throws InterruptedException
 	 * @see java.util.concurrent.BlockingQueue#put(java.lang.Object)
 	 */
 	public void put(T o) throws InterruptedException {
 		this.queue.put(o);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @return
 	 * @see java.util.concurrent.BlockingQueue#remainingCapacity()
 	 */
 	public int remainingCapacity() {
 		return this.queue.remainingCapacity();
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @return
 	 * @see java.util.Queue#remove()
 	 */
 	public T remove() {
 		return this.queue.remove();
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @param o
+	 * @return
 	 * @see java.util.Collection#remove(java.lang.Object)
 	 */
 	public boolean remove(Object o) {
 		return this.queue.remove(o);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @param c
+	 * @return
 	 * @see java.util.Collection#removeAll(java.util.Collection)
 	 */
 	public boolean removeAll(Collection<?> c) {
 		return this.queue.removeAll(c);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @param c
+	 * @return
 	 * @see java.util.Collection#retainAll(java.util.Collection)
 	 */
 	public boolean retainAll(Collection<?> c) {
 		return this.queue.retainAll(c);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @return
 	 * @see java.util.Collection#size()
 	 */
 	public int size() {
@@ -269,7 +319,7 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 
 				if (thread.get() != null) {
 					throw new IllegalStateException(name
-					    + " thread unexpected termination");
+							+ " thread unexpected termination");
 				}
 
 			} catch (InterruptedException e) {
@@ -315,21 +365,27 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 		}
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @return
+	 * @throws InterruptedException
 	 * @see java.util.concurrent.BlockingQueue#take()
 	 */
 	public T take() throws InterruptedException {
 		return this.queue.take();
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @return
 	 * @see java.util.Collection#toArray()
 	 */
 	public Object[] toArray() {
 		return this.queue.toArray();
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @param <Q>
+	 * @param a
+	 * @return
 	 * @see java.util.Collection#toArray(T[])
 	 */
 	public <Q> Q[] toArray(Q[] a) {

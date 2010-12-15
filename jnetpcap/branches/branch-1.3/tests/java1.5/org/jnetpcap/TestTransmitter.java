@@ -39,7 +39,8 @@ import org.jnetpcap.protocol.tcpip.Tcp;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class TestTransmitter.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @SuppressWarnings("unused")
 public class TestTransmitter
@@ -64,7 +65,11 @@ public class TestTransmitter
 	/** The Constant oneSecond. */
 	private static final int oneSecond = 1000;
 
-	/** The Constant gen. */
+	/**
+	 * Will generate HTTP traffic to a website. Use start() to start in a test
+	 * method, and always put stop() in tearDown. Safe to call stop even when
+	 * never started.
+	 */
 	private static final HttpTrafficGenerator gen = new HttpTrafficGenerator();
 
 	/** The tmp file. */
@@ -81,10 +86,10 @@ public class TestTransmitter
 	}
 
 	/**
-	 * The main method.
+	 * Command line launcher to run the jUnit tests cases in this test class.
 	 * 
 	 * @param args
-	 *          the arguments
+	 *          -h for help
 	 */
 	public static void main(String[] args) {
 		if (args.length == 1 && "-h".equals(args[0])) {
@@ -169,7 +174,9 @@ public class TestTransmitter
 	}
 
 	/**
-	 * Test send packet using byte array.
+	 * This is a tricky test that must be disabled by default. We create a dummy
+	 * packet all filled with 0xFF for 14 bytes which is the size of ethernet
+	 * frame. This should produce a broadcast frame.
 	 */
 	public void testSendPacketUsingByteArray() {
 
@@ -200,7 +207,9 @@ public class TestTransmitter
 	}
 
 	/**
-	 * Test inject packet.
+	 * This is a tricky test that must be disabled by default. We create a dummy
+	 * packet all filled with 0xFF for 14 bytes which is the size of ethernet
+	 * frame. This should produce a broadcast frame.
 	 */
 	public void testInjectPacket() {
 

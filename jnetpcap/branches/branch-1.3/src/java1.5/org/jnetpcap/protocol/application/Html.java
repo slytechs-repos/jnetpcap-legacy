@@ -36,7 +36,10 @@ import org.jnetpcap.util.JThreadLocal;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class Html.
+ * Hyper Text Markup Language header definition.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @Header(nicname = "Html", suite = ProtocolSuite.APPLICATION)
 public class Html
@@ -44,7 +47,10 @@ public class Html
     JHeader {
 
 	/**
-	 * The Class HtmlTag.
+	 * Html tag instance parsed from the html document.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public static class HtmlTag {
 
@@ -212,7 +218,8 @@ public class Html
 			}
 		}
 
-		/* (non-Javadoc)
+		/** 
+		 * @return
 		 * @see java.lang.Object#toString()
 		 */
 		public String toString() {
@@ -248,7 +255,10 @@ public class Html
 	}
 
 	/**
-	 * The Enum Tag.
+	 * Table of supported HTML tags.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public enum Tag {
 		
@@ -379,7 +389,10 @@ public class Html
 		UNKNOWN;
 
 		/**
-		 * The Enum Param.
+		 * Table of tag parameters.
+		 * 
+		 * @author Mark Bednarczyk
+		 * @author Sly Technologies, Inc.
 		 */
 		public enum Param {
 			
@@ -538,7 +551,8 @@ public class Html
 	/** The links. */
 	private HtmlTag[] links;
 
-	/* (non-Javadoc)
+	/** 
+	 * 
 	 * @see org.jnetpcap.packet.JHeader#decodeHeader()
 	 */
 	@Override
@@ -600,7 +614,8 @@ public class Html
 		return this.links;
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @return
 	 * @see org.jnetpcap.packet.JHeader#toString()
 	 */
 	public String toString() {

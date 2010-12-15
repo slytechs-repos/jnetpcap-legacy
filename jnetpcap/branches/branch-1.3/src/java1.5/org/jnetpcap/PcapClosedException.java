@@ -20,7 +20,10 @@ package org.jnetpcap;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class PcapClosedException.
+ * Thrown if Pcap object is access after it has been closed.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class PcapClosedException
     extends IllegalStateException {

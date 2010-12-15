@@ -28,7 +28,47 @@ import org.jnetpcap.packet.format.JFormatter.Priority;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Interface Field.
+ * Defines a header field's getter method. Any method annotated with
+ * <code>Field</code> annotation will be included in <code>JFormatter</code>
+ * output. The field annotation allows a number of constant properties about the
+ * field to be declared. By default, the method's name becomes the field name as
+ * well.
+ * <p>
+ * The <code>Field</code> annotation provides a way to set any of the field's
+ * properties statically. The value set using this annotation will be set
+ * permanently as a constant for that property. If the property is ommited, its
+ * default value will be used or if a instance method is defined that is marked
+ * with <code>Dynamic</code> annotation, then than method will be used at
+ * runtime to obtain the value for the property it generating values for. For
+ * example, the <code>display</code> field property which is used as text to
+ * display whenever a textual name for the field is needed, can be set
+ * statically using this annotation:
+ * 
+ * <pre>
+ * &#064;Field(display = &quot;more descriptive name of the field&quot;)
+ * public int fieldA() {
+ * 	return 0;
+ * }
+ * </pre>
+ * 
+ * or the same property can be generated dynamically at runtime by ommiting the
+ * the annotation parameter "display" in this annotation and supplying a
+ * separate instance method which generates the value:
+ * 
+ * <pre>
+ * &#064;Dynamic(Property.DISPLAY)
+ * public String fieldADisplay() {
+ * 	return (fieldA() == 0) ? &quot;FIELD_A&quot; : &quot;fieldA&quot;;
+ * }
+ * </pre>
+ * 
+ * Both Field.display and the runtime method can not be set at the same time.
+ * Again by default the name of the field is used as display of the field's
+ * name.
+ * </p>
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @Target(value= {ElementType.METHOD, ElementType.TYPE, ElementType.FIELD})
 @Documented
@@ -65,86 +105,108 @@ public @interface Field {
 		UNITS,
 	}
 
-	/** The Constant EMPTY. */
+	/** An empty string. */
 	public final static String EMPTY = "";
 
-	/** The Constant DEFAULT_FORMAT. */
+	/** Default formatting string for field's value. */
 	public final static String DEFAULT_FORMAT = "%s";
 
 	/**
-	 * Offset.
-	 * 
-	 * @return the int
+	 * Static offset of this field into the header in bits. This parameter
+	 * specifies in bits, the exact offset of the annotated field within the
+	 * current header. The value is constant. If offset of the field is not
+	 * constant but varies and can only be determined at runtime, then this
+	 * parameter should not be used. Instead use a method and mark it with
+	 * <code>@Dynamic(Property.OFFSET)</code> annotation.
+	 * @return offset into the header in bits
 	 */
 	int offset() default -1;
 
 	/**
-	 * Length.
-	 * 
-	 * @return the int
+	 * Static length of this field within the header in bits. This parameter
+	 * specifies in bits, the exact length of the annotated field within the
+	 * current header. The value is constant. If length of the field is not
+	 * constant but varies and can only be determined at runtime, then this
+	 * parameter should not be used. Instead use a method and mark it with
+	 * <code>@Dynamic(Property.LENGTH)</code> annotation.
+	 * @return length of the field in bits
 	 */
 	int length() default -1;
 
 	/**
-	 * Name.
+	 * Name of the field. By default, the name of the field is determined
+	 * implicitely by using the name of the method. This parameter allows the name
+	 * of the field to be explicitely specified. The name of the field, must be
+	 * unique within the same header and acts as a unique ID of the field.
 	 * 
-	 * @return the string
+	 * @return name of the field
 	 */
 	String name() default EMPTY;
 
 	/**
-	 * Display.
+	 * Name of the field that will be displayed. The name is used by defaul if
+	 * display parameter is not set. Display is only a text string that gets
+	 * displayed as the name of the field. The actual content of this parameter
+	 * have no baring on the name of the field.
 	 * 
-	 * @return the string
+	 * @return display string to use as a display for field name
 	 */
 	String display() default EMPTY;
 
 	/**
-	 * Nicname.
+	 * A short name of the field to display. Nicname is similar to display
+	 * parameter. It does not affect the name of the field and is only used for
+	 * display purposes where appropriate.
 	 * 
-	 * @return the string
+	 * @return short name of the filed
 	 */
 	String nicname() default EMPTY;
 
 	/**
-	 * Format.
+	 * A formatting string for the value of the field. Default is "%s".
 	 * 
-	 * @return the string
+	 * @return field's formatting string
 	 */
 	String format() default DEFAULT_FORMAT;
 
 	/**
-	 * Units.
+	 * Units associated with the value of the field.
 	 * 
-	 * @return the string
+	 * @return string with the name of the units
 	 */
 	String units() default EMPTY;
 
 	/**
-	 * Description.
+	 * A short description of the field's value.
 	 * 
-	 * @return the string
+	 * @return a string with value description
 	 */
 	String description() default EMPTY;
 
 	/**
-	 * Parent.
+	 * Sets the parent field's name and implicitely declares this field to be a
+	 * subfield of the parent.
 	 * 
-	 * @return the string
+	 * @return name of the parent field this sub field is appart of
 	 */
 	String parent() default EMPTY;
 
 	/**
-	 * Mask.
+	 * Sets which bits within the field are significant. The mask is also used in
+	 * displaying bitfields, where each set bit is reported as significant and non
+	 * significant bits are skipped completely. Default is that all bits within
+	 * the length of the field are significant.
 	 * 
-	 * @return the long
+	 * @return a bit mask which has significant bits set
 	 */
 	public long mask() default 0xFFFFFFFFFFFFFFFFL;
 
 	/**
-	 * Priority.
+	 * A priority this field is assigned which is used in determining which field
+	 * to include in output depending on what JFormat.Detail level the user has
+	 * selected. Default is <code>Priority.MEDIUM</code>.
 	 * 
-	 * @return the priority
+	 * @return display priority of the field.
 	 */
 	Priority priority() default Priority.MEDIUM;
 

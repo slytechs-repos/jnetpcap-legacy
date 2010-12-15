@@ -29,6 +29,9 @@ import org.jnetpcap.protocol.tcpip.Tcp;
 // TODO: Auto-generated Javadoc
 /**
  * The Class JFlow.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class JFlow {
 
@@ -101,7 +104,7 @@ public class JFlow {
 	/**
 	 * Checks if is reversable.
 	 * 
-	 * @return true, if is reversable
+	 * @return the reversable
 	 */
 	public final boolean isReversable() {
 		return this.reversable;
@@ -152,7 +155,8 @@ public class JFlow {
 	/** The eth. */
 	private Ethernet eth = new Ethernet();
 
-	/* (non-Javadoc)
+	/** 
+	 * @return
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {

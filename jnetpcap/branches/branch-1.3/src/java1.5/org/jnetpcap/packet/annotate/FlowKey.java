@@ -27,6 +27,9 @@ import java.lang.annotation.Target;
 // TODO: Auto-generated Javadoc
 /**
  * The Interface FlowKey.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @Target(value= {ElementType.METHOD, ElementType.TYPE, ElementType.FIELD})
 @Documented

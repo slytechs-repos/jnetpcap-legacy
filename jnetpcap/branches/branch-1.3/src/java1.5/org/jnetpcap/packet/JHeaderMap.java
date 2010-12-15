@@ -29,7 +29,9 @@ import org.jnetpcap.packet.structure.JField;
  * The Class JHeaderMap.
  * 
  * @param <B>
- *          the generic type
+ *          header baseclass that all sub-header's should be enclosed in
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public abstract class JHeaderMap<B extends JHeader>
     extends JHeader implements JCompoundHeader<B> {
@@ -148,7 +150,8 @@ public abstract class JHeaderMap<B extends JHeader>
 		reorderAndSave(unordered);
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @param headers
 	 * @see org.jnetpcap.packet.JHeader#setSubHeaders(org.jnetpcap.packet.JHeader[])
 	 */
 	@Override
@@ -156,7 +159,10 @@ public abstract class JHeaderMap<B extends JHeader>
 		reorderAndSave(headers);
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @param <T>
+	 * @param header
+	 * @return
 	 * @see org.jnetpcap.packet.JCompoundHeader#getSubHeader(org.jnetpcap.packet.JSubHeader)
 	 */
 	public <T extends JSubHeader<B>> T getSubHeader(T header) {
@@ -195,7 +201,8 @@ public abstract class JHeaderMap<B extends JHeader>
 		return header;
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @return
 	 * @see org.jnetpcap.packet.JHeader#getSubHeaders()
 	 */
 	public JHeader[] getSubHeaders() {
@@ -210,14 +217,19 @@ public abstract class JHeaderMap<B extends JHeader>
 		return headers.toArray(new JHeader[headers.size()]);
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @param id
+	 * @return
 	 * @see org.jnetpcap.packet.JCompoundHeader#hasSubHeader(int)
 	 */
 	public boolean hasSubHeader(int id) {
 		return (optionsBitmap & (1 << id)) > 0;
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @param <T>
+	 * @param header
+	 * @return
 	 * @see org.jnetpcap.packet.JCompoundHeader#hasSubHeader(org.jnetpcap.packet.JSubHeader)
 	 */
 	public <T extends JSubHeader<B>> boolean hasSubHeader(T header) {
@@ -243,7 +255,8 @@ public abstract class JHeaderMap<B extends JHeader>
 		}
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @return
 	 * @see org.jnetpcap.packet.JHeader#hasSubHeaders()
 	 */
 	public boolean hasSubHeaders() {

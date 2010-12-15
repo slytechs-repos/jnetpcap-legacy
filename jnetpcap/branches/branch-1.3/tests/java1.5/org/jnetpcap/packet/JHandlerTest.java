@@ -36,7 +36,8 @@ import org.jnetpcap.protocol.network.Ip6;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class JHandlerTest.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class JHandlerTest
     extends

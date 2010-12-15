@@ -37,6 +37,9 @@ import org.jnetpcap.packet.annotate.Bind;
 // TODO: Auto-generated Javadoc
 /**
  * The Class AnnotatedBindMethod.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class AnnotatedBindMethod
     extends AnnotatedMethod {
@@ -353,7 +356,8 @@ public class AnnotatedBindMethod
 		}
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @param method
 	 * @see org.jnetpcap.packet.structure.AnnotatedMethod#validateSignature(java.lang.reflect.Method)
 	 */
 	@Override

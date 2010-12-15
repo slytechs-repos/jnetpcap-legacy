@@ -26,6 +26,7 @@ import java.util.Iterator;
  * 
  * @param <T>
  *          the generic type
+ * @author markbe
  */
 public class LinkSequence<T> implements Iterable<T> {
 
@@ -170,7 +171,8 @@ public class LinkSequence<T> implements Iterable<T> {
 		return (l == null) ? null : l.linkElement();
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @return
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
@@ -195,6 +197,10 @@ public class LinkSequence<T> implements Iterable<T> {
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see java.lang.Iterable#iterator()
+	 */
+	/** 
+	 * @return
 	 * @see java.lang.Iterable#iterator()
 	 */
 	public Iterator<T> iterator() {

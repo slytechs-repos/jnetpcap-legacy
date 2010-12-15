@@ -31,6 +31,9 @@ import org.jnetpcap.protocol.JProtocol;
 // TODO: Auto-generated Javadoc
 /**
  * The Class JMappedHeader.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class JMappedHeader
     extends JHeader {

@@ -23,7 +23,12 @@ import java.io.InputStream;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class JBufferInputStream.
+ * IO InputStream class that reads data out of a JBuffer. This implementation
+ * supports all methods efficiently, including bulk transfers and the optional
+ * mark operation.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class JBufferInputStream
     extends
@@ -42,24 +47,27 @@ public class JBufferInputStream
 	private int mark = -1;
 
 	/**
-	 * Instantiates a new j buffer input stream.
+	 * Creates a new input stream initialized to read data out of the supplied
+	 * buffer.
 	 * 
 	 * @param in
-	 *          the in
+	 *          source buffer to read data out of
 	 */
 	public JBufferInputStream(JBuffer in) {
 		this(in, 0, in.size());
 	}
 
 	/**
-	 * Instantiates a new j buffer input stream.
+	 * Creates a new input stream initialized to read data out fo the supplied
+	 * buffer.
 	 * 
 	 * @param in
-	 *          the in
+	 *          source buffer to read data out of
 	 * @param offset
-	 *          the offset
+	 *          offset into the source buffer where to start reading
 	 * @param length
-	 *          the length
+	 *          number of byte to read out of the buffer before signalining end of
+	 *          stream
 	 */
 	public JBufferInputStream(JBuffer in, int offset, int length) {
 		/*
@@ -73,7 +81,12 @@ public class JBufferInputStream
 		this.end = offset + length;
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * Reads 1 byte out of the underlying source buffer.
+	 * 
+	 * @return byte value read out of the buffer
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
 	 * @see java.io.InputStream#read()
 	 */
 	@Override
@@ -85,15 +98,24 @@ public class JBufferInputStream
 		return in.getUByte(position++);
 	}
 
-	/* (non-Javadoc)
-	 * @see java.io.InputStream#available()
+	/**
+	 * Number of bytes available for reading out of the buffer.
+	 * 
+	 * @return number of byte available in the buffer which is usually the entire
+	 *         buffer
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
 	 */
 	@Override
 	public int available() throws IOException {
 		return end - position;
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * Closes this input stream.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
 	 * @see java.io.InputStream#close()
 	 */
 	@Override
@@ -101,8 +123,18 @@ public class JBufferInputStream
 		position = end;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.io.InputStream#read(byte[], int, int)
+	/**
+	 * Reads a block of data out of the source buffer.
+	 * 
+	 * @param b
+	 *          buffer to store the block of data read
+	 * @param off
+	 *          offset into the destination buffer where to store the block data
+	 * @param len
+	 *          number of bytes to read as a block
+	 * @return the int
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
 	 */
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
@@ -113,16 +145,32 @@ public class JBufferInputStream
 		return length;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.io.InputStream#read(byte[])
+	/**
+	 * Reads a block of data out of the source buffer.
+	 * 
+	 * @param b
+	 *          Buffer to store the block of data read. The length of read
+	 *          operation is the size of the byte array.
+	 * @return the int
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
 	 */
 	@Override
 	public int read(byte[] b) throws IOException {
 		return read(b, 0, b.length);
 	}
 
-	/* (non-Javadoc)
-	 * @see java.io.InputStream#skip(long)
+	/**
+	 * Advances the position with the source buffer effectively skipping over
+	 * specified number of bytes.
+	 * 
+	 * @param n
+	 *          of bytes to skip over
+	 * @return actual number of bytes skipped over. Can be less then requested if
+	 *         remaining number of bytes still to be read out of the source buffer
+	 *         was less then requested
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
 	 */
 	@Override
 	public long skip(long n) throws IOException {
@@ -132,24 +180,35 @@ public class JBufferInputStream
 		return length;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.io.InputStream#mark(int)
+	/**
+	 * Sets a mark within the buffer where subsequent reset operation will revert
+	 * back the position to.
+	 * 
+	 * @param readlimit
+	 *          Maximum number of bytes expected to be read. This parameter is
+	 *          ignored for source buffer operations since data does not need to
+	 *          be buffered.
 	 */
 	@Override
 	public synchronized void mark(int readlimit) {
 		this.mark = position;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.io.InputStream#markSupported()
+	/**
+	 * Checks if mark method is supported on this stream.
+	 * 
+	 * @return this method always returns true for this object type
 	 */
 	@Override
 	public boolean markSupported() {
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.io.InputStream#reset()
+	/**
+	 * Resets the stream back to position where it was previously marked.
+	 * 
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
 	 */
 	@Override
 	public synchronized void reset() throws IOException {
@@ -160,11 +219,14 @@ public class JBufferInputStream
 	}
 
 	/**
-	 * Max.
+	 * Calculate the maximum length that can be read out of the buffer based on
+	 * the length requested. If the requested length is greater then what can be
+	 * read out of the buffer, then this method returns just the available length.
 	 * 
 	 * @param len
-	 *          the len
-	 * @return the int
+	 *          checks if len bytes are aviable for reading
+	 * @return number of bytes available for reading, upto the maximum of the
+	 *         length requested
 	 */
 	private int max(int len) {
 		final int available = end - position;

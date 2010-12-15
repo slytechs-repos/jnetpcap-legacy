@@ -34,6 +34,9 @@ import org.jnetpcap.protocol.tcpip.Http;
 // TODO: Auto-generated Javadoc
 /**
  * The Class WebImage.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @Header
 public class WebImage
@@ -99,7 +102,8 @@ public class WebImage
 	/** The data. */
 	private byte[] data;
 
-	/* (non-Javadoc)
+	/** 
+	 * 
 	 * @see org.jnetpcap.packet.JHeader#decodeHeader()
 	 */
 	@Override

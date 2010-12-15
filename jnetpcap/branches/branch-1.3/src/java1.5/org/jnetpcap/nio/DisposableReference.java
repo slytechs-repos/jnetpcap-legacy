@@ -19,11 +19,30 @@
 package org.jnetpcap.nio;
 
 import java.lang.ref.PhantomReference;
-
+import java.lang.ref.ReferenceQueue;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class DisposableReference.
+ * A reference, who's data can be disposed of using {@link #dispose()} method
+ * invokation. The Reference also implements the Link interface which allows the
+ * object to be used in a linked-list of DisposableReference objects managed by
+ * {@link LinkSequence} stored in global {@link DisposableGC} object.
+ * <p>
+ * DisposableReference extends WeakReference functionality by allowing
+ * DisposableGC to keep a hardreference to the reference (not the referant) to
+ * keep it in memory. Through the use of a {@link ReferenceQueue}, DisposableGC
+ * is notified when real objects (referants) are garbage collected. This class
+ * only keeps a weak reference to referants, but all cleanup information is also
+ * stored in subclass of this class. Specifically by calling on subclassed
+ * dispose() method, it allows the subclass to perform cleanup after an object,
+ * that has already been deleted from memory. For example JMemoryReference
+ * class, deallocates native memory, after the JMemory object that was using
+ * that native memory is already gone. The JMemoryReference remains as our
+ * subclass and has the address of native memory that needs to be reclaimed.
+ * </p>
+ * 
+ * @author markbe
+ * 
  */
 public abstract class DisposableReference extends PhantomReference<Object>
 		implements Disposable, Link<DisposableReference> {
@@ -40,16 +59,16 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 */
 	/** The Constant gc. */
 	private final static DisposableGC gc = DisposableGC.getDefault();
-	
+
 	/** The link next. */
 	private Link<DisposableReference> linkNext;
-	
+
 	/** The link prev. */
 	private Link<DisposableReference> linkPrev;
-	
+
 	/** The ts. */
 	private long ts = System.currentTimeMillis();
-	
+
 	/** The link collection. */
 	private LinkSequence<DisposableReference> linkCollection;
 
@@ -61,7 +80,7 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 */
 	public DisposableReference(Object referant) {
 		super(referant, gc.refQueue);
-		
+
 		synchronized (gc.g0) {
 			gc.g0.add(this);
 		}
@@ -76,6 +95,10 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 * 
 	 * @see org.jnetlib.mem.Disposable#dispose()
 	 */
+	/**
+	 * 
+	 * @see org.jnetpcap.nio.Disposable#dispose()
+	 */
 	public void dispose() {
 		// TODO Auto-generated method stub
 
@@ -86,27 +109,38 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 * 
 	 * @see org.jnetlib.util.Link#linkElement()
 	 */
+	/**
+	 * @return
+	 * @see org.jnetpcap.nio.Link#linkElement()
+	 */
 	public DisposableReference linkElement() {
 		return this;
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @return
 	 * @see org.jnetpcap.nio.Link#linkCollection()
 	 */
 	public LinkSequence<DisposableReference> linkCollection() {
 		return linkCollection;
 	}
-	
-	/* (non-Javadoc)
+
+	/**
+	 * @param collection
 	 * @see org.jnetpcap.nio.Link#linkCollection(org.jnetpcap.nio.LinkSequence)
 	 */
 	public void linkCollection(LinkSequence<DisposableReference> collection) {
 		this.linkCollection = collection;
 	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.jnetlib.util.Link#linkNext()
+	 */
+	/**
+	 * @return
+	 * @see org.jnetpcap.nio.Link#linkNext()
 	 */
 	public Link<DisposableReference> linkNext() {
 		return linkNext;
@@ -117,6 +151,10 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 * 
 	 * @see org.jnetlib.util.Link#linkNext(org.jnetlib.util.Link)
 	 */
+	/**
+	 * @param l
+	 * @see org.jnetpcap.nio.Link#linkNext(org.jnetpcap.nio.Link)
+	 */
 	public void linkNext(Link<DisposableReference> l) {
 		linkNext = l;
 	}
@@ -125,6 +163,10 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 * (non-Javadoc)
 	 * 
 	 * @see org.jnetlib.util.Link#linkPrev()
+	 */
+	/**
+	 * @return
+	 * @see org.jnetpcap.nio.Link#linkPrev()
 	 */
 	public Link<DisposableReference> linkPrev() {
 		return linkPrev;
@@ -135,13 +177,19 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 * 
 	 * @see org.jnetlib.util.Link#linkPrev(org.jnetlib.util.Link)
 	 */
+	/**
+	 * @param l
+	 * @see org.jnetpcap.nio.Link#linkPrev(org.jnetpcap.nio.Link)
+	 */
 	public void linkPrev(Link<DisposableReference> l) {
 		linkPrev = l;
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @return
 	 * @see java.lang.Object#toString()
 	 */
+	@Override
 	public String toString() {
 		return String.format("prev=%s, next=%s", linkPrev, linkNext);
 	}
@@ -153,7 +201,7 @@ public abstract class DisposableReference extends PhantomReference<Object>
 		linkCollection().remove(this);
 		super.clear();
 	}
-	
+
 	/**
 	 * Size.
 	 * 
@@ -176,7 +224,7 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 * Sets the ts.
 	 * 
 	 * @param ts
-	 *          the new ts
+	 *          the ts to set
 	 */
 	public void setTs(long ts) {
 		this.ts = ts;

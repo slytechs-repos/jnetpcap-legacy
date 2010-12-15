@@ -30,6 +30,9 @@ import org.jnetpcap.packet.PeeringException;
 // TODO: Auto-generated Javadoc
 /**
  * The Class SlidingBuffer.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class SlidingBuffer {
 
@@ -274,7 +277,8 @@ public class SlidingBuffer {
 		return this.storage.getUTF8String(map(sequence), buf, length);
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @return
 	 * @see java.lang.Object#hashCode()
 	 */
 	public int hashCode() {
@@ -581,7 +585,8 @@ public class SlidingBuffer {
 		return this.storage.toHexdump(length, address, text, data);
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @return
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {

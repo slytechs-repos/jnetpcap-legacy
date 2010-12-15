@@ -37,13 +37,25 @@ import org.jnetpcap.util.resolver.Resolver.ResolverType;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class JRegistry.
+ * A registry of protocols, their classes, runtime IDs and bindings. This is a
+ * global registry that all of jnetpcap's packet framework accesses. The
+ * registry matains tables of bindings, header scanners and numerical IDs for
+ * each header. The registry also performs various lookup and cross reference
+ * infomatation such as mapping a header class to a numerical ID.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @SuppressWarnings("unchecked")
 public final class JRegistry {
 
 	/**
-	 * The Class Entry.
+	 * A header information entry created for every header registered. Entry
+	 * class contains various bits and pieces of information about the registred
+	 * header.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	private static class Entry {
 		
@@ -104,10 +116,15 @@ public final class JRegistry {
 		}
 	}
 
-	/** The Constant A_MAX_ID_COUNT. */
+	/**
+	 * A private duplicate constant for MAX_ID_COUNT who's name is prefixed with
+	 * A_ so that due to source code sorting, we don't get compiler errors. Made
+	 * private so no one outside this class knows about it. Got tired of having
+	 * to move MAX_ID_COUNT definition around after each source sort.
+	 */
 	private final static int A_MAX_ID_COUNT = 64;
 
-	/** The Constant CORE_ID_COUNT. */
+	/** Number of core protocols defined by jNetPcap. */
 	public static final int CORE_ID_COUNT = JProtocol.values().length;
 
 	/** The Constant DLTS_TO_IDS. */
@@ -116,16 +133,28 @@ public final class JRegistry {
 	/** The errors. */
 	private static List<HeaderDefinitionError> errors = new ArrayList<HeaderDefinitionError>();
 
-	/** The Constant FLAG_HEURISTIC_BINDING. */
+	/**
+	 * A flag that allows tells that a java scanner's process bindings method has
+	 * been overriden.
+	 */
 	public final static int FLAG_HEURISTIC_BINDING = 0x00000010;
 
-	/** The Constant FLAG_HEURISTIC_PRE_BINDING. */
+	/**
+	 * A flag that allows tells that a java scanner's process bindings method has
+	 * been overriden.
+	 */
 	public final static int FLAG_HEURISTIC_PRE_BINDING = 0x00000020;
 
-	/** The Constant FLAG_OVERRIDE_BINDING. */
+	/**
+	 * A flag that allows tells that a java scanner's process bindings method has
+	 * been overriden.
+	 */
 	public final static int FLAG_OVERRIDE_BINDING = 0x00000002;
 
-	/** The Constant FLAG_OVERRIDE_LENGTH. */
+	/**
+	 * A flag that allows tells that a java scanner's get length method has been
+	 * overriden.
+	 */
 	public final static int FLAG_OVERRIDE_LENGTH = 0x00000001;
 
 	/** The Constant headerFlags. */
@@ -140,7 +169,7 @@ public final class JRegistry {
 	/** The Constant MAP_BY_ID. */
 	private final static Entry[] MAP_BY_ID = new Entry[A_MAX_ID_COUNT];
 
-	/** The map by class name. */
+	/** Holds class to ID mapping - this is global accross all registries. */
 	private static Map<String, Entry> mapByClassName = new HashMap<String, Entry>();
 
 	/** The map subs by class name. */
@@ -150,16 +179,29 @@ public final class JRegistry {
 	/** The Constant MAX_DLT_COUNT. */
 	private static final int MAX_DLT_COUNT = 512;
 
-	/** The Constant MAX_ID_COUNT. */
+	/**
+	 * Maximum number of protocol header entries allowed by this implementation of
+	 * JRegistry.
+	 */
 	public final static int MAX_ID_COUNT = 64;
 
-	/** The Constant NO_DLT_MAPPING. */
+	/**
+	 * A constant if returned from {@link #mapDltToId} or {@link #mapIdToDLT}
+	 * that no mapping exists.
+	 */
 	public static final int NO_DLT_MAPPING = -1;
 
-	/** The Constant resolvers. */
+	/**
+	 * Allow any type of key to be used so that users can register their own
+	 * unknown type resolvers.
+	 */
 	private final static Map<Object, Resolver> resolvers = new HashMap<Object, Resolver>();
 
-	/** The Constant scanners. */
+	/**
+	 * Header scanners for each header type and protocol. The user can override
+	 * native direct scanners by supplying a java based scanner that will
+	 * override a particular protocols entry.
+	 */
 	private final static JHeaderScanner[] scanners = new JHeaderScanner[A_MAX_ID_COUNT];
 
 	/**
@@ -242,10 +284,15 @@ public final class JRegistry {
 	}
 
 	/**
-	 * Adds the bindings.
+	 * Adds bindings found in the container class. Any static methods that have
+	 * the <code>Bind</code> annotation defined will be extracted and wrapped as
+	 * <code>JBinding</code> interface objects, suitable to be registered with
+	 * for a target header. Bindings contained in any class that does not extend
+	 * <code>JHeader</code> is required to provide both "to" and "from"
+	 * parameters to <code>Bind</code> annotation.
 	 * 
 	 * @param container
-	 *          the container
+	 *            container that has static bind methods
 	 */
 	public static void addBindings(Class<?> container) {
 		clearErrors();
@@ -260,7 +307,7 @@ public final class JRegistry {
 	}
 
 	/**
-	 * Adds the bindings.
+	 * Adds additional bindings to a particular protocol.
 	 * 
 	 * @param bindings
 	 *          the bindings
@@ -274,10 +321,16 @@ public final class JRegistry {
 	}
 
 	/**
-	 * Adds the bindings.
+	 * Adds all of the bindings found in the bindinsContainer object supplied.
+	 * The methods that have the <code>Bind</code> annotation, will be extracted
+	 * and converted to JBinding objects that will call on those methods as a
+	 * binding. The "this" pointer in the instance methods will be set to null,
+	 * therefore do not rely on any super methods and "this" operator. The bind
+	 * annotation inspector check and ensure that only "Object" class is
+	 * extended for the container class.
 	 * 
 	 * @param bindingContainer
-	 *          the binding container
+	 *            container object that contains binding instance methods
 	 */
 	public static void addBindings(Object bindingContainer) {
 		if (bindingContainer instanceof JBinding) {
@@ -290,29 +343,30 @@ public final class JRegistry {
 	}
 
 	/**
-	 * Clear errors.
+	 * Clears any existing registery errors.
 	 */
 	public static void clearErrors() {
 		errors.clear();
 	}
 
 	/**
-	 * Clear flags.
+	 * Clears the supplied bits within the flag's bitmap.
 	 * 
 	 * @param id
-	 *          the id
+	 *          protocol ID
 	 * @param flags
-	 *          the flags
+	 *          flags to clear
 	 */
 	public static void clearFlags(int id, int flags) {
 		headerFlags[id] &= ~flags;
 	}
 
 	/**
-	 * Clear scanners.
+	 * Clears java scanners for supplied list of headers.
 	 * 
 	 * @param classes
-	 *          the classes
+	 *          classes of all the headers that java scanner will be cleared if
+	 *          previously registered
 	 */
 	public static void clearScanners(Class<? extends JHeader>... classes) {
 		for (Class<? extends JHeader> c : classes) {
@@ -323,10 +377,11 @@ public final class JRegistry {
 	}
 
 	/**
-	 * Clear scanners.
+	 * Clears java scanners for supplied list of headers.
 	 * 
 	 * @param ids
-	 *          the ids
+	 *          ids of all the headers that java scanner will be cleared if
+	 *          previously registered
 	 */
 	public static void clearScanners(int... ids) {
 		for (int id : ids) {
@@ -335,10 +390,14 @@ public final class JRegistry {
 	}
 
 	/**
-	 * Clear scanners.
+	 * Removes previously registered scanners that are defined in the supplied
+	 * object container. Any scanners within the supplied container are
+	 * retrieved and all the currently registered java scanner for the headers
+	 * that the retrieved scanners target, are cleared.
 	 * 
 	 * @param container
-	 *          the container
+	 *            container object containing scanner methods which target
+	 *            headers that will be cleared of java scanners
 	 */
 	public static void clearScanners(Object container) {
 		AnnotatedScannerMethod[] methods = AnnotatedScannerMethod
@@ -354,11 +413,11 @@ public final class JRegistry {
 	}
 
 	/**
-	 * Creates the new entry.
+	 * Creates a new header entry for storing information about a header.
 	 * 
 	 * @param c
-	 *          the c
-	 * @return the entry
+	 *          header class
+	 * @return newly created entry
 	 */
 	private static Entry createNewEntry(Class<? extends JHeader> c) {
 		int id = LAST_ID;
@@ -372,40 +431,40 @@ public final class JRegistry {
 	}
 
 	/**
-	 * Gets the bindings.
+	 * Retrieves all current bindings bound to a protocol.
 	 * 
 	 * @param id
-	 *          the id
-	 * @return the bindings
+	 *          protocol id
+	 * @return array of bindings for this protocol
 	 */
 	public static JBinding[] getBindings(int id) {
 		return scanners[id].getBindings();
 	}
 
 	/**
-	 * Gets the errors.
+	 * Retrieves the recent errors that were generated by registry operations.
 	 * 
-	 * @return the errors
+	 * @return array of errors
 	 */
 	public static HeaderDefinitionError[] getErrors() {
 		return errors.toArray(new HeaderDefinitionError[errors.size()]);
 	}
 
 	/**
-	 * Gets the flags.
+	 * Gets the current flags for a specified protocol.
 	 * 
 	 * @param id
-	 *          the id
-	 * @return the flags
+	 *          numerical id of the protocol header
+	 * @return current flags as a bit mask
 	 */
 	public static int getFlags(int id) {
 		return headerFlags[id];
 	}
 
 	/**
-	 * Gets the all flags.
+	 * Retrives all the flags for all of the protocols.
 	 * 
-	 * @return the all flags
+	 * @return array of flags, one element for each protocol
 	 */
 	public static int[] getAllFlags() {
 		final int[] copy = new int[headerFlags.length];
@@ -414,19 +473,20 @@ public final class JRegistry {
 	}
 
 	/**
-	 * Sets the all flags.
+	 * Sets all flags to the values in the array supplied. Flags are copied,
+	 * into the JRegistry flags database.
 	 * 
 	 * @param flags
-	 *          the new all flags
+	 *            flags to be copied.
 	 */
 	public static void setAllFlags(int[] flags) {
 		System.arraycopy(flags, 0, headerFlags, 0, flags.length);
 	}
 
 	/**
-	 * Gets the header scanners.
+	 * Retrieves the entire list of scanners for all registered protocols.
 	 * 
-	 * @return the header scanners
+	 * @return array of header scanners
 	 */
 	public static JHeaderScanner[] getHeaderScanners() {
 		JHeaderScanner[] s = new JHeaderScanner[MAX_ID_COUNT];
@@ -436,11 +496,11 @@ public final class JRegistry {
 	}
 
 	/**
-	 * Gets the resolver.
+	 * Retrieves a registered instance of any resolver.
 	 * 
 	 * @param customType
-	 *          the custom type
-	 * @return the resolver
+	 *            resolver type
+	 * @return currently registered resolver
 	 */
 	public static Resolver getResolver(Object customType) {
 		Resolver resolver = resolvers.get(customType);
@@ -451,22 +511,22 @@ public final class JRegistry {
 	}
 
 	/**
-	 * Gets the resolver.
+	 * Retrieves a registered instance of a resolver.
 	 * 
 	 * @param type
-	 *          the type
-	 * @return the resolver
+	 *            resolver type
+	 * @return currently registered resolver
 	 */
 	public static Resolver getResolver(ResolverType type) {
 		return getResolver((Object) type);
 	}
 
 	/**
-	 * Checks for dlt mapping.
+	 * Checks if a mapping for libpcap dlt value is defined.
 	 * 
 	 * @param dlt
-	 *          the dlt
-	 * @return true, if successful
+	 *          value to check for
+	 * @return true if dlt mapping exists, otherwise false
 	 */
 	public static boolean hasDltMapping(int dlt) {
 		return dlt >= 0 && dlt < DLTS_TO_IDS.length
@@ -474,31 +534,31 @@ public final class JRegistry {
 	}
 
 	/**
-	 * Checks for errors.
+	 * Checks if there are any registry errors that were recently generated.
 	 * 
-	 * @return true, if successful
+	 * @return true if error queue is not empty
 	 */
 	public static boolean hasErrors() {
 		return errors.isEmpty();
 	}
 
 	/**
-	 * Checks for resolver.
+	 * Checks if resolver of specific type is currently registered.
 	 * 
 	 * @param type
-	 *          the type
-	 * @return true, if successful
+	 *          type of resolver to check for
+	 * @return true if resolver is registered, otherwise false
 	 */
 	public static boolean hasResolver(Object type) {
 		return resolvers.containsKey(type);
 	}
 
 	/**
-	 * Checks for resolver.
+	 * Checks if resolver of specific type is currently registered.
 	 * 
 	 * @param type
-	 *          the type
-	 * @return true, if successful
+	 *          type of resolver to check for
+	 * @return true if resolver is registered, otherwise false
 	 */
 	public static boolean hasResolver(ResolverType type) {
 		return resolvers.containsKey(type);
@@ -520,7 +580,7 @@ public final class JRegistry {
 	}
 
 	/**
-	 * List resolvers.
+	 * Returns a complete list of currently active resolvers types.
 	 * 
 	 * @return the object[]
 	 */
@@ -607,13 +667,13 @@ public final class JRegistry {
 	}
 
 	/**
-	 * Lookup class.
+	 * Looks up the class of a header based on its ID.
 	 * 
 	 * @param id
-	 *          the id
-	 * @return the class<? extends j header>
+	 *          protocol id
+	 * @return class for this protocol
 	 * @throws UnregisteredHeaderException
-	 *           the unregistered header exception
+	 *           thrown if protocol not found, invalid ID
 	 */
 	public static Class<? extends JHeader> lookupClass(int id)
 			throws UnregisteredHeaderException {
@@ -632,11 +692,11 @@ public final class JRegistry {
 	}
 
 	/**
-	 * Lookup id.
+	 * Look's up the protocol header ID using a class name.
 	 * 
 	 * @param c
-	 *          the c
-	 * @return the int
+	 *          class of the header
+	 * @return numerical ID of the protocol header
 	 */
 	public static int lookupId(Class<? extends JHeader> c) {
 
@@ -655,11 +715,13 @@ public final class JRegistry {
 	}
 
 	/**
-	 * Lookup id.
+	 * Look's up the protocol header ID using a protocol constant. This method
+	 * does not throw any exception since all core protocols defined on
+	 * Jprotocol table are guarrantted to be registered.
 	 * 
 	 * @param p
-	 *          the p
-	 * @return the int
+	 *            protocol constant
+	 * @return numerical ID of the protocol header
 	 */
 	public static int lookupId(JProtocol p) {
 		return p.getId();
@@ -685,11 +747,11 @@ public final class JRegistry {
 	}
 
 	/**
-	 * Lookup scanner.
+	 * Looks up a header scanner.
 	 * 
 	 * @param id
-	 *          the id
-	 * @return the j header scanner
+	 *            id of the scanner to lookup
+	 * @return header scanner for this ID
 	 */
 	public static JHeaderScanner lookupScanner(int id) {
 		return scanners[id];
@@ -753,13 +815,14 @@ public final class JRegistry {
 	}
 
 	/**
-	 * Register.
+	 * Registeres a new protocol header. A new numerical ID is assigned to the
+	 * protocol and various mappings are recorded for this protocol.
 	 * 
 	 * @param c
-	 *          the c
+	 *          class of the header
 	 * @param errors
 	 *          the errors
-	 * @return the int
+	 * @return numerical id assigned to this new protocol
 	 */
 	public static int register(Class<? extends JHeader> c,
 			List<HeaderDefinitionError> errors) {
@@ -795,11 +858,13 @@ public final class JRegistry {
 	}
 
 	/**
-	 * Register.
+	 * Registeres the core protocols. Not user accessible as this is done by
+	 * default for all core protocols.
 	 * 
 	 * @param protocol
-	 *          the protocol
-	 * @return the int
+	 *            core protocol
+	 * @return id of the core protocol, should be the same as ID pre-assigned in
+	 *         JProtocol table
 	 */
 	static int register(JProtocol protocol) {
 
@@ -860,46 +925,47 @@ public final class JRegistry {
 	}
 
 	/**
-	 * Register resolver.
+	 * Registers a new resolver of any type, replacing the previous resolver.
 	 * 
 	 * @param customType
-	 *          the custom type
+	 *            type of resolver to replace
 	 * @param custom
-	 *          the custom
+	 *            new resolver to register
 	 */
 	public static void registerResolver(Object customType, Resolver custom) {
 		resolvers.put(customType, custom);
 	}
 
 	/**
-	 * Register resolver.
+	 * Registers a new resolver of specific type, replacing the previous
+	 * resolver.
 	 * 
 	 * @param type
-	 *          the type
+	 *            type of resolver to replace
 	 * @param custom
-	 *          the custom
+	 *            new resolver to register
 	 */
 	public static void registerResolver(ResolverType type, Resolver custom) {
 		resolvers.put(type, custom);
 	}
 
 	/**
-	 * Reset bindings.
+	 * Clears any existing java bindings for the specified protocol.
 	 * 
 	 * @param id
-	 *          the id
+	 *          numerical id of the protocol header
 	 */
 	public static void resetBindings(int id) {
 		scanners[id].clearBindings();
 	}
 
 	/**
-	 * Sets the flags.
+	 * Sets the current flag for a specified protocol.
 	 * 
 	 * @param id
-	 *          the id
+	 *          numerical id of the protocol header
 	 * @param flags
-	 *          the flags
+	 *          flags to set (bitwise OR) with the existing flags
 	 */
 	public static void setFlags(int id, int flags) {
 		headerFlags[id] |= flags;
@@ -949,7 +1015,8 @@ public final class JRegistry {
 	}
 
 	/**
-	 * Shutdown.
+	 * Prepares the registry for shutdown. The registry will save caches and
+	 * release resources other that may be held.
 	 * 
 	 * @throws IOException
 	 *           Signals that an I/O exception has occurred.
@@ -965,9 +1032,10 @@ public final class JRegistry {
 	}
 
 	/**
-	 * To debug string.
+	 * Dumps various tables JRegistry maintains as debug information.
 	 * 
-	 * @return the string
+	 * @return multi-line string containing various debug information about
+	 *         JRegistry
 	 */
 	public static String toDebugString() {
 		Formatter out = new Formatter();

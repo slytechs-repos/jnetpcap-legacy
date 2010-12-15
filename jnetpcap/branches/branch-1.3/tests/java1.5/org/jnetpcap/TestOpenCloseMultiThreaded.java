@@ -29,7 +29,8 @@ import org.jnetpcap.winpcap.WinPcap;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class TestOpenCloseMultiThreaded.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @SuppressWarnings("deprecation")
 public class TestOpenCloseMultiThreaded

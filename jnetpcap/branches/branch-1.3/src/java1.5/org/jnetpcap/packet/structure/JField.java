@@ -28,7 +28,13 @@ import org.jnetpcap.packet.format.JFormatter.Style;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class JField.
+ * A field within a header. Field objects are used to describe the structure of
+ * a header to a formatter. The formatter iterates through all the fields it
+ * receives from a header and using formatting information stored in these
+ * fields, creates formatted output.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class JField {
 
@@ -46,6 +52,12 @@ public class JField {
 		/*
 		 * (non-Javadoc)
 		 * 
+		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+		 */
+		/** 
+		 * @param o1
+		 * @param o2
+		 * @return
 		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 		 */
 		public int compare(JField o1, JField o2) {
@@ -104,7 +116,7 @@ public class JField {
 	/** The sub fields. */
 	protected JField[] subFields;
 
-	/** The name. */
+	/** Name of the field which is also its ID. */
 	private final String name;
 
 	/** The nicname. */
@@ -143,7 +155,8 @@ public class JField {
 	/** The units. */
 	private AnnotatedFieldMethod units;
 
-	/* (non-Javadoc)
+	/** 
+	 * @return
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
@@ -190,25 +203,25 @@ public class JField {
 	}
 
 	/**
-	 * Gets the sub fields.
+	 * Gets the sub-fields.
 	 * 
-	 * @return the sub fields
+	 * @return array of subfields
 	 */
 	public JField[] getSubFields() {
 		return subFields;
 	}
 
 	/**
-	 * Gets the name of the field which is also its ID.
+	 * Gets the full name of this field
 	 * 
-	 * @return the name of the field which is also its ID
+	 * @return the name
 	 */
 	public final String getName() {
 		return this.name;
 	}
 
 	/**
-	 * Gets the nicname.
+	 * Gets the nicname of this field.
 	 * 
 	 * @return the nicname
 	 */
@@ -217,7 +230,8 @@ public class JField {
 	}
 
 	/**
-	 * Gets the parent.
+	 * If this field is a sub-field, this method returns a reference to the parent
+	 * field.
 	 * 
 	 * @return the parent
 	 */
@@ -226,7 +240,8 @@ public class JField {
 	}
 
 	/**
-	 * Gets the priority.
+	 * Gets the current field's priority. Formatters determine if fields should be
+	 * included in the output based on priorities
 	 * 
 	 * @return the priority
 	 */
@@ -235,7 +250,7 @@ public class JField {
 	}
 
 	/**
-	 * Gets the style.
+	 * Formatting style for this field.
 	 * 
 	 * @return the style
 	 */
@@ -244,19 +259,19 @@ public class JField {
 	}
 
 	/**
-	 * Checks for sub fields.
+	 * Does this field have subfields.
 	 * 
-	 * @return true, if successful
+	 * @return true means has sub-fields, otherwise false
 	 */
 	public boolean hasSubFields() {
 		return subFields.length != 0;
 	}
 
 	/**
-	 * Sets the parent.
+	 * Sets the parent of this sub-field and only when this field is a sub-field.
 	 * 
 	 * @param parent
-	 *          the new parent
+	 *          the parent to set
 	 */
 	public final void setParent(JField parent) {
 		this.parent = parent;

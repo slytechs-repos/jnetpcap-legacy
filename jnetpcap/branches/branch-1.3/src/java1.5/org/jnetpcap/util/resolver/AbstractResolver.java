@@ -45,13 +45,22 @@ import org.jnetpcap.util.config.JConfig;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class AbstractResolver.
+ * Default adaptor class for Resovler interface. This abstract class provides
+ * the default caching mechanism for positive and negative resolver lookups. It
+ * also provides a timeout mechanism to time out lookup results.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public abstract class AbstractResolver implements Resolver,
     PropertyChangeListener {
 
 	/**
-	 * The Class TimeoutEntry.
+	 * Internal class that keeps track of timeout and which key to time out. Key
+	 * is hash of the address that was cached.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	private static class TimeoutEntry {
 		
@@ -97,7 +106,7 @@ public abstract class AbstractResolver implements Resolver,
 	/** The Constant DEFAULT_NEGATIVE_TIMEOUT_IN_MILLIS. */
 	private static final long DEFAULT_NEGATIVE_TIMEOUT_IN_MILLIS = 30 * 60 * 1000;
 
-	/** The Constant INFINITE_TIMEOUT. */
+	/** Timeout of 5 years. */
 	protected static final long INFINITE_TIMEOUT =
 	    1000L * 60L * 60L * 24L * 365L * 5L;
 
@@ -146,37 +155,63 @@ public abstract class AbstractResolver implements Resolver,
 	/** The Constant PROPERTY_SAVE_CACHE. */
 	private static final String PROPERTY_SAVE_CACHE = "resolver.%ssave";
 
-	/** The backoff. */
+	/** Percentage of how many oldest entries to remove from cache. */
 	private int backoff = DEFAULT_BACKOFF;
 
-	/** The cache. */
+	/**
+	 * Main cache map. The timeout is maintaned using a priority queue, that
+	 * removes timedout entries from this map.
+	 */
 	private Map<Long, String> cache;
 
-	/** The cache capacity. */
+	/**
+	 * Just an initial map size.
+	 */
 	private int cacheCapacity = 100;
 
 	/** The cache load factor. */
 	private float cacheLoadFactor = 0.75f;
 
-	/** The is modified. */
+	/**
+	 * Flag used to mark if any changes have been made to the cache that need to
+	 * be saved.
+	 */
 	private boolean isModified = false;
 
-	/** The logger. */
+	/**
+	 * Logger is supplied from subclass. This allows Abstract logger to log
+	 * messages attached to actual logger that was intended for
+	 */
 	protected final Logger logger;
 
-	/** The maxentries. */
+	/**
+	 * Hard limit on how many entries can be stored in a cache. When this limit is
+	 * reached, backoff percentage is used to calculate the number of oldest
+	 * entries to remove to make room for new entries.
+	 */
 	private int maxentries = DEFAULT_MAX_ENTRIES;
 
-	/** The mkdir home. */
+	/**
+	 * If set to true, we are allowed to create our resolver home directory, which
+	 * defaults to jnetpcap home directory.
+	 */
 	private boolean mkdirHome = DEFAULT_MKDIR_HOME;
 
-	/** The name. */
+	/**
+	 * Name of this resolver. Same as enum constant name. Used in file names and
+	 * resolver specific properties.
+	 */
 	private final String name;
 
-	/** The negative timeout. */
+	/**
+	 * When failed to resolve to a name, store the failure information in cache
+	 * and set the negative hit timeout.
+	 */
 	private long negativeTimeout = DEFAULT_NEGATIVE_TIMEOUT_IN_MILLIS;
 
-	/** The positive timeout. */
+	/**
+	 * Resolved to a name.
+	 */
 	private long positiveTimeout = DEFAULT_POSITIVE_TIMEOUT_IN_MILLIS;
 
 	/** The save cache. */
@@ -277,12 +312,17 @@ public abstract class AbstractResolver implements Resolver,
 	 * 
 	 * @see packet.format.JFormatter.Resolver#isResolved(byte[])
 	 */
+	/** 
+	 * @param address
+	 * @return
+	 * @see org.jnetpcap.util.resolver.Resolver#canBeResolved(byte[])
+	 */
 	public boolean canBeResolved(byte[] address) {
 		return resolve(address) != null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.util.resolver.Resolver#clearCache()
+	/**
+	 * Clear cache and timeout queues.
 	 */
 	public void clearCache() {
 		if (cache != null) {
@@ -330,7 +370,8 @@ public abstract class AbstractResolver implements Resolver,
 		return filename;
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @throws Throwable
 	 * @see java.lang.Object#finalize()
 	 */
 	@Override
@@ -393,8 +434,11 @@ public abstract class AbstractResolver implements Resolver,
 		return file != null && file.canRead() && file.length() > 0;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.util.resolver.Resolver#initializeIfNeeded()
+	/**
+	 * Called by JRegistry when resolver when it is being retrieved. This allows
+	 * the resolver to do a late initialization, only when its actually called on
+	 * to do work. This behaviour is JRegistry specific and therefore kept package
+	 * and subclass accessible.
 	 */
 	public void initializeIfNeeded() {
 
@@ -450,14 +494,19 @@ public abstract class AbstractResolver implements Resolver,
 	 * 
 	 * @see packet.format.JFormatter.Resolver#isCached(byte[])
 	 */
+	/** 
+	 * @param address
+	 * @return
+	 * @see org.jnetpcap.util.resolver.Resolver#isCached(byte[])
+	 */
 	public boolean isCached(byte[] address) {
 		return this.cache.containsKey(toHashCode(address));
 	}
 
 	/**
-	 * Load cache.
+	 * Load cache entries using default mechanism.
 	 * 
-	 * @return the int
+	 * @return number of cache entries read
 	 * @throws IOException
 	 *           Signals that an I/O exception has occurred.
 	 */
@@ -539,13 +588,14 @@ public abstract class AbstractResolver implements Resolver,
 	}
 
 	/**
-	 * Load cache.
+	 * Load cache entries from file. Each cached entry is saved with a timeout
+	 * timestamp. If the timeout is already expired, the entry is skipped.
 	 * 
 	 * @param file
-	 *          the file
-	 * @return the int
+	 *          file to load cache entries from
+	 * @return number of entries saved
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *           any IO errors
 	 */
 	public int loadCache(String file) throws IOException {
 
@@ -559,7 +609,10 @@ public abstract class AbstractResolver implements Resolver,
 		return loadCache(in);
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @param url
+	 * @return
+	 * @throws IOException
 	 * @see org.jnetpcap.util.resolver.Resolver#loadCache(java.net.URL)
 	 */
 	public int loadCache(URL url) throws IOException {
@@ -569,6 +622,10 @@ public abstract class AbstractResolver implements Resolver,
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
+	 */
+	/** 
+	 * @param evt
 	 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
 	 */
 	public void propertyChange(PropertyChangeEvent evt) {
@@ -647,6 +704,11 @@ public abstract class AbstractResolver implements Resolver,
 	 * 
 	 * @see packet.format.JFormatter.Resolver#resolve(byte[])
 	 */
+	/** 
+	 * @param address
+	 * @return
+	 * @see org.jnetpcap.util.resolver.Resolver#resolve(byte[])
+	 */
 	public final String resolve(byte[] address) {
 
 		timeoutCache();
@@ -664,29 +726,40 @@ public abstract class AbstractResolver implements Resolver,
 	}
 
 	/**
-	 * Resolve to name.
+	 * Resolves an address to a name. Performs any neccessary lookups to try and
+	 * resolve the name. The method should not access any of the cached
+	 * information. THis method is called only after the cache has already been
+	 * checked and failed to produce a positive or negative lookup entry.
 	 * 
 	 * @param address
-	 *          the address
+	 *          address to resolve
 	 * @param hash
-	 *          the hash
+	 *          computed hash code for the address, identifies the address
+	 *          uniquely
 	 * @return the string
 	 */
 	protected abstract String resolveToName(byte[] address, long hash);
 
 	/**
-	 * Resolve to name.
+	 * Resolves number to a name. Performs any neccessary lookups to try and
+	 * resolve the name. The method should not access any of the cached
+	 * information. THis method is called only after the cache has already been
+	 * checked and failed to produce a positive or negative lookup entry.
 	 * 
 	 * @param number
-	 *          the number
+	 *          a number value to resolve
 	 * @param hash
-	 *          the hash
+	 *          computed hash code for the number, identifies the number uniquely
 	 * @return the string
 	 */
 	protected abstract String resolveToName(long number, long hash);
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.util.resolver.Resolver#saveCache()
+	/**
+	 * Save the cache using default mechanism, if set.
+	 * 
+	 * @return number of cache entries saved
+	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
 	 */
 	public int saveCache() throws IOException {
 		timeoutCache();
@@ -774,13 +847,13 @@ public abstract class AbstractResolver implements Resolver,
 	}
 
 	/**
-	 * Save cache.
+	 * Save the cache to file.
 	 * 
 	 * @param file
-	 *          the file
-	 * @return the int
+	 *          file to save to
+	 * @return number of entries saved
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *           any IO errors
 	 */
 	public int saveCache(String file) throws IOException {
 		File f = new File(file);
@@ -865,7 +938,8 @@ public abstract class AbstractResolver implements Resolver,
 	}
 
 	/**
-	 * Timeout cache oldest.
+	 * Removes count oldest entries from the timeout cache, presumably to make
+	 * room for newer entries.
 	 * 
 	 * @param count
 	 *          the count
@@ -907,7 +981,8 @@ public abstract class AbstractResolver implements Resolver,
 		return number;
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @return
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {

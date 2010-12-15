@@ -30,7 +30,8 @@ import org.jnetpcap.packet.format.XmlFormatter;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class TestFormatter.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class TestFormatter
     extends TestCase {

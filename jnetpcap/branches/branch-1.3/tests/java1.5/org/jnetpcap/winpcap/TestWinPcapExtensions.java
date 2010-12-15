@@ -34,9 +34,9 @@ import org.jnetpcap.PcapHeader;
 import org.jnetpcap.PcapIf;
 import org.jnetpcap.PcapPktHdr;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class TestWinPcapExtensions.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @SuppressWarnings("deprecation")
 public class TestWinPcapExtensions
@@ -146,7 +146,9 @@ private static final int snaplen = 64 * 1024;
 	}
 
 	/**
-	 * SKI ptest open live and dispatch.
+	 * Test disabled, as it requires live packets to capture. To enable the test
+	 * just rename the method, by removing the prefix SKIP. Then make sure there
+	 * are live packets to be captured.
 	 */
 	public void SKIPtestOpenLiveAndDispatch() {
 

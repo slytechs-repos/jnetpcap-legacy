@@ -26,7 +26,10 @@ import org.jnetpcap.protocol.JProtocol;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class IEEESnap.
+ * IEEE SNAP header definition.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @Header(length = 5, nicname = "snap")
 public class IEEESnap

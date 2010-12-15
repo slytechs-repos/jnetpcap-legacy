@@ -29,7 +29,14 @@ import org.jnetpcap.protocol.JProtocol;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class Bug2828030_wirelen_not_set_in_JMemoryPacket.
+ * 2828030 JMemoryPacket doesn't set wirelen.
+ * <p>
+ * Several JMemoryPacket constructors do not set the required "wirelen" header
+ * property. This causes exceptions to be thrown by the quick-scanner.
+ * </p>
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class Bug2828030_wirelen_not_set_in_JMemoryPacket
     extends

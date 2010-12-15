@@ -27,6 +27,9 @@ import java.lang.annotation.Target;
 // TODO: Auto-generated Javadoc
 /**
  * The Interface Dynamic.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @Target( {
     ElementType.METHOD,

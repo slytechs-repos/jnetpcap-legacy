@@ -43,7 +43,8 @@ import org.jnetpcap.util.checksum.Checksum;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class TestTcpIp.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class TestTcpIp
     extends

@@ -21,6 +21,9 @@ package org.jnetpcap;
 // TODO: Auto-generated Javadoc
 /**
  * The Class IncompatiblePeer.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class IncompatiblePeer
     extends Exception {

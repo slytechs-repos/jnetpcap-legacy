@@ -30,17 +30,15 @@ import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.nio.JMemory.Type;
 import org.jnetpcap.protocol.lan.Ethernet;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class TestPcapPacket.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class TestPcapPacket
     extends TestCase {
 
-	/** The packet. */
 	private PcapPacket packet;
 
-	/** The packet2. */
 	private PcapPacket packet2;
 
 	/*
@@ -62,7 +60,7 @@ public class TestPcapPacket
 	}
 
 	/**
-	 * Test get total size.
+	 * Test method for {@link org.jnetpcap.packet.PcapPacket#getTotalSize()}.
 	 */
 	public final void testGetTotalSize() {
 		packet = TestUtils.getPcapPacket("tests/test-l2tp.pcap", 0);
@@ -75,7 +73,7 @@ public class TestPcapPacket
 	}
 
 	/**
-	 * Test get total size null ptr.
+	 * Test method for {@link org.jnetpcap.packet.PcapPacket#getTotalSize()}.
 	 */
 	public final void testGetTotalSizeNullPtr() {
 		packet = new PcapPacket(Type.POINTER);
@@ -89,7 +87,8 @@ public class TestPcapPacket
 	}
 
 	/**
-	 * Test pcap packet type.
+	 * Test method for
+	 * {@link org.jnetpcap.packet.PcapPacket#PcapPacket(org.jnetpcap.nio.JMemory.Type)}.
 	 */
 	public final void testPcapPacketType() {
 		packet = new PcapPacket(Type.POINTER);
@@ -100,7 +99,7 @@ public class TestPcapPacket
 	}
 
 	/**
-	 * Test pcap packet int.
+	 * Test method for {@link org.jnetpcap.packet.PcapPacket#PcapPacket(int)}.
 	 */
 	public final void testPcapPacketInt() {
 		packet = TestUtils.getPcapPacket("tests/test-l2tp.pcap", 0);
@@ -114,9 +113,6 @@ public class TestPcapPacket
 		    .size());
 	}
 
-	/**
-	 * Test pcap packet int underflow.
-	 */
 	public final void testPcapPacketIntUnderflow() {
 		packet = TestUtils.getPcapPacket("tests/test-l2tp.pcap", 0);
 
@@ -129,7 +125,7 @@ public class TestPcapPacket
 	}
 
 	/**
-	 * Test pcap packet int int.
+	 * Test method for {@link org.jnetpcap.packet.PcapPacket#PcapPacket(int, int)}.
 	 */
 	public final void testPcapPacketIntInt() {
 		packet = TestUtils.getPcapPacket("tests/test-l2tp.pcap", 0);
@@ -139,9 +135,6 @@ public class TestPcapPacket
 		assertEquals(packet.getTotalSize(), packet2.getAllocatedMemorySize());
 	}
 
-	/**
-	 * Test pcap packet int int underflow.
-	 */
 	public final void testPcapPacketIntIntUnderflow() {
 		packet = TestUtils.getPcapPacket("tests/test-l2tp.pcap", 0);
 
@@ -154,7 +147,11 @@ public class TestPcapPacket
 	}
 
 	/**
-	 * Test pcap packet byte buffer direct.
+	 * Test method for
+	 * {@link org.jnetpcap.packet.PcapPacket#PcapPacket(java.nio.ByteBuffer)}.
+	 * Reads a single packet out of a file, copies the packet image to a
+	 * ByteBuffer then creates a second packet that reads the image from
+	 * ByteBuffer. The image includes, PcapHeader, State and packet data.
 	 */
 	public final void testPcapPacketByteBufferDirect() {
 		packet = TestUtils.getPcapPacket("tests/test-l2tp.pcap", 0);
@@ -173,9 +170,6 @@ public class TestPcapPacket
 		// System.out.println(packet2.toString());
 	}
 	
-	/**
-	 * Test pcap packet byte buffer array.
-	 */
 	public final void testPcapPacketByteBufferArray() {
 		packet = TestUtils.getPcapPacket("tests/test-l2tp.pcap", 0);
 		
@@ -194,9 +188,6 @@ public class TestPcapPacket
 	}
 
 
-	/**
-	 * Test pcap packet byte buffer overflow.
-	 */
 	public final void testPcapPacketByteBufferOverflow() {
 		packet = TestUtils.getPcapPacket("tests/test-l2tp.pcap", 0);
 
@@ -213,7 +204,8 @@ public class TestPcapPacket
 	}
 
 	/**
-	 * Test pcap packet j buffer.
+	 * Test method for
+	 * {@link org.jnetpcap.packet.PcapPacket#PcapPacket(org.jnetpcap.nio.JBuffer)}.
 	 */
 	public final void testPcapPacketJBuffer() {
 		packet = TestUtils.getPcapPacket("tests/test-l2tp.pcap", 0);
@@ -232,7 +224,8 @@ public class TestPcapPacket
 	}
 
 	/**
-	 * Test pcap packet pcap packet.
+	 * Test method for
+	 * {@link org.jnetpcap.packet.PcapPacket#PcapPacket(org.jnetpcap.packet.PcapPacket)}.
 	 */
 	public final void testPcapPacketPcapPacket() {
 		packet = TestUtils.getPcapPacket("tests/test-l2tp.pcap", 0);
@@ -248,7 +241,7 @@ public class TestPcapPacket
 	}
 
 	/**
-	 * Test get capture header.
+	 * Test method for {@link org.jnetpcap.packet.PcapPacket#getCaptureHeader()}.
 	 */
 	public final void testGetCaptureHeader() {
 		packet = TestUtils.getPcapPacket("tests/test-l2tp.pcap", 0);
@@ -263,7 +256,8 @@ public class TestPcapPacket
 	}
 
 	/**
-	 * Test transfer to pcap packet.
+	 * Test method for
+	 * {@link org.jnetpcap.packet.PcapPacket#transferStateAndDataTo(org.jnetpcap.packet.PcapPacket)}.
 	 */
 	public final void testTransferToPcapPacket() {
 		packet = TestUtils.getPcapPacket("tests/test-l2tp.pcap", 0);
@@ -279,9 +273,6 @@ public class TestPcapPacket
 		// System.out.println(packet2.toString());
 	}
 	
-	/**
-	 * Test pcap packet byte array.
-	 */
 	public final void testPcapPacketByteArray() {
 		packet = TestUtils.getPcapPacket("tests/test-l2tp.pcap", 0);
 		
@@ -299,9 +290,6 @@ public class TestPcapPacket
 		
 	}
 	
-	/**
-	 * Test pcap packet pcap header j buffer.
-	 */
 	public final void testPcapPacketPcapHeaderJBuffer() {
 		packet = TestUtils.getPcapPacket("tests/test-l2tp.pcap", 0);
 		
@@ -317,9 +305,6 @@ public class TestPcapPacket
 		
 	}
 	
-	/**
-	 * Test pcap header.
-	 */
 	public final void testPcapHeader() {
 		JBuffer buffer = new JBuffer(VariousInMemoryPackets.PACKET_1); // Allocate buffer of 128 bytes
 		PcapHeader hdr = new PcapHeader(buffer.size(), buffer.size());

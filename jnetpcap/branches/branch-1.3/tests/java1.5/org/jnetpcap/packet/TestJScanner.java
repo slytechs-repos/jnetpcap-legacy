@@ -34,7 +34,8 @@ import org.jnetpcap.protocol.lan.Ethernet;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class TestJScanner.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class TestJScanner
     extends

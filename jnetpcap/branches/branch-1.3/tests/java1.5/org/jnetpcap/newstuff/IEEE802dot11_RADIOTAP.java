@@ -35,7 +35,10 @@ import org.jnetpcap.packet.annotate.Scanner;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class IEEE802dot11_RADIOTAP.
+ * IEEE 802.11 Radiotap - Header definition
+ * 
+ * @author David Gutzmann
+ * @author Freie Universit&auml;t Berlin
  */
 
 @Header(name = "IEEE 802.11 Radiotap", nicname = "radiotap", dlt = PcapDLT.IEEE802_11_RADIO)
@@ -43,7 +46,7 @@ public class IEEE802dot11_RADIOTAP
     extends JHeaderMap<IEEE802dot11_RADIOTAP> {
 
 	/**
-	 * The Class DataField.
+	 * Baseclass for all Radiotap data fields sub-headers
 	 */
 	public static abstract class DataField
 	    extends JSubHeader<IEEE802dot11_RADIOTAP> {
@@ -80,9 +83,9 @@ public class IEEE802dot11_RADIOTAP
 		}
 
 		/**
-		 * TSFT.
-		 * 
-		 * @return the long
+		 * Value in microseconds of the MAC's 64-bit 802.11 Time Synchronization
+		 * Function timer when the first bit of the MPDU arrived at the MAC. For
+		 * received frames, only.
 		 */
 		@Field(format = "%d", offset = 0, length = 64)
 		public long TSFT() {
@@ -113,9 +116,7 @@ public class IEEE802dot11_RADIOTAP
 		}
 
 		/**
-		 * Flags.
-		 * 
-		 * @return the int
+		 * Properties of received frames. See IEEE80211_RADIOTAP_F_* flags defined.
 		 */
 		@Field(format = "%x", offset = 0, length = 8)
 		public int Flags() {
@@ -206,9 +207,9 @@ public class IEEE802dot11_RADIOTAP
 		}
 
 		/**
-		 * Rate.
+		 * Tx/Rx data rate
 		 * 
-		 * @return the int
+		 * @return The data Rate in 500kb/s
 		 */
 		@Field(format = "%d", offset = 0, length = 8)
 		public int Rate() {
@@ -249,9 +250,7 @@ public class IEEE802dot11_RADIOTAP
 		}
 
 		/**
-		 * Channel.
-		 * 
-		 * @return the int
+		 * Tx/Rx frequency in MHz
 		 */
 		@Field(offset = 0, format = "%d", length = 16)
 		public int Channel() {
@@ -269,9 +268,7 @@ public class IEEE802dot11_RADIOTAP
 		}
 
 		/**
-		 * Channel flags.
-		 * 
-		 * @return the int
+		 * Properties of the Channel. See IEEE80211_RADIOTAP_CHAN_* flags defined.
 		 */
 		@Field(format = "%x", offset = 2 * 8, length = 16)
 		public int ChannelFlags() {
@@ -381,9 +378,8 @@ public class IEEE802dot11_RADIOTAP
 		}
 
 		/**
-		 * First byte.
-		 * 
-		 * @return the int
+		 * For frequency-hopping radios, the hop set (first byte) and pattern
+		 * (second byte).
 		 */
 		@Field(format = "%x", offset = 0, length = 8)
 		public int firstByte() {
@@ -445,9 +441,7 @@ public class IEEE802dot11_RADIOTAP
 		}
 
 		/**
-		 * DB m_ antenn a_ signal.
-		 * 
-		 * @return the int
+		 * RF signal power at the antenna, decibel difference from one milliwatt.
 		 */
 		@Field(format = "%d", offset = 0, length = 8)
 		public int DBM_ANTENNA_SIGNAL() {
@@ -487,9 +481,7 @@ public class IEEE802dot11_RADIOTAP
 		}
 
 		/**
-		 * DB m_ antenn a_ noise.
-		 * 
-		 * @return the int
+		 * RF noise power at the antenna, decibel difference from one milliwatt.
 		 */
 		@Field(format = "%d", offset = 0, length = 8)
 		public int DBM_ANTENNA_NOISE() {
@@ -531,9 +523,9 @@ public class IEEE802dot11_RADIOTAP
 		}
 
 		/**
-		 * LOC k_ quality.
-		 * 
-		 * @return the int
+		 * Quality of Barker code lock. Unitless. Monotonically nondecreasing with
+		 * "better" lock strength. Called "Signal Quality" in datasheets. (Is there
+		 * a standard way to measure this?)
 		 */
 		@Field(format = "%d", offset = 0, length = 16)
 		public int LOCK_QUALITY() {
@@ -565,9 +557,9 @@ public class IEEE802dot11_RADIOTAP
 		}
 
 		/**
-		 * T x_ attenuation.
-		 * 
-		 * @return the int
+		 * Transmit power expressed as unitless distance from max power set at
+		 * factory calibration. 0 is max power. Monotonically nondecreasing with
+		 * lower power levels.
 		 */
 		@Field(format = "%d", offset = 0, length = 16)
 		public int TX_ATTENUATION() {
@@ -599,9 +591,9 @@ public class IEEE802dot11_RADIOTAP
 		}
 
 		/**
-		 * D b_ t x_ attenuation.
-		 * 
-		 * @return the int
+		 * Transmit power expressed as decibel distance from max power set at
+		 * factory calibration. 0 is max power. Monotonically nondecreasing with
+		 * lower power levels.
 		 */
 		@Field(format = "%d", offset = 0, length = 16)
 		public int DB_TX_ATTENUATION() {
@@ -643,9 +635,8 @@ public class IEEE802dot11_RADIOTAP
 		}
 
 		/**
-		 * DB m_ t x_ power.
-		 * 
-		 * @return the int
+		 * Transmit power expressed as dBm (decibels from a 1 milliwatt reference).
+		 * This is the absolute power level measured at the antenna port.
 		 */
 		@Field(format = "%d", offset = 0, length = 8)
 		public int DBM_TX_POWER() {
@@ -687,9 +678,8 @@ public class IEEE802dot11_RADIOTAP
 		}
 
 		/**
-		 * ANTENNA.
-		 * 
-		 * @return the int
+		 * Unitless indication of the Rx/Tx antenna for this packet. The first
+		 * antenna is antenna 0.
 		 */
 		@Field(format = "%d", offset = 0, length = 8)
 		public int ANTENNA() {
@@ -721,9 +711,8 @@ public class IEEE802dot11_RADIOTAP
 		}
 
 		/**
-		 * D b_ antenn a_ signal.
-		 * 
-		 * @return the int
+		 * RF signal power at the antenna, decibel difference from an arbitrary,
+		 * fixed reference.
 		 */
 		@Field(format = "%d", offset = 0, length = 8)
 		public int DB_ANTENNA_SIGNAL() {
@@ -765,9 +754,8 @@ public class IEEE802dot11_RADIOTAP
 		}
 
 		/**
-		 * D b_ antenn a_ noise.
-		 * 
-		 * @return the int
+		 * RF noise power at the antenna, decibel difference from an arbitrary,
+		 * fixed reference.
 		 */
 		@Field(format = "%d", offset = 0, length = 8)
 		public int DB_ANTENNA_NOISE() {
@@ -904,11 +892,20 @@ public class IEEE802dot11_RADIOTAP
 		/** The D b_ antenn a_ noise. */
 		DB_ANTENNA_NOISE(PRESENT_MASK_DB_ANTENNA_NOISE, 0x11), ;
 
-		/** The mask. */
+		/**
+		 * IEEE80211_RADIOTAP_RX_FLAGS = 0x22, IEEE80211_RADIOTAP_TX_FLAGS = 0x22,
+		 * IEEE80211_RADIOTAP_RTS_RETRIES = 0x11, IEEE80211_RADIOTAP_DATA_RETRIES =
+		 * 0x11, add more here as they are defined in
+		 * include/net/ieee80211_radiotap.h TODO: wireshark knows more data fields
+		 * [channel+, fcs in header, ...] -- radiotap.org doesn't ???
+		 */
 
 		private final int mask;
 
-		/** The size. */
+		/**
+		 * upper nybble: content alignment for field offset lower nybble: content
+		 * length for field offset
+		 */
 		private final int size;
 
 		/**
@@ -953,34 +950,46 @@ public class IEEE802dot11_RADIOTAP
 
 	}
 
-	/** The Constant IEEE80211_RADIOTAP_F_CFP. */
+	/**
+	 * sent/received during CFP
+	 */
 	public static final int IEEE80211_RADIOTAP_F_CFP = 0x01;
 
-	/** The Constant IEEE80211_RADIOTAP_F_SHORTPRE. */
+	/**
+	 * sent/received with short preamble
+	 */
 	public static final int IEEE80211_RADIOTAP_F_SHORTPRE = 0x02;
 
-	/** The Constant IEEE80211_RADIOTAP_F_WEP. */
+	/**
+	 * sent/received with WEP encryption
+	 */
 	public static final int IEEE80211_RADIOTAP_F_WEP = 0x04;
 
-	/** The Constant IEEE80211_RADIOTAP_F_FRAG. */
+	/**
+	 * sent/received with fragmentation
+	 */
 	public static final int IEEE80211_RADIOTAP_F_FRAG = 0x08;
 
-	/** The Constant IEEE80211_RADIOTAP_F_FCS. */
+	/**
+	 * frame includes FCS
+	 */
 	public static final int IEEE80211_RADIOTAP_F_FCS = 0x10;
 
-	/** The Constant IEEE80211_RADIOTAP_F_DATAPAD. */
+	/**
+	 * frame has padding between 802.11 header and payload (to 32-bit boundary)
+	 */
 	public static final int IEEE80211_RADIOTAP_F_DATAPAD = 0x20;
 
-	/** The Constant IEEE80211_RADIOTAP_CHAN_TURBO. */
+	/** Turbo channel */
 	public static final int IEEE80211_RADIOTAP_CHAN_TURBO = 0x0010;
 
-	/** The Constant IEEE80211_RADIOTAP_CHAN_CCK. */
+	/** CCK channel */
 	public static final int IEEE80211_RADIOTAP_CHAN_CCK = 0x0020;
 
-	/** The Constant IEEE80211_RADIOTAP_CHAN_OFDM. */
+	/** OFDM channel */
 	public static final int IEEE80211_RADIOTAP_CHAN_OFDM = 0x0040;
 
-	/** The Constant IEEE80211_RADIOTAP_CHAN_2GHZ. */
+	/** 2 GHz spectrum channel. */
 	public static final int IEEE80211_RADIOTAP_CHAN_2GHZ = 0x0080;
 
 	/** The Constant IEEE80211_RADIOTAP_CHAN_5GHZ. */

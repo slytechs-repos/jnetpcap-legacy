@@ -28,6 +28,8 @@ import org.jnetpcap.packet.structure.HeaderDefinitionError;
  * 
  * @param <H>
  *          the generic type
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public abstract class AbstractBinding<H extends JHeader> implements JBinding {
 
@@ -79,6 +81,10 @@ public abstract class AbstractBinding<H extends JHeader> implements JBinding {
 	 * 
 	 * @see org.jnetpcap.packet.JBinding#getSourceId()
 	 */
+	/** 
+	 * @return
+	 * @see org.jnetpcap.packet.JBinding#getSourceId()
+	 */
 	public int getSourceId() {
 		return this.sourceId;
 	}
@@ -86,6 +92,10 @@ public abstract class AbstractBinding<H extends JHeader> implements JBinding {
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see org.jnetpcap.packet.JBinding#getTargetId()
+	 */
+	/** 
+	 * @return
 	 * @see org.jnetpcap.packet.JBinding#getTargetId()
 	 */
 	public int getTargetId() {
@@ -96,6 +106,12 @@ public abstract class AbstractBinding<H extends JHeader> implements JBinding {
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see org.jnetpcap.packet.JBinding#isBound(org.jnetpcap.packet.JPacket, int)
+	 */
+	/** 
+	 * @param packet
+	 * @param offset
+	 * @return
 	 * @see org.jnetpcap.packet.JBinding#isBound(org.jnetpcap.packet.JPacket, int)
 	 */
 	public boolean isBound(JPacket packet, int offset) {
@@ -127,6 +143,10 @@ public abstract class AbstractBinding<H extends JHeader> implements JBinding {
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see org.jnetpcap.packet.JBinding#listDependencies()
+	 */
+	/** 
+	 * @return
 	 * @see org.jnetpcap.packet.JBinding#listDependencies()
 	 */
 	public int[] listDependencies() {

@@ -20,7 +20,59 @@ package org.jnetpcap;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Enum PcapDLT.
+ * <p>Constants that represent the Pcap's Payload Link Type assignments. The most
+ * popular constant is the {@link #EN10MB} (alternatively {@link #CONST_EN10MB})
+ *  which represents
+ * <em>Ethernet2</em> based physical medium. This includes 10, 100, and 1000
+ * mega-bit ethernets.</p>
+ * <p>
+ * There are 2 tables within PcapDLT enum structure. First is the full table of
+ * enum constants, and then there is a duplicate table containing 
+ * <code>public final static int</code> of contants, prefixed with 
+ * <code>CONST_</code>. Also the enum constant's field <code>value</code> is
+ * public which means that integer DLT constant can also be access using the
+ * field directly.
+ * </p> 
+ * Here are 4 examples of how you can use DLT constants in various ways.
+ * 
+ * <h2>Accessing the int DLT value using an enum constant</h2>
+ * <pre>
+ * int dlt = pcap.datalink(); // Get DLT value from open Pcap capture
+ * if (dlt == PcapDLT.EN10MB.value) {
+ * 	 // Do something
+ * }
+ * 
+ * // Also can use this more formal approach
+ * 
+ * if (PcapDLT.EN10MB.equals(dlt)) {
+ *   // Do something
+ * } 
+ * </pre>
+ * 
+ * <h2>Accessing the int DLT value from integer constants table</h2>
+ * <pre>
+ * int dlt = pcap.datalink(); // Get DLT value from open Pcap capture
+ * if (dlt == PcapDLT.CONST_EN10MB) {
+ * 	// Do something
+ * }
+ * </pre>
+ * 
+ * <h2>Converting integer DLT value into a constant</h2>
+ * <pre>
+ * int dlt = pcap.datalink(); // Get DLT value from open Pcap capture
+ * PcapDLT enumConst = PcapDLT.valueOf(dlt);
+ * System.out.println("The Payload Link Type is " + enumConst + " described as " + 
+ * 		enumConst.description);
+ * </pre> 
+ * 
+ * <h2>Converting string DLT name into a constant</h2>
+ * <pre>
+ * PcapDLT enumConst = PcapDLT.valueOf("EN10MB");
+ * System.out.println("The Payload Link Type value is " + enumConst.value);
+ * </pre>
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @SuppressWarnings("all")
 public enum PcapDLT implements DataLinkType {
@@ -294,10 +346,14 @@ public enum PcapDLT implements DataLinkType {
 	
 	;
 	
-  /** The value. */
+  /** Integer dlt value assigned by libpcap to this constant. */
 	public final int value;
 	
-	/** The description. */
+	/**
+	 * Description of the dlt retrieved by quering the native pcap library. The
+	 * description is not a static constant part of the API and may change from
+	 * native libpcap implementation to implementation.
+	 */
 	public final String description;
 
 	/**
@@ -320,22 +376,21 @@ public enum PcapDLT implements DataLinkType {
 	}
 	
 	/**
-	 * Equals.
+	 * Compares the supplied value with the constant's assigned DLT value.
 	 * 
 	 * @param value
 	 *          the value
-	 * @return true, if successful
+	 * @return true if the supplied value matches the value of the constant,
+	 *         otherwise false value value to check against this constant
 	 */
 	public boolean equals(int value) {
 		return this.value == value;
 	}
 	
 	/**
-	 * Value of.
-	 * 
-	 * @param value
-	 *          the value
-	 * @return the pcap dlt
+	 * Converts an integer value into a PcapDLT constant.
+	 * @param value Pcap DLT integer value to convert
+	 * @return constant assigned to the DLT integer, or null if not found
 	 */
 	public static PcapDLT valueOf(int value) {
 		final PcapDLT[] values = values();
@@ -621,14 +676,22 @@ public enum PcapDLT implements DataLinkType {
 	/* (non-Javadoc)
    * @see org.jnetpcap.DataLinkType#getDescription()
    */
-  public String getDescription() {
+  /** 
+	 * @return
+	 * @see org.jnetpcap.DataLinkType#getDescription()
+	 */
+	public String getDescription() {
 	  return this.description;
   }
 
 	/* (non-Javadoc)
    * @see org.jnetpcap.DataLinkType#getValue()
    */
-  public int getValue() {
+  /** 
+	 * @return
+	 * @see org.jnetpcap.DataLinkType#getValue()
+	 */
+	public int getValue() {
 	  return this.value;
   }
 }

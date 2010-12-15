@@ -26,14 +26,21 @@ import org.jnetpcap.packet.format.FormatUtils;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class JMemoryPacket.
+ * A heap based packet. This is a heap (native memory) based packet that can be
+ * instantiated without having to supply PcapHeader.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class JMemoryPacket
     extends
     JPacket {
 
 	/**
-	 * The Class JMemoryHeader.
+	 * A capture header that stores information about the creation of the packet.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public static class JMemoryHeader implements JCaptureHeader {
 
@@ -59,7 +66,7 @@ public class JMemoryPacket
 		private int wirelen;
 
 		/**
-		 * Instantiates a new j memory header.
+		 * Creates an empty capture header.
 		 */
 		public JMemoryHeader() {
 			this(0, 0, System.currentTimeMillis() / 1000, System.nanoTime());
@@ -67,23 +74,25 @@ public class JMemoryPacket
 		}
 
 		/**
-		 * Instantiates a new j memory header.
+		 * Creates a capture header with initial values.
 		 * 
 		 * @param caplen
-		 *          the caplen
+		 *          captured length
 		 * @param wirelen
-		 *          the wirelen
+		 *          wire length
 		 * @param seconds
-		 *          the seconds
+		 *          timestamp in seconds
 		 * @param nanos
-		 *          the nanos
+		 *          nanos fraction of the timestamp
 		 */
 		public JMemoryHeader(int caplen, int wirelen, long seconds, long nanos) {
 			init(caplen, wirelen, nanos, seconds);
 		}
 
-		/* (non-Javadoc)
-		 * @see org.jnetpcap.JCaptureHeader#caplen()
+		/**
+		 * Gets the capture length.
+		 * 
+		 * @return length in bytes
 		 */
 		public int caplen() {
 			return caplen;
@@ -94,6 +103,10 @@ public class JMemoryPacket
 		 * 
 		 * @see org.jnetpcap.JCaptureHeader#caplen(int)
 		 */
+		/** 
+		 * @param caplen
+		 * @see org.jnetpcap.JCaptureHeader#caplen(int)
+		 */
 		public void caplen(int caplen) {
 			this.caplen = caplen;
 			if (this.wirelen == 0) {
@@ -102,25 +115,25 @@ public class JMemoryPacket
 		}
 
 		/**
-		 * Gets the wirelen.
+		 * Gets the wire length.
 		 * 
-		 * @return the wirelen
+		 * @return length in bytes
 		 */
 		public final int getWirelen() {
 			return this.wirelen;
 		}
 
 		/**
-		 * Inits the.
+		 * Reinitialized the header to new state.
 		 * 
 		 * @param caplen
-		 *          the caplen
+		 *          capture length
 		 * @param wirelen
-		 *          the wirelen
+		 *          wirelength
 		 * @param nanos
-		 *          the nanos
+		 *          timestamp fraction in nanos
 		 * @param seconds
-		 *          the seconds
+		 *          timestap in seconds
 		 */
 		public void init(int caplen, int wirelen, long nanos, long seconds) {
 			this.caplen = caplen;
@@ -146,12 +159,18 @@ public class JMemoryPacket
 		 * 
 		 * @see org.jnetpcap.JCaptureHeader#initFrom(org.jnetpcap.JCaptureHeader)
 		 */
+		/** 
+		 * @param header
+		 * @see org.jnetpcap.JCaptureHeader#initFrom(org.jnetpcap.JCaptureHeader)
+		 */
 		public void initFrom(JCaptureHeader header) {
 			init(header.caplen(), header.wirelen(), header.nanos(), header.seconds());
 		}
 
-		/* (non-Javadoc)
-		 * @see org.jnetpcap.JCaptureHeader#nanos()
+		/**
+		 * Gets the timestamp fraction in nanos.
+		 * 
+		 * @return timestamp fraction
 		 */
 		public long nanos() {
 			return nanos;
@@ -162,14 +181,20 @@ public class JMemoryPacket
 		 * 
 		 * @see org.jnetpcap.JCaptureHeader#nanos(long)
 		 */
+		/** 
+		 * @param nanos
+		 * @see org.jnetpcap.JCaptureHeader#nanos(long)
+		 */
 		public void nanos(long nanos) {
 			this.nanos = nanos;
 
 			initCompound();
 		}
 
-		/* (non-Javadoc)
-		 * @see org.jnetpcap.JCaptureHeader#seconds()
+		/**
+		 * Gets the timestamp in seconds.
+		 * 
+		 * @return timestamp
 		 */
 		public long seconds() {
 			return seconds;
@@ -180,6 +205,10 @@ public class JMemoryPacket
 		 * 
 		 * @see org.jnetpcap.JCaptureHeader#seconds(long)
 		 */
+		/** 
+		 * @param seconds
+		 * @see org.jnetpcap.JCaptureHeader#seconds(long)
+		 */
 		public void seconds(long seconds) {
 			this.seconds = seconds;
 
@@ -187,10 +216,10 @@ public class JMemoryPacket
 		}
 
 		/**
-		 * Sets the wirelen.
+		 * Sets the states wire length.
 		 * 
 		 * @param wirelen
-		 *          the new wirelen
+		 *          length on the packet on the network wire
 		 */
 		public final void setWirelen(int wirelen) {
 			this.wirelen = wirelen;
@@ -200,15 +229,19 @@ public class JMemoryPacket
 			}
 		}
 
-		/* (non-Javadoc)
-		 * @see org.jnetpcap.JCaptureHeader#timestampInMicros()
+		/**
+		 * Gets the timestamp in micro seconds.
+		 * 
+		 * @return timestamp in micros
 		 */
 		public long timestampInMicros() {
 			return inMicros;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.jnetpcap.JCaptureHeader#timestampInMillis()
+		/**
+		 * Gets the timestamp in millis.
+		 * 
+		 * @return timestamp in millis
 		 */
 		public long timestampInMillis() {
 			return inMillis;
@@ -219,12 +252,18 @@ public class JMemoryPacket
 		 * 
 		 * @see org.jnetpcap.JCaptureHeader#timestampInNanos()
 		 */
+		/** 
+		 * @return
+		 * @see org.jnetpcap.JCaptureHeader#timestampInNanos()
+		 */
 		public long timestampInNanos() {
 			return this.inNanos;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.jnetpcap.JCaptureHeader#wirelen()
+		/**
+		 * Gets the wire length.
+		 * 
+		 * @return length of the packet on the network wire
 		 */
 		public int wirelen() {
 			return wirelen;
@@ -233,6 +272,10 @@ public class JMemoryPacket
 		/*
 		 * (non-Javadoc)
 		 * 
+		 * @see org.jnetpcap.JCaptureHeader#wirelen(int)
+		 */
+		/** 
+		 * @param wirelen
 		 * @see org.jnetpcap.JCaptureHeader#wirelen(int)
 		 */
 		public void wirelen(int wirelen) {
@@ -245,10 +288,17 @@ public class JMemoryPacket
 	private final JMemoryHeader header = new JMemoryHeader();
 
 	/**
-	 * Instantiates a new j memory packet.
+	 * Initializes the packet's state and data by doing a deep copy of the
+	 * contents of the buffer.
 	 * 
 	 * @param buffer
-	 *          the buffer
+	 *          buffer containing both state and data in the form
+	 * 
+	 *          <pre>
+	 * +--------------+-------------+
+	 * | packet state | packet data |
+	 * +--------------+-------------+
+	 * </pre>
 	 */
 	public JMemoryPacket(byte[] buffer) {
 		super(Type.POINTER);
@@ -260,12 +310,19 @@ public class JMemoryPacket
 	}
 
 	/**
-	 * Instantiates a new j memory packet.
+	 * Initializes the packet's state and data by doing a deep copy of the
+	 * contents of the buffer.
 	 * 
 	 * @param buffer
-	 *          the buffer
+	 *          buffer containing both state and data in the form
+	 * 
+	 *          <pre>
+	 * +--------------+-------------+
+	 * | packet state | packet data |
+	 * +--------------+-------------+
+	 * </pre>
 	 * @throws PeeringException
-	 *           the peering exception
+	 *           if there is a problem peering with the buffer
 	 */
 	public JMemoryPacket(ByteBuffer buffer) throws PeeringException {
 		super(Type.POINTER);
@@ -281,10 +338,10 @@ public class JMemoryPacket
 	}
 
 	/**
-	 * Instantiates a new j memory packet.
+	 * Preallocates a packet with internal buffer of the supplied size.
 	 * 
 	 * @param size
-	 *          the size
+	 *          number of bytes to pre allocate
 	 */
 	public JMemoryPacket(int size) {
 		super(size, 0);
@@ -298,12 +355,14 @@ public class JMemoryPacket
 	}
 
 	/**
-	 * Instantiates a new j memory packet.
+	 * Creates a new fully decoded packet from data provides in the buffer. The
+	 * buffer contains raw packet data. The packet is peered with the buffer,
+	 * allocating new memory if neccessary, and scanned using internal scanner.
 	 * 
 	 * @param id
-	 *          the id
+	 *          numerical id of first protocol (DLT)
 	 * @param buffer
-	 *          the buffer
+	 *          buffer containing raw packet data
 	 */
 	public JMemoryPacket(int id, byte[] buffer) {
 		this(buffer);
@@ -312,12 +371,20 @@ public class JMemoryPacket
 	}
 
 	/**
-	 * Instantiates a new j memory packet.
+	 * Initializes the packet's state and data by doing a deep copy of the
+	 * contents of the buffer. This constructor also performs a scan of the
+	 * packet.
 	 * 
 	 * @param id
-	 *          the id
+	 *          ID of the DLT protocol
 	 * @param buffer
-	 *          the buffer
+	 *          buffer containing both state and data in the form
+	 * 
+	 *          <pre>
+	 * +--------------+-------------+
+	 * | packet state | packet data |
+	 * +--------------+-------------+
+	 * </pre>
 	 * @throws PeeringException
 	 *           the peering exception
 	 */
@@ -328,12 +395,14 @@ public class JMemoryPacket
 	}
 
 	/**
-	 * Instantiates a new j memory packet.
+	 * Creates a new fully decoded packet from data provides in the buffer. The
+	 * buffer contains raw packet data. The packet is peered with the buffer,
+	 * allocating new memory if neccessary, and scanned using internal scanner.
 	 * 
 	 * @param id
-	 *          the id
+	 *          numerical id of first protocol (DLT)
 	 * @param buffer
-	 *          the buffer
+	 *          buffer containing raw packet data
 	 */
 	public JMemoryPacket(int id, JBuffer buffer) {
 		this(buffer);
@@ -342,22 +411,30 @@ public class JMemoryPacket
 	}
 
 	/**
-	 * Instantiates a new j memory packet.
+	 * Creates a new fully decoded packet from the hexdump data provided.
 	 * 
 	 * @param id
-	 *          the id
+	 *          numerical id of first protocol (DLT)
 	 * @param hexdump
-	 *          the hexdump
+	 *          hexdump of the packet contents which will loaded into the raw data
+	 *          buffer
 	 */
 	public JMemoryPacket(int id, String hexdump) {
 		this(id, FormatUtils.toByteArray(hexdump));
 	}
 
 	/**
-	 * Instantiates a new j memory packet.
+	 * Initializes the packet's state and data by doing a deep copy of the
+	 * contents of the buffer.
 	 * 
 	 * @param buffer
-	 *          the buffer
+	 *          buffer containing both state and data in the form
+	 * 
+	 *          <pre>
+	 * +--------------+-------------+
+	 * | packet state | packet data |
+	 * +--------------+-------------+
+	 * </pre>
 	 */
 	public JMemoryPacket(JBuffer buffer) {
 		super(POINTER);
@@ -375,10 +452,14 @@ public class JMemoryPacket
 	}
 
 	/**
-	 * Instantiates a new j memory packet.
+	 * Copies both state and data from supplied packet to this packet by
+	 * performing a deep copy of the contents of the buffer into packet's internal
+	 * memory buffer if that buffer is large enough, otherwise a new buffer is
+	 * allocated. Both packet's state and data are then peered with the internal
+	 * buffer containing the copy of the supplied buffer
 	 * 
 	 * @param packet
-	 *          the packet
+	 *          source packet
 	 */
 	public JMemoryPacket(JMemoryPacket packet) {
 		super(Type.POINTER);
@@ -387,10 +468,14 @@ public class JMemoryPacket
 	}
 
 	/**
-	 * Instantiates a new j memory packet.
+	 * Copies both state and data from supplied packet to this packet by
+	 * performing a deep copy of the contents of the buffer into packet's internal
+	 * memory buffer if that buffer is large enough, otherwise a new buffer is
+	 * allocated. Both packet's state and data are then peered with the internal
+	 * buffer containing the copy of the supplied buffer
 	 * 
 	 * @param packet
-	 *          the packet
+	 *          source packet
 	 */
 	public JMemoryPacket(JPacket packet) {
 		super(Type.POINTER);
@@ -399,16 +484,19 @@ public class JMemoryPacket
 	}
 
 	/**
-	 * Instantiates a new j memory packet.
+	 * Creates a potentially uninitialized packet with the specified memory type.
 	 * 
 	 * @param type
-	 *          the type
+	 *          type of memory model to use
 	 */
 	public JMemoryPacket(Type type) {
 		super(type);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * Retrieves this packets capture header.
+	 * 
+	 * @return capture header
 	 * @see org.jnetpcap.packet.JPacket#getCaptureHeader()
 	 */
 	@Override
@@ -416,7 +504,11 @@ public class JMemoryPacket
 		return this.header;
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * Calculates the total size of this packet which includes the size of the
+	 * state structures and packet data.
+	 * 
+	 * @return total packet length in bytes
 	 * @see org.jnetpcap.packet.JPacket#getTotalSize()
 	 */
 	@Override
@@ -425,13 +517,27 @@ public class JMemoryPacket
 	}
 
 	/**
-	 * Peer state and data.
+	 * Peers the contents of the buffer directly with this packet. No copies are
+	 * performed but the packet state and data are expected to be contained within
+	 * the buffer with a certain layout as described below:
+	 * <p>
+	 * Supplied buffer layout expected:
+	 * 
+	 * <pre>
+	 * +-----+----+
+	 * |State|Data|
+	 * +-----+----+
+	 * </pre>
+	 * 
+	 * </p>
 	 * 
 	 * @param buffer
-	 *          the buffer
-	 * @return the int
+	 *          Buffer containing packet header, state and data. Position property
+	 *          specifies that start within the buffer where to peer the first
+	 *          byte.
+	 * @return number of bytes peered
 	 * @throws PeeringException
-	 *           the peering exception
+	 *           thrown if ByteBuffer is not direct byte buffer type
 	 */
 	public int peerStateAndData(ByteBuffer buffer) throws PeeringException {
 		if (buffer.isDirect() == false) {
@@ -441,24 +547,48 @@ public class JMemoryPacket
 	}
 
 	/**
-	 * Peer state and data.
+	 * Peers the contents of the buffer directly with this packet. No copies are
+	 * performed but the packet state and data are expected to be contained within
+	 * the buffer with a certain layout as described below:
+	 * <p>
+	 * Supplied buffer layout expected:
+	 * 
+	 * <pre>
+	 * +-----+----+
+	 * |State|Data|
+	 * +-----+----+
+	 * </pre>
+	 * 
+	 * </p>
 	 * 
 	 * @param buffer
-	 *          the buffer
-	 * @return the int
+	 *          buffer containing packet header, state and data
+	 * @return number of bytes peered
 	 */
 	public int peerStateAndData(JBuffer buffer) {
 		return peerStateAndData(getMemoryBuffer(buffer), 0);
 	}
 
 	/**
-	 * Peer state and data.
+	 * Peers the contents of the buffer directly with this packet. No copies are
+	 * performed but the packet state and data are expected to be contained within
+	 * the buffer with a certain layout as described below:
+	 * <p>
+	 * Supplied buffer layout expected:
+	 * 
+	 * <pre>
+	 * +-----+----+
+	 * |State|Data|
+	 * +-----+----+
+	 * </pre>
+	 * 
+	 * </p>
 	 * 
 	 * @param buffer
-	 *          the buffer
+	 *          buffer containing packet header, state and data
 	 * @param offset
-	 *          the offset
-	 * @return the int
+	 *          starting offset into the buffer
+	 * @return number of bytes peered
 	 */
 	public int peerStateAndData(JBuffer buffer, int offset) {
 
@@ -470,21 +600,31 @@ public class JMemoryPacket
 	}
 
 	/**
-	 * Sets the wirelen.
+	 * Changes the wirelen of this packet.
 	 * 
 	 * @param wirelen
-	 *          the new wirelen
+	 *          new wirelen for this packet
 	 */
 	public void setWirelen(int wirelen) {
 		header.setWirelen(wirelen);
 	}
 
 	/**
-	 * Transfer state and data from.
+	 * Performs a deep copy of the contents of the buffer into packet's internal
+	 * memory buffer if that buffer is large enough, otherwise a new buffer is
+	 * allocated. Both packet's state and data are then peered with the internal
+	 * buffer containing the copy of the supplied buffer
 	 * 
 	 * @param buffer
-	 *          the buffer
-	 * @return the int
+	 *          buffer containing both state and data in the form
+	 * 
+	 * <pre>
+	 *          +--------------+-------------+
+	 *          | packet state | packet data |
+	 *          +--------------+-------------+
+	 * </pre>
+	 * 
+	 * @return number of bytes copied
 	 */
 	public int transferStateAndDataFrom(byte[] buffer) {
 		JBuffer b = getMemoryBuffer(buffer);
@@ -493,11 +633,21 @@ public class JMemoryPacket
 	}
 
 	/**
-	 * Transfer state and data from.
+	 * Performs a deep copy of the contents of the buffer into packet's internal
+	 * memory buffer if that buffer is large enough, otherwise a new buffer is
+	 * allocated. Both packet's state and data are then peered with the internal
+	 * buffer containing the copy of the supplied buffer
 	 * 
 	 * @param buffer
-	 *          the buffer
-	 * @return the int
+	 *          buffer containing both state and data in the form
+	 * 
+	 * <pre>
+	 *          +--------------+-------------+
+	 *          | packet state | packet data |
+	 *          +--------------+-------------+
+	 * </pre>
+	 * 
+	 * @return number of bytes copied
 	 */
 	public int transferStateAndDataFrom(ByteBuffer buffer) {
 		final int len = buffer.limit() - buffer.position();
@@ -509,11 +659,21 @@ public class JMemoryPacket
 	}
 
 	/**
-	 * Transfer state and data from.
+	 * Performs a deep copy of the contents of the buffer into packet's internal
+	 * memory buffer if that buffer is large enough, otherwise a new buffer is
+	 * allocated. Both packet's state and data are then peered with the internal
+	 * buffer containing the copy of the supplied buffer
 	 * 
 	 * @param buffer
-	 *          the buffer
-	 * @return the int
+	 *          buffer containing both state and data in the form
+	 * 
+	 * <pre>
+	 *          +--------------+-------------+
+	 *          | packet state | packet data |
+	 *          +--------------+-------------+
+	 * </pre>
+	 * 
+	 * @return number of bytes copied
 	 */
 	public int transferStateAndDataFrom(JBuffer buffer) {
 		final int len = buffer.size();
@@ -525,22 +685,30 @@ public class JMemoryPacket
 	}
 
 	/**
-	 * Transfer state and data from.
+	 * Copies both state and data from supplied packet to this packet by
+	 * performing a deep copy of the contents of the buffer into packet's internal
+	 * memory buffer if that buffer is large enough, otherwise a new buffer is
+	 * allocated. Both packet's state and data are then peered with the internal
+	 * buffer containing the copy of the supplied buffer
 	 * 
 	 * @param packet
-	 *          the packet
-	 * @return the int
+	 *          source packet
+	 * @return number of bytes copied
 	 */
 	public int transferStateAndDataFrom(JMemoryPacket packet) {
 		return packet.transferTo(this);
 	}
 
 	/**
-	 * Transfer state and data from.
+	 * Copies both state and data from supplied packet to this packet by
+	 * performing a deep copy of the contents of the buffer into packet's internal
+	 * memory buffer if that buffer is large enough, otherwise a new buffer is
+	 * allocated. Both packet's state and data are then peered with the internal
+	 * buffer containing the copy of the supplied buffer
 	 * 
 	 * @param packet
-	 *          the packet
-	 * @return the int
+	 *          source packet
+	 * @return number of bytes copied
 	 */
 	public int transferStateAndDataFrom(JPacket packet) {
 		int len = packet.state.size() + packet.size();
@@ -553,13 +721,36 @@ public class JMemoryPacket
 	}
 
 	/**
-	 * Transfer state and data to.
+	 * Copies contents of this packet to buffer. The packets capture state and
+	 * packet data are copied to new buffer. After completion of this operation
+	 * the complete contents and state of the packet will be transfered to the
+	 * buffer. The layout of the buffer data will be as described below. A buffer
+	 * with this type of layout is suitable for any transferStateAndData or peer
+	 * methods for any buffers that are JMemory based. The buffer has to be large
+	 * enough to hold all of the packet content as returned by method
 	 * 
 	 * @param buffer
-	 *          the buffer
+	 *          buffer containing both state and data in the form
+	 * 
+	 *          <pre>
+	 * +--------------+-------------+
+	 * | packet state | packet data |
+	 * +--------------+-------------+
+	 * </pre>
 	 * @param offset
 	 *          the offset
-	 * @return the int
+	 * @return number of bytes copied {@link #getTotalSize()}. If the buffer is
+	 *         too small and a runtime exception may be thrown.
+	 *         <p>
+	 *         The buffer layout will look like the following:
+	 * 
+	 *         <pre>
+	 * +-----+----+
+	 * |State|Data|
+	 * +-----+----+
+	 * </pre>
+	 * 
+	 *         </p>
 	 */
 	public int transferStateAndDataTo(JBuffer buffer, int offset) {
 		int o = state.transferTo(buffer, 0, state.size(), offset);
@@ -569,11 +760,15 @@ public class JMemoryPacket
 	}
 
 	/**
-	 * Transfer state and data to.
+	 * Copies both state and data to the supplied packet from this packet by
+	 * performing a deep copy of the contents of the buffer into packet's internal
+	 * memory buffer if that buffer is large enough, otherwise a new buffer is
+	 * allocated. Both packet's state and data are then peered with the internal
+	 * buffer containing the copy of the supplied buffer
 	 * 
 	 * @param packet
-	 *          the packet
-	 * @return the int
+	 *          destination packet
+	 * @return number of bytes copied
 	 */
 	public int transferStateAndDataTo(JMemoryPacket packet) {
 		final JBuffer buffer = packet.getMemoryBuffer(this.getTotalSize());

@@ -23,6 +23,8 @@ import org.jnetpcap.nio.JMemoryReference;
 // TODO: Auto-generated Javadoc
 /**
  * The Class JScannerReference.
+ * 
+ * @author markbe
  */
 public class JScannerReference extends JMemoryReference {
 
@@ -40,8 +42,13 @@ public class JScannerReference extends JMemoryReference {
 		super(referant, address, size);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jnetpcap.nio.JMemoryReference#disposeNative(long)
+	/**
+	 * Clean up the scanner_t structure and release any held resources. For one
+	 * all the JHeaderScanners that are kept as global references need to be
+	 * released.
+	 * 
+	 * @param size
+	 *          the size
 	 */
 	protected native void disposeNative(long size);
 

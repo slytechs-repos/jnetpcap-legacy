@@ -26,7 +26,10 @@ import org.jnetpcap.protocol.JProtocol;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class PPP.
+ * Point to Point Protocol header definition.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 @Header(length = 5, dlt = PcapDLT.PPP)
 public class PPP

@@ -22,28 +22,46 @@ import java.nio.ByteBuffer;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Interface PcapHandler.
+ * A handler, listener or call back inteface that gets notified when a new
+ * packet has been captured.
  * 
  * @param <T>
- *          the generic type
+ *          user object type
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
+ * @deprecated replaced by ByteBufferHandler
+ * @see ByteBufferHandler
  */
 public interface PcapHandler<T> {
 
 	/**
-	 * Next packet.
+	 * Method gets called when a packet is available as dispatched by Libpcap
+	 * dispatch or loop calls. The typical <code>struct pcap_pkthdr</code>
+	 * structure is decoded in JNI and passed in as java primitives. The supplied
+	 * buffer contains the captured packet data. The buffer is initialized as
+	 * follows. The position property is set to the start of the packet data and
+	 * limit is set to 1 byte passed the end of the packet. The difference between
+	 * limit and position properties will equal exactly <code>caplen</code>.
+	 * The buffer is reused for each packet. Libpcap is initialized with a custom
+	 * capture buffer that backs the ByteBuffer, only is position and limit
+	 * properties are adjusted. The buffer may wrap around and start from the
+	 * start as determined by libpcap itself. Also the buffer is read-only and the
+	 * data is not mutable. Packet data is not copied into the buffer, but written
+	 * to directly by the kernel. This ensures that data is only written once into
+	 * the buffer and then returned to java environment.
 	 * 
 	 * @param user
-	 *          the user
+	 *          user supplied object to dispatch or loop calls
 	 * @param seconds
-	 *          the seconds
+	 *          timestamp
 	 * @param useconds
-	 *          the useconds
+	 *          timestamp
 	 * @param caplen
-	 *          the caplen
+	 *          amount of data captured
 	 * @param len
-	 *          the len
+	 *          original packet length as seen on the network
 	 * @param buffer
-	 *          the buffer
+	 *          buffer containing the packet data.
 	 */
 	public void nextPacket(T user, long seconds, int useconds, int caplen,
 	    int len, ByteBuffer buffer);

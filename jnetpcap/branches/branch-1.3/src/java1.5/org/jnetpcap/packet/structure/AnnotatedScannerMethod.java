@@ -34,6 +34,9 @@ import org.jnetpcap.packet.annotate.Scanner;
 // TODO: Auto-generated Javadoc
 /**
  * The Class AnnotatedScannerMethod.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class AnnotatedScannerMethod
     extends AnnotatedMethod {
@@ -203,6 +206,10 @@ public class AnnotatedScannerMethod
 	 * (non-Javadoc)
 	 * 
 	 * @see org.jnetpcap.packet.annotate.AnnotatedMethod#validateSignature(java.lang.reflect.Method)
+	 */
+	/** 
+	 * @param method
+	 * @see org.jnetpcap.packet.structure.AnnotatedMethod#validateSignature(java.lang.reflect.Method)
 	 */
 	@Override
 	protected void validateSignature(Method method) {

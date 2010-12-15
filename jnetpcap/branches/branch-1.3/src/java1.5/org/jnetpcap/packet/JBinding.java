@@ -20,12 +20,18 @@ package org.jnetpcap.packet;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Interface JBinding.
+ * A bindinding between two protocol headers.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public interface JBinding extends JDependency {
 
 	/**
-	 * The Class DefaultJBinding.
+	 * An abstract adaptor that provides a default implementation for a binding.
+	 * 
+	 * @author Mark Bednarczyk
+	 * @author Sly Technologies, Inc.
 	 */
 	public static abstract class DefaultJBinding implements JBinding {
 
@@ -39,14 +45,18 @@ public interface JBinding extends JDependency {
 		private final int targetId;
 
 		/**
-		 * Instantiates a new default j binding.
+		 * Initializes a binding with source ID, target ID and any additional
+		 * dendency IDs that need to be specified.
 		 * 
 		 * @param myId
-		 *          the my id
+		 *          ID of the header that owns this binding
 		 * @param targetId
-		 *          the target id
+		 *          ID of the header to which this binding needs to be applied to.
+		 *          The target ID also becomes an automatic dependency since that is
+		 *          always the case.
 		 * @param dependencyIds
-		 *          the dependency ids
+		 *          additional IDs of headers that are referenced in the binding
+		 *          expression
 		 */
 		public DefaultJBinding(int myId, int targetId, int... dependencyIds) {
 			this.myId = myId;
@@ -60,23 +70,27 @@ public interface JBinding extends JDependency {
 		}
 
 		/**
-		 * Gets the id.
+		 * Protocol header ID for this binding.
 		 * 
-		 * @return the id
+		 * @return numerical ID of the header as assigned by JRegistry
 		 */
 		public int getId() {
 			return myId;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.jnetpcap.packet.JBinding#getTargetId()
+		/**
+		 * Protocol header ID to which this binding is bound to.
+		 * 
+		 * @return numerical protocol ID as assigned by JRegistry
 		 */
 		public int getTargetId() {
 			return targetId;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.jnetpcap.packet.JBinding#listDependencies()
+		/**
+		 * A list of dependencies that a binding has.
+		 * 
+		 * @return list of depdencies
 		 */
 		public int[] listDependencies() {
 			return this.dependencyIds;
@@ -84,39 +98,44 @@ public interface JBinding extends JDependency {
 
 	}
 
-	/** The Constant NULL_ID. */
+	/** A status code that indicates that no protocol was matched. */
 	public static final int NULL_ID = -2;
 
 	/**
-	 * Gets the target id.
+	 * Protocol header ID to which this binding is bound to.
 	 * 
-	 * @return the target id
+	 * @return numerical protocol ID as assigned by JRegistry
 	 */
 	public abstract int getTargetId();
 
 	/**
-	 * Checks if is bound.
+	 * Checks the length of the header that has not been bound yet. The returned
+	 * length value provides 2 pieces of information. 1st, length of 0 indicates
+	 * that the header is not bound. 2nd, length of non zero indicates that the
+	 * header is bound and either the entire or trucated length of the header.
 	 * 
 	 * @param packet
-	 *          the packet
+	 *          packet and its data buffer
 	 * @param offset
-	 *          the offset
-	 * @return true, if is bound
+	 *          offset into the packet data buffer where the end of the previous
+	 *          header is
+	 * @return either full or truncated length of the header or 0 if header is not
+	 *         bound at all
 	 */
 	public abstract boolean isBound(JPacket packet, int offset);
 	
 
 	/**
-	 * List dependencies.
+	 * A list of dependencies that a binding has.
 	 * 
-	 * @return the int[]
+	 * @return list of depdencies
 	 */
 	public int[] listDependencies();
 
 	/**
-	 * Gets the source id.
+	 * Protocol header ID for this binding.
 	 * 
-	 * @return the source id
+	 * @return numerical ID of the header as assigned by JRegistry
 	 */
 	public int getSourceId();
 }

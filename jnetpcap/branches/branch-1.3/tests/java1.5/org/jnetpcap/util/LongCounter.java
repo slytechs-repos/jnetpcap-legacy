@@ -20,7 +20,10 @@ package org.jnetpcap.util;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class LongCounter.
+ * A utility class that facilitates taking measurements and reports.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class LongCounter {
 
@@ -76,7 +79,7 @@ public class LongCounter {
 	}
 
 	/**
-	 * Reset.
+	 * Initializes the test to its defaults
 	 */
 	public void reset() {
 		this.counter = 0;
@@ -84,7 +87,8 @@ public class LongCounter {
 	}
 
 	/**
-	 * Snapshot.
+	 * Takes a measurment snapshot and updates its counters. This is where
+	 * measurement calculations stem from such as packet rates or bit rates.
 	 */
 	public void snapshot() {
 		this.counter = 0;

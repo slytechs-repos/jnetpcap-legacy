@@ -19,7 +19,9 @@
 package org.jnetpcap.header;
 
 /**
- * The Class BindIpxFamily.
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
+ *
  */
 public class BindIpxFamily {
 

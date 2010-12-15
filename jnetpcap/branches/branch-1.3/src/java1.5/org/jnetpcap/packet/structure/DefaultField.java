@@ -22,6 +22,9 @@ package org.jnetpcap.packet.structure;
 // TODO: Auto-generated Javadoc
 /**
  * The Class DefaultField.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class DefaultField
     extends JField {

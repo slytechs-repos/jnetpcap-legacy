@@ -25,13 +25,17 @@ import org.jnetpcap.util.JLogger;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class IpResolver.
+ * A resolver object that knows how to convert IP addresses into hostnames.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class IpResolver
     extends AbstractResolver {
 
 	/**
 	 * Instantiates a new ip resolver.
+	 * 
 	 */
 	public IpResolver() {
 		super(JLogger.getLogger(IpResolver.class), "IP");
@@ -42,6 +46,12 @@ public class IpResolver
 	 * 
 	 * @see org.jnetpcap.packet.format.JFormatter.AbstractResolver#resolveToName(byte[],
 	 *      int)
+	 */
+	/** 
+	 * @param address
+	 * @param hash
+	 * @return
+	 * @see org.jnetpcap.util.resolver.AbstractResolver#resolveToName(byte[], long)
 	 */
 	@Override
 	public String resolveToName(byte[] address, long hash) {
@@ -64,6 +74,11 @@ public class IpResolver
 	 * 
 	 * @see org.jnetpcap.packet.format.JFormatter.AbstractResolver#toHashCode(byte[])
 	 */
+	/** 
+	 * @param address
+	 * @return
+	 * @see org.jnetpcap.util.resolver.AbstractResolver#toHashCode(byte[])
+	 */
 	@Override
 	public long toHashCode(byte[] address) {
 		long hash =
@@ -79,6 +94,12 @@ public class IpResolver
 	 * (non-Javadoc)
 	 * 
 	 * @see org.jnetpcap.util.AbstractResolver#resolveToName(long, long)
+	 */
+	/** 
+	 * @param number
+	 * @param hash
+	 * @return
+	 * @see org.jnetpcap.util.resolver.AbstractResolver#resolveToName(long, long)
 	 */
 	@Override
 	protected String resolveToName(long number, long hash) {

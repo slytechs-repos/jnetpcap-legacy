@@ -31,7 +31,16 @@ import org.jnetpcap.packet.PeeringException;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class WinPcapSendQueue.
+ * Copyright (C) 2007 Sly Technologies, Inc. This library is free software; you
+ * can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version. This
+ * library is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details. You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 /**
@@ -48,16 +57,19 @@ import org.jnetpcap.packet.PeeringException;
 @SuppressWarnings("deprecation")
 public class WinPcapSendQueue extends JStruct {
 	
-	/** The Constant DEFAULT_QUEUE_SIZE. */
+	/**
+	 * Constant used to determine the default queue size which is 64Kb (1024 *
+	 * 64).
+	 */
 	public final static int DEFAULT_QUEUE_SIZE = 64 * 1024;
 
 	/** The Constant STRUCT_NAME. */
 	public final static String STRUCT_NAME = "pcap_send_queue";
 
 	/**
-	 * Sizeof.
+	 * Returns sizeof struct pcap_send_queue.
 	 * 
-	 * @return the int
+	 * @return size of structure
 	 */
 	public native static int sizeof();
 
@@ -65,17 +77,18 @@ public class WinPcapSendQueue extends JStruct {
 	private JBuffer buffer;
 
 	/**
-	 * Instantiates a new win pcap send queue.
+	 * Allocates default size buffer for use as a send queue.
 	 */
 	public WinPcapSendQueue() {
 		this(DEFAULT_QUEUE_SIZE);
 	}
 
 	/**
-	 * Instantiates a new win pcap send queue.
+	 * Creates a sendqueue by allocating a buffer to hold the supplied data. The
+	 * data array is copied into the buffer.
 	 * 
 	 * @param data
-	 *          the data
+	 *          data to be copied into the queue
 	 */
 	public WinPcapSendQueue(byte[] data) {
 		super(STRUCT_NAME, sizeof());
@@ -88,10 +101,24 @@ public class WinPcapSendQueue extends JStruct {
 	}
 	
 	/**
-	 * Instantiates a new win pcap send queue.
+	 * <p>
+	 * The queue uses the supplied byte buffer which holds the buffers contents.
+	 * The buffer must a direct buffer, array based buffers will be rejected and
+	 * an exception thrown. The properties of the buffer are used as follows. The
+	 * start of the buffer is always with index 0, and end of queue content at
+	 * current buffer's limit property (comparible to pcap_send_queue.len). The
+	 * capacity property (comparible to pcap_send_queue.maxlen) determines maximum
+	 * amount of data that can be further stored in the buffer.
+	 * </p>
+	 * <p>
+	 * Note that changing properties of the buffer after creating this queue
+	 * object, will have immediate effect up on the queue. You do not have to use
+	 * the queue's provided methods to change the limit property. This should
+	 * allow of external addition of the
+	 * </p>
 	 * 
 	 * @param buffer
-	 *          the buffer
+	 *          a direct buffer containing the data to be send
 	 * @throws PeeringException
 	 *           the peering exception
 	 */
@@ -109,10 +136,10 @@ public class WinPcapSendQueue extends JStruct {
 	}
 	
 	/**
-	 * Instantiates a new win pcap send queue.
+	 * Allocates specific queue <code>size</code>.
 	 * 
 	 * @param size
-	 *          the size
+	 *          size of the queue in bytes
 	 */
 	public WinPcapSendQueue(int size) {
 		super(STRUCT_NAME, sizeof());
@@ -126,25 +153,26 @@ public class WinPcapSendQueue extends JStruct {
 
 
 	/**
-	 * Gets the buffer.
+	 * Gets the buffer containing the packets to be sent.
 	 * 
-	 * @return the buffer
+	 * @return buffer containing the packets to be sent
 	 */
 	public JBuffer getBuffer() {
 		return buffer;
 	}
 	
 	/**
-	 * Gets the len.
+	 * Gets the current size of the queue, in bytes.
 	 * 
-	 * @return the len
+	 * @return current size of the queue, in bytes
 	 */
 	public native int getLen();
 
 	/**
-	 * Gets the max len.
+	 * Gets the maximum size of the the queue, in bytes. This variable contains
+	 * the size of the buffer field.
 	 * 
-	 * @return the max len
+	 * @return maximum size of the the queue, in bytes
 	 */
 	public native int getMaxLen();
 
@@ -158,39 +186,78 @@ public class WinPcapSendQueue extends JStruct {
 	public native int incLen(int delta);
 	
 	/**
-	 * Queue.
+	 * Add a packet to a send queue. This method adds a packet at the end of the
+	 * send queue pointed by the queue parameter. <code>hdr</code> points to a
+	 * PcapPktHdr structure with the timestamp and the length of the packet, data
+	 * points to a buffer with the data of the packet. The PcapPktHdr structure is
+	 * the same used by WinPcap and libpcap to store the packets in a file,
+	 * therefore sending a capture file is straightforward. 'Raw packet' means
+	 * that the sending application will have to include the protocol headers,
+	 * since every packet is sent to the network 'as is'. The CRC of the packets
+	 * needs not to be calculated, because it will be transparently added by the
+	 * network interface.
 	 * 
 	 * @param header
-	 *          the header
+	 *          all fields need to be initialized as they are all used
 	 * @param data
-	 *          the data
-	 * @return the int
+	 *          Buffer containing packet data. The buffer's position and limit
+	 *          properties determine the area of the buffer to be copied into the
+	 *          queue. The length of the data must much what is in the header.
+	 *          Also the queue has to be large enough to hold all of the data, or
+	 *          an exception will be thrown.
+	 * @return 0 (Pcap.OK) on success; exception thrown on failure
 	 */
 	public int queue(PcapHeader header, byte[] data) {
 		return queue(header, new JBuffer(data));
 	}
 
 	/**
-	 * Queue.
+	 * Add a packet to a send queue. This method adds a packet at the end of the
+	 * send queue pointed by the queue parameter. <code>hdr</code> points to a
+	 * PcapPktHdr structure with the timestamp and the length of the packet, data
+	 * points to a buffer with the data of the packet. The PcapPktHdr structure is
+	 * the same used by WinPcap and libpcap to store the packets in a file,
+	 * therefore sending a capture file is straightforward. 'Raw packet' means
+	 * that the sending application will have to include the protocol headers,
+	 * since every packet is sent to the network 'as is'. The CRC of the packets
+	 * needs not to be calculated, because it will be transparently added by the
+	 * network interface.
 	 * 
 	 * @param header
-	 *          the header
+	 *          all fields need to be initialized as they are all used
 	 * @param data
-	 *          the data
-	 * @return the int
+	 *          Buffer containing packet data. The buffer's position and limit
+	 *          properties determine the area of the buffer to be copied into the
+	 *          queue. The length of the data must much what is in the header.
+	 *          Also the queue has to be large enough to hold all of the data, or
+	 *          an exception will be thrown.
+	 * @return 0 (Pcap.OK) on success; exception thrown on failure
 	 */
 	public int queue(PcapHeader header, ByteBuffer data) {
 		return queue(header, new JBuffer(data));
 	}
 	
 	/**
-	 * Queue.
+	 * Add a packet to a send queue. This method adds a packet at the end of the
+	 * send queue pointed by the queue parameter. <code>hdr</code> points to a
+	 * PcapPktHdr structure with the timestamp and the length of the packet, data
+	 * points to a buffer with the data of the packet. The PcapPktHdr structure is
+	 * the same used by WinPcap and libpcap to store the packets in a file,
+	 * therefore sending a capture file is straightforward. 'Raw packet' means
+	 * that the sending application will have to include the protocol headers,
+	 * since every packet is sent to the network 'as is'. The CRC of the packets
+	 * needs not to be calculated, because it will be transparently added by the
+	 * network interface.
 	 * 
 	 * @param header
-	 *          the header
+	 *          all fields need to be initialized as they are all used
 	 * @param data
-	 *          the data
-	 * @return the int
+	 *          Buffer containing packet data. The buffer's position and limit
+	 *          properties determine the area of the buffer to be copied into the
+	 *          queue. The length of the data must much what is in the header.
+	 *          Also the queue has to be large enough to hold all of the data, or
+	 *          an exception will be thrown.
+	 * @return 0 (Pcap.OK) on success; exception thrown on failure
 	 */
 	public int queue(PcapHeader header, JBuffer data) {
 		
@@ -204,13 +271,25 @@ public class WinPcapSendQueue extends JStruct {
 	}
 	
 	/**
-	 * Queue.
+	 * Add a packet to a send queue. This method adds a packet at the end of the
+	 * send queue pointed by the queue parameter. <code>hdr</code> points to a
+	 * PcapPktHdr structure with the timestamp and the length of the packet, data
+	 * points to a buffer with the data of the packet. The PcapPktHdr structure is
+	 * the same used by WinPcap and libpcap to store the packets in a file,
+	 * therefore sending a capture file is straightforward. 'Raw packet' means
+	 * that the sending application will have to include the protocol headers,
+	 * since every packet is sent to the network 'as is'. The CRC of the packets
+	 * needs not to be calculated, because it will be transparently added by the
+	 * network interface.
 	 * 
 	 * @param hdr
-	 *          the hdr
+	 *          all fields need to be initialized as they are all used
 	 * @param data
-	 *          the data
-	 * @return the int
+	 *          Buffer containing packet data. The length of the data must much
+	 *          what is in the header. Also the queue has to be large enough to
+	 *          hold all of the data, or an exception will be thrown.
+	 * @return 0 on success; exception thrown on failure
+	 * @deprecated replaced with new versions of the same method
 	 */
 	public int queue(PcapPktHdr hdr, byte[] data) {
 
@@ -236,13 +315,27 @@ public class WinPcapSendQueue extends JStruct {
 	}
 	
 	/**
-	 * Queue.
+	 * Add a packet to a send queue. This method adds a packet at the end of the
+	 * send queue pointed by the queue parameter. <code>hdr</code> points to a
+	 * PcapPktHdr structure with the timestamp and the length of the packet, data
+	 * points to a buffer with the data of the packet. The PcapPktHdr structure is
+	 * the same used by WinPcap and libpcap to store the packets in a file,
+	 * therefore sending a capture file is straightforward. 'Raw packet' means
+	 * that the sending application will have to include the protocol headers,
+	 * since every packet is sent to the network 'as is'. The CRC of the packets
+	 * needs not to be calculated, because it will be transparently added by the
+	 * network interface.
 	 * 
 	 * @param hdr
-	 *          the hdr
+	 *          all fields need to be initialized as they are all used
 	 * @param data
-	 *          the data
-	 * @return the int
+	 *          Buffer containing packet data. The buffer's position and limit
+	 *          properties determine the area of the buffer to be copied into the
+	 *          queue. The length of the data must much what is in the header.
+	 *          Also the queue has to be large enough to hold all of the data, or
+	 *          an exception will be thrown.
+	 * @return 0 on success; exception thrown on failure
+	 * @deprecated replaced with new versions of the same method
 	 */
 	public int queue(PcapPktHdr hdr, ByteBuffer data) {
 
@@ -278,10 +371,11 @@ public class WinPcapSendQueue extends JStruct {
 	private native void setBuffer(JBuffer buffer);
 
 	/**
-	 * Sets the len.
+	 * Sets the peered <code>pcap_send_queue.len</code> field which specifies
+	 * the urrent size of the queue, in bytes.
 	 * 
 	 * @param len
-	 *          the new len
+	 *          current size of the queue, in bytes
 	 */
 	public native void setLen(int len);
 

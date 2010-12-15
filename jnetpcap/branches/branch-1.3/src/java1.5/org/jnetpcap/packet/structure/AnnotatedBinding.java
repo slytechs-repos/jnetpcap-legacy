@@ -32,6 +32,9 @@ import org.jnetpcap.packet.annotate.Bind;
 // TODO: Auto-generated Javadoc
 /**
  * The Class AnnotatedBinding.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public class AnnotatedBinding implements JBinding {
 
@@ -189,7 +192,10 @@ public class AnnotatedBinding implements JBinding {
 	/** The dependencies. */
 	protected final int[] dependencies;
 
-	/** The header. */
+	/**
+	 * Our working protocol header that we use to peer with packet and dispatch to
+	 * isBound method.
+	 */
 	private final JHeader header;
 
 	/** The source id. */
@@ -245,6 +251,10 @@ public class AnnotatedBinding implements JBinding {
 	 * 
 	 * @see org.jnetpcap.packet.JBinding#getSourceId()
 	 */
+	/** 
+	 * @return
+	 * @see org.jnetpcap.packet.JBinding#getSourceId()
+	 */
 	public int getSourceId() {
 		return this.sourceId;
 	}
@@ -263,6 +273,10 @@ public class AnnotatedBinding implements JBinding {
 	 * 
 	 * @see org.jnetpcap.packet.JBinding#getTargetId()
 	 */
+	/** 
+	 * @return
+	 * @see org.jnetpcap.packet.JBinding#getTargetId()
+	 */
 	public int getTargetId() {
 		return targetId;
 	}
@@ -270,6 +284,12 @@ public class AnnotatedBinding implements JBinding {
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see org.jnetpcap.packet.JBinding#isBound(org.jnetpcap.packet.JPacket, int)
+	 */
+	/** 
+	 * @param packet
+	 * @param offset
+	 * @return
 	 * @see org.jnetpcap.packet.JBinding#isBound(org.jnetpcap.packet.JPacket, int)
 	 */
 	public boolean isBound(JPacket packet, int offset) {
@@ -284,11 +304,16 @@ public class AnnotatedBinding implements JBinding {
 	 * 
 	 * @see org.jnetpcap.packet.JDependency#listDependencies()
 	 */
+	/** 
+	 * @return
+	 * @see org.jnetpcap.packet.JBinding#listDependencies()
+	 */
 	public int[] listDependencies() {
 		return dependencies;
 	}
 
-	/* (non-Javadoc)
+	/** 
+	 * @return
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {

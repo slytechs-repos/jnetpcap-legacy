@@ -27,6 +27,9 @@ import java.util.List;
 // TODO: Auto-generated Javadoc
 /**
  * The Class AnnotatedMethod.
+ * 
+ * @author Mark Bednarczyk
+ * @author Sly Technologies, Inc.
  */
 public abstract class AnnotatedMethod {
 
@@ -112,7 +115,8 @@ public abstract class AnnotatedMethod {
 	 */
 	protected abstract void validateSignature(Method method);
 
-	/* (non-Javadoc)
+	/** 
+	 * @return
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
