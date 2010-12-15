@@ -355,6 +355,7 @@ public class JStringBuilder implements Appendable {
 	 * @return true, if successful
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
+	@Override
 	public boolean equals(Object obj) {
 		return this.buffer.equals(obj);
 	}
@@ -370,7 +371,6 @@ public class JStringBuilder implements Appendable {
 	 *          the dst
 	 * @param dstBegin
 	 *          the dst begin
-	 * @return the chars
 	 * @see java.lang.AbstractStringBuilder#getChars(int, int, char[], int)
 	 */
 	public void getChars(int srcBegin, int srcEnd, char[] dst, int dstBegin) {
@@ -383,6 +383,7 @@ public class JStringBuilder implements Appendable {
 	 * @return the int
 	 * @see java.lang.Object#hashCode()
 	 */
+	@Override
 	public int hashCode() {
 		return this.buffer.hashCode();
 	}
@@ -735,6 +736,7 @@ public class JStringBuilder implements Appendable {
 	 * @return the string
 	 * @see java.lang.StringBuilder#toString()
 	 */
+	@Override
 	public String toString() {
 		return this.buffer.toString();
 	}

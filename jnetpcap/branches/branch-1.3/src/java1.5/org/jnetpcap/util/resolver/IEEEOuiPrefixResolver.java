@@ -43,26 +43,25 @@ import org.jnetpcap.util.config.JConfig;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class IEEEOuiPrefixResolver
-    extends AbstractResolver {
+public class IEEEOuiPrefixResolver extends AbstractResolver {
 
 	/**
 	 * Default URI path to IEEE raw oui database of manufacturer codes. The URI is
 	 * {@value #IEEE_OUI_DATABASE_PATH}.
 	 */
 	public final static String IEEE_OUI_DATABASE_PATH =
-	    "http://standards.ieee.org/regauth/oui/oui.txt";
+			"http://standards.ieee.org/regauth/oui/oui.txt";
 
 	/** The Constant RESOURCE_COMPRESSED_OUI_DATABASE. */
 	private static final String RESOURCE_COMPRESSED_OUI_DATABASE = "oui.txt";
 
 	/** The Constant PROPERTY_OUI_DB_URL. */
 	private static final String PROPERTY_OUI_DB_URL =
-	    "resolver.OUI_PREFIX.db.url";
+			"resolver.OUI_PREFIX.db.url";
 
 	/** The Constant PROPERTY_OUI_DB_DOWNLOAD. */
 	private static final String PROPERTY_OUI_DB_DOWNLOAD =
-	    "resolver.OUI_PREFIX.db.download";
+			"resolver.OUI_PREFIX.db.download";
 
 	/** The Constant DEFAULT_OUI_DB_DOWNLOAD. */
 	private static final String DEFAULT_OUI_DB_DOWNLOAD = "false";
@@ -82,7 +81,7 @@ public class IEEEOuiPrefixResolver
 	/**
 	 * Initializes the resolver by first checking if there are any cached entries,
 	 * if none, it reads the compressed oui database supplied with jNetPcap in the
-	 * resource directory {@value #RESOURCE_COMPRESSED_OUI_DATABASE}.
+	 * resource directory.
 	 */
 	@Override
 	public void initializeIfNeeded() {
@@ -104,14 +103,14 @@ public class IEEEOuiPrefixResolver
 				URL url = JConfig.getResourceURL(RESOURCE_COMPRESSED_OUI_DATABASE);
 				if (url != null) {
 					logger
-					    .fine("loading compressed database file from " + url.toString());
+							.fine("loading compressed database file from " + url.toString());
 					readOuisFromCompressedIEEEDb(RESOURCE_COMPRESSED_OUI_DATABASE);
 					return;
 				}
 
 				boolean download =
-				    Boolean.parseBoolean(JConfig.getProperty(PROPERTY_OUI_DB_DOWNLOAD,
-				        DEFAULT_OUI_DB_DOWNLOAD));
+						Boolean.parseBoolean(JConfig.getProperty(PROPERTY_OUI_DB_DOWNLOAD,
+								DEFAULT_OUI_DB_DOWNLOAD));
 				String u = JConfig.getProperty(PROPERTY_OUI_DB_URL);
 				if (u != null && download) {
 					url = new URL(u);
@@ -147,8 +146,8 @@ public class IEEEOuiPrefixResolver
 		if (url == null) {
 			url = new URL(IEEE_OUI_DATABASE_PATH);
 		}
-		return readOuisFromRawIEEEDb(new BufferedReader(new InputStreamReader(url
-		    .openStream())));
+		return readOuisFromRawIEEEDb(new BufferedReader(new InputStreamReader(
+				url.openStream())));
 	}
 
 	/**
@@ -161,7 +160,7 @@ public class IEEEOuiPrefixResolver
 	 *           Signals that an I/O exception has occurred.
 	 */
 	private int readOuisFromCompressedIEEEDb(BufferedReader in)
-	    throws IOException {
+			throws IOException {
 		int count = 0;
 
 		try {
@@ -197,7 +196,7 @@ public class IEEEOuiPrefixResolver
 	 *           Signals that an I/O exception has occurred.
 	 */
 	private boolean readOuisFromCompressedIEEEDb(String f)
-	    throws FileNotFoundException, IOException {
+			throws FileNotFoundException, IOException {
 		/*
 		 * Try local file first, more efficient
 		 */
@@ -211,7 +210,7 @@ public class IEEEOuiPrefixResolver
 		 * Otherwise look for it in classpath
 		 */
 		InputStream in =
-		    JFormatter.class.getClassLoader().getResourceAsStream("resources/" + f);
+				JFormatter.class.getClassLoader().getResourceAsStream("resources/" + f);
 		if (in == null) {
 			return false; // Can't find it
 		}
@@ -298,17 +297,17 @@ public class IEEEOuiPrefixResolver
 	private String transform(String str, String[] a) {
 		int i = 1;
 		while (true) {
-			String more  = (a.length > 1)?a[i]: null;
-			
+			String more = (a.length > 1) ? a[i] : null;
+
 			String after = transform(str, more);
-			
+
 			if (after == str) {
 				break;
 			}
-			
+
 			str = after;
 		}
-		
+
 		return str;
 	}
 
@@ -370,11 +369,10 @@ public class IEEEOuiPrefixResolver
 	 *          abbreviation to substitute in place
 	 * @return new string
 	 */
-	private String transform(
-	    String str,
-	    String more,
-	    final String singular,
-	    final String abbr) {
+	private String transform(String str,
+			String more,
+			final String singular,
+			final String abbr) {
 
 		final String plural = singular + "s";
 
@@ -424,8 +422,8 @@ public class IEEEOuiPrefixResolver
 	@Override
 	public long toHashCode(byte[] address) {
 		return ((address[2] < 0) ? address[2] + 256 : address[2])
-		    | ((address[1] < 0) ? address[1] + 256 : address[1]) << 8
-		    | ((address[0] < 0) ? address[0] + 256 : address[0]) << 16;
+				| ((address[1] < 0) ? address[1] + 256 : address[1]) << 8
+				| ((address[0] < 0) ? address[0] + 256 : address[0]) << 16;
 	}
 
 	/*
@@ -433,15 +431,19 @@ public class IEEEOuiPrefixResolver
 	 * 
 	 * @see org.jnetpcap.util.AbstractResolver#resolveToName(long, long)
 	 */
-	/** 
+	/**
+	 * Resolve to name.
+	 * 
 	 * @param number
+	 *          the number
 	 * @param hash
-	 * @return
+	 *          the hash
+	 * @return the string
 	 * @see org.jnetpcap.util.resolver.AbstractResolver#resolveToName(long, long)
 	 */
 	@Override
 	protected String resolveToName(long number, long hash) {
 		throw new UnsupportedOperationException(
-		    "this resolver only resolves addresses in byte[] form");
+				"this resolver only resolves addresses in byte[] form");
 	}
 }

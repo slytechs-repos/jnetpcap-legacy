@@ -277,8 +277,10 @@ public class SlidingBuffer {
 		return this.storage.getUTF8String(map(sequence), buf, length);
 	}
 
-	/** 
-	 * @return
+	/**
+	 * Hash code.
+	 * 
+	 * @return the int
 	 * @see java.lang.Object#hashCode()
 	 */
 	public int hashCode() {
@@ -585,8 +587,10 @@ public class SlidingBuffer {
 		return this.storage.toHexdump(length, address, text, data);
 	}
 
-	/** 
-	 * @return
+	/**
+	 * To string.
+	 * 
+	 * @return the string
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {

@@ -125,8 +125,10 @@ public class AnnotatedMethodException
 		this.c = c;
 	}
 
-	/** 
-	 * @return
+	/**
+	 * Gets the header.
+	 * 
+	 * @return the header
 	 * @see org.jnetpcap.packet.structure.HeaderDefinitionError#getHeader()
 	 */
 	public Class<?> getHeader() {

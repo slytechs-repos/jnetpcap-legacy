@@ -103,8 +103,11 @@ public class JMemoryPacket
 		 * 
 		 * @see org.jnetpcap.JCaptureHeader#caplen(int)
 		 */
-		/** 
+		/**
+		 * Caplen.
+		 * 
 		 * @param caplen
+		 *          the caplen
 		 * @see org.jnetpcap.JCaptureHeader#caplen(int)
 		 */
 		public void caplen(int caplen) {
@@ -159,8 +162,11 @@ public class JMemoryPacket
 		 * 
 		 * @see org.jnetpcap.JCaptureHeader#initFrom(org.jnetpcap.JCaptureHeader)
 		 */
-		/** 
+		/**
+		 * Inits the from.
+		 * 
 		 * @param header
+		 *          the header
 		 * @see org.jnetpcap.JCaptureHeader#initFrom(org.jnetpcap.JCaptureHeader)
 		 */
 		public void initFrom(JCaptureHeader header) {
@@ -181,8 +187,11 @@ public class JMemoryPacket
 		 * 
 		 * @see org.jnetpcap.JCaptureHeader#nanos(long)
 		 */
-		/** 
+		/**
+		 * Nanos.
+		 * 
 		 * @param nanos
+		 *          the nanos
 		 * @see org.jnetpcap.JCaptureHeader#nanos(long)
 		 */
 		public void nanos(long nanos) {
@@ -205,8 +214,11 @@ public class JMemoryPacket
 		 * 
 		 * @see org.jnetpcap.JCaptureHeader#seconds(long)
 		 */
-		/** 
+		/**
+		 * Seconds.
+		 * 
 		 * @param seconds
+		 *          the seconds
 		 * @see org.jnetpcap.JCaptureHeader#seconds(long)
 		 */
 		public void seconds(long seconds) {
@@ -252,8 +264,10 @@ public class JMemoryPacket
 		 * 
 		 * @see org.jnetpcap.JCaptureHeader#timestampInNanos()
 		 */
-		/** 
-		 * @return
+		/**
+		 * Timestamp in nanos.
+		 * 
+		 * @return the long
 		 * @see org.jnetpcap.JCaptureHeader#timestampInNanos()
 		 */
 		public long timestampInNanos() {
@@ -274,8 +288,11 @@ public class JMemoryPacket
 		 * 
 		 * @see org.jnetpcap.JCaptureHeader#wirelen(int)
 		 */
-		/** 
+		/**
+		 * Wirelen.
+		 * 
 		 * @param wirelen
+		 *          the wirelen
 		 * @see org.jnetpcap.JCaptureHeader#wirelen(int)
 		 */
 		public void wirelen(int wirelen) {

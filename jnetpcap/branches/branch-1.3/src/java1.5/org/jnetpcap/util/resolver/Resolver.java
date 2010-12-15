@@ -41,7 +41,7 @@ public interface Resolver {
 	 * @author Sly Technologies, Inc.
 	 */
 	public enum ResolverType {
-		
+
 		/** Converts MAC addresses to station names when defined. */
 		IEEE_OUI_ADDRESS,
 
@@ -83,10 +83,10 @@ public interface Resolver {
 			return this.resolver;
 		}
 	}
-	
+
 	/** The Constant RESOLVER_SEARCH_PATH_PROPERTY. */
 	public static final String RESOLVER_SEARCH_PATH_PROPERTY =
-    "resolver.search.path";
+			"resolver.search.path";
 
 	/**
 	 * Checks if a mapping exists or can be made. This operation may trigger a
@@ -146,9 +146,7 @@ public interface Resolver {
 	 * @param address
 	 *          address to try and resolve
 	 * @return human readable form if lookup succeeded (position) or null if
-	 *         lookup failed to produce a human label (negative)
-	 *         {@value #DEFAULT_POSITIVE_TIMEOUT} minutes for positive lookup and
-	 *         {@value #DEFAULT_NEGATIVE_TIMEOUT} minutes for negative.
+	 *         lookup failed to produce a human label.
 	 */
 	public String resolve(byte[] address);
 

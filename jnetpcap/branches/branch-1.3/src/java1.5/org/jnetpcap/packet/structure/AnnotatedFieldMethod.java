@@ -81,19 +81,27 @@ public abstract class AnnotatedFieldMethod
 		 * 
 		 * @see org.jnetpcap.packet.AnnotatedFieldMethod#booleanMethod(org.jnetpcap.packet.JHeader)
 		 */
-		/** 
+		/**
+		 * Boolean method.
+		 * 
 		 * @param header
+		 *          the header
 		 * @param name
-		 * @return
-		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#booleanMethod(org.jnetpcap.packet.JHeader, java.lang.String)
+		 *          the name
+		 * @return true, if successful
+		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#booleanMethod(org.jnetpcap.packet.JHeader,
+		 *      java.lang.String)
 		 */
 		@Override
 		public boolean booleanMethod(JHeader header, String name) {
 			return execute(header, name);
 		}
 
-		/** 
+		/**
+		 * Config from field.
+		 * 
 		 * @param field
+		 *          the field
 		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#configFromField(org.jnetpcap.packet.structure.AnnotatedField)
 		 */
 		public final void configFromField(AnnotatedField field) {
@@ -213,8 +221,11 @@ public abstract class AnnotatedFieldMethod
 			super(method, function);
 		}
 
-		/** 
+		/**
+		 * Config from field.
+		 * 
 		 * @param field
+		 *          the field
 		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#configFromField(org.jnetpcap.packet.structure.AnnotatedField)
 		 */
 		public final void configFromField(AnnotatedField field) {
@@ -282,11 +293,16 @@ public abstract class AnnotatedFieldMethod
 		 * 
 		 * @see org.jnetpcap.packet.AnnotatedFieldMethod#intMethod(org.jnetpcap.packet.JHeader)
 		 */
-		/** 
+		/**
+		 * Int method.
+		 * 
 		 * @param header
+		 *          the header
 		 * @param name
-		 * @return
-		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#intMethod(org.jnetpcap.packet.JHeader, java.lang.String)
+		 *          the name
+		 * @return the int
+		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#intMethod(org.jnetpcap.packet.JHeader,
+		 *      java.lang.String)
 		 */
 		@Override
 		public int intMethod(JHeader header, String name) {
@@ -361,8 +377,11 @@ public abstract class AnnotatedFieldMethod
 			super(method, function);
 		}
 
-		/** 
+		/**
+		 * Config from field.
+		 * 
 		 * @param field
+		 *          the field
 		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#configFromField(org.jnetpcap.packet.structure.AnnotatedField)
 		 */
 		public final void configFromField(AnnotatedField field) {
@@ -424,11 +443,16 @@ public abstract class AnnotatedFieldMethod
 		 * 
 		 * @see org.jnetpcap.packet.AnnotatedFieldMethod#longMethod(org.jnetpcap.packet.JHeader)
 		 */
-		/** 
+		/**
+		 * Long method.
+		 * 
 		 * @param header
+		 *          the header
 		 * @param name
-		 * @return
-		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#longMethod(org.jnetpcap.packet.JHeader, java.lang.String)
+		 *          the name
+		 * @return the long
+		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#longMethod(org.jnetpcap.packet.JHeader,
+		 *      java.lang.String)
 		 */
 		@Override
 		public long longMethod(JHeader header, String name) {
@@ -478,8 +502,11 @@ public abstract class AnnotatedFieldMethod
 			super(method, function);
 		}
 
-		/** 
+		/**
+		 * Config from field.
+		 * 
 		 * @param field
+		 *          the field
 		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#configFromField(org.jnetpcap.packet.structure.AnnotatedField)
 		 */
 		public final void configFromField(AnnotatedField field) {
@@ -538,11 +565,16 @@ public abstract class AnnotatedFieldMethod
 		 * 
 		 * @see org.jnetpcap.packet.AnnotatedFieldMethod#objectMethod(org.jnetpcap.packet.JHeader)
 		 */
-		/** 
+		/**
+		 * Object method.
+		 * 
 		 * @param header
+		 *          the header
 		 * @param name
-		 * @return
-		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#objectMethod(org.jnetpcap.packet.JHeader, java.lang.String)
+		 *          the name
+		 * @return the object
+		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#objectMethod(org.jnetpcap.packet.JHeader,
+		 *      java.lang.String)
 		 */
 		@Override
 		public Object objectMethod(JHeader header, String name) {
@@ -588,8 +620,11 @@ public abstract class AnnotatedFieldMethod
 			super(method, function);
 		}
 
-		/** 
+		/**
+		 * Config from field.
+		 * 
 		 * @param field
+		 *          the field
 		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#configFromField(org.jnetpcap.packet.structure.AnnotatedField)
 		 */
 		public final void configFromField(AnnotatedField field) {
@@ -678,11 +713,16 @@ public abstract class AnnotatedFieldMethod
 		 * 
 		 * @see org.jnetpcap.packet.AnnotatedFieldMethod#StringMethod(org.jnetpcap.packet.JHeader)
 		 */
-		/** 
+		/**
+		 * String method.
+		 * 
 		 * @param header
+		 *          the header
 		 * @param name
-		 * @return
-		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#stringMethod(org.jnetpcap.packet.JHeader, java.lang.String)
+		 *          the name
+		 * @return the string
+		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#stringMethod(org.jnetpcap.packet.JHeader,
+		 *      java.lang.String)
 		 */
 		@Override
 		public String stringMethod(JHeader header, String name) {
@@ -1013,8 +1053,11 @@ public abstract class AnnotatedFieldMethod
 	 * 
 	 * @see org.jnetpcap.packet.AnnotatedMethod#validateSignature(java.lang.reflect.Method)
 	 */
-	/** 
+	/**
+	 * Validate signature.
+	 * 
 	 * @param method
+	 *          the method
 	 * @see org.jnetpcap.packet.structure.AnnotatedMethod#validateSignature(java.lang.reflect.Method)
 	 */
 	@Override

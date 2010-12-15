@@ -546,7 +546,8 @@ public class Arp
 		return plen() * 8;
 	}
 
-	/** 
+	/**
+	 * Decode header.
 	 * 
 	 * @see org.jnetpcap.packet.JHeader#decodeHeader()
 	 */

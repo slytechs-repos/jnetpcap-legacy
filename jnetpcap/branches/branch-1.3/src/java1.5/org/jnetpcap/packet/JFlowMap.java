@@ -80,10 +80,15 @@ public class JFlowMap
 	/* (non-Javadoc)
    * @see org.jnetpcap.packet.JPacketHandler#nextPacket(org.jnetpcap.packet.JPacket, java.lang.Object)
    */
-  /** 
+  /**
+	 * Next packet.
+	 * 
 	 * @param packet
+	 *          the packet
 	 * @param user
-	 * @see org.jnetpcap.packet.PcapPacketHandler#nextPacket(org.jnetpcap.packet.PcapPacket, java.lang.Object)
+	 *          the user
+	 * @see org.jnetpcap.packet.PcapPacketHandler#nextPacket(org.jnetpcap.packet.PcapPacket,
+	 *      java.lang.Object)
 	 */
 	public void nextPacket(PcapPacket packet, Object user) {
   	packet = new PcapPacket(packet); // make a copy
@@ -108,10 +113,12 @@ public class JFlowMap
   	return count;
   }
 
-  /** 
-   * @return
-   * @see java.util.AbstractMap#toString()
-   */
+  /**
+	 * To string.
+	 * 
+	 * @return the string
+	 * @see java.util.AbstractMap#toString()
+	 */
   public String toString() {
   	StringBuilder b = new StringBuilder(1024 * 50);
   	

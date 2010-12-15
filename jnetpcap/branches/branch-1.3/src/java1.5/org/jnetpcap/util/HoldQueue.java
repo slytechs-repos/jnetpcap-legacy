@@ -93,9 +93,12 @@ public class HoldQueue<T, C>
 		 * 
 		 * @see java.lang.Comparable#compareTo(java.lang.Object)
 		 */
-		/** 
+		/**
+		 * Compare to.
+		 * 
 		 * @param o
-		 * @return
+		 *          the o
+		 * @return the int
 		 * @see java.lang.Comparable#compareTo(java.lang.Object)
 		 */
 		public int compareTo(C o) {
@@ -135,8 +138,10 @@ public class HoldQueue<T, C>
 	 * 
 	 * @see java.util.AbstractCollection#iterator()
 	 */
-	/** 
-	 * @return
+	/**
+	 * Iterator.
+	 * 
+	 * @return the iterator
 	 * @see java.util.AbstractCollection#iterator()
 	 */
 	@Override
@@ -165,8 +170,10 @@ public class HoldQueue<T, C>
 	 * 
 	 * @see java.util.AbstractCollection#size()
 	 */
-	/** 
-	 * @return
+	/**
+	 * Size.
+	 * 
+	 * @return the int
 	 * @see java.util.AbstractCollection#size()
 	 */
 	@Override
@@ -179,9 +186,12 @@ public class HoldQueue<T, C>
 	 * 
 	 * @see java.util.Queue#offer(java.lang.Object)
 	 */
-	/** 
+	/**
+	 * Offer.
+	 * 
 	 * @param o
-	 * @return
+	 *          the o
+	 * @return true, if successful
 	 * @see java.util.Queue#offer(java.lang.Object)
 	 */
 	public boolean offer(T o) {
@@ -197,8 +207,10 @@ public class HoldQueue<T, C>
 	 * 
 	 * @see java.util.Queue#peek()
 	 */
-	/** 
-	 * @return
+	/**
+	 * Peek.
+	 * 
+	 * @return the t
 	 * @see java.util.Queue#peek()
 	 */
 	public T peek() {
@@ -210,8 +222,10 @@ public class HoldQueue<T, C>
 	 * 
 	 * @see java.util.Queue#poll()
 	 */
-	/** 
-	 * @return
+	/**
+	 * Poll.
+	 * 
+	 * @return the t
 	 * @see java.util.Queue#poll()
 	 */
 	public T poll() {

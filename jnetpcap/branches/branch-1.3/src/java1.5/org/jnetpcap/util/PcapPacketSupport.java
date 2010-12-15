@@ -130,10 +130,15 @@ public class PcapPacketSupport implements PcapPacketHandler<Object>{
 	/* (non-Javadoc)
    * @see org.jnetpcap.packet.PcapPacketHandler#nextPacket(org.jnetpcap.packet.PcapPacket, java.lang.Object)
    */
-  /** 
+  /**
+	 * Next packet.
+	 * 
 	 * @param packet
+	 *          the packet
 	 * @param user
-	 * @see org.jnetpcap.packet.PcapPacketHandler#nextPacket(org.jnetpcap.packet.PcapPacket, java.lang.Object)
+	 *          the user
+	 * @see org.jnetpcap.packet.PcapPacketHandler#nextPacket(org.jnetpcap.packet.PcapPacket,
+	 *      java.lang.Object)
 	 */
 	public void nextPacket(PcapPacket packet, Object user) {
   	fireNextPacket(packet);

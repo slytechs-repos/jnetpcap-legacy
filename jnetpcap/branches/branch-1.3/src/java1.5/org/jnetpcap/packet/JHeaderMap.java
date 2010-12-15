@@ -150,8 +150,11 @@ public abstract class JHeaderMap<B extends JHeader>
 		reorderAndSave(unordered);
 	}
 
-	/** 
+	/**
+	 * Sets the sub headers.
+	 * 
 	 * @param headers
+	 *          the new sub headers
 	 * @see org.jnetpcap.packet.JHeader#setSubHeaders(org.jnetpcap.packet.JHeader[])
 	 */
 	@Override
@@ -159,10 +162,14 @@ public abstract class JHeaderMap<B extends JHeader>
 		reorderAndSave(headers);
 	}
 
-	/** 
+	/**
+	 * Gets the sub header.
+	 * 
 	 * @param <T>
+	 *          the generic type
 	 * @param header
-	 * @return
+	 *          the header
+	 * @return the sub header
 	 * @see org.jnetpcap.packet.JCompoundHeader#getSubHeader(org.jnetpcap.packet.JSubHeader)
 	 */
 	public <T extends JSubHeader<B>> T getSubHeader(T header) {
@@ -201,8 +208,10 @@ public abstract class JHeaderMap<B extends JHeader>
 		return header;
 	}
 
-	/** 
-	 * @return
+	/**
+	 * Gets the sub headers.
+	 * 
+	 * @return the sub headers
 	 * @see org.jnetpcap.packet.JHeader#getSubHeaders()
 	 */
 	public JHeader[] getSubHeaders() {
@@ -217,19 +226,26 @@ public abstract class JHeaderMap<B extends JHeader>
 		return headers.toArray(new JHeader[headers.size()]);
 	}
 
-	/** 
+	/**
+	 * Checks for sub header.
+	 * 
 	 * @param id
-	 * @return
+	 *          the id
+	 * @return true, if successful
 	 * @see org.jnetpcap.packet.JCompoundHeader#hasSubHeader(int)
 	 */
 	public boolean hasSubHeader(int id) {
 		return (optionsBitmap & (1 << id)) > 0;
 	}
 
-	/** 
+	/**
+	 * Checks for sub header.
+	 * 
 	 * @param <T>
+	 *          the generic type
 	 * @param header
-	 * @return
+	 *          the header
+	 * @return true, if successful
 	 * @see org.jnetpcap.packet.JCompoundHeader#hasSubHeader(org.jnetpcap.packet.JSubHeader)
 	 */
 	public <T extends JSubHeader<B>> boolean hasSubHeader(T header) {
@@ -255,8 +271,10 @@ public abstract class JHeaderMap<B extends JHeader>
 		}
 	}
 
-	/** 
-	 * @return
+	/**
+	 * Checks for sub headers.
+	 * 
+	 * @return true, if successful
 	 * @see org.jnetpcap.packet.JHeader#hasSubHeaders()
 	 */
 	public boolean hasSubHeaders() {

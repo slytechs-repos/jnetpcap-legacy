@@ -153,7 +153,8 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 			super(STRUCT_NAME, type);
 		}
 
-		/** 
+		/**
+		 * Cleanup.
 		 * 
 		 * @see org.jnetpcap.nio.JMemory#cleanup()
 		 */
@@ -273,10 +274,14 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 		 */
 		public native int getWirelen();
 
-		/** 
+		/**
+		 * Peer.
+		 * 
 		 * @param peer
-		 * @return
+		 *          the peer
+		 * @return the int
 		 * @throws PeeringException
+		 *           the peering exception
 		 * @see org.jnetpcap.nio.JMemory#peer(java.nio.ByteBuffer)
 		 */
 		public int peer(ByteBuffer peer) throws PeeringException {
@@ -529,25 +534,38 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 			return super.transferTo(dst, 0, size(), dstOffset);
 		}
 
-		/** 
+		/**
+		 * Transfer to.
+		 * 
 		 * @param dst
+		 *          the dst
 		 * @param srcOffset
+		 *          the src offset
 		 * @param length
+		 *          the length
 		 * @param dstOffset
-		 * @return
+		 *          the dst offset
+		 * @return the int
 		 * @see org.jnetpcap.nio.JMemory#transferTo(byte[], int, int, int)
 		 */
 		public int transferTo(byte[] dst, int srcOffset, int length, int dstOffset) {
 			return super.transferTo(dst, srcOffset, size(), dstOffset);
 		}
 
-		/** 
+		/**
+		 * Transfer to.
+		 * 
 		 * @param dst
+		 *          the dst
 		 * @param srcOffset
+		 *          the src offset
 		 * @param length
+		 *          the length
 		 * @param dstOffset
-		 * @return
-		 * @see org.jnetpcap.nio.JMemory#transferTo(org.jnetpcap.nio.JBuffer, int, int, int)
+		 *          the dst offset
+		 * @return the int
+		 * @see org.jnetpcap.nio.JMemory#transferTo(org.jnetpcap.nio.JBuffer, int,
+		 *      int, int)
 		 */
 		public int transferTo(JBuffer dst, int srcOffset, int length, int dstOffset) {
 			return super.transferTo(dst, srcOffset, size(), dstOffset);

@@ -115,8 +115,10 @@ public abstract class AnnotatedMethod {
 	 */
 	protected abstract void validateSignature(Method method);
 
-	/** 
-	 * @return
+	/**
+	 * To string.
+	 * 
+	 * @return the string
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {

@@ -91,10 +91,14 @@ public class JConfig {
 		 * 
 		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getDir(java.lang.String)
 		 */
-		/** 
+		/**
+		 * Gets the file.
+		 * 
 		 * @param name
-		 * @return
+		 *          the name
+		 * @return the file
 		 * @throws IOException
+		 *           Signals that an I/O exception has occurred.
 		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getFile(java.lang.String)
 		 */
 		public File getFile(String name) throws IOException {
@@ -106,10 +110,14 @@ public class JConfig {
 		 * 
 		 * @see org.jnetpcap.util.JConfig.SearchPath#get(java.lang.String)
 		 */
-		/** 
+		/**
+		 * Gets the input stream.
+		 * 
 		 * @param name
-		 * @return
+		 *          the name
+		 * @return the input stream
 		 * @throws IOException
+		 *           Signals that an I/O exception has occurred.
 		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getInputStream(java.lang.String)
 		 */
 		public InputStream getInputStream(String name) throws IOException {
@@ -123,10 +131,14 @@ public class JConfig {
 		 * 
 		 * @see org.jnetpcap.util.JConfig.SearchPath#getURL(java.lang.String)
 		 */
-		/** 
+		/**
+		 * Gets the uRL.
+		 * 
 		 * @param name
-		 * @return
+		 *          the name
+		 * @return the uRL
 		 * @throws IOException
+		 *           Signals that an I/O exception has occurred.
 		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getURL(java.lang.String)
 		 */
 		public URL getURL(String name) throws IOException {
@@ -150,8 +162,10 @@ public class JConfig {
 			}
 		}
 
-		/** 
-		 * @return
+		/**
+		 * To string.
+		 * 
+		 * @return the string
 		 * @see java.lang.Object#toString()
 		 */
 		public String toString() {
@@ -163,9 +177,12 @@ public class JConfig {
 		 * 
 		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getDir(java.lang.String)
 		 */
-		/** 
+		/**
+		 * Gets the dir.
+		 * 
 		 * @param name
-		 * @return
+		 *          the name
+		 * @return the dir
 		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getDir(java.lang.String)
 		 */
 		public File getDir(String name) {
@@ -208,9 +225,12 @@ public class JConfig {
 			this.properties = properties;
 		}
 
-		/** 
+		/**
+		 * Contains.
+		 * 
 		 * @param value
-		 * @return
+		 *          the value
+		 * @return true, if successful
 		 * @see java.util.Hashtable#contains(java.lang.Object)
 		 */
 		@Override
@@ -224,9 +244,12 @@ public class JConfig {
 			return false;
 		}
 
-		/** 
+		/**
+		 * Contains key.
+		 * 
 		 * @param key
-		 * @return
+		 *          the key
+		 * @return true, if successful
 		 * @see java.util.Hashtable#containsKey(java.lang.Object)
 		 */
 		@Override
@@ -256,9 +279,12 @@ public class JConfig {
 			return flat;
 		}
 
-		/** 
+		/**
+		 * Gets the property.
+		 * 
 		 * @param key
-		 * @return
+		 *          the key
+		 * @return the property
 		 * @see java.util.Properties#getProperty(java.lang.String)
 		 */
 		@Override
@@ -266,10 +292,14 @@ public class JConfig {
 			return getProperty(key, null);
 		}
 
-		/** 
+		/**
+		 * Gets the property.
+		 * 
 		 * @param key
+		 *          the key
 		 * @param defaultValue
-		 * @return
+		 *          the default value
+		 * @return the property
 		 * @see java.util.Properties#getProperty(java.lang.String, java.lang.String)
 		 */
 		@Override
@@ -292,8 +322,10 @@ public class JConfig {
 		 * 
 		 * @see java.util.Hashtable#keySet()
 		 */
-		/** 
-		 * @return
+		/**
+		 * Key set.
+		 * 
+		 * @return the sets the
 		 * @see java.util.Hashtable#keySet()
 		 */
 		@Override
@@ -306,8 +338,11 @@ public class JConfig {
 		 * 
 		 * @see java.util.Properties#list(java.io.PrintStream)
 		 */
-		/** 
+		/**
+		 * List.
+		 * 
 		 * @param out
+		 *          the out
 		 * @see java.util.Properties#list(java.io.PrintStream)
 		 */
 		@Override
@@ -320,8 +355,11 @@ public class JConfig {
 		 * 
 		 * @see java.util.Properties#list(java.io.PrintWriter)
 		 */
-		/** 
+		/**
+		 * List.
+		 * 
 		 * @param out
+		 *          the out
 		 * @see java.util.Properties#list(java.io.PrintWriter)
 		 */
 		@Override
@@ -334,9 +372,13 @@ public class JConfig {
 		 * 
 		 * @see java.util.Properties#load(java.io.InputStream)
 		 */
-		/** 
+		/**
+		 * Load.
+		 * 
 		 * @param inStream
+		 *          the in stream
 		 * @throws IOException
+		 *           Signals that an I/O exception has occurred.
 		 * @see java.util.Properties#load(java.io.InputStream)
 		 */
 		@Override
@@ -349,10 +391,15 @@ public class JConfig {
 		 * 
 		 * @see java.util.Properties#loadFromXML(java.io.InputStream)
 		 */
-		/** 
+		/**
+		 * Load from xml.
+		 * 
 		 * @param in
+		 *          the in
 		 * @throws IOException
+		 *           Signals that an I/O exception has occurred.
 		 * @throws InvalidPropertiesFormatException
+		 *           the invalid properties format exception
 		 * @see java.util.Properties#loadFromXML(java.io.InputStream)
 		 */
 		@Override
@@ -366,8 +413,10 @@ public class JConfig {
 		 * 
 		 * @see java.util.Properties#propertyNames()
 		 */
-		/** 
-		 * @return
+		/**
+		 * Property names.
+		 * 
+		 * @return the enumeration
 		 * @see java.util.Properties#propertyNames()
 		 */
 		@Override
@@ -380,10 +429,14 @@ public class JConfig {
 		 * 
 		 * @see java.util.Properties#setProperty(java.lang.String, java.lang.String)
 		 */
-		/** 
+		/**
+		 * Sets the property.
+		 * 
 		 * @param key
+		 *          the key
 		 * @param value
-		 * @return
+		 *          the value
+		 * @return the object
 		 * @see java.util.Properties#setProperty(java.lang.String, java.lang.String)
 		 */
 		@Override
@@ -410,10 +463,15 @@ public class JConfig {
 		 * 
 		 * @see java.util.Properties#store(java.io.OutputStream, java.lang.String)
 		 */
-		/** 
+		/**
+		 * Store.
+		 * 
 		 * @param out
+		 *          the out
 		 * @param comments
+		 *          the comments
 		 * @throws IOException
+		 *           Signals that an I/O exception has occurred.
 		 * @see java.util.Properties#store(java.io.OutputStream, java.lang.String)
 		 */
 		@Override
@@ -431,11 +489,17 @@ public class JConfig {
 		 * @see java.util.Properties#storeToXML(java.io.OutputStream,
 		 *      java.lang.String)
 		 */
-		/** 
+		/**
+		 * Store to xml.
+		 * 
 		 * @param os
+		 *          the os
 		 * @param comment
+		 *          the comment
 		 * @throws IOException
-		 * @see java.util.Properties#storeToXML(java.io.OutputStream, java.lang.String)
+		 *           Signals that an I/O exception has occurred.
+		 * @see java.util.Properties#storeToXML(java.io.OutputStream,
+		 *      java.lang.String)
 		 */
 		@Override
 		public synchronized void storeToXML(OutputStream os, String comment)
@@ -450,12 +514,19 @@ public class JConfig {
 		 * @see java.util.Properties#storeToXML(java.io.OutputStream,
 		 *      java.lang.String, java.lang.String)
 		 */
-		/** 
+		/**
+		 * Store to xml.
+		 * 
 		 * @param os
+		 *          the os
 		 * @param comment
+		 *          the comment
 		 * @param encoding
+		 *          the encoding
 		 * @throws IOException
-		 * @see java.util.Properties#storeToXML(java.io.OutputStream, java.lang.String, java.lang.String)
+		 *           Signals that an I/O exception has occurred.
+		 * @see java.util.Properties#storeToXML(java.io.OutputStream,
+		 *      java.lang.String, java.lang.String)
 		 */
 		@Override
 		public synchronized void storeToXML(
@@ -492,10 +563,14 @@ public class JConfig {
 		 * 
 		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getDir(java.lang.String)
 		 */
-		/** 
+		/**
+		 * Gets the file.
+		 * 
 		 * @param name
-		 * @return
+		 *          the name
+		 * @return the file
 		 * @throws IOException
+		 *           Signals that an I/O exception has occurred.
 		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getFile(java.lang.String)
 		 */
 		public File getFile(String name) throws IOException {
@@ -524,10 +599,14 @@ public class JConfig {
 		 * 
 		 * @see org.jnetpcap.util.JConfig.SearchPath#get(java.lang.String)
 		 */
-		/** 
+		/**
+		 * Gets the input stream.
+		 * 
 		 * @param name
-		 * @return
+		 *          the name
+		 * @return the input stream
 		 * @throws IOException
+		 *           Signals that an I/O exception has occurred.
 		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getInputStream(java.lang.String)
 		 */
 		public InputStream getInputStream(String name) throws IOException {
@@ -544,10 +623,14 @@ public class JConfig {
 		 * 
 		 * @see org.jnetpcap.util.JConfig.SearchPath#get(java.lang.String)
 		 */
-		/** 
+		/**
+		 * Gets the uRL.
+		 * 
 		 * @param name
-		 * @return
+		 *          the name
+		 * @return the uRL
 		 * @throws IOException
+		 *           Signals that an I/O exception has occurred.
 		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getURL(java.lang.String)
 		 */
 		public URL getURL(String name) throws IOException {
@@ -559,8 +642,10 @@ public class JConfig {
 			}
 		}
 
-		/** 
-		 * @return
+		/**
+		 * To string.
+		 * 
+		 * @return the string
 		 * @see java.lang.Object#toString()
 		 */
 		public String toString() {
@@ -572,9 +657,12 @@ public class JConfig {
 		 * 
 		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getDir(java.lang.String)
 		 */
-		/** 
+		/**
+		 * Gets the dir.
+		 * 
 		 * @param name
-		 * @return
+		 *          the name
+		 * @return the dir
 		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getDir(java.lang.String)
 		 */
 		public File getDir(String name) {
@@ -653,9 +741,12 @@ public class JConfig {
 		 * 
 		 * @see java.io.BufferedInputStream#read()
 		 */
-		/** 
-		 * @return
+		/**
+		 * Read.
+		 * 
+		 * @return the int
 		 * @throws IOException
+		 *           Signals that an I/O exception has occurred.
 		 * @see java.io.InputStream#read()
 		 */
 		@Override
@@ -747,10 +838,14 @@ public class JConfig {
 		 * 
 		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getDir(java.lang.String)
 		 */
-		/** 
+		/**
+		 * Gets the file.
+		 * 
 		 * @param name
-		 * @return
+		 *          the name
+		 * @return the file
 		 * @throws IOException
+		 *           Signals that an I/O exception has occurred.
 		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getFile(java.lang.String)
 		 */
 		public File getFile(String name) throws IOException {
@@ -762,10 +857,14 @@ public class JConfig {
 		 * 
 		 * @see org.jnetpcap.util.JConfig.SearchPath#get(java.lang.String)
 		 */
-		/** 
+		/**
+		 * Gets the input stream.
+		 * 
 		 * @param name
-		 * @return
+		 *          the name
+		 * @return the input stream
 		 * @throws IOException
+		 *           Signals that an I/O exception has occurred.
 		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getInputStream(java.lang.String)
 		 */
 		public InputStream getInputStream(String name) throws IOException {
@@ -812,10 +911,14 @@ public class JConfig {
 		 * 
 		 * @see org.jnetpcap.util.JConfig.SearchPath#get(java.lang.String)
 		 */
-		/** 
+		/**
+		 * Gets the uRL.
+		 * 
 		 * @param name
-		 * @return
+		 *          the name
+		 * @return the uRL
 		 * @throws IOException
+		 *           Signals that an I/O exception has occurred.
 		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getURL(java.lang.String)
 		 */
 		public URL getURL(String name) throws IOException {
@@ -858,8 +961,10 @@ public class JConfig {
 			return null;
 		}
 
-		/** 
-		 * @return
+		/**
+		 * To string.
+		 * 
+		 * @return the string
 		 * @see java.lang.Object#toString()
 		 */
 		public String toString() {
@@ -871,9 +976,12 @@ public class JConfig {
 		 * 
 		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getDir(java.lang.String)
 		 */
-		/** 
+		/**
+		 * Gets the dir.
+		 * 
 		 * @param name
-		 * @return
+		 *          the name
+		 * @return the dir
 		 * @see org.jnetpcap.util.config.JConfig.SearchPath#getDir(java.lang.String)
 		 */
 		public File getDir(String name) {

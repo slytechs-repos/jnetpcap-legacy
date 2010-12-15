@@ -34,23 +34,23 @@ import org.jnetpcap.util.Units;
 /**
  * Specialized garbage-collector that invokes the.
  * 
- * {@link DisposableReference.dispose} method immediately as soon as a
+ * {@link DisposableReference#dispose} method immediately as soon as a
  * DisposableReference becomes unreferancable and put on the main garbage
  * collector's list.
  * 
  * @author markbe
  */
 public final class DisposableGC {
-	
+
 	/** The Constant DEFAULT_CLEANUP_THREAD_TIMEOUT. */
 	private static final long DEFAULT_CLEANUP_THREAD_TIMEOUT = 20;
-	
+
 	/** The default gc. */
 	private static DisposableGC defaultGC = new DisposableGC();
-	
+
 	/** The Constant G10. */
 	private static final long G10 = 10 * 1000;
-	
+
 	/** The Constant G60. */
 	private static final long G60 = 60 * 1000;
 
@@ -98,7 +98,7 @@ public final class DisposableGC {
 
 	/** The cleanup thread. */
 	private Thread cleanupThread;
-	
+
 	/** The cleanup thread active. */
 	private final AtomicBoolean cleanupThreadActive = new AtomicBoolean(false);
 
@@ -138,18 +138,18 @@ public final class DisposableGC {
 
 	final LinkSequence<DisposableReference> g0 =
 			new LinkSequence<DisposableReference>("g0");
-	
+
 	/** The g10. */
 	final LinkSequence<DisposableReference> g10 =
 			new LinkSequence<DisposableReference>("g10");
-	
+
 	/** The g60. */
 	final LinkSequence<DisposableReference> g60 =
 			new LinkSequence<DisposableReference>("g60");
-	
+
 	/** The last system gc invoke. */
 	private long lastSystemGCInvoke = 0;
-	
+
 	/** The first system gc needed. */
 	private long firstSystemGCNeeded = 0;
 

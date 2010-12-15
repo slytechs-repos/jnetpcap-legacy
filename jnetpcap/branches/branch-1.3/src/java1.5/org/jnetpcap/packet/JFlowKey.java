@@ -80,9 +80,12 @@ public class JFlowKey
 	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
-	/** 
+	/**
+	 * Equals.
+	 * 
 	 * @param obj
-	 * @return
+	 *          the obj
+	 * @return true, if successful
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -196,8 +199,10 @@ public class JFlowKey
 	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
-	/** 
-	 * @return
+	/**
+	 * Hash code.
+	 * 
+	 * @return the int
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -229,8 +234,10 @@ public class JFlowKey
 		return super.peer(peer);
 	}
 
-	/** 
-	 * @return
+	/**
+	 * To debug string.
+	 * 
+	 * @return the string
 	 * @see org.jnetpcap.nio.JMemory#toDebugString()
 	 */
 	public String toDebugString() {

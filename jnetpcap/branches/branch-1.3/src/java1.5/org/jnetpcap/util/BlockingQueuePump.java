@@ -75,8 +75,11 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
+	 * Adds the.
+	 * 
 	 * @param o
-	 * @return
+	 *          the o
+	 * @return true, if successful
 	 * @see java.util.concurrent.BlockingQueue#add(java.lang.Object)
 	 */
 	public boolean add(T o) {
@@ -84,8 +87,11 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
+	 * Adds the all.
+	 * 
 	 * @param c
-	 * @return
+	 *          the c
+	 * @return true, if successful
 	 * @see java.util.Collection#addAll(java.util.Collection)
 	 */
 	public boolean addAll(Collection<? extends T> c) {
@@ -93,6 +99,7 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
+	 * Clear.
 	 * 
 	 * @see java.util.Collection#clear()
 	 */
@@ -101,8 +108,11 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
+	 * Contains.
+	 * 
 	 * @param o
-	 * @return
+	 *          the o
+	 * @return true, if successful
 	 * @see java.util.Collection#contains(java.lang.Object)
 	 */
 	public boolean contains(Object o) {
@@ -110,8 +120,11 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
+	 * Contains all.
+	 * 
 	 * @param c
-	 * @return
+	 *          the c
+	 * @return true, if successful
 	 * @see java.util.Collection#containsAll(java.util.Collection)
 	 */
 	public boolean containsAll(Collection<?> c) {
@@ -127,8 +140,11 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	protected abstract void dispatch(T data);
 
 	/**
+	 * Drain to.
+	 * 
 	 * @param c
-	 * @return
+	 *          the c
+	 * @return the int
 	 * @see java.util.concurrent.BlockingQueue#drainTo(java.util.Collection)
 	 */
 	public int drainTo(Collection<? super T> c) {
@@ -136,9 +152,13 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
+	 * Drain to.
+	 * 
 	 * @param c
+	 *          the c
 	 * @param maxElements
-	 * @return
+	 *          the max elements
+	 * @return the int
 	 * @see java.util.concurrent.BlockingQueue#drainTo(java.util.Collection, int)
 	 */
 	public int drainTo(Collection<? super T> c, int maxElements) {
@@ -146,7 +166,9 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
-	 * @return
+	 * Element.
+	 * 
+	 * @return the t
 	 * @see java.util.Queue#element()
 	 */
 	public T element() {
@@ -154,8 +176,11 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
+	 * Equals.
+	 * 
 	 * @param o
-	 * @return
+	 *          the o
+	 * @return true, if successful
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -164,7 +189,9 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
-	 * @return
+	 * Hash code.
+	 * 
+	 * @return the int
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -182,7 +209,9 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
-	 * @return
+	 * Checks if is empty.
+	 * 
+	 * @return true, if is empty
 	 * @see java.util.Collection#isEmpty()
 	 */
 	public boolean isEmpty() {
@@ -190,7 +219,9 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
-	 * @return
+	 * Iterator.
+	 * 
+	 * @return the iterator
 	 * @see java.util.Collection#iterator()
 	 */
 	public Iterator<T> iterator() {
@@ -198,8 +229,11 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
+	 * Offer.
+	 * 
 	 * @param o
-	 * @return
+	 *          the o
+	 * @return true, if successful
 	 * @see java.util.concurrent.BlockingQueue#offer(java.lang.Object)
 	 */
 	public boolean offer(T o) {
@@ -207,11 +241,17 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
+	 * Offer.
+	 * 
 	 * @param o
+	 *          the o
 	 * @param timeout
+	 *          the timeout
 	 * @param unit
-	 * @return
+	 *          the unit
+	 * @return true, if successful
 	 * @throws InterruptedException
+	 *           the interrupted exception
 	 * @see java.util.concurrent.BlockingQueue#offer(java.lang.Object, long,
 	 *      java.util.concurrent.TimeUnit)
 	 */
@@ -221,7 +261,9 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
-	 * @return
+	 * Peek.
+	 * 
+	 * @return the t
 	 * @see java.util.Queue#peek()
 	 */
 	public T peek() {
@@ -229,7 +271,9 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
-	 * @return
+	 * Poll.
+	 * 
+	 * @return the t
 	 * @see java.util.Queue#poll()
 	 */
 	public T poll() {
@@ -237,10 +281,15 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
+	 * Poll.
+	 * 
 	 * @param timeout
+	 *          the timeout
 	 * @param unit
-	 * @return
+	 *          the unit
+	 * @return the t
 	 * @throws InterruptedException
+	 *           the interrupted exception
 	 * @see java.util.concurrent.BlockingQueue#poll(long,
 	 *      java.util.concurrent.TimeUnit)
 	 */
@@ -249,8 +298,12 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
+	 * Put.
+	 * 
 	 * @param o
+	 *          the o
 	 * @throws InterruptedException
+	 *           the interrupted exception
 	 * @see java.util.concurrent.BlockingQueue#put(java.lang.Object)
 	 */
 	public void put(T o) throws InterruptedException {
@@ -258,7 +311,9 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
-	 * @return
+	 * Remaining capacity.
+	 * 
+	 * @return the int
 	 * @see java.util.concurrent.BlockingQueue#remainingCapacity()
 	 */
 	public int remainingCapacity() {
@@ -266,7 +321,9 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
-	 * @return
+	 * Removes the.
+	 * 
+	 * @return the t
 	 * @see java.util.Queue#remove()
 	 */
 	public T remove() {
@@ -274,8 +331,11 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
+	 * Removes the.
+	 * 
 	 * @param o
-	 * @return
+	 *          the o
+	 * @return true, if successful
 	 * @see java.util.Collection#remove(java.lang.Object)
 	 */
 	public boolean remove(Object o) {
@@ -283,8 +343,11 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
+	 * Removes the all.
+	 * 
 	 * @param c
-	 * @return
+	 *          the c
+	 * @return true, if successful
 	 * @see java.util.Collection#removeAll(java.util.Collection)
 	 */
 	public boolean removeAll(Collection<?> c) {
@@ -292,8 +355,11 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
+	 * Retain all.
+	 * 
 	 * @param c
-	 * @return
+	 *          the c
+	 * @return true, if successful
 	 * @see java.util.Collection#retainAll(java.util.Collection)
 	 */
 	public boolean retainAll(Collection<?> c) {
@@ -301,7 +367,9 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
-	 * @return
+	 * Size.
+	 * 
+	 * @return the int
 	 * @see java.util.Collection#size()
 	 */
 	public int size() {
@@ -366,8 +434,11 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
-	 * @return
+	 * Take.
+	 * 
+	 * @return the t
 	 * @throws InterruptedException
+	 *           the interrupted exception
 	 * @see java.util.concurrent.BlockingQueue#take()
 	 */
 	public T take() throws InterruptedException {
@@ -375,7 +446,9 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
-	 * @return
+	 * To array.
+	 * 
+	 * @return the object[]
 	 * @see java.util.Collection#toArray()
 	 */
 	public Object[] toArray() {
@@ -383,10 +456,14 @@ public abstract class BlockingQueuePump<T> implements BlockingQueue<T> {
 	}
 
 	/**
+	 * To array.
+	 * 
 	 * @param <Q>
+	 *          the generic type
 	 * @param a
-	 * @return
-	 * @see java.util.Collection#toArray(T[])
+	 *          the a
+	 * @return the q[]
+	 * @see java.util.Collection#toArray(Object[])
 	 */
 	public <Q> Q[] toArray(Q[] a) {
 		return this.queue.toArray(a);

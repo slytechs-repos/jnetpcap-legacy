@@ -189,8 +189,12 @@ public class JLogger extends Logger {
 	 * @see java.util.logging.Logger#setLevel(java.util.logging.Level)
 	 */
 	/**
+	 * Sets the level.
+	 * 
 	 * @param newLevel
+	 *          the new level
 	 * @throws SecurityException
+	 *           the security exception
 	 * @see java.util.logging.Logger#setLevel(java.util.logging.Level)
 	 */
 	@Override

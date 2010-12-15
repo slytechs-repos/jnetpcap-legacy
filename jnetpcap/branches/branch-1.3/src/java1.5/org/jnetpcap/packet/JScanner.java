@@ -448,10 +448,14 @@ public class JScanner extends JStruct {
 	 * 
 	 * @see org.jnetpcap.nio.JMemory#createReference(long)
 	 */
-	/** 
+	/**
+	 * Creates the reference.
+	 * 
 	 * @param address
+	 *          the address
 	 * @param size
-	 * @return
+	 *          the size
+	 * @return the j memory reference
 	 * @see org.jnetpcap.nio.JMemory#createReference(long, long)
 	 */
 	@Override

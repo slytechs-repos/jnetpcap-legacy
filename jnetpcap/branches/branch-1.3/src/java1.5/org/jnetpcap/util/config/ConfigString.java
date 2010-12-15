@@ -243,8 +243,10 @@ public class ConfigString
 	 * 
 	 * @see org.jnetpcap.util.config.ExpandableString#reset()
 	 */
-	/** 
-	 * @return
+	/**
+	 * Reset.
+	 * 
+	 * @return the config string
 	 * @see org.jnetpcap.util.ExpandableString#reset()
 	 */
 	@Override

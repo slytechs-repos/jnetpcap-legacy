@@ -124,8 +124,10 @@ public class JMemoryPool {
 			// Do nothing for now
 		}
 
-		/** 
-		 * @return
+		/**
+		 * To string.
+		 * 
+		 * @return the string
 		 * @see java.lang.Object#toString()
 		 */
 		public String toString() {

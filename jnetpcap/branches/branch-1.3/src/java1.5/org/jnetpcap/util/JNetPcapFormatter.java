@@ -42,9 +42,12 @@ public class JNetPcapFormatter
 	 * 
 	 * @see java.util.logging.Formatter#format(java.util.logging.LogRecord)
 	 */
-	/** 
+	/**
+	 * Format.
+	 * 
 	 * @param record
-	 * @return
+	 *          the record
+	 * @return the string
 	 * @see java.util.logging.Formatter#format(java.util.logging.LogRecord)
 	 */
 	@Override

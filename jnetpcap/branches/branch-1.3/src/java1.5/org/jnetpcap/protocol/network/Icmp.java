@@ -618,7 +618,8 @@ public class Icmp
 	 * 
 	 * @see org.jnetpcap.packet.JHeaderMap#decodeUniqueSubHeaders()
 	 */
-	/** 
+	/**
+	 * Decode header.
 	 * 
 	 * @see org.jnetpcap.packet.JHeader#decodeHeader()
 	 */

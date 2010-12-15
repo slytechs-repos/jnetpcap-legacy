@@ -133,10 +133,15 @@ public class JPacketSupport implements JPacketHandler<Object> {
 	 * @see org.jnetpcap.packet.JPacketHandler#nextPacket(org.jnetpcap.packet.JPacket,
 	 *      java.lang.Object)
 	 */
-	/** 
+	/**
+	 * Next packet.
+	 * 
 	 * @param packet
+	 *          the packet
 	 * @param user
-	 * @see org.jnetpcap.packet.JPacketHandler#nextPacket(org.jnetpcap.packet.JPacket, java.lang.Object)
+	 *          the user
+	 * @see org.jnetpcap.packet.JPacketHandler#nextPacket(org.jnetpcap.packet.JPacket,
+	 *      java.lang.Object)
 	 */
 	public void nextPacket(JPacket packet, Object user) {
 		fireNextPacket(packet);

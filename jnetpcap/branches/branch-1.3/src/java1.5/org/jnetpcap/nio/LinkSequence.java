@@ -171,8 +171,10 @@ public class LinkSequence<T> implements Iterable<T> {
 		return (l == null) ? null : l.linkElement();
 	}
 
-	/** 
-	 * @return
+	/**
+	 * To string.
+	 * 
+	 * @return the string
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
@@ -199,8 +201,10 @@ public class LinkSequence<T> implements Iterable<T> {
 	 * 
 	 * @see java.lang.Iterable#iterator()
 	 */
-	/** 
-	 * @return
+	/**
+	 * Iterator.
+	 * 
+	 * @return the iterator
 	 * @see java.lang.Iterable#iterator()
 	 */
 	public Iterator<T> iterator() {

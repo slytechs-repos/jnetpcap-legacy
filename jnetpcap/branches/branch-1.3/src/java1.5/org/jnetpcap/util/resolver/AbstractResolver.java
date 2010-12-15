@@ -53,7 +53,7 @@ import org.jnetpcap.util.config.JConfig;
  * @author Sly Technologies, Inc.
  */
 public abstract class AbstractResolver implements Resolver,
-    PropertyChangeListener {
+		PropertyChangeListener {
 
 	/**
 	 * Internal class that keeps track of timeout and which key to time out. Key
@@ -63,7 +63,7 @@ public abstract class AbstractResolver implements Resolver,
 	 * @author Sly Technologies, Inc.
 	 */
 	private static class TimeoutEntry {
-		
+
 		/** The hash. */
 		public final long hash;
 
@@ -107,19 +107,19 @@ public abstract class AbstractResolver implements Resolver,
 	private static final long DEFAULT_NEGATIVE_TIMEOUT_IN_MILLIS = 30 * 60 * 1000;
 
 	/** Timeout of 5 years. */
-	protected static final long INFINITE_TIMEOUT =
-	    1000L * 60L * 60L * 24L * 365L * 5L;
+	protected static final long INFINITE_TIMEOUT = 1000L * 60L * 60L * 24L * 365L
+			* 5L;
 
 	/** The Constant DEFAULT_POSITIVE_TIMEOUT_IN_MILLIS. */
 	private static final long DEFAULT_POSITIVE_TIMEOUT_IN_MILLIS =
-	    24 * 60 * 60 * 1000;
+			24 * 60 * 60 * 1000;
 
 	/** The Constant DEFAULT_SAVE_CACHE. */
 	private static final boolean DEFAULT_SAVE_CACHE = false;
 
 	/** The Constant NEWLINE_SEPARATOR. */
-	private static final String NEWLINE_SEPARATOR =
-	    System.getProperty("line.separator");
+	private static final String NEWLINE_SEPARATOR = System
+			.getProperty("line.separator");
 
 	/** The Constant PROPERTY_BACKOFF. */
 	private static final String PROPERTY_BACKOFF = "resolver.%sbackoff";
@@ -135,22 +135,22 @@ public abstract class AbstractResolver implements Resolver,
 
 	/** The Constant PROPERTY_NEGATIVE_TIMEOUT. */
 	private static final String PROPERTY_NEGATIVE_TIMEOUT =
-	    "resolver.%stimeout.negative";
+			"resolver.%stimeout.negative";
 
 	/** The Constant PROPERTY_POSITIVE_TIMEOUT. */
 	private static final String PROPERTY_POSITIVE_TIMEOUT =
-	    "resolver.%stimeout.positive";
+			"resolver.%stimeout.positive";
 
 	/** The Constant PROPERTY_RESOLVER_HOME. */
 	private static final String PROPERTY_RESOLVER_HOME = "resolver.home";
 
 	/** The Constant PROPERTY_RESOLVER_HOME_SEARCH_PATH. */
 	private static final String PROPERTY_RESOLVER_HOME_SEARCH_PATH =
-	    "resolver.home.search.path";
+			"resolver.home.search.path";
 
 	/** The Constant PROPERTY_RESOLVER_FILE_SEARCH_PATH. */
 	private static final String PROPERTY_RESOLVER_FILE_SEARCH_PATH =
-	    "resolver.search.path";
+			"resolver.search.path";
 
 	/** The Constant PROPERTY_SAVE_CACHE. */
 	private static final String PROPERTY_SAVE_CACHE = "resolver.%ssave";
@@ -285,8 +285,10 @@ public abstract class AbstractResolver implements Resolver,
 			cache.remove(hash);
 		} else {
 			if (logger.isLoggable(Level.FINEST)) {
-				logger.finest(String.format("[%d] adding %X %s", cache.size(), hash,
-				    String.valueOf(name)));
+				logger.finest(String.format("[%d] adding %X %s",
+						cache.size(),
+						hash,
+						String.valueOf(name)));
 			}
 		}
 
@@ -312,9 +314,12 @@ public abstract class AbstractResolver implements Resolver,
 	 * 
 	 * @see packet.format.JFormatter.Resolver#isResolved(byte[])
 	 */
-	/** 
+	/**
+	 * Can be resolved.
+	 * 
 	 * @param address
-	 * @return
+	 *          the address
+	 * @return true, if successful
 	 * @see org.jnetpcap.util.resolver.Resolver#canBeResolved(byte[])
 	 */
 	public boolean canBeResolved(byte[] address) {
@@ -341,19 +346,18 @@ public abstract class AbstractResolver implements Resolver,
 	 */
 	private void createCache() {
 		cache =
-		    Collections.synchronizedMap(new HashMap<Long, String>(cacheCapacity,
-		        cacheLoadFactor));
+				Collections.synchronizedMap(new HashMap<Long, String>(cacheCapacity,
+						cacheLoadFactor));
 		timeoutQueue =
-		    new PriorityQueue<AbstractResolver.TimeoutEntry>(cacheCapacity,
-		        new Comparator<AbstractResolver.TimeoutEntry>() {
+				new PriorityQueue<AbstractResolver.TimeoutEntry>(cacheCapacity,
+						new Comparator<AbstractResolver.TimeoutEntry>() {
 
-			        public int compare(
-			            AbstractResolver.TimeoutEntry o1,
-			            AbstractResolver.TimeoutEntry o2) {
-				        return (int) (o1.timeout - o2.timeout);
-			        }
+							public int compare(AbstractResolver.TimeoutEntry o1,
+									AbstractResolver.TimeoutEntry o2) {
+								return (int) (o1.timeout - o2.timeout);
+							}
 
-		        });
+						});
 
 	}
 
@@ -364,14 +368,17 @@ public abstract class AbstractResolver implements Resolver,
 	 */
 	private String filename() {
 		String filename =
-		    this.name
-		        + JConfig.getProperty(PROPERTY_CACHE_SUFFIX, DEFAULT_CACHE_SUFFIX);
+				this.name
+						+ JConfig.getProperty(PROPERTY_CACHE_SUFFIX, DEFAULT_CACHE_SUFFIX);
 
 		return filename;
 	}
 
-	/** 
+	/**
+	 * Finalize.
+	 * 
 	 * @throws Throwable
+	 *           the throwable
 	 * @see java.lang.Object#finalize()
 	 */
 	@Override
@@ -444,7 +451,7 @@ public abstract class AbstractResolver implements Resolver,
 
 		if (cache == null) {
 			createCache();
-			
+
 			initProperties();
 
 			try {
@@ -459,18 +466,24 @@ public abstract class AbstractResolver implements Resolver,
 	 * Inits the properties.
 	 */
 	private void initProperties() {
-		JConfig.addListener(this, String.format(PROPERTY_POSITIVE_TIMEOUT, ""),
-		    DEFAULT_POSITIVE_TIMEOUT_IN_MILLIS);
-		JConfig.addListener(this, String.format(PROPERTY_NEGATIVE_TIMEOUT, ""),
-		    DEFAULT_NEGATIVE_TIMEOUT_IN_MILLIS);
-		JConfig.addListener(this, String.format(PROPERTY_SAVE_CACHE, ""),
-		    DEFAULT_SAVE_CACHE);
-		JConfig.addListener(this, String.format(PROPERTY_MAX_ENTRIES, ""),
-		    DEFAULT_MAX_ENTRIES);
-		JConfig.addListener(this, String.format(PROPERTY_BACKOFF, ""),
-		    DEFAULT_BACKOFF);
-		JConfig.addListener(this, String.format(PROPERTY_MKDIR_HOME, ""),
-		    DEFAULT_MKDIR_HOME);
+		JConfig.addListener(this,
+				String.format(PROPERTY_POSITIVE_TIMEOUT, ""),
+				DEFAULT_POSITIVE_TIMEOUT_IN_MILLIS);
+		JConfig.addListener(this,
+				String.format(PROPERTY_NEGATIVE_TIMEOUT, ""),
+				DEFAULT_NEGATIVE_TIMEOUT_IN_MILLIS);
+		JConfig.addListener(this,
+				String.format(PROPERTY_SAVE_CACHE, ""),
+				DEFAULT_SAVE_CACHE);
+		JConfig.addListener(this,
+				String.format(PROPERTY_MAX_ENTRIES, ""),
+				DEFAULT_MAX_ENTRIES);
+		JConfig.addListener(this,
+				String.format(PROPERTY_BACKOFF, ""),
+				DEFAULT_BACKOFF);
+		JConfig.addListener(this,
+				String.format(PROPERTY_MKDIR_HOME, ""),
+				DEFAULT_MKDIR_HOME);
 
 		/*
 		 * we don't specify a default for these, as the default would cause the
@@ -480,13 +493,14 @@ public abstract class AbstractResolver implements Resolver,
 		 */
 		final String n = this.name + ".";
 		JConfig
-		    .addListener(this, String.format(PROPERTY_POSITIVE_TIMEOUT, n), null);
+				.addListener(this, String.format(PROPERTY_POSITIVE_TIMEOUT, n), null);
 		JConfig
-		    .addListener(this, String.format(PROPERTY_NEGATIVE_TIMEOUT, n), null);
+				.addListener(this, String.format(PROPERTY_NEGATIVE_TIMEOUT, n), null);
 		JConfig.addListener(this, String.format(PROPERTY_SAVE_CACHE, n), null);
 		JConfig.addListener(this, String.format(PROPERTY_MAX_ENTRIES, n), null);
-		JConfig.addListener(this, String.format(PROPERTY_BACKOFF, this.name + "."),
-		    null);
+		JConfig.addListener(this,
+				String.format(PROPERTY_BACKOFF, this.name + "."),
+				null);
 	}
 
 	/*
@@ -494,9 +508,12 @@ public abstract class AbstractResolver implements Resolver,
 	 * 
 	 * @see packet.format.JFormatter.Resolver#isCached(byte[])
 	 */
-	/** 
+	/**
+	 * Checks if is cached.
+	 * 
 	 * @param address
-	 * @return
+	 *          the address
+	 * @return true, if is cached
 	 * @see org.jnetpcap.util.resolver.Resolver#isCached(byte[])
 	 */
 	public boolean isCached(byte[] address) {
@@ -567,7 +584,8 @@ public abstract class AbstractResolver implements Resolver,
 
 					if (timeout <= time) {
 						logger.fine(String.format("on load timeout, skipping %x %d\n",
-						    hash, ((timeout - time) / 1000)));
+								hash,
+								((timeout - time) / 1000)));
 						isModified = true;
 						continue; // Already timedout
 					}
@@ -609,10 +627,14 @@ public abstract class AbstractResolver implements Resolver,
 		return loadCache(in);
 	}
 
-	/** 
+	/**
+	 * Load cache.
+	 * 
 	 * @param url
-	 * @return
+	 *          the url
+	 * @return the int
 	 * @throws IOException
+	 *           Signals that an I/O exception has occurred.
 	 * @see org.jnetpcap.util.resolver.Resolver#loadCache(java.net.URL)
 	 */
 	public int loadCache(URL url) throws IOException {
@@ -622,75 +644,80 @@ public abstract class AbstractResolver implements Resolver,
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
+	 * @see
+	 * java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent
+	 * )
 	 */
-	/** 
+	/**
+	 * Property change.
+	 * 
 	 * @param evt
+	 *          the evt
 	 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
 	 */
 	public void propertyChange(PropertyChangeEvent evt) {
 
-		if (String.format(PROPERTY_NEGATIVE_TIMEOUT, "").equals(
-		    evt.getPropertyName())) {
+		if (String.format(PROPERTY_NEGATIVE_TIMEOUT, "")
+				.equals(evt.getPropertyName())) {
 			negativeTimeout = JEvent.longValue(evt);
 			if (negativeTimeout == -1L) {
 				negativeTimeout = INFINITE_TIMEOUT;
 			}
 
-		} else if (String.format(PROPERTY_POSITIVE_TIMEOUT, "").equals(
-		    evt.getPropertyName())) {
+		} else if (String.format(PROPERTY_POSITIVE_TIMEOUT, "")
+				.equals(evt.getPropertyName())) {
 			positiveTimeout = JEvent.longValue(evt);
 			if (positiveTimeout == -1L) {
 				positiveTimeout = INFINITE_TIMEOUT;
 			}
 
-		} else if (String.format(PROPERTY_SAVE_CACHE, "").equals(
-		    evt.getPropertyName())) {
+		} else if (String.format(PROPERTY_SAVE_CACHE, "")
+				.equals(evt.getPropertyName())) {
 			saveCache = JEvent.booleanValue(evt);
 
-		} else if (String.format(PROPERTY_MAX_ENTRIES, "").equals(
-		    evt.getPropertyName())) {
+		} else if (String.format(PROPERTY_MAX_ENTRIES, "")
+				.equals(evt.getPropertyName())) {
 			maxentries = JEvent.intValue(evt);
 			if (cache.size() > maxentries) {
 				timeoutCacheOldest(maxentries * 100 / backoff);
 			}
 
 		} else if (String.format(PROPERTY_BACKOFF, "")
-		    .equals(evt.getPropertyName())) {
+				.equals(evt.getPropertyName())) {
 			backoff = JEvent.intValue(evt);
 
-		} else if (String.format(PROPERTY_MKDIR_HOME, "").equals(
-		    evt.getPropertyName())) {
+		} else if (String.format(PROPERTY_MKDIR_HOME, "")
+				.equals(evt.getPropertyName())) {
 			mkdirHome = JEvent.booleanValue(evt);
 
 		} else if (String.format(PROPERTY_NEGATIVE_TIMEOUT, this.name + ".")
-		    .equals(evt.getPropertyName())) {
+				.equals(evt.getPropertyName())) {
 			negativeTimeout = JEvent.longValue(evt);
 			if (negativeTimeout == -1L) {
 				negativeTimeout = INFINITE_TIMEOUT;
 			}
 
 		} else if (String.format(PROPERTY_POSITIVE_TIMEOUT, this.name + ".")
-		    .equals(evt.getPropertyName())) {
+				.equals(evt.getPropertyName())) {
 			positiveTimeout = JEvent.longValue(evt);
 			if (positiveTimeout == -1L) {
 				positiveTimeout = INFINITE_TIMEOUT;
 			}
 
-		} else if (String.format(PROPERTY_SAVE_CACHE, this.name + ".").equals(
-		    evt.getPropertyName())) {
+		} else if (String.format(PROPERTY_SAVE_CACHE, this.name + ".")
+				.equals(evt.getPropertyName())) {
 			saveCache = JEvent.booleanValue(evt);
 
-		} else if (String.format(PROPERTY_MAX_ENTRIES, this.name + ".").equals(
-		    evt.getPropertyName())) {
+		} else if (String.format(PROPERTY_MAX_ENTRIES, this.name + ".")
+				.equals(evt.getPropertyName())) {
 			maxentries = JEvent.intValue(evt);
 
 			if (cache.size() > maxentries) {
 				timeoutCacheOldest(maxentries * 100 / backoff);
 
 			}
-		} else if (String.format(PROPERTY_BACKOFF, this.name + ".").equals(
-		    evt.getPropertyName())) {
+		} else if (String.format(PROPERTY_BACKOFF, this.name + ".")
+				.equals(evt.getPropertyName())) {
 			backoff = JEvent.intValue(evt);
 		}
 
@@ -704,9 +731,12 @@ public abstract class AbstractResolver implements Resolver,
 	 * 
 	 * @see packet.format.JFormatter.Resolver#resolve(byte[])
 	 */
-	/** 
+	/**
+	 * Resolve.
+	 * 
 	 * @param address
-	 * @return
+	 *          the address
+	 * @return the string
 	 * @see org.jnetpcap.util.resolver.Resolver#resolve(byte[])
 	 */
 	public final String resolve(byte[] address) {
@@ -780,7 +810,7 @@ public abstract class AbstractResolver implements Resolver,
 				if (mkdirHome == true) {
 
 					logger.fine("attempting to create cache directory using property "
-					    + PROPERTY_RESOLVER_HOME);
+							+ PROPERTY_RESOLVER_HOME);
 					dir = JConfig.createDir(PROPERTY_RESOLVER_HOME, DEFAULT_HOME);
 					if (dir == null) {
 						return 0;
@@ -796,8 +826,8 @@ public abstract class AbstractResolver implements Resolver,
 		logger.finer("saving cache " + url.toString());
 
 		int count =
-		    saveCache(new PrintWriter(new OutputStreamWriter(new FileOutputStream(
-		        url.getFile()))));
+				saveCache(new PrintWriter(new OutputStreamWriter(new FileOutputStream(
+						url.getFile()))));
 		if (count == 0) {
 			throw new IllegalStateException("Saved empty cache");
 		}
@@ -824,17 +854,20 @@ public abstract class AbstractResolver implements Resolver,
 				 * also in the timeout queue.
 				 */
 				for (Iterator<AbstractResolver.TimeoutEntry> i =
-				    timeoutQueue.iterator(); i.hasNext();) {
+						timeoutQueue.iterator(); i.hasNext();) {
 					final AbstractResolver.TimeoutEntry e = i.next();
 					String v = cache.get(e.hash);
 
 					if (logger.isLoggable(Level.FINEST)) {
-						logger.finest(String.format("saving %X %X\n", e.hash,
-						    (e.timeout - System.currentTimeMillis())));
+						logger.finest(String.format("saving %X %X\n",
+								e.hash,
+								(e.timeout - System.currentTimeMillis())));
 					}
 
-					out.format("%X:%d:%s" + NEWLINE_SEPARATOR, e.hash, e.timeout,
-					    (v == null) ? "" : v);
+					out.format("%X:%d:%s" + NEWLINE_SEPARATOR,
+							e.hash,
+							e.timeout,
+							(v == null) ? "" : v);
 					count++;
 				}
 
@@ -900,7 +933,8 @@ public abstract class AbstractResolver implements Resolver,
 	 */
 	public final void setNegativeTimeout(long negativeTimeout) {
 		JConfig.setProperty(String.format(PROPERTY_NEGATIVE_TIMEOUT, this.name
-		    + "."), Long.toString(negativeTimeout));
+				+ "."),
+				Long.toString(negativeTimeout));
 	}
 
 	/**
@@ -911,7 +945,8 @@ public abstract class AbstractResolver implements Resolver,
 	 */
 	public final void setPositiveTimeout(long positiveTimeout) {
 		JConfig.setProperty(String.format(PROPERTY_POSITIVE_TIMEOUT, this.name
-		    + "."), Long.toString(positiveTimeout));
+				+ "."),
+				Long.toString(positiveTimeout));
 	}
 
 	/**
@@ -922,11 +957,13 @@ public abstract class AbstractResolver implements Resolver,
 
 		synchronized (cache) {
 			for (Iterator<AbstractResolver.TimeoutEntry> i = timeoutQueue.iterator(); i
-			    .hasNext();) {
+					.hasNext();) {
 				AbstractResolver.TimeoutEntry e = i.next();
 				if (e.timeout < t) {
-					System.out.printf("%s: %s %s\n", "timeout()", logger, logger
-					    .getLevel());
+					System.out.printf("%s: %s %s\n",
+							"timeout()",
+							logger,
+							logger.getLevel());
 					logger.finest(String.format("timedout %s\n", cache.get(e.hash)));
 					cache.remove(e.hash);
 					i.remove();
@@ -947,11 +984,11 @@ public abstract class AbstractResolver implements Resolver,
 	private void timeoutCacheOldest(int count) {
 		synchronized (cache) {
 			for (Iterator<AbstractResolver.TimeoutEntry> i = timeoutQueue.iterator(); i
-			    .hasNext();) {
+					.hasNext();) {
 				AbstractResolver.TimeoutEntry e = i.next();
 				if (count-- > 0) {
-					logger.finest(String.format("removed due to backoff %s \n", cache
-					    .get(e.hash)));
+					logger.finest(String.format("removed due to backoff %s \n",
+							cache.get(e.hash)));
 					cache.remove(e.hash);
 					i.remove();
 				} else {
@@ -981,15 +1018,21 @@ public abstract class AbstractResolver implements Resolver,
 		return number;
 	}
 
-	/** 
-	 * @return
+	/**
+	 * To string.
+	 * 
+	 * @return the string
 	 * @see java.lang.Object#toString()
 	 */
+	@Override
 	public String toString() {
 		StringBuilder out = new StringBuilder();
 		out.append(String.format("cache[count=%d], "
-		    + "timeout[count=%d, positive=%d, negative=%d], ", cache.size(),
-		    timeoutQueue.size(), positiveTimeout, negativeTimeout));
+				+ "timeout[count=%d, positive=%d, negative=%d], ",
+				cache.size(),
+				timeoutQueue.size(),
+				positiveTimeout,
+				negativeTimeout));
 		return out.toString();
 	}
 }
