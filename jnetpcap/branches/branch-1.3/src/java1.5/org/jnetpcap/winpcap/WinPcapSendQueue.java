@@ -18,7 +18,6 @@
  */
 package org.jnetpcap.winpcap;
 
-import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -44,8 +43,8 @@ import org.jnetpcap.packet.PeeringException;
  */
 
 /**
- * Class peered with native <code>pcap_send_queue</code> structure. A queue
- * of raw packets that will be sent to the network with
+ * Class peered with native <code>pcap_send_queue</code> structure. A queue of
+ * raw packets that will be sent to the network with
  * <code>WinPcap.sendqueueTransmit()</code>. The class peers with native C
  * pcap_send_queue structure and allows direct control. The structure can be
  * allocated using WinPcap.sendQueueAlloc method or can be directly instantiated
@@ -56,7 +55,7 @@ import org.jnetpcap.packet.PeeringException;
  */
 @SuppressWarnings("deprecation")
 public class WinPcapSendQueue extends JStruct {
-	
+
 	/**
 	 * Constant used to determine the default queue size which is 64Kb (1024 *
 	 * 64).
@@ -74,7 +73,7 @@ public class WinPcapSendQueue extends JStruct {
 	public native static int sizeof();
 
 	/** The buffer. */
-	private JBuffer buffer;
+	private final JBuffer buffer;
 
 	/**
 	 * Allocates default size buffer for use as a send queue.
@@ -93,13 +92,13 @@ public class WinPcapSendQueue extends JStruct {
 	public WinPcapSendQueue(byte[] data) {
 		super(STRUCT_NAME, sizeof());
 
-		this.buffer = new JBuffer(data.length); 
+		this.buffer = new JBuffer(data.length);
 		this.buffer.order(ByteOrder.nativeOrder()); // Force byte ordering
 
 		this.buffer.setByteArray(0, data);
 		setMaxLen(data.length);
 	}
-	
+
 	/**
 	 * <p>
 	 * The queue uses the supplied byte buffer which holds the buffers contents.
@@ -129,12 +128,12 @@ public class WinPcapSendQueue extends JStruct {
 
 		if (buffer.isDirect() == false) {
 			throw new IllegalArgumentException("Only direct buffers are accepted. "
-			    + "See ByteBuffer.allocateDirect method.");
+					+ "See ByteBuffer.allocateDirect method.");
 		}
 		this.buffer.peer(buffer);
 		setMaxLen(this.buffer.size());
 	}
-	
+
 	/**
 	 * Allocates specific queue <code>size</code>.
 	 * 
@@ -145,12 +144,10 @@ public class WinPcapSendQueue extends JStruct {
 		super(STRUCT_NAME, sizeof());
 		this.buffer = new JBuffer(size);
 		this.buffer.order(ByteOrder.nativeOrder()); // Force byte ordering
-		
+
 		setMaxLen(size);
 		setBuffer(buffer);
 	}
-
-
 
 	/**
 	 * Gets the buffer containing the packets to be sent.
@@ -160,7 +157,7 @@ public class WinPcapSendQueue extends JStruct {
 	public JBuffer getBuffer() {
 		return buffer;
 	}
-	
+
 	/**
 	 * Gets the current size of the queue, in bytes.
 	 * 
@@ -184,7 +181,7 @@ public class WinPcapSendQueue extends JStruct {
 	 * @return the int
 	 */
 	public native int incLen(int delta);
-	
+
 	/**
 	 * Add a packet to a send queue. This method adds a packet at the end of the
 	 * send queue pointed by the queue parameter. <code>hdr</code> points to a
@@ -236,7 +233,7 @@ public class WinPcapSendQueue extends JStruct {
 	public int queue(PcapHeader header, ByteBuffer data) {
 		return queue(header, new JBuffer(data));
 	}
-	
+
 	/**
 	 * Add a packet to a send queue. This method adds a packet at the end of the
 	 * send queue pointed by the queue parameter. <code>hdr</code> points to a
@@ -260,16 +257,16 @@ public class WinPcapSendQueue extends JStruct {
 	 * @return 0 (Pcap.OK) on success; exception thrown on failure
 	 */
 	public int queue(PcapHeader header, JBuffer data) {
-		
+
 		header.transferTo(buffer, 0, header.size(), getLen());
 		setLen(getLen() + header.size());
-		
+
 		data.transferTo(buffer, 0, data.size(), getLen());
 		setLen(getLen() + data.size());
-		
+
 		return Pcap.OK;
 	}
-	
+
 	/**
 	 * Add a packet to a send queue. This method adds a packet at the end of the
 	 * send queue pointed by the queue parameter. <code>hdr</code> points to a
@@ -291,11 +288,12 @@ public class WinPcapSendQueue extends JStruct {
 	 * @return 0 on success; exception thrown on failure
 	 * @deprecated replaced with new versions of the same method
 	 */
+	@Deprecated
 	public int queue(PcapPktHdr hdr, byte[] data) {
 
 		if (data.length != hdr.getCaplen()) {
 			throw new IllegalArgumentException("Buffer length "
-			    + "does not equal length in packet header");
+					+ "does not equal length in packet header");
 		}
 
 		int p = getLen();
@@ -304,16 +302,16 @@ public class WinPcapSendQueue extends JStruct {
 		 * Write the packet header first
 		 */
 		buffer.setInt(p, (int) hdr.getSeconds());
-		buffer.setInt(p + 4, (int) hdr.getUseconds());
-		buffer.setInt(p + 8, (int) hdr.getCaplen());
-		buffer.setInt(p + 12, (int) hdr.getLen());
+		buffer.setInt(p + 4, hdr.getUseconds());
+		buffer.setInt(p + 8, hdr.getCaplen());
+		buffer.setInt(p + 12, hdr.getLen());
 
 		buffer.setByteArray(p + 16, data);
 		incLen(16 + data.length);
 
 		return 0;
 	}
-	
+
 	/**
 	 * Add a packet to a send queue. This method adds a packet at the end of the
 	 * send queue pointed by the queue parameter. <code>hdr</code> points to a
@@ -337,31 +335,31 @@ public class WinPcapSendQueue extends JStruct {
 	 * @return 0 on success; exception thrown on failure
 	 * @deprecated replaced with new versions of the same method
 	 */
+	@Deprecated
 	public int queue(PcapPktHdr hdr, ByteBuffer data) {
 
 		int length = data.limit() - data.position();
 		if (length != hdr.getCaplen()) {
 			throw new IllegalArgumentException("Buffer length (limit - position) "
-			    + "does not equal length in packet header");
+					+ "does not equal length in packet header");
 		}
 
-		
 		int p = getLen();
 
 		/*
 		 * Write the packet header first
 		 */
 		buffer.setInt(p, (int) hdr.getSeconds());
-		buffer.setInt(p + 4, (int) hdr.getUseconds());
-		buffer.setInt(p + 8, (int) hdr.getCaplen());
-		buffer.setInt(p + 12, (int) hdr.getLen());
+		buffer.setInt(p + 4, hdr.getUseconds());
+		buffer.setInt(p + 8, hdr.getCaplen());
+		buffer.setInt(p + 12, hdr.getLen());
 
 		buffer.setByteBuffer(p + 16, data);
 		incLen(16 + length);
 
 		return 0;
 	}
-	
+
 	/**
 	 * Sets the buffer.
 	 * 
@@ -371,8 +369,8 @@ public class WinPcapSendQueue extends JStruct {
 	private native void setBuffer(JBuffer buffer);
 
 	/**
-	 * Sets the peered <code>pcap_send_queue.len</code> field which specifies
-	 * the urrent size of the queue, in bytes.
+	 * Sets the peered <code>pcap_send_queue.len</code> field which specifies the
+	 * urrent size of the queue, in bytes.
 	 * 
 	 * @param len
 	 *          current size of the queue, in bytes
