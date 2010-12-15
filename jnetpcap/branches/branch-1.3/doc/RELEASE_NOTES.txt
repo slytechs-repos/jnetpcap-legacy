@@ -20,17 +20,51 @@
 
 
                               jNetPcap Package
-                               Version 1.3.b3
+                               Version 1.3.b4
                                Release Notes
-                            Created on 2010-10-01
+                            Created on 2010-12-15
 
 INTRODUCTION:
 ============
 
-This is a stable release beta #3 of jNetPcap library. The feature set for
+This is a stable release beta #4 of jNetPcap library. The feature set for
 1.3 release cycle is frozen and only bug fixes will be released in future
-1.3 updates. Fixes a bug where a "debug string" is sent to System.out, with
-not way of turning it off from the Tcp protocol while its parsing tcp options.
+1.3 updates. 
+
+Beta 4 addresses a significant memory utilization issue. Beta 4 replaced 
+Object finalization memory cleanup model, with java Reference and ReferenceQueue
+managed objects. No classes in jNetPcap library rely on Object.finalize() to
+perform any type of cleanup. Any class requiring cleanup, now uses the 
+java.lang.reference package mechanism to be notified when cleanup needs to 
+occur. This is Sun/Oracle recommended way of performing cleanup.
+
+Beta 4 adds a background system thread which schedules cleanup of resources. The
+cleanup thread, named after the class implementing most of the functionality,
+DisposableGC class, works in conjunction with memory allocation mechanism to
+ensure that memory is kept within default limits of 64mb. 
+
+Several system properties were added to control the behavior and limits of 
+DisposableGC. Properties 'nio.mx', 'nio.ms', 'nio.blocksize' control native
+memory allocation. These properties can be defined on the command line
+as '-Dnio.mx=64mb', '-Dnio.ms=64mb', '-Dnio.blocksize=32kb'. Property 'nio.mx'
+defines an absolute limit on the amount of native memory that can be allocated.
+When the limit is reached, and memory cleanup is unable to free sufficient 
+amount of memory to fulfill the original request, an OutOfMemory exception is
+thrown. Property 'nio.ms' defines a soft limit, where forcible memory cleanup
+is attempted, while memory requests continue to be honored. Property 
+'nio.blocksize' defines the minimum size for the smallest memory allocation
+request. Memory is allocated in larger 'nio.blocksize' blocks and sub-allocated
+per each allocation request. This prevents excessive system memory fragmentation,
+improves overall performance (since most subsequent allocation requests are
+fulfilled in java).
+
+The default values for all 3 properties are: nio.mx=64mb, nio.ms=64mb, 
+nio.blocksize=32kb. The defaults are applied to all platforms and hardware 
+architectures (32-bit and 64-bit). 
+
+Beta 4 also improves some critical areas of jNetPcap API. Specifically, peering,
+memory allocation and use of accessor methods in JBuffer class, are 
+significantly improved.
 
 The API classes are compiled with Java 1.5.X compiler and require Java 1.5 
 compatibility. The package is platform dependent as there is a native library 
@@ -219,55 +253,8 @@ This is a major feature release. Adds support for high level protocol analysis,
 fixes several bugs, adds Http and Html header support and moves header package 
 to new protocol package. 
 
-== Bugs Fixed ==
-  - Bug#3062026	- Scanner.reloadAll() in JPacket.scan()
-
-  - Bug#3062029	- Memory leak in native scanner reloadAll() tables
-
-  - Bug#3062031	- @Bind method with multiple same headers, gets wrong header
-
-  - Bug#3062035	- AnnotatedMethod doesn't open up method access perm
-
-  - Bug#3062037	- Checksum.pseudoUDP coredumps on invalid headers
-
-  - Bug#3062050	- Main scanner loop processes 0 length headers
-
-  - Bug#3062053	- @Deprecated JPacket.getScanner method
-
-  - Bug#3065968 - Missing sendPacket(JBuffer) implementation
-
-  - Bug#3066662 - UDP header missing setter methods
-
-  - Bug#3066959 - VLAN definition incorrectly assumes 802.1d as next header
-
-  - Bug#2353774 - Tcp header incomplete - missing tcp options
-
-  - Bug#3067088 - Ip4.Timestamp incorrectly initialized
-
-  - Bug#3067096 - JPacket.toString() exceptions consume all output in progress
-
-  - Bug#2933449	- SIP PRACK Message dosn't recognized
-
-  - Bug#3018072	- Wrong scanning Sdp headers in Linux
-
-  - Bug#2981951 - Intermittent crashes in scanner
-
-  - Bug#2978441 - JRegistry.addBinding(JBinding) not working
-  
-  - Bug#2890736 - reopened bug ConcurrentModificationException in JMemoryPool
-  
-  - Bug#2906021 - Ethernet trailer end up in last header payload
-  
-  - Bug#2908252 - JFormatter invalid state after exception during format output
-  
-  - Bug#2908513 - exception thrown by Checksum for truncated or recursive ICMP headers.
-
 == Changes ==
 
-* Added
-
-  - Added testcase for Bug#2899902 ( buffer underflow on 64-bit systems)
-  
-== Deprecations ==
+  * See CHANGE_LOG.txt in the doc/ directory
 
 
