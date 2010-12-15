@@ -38,9 +38,7 @@ import org.jnetpcap.protocol.tcpip.Udp;
  * @author Sly Technologies, Inc.
  */
 @Header(suite = ProtocolSuite.TCP_IP, description = "Routing Information Protocol")
-public abstract class Rip
-    extends
-    JHeader {
+public abstract class Rip extends JHeader {
 
 	/**
 	 * Valid values for RIP OpCode field.
@@ -49,37 +47,37 @@ public abstract class Rip
 	 * @author Sly Technologies, Inc.
 	 */
 	public enum Command {
-		
+
 		/** The REQUEST. */
 		REQUEST,
-		
+
 		/** The REPLY. */
 		REPLY,
-		
+
 		/** The TRAC e_ on. */
 		TRACE_ON,
-		
+
 		/** The TRAC e_ off. */
 		TRACE_OFF,
-		
+
 		/** The SUN. */
 		SUN,
-		
+
 		/** The TRIGGERE d_ request. */
 		TRIGGERED_REQUEST,
-		
+
 		/** The TRIGGERE d_ response. */
 		TRIGGERED_RESPONSE,
-		
+
 		/** The TRIGGERE d_ ack. */
 		TRIGGERED_ACK,
-		
+
 		/** The UPDAT e_ request. */
 		UPDATE_REQUEST,
-		
+
 		/** The UPDAT e_ response. */
 		UPDATE_RESPONSE,
-		
+
 		/** The UPDAT e_ ack. */
 		UPDATE_ACK;
 
@@ -105,9 +103,8 @@ public abstract class Rip
 	 * @return true if binding succeeded or false if failed
 	 */
 	@Bind(to = Udp.class)
-	public static boolean bindToUdp(
-	    final JPacket packet,
-	    final org.jnetpcap.protocol.tcpip.Udp udp) {
+	public static boolean bindToUdp(final JPacket packet,
+			final org.jnetpcap.protocol.tcpip.Udp udp) {
 		return (udp.destination() == 520) || (udp.source() == 520);
 	}
 
@@ -168,8 +165,7 @@ public abstract class Rip
 
 	/**
 	 * The routing table is the only thing that needs decoding. The routing table
-	 * is lazy decoded using {@link Rip#decodeRoutingTable()} which only then
-	 * creates routing table entries.
+	 * is lazy decoded.
 	 */
 	@Override
 	protected void decodeHeader() {

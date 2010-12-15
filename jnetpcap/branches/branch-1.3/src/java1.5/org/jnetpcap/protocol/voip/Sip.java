@@ -565,8 +565,11 @@ public class Sip
 	 * 
 	 * @see org.jnetpcap.packet.AbstractMessageHeader#decodeFirstLine(java.lang.String)
 	 */
-	/** 
+	/**
+	 * Decode first line.
+	 * 
 	 * @param line
+	 *          the line
 	 * @see org.jnetpcap.packet.AbstractMessageHeader#decodeFirstLine(java.lang.String)
 	 */
 	@Override

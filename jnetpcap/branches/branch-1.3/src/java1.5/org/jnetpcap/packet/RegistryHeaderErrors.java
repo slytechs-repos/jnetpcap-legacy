@@ -78,8 +78,10 @@ public class RegistryHeaderErrors
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = -6414263503074702593L;
 
-	/** 
-	 * @return
+	/**
+	 * Gets the message.
+	 * 
+	 * @return the message
 	 * @see java.lang.Throwable#getMessage()
 	 */
 	@Override

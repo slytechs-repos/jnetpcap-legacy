@@ -303,8 +303,11 @@ public class Http
 		return new Chunk[0];
 	}
 
-	/** 
+	/**
+	 * Decode first line.
+	 * 
 	 * @param line
+	 *          the line
 	 * @see org.jnetpcap.packet.AbstractMessageHeader#decodeFirstLine(java.lang.String)
 	 */
 	@Override

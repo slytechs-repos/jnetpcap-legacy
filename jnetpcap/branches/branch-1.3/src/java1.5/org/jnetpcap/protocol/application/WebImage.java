@@ -102,7 +102,8 @@ public class WebImage
 	/** The data. */
 	private byte[] data;
 
-	/** 
+	/**
+	 * Decode header.
 	 * 
 	 * @see org.jnetpcap.packet.JHeader#decodeHeader()
 	 */

@@ -518,8 +518,10 @@ public class JHeaderScanner
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
-	/** 
-	 * @return
+	/**
+	 * To string.
+	 * 
+	 * @return the string
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

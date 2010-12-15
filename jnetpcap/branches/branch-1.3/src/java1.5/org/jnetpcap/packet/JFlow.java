@@ -155,8 +155,10 @@ public class JFlow {
 	/** The eth. */
 	private Ethernet eth = new Ethernet();
 
-	/** 
-	 * @return
+	/**
+	 * To string.
+	 * 
+	 * @return the string
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {

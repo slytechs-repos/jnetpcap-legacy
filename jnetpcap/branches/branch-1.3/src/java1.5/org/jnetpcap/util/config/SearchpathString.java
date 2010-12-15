@@ -87,8 +87,10 @@ public class SearchpathString
 	 * 
 	 * @see org.jnetpcap.util.config.ConfigString#reset()
 	 */
-	/** 
-	 * @return
+	/**
+	 * Reset.
+	 * 
+	 * @return the searchpath string
 	 * @see org.jnetpcap.util.config.ConfigString#reset()
 	 */
 	@Override

@@ -207,8 +207,11 @@ public class AnnotatedScannerMethod
 	 * 
 	 * @see org.jnetpcap.packet.annotate.AnnotatedMethod#validateSignature(java.lang.reflect.Method)
 	 */
-	/** 
+	/**
+	 * Validate signature.
+	 * 
 	 * @param method
+	 *          the method
 	 * @see org.jnetpcap.packet.structure.AnnotatedMethod#validateSignature(java.lang.reflect.Method)
 	 */
 	@Override

@@ -81,8 +81,10 @@ public abstract class AbstractBinding<H extends JHeader> implements JBinding {
 	 * 
 	 * @see org.jnetpcap.packet.JBinding#getSourceId()
 	 */
-	/** 
-	 * @return
+	/**
+	 * Gets the source id.
+	 * 
+	 * @return the source id
 	 * @see org.jnetpcap.packet.JBinding#getSourceId()
 	 */
 	public int getSourceId() {
@@ -94,8 +96,10 @@ public abstract class AbstractBinding<H extends JHeader> implements JBinding {
 	 * 
 	 * @see org.jnetpcap.packet.JBinding#getTargetId()
 	 */
-	/** 
-	 * @return
+	/**
+	 * Gets the target id.
+	 * 
+	 * @return the target id
 	 * @see org.jnetpcap.packet.JBinding#getTargetId()
 	 */
 	public int getTargetId() {
@@ -108,10 +112,14 @@ public abstract class AbstractBinding<H extends JHeader> implements JBinding {
 	 * 
 	 * @see org.jnetpcap.packet.JBinding#isBound(org.jnetpcap.packet.JPacket, int)
 	 */
-	/** 
+	/**
+	 * Checks if is bound.
+	 * 
 	 * @param packet
+	 *          the packet
 	 * @param offset
-	 * @return
+	 *          the offset
+	 * @return true, if is bound
 	 * @see org.jnetpcap.packet.JBinding#isBound(org.jnetpcap.packet.JPacket, int)
 	 */
 	public boolean isBound(JPacket packet, int offset) {
@@ -145,8 +153,10 @@ public abstract class AbstractBinding<H extends JHeader> implements JBinding {
 	 * 
 	 * @see org.jnetpcap.packet.JBinding#listDependencies()
 	 */
-	/** 
-	 * @return
+	/**
+	 * List dependencies.
+	 * 
+	 * @return the int[]
 	 * @see org.jnetpcap.packet.JBinding#listDependencies()
 	 */
 	public int[] listDependencies() {

@@ -101,7 +101,8 @@ public class L2TP
 	/** The off sequence. */
 	private int offSequence;
 
-	/** 
+	/**
+	 * Decode header.
 	 * 
 	 * @see org.jnetpcap.packet.JHeader#decodeHeader()
 	 */

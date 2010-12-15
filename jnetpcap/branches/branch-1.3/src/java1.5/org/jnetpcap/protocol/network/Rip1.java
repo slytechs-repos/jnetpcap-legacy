@@ -31,11 +31,9 @@ import org.jnetpcap.packet.annotate.Header;
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
- * @See Rip2
+ * @see Rip2
  */
-public class Rip1
-    extends
-    Rip {
+public class Rip1 extends Rip {
 
 	/**
 	 * Rip1 routing table entry definition.
@@ -44,9 +42,7 @@ public class Rip1
 	 * @author Sly Technologies, Inc.
 	 */
 	@Header
-	public static class EntryV1
-	    extends
-	    JSubHeader<Rip1> {
+	public static class EntryV1 extends JSubHeader<Rip1> {
 
 		/**
 		 * Address.

@@ -1127,8 +1127,10 @@ public abstract class JFormatter {
 			JHeader subHeader,
 			Detail detail) throws IOException;
 
-	/** 
-	 * @return
+	/**
+	 * To string.
+	 * 
+	 * @return the string
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {

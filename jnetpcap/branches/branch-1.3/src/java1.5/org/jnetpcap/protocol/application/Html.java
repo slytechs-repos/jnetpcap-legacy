@@ -218,8 +218,10 @@ public class Html
 			}
 		}
 
-		/** 
-		 * @return
+		/**
+		 * To string.
+		 * 
+		 * @return the string
 		 * @see java.lang.Object#toString()
 		 */
 		public String toString() {
@@ -551,7 +553,8 @@ public class Html
 	/** The links. */
 	private HtmlTag[] links;
 
-	/** 
+	/**
+	 * Decode header.
 	 * 
 	 * @see org.jnetpcap.packet.JHeader#decodeHeader()
 	 */
@@ -614,8 +617,10 @@ public class Html
 		return this.links;
 	}
 
-	/** 
-	 * @return
+	/**
+	 * To string.
+	 * 
+	 * @return the string
 	 * @see org.jnetpcap.packet.JHeader#toString()
 	 */
 	public String toString() {

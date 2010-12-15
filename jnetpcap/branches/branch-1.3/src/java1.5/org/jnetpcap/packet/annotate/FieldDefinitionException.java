@@ -134,8 +134,10 @@ public class FieldDefinitionException
 		return this.field;
 	}
 
-	/** 
-	 * @return
+	/**
+	 * Gets the path.
+	 * 
+	 * @return the path
 	 * @see org.jnetpcap.packet.structure.HeaderDefinitionError#getPath()
 	 */
 	protected String getPath() {

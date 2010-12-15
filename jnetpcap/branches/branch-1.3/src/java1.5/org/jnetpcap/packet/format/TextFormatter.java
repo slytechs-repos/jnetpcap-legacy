@@ -81,12 +81,20 @@ public class TextFormatter
 		super(out);
 	}
 
-	/** 
+	/**
+	 * Field after.
+	 * 
 	 * @param header
+	 *          the header
 	 * @param field
+	 *          the field
 	 * @param detail
+	 *          the detail
 	 * @throws IOException
-	 * @see org.jnetpcap.packet.format.JFormatter#fieldAfter(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.structure.JField, org.jnetpcap.packet.format.JFormatter.Detail)
+	 *           Signals that an I/O exception has occurred.
+	 * @see org.jnetpcap.packet.format.JFormatter#fieldAfter(org.jnetpcap.packet.JHeader,
+	 *      org.jnetpcap.packet.structure.JField,
+	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	protected void fieldAfter(JHeader header, JField field, Detail detail)
 	    throws IOException {
@@ -101,12 +109,20 @@ public class TextFormatter
 		}
 	}
 
-	/** 
+	/**
+	 * Field before.
+	 * 
 	 * @param header
+	 *          the header
 	 * @param field
+	 *          the field
 	 * @param detail
+	 *          the detail
 	 * @throws IOException
-	 * @see org.jnetpcap.packet.format.JFormatter#fieldBefore(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.structure.JField, org.jnetpcap.packet.format.JFormatter.Detail)
+	 *           Signals that an I/O exception has occurred.
+	 * @see org.jnetpcap.packet.format.JFormatter#fieldBefore(org.jnetpcap.packet.JHeader,
+	 *      org.jnetpcap.packet.structure.JField,
+	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	protected void fieldBefore(JHeader header, JField field, Detail detail)
 	    throws IOException {
@@ -177,11 +193,17 @@ public class TextFormatter
 
 	}
 
-	/** 
+	/**
+	 * Header after.
+	 * 
 	 * @param header
+	 *          the header
 	 * @param detail
+	 *          the detail
 	 * @throws IOException
-	 * @see org.jnetpcap.packet.format.JFormatter#headerAfter(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.format.JFormatter.Detail)
+	 *           Signals that an I/O exception has occurred.
+	 * @see org.jnetpcap.packet.format.JFormatter#headerAfter(org.jnetpcap.packet.JHeader,
+	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	protected void headerAfter(JHeader header, Detail detail) throws IOException {
 		pad();
@@ -190,11 +212,17 @@ public class TextFormatter
 		decLevel();
 	}
 
-	/** 
+	/**
+	 * Header before.
+	 * 
 	 * @param header
+	 *          the header
 	 * @param detail
+	 *          the detail
 	 * @throws IOException
-	 * @see org.jnetpcap.packet.format.JFormatter#headerBefore(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.format.JFormatter.Detail)
+	 *           Signals that an I/O exception has occurred.
+	 * @see org.jnetpcap.packet.format.JFormatter#headerBefore(org.jnetpcap.packet.JHeader,
+	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	protected void headerBefore(JHeader header, Detail detail) throws IOException {
 
@@ -227,11 +255,17 @@ public class TextFormatter
 	 * @see org.jnetpcap.packet.format.JFormatter#packetAfter(org.jnetpcap.packet.JPacket,
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
-	/** 
+	/**
+	 * Packet after.
+	 * 
 	 * @param packet
+	 *          the packet
 	 * @param detail
+	 *          the detail
 	 * @throws IOException
-	 * @see org.jnetpcap.packet.format.JFormatter#packetAfter(org.jnetpcap.packet.JPacket, org.jnetpcap.packet.format.JFormatter.Detail)
+	 *           Signals that an I/O exception has occurred.
+	 * @see org.jnetpcap.packet.format.JFormatter#packetAfter(org.jnetpcap.packet.JPacket,
+	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	public void packetAfter(JPacket packet, Detail detail) throws IOException {
@@ -247,11 +281,17 @@ public class TextFormatter
 	 * @see org.jnetpcap.packet.format.JFormatter#packetBefore(org.jnetpcap.packet.JPacket,
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
-	/** 
+	/**
+	 * Packet before.
+	 * 
 	 * @param packet
+	 *          the packet
 	 * @param detail
+	 *          the detail
 	 * @throws IOException
-	 * @see org.jnetpcap.packet.format.JFormatter#packetBefore(org.jnetpcap.packet.JPacket, org.jnetpcap.packet.format.JFormatter.Detail)
+	 *           Signals that an I/O exception has occurred.
+	 * @see org.jnetpcap.packet.format.JFormatter#packetBefore(org.jnetpcap.packet.JPacket,
+	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	public void packetBefore(JPacket packet, Detail detail) throws IOException {
@@ -281,10 +321,15 @@ public class TextFormatter
 		decLevel();
 	}
 
-	/** 
+	/**
+	 * Packet null.
+	 * 
 	 * @param packet
+	 *          the packet
 	 * @param detail
-	 * @see org.jnetpcap.packet.format.JFormatter#packetNull(org.jnetpcap.packet.JPacket, org.jnetpcap.packet.format.JFormatter.Detail)
+	 *          the detail
+	 * @see org.jnetpcap.packet.format.JFormatter#packetNull(org.jnetpcap.packet.JPacket,
+	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	protected void packetNull(JPacket packet, Detail detail) {
@@ -298,12 +343,20 @@ public class TextFormatter
 	 *      org.jnetpcap.packet.JHeader,
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
-	/** 
+	/**
+	 * Sub header after.
+	 * 
 	 * @param header
+	 *          the header
 	 * @param subHeader
+	 *          the sub header
 	 * @param detail
+	 *          the detail
 	 * @throws IOException
-	 * @see org.jnetpcap.packet.format.JFormatter#subHeaderAfter(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.JHeader, org.jnetpcap.packet.format.JFormatter.Detail)
+	 *           Signals that an I/O exception has occurred.
+	 * @see org.jnetpcap.packet.format.JFormatter#subHeaderAfter(org.jnetpcap.packet.JHeader,
+	 *      org.jnetpcap.packet.JHeader,
+	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	protected void subHeaderAfter(JHeader header, JHeader subHeader, Detail detail)
@@ -322,12 +375,20 @@ public class TextFormatter
 	 *      org.jnetpcap.packet.JHeader,
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
-	/** 
+	/**
+	 * Sub header before.
+	 * 
 	 * @param header
+	 *          the header
 	 * @param subHeader
+	 *          the sub header
 	 * @param detail
+	 *          the detail
 	 * @throws IOException
-	 * @see org.jnetpcap.packet.format.JFormatter#subHeaderBefore(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.JHeader, org.jnetpcap.packet.format.JFormatter.Detail)
+	 *           Signals that an I/O exception has occurred.
+	 * @see org.jnetpcap.packet.format.JFormatter#subHeaderBefore(org.jnetpcap.packet.JHeader,
+	 *      org.jnetpcap.packet.JHeader,
+	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	protected void subHeaderBefore(

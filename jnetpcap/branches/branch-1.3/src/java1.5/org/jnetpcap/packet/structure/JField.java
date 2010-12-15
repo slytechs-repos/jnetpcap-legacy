@@ -54,10 +54,14 @@ public class JField {
 		 * 
 		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 		 */
-		/** 
+		/**
+		 * Compare.
+		 * 
 		 * @param o1
+		 *          the o1
 		 * @param o2
-		 * @return
+		 *          the o2
+		 * @return the int
 		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 		 */
 		public int compare(JField o1, JField o2) {
@@ -155,8 +159,10 @@ public class JField {
 	/** The units. */
 	private AnnotatedFieldMethod units;
 
-	/** 
-	 * @return
+	/**
+	 * To string.
+	 * 
+	 * @return the string
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {

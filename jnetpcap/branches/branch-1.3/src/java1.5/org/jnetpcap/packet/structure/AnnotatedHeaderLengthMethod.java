@@ -191,8 +191,10 @@ public class AnnotatedHeaderLengthMethod
 		}
 	}
 
-	/** 
-	 * @return
+	/**
+	 * Gets the method.
+	 * 
+	 * @return the method
 	 * @see org.jnetpcap.packet.structure.AnnotatedMethod#getMethod()
 	 */
 	public final Method getMethod() {
@@ -208,8 +210,11 @@ public class AnnotatedHeaderLengthMethod
 		return this.staticLength != -1;
 	}
 
-	/** 
+	/**
+	 * Validate signature.
+	 * 
 	 * @param method
+	 *          the method
 	 * @see org.jnetpcap.packet.structure.AnnotatedMethod#validateSignature(java.lang.reflect.Method)
 	 */
 	protected void validateSignature(Method method) {
@@ -257,8 +262,10 @@ public class AnnotatedHeaderLengthMethod
 		cache.clear();
 	}
 
-	/** 
-	 * @return
+	/**
+	 * To string.
+	 * 
+	 * @return the string
 	 * @see org.jnetpcap.packet.structure.AnnotatedMethod#toString()
 	 */
 	public String toString() {

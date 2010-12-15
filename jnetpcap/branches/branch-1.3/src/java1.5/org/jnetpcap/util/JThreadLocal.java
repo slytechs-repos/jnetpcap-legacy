@@ -57,8 +57,10 @@ public class JThreadLocal<T>
     } 
 	}
 
-	/** 
-	 * @return
+	/**
+	 * Initial value.
+	 * 
+	 * @return the t
 	 * @see java.lang.ThreadLocal#initialValue()
 	 */
 	@Override

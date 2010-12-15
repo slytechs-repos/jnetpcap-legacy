@@ -96,6 +96,7 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 * @see org.jnetlib.mem.Disposable#dispose()
 	 */
 	/**
+	 * Dispose.
 	 * 
 	 * @see org.jnetpcap.nio.Disposable#dispose()
 	 */
@@ -110,7 +111,9 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 * @see org.jnetlib.util.Link#linkElement()
 	 */
 	/**
-	 * @return
+	 * Link element.
+	 * 
+	 * @return the disposable reference
 	 * @see org.jnetpcap.nio.Link#linkElement()
 	 */
 	public DisposableReference linkElement() {
@@ -118,7 +121,9 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	}
 
 	/**
-	 * @return
+	 * Link collection.
+	 * 
+	 * @return the link sequence
 	 * @see org.jnetpcap.nio.Link#linkCollection()
 	 */
 	public LinkSequence<DisposableReference> linkCollection() {
@@ -126,7 +131,10 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	}
 
 	/**
+	 * Link collection.
+	 * 
 	 * @param collection
+	 *          the collection
 	 * @see org.jnetpcap.nio.Link#linkCollection(org.jnetpcap.nio.LinkSequence)
 	 */
 	public void linkCollection(LinkSequence<DisposableReference> collection) {
@@ -139,7 +147,9 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 * @see org.jnetlib.util.Link#linkNext()
 	 */
 	/**
-	 * @return
+	 * Link next.
+	 * 
+	 * @return the link
 	 * @see org.jnetpcap.nio.Link#linkNext()
 	 */
 	public Link<DisposableReference> linkNext() {
@@ -152,7 +162,10 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 * @see org.jnetlib.util.Link#linkNext(org.jnetlib.util.Link)
 	 */
 	/**
+	 * Link next.
+	 * 
 	 * @param l
+	 *          the l
 	 * @see org.jnetpcap.nio.Link#linkNext(org.jnetpcap.nio.Link)
 	 */
 	public void linkNext(Link<DisposableReference> l) {
@@ -165,7 +178,9 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 * @see org.jnetlib.util.Link#linkPrev()
 	 */
 	/**
-	 * @return
+	 * Link prev.
+	 * 
+	 * @return the link
 	 * @see org.jnetpcap.nio.Link#linkPrev()
 	 */
 	public Link<DisposableReference> linkPrev() {
@@ -178,7 +193,10 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 * @see org.jnetlib.util.Link#linkPrev(org.jnetlib.util.Link)
 	 */
 	/**
+	 * Link prev.
+	 * 
 	 * @param l
+	 *          the l
 	 * @see org.jnetpcap.nio.Link#linkPrev(org.jnetpcap.nio.Link)
 	 */
 	public void linkPrev(Link<DisposableReference> l) {
@@ -186,7 +204,9 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	}
 
 	/**
-	 * @return
+	 * To string.
+	 * 
+	 * @return the string
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

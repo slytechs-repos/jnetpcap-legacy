@@ -159,7 +159,8 @@ public class Sdp
 		return this.attributesOffset;
 	}
 
-	/** 
+	/**
+	 * Decode header.
 	 * 
 	 * @see org.jnetpcap.packet.JHeader#decodeHeader()
 	 */

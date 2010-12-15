@@ -1124,6 +1124,7 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 	}
 
 	/**
+	 * Decode header.
 	 * 
 	 * @see org.jnetpcap.packet.JHeader#decodeHeader()
 	 */

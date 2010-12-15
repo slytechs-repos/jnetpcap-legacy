@@ -77,15 +77,12 @@ import org.jnetpcap.protocol.JProtocol;
  * Storage of continuous data, interactive distributed simulation, active badge,
  * and control and measurement applications may also find RTP applicable.
  * </p>
- * <b>See:</b> {@value Rtp#RFC}
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
 @Header(spec = Rtp.RFC, suite = ProtocolSuite.VOIP, description = Rtp.DESCRIPTION)
-public class Rtp
-    extends
-    JHeader {
+public class Rtp extends JHeader {
 
 	/**
 	 * An extension mechanism is provided to allow individual implementations to
@@ -110,7 +107,7 @@ public class Rtp
 	 * 	 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 	 * 	 |                        header extension                       |
 	 * 	 |                             ....                              |
-	 * 	
+	 * 
 	 * </pre>
 	 * 
 	 * If the X bit in the RTP header is one, a variable-length header extension
@@ -143,9 +140,7 @@ public class Rtp
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
-	public abstract static class Extension
-	    extends
-	    JSubHeader<Rtp> {
+	public abstract static class Extension extends JSubHeader<Rtp> {
 
 		/**
 		 * Constant which defines the length of the static part of the header in
@@ -201,10 +196,10 @@ public class Rtp
 	 * @author Sly Technologies, Inc.
 	 */
 	public enum PayloadType {
-		
+
 		/** 13 -. */
 		CN,
-		
+
 		/** 6 -. */
 		DVI4_16K,
 
@@ -395,7 +390,7 @@ public class Rtp
 
 		if ((buffer.getByte(offset) & EXTENSION_MASK) > 0) {
 			return rtpBaseHeader
-			    + Rtp.Extension.headerLength(buffer, offset + rtpBaseHeader);
+					+ Rtp.Extension.headerLength(buffer, offset + rtpBaseHeader);
 		} else {
 			return rtpBaseHeader;
 		}
@@ -524,7 +519,7 @@ public class Rtp
 		}
 
 		final int length =
-		    this.packet.getUByte(getPostfixOffset() + getPostfixLength() - 1);
+				this.packet.getUByte(getPostfixOffset() + getPostfixLength() - 1);
 
 		return length;
 	}
@@ -585,59 +580,49 @@ public class Rtp
 	 * each such block, regardless of whether the block is transmitted in a packet
 	 * or dropped as silent.
 	 * </p>
-	 * </p>
-	 * The initial value of the timestamp SHOULD be random, as for the sequence
-	 * number. Several consecutive RTP packets will have equal timestamps if they
-	 * are (logically) generated at once, e.g., belong to the same video frame.
-	 * Consecutive RTP packets MAY contain timestamps that are not monotonic if
-	 * the data is not transmitted in the order it was sampled, as in the case of
-	 * MPEG interpolated video frames. (The sequence numbers of the packets as
-	 * transmitted will still be monotonic.)
-	 * </p>
-	 * </p>
-	 * RTP timestamps from different media streams may advance at different rates
-	 * and usually have independent, random offsets. Therefore, although these
-	 * timestamps are sufficient to reconstruct the timing of a single stream,
-	 * directly comparing RTP timestamps from different media is not effective for
-	 * synchronization. Instead, for each medium the RTP timestamp is related to
-	 * the sampling instant by pairing it with a timestamp from a reference clock
-	 * (wallclock) that represents the time when the data corresponding to the RTP
-	 * timestamp was sampled. The reference clock is shared by all media to be
-	 * synchronized. The timestamp pairs are not transmitted in every data packet,
-	 * but at a lower rate in RTCP SR packets as described in Section 6.4.
-	 * </p>
-	 * </p>
-	 * The sampling instant is chosen as the point of reference for the RTP
-	 * timestamp because it is known to the transmitting endpoint and has a common
+	 * </p> The initial value of the timestamp SHOULD be random, as for the
+	 * sequence number. Several consecutive RTP packets will have equal timestamps
+	 * if they are (logically) generated at once, e.g., belong to the same video
+	 * frame. Consecutive RTP packets MAY contain timestamps that are not
+	 * monotonic if the data is not transmitted in the order it was sampled, as in
+	 * the case of MPEG interpolated video frames. (The sequence numbers of the
+	 * packets as transmitted will still be monotonic.) </p> </p> RTP timestamps
+	 * from different media streams may advance at different rates and usually
+	 * have independent, random offsets. Therefore, although these timestamps are
+	 * sufficient to reconstruct the timing of a single stream, directly comparing
+	 * RTP timestamps from different media is not effective for synchronization.
+	 * Instead, for each medium the RTP timestamp is related to the sampling
+	 * instant by pairing it with a timestamp from a reference clock (wallclock)
+	 * that represents the time when the data corresponding to the RTP timestamp
+	 * was sampled. The reference clock is shared by all media to be synchronized.
+	 * The timestamp pairs are not transmitted in every data packet, but at a
+	 * lower rate in RTCP SR packets as described in Section 6.4. </p> </p> The
+	 * sampling instant is chosen as the point of reference for the RTP timestamp
+	 * because it is known to the transmitting endpoint and has a common
 	 * definition for all media, independent of encoding delays or other
 	 * processing. The purpose is to allow synchronized presentation of all media
-	 * sampled at the same time.
-	 * </p>
-	 * </p>
-	 * Applications transmitting stored data rather than data sampled in real time
-	 * typically use a virtual presentation timeline derived from wallclock time
-	 * to determine when the next frame or other unit of each medium in the stored
-	 * data should be presented. In this case, the RTP timestamp would reflect the
-	 * presentation time for each unit. That is, the RTP timestamp for each unit
-	 * would be related to the wallclock time at which the unit becomes current on
-	 * the virtual presentation timeline. Actual presentation occurs some time
-	 * later as determined by the receiver.
-	 * </p>
-	 * </p>
-	 * An example describing live audio narration of prerecorded video illustrates
-	 * the significance of choosing the sampling instant as the reference point.
-	 * In this scenario, the video would be presented locally for the narrator to
-	 * view and would be simultaneously transmitted using RTP. The "sampling
-	 * instant" of a video frame transmitted in RTP would be established by
-	 * referencing its timestamp to the wallclock time when that video frame was
-	 * presented to the narrator. The sampling instant for the audio RTP packets
-	 * containing the narrator's speech would be established by referencing the
-	 * same wallclock time when the audio was sampled. The audio and video may
-	 * even be transmitted by different hosts if the reference clocks on the two
-	 * hosts are synchronized by some means such as NTP. A receiver can then
-	 * synchronize presentation of the audio and video packets by relating their
-	 * RTP timestamps using the timestamp pairs in RTCP SR packets.
-	 * </p>
+	 * sampled at the same time. </p> </p> Applications transmitting stored data
+	 * rather than data sampled in real time typically use a virtual presentation
+	 * timeline derived from wallclock time to determine when the next frame or
+	 * other unit of each medium in the stored data should be presented. In this
+	 * case, the RTP timestamp would reflect the presentation time for each unit.
+	 * That is, the RTP timestamp for each unit would be related to the wallclock
+	 * time at which the unit becomes current on the virtual presentation
+	 * timeline. Actual presentation occurs some time later as determined by the
+	 * receiver. </p> </p> An example describing live audio narration of
+	 * prerecorded video illustrates the significance of choosing the sampling
+	 * instant as the reference point. In this scenario, the video would be
+	 * presented locally for the narrator to view and would be simultaneously
+	 * transmitted using RTP. The "sampling instant" of a video frame transmitted
+	 * in RTP would be established by referencing its timestamp to the wallclock
+	 * time when that video frame was presented to the narrator. The sampling
+	 * instant for the audio RTP packets containing the narrator's speech would be
+	 * established by referencing the same wallclock time when the audio was
+	 * sampled. The audio and video may even be transmitted by different hosts if
+	 * the reference clocks on the two hosts are synchronized by some means such
+	 * as NTP. A receiver can then synchronize presentation of the audio and video
+	 * packets by relating their RTP timestamps using the timestamp pairs in RTCP
+	 * SR packets. </p>
 	 * 
 	 * @return value of the unsigned 32-bit timestamp field
 	 */

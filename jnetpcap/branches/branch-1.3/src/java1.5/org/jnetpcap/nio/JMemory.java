@@ -155,11 +155,11 @@ public abstract class JMemory {
 	 * specified with JVM command line option '-Xmx&lt;size&gt;.Once the 'nio.mx'
 	 * limit is reached, the allocating thread is blocked and a JVM GC request is
 	 * issued. The allocating thread continues to wait, until sufficient minimum
-	 * amount (Default: {@value DisposableGC#MIN_MEMORY_RELEASE})of native memory
-	 * was cleaned up or a timeout (Default:
+	 * amount (Default: {@literal DisposableGC#MIN_MEMORY_RELEASE})of native
+	 * memory was cleaned up or a timeout (Default:
 	 * 
 	 * @return the limit in number of bytes
-	 *         {@value DisposableGC#OUT_OF_MEMORY_TIMEOUT} ms) occurs.
+	 *         {@literal DisposableGC#OUT_OF_MEMORY_TIMEOUT} ms) occurs.
 	 *         <p>
 	 *         This limit can be set at startup of the application using the
 	 *         following system properties, which are checked in the order listed

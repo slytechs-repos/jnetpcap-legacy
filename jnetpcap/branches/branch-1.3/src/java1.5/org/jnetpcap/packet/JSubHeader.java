@@ -125,8 +125,10 @@ public class JSubHeader<T extends JHeader>
 	 * 
 	 * @see org.jnetpcap.packet.JHeader#getLength()
 	 */
-	/** 
-	 * @return
+	/**
+	 * Gets the length.
+	 * 
+	 * @return the length
 	 * @see org.jnetpcap.packet.JHeader#getLength()
 	 */
 	@Override
@@ -139,8 +141,10 @@ public class JSubHeader<T extends JHeader>
 	 * 
 	 * @see org.jnetpcap.packet.JHeader#getOffset()
 	 */
-	/** 
-	 * @return
+	/**
+	 * Gets the offset.
+	 * 
+	 * @return the offset
 	 * @see org.jnetpcap.packet.JHeader#getOffset()
 	 */
 	@Override
@@ -178,8 +182,10 @@ public class JSubHeader<T extends JHeader>
 		this.parent = parent;
 	}
 
-	/** 
-	 * @return
+	/**
+	 * Gets the parent.
+	 * 
+	 * @return the parent
 	 * @see org.jnetpcap.packet.JHeader#getParent()
 	 */
 	public JHeader getParent() {

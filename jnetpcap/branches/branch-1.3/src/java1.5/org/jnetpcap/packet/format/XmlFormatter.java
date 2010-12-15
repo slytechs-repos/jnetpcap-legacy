@@ -25,6 +25,7 @@ import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.structure.JField;
 
+// TODO: Auto-generated Javadoc
 /**
  * This formatter products XML output for a packet. A packet content is output
  * as XML sheet based on field objects read from each header within a packet.
@@ -34,10 +35,13 @@ import org.jnetpcap.packet.structure.JField;
  */
 public class XmlFormatter extends JFormatter {
 
+	/** The Constant PAD. */
 	private static final String PAD = "  ";
 
+	/** The Constant LT. */
 	private static final String LT = "<";
 
+	/** The Constant GT. */
 	private static final String GT = ">";
 
 	/*
@@ -46,6 +50,13 @@ public class XmlFormatter extends JFormatter {
 	 * @see org.jnetpcap.packet.format.JFormatter#end(org.jnetpcap.packet.JHeader,
 	 * org.jnetpcap.packet.format.JField,
 	 * org.jnetpcap.packet.format.JFormatter.Detail)
+	 */
+	/** 
+	 * @param header
+	 * @param field
+	 * @param detail
+	 * @throws IOException
+	 * @see org.jnetpcap.packet.format.JFormatter#fieldAfter(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.structure.JField, org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	protected void fieldAfter(JHeader header, JField field, Detail detail)
@@ -68,21 +79,27 @@ public class XmlFormatter extends JFormatter {
 	}
 
 	/**
-	 * 
+	 * Instantiates a new xml formatter.
 	 */
 	public XmlFormatter() {
 		super();
 	}
 
 	/**
+	 * Instantiates a new xml formatter.
+	 * 
 	 * @param out
+	 *          the out
 	 */
 	public XmlFormatter(Appendable out) {
 		super(out);
 	}
 
 	/**
+	 * Instantiates a new xml formatter.
+	 * 
 	 * @param out
+	 *          the out
 	 */
 	public XmlFormatter(StringBuilder out) {
 		super(out);
@@ -95,6 +112,13 @@ public class XmlFormatter extends JFormatter {
 	 * org.jnetpcap.packet.format.JFormatter#start(org.jnetpcap.packet.JHeader,
 	 * org.jnetpcap.packet.format.JField,
 	 * org.jnetpcap.packet.format.JFormatter.Detail)
+	 */
+	/** 
+	 * @param header
+	 * @param field
+	 * @param detail
+	 * @throws IOException
+	 * @see org.jnetpcap.packet.format.JFormatter#fieldBefore(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.structure.JField, org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	protected void fieldBefore(JHeader header, JField field, Detail detail)
@@ -159,6 +183,12 @@ public class XmlFormatter extends JFormatter {
 	 * @see org.jnetpcap.packet.format.JFormatter#end(org.jnetpcap.packet.JHeader,
 	 * org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
+	/** 
+	 * @param header
+	 * @param detail
+	 * @throws IOException
+	 * @see org.jnetpcap.packet.format.JFormatter#headerAfter(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.format.JFormatter.Detail)
+	 */
 	@Override
 	protected void headerAfter(JHeader header, Detail detail) throws IOException {
 
@@ -172,6 +202,12 @@ public class XmlFormatter extends JFormatter {
 	 * @see
 	 * org.jnetpcap.packet.format.JFormatter#start(org.jnetpcap.packet.JHeader,
 	 * org.jnetpcap.packet.format.JFormatter.Detail)
+	 */
+	/** 
+	 * @param header
+	 * @param detail
+	 * @throws IOException
+	 * @see org.jnetpcap.packet.format.JFormatter#headerBefore(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	protected void headerBefore(JHeader header, Detail detail) throws IOException {
@@ -192,6 +228,12 @@ public class XmlFormatter extends JFormatter {
 	 * org.jnetpcap.packet.format.JFormatter#packetAfter(org.jnetpcap.packet.JPacket
 	 * , org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
+	/** 
+	 * @param packet
+	 * @param detail
+	 * @throws IOException
+	 * @see org.jnetpcap.packet.format.JFormatter#packetAfter(org.jnetpcap.packet.JPacket, org.jnetpcap.packet.format.JFormatter.Detail)
+	 */
 	@Override
 	public void packetAfter(JPacket packet, Detail detail) throws IOException {
 
@@ -206,6 +248,12 @@ public class XmlFormatter extends JFormatter {
 	 * @see
 	 * org.jnetpcap.packet.format.JFormatter#packetBefore(org.jnetpcap.packet.
 	 * JPacket, org.jnetpcap.packet.format.JFormatter.Detail)
+	 */
+	/** 
+	 * @param packet
+	 * @param detail
+	 * @throws IOException
+	 * @see org.jnetpcap.packet.format.JFormatter#packetBefore(org.jnetpcap.packet.JPacket, org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	public void packetBefore(JPacket packet, Detail detail) throws IOException {
@@ -240,6 +288,13 @@ public class XmlFormatter extends JFormatter {
 	 * .JHeader, org.jnetpcap.packet.JHeader,
 	 * org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
+	/** 
+	 * @param header
+	 * @param subHeader
+	 * @param detail
+	 * @throws IOException
+	 * @see org.jnetpcap.packet.format.JFormatter#subHeaderAfter(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.JHeader, org.jnetpcap.packet.format.JFormatter.Detail)
+	 */
 	@Override
 	protected void subHeaderAfter(JHeader header, JHeader subHeader, Detail detail)
 			throws IOException {
@@ -255,6 +310,13 @@ public class XmlFormatter extends JFormatter {
 	 * org.jnetpcap.packet.format.JFormatter#subHeaderBefore(org.jnetpcap.packet
 	 * .JHeader, org.jnetpcap.packet.JHeader,
 	 * org.jnetpcap.packet.format.JFormatter.Detail)
+	 */
+	/** 
+	 * @param header
+	 * @param subHeader
+	 * @param detail
+	 * @throws IOException
+	 * @see org.jnetpcap.packet.format.JFormatter#subHeaderBefore(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.JHeader, org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	protected void subHeaderBefore(JHeader header,

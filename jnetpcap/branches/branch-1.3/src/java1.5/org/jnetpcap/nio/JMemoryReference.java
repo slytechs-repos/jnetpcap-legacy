@@ -58,7 +58,8 @@ public class JMemoryReference extends DisposableReference {
 	 * 
 	 * @see org.jnetpcap.nio.Disposable#dispose()
 	 */
-	/** 
+	/**
+	 * Dispose.
 	 * 
 	 * @see org.jnetpcap.nio.DisposableReference#dispose()
 	 */
@@ -92,7 +93,8 @@ public class JMemoryReference extends DisposableReference {
 	 * 
 	 * @see org.jnetpcap.nio.DisposableReference#remove()
 	 */
-	/** 
+	/**
+	 * Removes the.
 	 * 
 	 * @see org.jnetpcap.nio.DisposableReference#remove()
 	 */
@@ -103,8 +105,10 @@ public class JMemoryReference extends DisposableReference {
 		super.remove();
 	}
 
-	/** 
-	 * @return
+	/**
+	 * Size.
+	 * 
+	 * @return the int
 	 * @see org.jnetpcap.nio.DisposableReference#size()
 	 */
 	@Override

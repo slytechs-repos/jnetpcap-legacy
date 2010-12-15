@@ -47,11 +47,16 @@ public class IpResolver
 	 * @see org.jnetpcap.packet.format.JFormatter.AbstractResolver#resolveToName(byte[],
 	 *      int)
 	 */
-	/** 
+	/**
+	 * Resolve to name.
+	 * 
 	 * @param address
+	 *          the address
 	 * @param hash
-	 * @return
-	 * @see org.jnetpcap.util.resolver.AbstractResolver#resolveToName(byte[], long)
+	 *          the hash
+	 * @return the string
+	 * @see org.jnetpcap.util.resolver.AbstractResolver#resolveToName(byte[],
+	 *      long)
 	 */
 	@Override
 	public String resolveToName(byte[] address, long hash) {
@@ -74,9 +79,12 @@ public class IpResolver
 	 * 
 	 * @see org.jnetpcap.packet.format.JFormatter.AbstractResolver#toHashCode(byte[])
 	 */
-	/** 
+	/**
+	 * To hash code.
+	 * 
 	 * @param address
-	 * @return
+	 *          the address
+	 * @return the long
 	 * @see org.jnetpcap.util.resolver.AbstractResolver#toHashCode(byte[])
 	 */
 	@Override
@@ -95,10 +103,14 @@ public class IpResolver
 	 * 
 	 * @see org.jnetpcap.util.AbstractResolver#resolveToName(long, long)
 	 */
-	/** 
+	/**
+	 * Resolve to name.
+	 * 
 	 * @param number
+	 *          the number
 	 * @param hash
-	 * @return
+	 *          the hash
+	 * @return the string
 	 * @see org.jnetpcap.util.resolver.AbstractResolver#resolveToName(long, long)
 	 */
 	@Override

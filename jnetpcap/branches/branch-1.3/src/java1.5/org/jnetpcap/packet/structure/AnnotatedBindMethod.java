@@ -356,8 +356,11 @@ public class AnnotatedBindMethod
 		}
 	}
 
-	/** 
+	/**
+	 * Validate signature.
+	 * 
 	 * @param method
+	 *          the method
 	 * @see org.jnetpcap.packet.structure.AnnotatedMethod#validateSignature(java.lang.reflect.Method)
 	 */
 	@Override

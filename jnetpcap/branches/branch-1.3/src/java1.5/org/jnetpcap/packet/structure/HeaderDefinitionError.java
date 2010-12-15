@@ -133,8 +133,10 @@ public class HeaderDefinitionError
 		return c;
 	}
 
-	/** 
-	 * @return
+	/**
+	 * Gets the message.
+	 * 
+	 * @return the message
 	 * @see java.lang.Throwable#getMessage()
 	 */
 	@Override

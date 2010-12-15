@@ -2067,7 +2067,8 @@ public class Ip4
 	 * 
 	 * @see org.jnetpcap.packet.JHeaderMap#decodeUniqueSubHeaders()
 	 */
-	/** 
+	/**
+	 * Decode header.
 	 * 
 	 * @see org.jnetpcap.packet.JHeader#decodeHeader()
 	 */
@@ -2259,8 +2260,10 @@ public class Ip4
 		return (flags_MF() > 0) ? "set" : "not set";
 	}
 
-	/** 
-	 * @return
+	/**
+	 * Hash code.
+	 * 
+	 * @return the int
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override

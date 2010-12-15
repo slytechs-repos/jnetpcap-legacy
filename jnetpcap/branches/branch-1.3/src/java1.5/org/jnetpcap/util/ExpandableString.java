@@ -243,8 +243,10 @@ public class ExpandableString
 		return this.template;
 	}
 
-	/** 
-	 * @return
+	/**
+	 * To string.
+	 * 
+	 * @return the string
 	 * @see org.jnetpcap.util.JStringBuilder#toString()
 	 */
 	public String toString() {

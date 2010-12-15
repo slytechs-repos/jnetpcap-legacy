@@ -676,8 +676,12 @@ public enum PcapDLT implements DataLinkType {
 	/* (non-Javadoc)
    * @see org.jnetpcap.DataLinkType#getDescription()
    */
-  /** 
-	 * @return
+  /**
+	 * Gets the description of the dlt retrieved by quering the native pcap
+	 * library.
+	 * 
+	 * @return the description of the dlt retrieved by quering the native pcap
+	 *         library
 	 * @see org.jnetpcap.DataLinkType#getDescription()
 	 */
 	public String getDescription() {
@@ -687,8 +691,10 @@ public enum PcapDLT implements DataLinkType {
 	/* (non-Javadoc)
    * @see org.jnetpcap.DataLinkType#getValue()
    */
-  /** 
-	 * @return
+  /**
+	 * Gets the integer dlt value assigned by libpcap to this constant.
+	 * 
+	 * @return the integer dlt value assigned by libpcap to this constant
 	 * @see org.jnetpcap.DataLinkType#getValue()
 	 */
 	public int getValue() {
