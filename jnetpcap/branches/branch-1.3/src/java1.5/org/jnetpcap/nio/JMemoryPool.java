@@ -24,7 +24,6 @@ import java.util.Properties;
 
 import org.jnetpcap.nio.JMemory.Type;
 
-// TODO: Auto-generated Javadoc
 /**
  * Provides a mechanism for allocating memory to JMemory objects. This class is
  * intended to be used when for example JPacket objects need to be kept around
@@ -44,7 +43,6 @@ import org.jnetpcap.nio.JMemory.Type;
  * and automatically using java's garbage collection mechanism.
  * </p>
  * 
- * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
 public class JMemoryPool {
@@ -53,7 +51,6 @@ public class JMemoryPool {
 	 * A block of native memory allocated with malloc. This block is further sub
 	 * allocated on a per request basis using the method {@link #allocate(int)}.
 	 * 
-	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
 	public static class Block extends JMemory {
@@ -65,7 +62,7 @@ public class JMemoryPool {
 		private int current = 0;
 
 		/** The created on. */
-		private long createdOn;
+		private final long createdOn;
 
 		/**
 		 * Constructor for allocating a block of a requested size.
@@ -130,6 +127,7 @@ public class JMemoryPool {
 		 * @return the string
 		 * @see java.lang.Object#toString()
 		 */
+		@Override
 		public String toString() {
 			StringBuilder b = new StringBuilder(80);
 			b.append("JMemoryPool::Block");
@@ -263,13 +261,14 @@ public class JMemoryPool {
 		final Block block = getBlock(src.size);
 		final int offset = block.allocate(src.size);
 
+		src.transferTo(block, 0, src.size, offset);
 		dst.peer(block, offset, src.size);
 
 		return src.size;
 	}
 
 	/**
-	 * Transfers contents from src1 and src2 to a contigues block of new memory,
+	 * Transfers contents from src1 and src2 to a contiguous block of new memory,
 	 * then peers dst1 and dst2 with the new memory, using the same sizes as src1
 	 * and src2 respectively. This operation combines memory allocation,
 	 * transferTo call on src1 and src2 and then peering of dst1 and dst2 with new
@@ -286,7 +285,10 @@ public class JMemoryPool {
 	 *          length of peer
 	 * @return total number of bytes duplicated
 	 */
-	public synchronized int duplicate2(JMemory src1, JMemory src2, JMemory dst1, JMemory dst2) {
+	public synchronized int duplicate2(JMemory src1,
+			JMemory src2,
+			JMemory dst1,
+			JMemory dst2) {
 		final int size1 = src1.size;
 		final int size2 = src2.size;
 
@@ -390,7 +392,7 @@ public class JMemoryPool {
 		size += (size % BUS_WIDTH);
 
 		if (this.block == null || this.block.available < size) {
-				this.block = newBlock(size);
+			this.block = newBlock(size);
 		}
 
 		return this.block;
@@ -440,7 +442,7 @@ public class JMemoryPool {
 		if (blockSize != 0) {
 			return blockSize;
 		}
-		
+
 		Properties p = System.getProperties();
 		String s = p.getProperty("org.jnetsoft.nio.BlockSize");
 		s = (s == null) ? p.getProperty("nio.BlockSize") : s;
@@ -449,7 +451,7 @@ public class JMemoryPool {
 		s = (s == null) ? p.getProperty("nio.bs") : s;
 
 		if (s != null) {
-			blockSize = (int)JMemory.parseSize(s); // process suffixes kb,mb,gb,tb
+			blockSize = (int) JMemory.parseSize(s); // process suffixes kb,mb,gb,tb
 		}
 
 		if (blockSize == 0) {
