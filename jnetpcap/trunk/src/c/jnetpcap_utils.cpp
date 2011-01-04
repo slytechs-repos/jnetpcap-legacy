@@ -21,11 +21,14 @@
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
+#include <netinet/in.h>
 #include <unistd.h>
 #endif /*WIN32*/
 
 #ifdef WIN32
-#include <winsock2.h>
+#include <winsock2.h>    // Ws2def.h - Vista onward
+#include <Ws2tcpip.h>    // Before Vista
+// #include <Ws2ipdef.h> // On Vista onward
 #include <iphlpapi.h>
 #endif /*WIN32*/
 
@@ -448,7 +451,7 @@ jobject newPcapSockAddr(JNIEnv *env, sockaddr *a) {
 		env->DeleteLocalRef(jarray);
 	} else if (a->sa_family == AF_INET6) {
 		jbyteArray jarray = env->NewByteArray(16);
-		env->SetByteArrayRegion(jarray, 0, 16, (jbyte *)(a->sa_data + 2));
+		env->SetByteArrayRegion(jarray, 0, 16, (jbyte *)&((struct sockaddr_in6 *)a)->sin6_addr);
 
 		env->SetObjectField(obj, PcapSockAddrDataFID, jarray);
 		env->DeleteLocalRef(jarray);
