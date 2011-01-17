@@ -67,6 +67,7 @@ void init_jmemory(JNIEnv *env);
 void *getJMemoryPhysical(JNIEnv *env, jobject obj);
 void setJMemoryPhysical(JNIEnv *env, jobject obj, jlong value);
 void jmemoryCleanup(JNIEnv *env, jobject obj);
+size_t getJMemorySize(JNIEnv *env, jobject obj);
 
 jint jmemoryPeer(JNIEnv *env, jobject obj, const void *ptr, size_t length, jobject owner);
 

@@ -670,6 +670,12 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferToDirect__Ljava_nio
 	return len;
 }
 
+size_t getJMemorySize(JNIEnv *env, jobject obj) {
+
+	jint size = env->GetIntField(obj, jmemorySizeFID);
+	return (size_t)size;
+}
+
 void *getJMemoryPhysical(JNIEnv *env, jobject obj) {
 
 	jlong pt = env->GetLongField(obj, jmemoryPhysicalFID);
