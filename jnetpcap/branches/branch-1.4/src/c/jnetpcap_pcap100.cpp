@@ -78,18 +78,7 @@
 
 
 #define PCAP100_NATIVES_COUNT  9
-JNINativeMethod pcap100Natives[PCAP100_NATIVES_COUNT] = {
-/*0*/{ (char *)"activate", (char *)"()I", (void *) Java_org_jnetpcap_Pcap_activate },	
-/*1*/{ (char *)"canSetRfmon", (char *)"()I", (void *) Java_org_jnetpcap_Pcap_canSetRfmon },	
-/*2*/{ (char *)"setRfmon", (char *)"(I)I", (void *) Java_org_jnetpcap_Pcap_setRfmon },	
-/*3*/{ (char *)"setBufferSize", (char *)"(J)I", (void *) Java_org_jnetpcap_Pcap_setBufferSize },	
-/*4*/{ (char *)"setDirection", (char *)"(I)I", (void *) Java_org_jnetpcap_Pcap_setDirection },	
-/*5*/{ (char *)"setPromisc", (char *)"(I)I", (void *) Java_org_jnetpcap_Pcap_setPromisc },	
-/*6*/{ (char *)"setSnaplen", (char *)"(I)I", (void *) Java_org_jnetpcap_Pcap_setSnaplen },	
-/*7*/{ (char *)"setTimeout", (char *)"(I)I", (void *) Java_org_jnetpcap_Pcap_setTimeout },	
-/*8*/{ (char *)"create", (char *)"(Ljava/lang/String;Ljava/lang/StringBuilder;)Lorg/jnetpcap/Pcap;", 
-			(void *) Java_org_jnetpcap_Pcap_create}
-};
+extern JNINativeMethod pcap100Natives[PCAP100_NATIVES_COUNT];
 
 api_vtable pcap100_vtable = {
 	PCAP100_NATIVES_COUNT,
@@ -349,6 +338,18 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_setTimeout
 #endif
 }
 
+JNINativeMethod pcap100Natives[PCAP100_NATIVES_COUNT] = {
+/*0*/{ (char *)"activate", (char *)"()I", (void *) Java_org_jnetpcap_Pcap_activate },
+/*1*/{ (char *)"canSetRfmon", (char *)"()I", (void *) Java_org_jnetpcap_Pcap_canSetRfmon },
+/*2*/{ (char *)"setRfmon", (char *)"(I)I", (void *) Java_org_jnetpcap_Pcap_setRfmon },
+/*3*/{ (char *)"setBufferSize", (char *)"(J)I", (void *) Java_org_jnetpcap_Pcap_setBufferSize },
+/*4*/{ (char *)"setDirection", (char *)"(I)I", (void *) Java_org_jnetpcap_Pcap_setDirection },
+/*5*/{ (char *)"setPromisc", (char *)"(I)I", (void *) Java_org_jnetpcap_Pcap_setPromisc },
+/*6*/{ (char *)"setSnaplen", (char *)"(I)I", (void *) Java_org_jnetpcap_Pcap_setSnaplen },
+/*7*/{ (char *)"setTimeout", (char *)"(I)I", (void *) Java_org_jnetpcap_Pcap_setTimeout },
+/*8*/{ (char *)"create", (char *)"(Ljava/lang/String;Ljava/lang/StringBuilder;)Lorg/jnetpcap/Pcap;",
+			(void *) Java_org_jnetpcap_Pcap_create}
+};
 
 
 
