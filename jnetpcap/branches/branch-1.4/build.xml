@@ -879,6 +879,7 @@
 		<!--       Copy native library.  -->
 		<!-- ############################################################### -->
 		<copy file="${jni.build.filepath}" tofile="${pkg.lib.jnetpcap.so}" />
+		<copy file="${jni.build.pcap100.filepath}" tofile="${pkg.lib.jnetpcap100.so}" />
 
 		<!-- ############################################################### -->
 		<!--       Create JAR file containing all the java classes  -->
