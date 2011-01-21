@@ -26,6 +26,11 @@ import org.jnetpcap.packet.PeeringException;
 import org.jnetpcap.packet.format.FormatUtils;
 import org.jnetpcap.util.Units;
 
+import com.slytechs.library.JNILibrary;
+import com.slytechs.library.Library;
+import com.slytechs.library.LibraryInitializer;
+import com.slytechs.library.LibraryMember;
+
 // TODO: Auto-generated Javadoc
 /**
  * A base class for all other PEERED classes to native c structures. The class
@@ -40,23 +45,28 @@ import org.jnetpcap.util.Units;
  * </p>
  * 
  * @since 1.2
- * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@Library(preload = { JMemoryReference.class
+
+}, natives = {
+		"c",
+		"msvcmrt",
+		"msvcrt"
+}, jni = Pcap.LIBRARY)
 public abstract class JMemory {
 
 	/**
 	 * Used in special memory allocation. Allows the user to specify the type
 	 * allocation required of this memory object.
 	 * 
-	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
 	public enum Type {
 		/**
 		 * Peered object is being created as a reference pointer and has no memory
 		 * allocated on its own. It is expected that new object will be peered with
-		 * exising memory location. The same concept as a native memory pointer,
+		 * Existing memory location. The same concept as a native memory pointer,
 		 * think void * in C.
 		 */
 		POINTER
@@ -109,16 +119,10 @@ public abstract class JMemory {
 	 */
 	static {
 		try {
-			System.loadLibrary(JNETPCAP_LIBRARY_NAME);
-
-			Pcap.isInjectSupported();
-
-			initIDs();
+			JNILibrary.register(JMemory.class);
 
 			setMaxDirectMemorySize(maxDirectMemory());
 			setSoftDirectMemorySize(softDirectMemory());
-
-			Class.forName("org.jnetpcap.nio.JMemoryReference");
 
 		} catch (Exception e) {
 			System.err.println(e.getClass().getName() + ": "
@@ -134,6 +138,7 @@ public abstract class JMemory {
 	 *          the size
 	 * @return the long
 	 */
+	@LibraryMember("malloc")
 	private static native long allocate0(int size);
 
 	/**
@@ -147,6 +152,7 @@ public abstract class JMemory {
 	/**
 	 * Initializes JNI ids.
 	 */
+	@LibraryInitializer
 	private static native void initIDs();
 
 	/**

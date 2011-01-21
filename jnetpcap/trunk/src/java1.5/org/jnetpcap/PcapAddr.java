@@ -21,6 +21,10 @@ package org.jnetpcap;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.slytechs.library.JNILibrary;
+import com.slytechs.library.Library;
+import com.slytechs.library.LibraryInitializer;
+
 // TODO: Auto-generated Javadoc
 /**
  * Class peered with native <code>pcap_addr</code> structure. Holds pcap
@@ -29,22 +33,19 @@ import java.util.List;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@Library(preload = { PcapSockAddr.class
+
+}, jni = Pcap.LIBRARY)
 public final class PcapAddr {
 
 	/**
 	 * Inits the i ds.
 	 */
+	@LibraryInitializer
 	private native static void initIDs();
 
 	static {
-		initIDs();
-
-		try {
-			Class.forName("org.jnetpcap.PcapSockAddr");
-		} catch (ClassNotFoundException e) {
-			throw new IllegalStateException(e);
-		}
-
+		JNILibrary.register(PcapAddr.class);
 	}
 
 	/** The next. */

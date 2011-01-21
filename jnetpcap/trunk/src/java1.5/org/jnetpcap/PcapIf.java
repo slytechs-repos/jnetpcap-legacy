@@ -20,32 +20,35 @@ package org.jnetpcap;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+
+import com.slytechs.library.JNILibrary;
+import com.slytechs.library.Library;
+import com.slytechs.library.LibraryInitializer;
 
 // TODO: Auto-generated Javadoc
 /**
  * Class peered with native <code>pcap_if_t</code> structure. Addresses is
- * replaced as a list to simulate a linked list of address structures. This is not a JNI peering
- * class, and is only a read-only object.
+ * replaced as a list to simulate a linked list of address structures. This is
+ * not a JNI peering class, and is only a read-only object.
  * 
- * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@Library(preload = {
+		PcapIf.class,
+		PcapAddr.class
+}, jni = Pcap.LIBRARY)
 public class PcapIf {
 
 	/**
 	 * Inits the i ds.
 	 */
+	@LibraryInitializer
 	private native static void initIDs();
 
 	static {
-		initIDs();
-
-		try {
-			Class.forName("org.jnetpcap.PcapAddr");
-		} catch (ClassNotFoundException e) {
-			throw new IllegalStateException(e);
-		}
+		JNILibrary.register(PcapIf.class);
 	}
 
 	/**
@@ -68,7 +71,7 @@ public class PcapIf {
 	 * rare to have interfaces assigned multiple addresses. The list will resize
 	 * incase there are more then 2 automatically.
 	 */
-	private List<PcapAddr> addresses = new ArrayList<PcapAddr>(2);
+	private final List<PcapAddr> addresses = new ArrayList<PcapAddr>(2);
 
 	/** The flags. */
 	private volatile int flags;
@@ -105,8 +108,8 @@ public class PcapIf {
 
 	/**
 	 * A list of addresses for this field. The native C linked list of
-	 * <code>pcap_if</code> structures is turned into a java <code>List</code>
-	 * for convenience.
+	 * <code>pcap_if</code> structures is turned into a java <code>List</code> for
+	 * convenience.
 	 * 
 	 * @return the addresses
 	 */
@@ -140,10 +143,11 @@ public class PcapIf {
 
 	/**
 	 * Debug string.
+	 * 
 	 * @return debug string
 	 */
 	@Override
-  public String toString() {
+	public String toString() {
 		StringBuilder out = new StringBuilder();
 
 		out.append("<");
@@ -164,4 +168,39 @@ public class PcapIf {
 		return out.toString();
 	}
 
+	/**
+	 * @return
+	 */
+	public static PcapIf findDefaultIf(StringBuilder errbuf) {
+		List<PcapIf> alldevs = new LinkedList<PcapIf>();
+		if (errbuf == null) {
+			errbuf = new StringBuilder();
+		}
+		if (Pcap.findAllDevs(alldevs, errbuf) != Pcap.OK) {
+			return null;
+		}
+
+		for (PcapIf dev : alldevs) {
+			List<PcapAddr> addrs = dev.getAddresses();
+			if (addrs.isEmpty()) {
+				continue;
+			}
+			return dev;
+		}
+
+		return null;
+	}
+
+	/**
+	 * @param object
+	 * @return
+	 */
+	public static List<PcapIf> findAllDevs(StringBuilder errbuf) {
+		List<PcapIf> alldevs = new LinkedList<PcapIf>();
+		if (errbuf == null) {
+			errbuf = new StringBuilder();
+		}
+		Pcap.findAllDevs(alldevs, errbuf);
+		return alldevs;
+	}
 }

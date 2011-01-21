@@ -31,6 +31,11 @@ import org.jnetpcap.PcapIf;
 import org.jnetpcap.PcapPktHdr;
 import org.jnetpcap.nio.JBuffer;
 
+import com.slytechs.library.JNILibrary;
+import com.slytechs.library.Library;
+import com.slytechs.library.LibraryInitializer;
+import com.slytechs.library.LibraryMember;
+
 // TODO: Auto-generated Javadoc
 /**
  * <p>
@@ -148,6 +153,11 @@ import org.jnetpcap.nio.JBuffer;
  * @author Sly Technologies, Inc.
  */
 @SuppressWarnings("deprecation")
+@Library(preload = {
+		WinPcapStat.class,
+		WinPcapRmtAuth.class,
+		WinPcapSendQueue.class
+}, jni = Pcap.LIBRARY)
 public class WinPcap extends Pcap {
 
 	/** Make sure that we are thread safe and don't clober each others messages. */
@@ -252,15 +262,7 @@ public class WinPcap extends Pcap {
 	public static final int TRANSMIT_SYNCH_USE_TIMESTAMP = 1;
 
 	static {
-		initIDs();
-
-		// Make sure some dependency classes get loaded
-		try {
-			Class.forName("org.jnetpcap.winpcap.WinPcapStat");
-			Class.forName("org.jnetpcap.winpcap.WinPcapSamp");
-		} catch (final ClassNotFoundException e) {
-			throw new IllegalStateException("Unable to find class: ", e);
-		}
+		JNILibrary.register(WinPcap.class);
 	}
 
 	/**
@@ -373,6 +375,7 @@ public class WinPcap extends Pcap {
 	 *         variable.
 	 * @since 1.2
 	 */
+	@LibraryMember("pcap_createsrcstr")
 	public native static int createSrcStr(StringBuffer source,
 			int type,
 			String host,
@@ -589,6 +592,7 @@ public class WinPcap extends Pcap {
 	 *         interface to list
 	 * @since 1.2
 	 */
+	@LibraryMember("pcap_findalldevs_ex")
 	public native static int findAllDevsEx(String source,
 			WinPcapRmtAuth auth,
 			List<PcapIf> alldevs,
@@ -688,6 +692,7 @@ public class WinPcap extends Pcap {
 	/**
 	 * Initialize JNI method, field and class IDs.
 	 */
+	@LibraryInitializer
 	private static native void initIDs();
 
 	/**
@@ -720,6 +725,7 @@ public class WinPcap extends Pcap {
 	 *          buffer containing packet data
 	 * @return snaplen of the packet or 0 if packet should be rejected
 	 */
+	@LibraryMember("pcap_findalldevs_ex")
 	public static native int offlineFilter(PcapBpfProgram program,
 			int caplen,
 			int len,
@@ -745,6 +751,7 @@ public class WinPcap extends Pcap {
 	 * @return snaplen of the packet or 0 if packet should be rejected
 	 * @since 1.2
 	 */
+	@LibraryMember("pcap_offline_filter")
 	public static native int offlineFilter(PcapBpfProgram program,
 			PcapHeader header,
 			ByteBuffer buffer);
@@ -769,6 +776,7 @@ public class WinPcap extends Pcap {
 	 * @return snaplen of the packet or 0 if packet should be rejected
 	 * @since 1.2
 	 */
+	@LibraryMember("pcap_offline_filter")
 	public static native int offlineFilter(PcapBpfProgram program,
 			PcapHeader header,
 			JBuffer buffer);
@@ -797,6 +805,7 @@ public class WinPcap extends Pcap {
 	 * @see #offlineFilter(PcapBpfProgram, PcapHeader, JBuffer)
 	 */
 	@Deprecated
+	@LibraryMember("pcap_offline_filter")
 	public static native int offlineFilter(PcapBpfProgram program,
 			PcapPktHdr header,
 			ByteBuffer buf);
@@ -950,6 +959,7 @@ public class WinPcap extends Pcap {
 	 *         keeps the error message.
 	 * @since 1.2
 	 */
+	@LibraryMember("pcap_open")
 	public native static WinPcap open(String source,
 			int snaplen,
 			int flags,
@@ -1052,6 +1062,7 @@ public class WinPcap extends Pcap {
 	 *         occured
 	 * @see Pcap#openDead(int, int)
 	 */
+	@LibraryMember("pcap_open_dead")
 	public native static WinPcap openDead(int linktype, int snaplen);
 
 	/**
@@ -1200,6 +1211,7 @@ public class WinPcap extends Pcap {
 	 * @see Pcap#openLive(String, int, int, int, StringBuilder)
 	 * @since 1.2
 	 */
+	@LibraryMember("pcap_open_live")
 	public native static WinPcap openLive(String device,
 			int snaplen,
 			int promisc,
@@ -1332,6 +1344,7 @@ public class WinPcap extends Pcap {
 	 * @see Pcap#openOffline(String, StringBuilder)
 	 * @since 1.2
 	 */
+	@LibraryMember("pcap_open_offline")
 	public native static WinPcap openOffline(String fname, StringBuffer errbuf);
 
 	/**
@@ -1460,6 +1473,7 @@ public class WinPcap extends Pcap {
 	 *          maximum number of packets to store
 	 * @return 0 on success otherwise -1
 	 */
+	@LibraryMember("pcap_live_dump")
 	public native int liveDump(String fname, int maxsize, int maxpackets);
 
 	/**
@@ -1480,6 +1494,7 @@ public class WinPcap extends Pcap {
 	 * @return non zero value means that dump process has finished, a zero means
 	 *         its still in progress
 	 */
+	@LibraryMember("pcap_live_dump_ended")
 	public native int liveDumpEnded(int sync);
 
 	/**
@@ -1511,6 +1526,7 @@ public class WinPcap extends Pcap {
 	 * @return amount of bytes actually sent; error if less then queues len
 	 *         parameter
 	 */
+	@LibraryMember("pcap_sendqueue_transmit")
 	public native int sendQueueTransmit(final WinPcapSendQueue queue,
 			final int synch);
 
@@ -1527,6 +1543,7 @@ public class WinPcap extends Pcap {
 	 * @see #loop(int, PcapHandler, Object)
 	 * @see #dispatch(int, PcapHandler, Object)
 	 */
+	@LibraryMember("pcap_setbuff")
 	public native int setBuff(int dim);
 
 	/**
@@ -1549,6 +1566,7 @@ public class WinPcap extends Pcap {
 	 * @see #loop(int, PcapHandler, Object)
 	 * @see #dispatch(int, PcapHandler, Object)
 	 */
+	@LibraryMember("pcap_set_mintocopy")
 	public native int setMinToCopy(int size);
 
 	/**
@@ -1559,6 +1577,7 @@ public class WinPcap extends Pcap {
 	 *          pcap capture mode
 	 * @return the return value is 0 when the call succeeds, -1 otherwise
 	 */
+	@LibraryMember("pcap_setmode")
 	public native int setMode(int mode);
 
 	/**
@@ -1581,6 +1600,7 @@ public class WinPcap extends Pcap {
 	 * 
 	 * @return an object through which you can change the capture algorithm
 	 */
+	@LibraryMember("pcap_setsampling")
 	public native WinPcapSamp setSampling();
 
 	/**
@@ -1593,5 +1613,6 @@ public class WinPcap extends Pcap {
 	 * @see Pcap#stats(org.jnetpcap.PcapStat) return stats structure which is
 	 *      filled with statistics or null on error
 	 */
+	@LibraryMember("pcap_stats_ex")
 	public native WinPcapStat statsEx();
 }

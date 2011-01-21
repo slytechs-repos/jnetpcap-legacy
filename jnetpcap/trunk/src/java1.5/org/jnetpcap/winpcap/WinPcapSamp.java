@@ -18,6 +18,12 @@
  */
 package org.jnetpcap.winpcap;
 
+import org.jnetpcap.Pcap;
+
+import com.slytechs.library.JNILibrary;
+import com.slytechs.library.Library;
+import com.slytechs.library.LibraryInitializer;
+
 // TODO: Auto-generated Javadoc
 /**
  * Class peered with native <code>pcap_samp</code> structure. This class can
@@ -28,18 +34,20 @@ package org.jnetpcap.winpcap;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@Library(jni = Pcap.LIBRARY)
 public final class WinPcapSamp {
 
 	/**
 	 * Inits the i ds.
 	 */
+	@LibraryInitializer
 	private native static void initIDs(); // Initialize JNI
 
 	/** The physical. */
 	private volatile long physical;
 
 	static {
-		initIDs();
+		JNILibrary.register(WinPcapSamp.class);
 	}
 
 	/**
@@ -81,11 +89,11 @@ public final class WinPcapSamp {
 	 * 
 	 * @return the return value specifies the sampling type:
 	 *         <ul>
-	 *         <li> 0 - {@link #NO_SAMP} - No sampling has to be done on the
+	 *         <li>0 - {@link #NO_SAMP} - No sampling has to be done on the
 	 *         current capture</li>
-	 *         <li> 1 - {@link #ONE_EVERY_N} - only 1 out of N packets must be
+	 *         <li>1 - {@link #ONE_EVERY_N} - only 1 out of N packets must be
 	 *         returned to the user</li>
-	 *         <li> 2 - {@link #FIRST_AFTER_N_MS} - return 1 packet every N
+	 *         <li>2 - {@link #FIRST_AFTER_N_MS} - return 1 packet every N
 	 *         milliseconds</li>
 	 *         </ul>
 	 */
@@ -99,11 +107,11 @@ public final class WinPcapSamp {
 	 * @param method
 	 *          sampling type:
 	 *          <ul>
-	 *          <li> 0 - {@link #NO_SAMP} - No sampling has to be done on the
+	 *          <li>0 - {@link #NO_SAMP} - No sampling has to be done on the
 	 *          current capture</li>
-	 *          <li> 1 - {@link #ONE_EVERY_N} - only 1 out of N packets must be
+	 *          <li>1 - {@link #ONE_EVERY_N} - only 1 out of N packets must be
 	 *          returned to the user</li>
-	 *          <li> 2 - {@link #FIRST_AFTER_N_MS} - return 1 packet every N
+	 *          <li>2 - {@link #FIRST_AFTER_N_MS} - return 1 packet every N
 	 *          milliseconds</li>
 	 *          </ul>
 	 */
@@ -129,6 +137,7 @@ public final class WinPcapSamp {
 	 * 
 	 * @return the string
 	 */
+	@Override
 	public String toString() {
 		return "method:" + getMethod() + ", value:" + getValue();
 	}

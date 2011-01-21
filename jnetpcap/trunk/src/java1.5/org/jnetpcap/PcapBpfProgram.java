@@ -20,6 +20,10 @@ package org.jnetpcap;
 
 import java.nio.ByteBuffer;
 
+import com.slytechs.library.JNILibrary;
+import com.slytechs.library.Library;
+import com.slytechs.library.LibraryInitializer;
+
 // TODO: Auto-generated Javadoc
 /**
  * <p>
@@ -41,26 +45,19 @@ import java.nio.ByteBuffer;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@Library(preload = { Pcap.class
+
+}, jni = Pcap.LIBRARY)
 public class PcapBpfProgram {
 
 	/**
 	 * Inits the i ds.
 	 */
+	@LibraryInitializer
 	private native static void initIDs();
 
 	static {
-		/*
-		 * Touch Pcap class. PcapBpfProgram JNI jfieldID tables are loaded during
-		 * Pcap class static intialization process. Make sure Pcap loaded before us,
-		 * otherwise we could get UnsatisfiedLinkError from JNI runtime if we're
-		 * invoked before Pcap class.
-		 */
-		try {
-			Class.forName("org.jnetpcap.Pcap");
-			initIDs();
-		} catch (ClassNotFoundException e) {
-			// Empty on purpose
-		}
+		JNILibrary.register(PcapBpfProgram.class);
 	}
 
 	/** Native address of the bpf_program C structure. */
@@ -106,7 +103,7 @@ public class PcapBpfProgram {
 
 		if (instructions.length % 8 != 0) {
 			throw new IllegalArgumentException(
-			    "Invalid BPF instruction buffer length. Must be a multiple of 8");
+					"Invalid BPF instruction buffer length. Must be a multiple of 8");
 		}
 
 		if (instructions.length == 0) {
@@ -138,7 +135,7 @@ public class PcapBpfProgram {
 
 		if (len % 8 != 0) {
 			throw new IllegalArgumentException(
-			    "Invalid BPF instruction buffer length. Must be a multiple of 8");
+					"Invalid BPF instruction buffer length. Must be a multiple of 8");
 		}
 
 		if (len == 0) {
@@ -168,7 +165,7 @@ public class PcapBpfProgram {
 	 * land.
 	 */
 	@Override
-  protected void finalize() {
+	protected void finalize() {
 
 		if (physical != 0) {
 			cleanup();

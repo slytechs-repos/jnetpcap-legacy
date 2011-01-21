@@ -22,7 +22,12 @@ import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import org.jnetpcap.Pcap;
 import org.jnetpcap.packet.PeeringException;
+
+import com.slytechs.library.JNILibrary;
+import com.slytechs.library.Library;
+import com.slytechs.library.LibraryInitializer;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -31,18 +36,20 @@ import org.jnetpcap.packet.PeeringException;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@Library(jni = Pcap.LIBRARY)
 public class JBuffer extends JMemory {
 
 	/**
 	 * 
 	 */
 	static {
-		initIds();
+		JNILibrary.register(JBuffer.class);
 	}
 
 	/**
 	 * JNI Ids.
 	 */
+	@LibraryInitializer
 	private native static void initIds();
 
 	/** True means BIG endian, false means LITTLE endian byte order. */

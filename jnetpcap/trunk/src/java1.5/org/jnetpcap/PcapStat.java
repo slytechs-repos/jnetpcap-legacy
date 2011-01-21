@@ -18,26 +18,32 @@
  */
 package org.jnetpcap;
 
+import com.slytechs.library.JNILibrary;
+import com.slytechs.library.Library;
+import com.slytechs.library.LibraryInitializer;
+
 // TODO: Auto-generated Javadoc
 /**
- * Class peered with native <code>pcap_stat</code> structure providing only
- * the core statistics. Class that is filled in by a call to method
+ * Class peered with native <code>pcap_stat</code> structure providing only the
+ * core statistics. Class that is filled in by a call to method
  * <code>Pcap.stats</code>. The structure keeps statisical values on an
  * interface.
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@Library(preload = { Pcap.class
+}, jni = Pcap.LIBRARY)
 public class PcapStat {
 
 	/**
 	 * Inits the i ds.
 	 */
+	@LibraryInitializer
 	private static native void initIDs();
 
 	static {
-		System.loadLibrary(Pcap.JNETPCAP_LIBRARY_NAME);
-		initIDs();
+		JNILibrary.register(PcapStat.class);
 	}
 
 	/**
@@ -102,7 +108,7 @@ public class PcapStat {
 	 * @return the string
 	 */
 	@Override
-  public String toString() {
+	public String toString() {
 		out.setLength(0);
 
 		out.append("recv=").append(recv);
