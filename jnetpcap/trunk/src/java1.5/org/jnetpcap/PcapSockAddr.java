@@ -18,6 +18,10 @@
  */
 package org.jnetpcap;
 
+import com.slytechs.library.JNILibrary;
+import com.slytechs.library.Library;
+import com.slytechs.library.LibraryInitializer;
+
 // TODO: Auto-generated Javadoc
 /**
  * Class peered with native <code>struct sockaddr</code> structure. The class
@@ -25,18 +29,20 @@ package org.jnetpcap;
  * its fields are initialized within the native library and returned to java
  * space. The class is readonly, and only provides getter methods.
  * 
- * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@Library(preload = { Pcap.class
+}, jni = Pcap.LIBRARY)
 public class PcapSockAddr {
 
 	/**
 	 * Inits the i ds.
 	 */
+	@LibraryInitializer
 	private native static void initIDs();
 
 	static {
-		initIDs();
+		JNILibrary.register(PcapSockAddr.class);
 	}
 
 	/** Socket family internet version 4. */
@@ -87,18 +93,18 @@ public class PcapSockAddr {
 	 * @return debug string
 	 */
 	@Override
-  public String toString() {
+	public String toString() {
 		switch (family) {
-			case AF_INET:
-				return "[INET4:" + u(data[0]) + "." + u(data[1]) + "." + u(data[2])
-				    + "." + u(data[3]) + "]";
+		case AF_INET:
+			return "[INET4:" + u(data[0]) + "." + u(data[1]) + "." + u(data[2]) + "."
+					+ u(data[3]) + "]";
 
-			case AF_INET6:
-				return "[INET6:" + data[0] + "." + data[1] + "." + data[2] + "."
-				    + data[3] + "]";
+		case AF_INET6:
+			return "[INET6:" + data[0] + "." + data[1] + "." + data[2] + "."
+					+ data[3] + "]";
 
-			default:
-				return "[" + family + "]";
+		default:
+			return "[" + family + "]";
 		}
 
 	}

@@ -194,6 +194,16 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 		}
 
 		/**
+		 * Determines the length of this dynamic field.
+		 * 
+		 * @return length of the data field in bits
+		 */
+		@Dynamic(Field.Property.LENGTH)
+		public int dataLength() {
+			return (length() - 2) * BYTE; // In bits
+		}
+
+		/**
 		 * This field is used only when the alternate checksum that is negotiated is
 		 * longer than 16 bits. These checksums will not fit in the checksum field
 		 * of the TCP header and thus at least part of them must be put in an
@@ -207,16 +217,6 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 		 */
 		public byte[] dataToArray(byte[] array) {
 			return getByteArray(2, array);
-		}
-
-		/**
-		 * Determines the length of this dynamic field.
-		 * 
-		 * @return length of the data field in bits
-		 */
-		@Dynamic(Field.Property.LENGTH)
-		public int dataLength() {
-			return (length() - 2) * BYTE; // In bits
 		}
 	}
 
@@ -255,36 +255,23 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 		 */
 		public enum Algorithm {
 			/**
-			 * TCP checksum.
+			 * Redundant Checksum Avoidance.
 			 */
-			TCP_CHECKSUM(0),
+			AVOIDANCE(3),
 
-			/**
-			 * 8-bit Fletcher's algorithm.
-			 */
-			FLETCHER_8BIT(1),
 			/**
 			 * 16-bit Fletcher's algorithm.
 			 */
 			FLETCHER_16BIT(2),
+			/**
+			 * 8-bit Fletcher's algorithm.
+			 */
+			FLETCHER_8BIT(1),
 
 			/**
-			 * Redundant Checksum Avoidance.
+			 * TCP checksum.
 			 */
-			AVOIDANCE(3);
-
-			/** Numerical type for this algorithm constant. */
-			public final int type;
-
-			/**
-			 * Instantiates a new algorithm.
-			 * 
-			 * @param type
-			 *          the type
-			 */
-			private Algorithm(int type) {
-				this.type = type;
-			}
+			TCP_CHECKSUM(0);
 
 			/**
 			 * Converts a numerical algorithm type to enum constant.
@@ -302,6 +289,19 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 
 				return null;
 			}
+
+			/** Numerical type for this algorithm constant. */
+			public final int type;
+
+			/**
+			 * Instantiates a new algorithm.
+			 * 
+			 * @param type
+			 *          the type
+			 */
+			private Algorithm(int type) {
+				this.type = type;
+			}
 		}
 
 		/**
@@ -315,15 +315,6 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 		}
 
 		/**
-		 * Returns the algorithm type as enum constant.
-		 * 
-		 * @return constant representing the algorithm or null if unrecognized
-		 */
-		public Algorithm algorithmEnum() {
-			return Algorithm.valueOf(algorithm());
-		}
-
-		/**
 		 * Sets a new value for algorithm field.
 		 * 
 		 * @param value
@@ -331,6 +322,78 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 		 */
 		public void algorithm(int value) {
 			setUByte(2, value);
+		}
+
+		/**
+		 * Returns the algorithm type as enum constant.
+		 * 
+		 * @return constant representing the algorithm or null if unrecognized
+		 */
+		public Algorithm algorithmEnum() {
+			return Algorithm.valueOf(algorithm());
+		}
+	}
+
+	/**
+	 * A simple method for measuring the RTT of a segment would be: the sender
+	 * places a timestamp in the segment and the receiver returns that timestamp
+	 * in the corresponding ACK segment. When the ACK segment arrives at the
+	 * sender, the difference between the current time and the timestamp is the
+	 * RTT. To implement this timing method, the receiver must simply reflect or
+	 * echo selected data (the timestamp) from the sender's segments. This idea is
+	 * the basis of the "TCP Echo" and "TCP Echo Reply" options.
+	 * 
+	 * @author Sly Technologies, Inc.
+	 */
+	@Header(id = 6)
+	public static class Echo extends TcpOption {
+
+		/**
+		 * This option carries four bytes of information that the receiving TCP may
+		 * send back in a subsequent TCP Echo Reply option (see below). A TCP may
+		 * send the TCP Echo option in any segment, but only if a TCP Echo option
+		 * was received in a SYN segment for the connection.
+		 * <p>
+		 * When the TCP echo option is used for RTT measurement, it will be included
+		 * in data segments, and the four information bytes will define the time at
+		 * which the data segment was transmitted in any format convenient to the
+		 * sender.
+		 * </p>
+		 * 
+		 * @return 4 bytes of information
+		 */
+		@Field(offset = 2 * BYTE, length = 4 * BYTE, format = "%x")
+		public long data() {
+			return getUInt(2);
+		}
+	}
+
+	/**
+	 * A TCP that receives a TCP Echo option containing four information bytes
+	 * will return these same bytes in a TCP Echo Reply option.
+	 * 
+	 * @author Sly Technologies, Inc.
+	 */
+	@Header(id = 7)
+	public static class EchoReply extends TcpOption {
+
+		/**
+		 * This option carries four bytes of information that the receiving TCP may
+		 * send back in a subsequent TCP Echo Reply option (see below). A TCP may
+		 * send the TCP Echo option in any segment, but only if a TCP Echo option
+		 * was received in a SYN segment for the connection.
+		 * <p>
+		 * When the TCP echo option is used for RTT measurement, it will be included
+		 * in data segments, and the four information bytes will define the time at
+		 * which the data segment was transmitted in any format convenient to the
+		 * sender.
+		 * </p>
+		 * 
+		 * @return 4 bytes of information
+		 */
+		@Field(offset = 2 * BYTE, length = 4 * BYTE, format = "%x")
+		public long data() {
+			return getUInt(2);
 		}
 	}
 
@@ -554,16 +617,6 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 		}
 
 		/**
-		 * Calculates the length of the block field.
-		 * 
-		 * @return length of the field in bits
-		 */
-		@Dynamic(Field.Property.LENGTH)
-		public int blocksLength() {
-			return blockCount() * 64; // In bits
-		}
-
-		/**
 		 * Gets the block field of the option header, and returns the data as an
 		 * array of unsigned 32 bit integers (java stored as long integers to
 		 * preserve the sign). Each element of the array, is a 1 element of the 2
@@ -598,6 +651,16 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 			 * Updata the option length field
 			 */
 			length(array.length * 4 + 2);
+		}
+
+		/**
+		 * Calculates the length of the block field.
+		 * 
+		 * @return length of the field in bits
+		 */
+		@Dynamic(Field.Property.LENGTH)
+		public int blocksLength() {
+			return blockCount() * 64; // In bits
 		}
 
 		/**
@@ -692,6 +755,17 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 			 */
 			ALTERNATE_CHECKSUM_REQUEST(14),
 
+			/**
+			 * This option carries four bytes of information that the receiving TCP
+			 * may send back in a subsequent TCP Echo Reply option (see below). A TCP
+			 * may send the TCP Echo option in any segment, but only if a TCP Echo
+			 * option was received in a SYN segment for the connection.
+			 */
+			ECHO(6),
+
+			/** Returns the 4 bytes of ECHO data. */
+			ECHO_REPLY(7),
+
 			/** 0 (8 bits) - End of options list. */
 			END_OF_OPTION_LIST(0),
 
@@ -706,6 +780,17 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 			 * option fields on 32-bit boundaries for better performance.
 			 */
 			NO_OP(1),
+
+			/**
+			 * Partial order connection permitted flag
+			 */
+			PARTIAL_ORDER_CONNECTION_PERMITTED(9),
+
+			/**
+			 * Partial order connection data
+			 */
+			PARTIAL_ORDER_CONNECTION(10),
+
 			/**
 			 * 5,N,BBBB,EEEE,... (variable bits, N is either 10, 18, 26, or 34)-
 			 * Selective ACKnowlegement (SACK) These first two bytes are followed by a
@@ -791,16 +876,6 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 		}
 
 		/**
-		 * Dynamically generates additional description information.
-		 * 
-		 * @return description of the field or null if not implied length
-		 */
-		@Dynamic(Field.Property.DESCRIPTION)
-		public String lengthDescription() {
-			return lengthCheck(null) ? null : "implied length from option type";
-		}
-
-		/**
 		 * Sets a new length for the option.
 		 * 
 		 * @param value
@@ -822,6 +897,16 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 		@Dynamic(field = "length", value = Field.Property.CHECK)
 		public boolean lengthCheck(String name) {
 			return (code() > 1); // Only 0 and 1 don't have length field
+		}
+
+		/**
+		 * Dynamically generates additional description information.
+		 * 
+		 * @return description of the field or null if not implied length
+		 */
+		@Dynamic(Field.Property.DESCRIPTION)
+		public String lengthDescription() {
+			return lengthCheck(null) ? null : "implied length from option type";
 		}
 	}
 
@@ -957,6 +1042,81 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 		 */
 		public void scale(int value) {
 			setUByte(2, value);
+		}
+	}
+
+	/**
+	 * A service which allows partial order delivery and partial reliability is
+	 * one which requires some, but not all objects to be received in the order
+	 * transmitted while also allowing objects to be transmitted unreliably (i.e.,
+	 * some may be lost).
+	 * 
+	 * @author Sly Technologies, Inc.
+	 */
+	@Header(id = 9)
+	public static class PartialOrderConnectionPermitted extends TcpOption {
+		// No other fields
+	}
+
+	/**
+	 * Serves to communicate the information necessary to carry out the job of the
+	 * protocol - the type of information which is typically found in the header
+	 * of a TCP segment.
+	 * 
+	 * @author Sly Technologies, Inc.
+	 */
+	@Header(id = 10)
+	public static class PartialOrderConnection extends TcpOption {
+
+		/**
+		 * This option carries four bytes of information that the receiving TCP may
+		 * send back in a subsequent TCP Echo Reply option (see below). A TCP may
+		 * send the TCP Echo option in any segment, but only if a TCP Echo option
+		 * was received in a SYN segment for the connection.
+		 * <p>
+		 * When the TCP echo option is used for RTT measurement, it will be included
+		 * in data segments, and the four information bytes will define the time at
+		 * which the data segment was transmitted in any format convenient to the
+		 * sender.
+		 * </p>
+		 * 
+		 * see RFC 1693
+		 * 
+		 * @return 4 bytes of information
+		 */
+		@Field(offset = 2 * BYTE, length = 1 * BYTE, format = "%x")
+		public int options() {
+			return getUByte(2);
+		}
+
+		/**
+		 * Options_ start.
+		 * 
+		 * @return the int
+		 */
+		@Field(parent = "options", offset = 0, length = 1)
+		public int options_Start() {
+			return options() & 0x01;
+		}
+
+		/**
+		 * Options_ end.
+		 * 
+		 * @return the int
+		 */
+		@Field(parent = "options", offset = 1, length = 1)
+		public int options_End() {
+			return (options() & 0x02) >> 1;
+		}
+
+		/**
+		 * Options_ filler.
+		 * 
+		 * @return the int
+		 */
+		@Field(parent = "options", offset = 2, length = 6)
+		public int options_Filler() {
+			return (options() & 0xFA) >> 2;
 		}
 	}
 
@@ -1157,8 +1317,15 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 			optionsBitmap |= (1 << id);
 
 			final TcpOption.OptionCode code = TcpOption.OptionCode.valueOf(id);
+
+			/*
+			 * Handle all new options we haven't defined yet
+			 */
 			if (code == null) {
-				break; // We are done, something seriously wrong with the header
+				final int length = getUByte(i + 1); // Length option field
+				i += length - 1;
+				optionsLength[id] = length;
+				continue;
 			}
 
 			// System.out.printf("%s: i=%d id=%d ", code, i, id);

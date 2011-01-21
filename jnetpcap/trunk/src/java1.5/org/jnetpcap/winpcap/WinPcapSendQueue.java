@@ -28,6 +28,9 @@ import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JStruct;
 import org.jnetpcap.packet.PeeringException;
 
+import com.slytechs.library.JNILibrary;
+import com.slytechs.library.Library;
+
 // TODO: Auto-generated Javadoc
 /**
  * Copyright (C) 2007 Sly Technologies, Inc. This library is free software; you
@@ -50,11 +53,15 @@ import org.jnetpcap.packet.PeeringException;
  * allocated using WinPcap.sendQueueAlloc method or can be directly instantiated
  * using one o the public constructors.
  * 
- * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
 @SuppressWarnings("deprecation")
+@Library(jni = Pcap.LIBRARY)
 public class WinPcapSendQueue extends JStruct {
+
+	static {
+		JNILibrary.register(WinPcapSendQueue.class);
+	}
 
 	/**
 	 * Constant used to determine the default queue size which is 64Kb (1024 *

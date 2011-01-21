@@ -18,7 +18,12 @@
  */
 package org.jnetpcap.winpcap;
 
+import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapStat;
+
+import com.slytechs.library.JNILibrary;
+import com.slytechs.library.Library;
+import com.slytechs.library.LibraryInitializer;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -30,16 +35,17 @@ import org.jnetpcap.PcapStat;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class WinPcapStat
-    extends PcapStat {
+@Library(jni = Pcap.LIBRARY)
+public class WinPcapStat extends PcapStat {
 
 	/**
 	 * Inits the i ds.
 	 */
+	@LibraryInitializer
 	private native static void initIDs();
 
 	static {
-		initIDs();
+		JNILibrary.register(WinPcapSamp.class);
 	}
 
 	/**
@@ -82,6 +88,7 @@ public class WinPcapStat
 	 * 
 	 * @return the string
 	 */
+	@Override
 	public String toString() {
 
 		out.setLength(0);

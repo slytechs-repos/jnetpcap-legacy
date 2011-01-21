@@ -1322,6 +1322,10 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_Pcap_findAllDevs
 		jmethodID MID_add = findMethod(env, jlist, "add",
 				"(Ljava/lang/Object;)Z");
 
+		if (MID_add == NULL) {
+			return 1;
+		}
+
 		jobject jpcapif = newPcapIf(env, jlist, MID_add, alldevsp);
 		if (jpcapif == NULL) {
 			return -1; // Out of memory

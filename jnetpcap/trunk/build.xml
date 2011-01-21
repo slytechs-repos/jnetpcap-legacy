@@ -328,6 +328,9 @@
 			<class name="org.jnetpcap.packet.JFlowKey" />
 			<class name="org.jnetpcap.util.checksum.Checksum" />
 			<class name="org.jnetpcap.util.Debug" />
+			<class name="com.slytechs.library.NativeLibrary" />
+			<class name="com.slytechs.library.NativeLibraryReference" />
+			<class name="com.slytechs.library.JNISymbol" />
 
 		</javah>
 	</target>
@@ -393,6 +396,30 @@
 
 		</exec>
 		<echo message="Created shared JNI libary: ${jni.build.filepath}" />
+
+		<exec executable="${compiler.ld.cmd}">
+
+			<arg value="-shared" />
+			<arg value="-g" />
+			<arg value="-Wl,--add-stdcall-alias,--enable-auto-import" />
+
+			<arg line="-o ${jni.build.pcap100.filepath}" />
+
+			<arg line="${pcap100.files}" />
+
+			<arg line="-L ${pcap.lib.dir}" />
+			
+			<arg line="-L ${jni.build.dir}" />
+
+			<arg line="-l ${pcap.lib.name}" />
+			
+			<arg line="-l jnetpcap" />
+
+			<arg line="-l ${ms.lib.name}" />
+
+
+		</exec>
+		<echo message="Created ${jni.pcap100.file} libary: ${jni.build.pcap100.filepath}" />
 
 		<property name="jni.lib.file" value="${jni.build.filepath}" />
 	</target>
@@ -575,6 +602,35 @@
 				<linkerarg value="-lstdc++" />
 			</linker>
 		</cc>
+
+		<cc runtime="dynamic" outtype="shared" outfile="${jni.build.pcap100.filepath}" debug="${compiler.debug}" objdir="${build.obj.dir}" multithreaded="compiler.multithreaded" exceptions="compiler.exceptions" warnings="${compiler.warnings}">
+
+			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
+
+			<fileset dir="${src.c.dir}" >
+				<include name="*_pcap100.cpp" />
+				<include name="api_*.cpp" />
+			</fileset>
+			<includepath location="${build.include.dir}" />
+			<includepath location="${src.c.dir}" />
+			<sysincludepath location="${java.sdk.include.dir}" />
+			<sysincludepath location="${java.sdk.include.dir}/linux" />
+			<defineset define="LIBPCAP_VERSION=0x${compiler.LIBPCAP_VERSION}" if="compiler.LIBPCAP_VERSION" />
+			<defineset define="DEBUG" if="DEBUG" />
+			<defineset define="Linux" />
+
+
+			<linker name="${compiler.ld.cmd}">
+				<syslibset libs="pcap,jnetpcap" />
+				<libset dir="${build.lib.dir}" libs="jnetpcap" />
+
+				<linkerarg value="-Wl,-soname,${jni.pcap100.file}" />
+
+				<linkerarg value="-lstdc++" />
+			</linker>
+		</cc>
+
+		<echo message="Created shared JNI libary: ${build.lib.dir}/${jni.build.pcap100.filepath}" />
 
 		<copy tofile="${build.lib.dir}/${lib.pcap.fullname}" file="${build.lib.dir}/${lib.pcap.name}" />
 

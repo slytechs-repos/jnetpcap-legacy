@@ -22,6 +22,10 @@ import java.nio.ByteBuffer;
 
 import org.jnetpcap.nio.JBuffer;
 
+import com.slytechs.library.JNILibrary;
+import com.slytechs.library.Library;
+import com.slytechs.library.LibraryInitializer;
+
 // TODO: Auto-generated Javadoc
 /**
  * Class peered with native <code>pcap_dumper</code> structure. A dumper that
@@ -32,6 +36,8 @@ import org.jnetpcap.nio.JBuffer;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@Library(preload = { Pcap.class
+}, jni = Pcap.LIBRARY)
 public class PcapDumper {
 
 	/** The physical. */
@@ -40,16 +46,16 @@ public class PcapDumper {
 	/**
 	 * Inits the i ds.
 	 */
+	@LibraryInitializer
 	private static native void initIDs();
 
 	static {
-		initIDs();
+		JNILibrary.register(PcapDumper.class);
 	}
 
 	/**
-	 * Outputs a packet to the "savefile" opened with <code>dumpOpen</code>.
-	 * Note that the calling arguments are suitable for use with dipstach() or
-	 * loop().
+	 * Outputs a packet to the "savefile" opened with <code>dumpOpen</code>. Note
+	 * that the calling arguments are suitable for use with dipstach() or loop().
 	 * 
 	 * @param hdr
 	 *          pcap capture header
@@ -58,15 +64,18 @@ public class PcapDumper {
 	 * @deprecated use of PcapPktHdr has been replaced by PcapHeader
 	 * @see PcapHeader
 	 */
+	@Deprecated
 	public void dump(PcapPktHdr hdr, ByteBuffer packet) {
-		dump(hdr.getSeconds(), hdr.getUseconds(), hdr.getCaplen(), hdr.getLen(),
-		    packet);
+		dump(hdr.getSeconds(),
+				hdr.getUseconds(),
+				hdr.getCaplen(),
+				hdr.getLen(),
+				packet);
 	}
 
 	/**
-	 * Outputs a packet to the "savefile" opened with <code>dumpOpen</code>.
-	 * Note that the calling arguments are suitable for use with dipstach() or
-	 * loop().
+	 * Outputs a packet to the "savefile" opened with <code>dumpOpen</code>. Note
+	 * that the calling arguments are suitable for use with dipstach() or loop().
 	 * 
 	 * @param hdr
 	 *          pcap capture header
@@ -77,9 +86,8 @@ public class PcapDumper {
 	public native void dump(PcapHeader hdr, ByteBuffer packet);
 
 	/**
-	 * Outputs a packet to the "savefile" opened with <code>dumpOpen</code>.
-	 * Note that the calling arguments are suitable for use with dipstach() or
-	 * loop().
+	 * Outputs a packet to the "savefile" opened with <code>dumpOpen</code>. Note
+	 * that the calling arguments are suitable for use with dipstach() or loop().
 	 * 
 	 * @param hdr
 	 *          pcap capture header
@@ -90,10 +98,10 @@ public class PcapDumper {
 	public native void dump(PcapHeader hdr, JBuffer packet);
 
 	/**
-	 * Outputs a packet to the "savefile" opened with <code>dumpOpen</code>.
-	 * Note that the calling arguments are suitable for use with dipstach() or
-	 * loop(). This a convenience method, which takes the parameters of PcapPkthdr
-	 * class directly.
+	 * Outputs a packet to the "savefile" opened with <code>dumpOpen</code>. Note
+	 * that the calling arguments are suitable for use with dipstach() or loop().
+	 * This a convenience method, which takes the parameters of PcapPkthdr class
+	 * directly.
 	 * 
 	 * @param seconds
 	 *          timestamp in seconds
@@ -106,8 +114,11 @@ public class PcapDumper {
 	 * @param packet
 	 *          packet buffer
 	 */
-	public native void dump(long seconds, int useconds, int caplen, int len,
-	    ByteBuffer packet);
+	public native void dump(long seconds,
+			int useconds,
+			int caplen,
+			int len,
+			ByteBuffer packet);
 
 	/**
 	 * Returns the current file position for the "savefile", representing the
