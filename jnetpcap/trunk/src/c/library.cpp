@@ -50,8 +50,9 @@ JNIEXPORT jlong JNICALL Java_com_slytechs_library_NativeLibrary_dlopen
 	char b[1024];
 	sprintf(b, "lib%s.so", name);
 	void *handle = dlopen((const char*)b, RTLD_LAZY | RTLD_LOCAL);
-//	printf("dlopen(name=%s)=%p error=%s\n", b, handle, dlerror());fflush(stdout);
-
+#ifdef DEBUG
+	printf("dlopen(name=%s)=%p error=%s\n", b, handle, dlerror());fflush(stdout);
+#endif
 #endif
 
 	env->ReleaseStringUTFChars(lib_name, name);
@@ -78,15 +79,21 @@ JNIEXPORT jlong JNICALL Java_com_slytechs_library_NativeLibrary_dlsymbol
 	Dl_info info;
 	memset(&info, 0, sizeof(Dl_info));
 	if (dladdr(symbol, &info) == 0) {
-//		printf("dlsymbol(%p, %s) - %s\n", lib, name, dlerror());fflush(stdout);
+
+#ifdef DEBUG
+		printf("dlsymbol(%p, %s) - FAILURE\n", lib, name);fflush(stdout);
+#endif
 	} else {
-/*		printf("dlsymbol(%p, %s) - Dl_info:\n", lib, name);fflush(stdout);
+#ifdef DEBUG
+		printf("dlsymbol(%p, %s) - Dl_info:\n", lib, name);fflush(stdout);
 		printf("dli_fname=%s\n", info.dli_fname);
 		printf("dli_fbase=%p\n", info.dli_fbase);
 		printf("dli_sname=%s\n", info.dli_sname);
 		printf("dli_saddr=%p\n", info.dli_saddr);
 		printf("dlsym.symbol=%p\n", symbol);
 		fflush(stdout);
+#endif
+/*
 		if (info.dli_fbase != lib) {
 			symbol = 0;
 		} else {

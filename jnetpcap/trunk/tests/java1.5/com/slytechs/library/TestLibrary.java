@@ -55,12 +55,13 @@ public class TestLibrary extends TestUtils {
 	}
 	
 	public void testDlsymbols() {
-		JNILibrary lib = JNILibrary.loadLibrary(Pcap.LIBRARY);
+		JNILibrary lib = JNILibrary.loadLibrary("jnetpcap-pcap100");
 		assertNotNull(lib);
 		
 		System.out.printf("testDlsymbols() - lib=%X/%s%n", lib.address, lib.name);
 		long address = lib.dlsymbol("Java_org_jnetpcap_Pcap_close");
-		lib.dlsymbol("Java_org_jnetpcap_Pcap_activate");
+		lib.dlsymbol("pcap_open_live");
+		lib.dlsymbol("Java_org_jnetpcap_Pcap_create");
 		
 	}
 	
