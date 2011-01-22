@@ -172,7 +172,6 @@ public class PaddedAppendable implements Appendable {
 	 * @throws IOException
 	 * @see java.lang.Appendable#append(java.lang.CharSequence)
 	 */
-	@Override
 	public PaddedAppendable append(CharSequence csq) throws IOException {
 		if (newLine) {
 			pad();

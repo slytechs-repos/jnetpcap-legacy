@@ -2416,7 +2416,6 @@ public class Pcap {
 			T user) {
 		return loop(cnt, new JBufferHandler<T>() {
 
-			@Override
 			public void nextPacket(PcapHeader header, JBuffer buffer, T user) {
 
 				final PcapPacket packet = new PcapPacket(header, buffer);
@@ -2534,7 +2533,6 @@ public class Pcap {
 			T user) {
 		return loop(cnt, new JBufferHandler<T>() {
 
-			@Override
 			public void nextPacket(PcapHeader header, JBuffer buffer, T user) {
 
 				final PcapPacket packet = new PcapPacket(header, buffer);
