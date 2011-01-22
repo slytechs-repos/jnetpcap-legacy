@@ -582,7 +582,7 @@
 		
 		<property name="build.libpcap.so" value="${build.lib.dir}/libpcap.so" />
 		
-		<copy overwrite="true" file="${result.grep_out}" tofile="${build.libpcap.so}" />
+		<copy verbose="true" overwrite="true" file="${result.grep_out}" tofile="${build.libpcap.so}" />
 		
 		<exec executable="perl"  >
 			<arg value="-pi" />

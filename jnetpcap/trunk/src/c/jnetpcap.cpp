@@ -71,7 +71,7 @@
 #include "jnetpcap_dumper.h"
 #include "jnetpcap_ids.h"
 #include "nio_jmemory.h"
-#include "org_jnetpcap_Pcap.h"
+//#include "org_jnetpcap_Pcap.h"
 #include "export.h"
 
 /*
