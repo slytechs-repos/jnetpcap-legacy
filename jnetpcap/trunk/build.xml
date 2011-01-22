@@ -639,7 +639,7 @@
 			</linker>
 		</cc>
 
-		<cc runtime="dynamic" outtype="shared" outfile="${jni.build.pcap100.filepath}" debug="${compiler.debug}" objdir="${build.obj.dir}" multithreaded="compiler.multithreaded" exceptions="compiler.exceptions" warnings="${compiler.warnings}">
+		<cc runtime="dynamic" outtype="shared" outfile="${build.lib.dir}/${jni.pcap100.basename}" debug="${compiler.debug}" objdir="${build.obj.dir}" multithreaded="compiler.multithreaded" exceptions="compiler.exceptions" warnings="${compiler.warnings}">
 
 			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
 
@@ -660,7 +660,7 @@
 				<syslibset libs="jnetpcap,:../lib/libpcap.so" />
 				<libset dir="${build.lib.dir}" libs="jnetpcap" />
 
-				<linkerarg value="-Wl,-soname,lib${jni.pcap100.file}.so" />
+				<linkerarg value="-Wl,-soname,${jni.pcap100.file}" />
 
 				<linkerarg value="-lstdc++" />
 			</linker>
