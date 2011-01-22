@@ -422,6 +422,7 @@
 		<echo message="Created ${jni.pcap100.file} libary: ${jni.build.pcap100.filepath}" />
 
 		<property name="jni.lib.file" value="${jni.build.filepath}" />
+		<property name="jni.lib.pcap100.file" value="${jni.build.pcap100.filepath}" />
 	</target>
 	
 	<target name="comp-jni-win64" depends="prep-checks,prep-jni,prep-lib,comp-javah" if="platform.win64">
@@ -485,6 +486,7 @@
 		<echo message="Created shared JNI libary: ${jni.build.filepath}" />
 
 		<property name="jni.lib.file" value="${jni.build.filepath}" />
+		<property name="jni.lib.pcap100.file" value="${jni.build.pcap100.filepath}" />
 	</target>
 
 	<!-- =================================================================== -->
@@ -563,11 +565,45 @@
 		</condition>
 		<echo message="dpkg = ${packager.dpkg}" />
 	</target>
+	
+	<!-- =================================================================== -->
+	<!-- Generates shared JNI library file from C++ sources                  -->
+	<!-- =================================================================== -->
+	<target name="prep-libpcap" if="platform.linux">
+		<exec executable="locate" outputproperty="result.locate_out" >
+			<arg value="libpcap.so"/>
+		</exec>
+		
+		<exec executable="grep" inputstring="${result.locate_out}" outputproperty="result.grep_out">
+			<arg value="libpcap.so$" />
+		</exec>
+		
+		<echo message="Located libpcap.so file: ${result.grep_out}" />
+		
+		<property name="build.libpcap.so" value="${build.lib.dir}/libpcap.so" />
+		
+		<copy overwrite="true" file="${result.grep_out}" tofile="${build.libpcap.so}" />
+		
+		<exec executable="perl"  >
+			<arg value="-pi" />
+			<arg value="-e" />
+			<arg value="s/libpcap.so..../libpcap.so\x0\x0\x0\x0/g" />
+			<arg value="${build.libpcap.so}" />
+		</exec>
+		
+		<exec executable="readelf" outputproperty="out.readelf.libpcap.so">
+			<arg value="-d" />
+			<arg value="${build.libpcap.so}" />
+		</exec>
+		
+		<echo message="Fixed SONAME: ${build.libpcap.so}" />
+		<echo message="${out.readelf.libpcap.so}" />
+	</target>
 
 	<!-- =================================================================== -->
 	<!-- Generates shared JNI library file from C++ sources                  -->
 	<!-- =================================================================== -->
-	<target name="comp-jni-linux" depends="check-libpcap-version,prep-checks,prep-jni,prep-lib,comp-javah" if="platform.linux">
+	<target name="comp-jni-linux" depends="check-libpcap-version,prep-checks,prep-jni,prep-lib,comp-javah,prep-libpcap" if="platform.linux">
 
 		<!-- Not supplying "outtype", disables the LINKER in CC tag
      		outtype="shared"
@@ -595,9 +631,9 @@
 
 
 			<linker name="${compiler.ld.cmd}">
-				<syslibset libs="pcap" />
+				<syslibset libs=":../lib/libpcap.so" />
 
-				<linkerarg value="-Wl,-soname,${lib.pcap.basename}" />
+				<linkerarg value="-Wl,-soname,lib${lib.pcap.basename}.so" />
 
 				<linkerarg value="-lstdc++" />
 			</linker>
@@ -621,23 +657,27 @@
 
 
 			<linker name="${compiler.ld.cmd}">
-				<syslibset libs="pcap,jnetpcap" />
+				<syslibset libs="jnetpcap,:../lib/libpcap.so" />
 				<libset dir="${build.lib.dir}" libs="jnetpcap" />
 
-				<linkerarg value="-Wl,-soname,${jni.pcap100.file}" />
+				<linkerarg value="-Wl,-soname,lib${jni.pcap100.file}.so" />
 
 				<linkerarg value="-lstdc++" />
 			</linker>
 		</cc>
 
-		<echo message="Created shared JNI libary: ${build.lib.dir}/${jni.build.pcap100.filepath}" />
+		<echo message="Created shared JNI library: ${jni.build.pcap100.filepath}" />
+		<echo message="Created shared JNI library: ${jni.build.filepath}" />
 
 		<copy tofile="${build.lib.dir}/${lib.pcap.fullname}" file="${build.lib.dir}/${lib.pcap.name}" />
 
 		<echo message="Created shared JNI libary: ${build.lib.dir}/${lib.pcap.fullname}" />
 
 		<property name="jni.lib.file" value="${build.lib.dir}/${lib.pcap.name}" />
-
+		<property name="jni.lib.pcap100.file" value="${jni.build.pcap100.filepath}" />
+		
+		<echo message="Cleanup modified libpcap.so" />
+		<delete file="${build.libpcap.so}" />
 
 	</target>
 
@@ -793,12 +833,13 @@
 		</copy>
 
 
-		<copy todir="${tar.build.pkg.dir}" file="${jni.lib.file}" />
-		<copy todir="${tar.build.pkg.dir}" file="${build.jnetpcap.jar}" />
-		<copy todir="${tar.build.pkg.dir}" file="${doc.dir}/RELEASE_NOTES.txt" />
-		<copy todir="${tar.build.pkg.dir}" file="${doc.dir}/CHANGE_LOG.txt" />
-		<copy todir="${tar.build.pkg.dir}" file="${doc.dir}/COPYING" />
-		<copy todir="${tar.build.pkg.dir}" file="${doc.dir}/COPYING.LESSER" />
+		<copy verbose="true" todir="${tar.build.pkg.dir}" file="${jni.lib.file}" />
+		<copy verbose="true" todir="${tar.build.pkg.dir}" file="${jni.lib.pcap100.file}" />
+		<copy verbose="true" todir="${tar.build.pkg.dir}" file="${build.jnetpcap.jar}" />
+		<copy verbose="true" todir="${tar.build.pkg.dir}" file="${doc.dir}/RELEASE_NOTES.txt" />
+		<copy verbose="true" todir="${tar.build.pkg.dir}" file="${doc.dir}/CHANGE_LOG.txt" />
+		<copy verbose="true" todir="${tar.build.pkg.dir}" file="${doc.dir}/COPYING" />
+		<copy verbose="true" todir="${tar.build.pkg.dir}" file="${doc.dir}/COPYING.LESSER" />
 
 		<tar destfile="${tar.build.file}" basedir="${tar.build.dir}" compression="gzip" casesensitive="true" />
 
