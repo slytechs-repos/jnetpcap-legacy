@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.jnetsoft.library;
+package com.slytechs.library;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -48,8 +48,27 @@ public class TestLibrary extends TestUtils {
 		JNILibrary.register(Pcap.class);
 		super.setUp();
 	}
+	
+	public void testDlopen() {
+		long address = NativeLibrary.dlopen("jnetpcap");
+		assertTrue("address = 0x" + address, address != 0);
+	}
+	
+	public void testDlsymbols() {
+		JNILibrary lib = JNILibrary.loadLibrary(Pcap.LIBRARY);
+		assertNotNull(lib);
+		
+		System.out.printf("testDlsymbols() - lib=%X/%s%n", lib.address, lib.name);
+		long address = lib.dlsymbol("Java_org_jnetpcap_Pcap_close");
+		lib.dlsymbol("Java_org_jnetpcap_Pcap_activate");
+		
+	}
+	
+	public void testPcapCanSetRfMon() {
+		assertTrue(Pcap.isLoaded("canSetRfmon"));
+	}
 
-	public void testPcapCanSetRfMond() throws SecurityException,
+	public void _testPcapCanSetRfMond() throws SecurityException,
 			NoSuchMethodException {
 		List<PcapIf> alldevs = new ArrayList<PcapIf>();
 		StringBuilder errbuf = new StringBuilder();
@@ -68,6 +87,7 @@ public class TestLibrary extends TestUtils {
 	public void testPcapGet080Library() {
 
 		JNILibrary.register(Pcap.class);
+		System.out.println(JNILibrary.toStringAllLibraries());
 		assertTrue(Pcap.isPcap080Loaded());
 		JNILibrary lib = JNILibrary.loadLibrary(Pcap.LIBRARY);
 		assertNotNull(lib);

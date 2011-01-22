@@ -47,8 +47,10 @@ JNIEXPORT jlong JNICALL Java_com_slytechs_library_NativeLibrary_dlopen
 #ifdef WIN32
 	HMODULE handle = GetModuleHandle(TEXT(name));
 #else
-
-	void *handle = dlopen(name, RTLD_GLOBAL);
+	char b[1024];
+	sprintf(b, "lib%s.so", name);
+	void *handle = dlopen((const char*)b, RTLD_LAZY | RTLD_LOCAL);
+//	printf("dlopen(name=%s)=%p error=%s\n", b, handle, dlerror());fflush(stdout);
 
 #endif
 
@@ -71,6 +73,28 @@ JNIEXPORT jlong JNICALL Java_com_slytechs_library_NativeLibrary_dlsymbol
 #else
 
 	void *symbol = dlsym(toPtr(handle), name);
+	dlerror(); // Clear error
+	void *lib = toPtr(handle);
+	Dl_info info;
+	memset(&info, 0, sizeof(Dl_info));
+	if (dladdr(symbol, &info) == 0) {
+//		printf("dlsymbol(%p, %s) - %s\n", lib, name, dlerror());fflush(stdout);
+	} else {
+/*		printf("dlsymbol(%p, %s) - Dl_info:\n", lib, name);fflush(stdout);
+		printf("dli_fname=%s\n", info.dli_fname);
+		printf("dli_fbase=%p\n", info.dli_fbase);
+		printf("dli_sname=%s\n", info.dli_sname);
+		printf("dli_saddr=%p\n", info.dli_saddr);
+		printf("dlsym.symbol=%p\n", symbol);
+		fflush(stdout);
+		if (info.dli_fbase != lib) {
+			symbol = 0;
+		} else {
+			symbol = info.dli_saddr;
+		}
+*/	}
+	
+	dlerror(); // CLear errors
 
 #endif
 

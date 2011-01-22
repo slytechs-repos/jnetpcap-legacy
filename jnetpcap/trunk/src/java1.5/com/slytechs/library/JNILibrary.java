@@ -111,6 +111,16 @@ public class JNILibrary extends NativeLibrary {
 
 		return null;
 	}
+	
+	public static String toStringAllLibraries() {
+		StringBuilder b = new StringBuilder();
+		for (JNILibrary lib : cache.values()) {
+			b.append(lib.toString()).append("\n");
+		}
+
+		return b.toString();
+	}
+
 
 	/**
 	 * Invoke static initializer on class.
