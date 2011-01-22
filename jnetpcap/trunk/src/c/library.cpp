@@ -70,7 +70,7 @@ JNIEXPORT jlong JNICALL Java_com_slytechs_library_NativeLibrary_dlsymbol
 	FARPROC symbol = GetProcAddress((HMODULE) toPtr(handle), TEXT(name));
 #else
 
-	void *handle = dlopen(name, RTLD_GLOBAL);
+	void *symbol = dlsym(toPtr(handle), name);
 
 #endif
 
