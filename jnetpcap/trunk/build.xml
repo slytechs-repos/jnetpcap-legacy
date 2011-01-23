@@ -485,6 +485,31 @@
 		</exec>
 		<echo message="Created shared JNI libary: ${jni.build.filepath}" />
 
+		<exec executable="${compiler.ld.cmd}">
+
+			<arg value="-shared" />
+			<arg value="-g" />
+			<arg value="-Wl,--add-stdcall-alias" />
+			<arg value="-static-libgcc" />
+
+			<arg line="-o ${jni.build.pcap100.filepath}" />
+
+			<arg line="${pcap100.files}" />
+
+			<arg line="-L ${pcap.lib.dir}" />
+			
+			<arg line="-L ${jni.build.dir}" />
+
+			<arg line="-l ${pcap.lib.name}" />
+			
+			<arg line="-l jnetpcap" />
+
+			<arg line="-l ${ms.lib.name}" />
+
+
+		</exec>
+		<echo message="Created ${jni.pcap100.file} libary: ${jni.build.pcap100.filepath}" />
+
 		<property name="jni.lib.file" value="${jni.build.filepath}" />
 		<property name="jni.lib.pcap100.file" value="${jni.build.pcap100.filepath}" />
 	</target>
