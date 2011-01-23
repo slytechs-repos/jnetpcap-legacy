@@ -19,6 +19,7 @@
 package org.jnetpcap.packet;
 
 import java.nio.ByteBuffer;
+import java.util.Iterator;
 
 import org.jnetpcap.JCaptureHeader;
 import org.jnetpcap.nio.JBuffer;
@@ -57,7 +58,8 @@ import org.jnetpcap.packet.format.TextFormatter;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public abstract class JPacket extends JBuffer implements JHeaderAccessor {
+public abstract class JPacket extends JBuffer implements JHeaderAccessor,
+		Iterable<JHeader> {
 
 	/**
 	 * Class maintains the decoded packet state. The class is peered with
@@ -158,6 +160,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 		 * 
 		 * @see org.jnetpcap.nio.JMemory#cleanup()
 		 */
+		@Override
 		public void cleanup() {
 			super.cleanup();
 		}
@@ -284,6 +287,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 		 *           the peering exception
 		 * @see org.jnetpcap.nio.JMemory#peer(java.nio.ByteBuffer)
 		 */
+		@Override
 		public int peer(ByteBuffer peer) throws PeeringException {
 			int r = super.peer(peer);
 			flowKey.peer(this);
@@ -509,6 +513,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 		 * 
 		 * @return multiline string containing dump of the entire structure
 		 */
+		@Override
 		public String toDebugString() {
 
 			return super.toDebugString() + "\n" + toDebugStringJPacketState();
@@ -548,6 +553,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 		 * @return the int
 		 * @see org.jnetpcap.nio.JMemory#transferTo(byte[], int, int, int)
 		 */
+		@Override
 		public int transferTo(byte[] dst, int srcOffset, int length, int dstOffset) {
 			return super.transferTo(dst, srcOffset, size(), dstOffset);
 		}
@@ -567,6 +573,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 		 * @see org.jnetpcap.nio.JMemory#transferTo(org.jnetpcap.nio.JBuffer, int,
 		 *      int, int)
 		 */
+		@Override
 		public int transferTo(JBuffer dst, int srcOffset, int length, int dstOffset) {
 			return super.transferTo(dst, srcOffset, size(), dstOffset);
 		}
@@ -593,6 +600,9 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 	/** Default scanner used to scan a packet per user request. */
 	protected static JScanner defaultScanner;
 
+	/** The header pool. */
+	private static JHeaderPool headerPool = new JHeaderPool();
+
 	/** The out. */
 	private static JFormatter out = new TextFormatter(new StringBuilder());
 
@@ -600,6 +610,15 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 	 * Packet's default memory pool out of which allocates memory for deep copies.
 	 */
 	protected static JMemoryPool pool = new JMemoryPool();
+
+	/**
+	 * Gets the default header pool.
+	 * 
+	 * @return the default header pool
+	 */
+	public static JHeaderPool getDefaultHeaderPool() {
+		return headerPool;
+	}
 
 	/**
 	 * Returns the default scanner for all packets
@@ -615,14 +634,6 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 			}
 		}
 		return defaultScanner;
-	}
-	
-	/**
-	 * Shutdown.
-	 */
-	public static void shutdown() {
-		defaultScanner = null;
-		pool = null;
 	}
 
 	/**
@@ -642,6 +653,16 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 	 */
 	public static JMemoryPool getMemoryPool() {
 		return pool;
+	}
+
+	/**
+	 * Sets the default header pool.
+	 * 
+	 * @param headerPool
+	 *          the new default header pool
+	 */
+	public static void setDefaultHeaderPool(JHeaderPool headerPool) {
+		JPacket.headerPool = headerPool;
 	}
 
 	/**
@@ -665,6 +686,14 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 	 */
 	public static void setMemoryPool(JMemoryPool pool) {
 		JPacket.pool = pool;
+	}
+
+	/**
+	 * Shutdown.
+	 */
+	public static void shutdown() {
+		defaultScanner = null;
+		pool = null;
 	}
 
 	/**
@@ -1045,6 +1074,102 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 	}
 
 	/**
+	 * Iterator.
+	 * 
+	 * @return the iterator
+	 * @see java.lang.Iterable#iterator()
+	 */
+	@Override
+	public Iterator<JHeader> iterator() {
+		final int count = state.getHeaderCount();
+
+		return new Iterator<JHeader>() {
+			int i = 0;
+
+			@Override
+			public boolean hasNext() {
+				return i < count;
+			}
+
+			@Override
+			public JHeader next() {
+				if (i >= count) {
+					throw new IllegalStateException("must first call hasNext");
+				}
+
+				final int id = JPacket.this.getHeaderIdByIndex(i++);
+				final JHeader header = headerPool.getHeader(id);
+
+				return JPacket.this.getHeader(header);
+			}
+
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+
+		};
+	}
+
+	/**
+	 * Iterator over specific type .
+	 * 
+	 * @return the iterator
+	 */
+	public <T> Iterator<T> iterator(final Class<T> clazz) {
+		final int count = state.getHeaderCount();
+
+		return new Iterator<T>() {
+			int i = 0;
+			JHeader header;
+
+			private void advance() {
+				for (; i < count; i++) {
+					final int id = JPacket.this.getHeaderIdByIndex(i);
+					header = headerPool.getHeader(id);
+
+					if (clazz.isInstance(header)) {
+						break;
+					}
+				}
+			}
+
+			@Override
+			public boolean hasNext() {
+				advance();
+
+				return i < count;
+			}
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public T next() {
+				if (header == null) {
+					throw new IllegalStateException("must first call hasNext");
+				}
+
+				i++;
+				return (T) JPacket.this.getHeader(header);
+			}
+
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+		};
+	}
+
+	public <T> Iterable<T> filterByType(final Class<T> clazz) {
+		return new Iterable<T>() {
+
+			@Override
+			public Iterator<T> iterator() {
+				return JPacket.this.iterator(clazz);
+			}
+		};
+	}
+
+	/**
 	 * Calculates the number of bytes remaining within the packet given a specific
 	 * offset.
 	 * 
@@ -1109,6 +1234,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 	 * 
 	 * @return formatted output of this packet
 	 */
+	@Override
 	public String toString() {
 		out.reset();
 		try {

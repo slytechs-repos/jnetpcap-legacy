@@ -170,6 +170,9 @@ public class Ethernet extends JHeader implements JHeaderChecksum {
 	 * @return the long
 	 */
 	public int calculateChecksum() {
+		if (getPostfixLength() < 4) {
+			return 0;
+		}
 
 		final JPacket packet = getPacket();
 		return Checksum.crc32IEEE802(packet, 0, getHeaderLength()
@@ -183,6 +186,10 @@ public class Ethernet extends JHeader implements JHeaderChecksum {
 	 */
 	@Field(length = 4 * BYTE, format = "%x", display = "FCS")
 	public int checksum() {
+		if (getPostfixLength() < 4) {
+			return 0;
+		}
+
 		final JPacket packet = getPacket();
 		packet.order(ByteOrder.BIG_ENDIAN);
 		return packet.getInt(getPostfixOffset());
