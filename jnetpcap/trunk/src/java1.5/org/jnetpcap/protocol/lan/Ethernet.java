@@ -165,6 +165,90 @@ public class Ethernet extends JHeader implements JHeaderChecksum {
 	public static final String ORG_IEEE = "IEEE Ethernet2";
 
 	/**
+	 * Calculate checksum.
+	 * 
+	 * @return the long
+	 */
+	public int calculateChecksum() {
+
+		final JPacket packet = getPacket();
+		return Checksum.crc32IEEE802(packet, 0, getHeaderLength()
+				+ getPayloadLength());
+	}
+
+	/**
+	 * Retrieves the header's checksum.
+	 * 
+	 * @return header's stored checksum
+	 */
+	@Field(length = 4 * BYTE, format = "%x", display = "FCS")
+	public int checksum() {
+		final JPacket packet = getPacket();
+		packet.order(ByteOrder.BIG_ENDIAN);
+		return packet.getInt(getPostfixOffset());
+	}
+
+	/**
+	 * Sets the checksum, Ethernet.FCS field in the last 4 bytes of the packet
+	 * buffer, which is also the Ethernet trailer part or jNetPcap 'postfix'. The
+	 * method checks if last 4 bytes are actually part of physical Ethernet
+	 * trailer. If not, the method returns without an error, but FCS is not set.
+	 * 
+	 * @param crc
+	 *          the crc
+	 * @return true if checksum was set, otherwise if Ethernet trailer part or
+	 *         Ethernet postfix part is less then 4 bytes long, returns false
+	 */
+	public boolean checksum(int crc) {
+		if (getPostfixLength() < 4) {
+			return false;
+		}
+
+		final JPacket packet = getPacket();
+		packet.order(ByteOrder.BIG_ENDIAN);
+
+		packet.setUInt(packet.size() - 4, crc);
+
+		return true;
+	}
+
+	/**
+	 * Checks if FCS is available for this Ethernet frame. FCS is typically
+	 * stripped by the OS and not provided to Libpcap/jNetPcap on most platforms.
+	 * 
+	 * @return true if FCS is present, otherwise false
+	 */
+	@Dynamic(field = "checksum", value = Field.Property.CHECK)
+	public boolean checksumCheck() {
+		return getPostfixLength() >= 4;
+	}
+
+	/**
+	 * Checksum description.
+	 * 
+	 * @return the string
+	 */
+	@Dynamic(Field.Property.DESCRIPTION)
+	public String checksumDescription() {
+		final long crc32 = calculateChecksum();
+		if (checksum() == crc32) {
+			return "correct";
+		} else {
+			return "incorrect: 0x" + Long.toHexString(crc32).toUpperCase();
+		}
+	}
+
+	/**
+	 * Calculates the offset of the FCS field within the Ethernet frame.
+	 * 
+	 * @return offset, in bits, from the start of the packet buffer
+	 */
+	@Dynamic(Field.Property.OFFSET)
+	public int checksumOffset() {
+		return getPostfixOffset() * BYTE;
+	}
+
+	/**
 	 * Destination.
 	 * 
 	 * @return the byte[]
@@ -172,6 +256,16 @@ public class Ethernet extends JHeader implements JHeaderChecksum {
 	@Field(offset = 0 * BYTE, length = 6 * BYTE, format = "#mac#", mask = 0xFFFF00000000L)
 	public byte[] destination() {
 		return getByteArray(0, 6);
+	}
+
+	/**
+	 * Destination.
+	 * 
+	 * @param array
+	 *          the array
+	 */
+	public void destination(byte[] array) {
+		setByteArray(0, array);
 	}
 
 	/**
@@ -196,16 +290,6 @@ public class Ethernet extends JHeader implements JHeaderChecksum {
 	}
 
 	/**
-	 * Destination.
-	 * 
-	 * @param array
-	 *          the array
-	 */
-	public void destination(byte[] array) {
-		setByteArray(0, array);
-	}
-
-	/**
 	 * Destination to byte array.
 	 * 
 	 * @param array
@@ -217,6 +301,43 @@ public class Ethernet extends JHeader implements JHeaderChecksum {
 	}
 
 	/**
+	 * Format header.
+	 * 
+	 * @param fields
+	 *          the fields
+	 */
+	@Format
+	public void formatHeader(List<JField> fields) {
+
+	}
+
+	/**
+	 * @return
+	 * @see org.jnetpcap.packet.JHeaderChecksum#isChecksumValid()
+	 */
+	@Override
+	public boolean isChecksumValid() {
+		if (getPostfixLength() < 4) {
+			return true;
+		}
+
+		return checksum() == calculateChecksum();
+	}
+
+	/**
+	 * Method which recomputes the checksum and sets the new computed value in
+	 * checksum field.
+	 * 
+	 * @return true if setter succeeded, or false if unable to set the checksum
+	 *         such as when its the case when header is truncated or not complete
+	 * @see org.jnetpcap.packet.JHeaderChecksum#recalculateChecksum()
+	 */
+	@Override
+	public boolean recalculateChecksum() {
+		return checksum(calculateChecksum());
+	}
+
+	/**
 	 * Source.
 	 * 
 	 * @return the byte[]
@@ -225,6 +346,16 @@ public class Ethernet extends JHeader implements JHeaderChecksum {
 	@FlowKey(index = 0)
 	public byte[] source() {
 		return getByteArray(0 + 6, 6);
+	}
+
+	/**
+	 * Source.
+	 * 
+	 * @param array
+	 *          the array
+	 */
+	public void source(byte[] array) {
+		setByteArray(0 + 6, array);
 	}
 
 	/**
@@ -245,16 +376,6 @@ public class Ethernet extends JHeader implements JHeaderChecksum {
 	@Field(parent = "source", offset = 6 * BYTE - 7, length = 1, display = "LG bit")
 	public long source_LG() {
 		return (getUByte(0) & ADDRESS_LG_BIT) >> 6;
-	}
-
-	/**
-	 * Source.
-	 * 
-	 * @param array
-	 *          the array
-	 */
-	public void source(byte[] array) {
-		setByteArray(0 + 6, array);
 	}
 
 	/**
@@ -300,17 +421,6 @@ public class Ethernet extends JHeader implements JHeaderChecksum {
 	}
 
 	/**
-	 * Format header.
-	 * 
-	 * @param fields
-	 *          the fields
-	 */
-	@Format
-	public void formatHeader(List<JField> fields) {
-
-	}
-
-	/**
 	 * Type enum.
 	 * 
 	 * @return the ethernet type
@@ -319,100 +429,4 @@ public class Ethernet extends JHeader implements JHeaderChecksum {
 		return EthernetType.valueOf(type());
 	}
 
-	/**
-	 * Checks if FCS is available for this Ethernet frame. FCS is typically
-	 * stripped by the OS and not provided to Libpcap/jNetPcap on most platforms.
-	 * 
-	 * @return true if FCS is present, otherwise false
-	 */
-	@Dynamic(field = "checksum", value = Field.Property.CHECK)
-	public boolean checksumCheck() {
-		return getPostfixLength() >= 4;
-	}
-
-	/**
-	 * Calculates the offset of the FCS field within the Ethernet frame.
-	 * 
-	 * @return offset, in bits, from the start of the packet buffer
-	 */
-	@Dynamic(Field.Property.OFFSET)
-	public int checksumOffset() {
-		return getPostfixOffset() * BYTE;
-	}
-
-	/**
-	 * Checksum description.
-	 * 
-	 * @return the string
-	 */
-	@Dynamic(Field.Property.DESCRIPTION)
-	public String checksumDescription() {
-		final long crc32 = calculateChecksum();
-		if (checksum() == crc32) {
-			return "correct";
-		} else {
-			return "incorrect: 0x" + Long.toHexString(crc32).toUpperCase();
-		}
-	}
-
-	/**
-	 * Retrieves the header's checksum.
-	 * 
-	 * @return header's stored checksum
-	 */
-	@Field(length = 4 * BYTE, format = "%x", display = "FCS")
-	public int checksum() {
-		final JPacket packet = getPacket();
-		packet.order(ByteOrder.BIG_ENDIAN);
-		return packet.getInt(getPostfixOffset());
-	}
-
-	/**
-	 * Sets the checksum, Ethernet.FCS field in the last 4 bytes of the packet
-	 * buffer, which is also the Ethernet trailer part or jNetPcap 'postfix'. The
-	 * method checks if last 4 bytes are actually part of physical Ethernet
-	 * trailer. If not, the method returns without an error, but FCS is not set.
-	 * 
-	 * @param crc
-	 *          the crc
-	 * @return true if checksum was set, otherwise if Ethernet trailer part or
-	 *         Ethernet postfix part is less then 4 bytes long, returns false
-	 */
-	public boolean checksum(int crc) {
-		if (getPostfixLength() < 4) {
-			return false;
-		}
-
-		final JPacket packet = getPacket();
-		packet.order(ByteOrder.BIG_ENDIAN);
-
-		packet.setUInt(packet.size() - 4, crc);
-
-		return true;
-	}
-
-	/**
-	 * Calculate checksum.
-	 * 
-	 * @return the long
-	 */
-	public int calculateChecksum() {
-
-		final JPacket packet = getPacket();
-		return Checksum.crc32IEEE802(packet, 0, getHeaderLength()
-				+ getPayloadLength());
-	}
-
-	/**
-	 * @return
-	 * @see org.jnetpcap.packet.JHeaderChecksum#isChecksumValid()
-	 */
-	@Override
-	public boolean isChecksumValid() {
-		if (getPostfixLength() < 4) {
-			return true;
-		}
-
-		return checksum() == calculateChecksum();
-	}
 }

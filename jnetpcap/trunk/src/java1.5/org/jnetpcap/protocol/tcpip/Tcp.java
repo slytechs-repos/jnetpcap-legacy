@@ -564,6 +564,81 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 	}
 
 	/**
+	 * Serves to communicate the information necessary to carry out the job of the
+	 * protocol - the type of information which is typically found in the header
+	 * of a TCP segment.
+	 * 
+	 * @author Sly Technologies, Inc.
+	 */
+	@Header(id = 10)
+	public static class PartialOrderConnection extends TcpOption {
+
+		/**
+		 * This option carries four bytes of information that the receiving TCP may
+		 * send back in a subsequent TCP Echo Reply option (see below). A TCP may
+		 * send the TCP Echo option in any segment, but only if a TCP Echo option
+		 * was received in a SYN segment for the connection.
+		 * <p>
+		 * When the TCP echo option is used for RTT measurement, it will be included
+		 * in data segments, and the four information bytes will define the time at
+		 * which the data segment was transmitted in any format convenient to the
+		 * sender.
+		 * </p>
+		 * 
+		 * see RFC 1693
+		 * 
+		 * @return 4 bytes of information
+		 */
+		@Field(offset = 2 * BYTE, length = 1 * BYTE, format = "%x")
+		public int options() {
+			return getUByte(2);
+		}
+
+		/**
+		 * Options_ end.
+		 * 
+		 * @return the int
+		 */
+		@Field(parent = "options", offset = 1, length = 1)
+		public int options_End() {
+			return (options() & 0x02) >> 1;
+		}
+
+		/**
+		 * Options_ filler.
+		 * 
+		 * @return the int
+		 */
+		@Field(parent = "options", offset = 2, length = 6)
+		public int options_Filler() {
+			return (options() & 0xFA) >> 2;
+		}
+
+		/**
+		 * Options_ start.
+		 * 
+		 * @return the int
+		 */
+		@Field(parent = "options", offset = 0, length = 1)
+		public int options_Start() {
+			return options() & 0x01;
+		}
+	}
+
+	/**
+	 * A service which allows partial order delivery and partial reliability is
+	 * one which requires some, but not all objects to be received in the order
+	 * transmitted while also allowing objects to be transmitted unreliably (i.e.,
+	 * some may be lost).
+	 * 
+	 * @author Sly Technologies, Inc.
+	 */
+	@Header(id = 9)
+	public static class PartialOrderConnectionPermitted extends TcpOption {
+		// No other fields
+	}
+
+	/**
 	 * TCP may experience poor performance when multiple packets are lost from one
 	 * window of data. With the limited information available from cumulative
 	 * acknowledgments, a TCP sender can only learn about a single lost packet per
@@ -782,14 +857,14 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 			NO_OP(1),
 
 			/**
-			 * Partial order connection permitted flag
-			 */
-			PARTIAL_ORDER_CONNECTION_PERMITTED(9),
-
-			/**
 			 * Partial order connection data
 			 */
 			PARTIAL_ORDER_CONNECTION(10),
+
+			/**
+			 * Partial order connection permitted flag
+			 */
+			PARTIAL_ORDER_CONNECTION_PERMITTED(9),
 
 			/**
 			 * 5,N,BBBB,EEEE,... (variable bits, N is either 10, 18, 26, or 34)-
@@ -1042,81 +1117,6 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 		 */
 		public void scale(int value) {
 			setUByte(2, value);
-		}
-	}
-
-	/**
-	 * A service which allows partial order delivery and partial reliability is
-	 * one which requires some, but not all objects to be received in the order
-	 * transmitted while also allowing objects to be transmitted unreliably (i.e.,
-	 * some may be lost).
-	 * 
-	 * @author Sly Technologies, Inc.
-	 */
-	@Header(id = 9)
-	public static class PartialOrderConnectionPermitted extends TcpOption {
-		// No other fields
-	}
-
-	/**
-	 * Serves to communicate the information necessary to carry out the job of the
-	 * protocol - the type of information which is typically found in the header
-	 * of a TCP segment.
-	 * 
-	 * @author Sly Technologies, Inc.
-	 */
-	@Header(id = 10)
-	public static class PartialOrderConnection extends TcpOption {
-
-		/**
-		 * This option carries four bytes of information that the receiving TCP may
-		 * send back in a subsequent TCP Echo Reply option (see below). A TCP may
-		 * send the TCP Echo option in any segment, but only if a TCP Echo option
-		 * was received in a SYN segment for the connection.
-		 * <p>
-		 * When the TCP echo option is used for RTT measurement, it will be included
-		 * in data segments, and the four information bytes will define the time at
-		 * which the data segment was transmitted in any format convenient to the
-		 * sender.
-		 * </p>
-		 * 
-		 * see RFC 1693
-		 * 
-		 * @return 4 bytes of information
-		 */
-		@Field(offset = 2 * BYTE, length = 1 * BYTE, format = "%x")
-		public int options() {
-			return getUByte(2);
-		}
-
-		/**
-		 * Options_ start.
-		 * 
-		 * @return the int
-		 */
-		@Field(parent = "options", offset = 0, length = 1)
-		public int options_Start() {
-			return options() & 0x01;
-		}
-
-		/**
-		 * Options_ end.
-		 * 
-		 * @return the int
-		 */
-		@Field(parent = "options", offset = 1, length = 1)
-		public int options_End() {
-			return (options() & 0x02) >> 1;
-		}
-
-		/**
-		 * Options_ filler.
-		 * 
-		 * @return the int
-		 */
-		@Field(parent = "options", offset = 2, length = 6)
-		public int options_Filler() {
-			return (options() & 0xFA) >> 2;
 		}
 	}
 
@@ -1672,6 +1672,19 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 		final int ipOffset = getPreviousHeaderOffset();
 
 		return Checksum.pseudoTcp(this.packet, ipOffset, getOffset()) == 0;
+	}
+
+	/**
+	 * Method which recomputes the checksum and sets the new computed value in
+	 * checksum field.
+	 * 
+	 * @return true if setter succeeded, or false if unable to set the checksum
+	 *         such as when its the case when header is truncated or not complete
+	 * @see org.jnetpcap.packet.JHeaderChecksum#recalculateChecksum()
+	 */
+	@Override
+	public boolean recalculateChecksum() {
+		return checksum(calculateChecksum());
 	}
 
 	/**
