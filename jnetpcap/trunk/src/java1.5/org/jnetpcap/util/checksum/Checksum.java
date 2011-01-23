@@ -193,7 +193,7 @@ public class Checksum {
 	 *          number of bytes to run calculation on
 	 * @return calculated checksum
 	 */
-	public static native long crc32IEEE802(JBuffer buffer, int offset, int length);
+	public static native int crc32IEEE802(JBuffer buffer, int offset, int length);
 
 	/**
 	 * Flips the bytes from LITTLE to BIG ENDIAN. For example 0x01020304 becomes

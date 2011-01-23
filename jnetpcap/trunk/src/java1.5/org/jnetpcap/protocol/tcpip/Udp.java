@@ -78,28 +78,28 @@ import org.jnetpcap.util.checksum.Checksum;
  * reliability is desired, it must be implemented in the user's application.
  * </p>
  * <p>
- * The UDP header consists of 4 fields, all of which are 2 bytes (16 bits).
- * The use of two of those is optional in IPv4 (pink background in table). In
- * IPv6 only the source port is optional:
+ * The UDP header consists of 4 fields, all of which are 2 bytes (16 bits). The
+ * use of two of those is optional in IPv4 (pink background in table). In IPv6
+ * only the source port is optional:
  * <ul>
  * <li><b>Source port number</b> - This field identifies the sender's port when
  * meaningful and should be assumed to be the port to reply to if needed. If not
  * used, then it should be zero. If the source host is the client, the port
  * number is likely to be an ephemeral port number. If the source host is the
  * server, the port number is likely to be a well-known port number.
- * <li><b>Destination port number</b> - This field identifies the receiver's port and
- * is required. Similar to source port number, if the client is the destination
- * host then the port number will likely be an ephemeral port number and if the
- * destination host is the server then the port number will likely be a
- * well-known port number.
+ * <li><b>Destination port number</b> - This field identifies the receiver's
+ * port and is required. Similar to source port number, if the client is the
+ * destination host then the port number will likely be an ephemeral port number
+ * and if the destination host is the server then the port number will likely be
+ * a well-known port number.
  * <li><b>Length</b> - A field that specifies the length in bytes of the entire
  * datagram: header and data. The minimum length is 8 bytes since that's the
  * length of the header. The field size sets a theoretical limit of 65,535 bytes
  * (8 byte header + 65,527 bytes of data) for a UDP datagram. The practical
  * limit for the data length which is imposed by the underlying IPv4 protocol is
  * 65,507 bytes (65,535 - 8 byte UDP header - 20 byte IP header).
- * <li><b>Checksum</b> - The checksum field is used for error-checking of the header
- * and data. If the checksum is omitted in IPv4, the field uses the value
+ * <li><b>Checksum</b> - The checksum field is used for error-checking of the
+ * header and data. If the checksum is omitted in IPv4, the field uses the value
  * all-zeros. This field is not optional for IPv6.
  * </ul>
  * </p>
@@ -109,9 +109,7 @@ import org.jnetpcap.util.checksum.Checksum;
  * @author Sly Technologies, Inc.
  */
 @Header(length = 8)
-public class Udp
-    extends
-    JHeader implements JHeaderChecksum {
+public class Udp extends JHeader implements JHeaderChecksum {
 
 	/** Unique numerical ID of this header. */
 	public static final int ID = JProtocol.UDP_ID;
@@ -148,8 +146,8 @@ public class Udp
 
 		final int ipOffset = getPreviousHeaderOffset();
 
-		return Checksum.inChecksumShouldBe(checksum(), Checksum.pseudoUdp(
-		    this.packet, ipOffset, getOffset()));
+		return Checksum.inChecksumShouldBe(checksum(),
+				Checksum.pseudoUdp(this.packet, ipOffset, getOffset()));
 	}
 
 	/**
@@ -177,8 +175,10 @@ public class Udp
 	 * @param value
 	 *          new unsigned 16-bit integer value for checksum
 	 */
-	public void checksum(final int value) {
+	public boolean checksum(final int value) {
 		super.setUShort(6, value);
+
+		return true;
 	}
 
 	/**

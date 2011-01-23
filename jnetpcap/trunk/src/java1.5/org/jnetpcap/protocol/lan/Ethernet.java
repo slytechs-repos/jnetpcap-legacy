@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.jnetpcap.PcapDLT;
 import org.jnetpcap.packet.JHeader;
+import org.jnetpcap.packet.JHeaderChecksum;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
@@ -46,7 +47,7 @@ import org.jnetpcap.util.checksum.Checksum;
 		PcapDLT.EN10MB,
 		PcapDLT.FDDI
 }, osi = Layer.DATALINK, characteristics = Characteristic.CSMA_CD, nicname = "Eth", description = "Ethernet", url = "http://en.wikipedia.org/wiki/Ethernet")
-public class Ethernet extends JHeader {
+public class Ethernet extends JHeader implements JHeaderChecksum {
 
 	/**
 	 * A table of EtherType values and their names.
@@ -55,15 +56,14 @@ public class Ethernet extends JHeader {
 	 * @author Sly Technologies, Inc.
 	 */
 	public enum EthernetType {
-		
+
 		/** The IEE e_802 do t1 q. */
-		IEEE_802DOT1Q(0x8100, "vlan - IEEE 802.1q"), 
- /** The I p4. */
- IP4(0x800, "ip version 4"), 
- /** The I p6. */
- IP6(
-				0x86DD, "ip version 6"), ;
-		
+		IEEE_802DOT1Q(0x8100, "vlan - IEEE 802.1q"),
+		/** The I p4. */
+		IP4(0x800, "ip version 4"),
+		/** The I p6. */
+		IP6(0x86DD, "ip version 6"), ;
+
 		/**
 		 * To string.
 		 * 
@@ -361,10 +361,10 @@ public class Ethernet extends JHeader {
 	 * @return header's stored checksum
 	 */
 	@Field(length = 4 * BYTE, format = "%x", display = "FCS")
-	public long checksum() {
+	public int checksum() {
 		final JPacket packet = getPacket();
 		packet.order(ByteOrder.BIG_ENDIAN);
-		return packet.getUInt(getPostfixOffset());
+		return packet.getInt(getPostfixOffset());
 	}
 
 	/**
@@ -378,7 +378,7 @@ public class Ethernet extends JHeader {
 	 * @return true if checksum was set, otherwise if Ethernet trailer part or
 	 *         Ethernet postfix part is less then 4 bytes long, returns false
 	 */
-	public boolean checksum(long crc) {
+	public boolean checksum(int crc) {
 		if (getPostfixLength() < 4) {
 			return false;
 		}
@@ -396,10 +396,23 @@ public class Ethernet extends JHeader {
 	 * 
 	 * @return the long
 	 */
-	public long calculateChecksum() {
+	public int calculateChecksum() {
 
 		final JPacket packet = getPacket();
 		return Checksum.crc32IEEE802(packet, 0, getHeaderLength()
 				+ getPayloadLength());
+	}
+
+	/**
+	 * @return
+	 * @see org.jnetpcap.packet.JHeaderChecksum#isChecksumValid()
+	 */
+	@Override
+	public boolean isChecksumValid() {
+		if (getPostfixLength() < 4) {
+			return true;
+		}
+
+		return checksum() == calculateChecksum();
 	}
 }
