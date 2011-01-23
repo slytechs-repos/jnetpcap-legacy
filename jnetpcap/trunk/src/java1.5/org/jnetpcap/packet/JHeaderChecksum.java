@@ -55,4 +55,6 @@ public interface JHeaderChecksum {
 	 */
 	public boolean isChecksumValid();
 
+	public boolean checksum(int crc);
+
 }

@@ -60,9 +60,7 @@ import org.jnetpcap.util.checksum.Checksum;
  */
 @Protocol(suite = Suite.NETWORK)
 @Header(name = "Ip4", nicname = "Ip", osi = Layer.NETWORK, suite = ProtocolSuite.NETWORK, spec = "RFC792", description = "ip version 4")
-public class Ip4
-    extends
-    JHeaderMap<Ip4> implements JHeaderChecksum {
+public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 
 	/**
 	 * Enum table for Ip4.flags field.
@@ -71,10 +69,10 @@ public class Ip4
 	 * @author Sly Technologies, Inc.
 	 */
 	public enum Flag {
-		
+
 		/** The DF. */
 		DF,
-		
+
 		/** The MF. */
 		MF
 	}
@@ -292,7 +290,7 @@ public class Ip4
 
 		/** MPLS-in-IP [RFC4023]. */
 		MPLS_in_IP("MPLS-in-IP", 137), ;
-		
+
 		/**
 		 * Name of the constant.
 		 * 
@@ -387,9 +385,7 @@ public class Ip4
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
-	public static abstract class IpOption
-	    extends
-	    JSubHeader<Ip4> {
+	public static abstract class IpOption extends JSubHeader<Ip4> {
 
 		/**
 		 * A table of IpOption types and their names.
@@ -431,49 +427,49 @@ public class Ip4
 
 			/** The EXPERIMENTA l_ measurement. */
 			EXPERIMENTAL_MEASUREMENT(10),
-			
+
 			/** The MT u_ probe. */
 			MTU_PROBE(11),
-			
+
 			/** The MT u_ reply. */
 			MTU_REPLY(12),
-			
+
 			/** The EXPERIMENTA l_ flo w_ control. */
 			EXPERIMENTAL_FLOW_CONTROL(13),
-			
+
 			/** The EXPERIMENTA l_ acces s_ control. */
 			EXPERIMENTAL_ACCESS_CONTROL(14),
-			
+
 			/** The ENCODE. */
 			ENCODE(15),
-			
+
 			/** The IM i_ traffi c_ descriptor. */
 			IMI_TRAFFIC_DESCRIPTOR(16),
-			
+
 			/** The EXTENDE d_ ip. */
 			EXTENDED_IP(17),
-			
+
 			/** The TRACEROUTE. */
 			TRACEROUTE(18),
-			
+
 			/** The ADDRES s_ extension. */
 			ADDRESS_EXTENSION(19),
-			
+
 			/** The ROUTE r_ alert. */
 			ROUTER_ALERT(20),
-			
+
 			/** The SELECTIV e_ directe d_ broadcas t_ most. */
 			SELECTIVE_DIRECTED_BROADCAST_MOST(21),
-			
+
 			/** The DYNAMI c_ packe t_ state. */
 			DYNAMIC_PACKET_STATE(23),
-			
+
 			/** The UPSTREA m_ multicas t_ packet. */
 			UPSTREAM_MULTICAST_PACKET(24),
-			
+
 			/** The QUIC k_ start. */
 			QUICK_START(25), ;
-			
+
 			/** The id. */
 			public final int id;
 
@@ -509,16 +505,16 @@ public class Ip4
 		 * The Enum CodeClass.
 		 */
 		public enum CodeClass {
-			
+
 			/** The CONTROL. */
 			CONTROL(0),
-			
+
 			/** The RESERVE d1. */
 			RESERVED1(1),
-			
+
 			/** The DEBUG. */
 			DEBUG(2),
-			
+
 			/** The RESERVE d2. */
 			RESERVED2(3), ;
 
@@ -569,28 +565,28 @@ public class Ip4
 		}
 
 		/**
-		 * Gets the Ip4.code field. Specifies the optional header type.
-		 * <h3>Header Spec</h3>
+		 * Gets the Ip4.code field. Specifies the optional header type. <h3>Header
+		 * Spec</h3>
 		 * <table border=1>
 		 * <tr>
-		 * <td> Protocol Header:</td>
-		 * <td> Ip4</td>
+		 * <td>Protocol Header:</td>
+		 * <td>Ip4</td>
 		 * </tr>
 		 * <tr>
-		 * <td> Protocol Family:</td>
-		 * <td> Networking</td>
+		 * <td>Protocol Family:</td>
+		 * <td>Networking</td>
 		 * </tr>
 		 * <tr>
-		 * <td> OSI Layer:</td>
-		 * <td> 3</td>
+		 * <td>OSI Layer:</td>
+		 * <td>3</td>
 		 * </tr>
 		 * <tr>
-		 * <td> Field Property:</td>
-		 * <td> constant offset</td>
+		 * <td>Field Property:</td>
+		 * <td>constant offset</td>
 		 * </tr>
 		 * <tr>
-		 * <td> Field Offset:</td>
-		 * <td> getUByte(0) & 0x1F</td>
+		 * <td>Field Offset:</td>
+		 * <td>getUByte(0) & 0x1F</td>
 		 * </tr>
 		 * </table>
 		 * <h3>Header Diagram</h3>
@@ -609,28 +605,28 @@ public class Ip4
 		}
 
 		/**
-		 * Sets the Ip4.code field. Specifies the optional header type.
-		 * <h3>Header Spec</h3>
+		 * Sets the Ip4.code field. Specifies the optional header type. <h3>Header
+		 * Spec</h3>
 		 * <table border=1>
 		 * <tr>
-		 * <td> Protocol Header:</td>
-		 * <td> Ip4</td>
+		 * <td>Protocol Header:</td>
+		 * <td>Ip4</td>
 		 * </tr>
 		 * <tr>
-		 * <td> Protocol Family:</td>
-		 * <td> Networking</td>
+		 * <td>Protocol Family:</td>
+		 * <td>Networking</td>
 		 * </tr>
 		 * <tr>
-		 * <td> OSI Layer:</td>
-		 * <td> 3</td>
+		 * <td>OSI Layer:</td>
+		 * <td>3</td>
 		 * </tr>
 		 * <tr>
-		 * <td> Field Property:</td>
-		 * <td> constant offset</td>
+		 * <td>Field Property:</td>
+		 * <td>constant offset</td>
 		 * </tr>
 		 * <tr>
-		 * <td> Field Offset:</td>
-		 * <td> getUByte(0) & 0x1F</td>
+		 * <td>Field Offset:</td>
+		 * <td>getUByte(0) & 0x1F</td>
 		 * </tr>
 		 * </table>
 		 * <h3>Header Diagram</h3>
@@ -667,7 +663,7 @@ public class Ip4
 		@Dynamic(Field.Property.DESCRIPTION)
 		public String code_CopyDescription() {
 			return (code_Copy() > 0) ? "copy to all fragments"
-			    : "do not copy to fragments";
+					: "do not copy to fragments";
 		}
 
 		/**
@@ -720,28 +716,28 @@ public class Ip4
 		}
 
 		/**
-		 * Gets the Ip4.code field. Specifies the optional header type.
-		 * <h3>Header Spec</h3>
+		 * Gets the Ip4.code field. Specifies the optional header type. <h3>Header
+		 * Spec</h3>
 		 * <table border=1>
 		 * <tr>
-		 * <td> Protocol Header:</td>
-		 * <td> Ip4</td>
+		 * <td>Protocol Header:</td>
+		 * <td>Ip4</td>
 		 * </tr>
 		 * <tr>
-		 * <td> Protocol Family:</td>
-		 * <td> Networking</td>
+		 * <td>Protocol Family:</td>
+		 * <td>Networking</td>
 		 * </tr>
 		 * <tr>
-		 * <td> OSI Layer:</td>
-		 * <td> 3</td>
+		 * <td>OSI Layer:</td>
+		 * <td>3</td>
 		 * </tr>
 		 * <tr>
-		 * <td> Field Property:</td>
-		 * <td> constant offset</td>
+		 * <td>Field Property:</td>
+		 * <td>constant offset</td>
 		 * </tr>
 		 * <tr>
-		 * <td> Field Offset:</td>
-		 * <td> getUByte(0) & 0x1F</td>
+		 * <td>Field Offset:</td>
+		 * <td>getUByte(0) & 0x1F</td>
 		 * </tr>
 		 * </table>
 		 * <h3>Header Diagram</h3>
@@ -759,28 +755,28 @@ public class Ip4
 		}
 
 		/**
-		 * Sets the Ip4.code field. Specifies the optional header type.
-		 * <h3>Header Spec</h3>
+		 * Sets the Ip4.code field. Specifies the optional header type. <h3>Header
+		 * Spec</h3>
 		 * <table border=1>
 		 * <tr>
-		 * <td> Protocol Header:</td>
-		 * <td> Ip4</td>
+		 * <td>Protocol Header:</td>
+		 * <td>Ip4</td>
 		 * </tr>
 		 * <tr>
-		 * <td> Protocol Family:</td>
-		 * <td> Networking</td>
+		 * <td>Protocol Family:</td>
+		 * <td>Networking</td>
 		 * </tr>
 		 * <tr>
-		 * <td> OSI Layer:</td>
-		 * <td> 3</td>
+		 * <td>OSI Layer:</td>
+		 * <td>3</td>
 		 * </tr>
 		 * <tr>
-		 * <td> Field Property:</td>
-		 * <td> constant offset</td>
+		 * <td>Field Property:</td>
+		 * <td>constant offset</td>
 		 * </tr>
 		 * <tr>
-		 * <td> Field Offset:</td>
-		 * <td> getUByte(0) & 0x1F</td>
+		 * <td>Field Offset:</td>
+		 * <td>getUByte(0) & 0x1F</td>
 		 * </tr>
 		 * </table>
 		 * <h3>Header Diagram</h3>
@@ -806,9 +802,7 @@ public class Ip4
 	 * @author Sly Technologies, Inc.
 	 */
 	@Header(id = 3)
-	public static class LooseSourceRoute
-	    extends
-	    Routing {
+	public static class LooseSourceRoute extends Routing {
 	}
 
 	/**
@@ -818,9 +812,7 @@ public class Ip4
 	 * @author Sly Technologies, Inc.
 	 */
 	@Header(id = 1)
-	public static class NoOp
-	    extends
-	    IpOption {
+	public static class NoOp extends IpOption {
 	}
 
 	/**
@@ -830,9 +822,7 @@ public class Ip4
 	 * @author Sly Technologies, Inc.
 	 */
 	@Header(id = 7)
-	public static class RecordRoute
-	    extends
-	    Routing {
+	public static class RecordRoute extends Routing {
 	}
 
 	/**
@@ -841,9 +831,7 @@ public class Ip4
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
-	public static abstract class Routing
-	    extends
-	    IpOption {
+	public static abstract class Routing extends IpOption {
 
 		/**
 		 * Address.
@@ -977,9 +965,7 @@ public class Ip4
 	 * @author Sly Technologies, Inc.
 	 */
 	@Header(id = 2)
-	public static class Security
-	    extends
-	    IpOption {
+	public static class Security extends IpOption {
 
 		/**
 		 * A table of security algorithm types.
@@ -988,30 +974,30 @@ public class Ip4
 		 * @author Sly Technologies, Inc.
 		 */
 		public enum SecurityType {
-			
+
 			/** The CONFIDENTIAL. */
 			CONFIDENTIAL(61749),
-			
+
 			/** The EFTO. */
 			EFTO(30874),
-			
+
 			/** The MMMM. */
 			MMMM(48205),
-			
+
 			/** The PROG. */
 			PROG(24102),
-			
+
 			/** The RESTRICTED. */
 			RESTRICTED(44819),
-			
+
 			/** The SECRET. */
 			SECRET(55176),
-			
+
 			/** The UNCLASSIFIED. */
 			UNCLASSIFIED(0)
 
 			;
-			
+
 			/**
 			 * Value of.
 			 * 
@@ -1081,7 +1067,7 @@ public class Ip4
 		 */
 		@Field(offset = 8 * 8, length = 24)
 		public int control() {
-			return (int) (getUShort(8) << 8) | getUByte(10); // 24 bits in
+			return (getUShort(8) << 8) | getUByte(10); // 24 bits in
 			// BIG_E
 		}
 
@@ -1176,9 +1162,7 @@ public class Ip4
 	 * @author Sly Technologies, Inc.
 	 */
 	@Header(id = 8)
-	public static class StreamId
-	    extends
-	    IpOption {
+	public static class StreamId extends IpOption {
 
 		/**
 		 * Length.
@@ -1230,9 +1214,7 @@ public class Ip4
 	 * @author Sly Technologies, Inc.
 	 */
 	@Header(id = 9)
-	public static class StrictSourceRoute
-	    extends
-	    Routing {
+	public static class StrictSourceRoute extends Routing {
 	};
 
 	/**
@@ -1242,9 +1224,7 @@ public class Ip4
 	 * @author Sly Technologies, Inc.
 	 */
 	@Header(id = 4)
-	public static class Timestamp
-	    extends
-	    IpOption {
+	public static class Timestamp extends IpOption {
 
 		/**
 		 * Header length.
@@ -1267,7 +1247,7 @@ public class Ip4
 		 * @author Sly Technologies, Inc.
 		 */
 		public static class Entry {
-			
+
 			/** The address. */
 			public byte[] address;
 
@@ -1282,10 +1262,10 @@ public class Ip4
 		 * @author Sly Technologies, Inc.
 		 */
 		public enum Flag {
-			
+
 			/** The TIMESTAM p_ wit h_ ip. */
 			TIMESTAMP_WITH_IP,
-			
+
 			/** The TIMESTAMP s_ prespecified. */
 			TIMESTAMPS_PRESPECIFIED
 		}
@@ -1354,7 +1334,7 @@ public class Ip4
 			final int length = length() - 4;
 			final Entry[] entries = new Entry[length / 4];
 
-			for (int i = 4, index = 0; i < length; i += 8, index ++) {
+			for (int i = 4, index = 0; i < length; i += 8, index++) {
 				final Entry entry = entries[index] = new Entry();
 				entry.address = getByteArray(i, 4);
 				entry.timestamp = getUInt(i + 4);
@@ -1372,7 +1352,7 @@ public class Ip4
 			final int length = length() - 4;
 			final Entry[] entries = new Entry[length / 4];
 
-			for (int i = 4, index = 0; i < length; i += 4, index ++) {
+			for (int i = 4, index = 0; i < length; i += 4, index++) {
 				final Entry entry = entries[index] = new Entry();
 				entry.timestamp = getUInt(i + 4);
 			}
@@ -1519,9 +1499,7 @@ public class Ip4
 	 * The Class ExperimentalMeasurement.
 	 */
 	@Header(id = 10)
-	public static class ExperimentalMeasurement
-	    extends
-	    IpOption {
+	public static class ExperimentalMeasurement extends IpOption {
 
 		/**
 		 * Length.
@@ -1549,9 +1527,7 @@ public class Ip4
 	 * The Class MtuProbe.
 	 */
 	@Header(id = 11)
-	public static class MtuProbe
-	    extends
-	    IpOption {
+	public static class MtuProbe extends IpOption {
 
 		/**
 		 * Length.
@@ -1579,9 +1555,7 @@ public class Ip4
 	 * The Class MtuReply.
 	 */
 	@Header(id = 12)
-	public static class MtuReply
-	    extends
-	    IpOption {
+	public static class MtuReply extends IpOption {
 
 		/**
 		 * Length.
@@ -1609,9 +1583,7 @@ public class Ip4
 	 * The Class ExperimentalFlowControl.
 	 */
 	@Header(id = 13)
-	public static class ExperimentalFlowControl
-	    extends
-	    IpOption {
+	public static class ExperimentalFlowControl extends IpOption {
 
 		/**
 		 * Length.
@@ -1639,9 +1611,7 @@ public class Ip4
 	 * The Class ExperimentalAccessControl.
 	 */
 	@Header(id = 14)
-	public static class ExperimentalAccessControl
-	    extends
-	    IpOption {
+	public static class ExperimentalAccessControl extends IpOption {
 
 		/**
 		 * Length.
@@ -1669,9 +1639,7 @@ public class Ip4
 	 * The Class Encode.
 	 */
 	@Header(id = 15)
-	public static class Encode
-	    extends
-	    IpOption {
+	public static class Encode extends IpOption {
 
 		/**
 		 * Length.
@@ -1699,9 +1667,7 @@ public class Ip4
 	 * The Class IMITrafficDescriptor.
 	 */
 	@Header(id = 16)
-	public static class IMITrafficDescriptor
-	    extends
-	    IpOption {
+	public static class IMITrafficDescriptor extends IpOption {
 
 		/**
 		 * Length.
@@ -1729,9 +1695,7 @@ public class Ip4
 	 * The Class ExtendedIp.
 	 */
 	@Header(id = 17)
-	public static class ExtendedIp
-	    extends
-	    IpOption {
+	public static class ExtendedIp extends IpOption {
 
 		/**
 		 * Length.
@@ -1759,9 +1723,7 @@ public class Ip4
 	 * The Class Traceroute.
 	 */
 	@Header(id = 18)
-	public static class Traceroute
-	    extends
-	    IpOption {
+	public static class Traceroute extends IpOption {
 
 		/**
 		 * Length.
@@ -1789,9 +1751,7 @@ public class Ip4
 	 * The Class AddressExtension.
 	 */
 	@Header(id = 19)
-	public static class AddressExtension
-	    extends
-	    IpOption {
+	public static class AddressExtension extends IpOption {
 
 		/**
 		 * Length.
@@ -1819,18 +1779,16 @@ public class Ip4
 	 * The Class RouterAlert.
 	 */
 	@Header(id = 20)
-	public static class RouterAlert
-	    extends
-	    IpOption {
+	public static class RouterAlert extends IpOption {
 
 		/**
 		 * The Enum Action.
 		 */
 		public enum Action {
-			
+
 			/** The EXAMIN e_ packet. */
 			EXAMINE_PACKET(0), ;
-			
+
 			/** The value. */
 			private final int value;
 
@@ -1927,9 +1885,7 @@ public class Ip4
 	 * The Class SelectiveDirectedBroadcastMode.
 	 */
 	@Header(id = 21)
-	public static class SelectiveDirectedBroadcastMode
-	    extends
-	    IpOption {
+	public static class SelectiveDirectedBroadcastMode extends IpOption {
 
 		/**
 		 * Length.
@@ -1974,26 +1930,26 @@ public class Ip4
 	/** The Constant ID. */
 	public final static int ID = JProtocol.IP4_ID;
 
-//	@Bind(to = Ethernet.class)
-//	public static boolean bindToEthernet(JPacket packet, Ethernet eth) {
-//		return eth.type() == 0x800;
-//	}
-//
-//	@Bind(to = IEEESnap.class)
-//	public static boolean bindToSnap(JPacket packet, IEEESnap snap) {
-//		return snap.pid() == 0x800;
-//	}
+	// @Bind(to = Ethernet.class)
+	// public static boolean bindToEthernet(JPacket packet, Ethernet eth) {
+	// return eth.type() == 0x800;
+	// }
+	//
+	// @Bind(to = IEEESnap.class)
+	// public static boolean bindToSnap(JPacket packet, IEEESnap snap) {
+	// return snap.pid() == 0x800;
+	// }
 
 	/**
- * Gets the header length.
- * 
- * @param buffer
- *          the buffer
- * @param offset
- *          the offset
- * @return the header length
- */
-@HeaderLength
+	 * Gets the header length.
+	 * 
+	 * @param buffer
+	 *          the buffer
+	 * @param offset
+	 *          the offset
+	 * @return the header length
+	 */
+	@HeaderLength
 	public static int getHeaderLength(JBuffer buffer, int offset) {
 		return (buffer.getUByte(offset) & 0x0F) * 4;
 	}
@@ -2033,8 +1989,10 @@ public class Ip4
 	 *          the value
 	 */
 	@FieldSetter
-	public void checksum(int value) {
+	public boolean checksum(int value) {
 		setUShort(10, value);
+
+		return true;
 	}
 
 	/**
@@ -2092,20 +2050,20 @@ public class Ip4
 			}
 
 			switch (code) {
-				case NO_OP:
-					optionsLength[id] = 1;
-					break;
+			case NO_OP:
+				optionsLength[id] = 1;
+				break;
 
-				case END_OF_OPTION_LIST:
-					optionsLength[id] = hlen - i;
-					i = hlen;
-					break;
+			case END_OF_OPTION_LIST:
+				optionsLength[id] = hlen - i;
+				i = hlen;
+				break;
 
-				default:
-					final int length = getUByte(i + 1); // Length option field
-					i += length;
-					optionsLength[id] = length;
-					break;
+			default:
+				final int length = getUByte(i + 1); // Length option field
+				i += length;
+				optionsLength[id] = length;
+				break;
 			}
 
 			// System.out.printf("i=%d id=%d bitmap=0x%X length=%d\n", i, id,
@@ -2304,7 +2262,7 @@ public class Ip4
 	public String hlenDescription() {
 		String pre = "" + hlen() + " * 4 = " + (hlen() * 4) + " bytes";
 		return (hlen() == 5) ? pre + ", No Ip Options" : pre
-		    + ", Ip Options Present";
+				+ ", Ip Options Present";
 	}
 
 	/**
@@ -2368,7 +2326,7 @@ public class Ip4
 	@Dynamic(Field.Property.DESCRIPTION)
 	public String offsetDescription() {
 		return (offset() == 0) ? null : "" + offset() + " * 8 = " + (offset() * 8)
-		    + " bytes";
+				+ " bytes";
 	}
 
 	/**
@@ -2588,7 +2546,7 @@ public class Ip4
 	public String typeDescription() {
 		String next = Ip4Type.toString(type());
 		return (offset() == 0) ? "next: " + next : "ip fragment"
-		    + (next == null ? "" : " of " + next + " PDU");
+				+ (next == null ? "" : " of " + next + " PDU");
 	}
 
 	/**
@@ -2629,8 +2587,8 @@ public class Ip4
 	 * @return header's calculated checksum
 	 */
 	public int calculateChecksum() {
-		return Checksum.inChecksumShouldBe(this.checksum(), Checksum.inChecksum(
-		    this, 0, this.size()));
+		return Checksum.inChecksumShouldBe(this.checksum(),
+				Checksum.inChecksum(this, 0, this.size()));
 	}
 
 	/**

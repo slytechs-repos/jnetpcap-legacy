@@ -250,7 +250,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_crc32CCITTSeed
  * Method:    crc32IEEE802
  * Signature: (Lorg/jnetpcap/nio/JBuffer;II)J
  */
-JNIEXPORT jlong JNICALL Java_org_jnetpcap_util_checksum_Checksum_crc32IEEE802
+JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_crc32IEEE802
   (JNIEnv *env, jclass clazz, jobject buf, jint offset, jint length) {
 
 	jlong c_crc = Java_org_jnetpcap_util_checksum_Checksum_crc32CCITT(
@@ -262,7 +262,7 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_util_checksum_Checksum_crc32IEEE802
 		((unsigned char)(c_crc>>16)<<8) |
 		((unsigned char)(c_crc>>24)<<0);
 
-	return c_crc & 0x00000000FFFFFFFFL;
+	return (jint)c_crc & 0x00000000FFFFFFFFL;
 }
 
 /*

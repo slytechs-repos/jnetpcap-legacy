@@ -1242,8 +1242,10 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 	 * @param crc
 	 *          the crc
 	 */
-	public void checksum(final int crc) {
+	public boolean checksum(final int crc) {
 		super.setUShort(16, crc);
+
+		return true;
 	}
 
 	/**

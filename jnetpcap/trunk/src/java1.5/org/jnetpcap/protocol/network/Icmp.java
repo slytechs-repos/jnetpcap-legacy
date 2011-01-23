@@ -37,9 +37,7 @@ import org.jnetpcap.util.checksum.Checksum;
  * @author Sly Technologies, Inc.
  */
 @Header
-public class Icmp
-    extends
-    JHeaderMap<Icmp> implements JHeaderChecksum {
+public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 
 	/**
 	 * ICMP Destination Unreachable header definition.
@@ -48,9 +46,7 @@ public class Icmp
 	 * @author Sly Technologies, Inc.
 	 */
 	@Header(length = 4, id = IcmpType.DESTINATION_UNREACHABLE_ID, nicname = "unreach")
-	public static class DestinationUnreachable
-	    extends
-	    Reserved {
+	public static class DestinationUnreachable extends Reserved {
 	}
 
 	/**
@@ -59,9 +55,7 @@ public class Icmp
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
-	public static abstract class Echo
-	    extends
-	    JSubHeader<Icmp> {
+	public static abstract class Echo extends JSubHeader<Icmp> {
 
 		/**
 		 * Id.
@@ -91,9 +85,7 @@ public class Icmp
 	 * @author Sly Technologies, Inc.
 	 */
 	@Header(id = IcmpType.ECHO_REPLY_ID, length = 4, nicname = "reply")
-	public static class EchoReply
-	    extends
-	    Echo {
+	public static class EchoReply extends Echo {
 
 	}
 
@@ -104,9 +96,7 @@ public class Icmp
 	 * @author Sly Technologies, Inc.
 	 */
 	@Header(id = IcmpType.ECHO_REQUEST_ID, length = 4, nicname = "request")
-	public static class EchoRequest
-	    extends
-	    Echo {
+	public static class EchoRequest extends Echo {
 
 	}
 
@@ -117,66 +107,66 @@ public class Icmp
 	 * @author Sly Technologies, Inc.
 	 */
 	public enum IcmpCode {
-		
+
 		/** The DESTINATIO n_ hos t_ admi n_ prohibited. */
 		DESTINATION_HOST_ADMIN_PROHIBITED(IcmpType.DESTINATION_UNREACHABLE, 10),
-		
+
 		/** The DESTINATIO n_ hos t_ isolated. */
 		DESTINATION_HOST_ISOLATED(IcmpType.DESTINATION_UNREACHABLE, 8),
-		
+
 		/** The DESTINATIO n_ hos t_ unknown. */
 		DESTINATION_HOST_UNKNOWN(IcmpType.DESTINATION_UNREACHABLE, 7),
-		
+
 		/** The DESTINATIO n_ hos t_ unreachabl e_ fo r_ service. */
-		DESTINATION_HOST_UNREACHABLE_FOR_SERVICE(
-		    IcmpType.DESTINATION_UNREACHABLE, 12),
-		
+		DESTINATION_HOST_UNREACHABLE_FOR_SERVICE(IcmpType.DESTINATION_UNREACHABLE,
+				12),
+
 		/** The DESTINATIO n_ networ k_ admi n_ prohibited. */
 		DESTINATION_NETWORK_ADMIN_PROHIBITED(IcmpType.DESTINATION_UNREACHABLE, 9),
-		
+
 		/** The DESTINATIO n_ networ k_ redirect. */
 		DESTINATION_NETWORK_REDIRECT(IcmpType.DESTINATION_UNREACHABLE, 0),
-		
+
 		/** The DESTINATIO n_ networ k_ unreachable. */
 		DESTINATION_NETWORK_UNREACHABLE(IcmpType.DESTINATION_UNREACHABLE, 6),
-		
+
 		/** The DESTINATIO n_ networ k_ unreachabl e_ fo r_ service. */
 		DESTINATION_NETWORK_UNREACHABLE_FOR_SERVICE(
-		    IcmpType.DESTINATION_UNREACHABLE, 11),
-		
+				IcmpType.DESTINATION_UNREACHABLE, 11),
+
 		/** The DESTINATIO n_ n o_ frag. */
 		DESTINATION_NO_FRAG(IcmpType.DESTINATION_UNREACHABLE, 4),
-		
+
 		/** The DESTINATIO n_ por t_ unreachable. */
 		DESTINATION_PORT_UNREACHABLE(IcmpType.DESTINATION_UNREACHABLE, 3),
-		
+
 		/** The DESTINATIO n_ protoco l_ unreachable. */
 		DESTINATION_PROTOCOL_UNREACHABLE(IcmpType.DESTINATION_UNREACHABLE, 1),
-		
+
 		/** The DESTINATIO n_ sourc e_ route. */
 		DESTINATION_SOURCE_ROUTE(IcmpType.DESTINATION_UNREACHABLE, 5),
 
 		/** The PARAMETE r_ proble m_ missin g_ option. */
 		PARAMETER_PROBLEM_MISSING_OPTION(IcmpType.PARAM_PROBLEM, 1),
-		
+
 		/** The PARAMETE r_ proble m_ wit h_ datagram. */
 		PARAMETER_PROBLEM_WITH_DATAGRAM(IcmpType.PARAM_PROBLEM, 0),
-		
+
 		/** The REDIREC t_ host. */
 		REDIRECT_HOST(IcmpType.REDIRECT, 1),
-		
+
 		/** The REDIREC t_ network. */
 		REDIRECT_NETWORK(IcmpType.REDIRECT, 0),
 
 		/** The REDIREC t_ servic e_ an d_ host. */
 		REDIRECT_SERVICE_AND_HOST(IcmpType.REDIRECT, 3),
-		
+
 		/** The REDIREC t_ servic e_ an d_ network. */
 		REDIRECT_SERVICE_AND_NETWORK(IcmpType.REDIRECT, 2),
 
 		/** The TIM e_ exceede d_ durin g_ fra g_ reassembly. */
 		TIME_EXCEEDED_DURING_FRAG_REASSEMBLY(IcmpType.TIME_EXCEEDED, 1),
-		
+
 		/** The TIM e_ exceede d_ i n_ transit. */
 		TIME_EXCEEDED_IN_TRANSIT(IcmpType.TIME_EXCEEDED, 1), ;
 
@@ -293,37 +283,37 @@ public class Icmp
 	 * @author Sly Technologies, Inc.
 	 */
 	public enum IcmpType {
-		
+
 		/** The DESTINATIO n_ unreachable. */
 		DESTINATION_UNREACHABLE(3, "destination unreachable"),
-		
+
 		/** The ECH o_ reply. */
 		ECHO_REPLY(0, "echo reply"),
-		
+
 		/** The ECH o_ request. */
 		ECHO_REQUEST(8, "echo request"),
-		
+
 		/** The INF o_ request. */
 		INFO_REQUEST(15, "info request"),
-		
+
 		/** The INF o_ response. */
 		INFO_RESPONSE(16, "info response"),
-		
+
 		/** The PARA m_ problem. */
 		PARAM_PROBLEM(12, "parameter problem"),
-		
+
 		/** The REDIRECT. */
 		REDIRECT(5, "redirect"),
-		
+
 		/** The SOURC e_ quench. */
 		SOURCE_QUENCH(4, "source quench"),
-		
+
 		/** The TIM e_ exceeded. */
 		TIME_EXCEEDED(11, "time exceeded"),
-		
+
 		/** The TIMESTAM p_ request. */
 		TIMESTAMP_REQUEST(13, "timestamp request"),
-		
+
 		/** The TIMESTAM p_ response. */
 		TIMESTAMP_RESPONSE(14, "timestamp response"),
 
@@ -454,9 +444,7 @@ public class Icmp
 	 * @author Sly Technologies, Inc.
 	 */
 	@Header(length = 4, id = IcmpType.PARAM_PROBLEM_ID)
-	public static class ParamProblem
-	    extends
-	    JSubHeader<Icmp> {
+	public static class ParamProblem extends JSubHeader<Icmp> {
 
 		/**
 		 * Pointer.
@@ -486,9 +474,7 @@ public class Icmp
 	 * @author Sly Technologies, Inc.
 	 */
 	@Header(length = 4, id = IcmpType.REDIRECT_ID)
-	public static class Redirect
-	    extends
-	    JSubHeader<Icmp> {
+	public static class Redirect extends JSubHeader<Icmp> {
 
 		/**
 		 * Gateway.
@@ -506,9 +492,7 @@ public class Icmp
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
-	public static abstract class Reserved
-	    extends
-	    JSubHeader<Icmp> {
+	public static abstract class Reserved extends JSubHeader<Icmp> {
 
 		/**
 		 * Reserved.
@@ -527,9 +511,7 @@ public class Icmp
 	 * @author Sly Technologies, Inc.
 	 */
 	@Header(length = 4, id = IcmpType.SOURCE_QUENCH_ID)
-	public static class SourceQuench
-	    extends
-	    Reserved {
+	public static class SourceQuench extends Reserved {
 
 	}
 
@@ -548,15 +530,15 @@ public class Icmp
 	@HeaderLength
 	public static int headerLength(JBuffer buffer, int offset) {
 		switch (buffer.getUByte(offset)) {
-			case 0: // EchoReply
-			case 8: // EchoRequest
-				return buffer.size() - offset - 4;
+		case 0: // EchoReply
+		case 8: // EchoRequest
+			return buffer.size() - offset - 4;
 
-			case 4: // SourceQuench
-			case 5: // Redirect
-			case 11: // Timestamp
-			default:
-				return 4;
+		case 4: // SourceQuench
+		case 5: // Redirect
+		case 11: // Timestamp
+		default:
+			return 4;
 		}
 	}
 
@@ -592,6 +574,19 @@ public class Icmp
 	@Field(offset = 2 * 8, length = 16, format = "%x")
 	public int checksum() {
 		return super.getUShort(2);
+	}
+
+	/**
+	 * Sets a new value in the CRC/checksum field of this header.
+	 * 
+	 * @param crc
+	 *          new computed crc value
+	 * @see org.jnetpcap.packet.JHeaderChecksum#checksum(int)
+	 */
+	public boolean checksum(int crc) {
+		super.setUShort(2, crc);
+
+		return true;
 	}
 
 	/**
@@ -676,8 +671,8 @@ public class Icmp
 
 		final int ipOffset = getPreviousHeaderOffset();
 
-		return Checksum.inChecksumShouldBe(checksum(), Checksum.icmp(packet,
-		    ipOffset, this.getOffset()));
+		return Checksum.inChecksumShouldBe(checksum(),
+				Checksum.icmp(packet, ipOffset, this.getOffset()));
 	}
 
 	/**
