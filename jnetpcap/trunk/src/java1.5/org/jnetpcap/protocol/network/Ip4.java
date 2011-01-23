@@ -63,6 +63,174 @@ import org.jnetpcap.util.checksum.Checksum;
 public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 
 	/**
+	 * The Class AddressExtension.
+	 */
+	@Header(id = 19)
+	public static class AddressExtension extends IpOption {
+
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
+		@Field(offset = 8, length = 8)
+		public int length() {
+			return getUByte(1);
+		}
+
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
+		@FieldSetter
+		public void length(int value) {
+			setUByte(1, value);
+		}
+	}
+
+	/**
+	 * The Class Encode.
+	 */
+	@Header(id = 15)
+	public static class Encode extends IpOption {
+
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
+		@Field(offset = 8, length = 8)
+		public int length() {
+			return getUByte(1);
+		}
+
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
+		@FieldSetter
+		public void length(int value) {
+			setUByte(1, value);
+		}
+	}
+
+	/**
+	 * The Class ExperimentalAccessControl.
+	 */
+	@Header(id = 14)
+	public static class ExperimentalAccessControl extends IpOption {
+
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
+		@Field(offset = 8, length = 8)
+		public int length() {
+			return getUByte(1);
+		}
+
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
+		@FieldSetter
+		public void length(int value) {
+			setUByte(1, value);
+		}
+	}
+
+	/**
+	 * The Class ExperimentalFlowControl.
+	 */
+	@Header(id = 13)
+	public static class ExperimentalFlowControl extends IpOption {
+
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
+		@Field(offset = 8, length = 8)
+		public int length() {
+			return getUByte(1);
+		}
+
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
+		@FieldSetter
+		public void length(int value) {
+			setUByte(1, value);
+		}
+	}
+
+	/**
+	 * The Class ExperimentalMeasurement.
+	 */
+	@Header(id = 10)
+	public static class ExperimentalMeasurement extends IpOption {
+
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
+		@Field(offset = 8, length = 8)
+		public int length() {
+			return getUByte(1);
+		}
+
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
+		@FieldSetter
+		public void length(int value) {
+			setUByte(1, value);
+		}
+	}
+
+	/**
+	 * The Class ExtendedIp.
+	 */
+	@Header(id = 17)
+	public static class ExtendedIp extends IpOption {
+
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
+		@Field(offset = 8, length = 8)
+		public int length() {
+			return getUByte(1);
+		}
+
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
+		@FieldSetter
+		public void length(int value) {
+			setUByte(1, value);
+		}
+	}
+
+	/**
 	 * Enum table for Ip4.flags field.
 	 * 
 	 * @author Mark Bednarczyk
@@ -78,6 +246,34 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 	}
 
 	/**
+	 * The Class IMITrafficDescriptor.
+	 */
+	@Header(id = 16)
+	public static class IMITrafficDescriptor extends IpOption {
+
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
+		@Field(offset = 8, length = 8)
+		public int length() {
+			return getUByte(1);
+		}
+
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
+		@FieldSetter
+		public void length(int value) {
+			setUByte(1, value);
+		}
+	}
+
+	/**
 	 * A table of IpTypes and their names.
 	 * 
 	 * @author Mark Bednarczyk
@@ -85,181 +281,98 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 	 */
 	public enum Ip4Type implements JHeaderType {
 
-		/** IPv6 Hop-by-Hop Option [RFC1883]. */
-		HOPORT("IPv6 Hop-by-Hop Option", 0),
+		/** Authentication Header [RFC4302]. */
+		AH("Authentication Header", 51),
 
-		/** Internet Control Message [RFC792]. */
-		ICMP("Internet Control Message", 1),
-
-		/** Internet Group Management [RFC1112]. */
-		IGMP("Internet Group Management", 2),
-
-		/** Gateway-to-Gateway [RFC823]. */
-		GGP("Gateway-to-Gateway", 3),
-
-		/** Unreliable datagram protocol. */
-		IP("IP in IP (encapsulation)", 4),
-
-		/** Stream [RFC1190][RFC1819]. */
-		ST("Stream", 5),
-
-		/** Transmission Control [RFC793]. */
-		TCP("Transmission Control", 6),
-
-		/** CBT [Ballardie]. */
-		CBT("CBT", 7),
-
-		/** Exterior Gateway Protocol [RFC888][DLM1]. */
-		EGP("Exterior Gateway Protocol", 8),
-
-		/** any private interior gateway [IANA] (used by Cisco for their IGRP). */
-		IGP("any private interior gateway", 9),
-
-		/** BBN RCC Monitoring [SGC]. */
-		BBN_RCC_MON("BBN RCC Monitoring", 10),
-
-		/** PUP [PUP][XEROX]. */
-		NVP_II("Network Voice Protocol", 11),
-
-		/** CBT [Ballardie]. */
-		PUP("PUP", 12),
+		/** any host internal protocol [IANA]. */
+		ANY_LOC("any host internal protocol", 61),
 
 		/** ARGUS [RWS4]. */
 		ARGUS("ARGUS", 13),
 
-		/** EMCON [BN7]. */
-		EMCON("EMCON", 14),
-
-		/** Cross Net Debugger [IEN158][JFH2]. */
-		XNET("Cross Net Debugger", 15),
-
-		/** Chaos [NC3]. */
-		CHAOS("Chaos", 16),
-
-		/** User Datagram [RFC768][JBP]. */
-		UDP("User Datagram", 17),
-
-		/** Multiplexing [IEN90][JBP]. */
-		MUX("Multiplexing", 18),
-
-		/** DCN Measurement Subsystems [DLM1]. */
-		DCN_MEAS("DCN Measurement Subsystems", 19),
-
-		/** Host Monitoring [RFC869][RH6]. */
-		HMP("Host Monitoring", 20),
-
-		/** Packet Radio Measurement [ZSU]. */
-		PRM("Packet Radio Measurement", 21),
-
-		/** XEROX NS IDP [ETHERNET][XEROX]. */
-		XNS_IDP("XEROX NS IDP", 22),
-
-		/** Trunk-1 [BWB6]. */
-		TRUNK_1("Trunk-1", 23),
-
-		/** Trunk-2 [BWB6]. */
-		TRUNK_2("Trunk-2", 24),
-
-		/** Leaf-1 [BWB6]. */
-		LEAF_1("Leaf-1", 25),
-
-		/** Leaf-2 [BWB6]. */
-		LEAF_2("Leaf-2", 26),
-
-		/** Reliable Data Protocol [RFC908][RH6]. */
-		RDP("Reliable Data Protocol", 27),
-
-		/** Internet Reliable Transaction [RFC938][TXM]. */
-		IRTP("Internet Reliable Transaction", 28),
-
-		/** ISO Transport Protocol Class 4 [RFC905][RC77]. */
-		ISO_TP4("ISO Transport Protocol Class 4", 29),
-
-		/** Bulk Data Transfer Protocol [RFC969][DDC1]. */
-		NETBLT("Bulk Data Transfer Protocol", 30),
-
-		/** MFE Network Services Protocol [MFENET][BCH2]. */
-		MFE_NSP("MFE Network Services Protocol", 31),
-
-		/** MERIT Internodal Protocol [HWB]. */
-		MERIT_INP("MERIT Internodal Protocol", 32),
-
-		/** Datagram Congestion Control Protocol [RFC4340]. */
-		DCCP("Datagram Congestion Control Protocol", 33),
-
-		/** Third Party Connect Protocol [SAF3]. */
-		THIRD_PC("Third Party Connect Protocol", 34),
-
-		/** Inter-Domain Policy Routing Protocol [MXS1]. */
-		IDPR("Inter-Domain Policy Routing Protocol", 35),
-
-		/** XTP [GXC]. */
-		XTP("XTP", 36),
-
-		/** Datagram Delivery Protocol [WXC]. */
-		DDP("Datagram Delivery Protocol", 37),
-
-		/** IDPR Control Message Transport Proto [MXS1]. */
-		IDPR_CMTP("IDPR Control Message Transport Proto", 38),
-
-		/** TP++ Transport Protocol [DXF]. */
-		TP_PLUS("TP++ Transport Protocol", 39),
-
-		/** IL Transport Protocol [Presotto]. */
-		IL("IL Transport Protocol", 40),
-
-		/** Ipv6 [Deering]. */
-		IPv6("Ipv6", 41),
-
-		/** Source Demand Routing Protocol [DXE1]. */
-		SDRP("Source Demand Routing Protocol", 42),
-
-		/** Routing Header for IPv6 [Deering]. */
-		IPv6_ROUTE("Ipv6", 43),
-
-		/** Fragment Header for IPv6 [Deering]. */
-		IPv6_FRAG("Fragment Header for IPv6", 44),
-
-		/** Inter-Domain Routing Protocol [Hares]. */
-		IDRP("Inter-Domain Routing Protocol", 45),
-
-		/** Reservation Protocol [Braden]. */
-		RSVP("Reservation Protocol", 46),
-
-		/** General Routing Encapsulation [Li]. */
-		GRE("General Routing Encapsulation", 47),
-
-		/** Dynamic Source Routing Protocol [RFC4728]. */
-		DSR("Dynamic Source Routing Protocol", 48),
+		/** BBN RCC Monitoring [SGC]. */
+		BBN_RCC_MON("BBN RCC Monitoring", 10),
 
 		/** BNA [Salamon]. */
 		BNA("BNA", 49),
 
+		/** CBT [Ballardie]. */
+		CBT("CBT", 7),
+
+		/** Chaos [NC3]. */
+		CHAOS("Chaos", 16),
+
+		/** Datagram Congestion Control Protocol [RFC4340]. */
+		DCCP("Datagram Congestion Control Protocol", 33),
+
+		/** DCN Measurement Subsystems [DLM1]. */
+		DCN_MEAS("DCN Measurement Subsystems", 19),
+
+		/** Datagram Delivery Protocol [WXC]. */
+		DDP("Datagram Delivery Protocol", 37),
+
+		/** Dynamic Source Routing Protocol [RFC4728]. */
+		DSR("Dynamic Source Routing Protocol", 48),
+
+		/** Exterior Gateway Protocol [RFC888][DLM1]. */
+		EGP("Exterior Gateway Protocol", 8),
+
+		/** EMCON [BN7]. */
+		EMCON("EMCON", 14),
+
 		/** Encap Security Payload [RFC4303]. */
 		ESP("Encap Security Payload", 50),
 
-		/** Authentication Header [RFC4302]. */
-		AH("Authentication Header", 51),
+		/** Fibre Channel [Rajagopal]. */
+		FC("Fibre Channel", 133),
+
+		/** Gateway-to-Gateway [RFC823]. */
+		GGP("Gateway-to-Gateway", 3),
+
+		/** General Routing Encapsulation [Li]. */
+		GRE("General Routing Encapsulation", 47),
+
+		/** Host Monitoring [RFC869][RH6]. */
+		HMP("Host Monitoring", 20),
+
+		/** IPv6 Hop-by-Hop Option [RFC1883]. */
+		HOPORT("IPv6 Hop-by-Hop Option", 0),
 
 		/** Integrated Net Layer Security TUBA [GLENN]. */
 		I_NLSP("Integrated Net Layer Security  TUBA", 52),
 
-		/** IP with Encryption [JI6]. */
-		SWIPE("IP with Encryption", 53),
+		/** Internet Control Message [RFC792]. */
+		ICMP("Internet Control Message", 1),
 
-		/** NBMA Address Resolution Protocol [RFC1735]. */
-		NARP("NBMA Address Resolution Protocol", 54),
+		/** Inter-Domain Policy Routing Protocol [MXS1]. */
+		IDPR("Inter-Domain Policy Routing Protocol", 35),
 
-		/** IP Mobility [Perkins]. */
-		MOBILE("IP Mobility", 55),
+		/** IDPR Control Message Transport Proto [MXS1]. */
+		IDPR_CMTP("IDPR Control Message Transport Proto", 38),
 
-		/**
-		 * Transport Layer Security Protocol [Oberg] using Kryptonet key management.
-		 */
-		TLSP("Transport Layer Security Protocol", 56),
+		/** Inter-Domain Routing Protocol [Hares]. */
+		IDRP("Inter-Domain Routing Protocol", 45),
 
-		/** SKIP [Markson]. */
-		SKIP("SKIP", 57),
+		/** Internet Group Management [RFC1112]. */
+		IGMP("Internet Group Management", 2),
+
+		/** any private interior gateway [IANA] (used by Cisco for their IGRP). */
+		IGP("any private interior gateway", 9),
+
+		/** IL Transport Protocol [Presotto]. */
+		IL("IL Transport Protocol", 40),
+
+		/** Unreliable datagram protocol. */
+		IP("IP in IP (encapsulation)", 4),
+
+		/** IP-within-IP Encapsulation Protocol [JI6]. */
+		IPIP("IP-within-IP Encapsulation Protocol", 94),
+
+		/** Ipv6 [Deering]. */
+		IPv6("Ipv6", 41),
+
+		/** Fragment Header for IPv6 [Deering]. */
+		IPv6_FRAG("Fragment Header for IPv6", 44),
 
 		/** ICMP for IPv6 [RFC1883]. */
 		IPv6_ICMP("ICMP for IPv6", 58),
@@ -270,26 +383,109 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 		/** Destination Options for IPv6 [RFC1883]. */
 		IPv6_Opts("Destination Options for IPv6", 60),
 
-		/** any host internal protocol [IANA]. */
-		ANY_LOC("any host internal protocol", 61),
-
-		/** IP-within-IP Encapsulation Protocol [JI6]. */
-		IPIP("IP-within-IP Encapsulation Protocol", 94),
-
-		/** Protocol Independent Multicast [Farinacci]. */
-		PIM("Protocol Independent Multicast", 103),
+		/** Routing Header for IPv6 [Deering]. */
+		IPv6_ROUTE("Ipv6", 43),
 
 		/** IPX in IP [Lee]. */
 		IPX_In_IP("IPX in IP", 111),
 
+		/** Internet Reliable Transaction [RFC938][TXM]. */
+		IRTP("Internet Reliable Transaction", 28),
+
+		/** ISO Transport Protocol Class 4 [RFC905][RC77]. */
+		ISO_TP4("ISO Transport Protocol Class 4", 29),
+
+		/** Leaf-1 [BWB6]. */
+		LEAF_1("Leaf-1", 25),
+
+		/** Leaf-2 [BWB6]. */
+		LEAF_2("Leaf-2", 26),
+
+		/** MERIT Internodal Protocol [HWB]. */
+		MERIT_INP("MERIT Internodal Protocol", 32),
+
+		/** MFE Network Services Protocol [MFENET][BCH2]. */
+		MFE_NSP("MFE Network Services Protocol", 31),
+
+		/** IP Mobility [Perkins]. */
+		MOBILE("IP Mobility", 55),
+
+		/** MPLS-in-IP [RFC4023]. */
+		MPLS_in_IP("MPLS-in-IP", 137),
+
+		/** Multiplexing [IEN90][JBP]. */
+		MUX("Multiplexing", 18),
+
+		/** NBMA Address Resolution Protocol [RFC1735]. */
+		NARP("NBMA Address Resolution Protocol", 54),
+
+		/** Bulk Data Transfer Protocol [RFC969][DDC1]. */
+		NETBLT("Bulk Data Transfer Protocol", 30),
+
+		/** PUP [PUP][XEROX]. */
+		NVP_II("Network Voice Protocol", 11),
+
+		/** Protocol Independent Multicast [Farinacci]. */
+		PIM("Protocol Independent Multicast", 103),
+
+		/** Packet Radio Measurement [ZSU]. */
+		PRM("Packet Radio Measurement", 21),
+
+		/** CBT [Ballardie]. */
+		PUP("PUP", 12),
+
+		/** Reliable Data Protocol [RFC908][RH6]. */
+		RDP("Reliable Data Protocol", 27),
+
+		/** Reservation Protocol [Braden]. */
+		RSVP("Reservation Protocol", 46),
+
+		/** Source Demand Routing Protocol [DXE1]. */
+		SDRP("Source Demand Routing Protocol", 42),
+
+		/** SKIP [Markson]. */
+		SKIP("SKIP", 57),
+
+		/** Stream [RFC1190][RFC1819]. */
+		ST("Stream", 5),
+
 		/** Schedule Transfer Protocol [JMP]. */
 		STP("Schedule Transfer Protocol", 118),
 
-		/** Fibre Channel [Rajagopal]. */
-		FC("Fibre Channel", 133),
+		/** IP with Encryption [JI6]. */
+		SWIPE("IP with Encryption", 53),
 
-		/** MPLS-in-IP [RFC4023]. */
-		MPLS_in_IP("MPLS-in-IP", 137), ;
+		/** Transmission Control [RFC793]. */
+		TCP("Transmission Control", 6),
+
+		/** Third Party Connect Protocol [SAF3]. */
+		THIRD_PC("Third Party Connect Protocol", 34),
+
+		/**
+		 * Transport Layer Security Protocol [Oberg] using Kryptonet key management.
+		 */
+		TLSP("Transport Layer Security Protocol", 56),
+
+		/** TP++ Transport Protocol [DXF]. */
+		TP_PLUS("TP++ Transport Protocol", 39),
+
+		/** Trunk-1 [BWB6]. */
+		TRUNK_1("Trunk-1", 23),
+
+		/** Trunk-2 [BWB6]. */
+		TRUNK_2("Trunk-2", 24),
+
+		/** User Datagram [RFC768][JBP]. */
+		UDP("User Datagram", 17),
+
+		/** Cross Net Debugger [IEN158][JFH2]. */
+		XNET("Cross Net Debugger", 15),
+
+		/** XEROX NS IDP [ETHERNET][XEROX]. */
+		XNS_IDP("XEROX NS IDP", 22),
+
+		/** XTP [GXC]. */
+		XTP("XTP", 36), ;
 
 		/**
 		 * Name of the constant.
@@ -388,45 +584,83 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 	public static abstract class IpOption extends JSubHeader<Ip4> {
 
 		/**
+		 * The Enum CodeClass.
+		 */
+		public enum CodeClass {
+
+			/** The CONTROL. */
+			CONTROL(0),
+
+			/** The DEBUG. */
+			DEBUG(2),
+
+			/** The RESERVE d1. */
+			RESERVED1(1),
+
+			/** The RESERVE d2. */
+			RESERVED2(3), ;
+
+			/**
+			 * Value of.
+			 * 
+			 * @param cl
+			 *          the cl
+			 * @return the code class
+			 */
+			public static CodeClass valueOf(int cl) {
+				for (CodeClass c : values()) {
+					if (cl == c.cl) {
+						return c;
+					}
+				}
+
+				return null;
+			}
+
+			/** The cl. */
+			private final int cl;
+
+			/**
+			 * Instantiates a new code class.
+			 * 
+			 * @param cl
+			 *          the cl
+			 */
+			private CodeClass(int cl) {
+				this.cl = cl;
+
+			}
+		}
+
+		/**
 		 * A table of IpOption types and their names.
 		 * 
 		 * @author Mark Bednarczyk
 		 * @author Sly Technologies, Inc.
 		 */
 		public enum OptionCode {
+			/** The ADDRES s_ extension. */
+			ADDRESS_EXTENSION(19),
+			/** The DYNAMI c_ packe t_ state. */
+			DYNAMIC_PACKET_STATE(23),
+			/** The ENCODE. */
+			ENCODE(15),
 			/* 0 */
 			/** The EN d_ o f_ optio n_ list. */
 			END_OF_OPTION_LIST(0),
+			/** The EXPERIMENTA l_ acces s_ control. */
+			EXPERIMENTAL_ACCESS_CONTROL(14),
+			/** The EXPERIMENTA l_ flo w_ control. */
+			EXPERIMENTAL_FLOW_CONTROL(13),
+			/** The EXPERIMENTA l_ measurement. */
+			EXPERIMENTAL_MEASUREMENT(10),
+			/** The EXTENDE d_ ip. */
+			EXTENDED_IP(17),
+			/** The IM i_ traffi c_ descriptor. */
+			IMI_TRAFFIC_DESCRIPTOR(16),
 			/* 3 */
 			/** The LOOS e_ sourc e_ route. */
 			LOOSE_SOURCE_ROUTE(3),
-			/* 1 */
-			/** The N o_ op. */
-			NO_OP(1),
-			/* 7 */
-			/** The RECOR d_ route. */
-			RECORD_ROUTE(7),
-			/* 2 */
-			/** The SECURITY. */
-			SECURITY(2),
-			/* 8 */
-			/** The STREA m_ id. */
-			STREAM_ID(8),
-			/* 9 */
-			/** The STRIC t_ sourc e_ route. */
-			STRICT_SOURCE_ROUTE(9),
-			/* 4 */
-			/** The TIMESTAMP. */
-			TIMESTAMP(4),
-			/* 5 */
-			/** The UNASSIGNE d1. */
-			UNASSIGNED1(5),
-			/* 6 */
-			/** The UNASSIGNE d2. */
-			UNASSIGNED2(6),
-
-			/** The EXPERIMENTA l_ measurement. */
-			EXPERIMENTAL_MEASUREMENT(10),
 
 			/** The MT u_ probe. */
 			MTU_PROBE(11),
@@ -434,54 +668,52 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 			/** The MT u_ reply. */
 			MTU_REPLY(12),
 
-			/** The EXPERIMENTA l_ flo w_ control. */
-			EXPERIMENTAL_FLOW_CONTROL(13),
+			/* 1 */
+			/** The N o_ op. */
+			NO_OP(1),
 
-			/** The EXPERIMENTA l_ acces s_ control. */
-			EXPERIMENTAL_ACCESS_CONTROL(14),
+			/** The QUIC k_ start. */
+			QUICK_START(25),
 
-			/** The ENCODE. */
-			ENCODE(15),
-
-			/** The IM i_ traffi c_ descriptor. */
-			IMI_TRAFFIC_DESCRIPTOR(16),
-
-			/** The EXTENDE d_ ip. */
-			EXTENDED_IP(17),
-
-			/** The TRACEROUTE. */
-			TRACEROUTE(18),
-
-			/** The ADDRES s_ extension. */
-			ADDRESS_EXTENSION(19),
+			/* 7 */
+			/** The RECOR d_ route. */
+			RECORD_ROUTE(7),
 
 			/** The ROUTE r_ alert. */
 			ROUTER_ALERT(20),
 
+			/* 2 */
+			/** The SECURITY. */
+			SECURITY(2),
+
 			/** The SELECTIV e_ directe d_ broadcas t_ most. */
 			SELECTIVE_DIRECTED_BROADCAST_MOST(21),
 
-			/** The DYNAMI c_ packe t_ state. */
-			DYNAMIC_PACKET_STATE(23),
+			/* 8 */
+			/** The STREA m_ id. */
+			STREAM_ID(8),
+
+			/* 9 */
+			/** The STRIC t_ sourc e_ route. */
+			STRICT_SOURCE_ROUTE(9),
+
+			/* 4 */
+			/** The TIMESTAMP. */
+			TIMESTAMP(4),
+
+			/** The TRACEROUTE. */
+			TRACEROUTE(18),
+
+			/* 5 */
+			/** The UNASSIGNE d1. */
+			UNASSIGNED1(5),
+
+			/* 6 */
+			/** The UNASSIGNE d2. */
+			UNASSIGNED2(6),
 
 			/** The UPSTREA m_ multicas t_ packet. */
-			UPSTREAM_MULTICAST_PACKET(24),
-
-			/** The QUIC k_ start. */
-			QUICK_START(25), ;
-
-			/** The id. */
-			public final int id;
-
-			/**
-			 * Instantiates a new option code.
-			 * 
-			 * @param id
-			 *          the id
-			 */
-			private OptionCode(int id) {
-				this.id = id;
-			}
+			UPSTREAM_MULTICAST_PACKET(24), ;
 
 			/**
 			 * Value of.
@@ -499,54 +731,18 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 
 				return null;
 			}
-		}
 
-		/**
-		 * The Enum CodeClass.
-		 */
-		public enum CodeClass {
-
-			/** The CONTROL. */
-			CONTROL(0),
-
-			/** The RESERVE d1. */
-			RESERVED1(1),
-
-			/** The DEBUG. */
-			DEBUG(2),
-
-			/** The RESERVE d2. */
-			RESERVED2(3), ;
-
-			/** The cl. */
-			private final int cl;
+			/** The id. */
+			public final int id;
 
 			/**
-			 * Instantiates a new code class.
+			 * Instantiates a new option code.
 			 * 
-			 * @param cl
-			 *          the cl
+			 * @param id
+			 *          the id
 			 */
-			private CodeClass(int cl) {
-				this.cl = cl;
-
-			}
-
-			/**
-			 * Value of.
-			 * 
-			 * @param cl
-			 *          the cl
-			 * @return the code class
-			 */
-			public static CodeClass valueOf(int cl) {
-				for (CodeClass c : values()) {
-					if (cl == c.cl) {
-						return c;
-					}
-				}
-
-				return null;
+			private OptionCode(int id) {
+				this.id = id;
 			}
 		}
 
@@ -646,6 +842,35 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 		}
 
 		/**
+		 * Code_ class.
+		 * 
+		 * @return the int
+		 */
+		@Field(parent = "code", offset = 5, length = 2, display = "class", format = "%d")
+		public int code_Class() {
+			return (code() & 0x60) >> 5;
+		}
+
+		/**
+		 * Code_ class description.
+		 * 
+		 * @return the string
+		 */
+		@Dynamic(Field.Property.DESCRIPTION)
+		public String code_ClassDescription() {
+			return code_ClassEnum().toString();
+		}
+
+		/**
+		 * Code_ class enum.
+		 * 
+		 * @return the code class
+		 */
+		public CodeClass code_ClassEnum() {
+			return CodeClass.valueOf(code_Class());
+		}
+
+		/**
 		 * Code_ copy.
 		 * 
 		 * @return the int
@@ -664,35 +889,6 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 		public String code_CopyDescription() {
 			return (code_Copy() > 0) ? "copy to all fragments"
 					: "do not copy to fragments";
-		}
-
-		/**
-		 * Code_ class.
-		 * 
-		 * @return the int
-		 */
-		@Field(parent = "code", offset = 5, length = 2, display = "class", format = "%d")
-		public int code_Class() {
-			return (code() & 0x60) >> 5;
-		}
-
-		/**
-		 * Code_ class enum.
-		 * 
-		 * @return the code class
-		 */
-		public CodeClass code_ClassEnum() {
-			return CodeClass.valueOf(code_Class());
-		}
-
-		/**
-		 * Code_ class description.
-		 * 
-		 * @return the string
-		 */
-		@Dynamic(Field.Property.DESCRIPTION)
-		public String code_ClassDescription() {
-			return code_ClassEnum().toString();
 		}
 
 		/**
@@ -793,7 +989,7 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 		public void optionCode(OptionCode value) {
 			code(value.ordinal());
 		}
-	}
+	};
 
 	/**
 	 * Ip4 optional Loose Source Route header.
@@ -803,6 +999,62 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 	 */
 	@Header(id = 3)
 	public static class LooseSourceRoute extends Routing {
+	}
+
+	/**
+	 * The Class MtuProbe.
+	 */
+	@Header(id = 11)
+	public static class MtuProbe extends IpOption {
+
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
+		@Field(offset = 8, length = 8)
+		public int length() {
+			return getUByte(1);
+		}
+
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
+		@FieldSetter
+		public void length(int value) {
+			setUByte(1, value);
+		}
+	}
+
+	/**
+	 * The Class MtuReply.
+	 */
+	@Header(id = 12)
+	public static class MtuReply extends IpOption {
+
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
+		@Field(offset = 8, length = 8)
+		public int length() {
+			return getUByte(1);
+		}
+
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
+		@FieldSetter
+		public void length(int value) {
+			setUByte(1, value);
+		}
 	}
 
 	/**
@@ -823,6 +1075,112 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 	 */
 	@Header(id = 7)
 	public static class RecordRoute extends Routing {
+	}
+
+	/**
+	 * The Class RouterAlert.
+	 */
+	@Header(id = 20)
+	public static class RouterAlert extends IpOption {
+
+		/**
+		 * The Enum Action.
+		 */
+		public enum Action {
+
+			/** The EXAMIN e_ packet. */
+			EXAMINE_PACKET(0), ;
+
+			/**
+			 * Value of.
+			 * 
+			 * @param action
+			 *          the action
+			 * @return the action
+			 */
+			public static Action valueOf(int action) {
+				for (Action a : values()) {
+					if (a.value == action) {
+						return a;
+					}
+				}
+
+				return null;
+			}
+
+			/** The value. */
+			private final int value;
+
+			/**
+			 * Instantiates a new action.
+			 * 
+			 * @param value
+			 *          the value
+			 */
+			private Action(int value) {
+				this.value = value;
+
+			}
+
+			/**
+			 * Value.
+			 * 
+			 * @return the int
+			 */
+			public int value() {
+				return value;
+			}
+		}
+
+		/**
+		 * Action.
+		 * 
+		 * @return the int
+		 */
+		@Field(offset = 16, length = 16)
+		public int action() {
+			return super.getUShort(2);
+		}
+
+		/**
+		 * Action description.
+		 * 
+		 * @return the string
+		 */
+		@Dynamic(Field.Property.DESCRIPTION)
+		public String actionDescription() {
+			return actionEnum().toString();
+		}
+
+		/**
+		 * Action enum.
+		 * 
+		 * @return the action
+		 */
+		public Action actionEnum() {
+			return Action.valueOf(action());
+		}
+
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
+		@Field(offset = 8, length = 8)
+		public int length() {
+			return getUByte(1);
+		}
+
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
+		@FieldSetter
+		public void length(int value) {
+			setUByte(1, value);
+		}
 	}
 
 	/**
@@ -1156,6 +1514,34 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 	}
 
 	/**
+	 * The Class SelectiveDirectedBroadcastMode.
+	 */
+	@Header(id = 21)
+	public static class SelectiveDirectedBroadcastMode extends IpOption {
+
+		/**
+		 * Length.
+		 * 
+		 * @return the int
+		 */
+		@Field(offset = 8, length = 8)
+		public int length() {
+			return getUByte(1);
+		}
+
+		/**
+		 * Length.
+		 * 
+		 * @param value
+		 *          the value
+		 */
+		@FieldSetter
+		public void length(int value) {
+			setUByte(1, value);
+		}
+	}
+
+	/**
 	 * Ip4 optional Stream ID header.
 	 * 
 	 * @author Mark Bednarczyk
@@ -1215,7 +1601,7 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 	 */
 	@Header(id = 9)
 	public static class StrictSourceRoute extends Routing {
-	};
+	}
 
 	/**
 	 * Ip4 optional Timestamp header.
@@ -1225,20 +1611,6 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 	 */
 	@Header(id = 4)
 	public static class Timestamp extends IpOption {
-
-		/**
-		 * Header length.
-		 * 
-		 * @param buffer
-		 *          the buffer
-		 * @param offset
-		 *          the offset
-		 * @return the int
-		 */
-		@HeaderLength
-		public static int headerLength(JBuffer buffer, int offset) {
-			return buffer.getUByte(1);
-		}
 
 		/**
 		 * Ip4 optional Timestamp header - a timestamp entry.
@@ -1283,6 +1655,20 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 		public final static int MASK_OVERFLOW = 0xF0;
 
 		/**
+		 * Header length.
+		 * 
+		 * @param buffer
+		 *          the buffer
+		 * @param offset
+		 *          the offset
+		 * @return the int
+		 */
+		@HeaderLength
+		public static int headerLength(JBuffer buffer, int offset) {
+			return buffer.getUByte(1);
+		}
+
+		/**
 		 * Address.
 		 * 
 		 * @param index
@@ -1296,16 +1682,6 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 			} else {
 				return getByteArray(index * 4 + 4, 4);
 			}
-		}
-
-		/**
-		 * Entries length.
-		 * 
-		 * @return the int
-		 */
-		@Dynamic(Field.Property.LENGTH)
-		public int entriesLength() {
-			return (length() - 4) * 8;
 		}
 
 		/**
@@ -1323,6 +1699,16 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 			} else {
 				return entriesWithIp();
 			}
+		}
+
+		/**
+		 * Entries length.
+		 * 
+		 * @return the int
+		 */
+		@Dynamic(Field.Property.LENGTH)
+		public int entriesLength() {
+			return (length() - 4) * 8;
 		}
 
 		/**
@@ -1496,396 +1882,10 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 	}
 
 	/**
-	 * The Class ExperimentalMeasurement.
-	 */
-	@Header(id = 10)
-	public static class ExperimentalMeasurement extends IpOption {
-
-		/**
-		 * Length.
-		 * 
-		 * @return the int
-		 */
-		@Field(offset = 8, length = 8)
-		public int length() {
-			return getUByte(1);
-		}
-
-		/**
-		 * Length.
-		 * 
-		 * @param value
-		 *          the value
-		 */
-		@FieldSetter
-		public void length(int value) {
-			setUByte(1, value);
-		}
-	}
-
-	/**
-	 * The Class MtuProbe.
-	 */
-	@Header(id = 11)
-	public static class MtuProbe extends IpOption {
-
-		/**
-		 * Length.
-		 * 
-		 * @return the int
-		 */
-		@Field(offset = 8, length = 8)
-		public int length() {
-			return getUByte(1);
-		}
-
-		/**
-		 * Length.
-		 * 
-		 * @param value
-		 *          the value
-		 */
-		@FieldSetter
-		public void length(int value) {
-			setUByte(1, value);
-		}
-	}
-
-	/**
-	 * The Class MtuReply.
-	 */
-	@Header(id = 12)
-	public static class MtuReply extends IpOption {
-
-		/**
-		 * Length.
-		 * 
-		 * @return the int
-		 */
-		@Field(offset = 8, length = 8)
-		public int length() {
-			return getUByte(1);
-		}
-
-		/**
-		 * Length.
-		 * 
-		 * @param value
-		 *          the value
-		 */
-		@FieldSetter
-		public void length(int value) {
-			setUByte(1, value);
-		}
-	}
-
-	/**
-	 * The Class ExperimentalFlowControl.
-	 */
-	@Header(id = 13)
-	public static class ExperimentalFlowControl extends IpOption {
-
-		/**
-		 * Length.
-		 * 
-		 * @return the int
-		 */
-		@Field(offset = 8, length = 8)
-		public int length() {
-			return getUByte(1);
-		}
-
-		/**
-		 * Length.
-		 * 
-		 * @param value
-		 *          the value
-		 */
-		@FieldSetter
-		public void length(int value) {
-			setUByte(1, value);
-		}
-	}
-
-	/**
-	 * The Class ExperimentalAccessControl.
-	 */
-	@Header(id = 14)
-	public static class ExperimentalAccessControl extends IpOption {
-
-		/**
-		 * Length.
-		 * 
-		 * @return the int
-		 */
-		@Field(offset = 8, length = 8)
-		public int length() {
-			return getUByte(1);
-		}
-
-		/**
-		 * Length.
-		 * 
-		 * @param value
-		 *          the value
-		 */
-		@FieldSetter
-		public void length(int value) {
-			setUByte(1, value);
-		}
-	}
-
-	/**
-	 * The Class Encode.
-	 */
-	@Header(id = 15)
-	public static class Encode extends IpOption {
-
-		/**
-		 * Length.
-		 * 
-		 * @return the int
-		 */
-		@Field(offset = 8, length = 8)
-		public int length() {
-			return getUByte(1);
-		}
-
-		/**
-		 * Length.
-		 * 
-		 * @param value
-		 *          the value
-		 */
-		@FieldSetter
-		public void length(int value) {
-			setUByte(1, value);
-		}
-	}
-
-	/**
-	 * The Class IMITrafficDescriptor.
-	 */
-	@Header(id = 16)
-	public static class IMITrafficDescriptor extends IpOption {
-
-		/**
-		 * Length.
-		 * 
-		 * @return the int
-		 */
-		@Field(offset = 8, length = 8)
-		public int length() {
-			return getUByte(1);
-		}
-
-		/**
-		 * Length.
-		 * 
-		 * @param value
-		 *          the value
-		 */
-		@FieldSetter
-		public void length(int value) {
-			setUByte(1, value);
-		}
-	}
-
-	/**
-	 * The Class ExtendedIp.
-	 */
-	@Header(id = 17)
-	public static class ExtendedIp extends IpOption {
-
-		/**
-		 * Length.
-		 * 
-		 * @return the int
-		 */
-		@Field(offset = 8, length = 8)
-		public int length() {
-			return getUByte(1);
-		}
-
-		/**
-		 * Length.
-		 * 
-		 * @param value
-		 *          the value
-		 */
-		@FieldSetter
-		public void length(int value) {
-			setUByte(1, value);
-		}
-	}
-
-	/**
 	 * The Class Traceroute.
 	 */
 	@Header(id = 18)
 	public static class Traceroute extends IpOption {
-
-		/**
-		 * Length.
-		 * 
-		 * @return the int
-		 */
-		@Field(offset = 8, length = 8)
-		public int length() {
-			return getUByte(1);
-		}
-
-		/**
-		 * Length.
-		 * 
-		 * @param value
-		 *          the value
-		 */
-		@FieldSetter
-		public void length(int value) {
-			setUByte(1, value);
-		}
-	}
-
-	/**
-	 * The Class AddressExtension.
-	 */
-	@Header(id = 19)
-	public static class AddressExtension extends IpOption {
-
-		/**
-		 * Length.
-		 * 
-		 * @return the int
-		 */
-		@Field(offset = 8, length = 8)
-		public int length() {
-			return getUByte(1);
-		}
-
-		/**
-		 * Length.
-		 * 
-		 * @param value
-		 *          the value
-		 */
-		@FieldSetter
-		public void length(int value) {
-			setUByte(1, value);
-		}
-	}
-
-	/**
-	 * The Class RouterAlert.
-	 */
-	@Header(id = 20)
-	public static class RouterAlert extends IpOption {
-
-		/**
-		 * The Enum Action.
-		 */
-		public enum Action {
-
-			/** The EXAMIN e_ packet. */
-			EXAMINE_PACKET(0), ;
-
-			/** The value. */
-			private final int value;
-
-			/**
-			 * Instantiates a new action.
-			 * 
-			 * @param value
-			 *          the value
-			 */
-			private Action(int value) {
-				this.value = value;
-
-			}
-
-			/**
-			 * Value.
-			 * 
-			 * @return the int
-			 */
-			public int value() {
-				return value;
-			}
-
-			/**
-			 * Value of.
-			 * 
-			 * @param action
-			 *          the action
-			 * @return the action
-			 */
-			public static Action valueOf(int action) {
-				for (Action a : values()) {
-					if (a.value == action) {
-						return a;
-					}
-				}
-
-				return null;
-			}
-		}
-
-		/**
-		 * Length.
-		 * 
-		 * @return the int
-		 */
-		@Field(offset = 8, length = 8)
-		public int length() {
-			return getUByte(1);
-		}
-
-		/**
-		 * Length.
-		 * 
-		 * @param value
-		 *          the value
-		 */
-		@FieldSetter
-		public void length(int value) {
-			setUByte(1, value);
-		}
-
-		/**
-		 * Action description.
-		 * 
-		 * @return the string
-		 */
-		@Dynamic(Field.Property.DESCRIPTION)
-		public String actionDescription() {
-			return actionEnum().toString();
-		}
-
-		/**
-		 * Action.
-		 * 
-		 * @return the int
-		 */
-		@Field(offset = 16, length = 16)
-		public int action() {
-			return super.getUShort(2);
-		}
-
-		/**
-		 * Action enum.
-		 * 
-		 * @return the action
-		 */
-		public Action actionEnum() {
-			return Action.valueOf(action());
-		}
-	}
-
-	/**
-	 * The Class SelectiveDirectedBroadcastMode.
-	 */
-	@Header(id = 21)
-	public static class SelectiveDirectedBroadcastMode extends IpOption {
 
 		/**
 		 * Length.
@@ -1958,18 +1958,15 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 	private int hashcode;
 
 	/**
-	 * Checksum description.
+	 * Calculates a checksum using protocol specification for a header. Checksums
+	 * for partial headers or fragmented packets (unless the protocol alows it)
+	 * are not calculated.
 	 * 
-	 * @return the string
+	 * @return header's calculated checksum
 	 */
-	@Dynamic(Field.Property.DESCRIPTION)
-	public String checksumDescription() {
-		final int crc16 = calculateChecksum();
-		if (checksum() == crc16) {
-			return "correct";
-		} else {
-			return "incorrect: 0x" + Integer.toHexString(crc16).toUpperCase();
-		}
+	public int calculateChecksum() {
+		return Checksum.inChecksumShouldBe(this.checksum(),
+				Checksum.inChecksum(this, 0, this.size()));
 	}
 
 	/**
@@ -1993,6 +1990,21 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 		setUShort(10, value);
 
 		return true;
+	}
+
+	/**
+	 * Checksum description.
+	 * 
+	 * @return the string
+	 */
+	@Dynamic(Field.Property.DESCRIPTION)
+	public String checksumDescription() {
+		final int crc16 = calculateChecksum();
+		if (checksum() == crc16) {
+			return "correct";
+		} else {
+			return "incorrect: 0x" + Integer.toHexString(crc16).toUpperCase();
+		}
 	}
 
 	/**
@@ -2134,26 +2146,6 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 	}
 
 	/**
-	 * Retrieves the flags field as a collection's set of enum constants that
-	 * represent each flag. The flags returned are an EnumSet which efficiently
-	 * encodes the enum constants as an internal bitfield.
-	 * 
-	 * @return the sets the
-	 */
-	public Set<Ip4.Flag> flagsEnum() {
-		Set<Ip4.Flag> set = EnumSet.noneOf(Ip4.Flag.class);
-		if (flags_DF() > 0) {
-			set.add(Ip4.Flag.DF);
-		}
-
-		if (flags_MF() > 0) {
-			set.add(Ip4.Flag.MF);
-		}
-
-		return set;
-	}
-
-	/**
 	 * A setter method that changes the flag bits directly in the peered Ip4
 	 * header structure within the packet data buffer.
 	 * 
@@ -2166,16 +2158,6 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 		o |= flags << 5;
 
 		setUByte(6, o);
-	}
-
-	/**
-	 * Flags_ reserved.
-	 * 
-	 * @return the int
-	 */
-	@Field(parent = "flags", offset = 2, length = 1, display = "reserved")
-	public int flags_Reserved() {
-		return (flags() & FLAG_RESERVED) >> 3;
 	}
 
 	/**
@@ -2216,6 +2198,36 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 	@Dynamic(Field.Property.DESCRIPTION)
 	public String flags_MFDescription() {
 		return (flags_MF() > 0) ? "set" : "not set";
+	}
+
+	/**
+	 * Flags_ reserved.
+	 * 
+	 * @return the int
+	 */
+	@Field(parent = "flags", offset = 2, length = 1, display = "reserved")
+	public int flags_Reserved() {
+		return (flags() & FLAG_RESERVED) >> 3;
+	}
+
+	/**
+	 * Retrieves the flags field as a collection's set of enum constants that
+	 * represent each flag. The flags returned are an EnumSet which efficiently
+	 * encodes the enum constants as an internal bitfield.
+	 * 
+	 * @return the sets the
+	 */
+	public Set<Ip4.Flag> flagsEnum() {
+		Set<Ip4.Flag> set = EnumSet.noneOf(Ip4.Flag.class);
+		if (flags_DF() > 0) {
+			set.add(Ip4.Flag.DF);
+		}
+
+		if (flags_MF() > 0) {
+			set.add(Ip4.Flag.MF);
+		}
+
+		return set;
 	}
 
 	/**
@@ -2287,6 +2299,17 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 	}
 
 	/**
+	 * Checks if the checksum is valid, even for fragmented packets.
+	 * 
+	 * @return true if checksum checks out, otherwise if the computed checksum
+	 *         does not match the stored checksum false is returned
+	 */
+	public boolean isChecksumValid() {
+
+		return Checksum.inChecksum(this, 0, this.size()) == 0;
+	}
+
+	/**
 	 * Checks if this is ip fragment of a larger PDU. The method checks offset and
 	 * flags.MF fields to see if there are other fragments, marked by flags and
 	 * offset, for a larger PDU.
@@ -2319,17 +2342,6 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 	}
 
 	/**
-	 * Offset description.
-	 * 
-	 * @return the string
-	 */
-	@Dynamic(Field.Property.DESCRIPTION)
-	public String offsetDescription() {
-		return (offset() == 0) ? null : "" + offset() + " * 8 = " + (offset() * 8)
-				+ " bytes";
-	}
-
-	/**
 	 * Offset.
 	 * 
 	 * @return the int
@@ -2351,6 +2363,30 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 		o |= offset & 0x1FFF;
 
 		setUShort(6, o);
+	}
+
+	/**
+	 * Offset description.
+	 * 
+	 * @return the string
+	 */
+	@Dynamic(Field.Property.DESCRIPTION)
+	public String offsetDescription() {
+		return (offset() == 0) ? null : "" + offset() + " * 8 = " + (offset() * 8)
+				+ " bytes";
+	}
+
+	/**
+	 * Method which recomputes the checksum and sets the new computed value in
+	 * checksum field.
+	 * 
+	 * @return true if setter succeeded, or false if unable to set the checksum
+	 *         such as when its the case when header is truncated or not complete
+	 * @see org.jnetpcap.packet.JHeaderChecksum#recalculateChecksum()
+	 */
+	@Override
+	public boolean recalculateChecksum() {
+		return checksum(calculateChecksum());
 	}
 
 	/**
@@ -2577,28 +2613,5 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 	@FieldSetter
 	public void version(int value) {
 		setUByte(0, hlen() | value << 4);
-	}
-
-	/**
-	 * Calculates a checksum using protocol specification for a header. Checksums
-	 * for partial headers or fragmented packets (unless the protocol alows it)
-	 * are not calculated.
-	 * 
-	 * @return header's calculated checksum
-	 */
-	public int calculateChecksum() {
-		return Checksum.inChecksumShouldBe(this.checksum(),
-				Checksum.inChecksum(this, 0, this.size()));
-	}
-
-	/**
-	 * Checks if the checksum is valid, even for fragmented packets.
-	 * 
-	 * @return true if checksum checks out, otherwise if the computed checksum
-	 *         does not match the stored checksum false is returned
-	 */
-	public boolean isChecksumValid() {
-
-		return Checksum.inChecksum(this, 0, this.size()) == 0;
 	}
 }

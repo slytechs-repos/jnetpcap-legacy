@@ -286,6 +286,19 @@ public class Udp extends JHeader implements JHeaderChecksum {
 	}
 
 	/**
+	 * Method which recomputes the checksum and sets the new computed value in
+	 * checksum field.
+	 * 
+	 * @return true if setter succeeded, or false if unable to set the checksum
+	 *         such as when its the case when header is truncated or not complete
+	 * @see org.jnetpcap.packet.JHeaderChecksum#recalculateChecksum()
+	 */
+	@Override
+	public boolean recalculateChecksum() {
+		return checksum(calculateChecksum());
+	}
+
+	/**
 	 * This field identifies the sender's port when meaningful and should be
 	 * assumed to be the port to reply to if needed. If not used, then it should
 	 * be zero. If the source host is the client, the port number is likely to be

@@ -18,22 +18,13 @@
  */
 package org.jnetpcap.packet;
 
-// TODO: Auto-generated Javadoc
 /**
  * Interface implemented by protocol headers that maintain a header and possibly
  * payload checksums.
  * 
- * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
 public interface JHeaderChecksum {
-
-	/**
-	 * Retrieves the header's checksum.
-	 * 
-	 * @return header's stored checksum
-	 */
-	public int checksum();
 
 	/**
 	 * Calculates a checksum using protocol specification for a header. Checksums
@@ -43,6 +34,25 @@ public interface JHeaderChecksum {
 	 * @return header's calculated checksum
 	 */
 	public int calculateChecksum();
+
+	/**
+	 * Retrieves the header's checksum.
+	 * 
+	 * @return header's stored checksum
+	 */
+	public int checksum();
+
+	/**
+	 * Setter method to set a new checksum on the header.
+	 * 
+	 * @param crc
+	 *          new value of the header. Can be 8, 16 or 32-bit checksum, even if
+	 *          in signed form.
+	 * 
+	 * @return true if setter succeeded, or false if unable to set the checksum
+	 *         such as when its the case when header is truncated or not complete
+	 */
+	public boolean checksum(int crc);
 
 	/**
 	 * Validates the header's data against the stored checksum. Checksums for
@@ -55,6 +65,13 @@ public interface JHeaderChecksum {
 	 */
 	public boolean isChecksumValid();
 
-	public boolean checksum(int crc);
+	/**
+	 * Method which recomputes the checksum and sets the new computed value in
+	 * checksum field.
+	 * 
+	 * @return true if setter succeeded, or false if unable to set the checksum
+	 *         such as when its the case when header is truncated or not complete
+	 */
+	public boolean recalculateChecksum();
 
 }

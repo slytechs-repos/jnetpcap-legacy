@@ -543,27 +543,22 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 	}
 
 	/**
-	 * Checksum description.
+	 * Calculates a checksum using protocol specification for a header. Checksums
+	 * for partial headers or fragmented packets (unless the protocol alows it)
+	 * are not calculated.
 	 * 
-	 * @return the string
+	 * @return header's calculated checksum
 	 */
-	@Dynamic(Field.Property.DESCRIPTION)
-	public String checksumDescription() {
+	public int calculateChecksum() {
 
-		if (isFragmented()) {
-			return "supressed for fragments";
+		if (getIndex() == -1) {
+			throw new IllegalStateException("Oops index not set");
 		}
 
-		if (isPayloadTruncated()) {
-			return "supressed for truncated packets";
-		}
+		final int ipOffset = getPreviousHeaderOffset();
 
-		final int crc16 = calculateChecksum();
-		if (checksum() == crc16) {
-			return "correct";
-		} else {
-			return "incorrect: 0x" + Integer.toHexString(crc16).toUpperCase();
-		}
+		return Checksum.inChecksumShouldBe(checksum(),
+				Checksum.icmp(packet, ipOffset, this.getOffset()));
 	}
 
 	/**
@@ -587,6 +582,30 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 		super.setUShort(2, crc);
 
 		return true;
+	}
+
+	/**
+	 * Checksum description.
+	 * 
+	 * @return the string
+	 */
+	@Dynamic(Field.Property.DESCRIPTION)
+	public String checksumDescription() {
+
+		if (isFragmented()) {
+			return "supressed for fragments";
+		}
+
+		if (isPayloadTruncated()) {
+			return "supressed for truncated packets";
+		}
+
+		final int crc16 = calculateChecksum();
+		if (checksum() == crc16) {
+			return "correct";
+		} else {
+			return "incorrect: 0x" + Integer.toHexString(crc16).toUpperCase();
+		}
 	}
 
 	/**
@@ -628,6 +647,43 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 	}
 
 	/**
+	 * Checks if the checksum is valid, for un-fragmented packets. If a packet is
+	 * fragmented, the checksum is not verified as data to is incomplete, but the
+	 * method returns true none the less.
+	 * 
+	 * @return true if checksum checks out or if this is a fragment, otherwise if
+	 *         the computed checksum does not match the stored checksum false is
+	 *         returned
+	 */
+	public boolean isChecksumValid() {
+
+		if (isFragmented()) {
+			return true;
+		}
+
+		if (getIndex() == -1) {
+			throw new IllegalStateException("Oops index not set");
+		}
+
+		final int ipOffset = getPreviousHeaderOffset();
+
+		return Checksum.icmp(packet, ipOffset, this.getOffset()) == 0;
+	}
+
+	/**
+	 * Method which recomputes the checksum and sets the new computed value in
+	 * checksum field.
+	 * 
+	 * @return true if setter succeeded, or false if unable to set the checksum
+	 *         such as when its the case when header is truncated or not complete
+	 * @see org.jnetpcap.packet.JHeaderChecksum#recalculateChecksum()
+	 */
+	@Override
+	public boolean recalculateChecksum() {
+		return checksum(calculateChecksum());
+	}
+
+	/**
 	 * Type.
 	 * 
 	 * @return the int
@@ -654,49 +710,6 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 	 */
 	public IcmpType typeEnum() {
 		return IcmpType.valueOf(type());
-	}
-
-	/**
-	 * Calculates a checksum using protocol specification for a header. Checksums
-	 * for partial headers or fragmented packets (unless the protocol alows it)
-	 * are not calculated.
-	 * 
-	 * @return header's calculated checksum
-	 */
-	public int calculateChecksum() {
-
-		if (getIndex() == -1) {
-			throw new IllegalStateException("Oops index not set");
-		}
-
-		final int ipOffset = getPreviousHeaderOffset();
-
-		return Checksum.inChecksumShouldBe(checksum(),
-				Checksum.icmp(packet, ipOffset, this.getOffset()));
-	}
-
-	/**
-	 * Checks if the checksum is valid, for un-fragmented packets. If a packet is
-	 * fragmented, the checksum is not verified as data to is incomplete, but the
-	 * method returns true none the less.
-	 * 
-	 * @return true if checksum checks out or if this is a fragment, otherwise if
-	 *         the computed checksum does not match the stored checksum false is
-	 *         returned
-	 */
-	public boolean isChecksumValid() {
-
-		if (isFragmented()) {
-			return true;
-		}
-
-		if (getIndex() == -1) {
-			throw new IllegalStateException("Oops index not set");
-		}
-
-		final int ipOffset = getPreviousHeaderOffset();
-
-		return Checksum.icmp(packet, ipOffset, this.getOffset()) == 0;
 	}
 
 }
