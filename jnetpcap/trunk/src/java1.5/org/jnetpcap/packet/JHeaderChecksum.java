@@ -71,6 +71,7 @@ public interface JHeaderChecksum {
 	 * 
 	 * @return true if setter succeeded, or false if unable to set the checksum
 	 *         such as when its the case when header is truncated or not complete
+	 * @since 1.4
 	 */
 	public boolean recalculateChecksum();
 
