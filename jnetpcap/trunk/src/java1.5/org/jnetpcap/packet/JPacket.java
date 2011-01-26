@@ -1074,10 +1074,12 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	}
 
 	/**
-	 * Iterator.
+	 * Uses a thread-local based <code>JHeaderPool</code> to iterate over all the
+	 * headers within a packet.
 	 * 
 	 * @return the iterator
 	 * @see java.lang.Iterable#iterator()
+	 * @since 1.4
 	 */
 	@Override
 	public Iterator<JHeader> iterator() {
@@ -1112,11 +1114,16 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	}
 
 	/**
-	 * Iterator over specific type .
+	 * Uses a thread-local based <code>JHeaderPool</code> to iterate over all the
+	 * headers within a packet that are instances of the specified type.
 	 * 
+	 * @param <T>
+	 *          the generic type
+	 * @param type
+	 *          the class used to check if a header is in assignable to this type
 	 * @return the iterator
 	 */
-	public <T> Iterator<T> iterator(final Class<T> clazz) {
+	public <T> Iterator<T> iterator(final Class<T> type) {
 		final int count = state.getHeaderCount();
 
 		return new Iterator<T>() {
@@ -1128,7 +1135,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 					final int id = JPacket.this.getHeaderIdByIndex(i);
 					header = headerPool.getHeader(id);
 
-					if (clazz.isInstance(header)) {
+					if (type.isInstance(header)) {
 						break;
 					}
 				}
@@ -1159,12 +1166,22 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		};
 	}
 
-	public <T> Iterable<T> filterByType(final Class<T> clazz) {
+	/**
+	 * Filter existing header instances by specified type.
+	 * 
+	 * @param <T>
+	 *          the generic type
+	 * @param type
+	 *          the clazz
+	 * @return the iterable
+	 * @since 1.4
+	 */
+	public <T> Iterable<T> filterByType(final Class<T> type) {
 		return new Iterable<T>() {
 
 			@Override
 			public Iterator<T> iterator() {
-				return JPacket.this.iterator(clazz);
+				return JPacket.this.iterator(type);
 			}
 		};
 	}
