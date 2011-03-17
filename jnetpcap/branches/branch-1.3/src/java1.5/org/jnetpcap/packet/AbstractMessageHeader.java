@@ -29,49 +29,49 @@ import org.jnetpcap.util.JThreadLocal;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public abstract class AbstractMessageHeader
-    extends JMappedHeader {
+public abstract class AbstractMessageHeader extends JMappedHeader {
 
 	/**
 	 * The Enum MessageType.
 	 */
 	public enum MessageType {
-		
+
 		/** The REQUEST. */
 		REQUEST,
-		
+
 		/** The RESPONSE. */
 		RESPONSE
 	}
 
 	/** The Constant HEADER_DELIMITER. */
 	private final static char[] HEADER_DELIMITER = {
-	    '\r',
-	    '\n',
-	    '\r',
-	    '\n' };
+			'\r',
+			'\n',
+			'\r',
+			'\n'
+	};
 
 	/** The Constant VALID_CHARS. */
 	private final static String[] VALID_CHARS = {
-	    "GET",
-	    "PUT",
-	    "POS", // POST
-	    "CON", // CONNECT
-	    "CAN", // CANCEL
-	    "HEA", // HEAD
-	    "HTT", // HTTP
-	    "OPT", // OPTIONS
-	    "DEL", // DELETE
-	    "TRA", // TRACE
-	    "SIP", // SIP
-	    "INV", // INVITE
-	    "REG", // REGISTER
-	    "ACK", // ACK
-	    "BYE", // BYE
-	    "REF", // REFER
-	    "NOT", // NOTIFY
-	    "INF", // INFO
-	    "PRA", // PRACK
+			"GET",
+			"PUT",
+			"POS", // POST
+			"CON", // CONNECT
+			"CAN", // CANCEL
+			"HEA", // HEAD
+			"HTT", // HTTP
+			"OPT", // OPTIONS
+			"DEL", // DELETE
+			"TRA", // TRACE
+			"SIP", // SIP
+			"INV", // INVITE
+			"REG", // REGISTER
+			"ACK", // ACK
+			"BYE", // BYE
+			"REF", // REFER
+			"NOT", // NOTIFY
+			"INF", // INFO
+			"PRA", // PRACK
 	};
 
 	/**
@@ -130,7 +130,7 @@ public abstract class AbstractMessageHeader
 
 	/** The string local. */
 	private final JThreadLocal<StringBuilder> stringLocal =
-	    new JThreadLocal<StringBuilder>(StringBuilder.class);
+			new JThreadLocal<StringBuilder>(StringBuilder.class);
 
 	/** The raw header. */
 	protected String rawHeader;
@@ -144,14 +144,22 @@ public abstract class AbstractMessageHeader
 	protected abstract void decodeFirstLine(String line);
 
 	/**
-	 * Decode the http header. First we need to convert raw bytes to a char's we
-	 * can deal with since Http header is text based. Once converted we can then
-	 * accurately determine the Http header length, type of request, etc...
+	 * Decode the http/sip header. First we need to convert raw bytes to a char's
+	 * we can deal with since Http/sip header is text based. Once converted we can
+	 * then accurately determine the Http/sip header length, type of request,
+	 * etc...
 	 */
 	@Override
 	protected void decodeHeader() {
 
 		super.clearFields();
+
+		/*
+		 * Note: this parser is not really robust enough to parse entire syntax, but
+		 * has done OK job so far. We should plan on replacing it with at a more
+		 * robust tokenizer/parser that can handle all corner cases more efficiently
+		 * and reliably.
+		 */
 
 		/*
 		 * We already know the length of the header, so just get the raw chars
@@ -167,13 +175,16 @@ public abstract class AbstractMessageHeader
 		// System.out.println("[" + s + "]");
 
 		buf.setLength(0);
-		for (int i = 0; i < lines.length; i ++) {
+		for (int i = 0; i < lines.length; i++) {
 			String line = lines[i];
-			
+			if (line.length() == 0) {
+				continue; // Skip 0 length/blank lines
+			}
+
 			/*
-			 * First check if lines need to be combined if first character is a 
-			 * space or a tab. This indicates line continuation and all leading
-			 * white space is replaced with a single space.
+			 * First check if lines need to be combined if first character is a space
+			 * or a tab. This indicates line continuation and all leading white space
+			 * is replaced with a single space.
 			 */
 			char firstChar = line.charAt(0);
 			if (firstChar == ' ' || firstChar == '\t') {
@@ -181,29 +192,36 @@ public abstract class AbstractMessageHeader
 				if (buf.length() != 0) {
 					buf.append(' ');
 				}
-				
+
 				buf.append(line);
 				continue;
 			} else {
-				
+
 				/*
-				 * Check if we have any buffered string in the buffer from the recombining
-				 * process. If yes, we make take the string out of the buffer and process
-				 * it, while we decrement i pointer, to rerun the lines[i] which was
-				 * just used as an indicator that no more lines are to be recombined.
+				 * Check if we have any buffered string in the buffer from the
+				 * recombining process. If yes, we make take the string out of the
+				 * buffer and process it, while we decrement i pointer, to rerun the
+				 * lines[i] which was just used as an indicator that no more lines are
+				 * to be recombined.
 				 */
 				if (buf.length() != 0) {
 					line = buf.toString();
 					buf.setLength(0);
-					i --;
+					i--;
 				}
 			}
-			
+
 			String c[] = line.split(":", 2);
 
 			if (c.length == 1) {
-				decodeFirstLine(c[0]);
+				if (c[0].length() > 0) {
+					decodeFirstLine(c[0]);
+				}
 				continue;
+			}
+
+			if (c.length < 2) {
+				continue; // We need at least 2 sections or something is wrong
 			}
 
 			// System.out.printf("[%s]=[%s]\n", c[0], c[1]);
