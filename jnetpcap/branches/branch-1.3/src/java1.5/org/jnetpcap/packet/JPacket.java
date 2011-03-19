@@ -158,6 +158,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 		 * 
 		 * @see org.jnetpcap.nio.JMemory#cleanup()
 		 */
+		@Override
 		public void cleanup() {
 			super.cleanup();
 		}
@@ -207,6 +208,9 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 		 * @return the flow key
 		 */
 		public JFlowKey getFlowKey() {
+			if (this.flowKey.isInitialized() == false) {
+				this.flowKey.peer(this);
+			}
 			return this.flowKey;
 		}
 
@@ -284,6 +288,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 		 *           the peering exception
 		 * @see org.jnetpcap.nio.JMemory#peer(java.nio.ByteBuffer)
 		 */
+		@Override
 		public int peer(ByteBuffer peer) throws PeeringException {
 			int r = super.peer(peer);
 			flowKey.peer(this);
@@ -509,6 +514,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 		 * 
 		 * @return multiline string containing dump of the entire structure
 		 */
+		@Override
 		public String toDebugString() {
 
 			return super.toDebugString() + "\n" + toDebugStringJPacketState();
@@ -548,6 +554,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 		 * @return the int
 		 * @see org.jnetpcap.nio.JMemory#transferTo(byte[], int, int, int)
 		 */
+		@Override
 		public int transferTo(byte[] dst, int srcOffset, int length, int dstOffset) {
 			return super.transferTo(dst, srcOffset, size(), dstOffset);
 		}
@@ -567,6 +574,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 		 * @see org.jnetpcap.nio.JMemory#transferTo(org.jnetpcap.nio.JBuffer, int,
 		 *      int, int)
 		 */
+		@Override
 		public int transferTo(JBuffer dst, int srcOffset, int length, int dstOffset) {
 			return super.transferTo(dst, srcOffset, size(), dstOffset);
 		}
@@ -616,7 +624,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 		}
 		return defaultScanner;
 	}
-	
+
 	/**
 	 * Shutdown.
 	 */
@@ -1109,6 +1117,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 	 * 
 	 * @return formatted output of this packet
 	 */
+	@Override
 	public String toString() {
 		out.reset();
 		try {
