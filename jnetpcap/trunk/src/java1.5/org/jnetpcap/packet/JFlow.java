@@ -18,6 +18,7 @@
  */
 package org.jnetpcap.packet;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -66,8 +67,8 @@ public class JFlow {
 			this.reverse = new LinkedList<JPacket>();
 		} else {
 			this.all = new LinkedList<JPacket>();
-			this.forward = null;
-			this.reverse = null;
+			this.forward = Collections.emptyList();
+			this.reverse = Collections.emptyList();
 		}
 	}
 
@@ -98,7 +99,7 @@ public class JFlow {
 		}
 
 		return ((dir == 1) ? forward.add(packet) : reverse.add(packet))
-		    && all.add(packet);
+				&& all.add(packet);
 	}
 
 	/**
@@ -118,7 +119,7 @@ public class JFlow {
 	public final List<JPacket> getAll() {
 		return this.all;
 	}
-	
+
 	/**
 	 * Size.
 	 * 
@@ -147,13 +148,13 @@ public class JFlow {
 	}
 
 	/** The tcp. */
-	private Tcp tcp = new Tcp();
+	private final Tcp tcp = new Tcp();
 
 	/** The ip. */
-	private Ip4 ip = new Ip4();
+	private final Ip4 ip = new Ip4();
 
 	/** The eth. */
-	private Ethernet eth = new Ethernet();
+	private final Ethernet eth = new Ethernet();
 
 	/**
 	 * To string.
@@ -161,6 +162,7 @@ public class JFlow {
 	 * @return the string
 	 * @see java.lang.Object#toString()
 	 */
+	@Override
 	public String toString() {
 		if (all.isEmpty()) {
 			return key.toDebugString() + " size=" + all.size();
@@ -175,8 +177,8 @@ public class JFlow {
 			// String hash = Integer.toHexString(key.hashCode());
 
 			return src + ":" + sport + " -> " + dst + ":" + dport
-			    + " Tcp fw/rev/tot pkts=[" + forward.size() + "/" + reverse.size()
-			    + "/" + all.size() + "]";
+					+ " Tcp fw/rev/tot pkts=[" + forward.size() + "/" + reverse.size()
+					+ "/" + all.size() + "]";
 
 		} else if (packet.hasHeader(ip)) {
 			String dst = FormatUtils.ip(ip.destination());
@@ -184,7 +186,7 @@ public class JFlow {
 			String type = "" + ip.type();
 
 			return src + " -> " + dst + ":" + type + " Ip4 tot pkts=[" + all.size()
-			    + "]";
+					+ "]";
 
 		} else if (packet.hasHeader(eth)) {
 			String dst = FormatUtils.mac(eth.destination());
@@ -192,7 +194,7 @@ public class JFlow {
 			String type = Integer.toHexString(eth.type());
 
 			return src + " -> " + dst + ":" + type + " Eth tot pkts=[" + all.size()
-			    + "]";
+					+ "]";
 
 		} else {
 			return key.toDebugString() + " packets=" + all.size();
