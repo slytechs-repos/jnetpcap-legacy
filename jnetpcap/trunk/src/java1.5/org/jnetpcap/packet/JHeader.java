@@ -37,38 +37,33 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public abstract class JHeader
-    extends
-    JBuffer implements JPayloadAccessor {
+public abstract class JHeader extends JBuffer implements JPayloadAccessor {
 
 	/**
 	 * This class is peered state of a header a native state structure
 	 * 
 	 * <pre>
 	 * typedef struct header_t {
-	 * uint8_t  hdr_id;         // header ID
+	 *   uint8_t  hdr_id;         // header ID
 	 * 
-	 * uint8_t  hdr_prefix;     // length of the prefix (preamble) before the header
-	 * uint8_t  hdr_gap;        // length of the gap between header and payload
-	 * uint16_t hdr_flags;      // flags for this header
-	 * uint16_t hdr_postfix;    // length of the postfix (trailer) after the payload
-	 * uint32_t hdr_offset;     // offset into the packet_t-&gt;data buffer
-	 * uint32_t hdr_length;     // length of the header in packet_t-&gt;data buffer
-	 * uint32_t hdr_payload;    // length of the payload
+	 *   uint8_t  hdr_prefix;     // length of the prefix (preamble) before the header
+	 *   uint8_t  hdr_gap;        // length of the gap between header and payload
+	 *   uint16_t hdr_flags;      // flags for this header
+	 *   uint16_t hdr_postfix;    // length of the postfix (trailer) after the payload
+	 *   uint32_t hdr_offset;     // offset into the packet_t-&gt;data buffer
+	 *   uint32_t hdr_length;     // length of the header in packet_t-&gt;data buffer
+	 *   uint32_t hdr_payload;    // length of the payload
 	 * 
-	 * jobject  hdr_analysis;   // Java JAnalysis based object if not null
+	 *   jobject  hdr_analysis;   // Java JAnalysis based object if not null
 	 * } header_t;
 	 * 
 	 * </pre>
 	 * 
 	 * .
 	 * 
-	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
-	public static class State
-	    extends
-	    JStruct {
+	public static class State extends JStruct {
 
 		/**
 		 * Flag set in the header_t structure, tells if the CRC, if performed, was
@@ -307,7 +302,7 @@ public abstract class JHeader
 		public int peer(State peer) {
 			if (peer.isDirect() == false) {
 				throw new IllegalStateException(
-				    "DirectState can only peer with another DirectState");
+						"DirectState can only peer with another DirectState");
 			}
 			return super.peer(peer);
 		}
@@ -326,9 +321,10 @@ public abstract class JHeader
 		 * 
 		 * @return light debug string for this object and header
 		 */
+		@Override
 		public String toString() {
 			return "(id=" + getId() + ", offset=" + getOffset() + ", length="
-			    + getLength() + ")";
+					+ getLength() + ")";
 		}
 	}
 
@@ -510,8 +506,6 @@ public abstract class JHeader
 		this.id = state.getId();
 		super.order(ByteOrder.nativeOrder());
 	}
-
-
 
 	/**
 	 * Method that gets called everytime a header is successfully peered with new
@@ -1068,6 +1062,7 @@ public abstract class JHeader
 	 * 
 	 * @return String with summary of the header
 	 */
+	@Override
 	public String toString() {
 		JFormatter out = JPacket.getFormatter();
 		out.reset();

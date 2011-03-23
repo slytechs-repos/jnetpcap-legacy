@@ -250,8 +250,8 @@ typedef struct header_t {
 } header_t;
 
 typedef struct packet_state_t {
-	uint8_t pkt_flags;       // flags for this packet
 	flow_key_t pkt_flow_key; // Flow key calculated for this packet, must be first
+	uint8_t pkt_flags;       // flags for this packet
 	jobject pkt_analysis;    // Java JAnalysis based object if not null
 	uint64_t pkt_frame_num;  // Packet's frame number assigned by scanner
 	uint64_t pkt_header_map; // bit map of presence of headers

@@ -622,7 +622,9 @@ public abstract class JMemory {
 	protected void cleanup() {
 		if (ref != null) {
 			this.ref.dispose();
-			this.ref.remove();
+			if (this.ref != null) {
+				this.ref.remove();
+			}
 			this.ref = null;
 		}
 		this.owner = false;

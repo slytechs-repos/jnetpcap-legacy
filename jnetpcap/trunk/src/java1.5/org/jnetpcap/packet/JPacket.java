@@ -210,6 +210,9 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * @return the flow key
 		 */
 		public JFlowKey getFlowKey() {
+			if (this.flowKey.isInitialized() == false) {
+				this.flowKey.peer(this);
+			}
 			return this.flowKey;
 		}
 
