@@ -38,8 +38,8 @@ public class WinPcapSendQueueTransmitExampleUsingPcapHeader {
 		 **************************************************************************/
 		int r = Pcap.findAllDevs(alldevs, errbuf);
 		if (r == Pcap.NOT_OK || alldevs.isEmpty()) {
-			System.err.printf("Can't read list of devices, error is %s", errbuf
-			    .toString());
+			System.err.printf("Can't read list of devices, error is %s",
+					errbuf.toString());
 			return;
 		}
 		PcapIf device = alldevs.get(0); // We know we have atleast 1 device
@@ -50,16 +50,17 @@ public class WinPcapSendQueueTransmitExampleUsingPcapHeader {
 		int snaplen = 64 * 1024; // Capture all packets, no trucation
 		int flags = Pcap.MODE_PROMISCUOUS; // capture all packets
 		int timeout = 10 * 1000; // 10 seconds in millis
-		WinPcap pcap = WinPcap.openLive(device.getName(), snaplen, flags, timeout, errbuf);
+		WinPcap pcap =
+				WinPcap.openLive(device.getName(), snaplen, flags, timeout, errbuf);
 
 		/***************************************************************************
-		 * Third we create our crude packet queue we will transmit out 
-		 * This creates a small queue full of broadcast packets
+		 * Third we create our crude packet queue we will transmit out This creates
+		 * a small queue full of broadcast packets
 		 **************************************************************************/
 		WinPcapSendQueue queue = WinPcap.sendQueueAlloc(512);
 		PcapHeader hdr = new PcapHeader(128, 128);
 		byte[] pkt = new byte[128];
-		
+
 		Arrays.fill(pkt, (byte) 255); // Broadcast
 		queue.queue(hdr, pkt); // Packet #1
 		queue.queue(hdr, pkt); // Packet #2
@@ -75,7 +76,6 @@ public class WinPcapSendQueueTransmitExampleUsingPcapHeader {
 			System.err.println(pcap.getErr());
 			return;
 		}
-
 
 		/***************************************************************************
 		 * Lastly we close
