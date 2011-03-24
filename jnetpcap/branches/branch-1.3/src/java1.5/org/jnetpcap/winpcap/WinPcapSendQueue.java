@@ -28,29 +28,38 @@ import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JStruct;
 import org.jnetpcap.packet.PeeringException;
 
-// TODO: Auto-generated Javadoc
-/**
- * Copyright (C) 2007 Sly Technologies, Inc. This library is free software; you
- * can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version. This
- * library is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details. You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- */
-
 /**
  * Class peered with native <code>pcap_send_queue</code> structure. A queue of
  * raw packets that will be sent to the network with
  * <code>WinPcap.sendqueueTransmit()</code>. The class peers with native C
  * pcap_send_queue structure and allows direct control. The structure can be
  * allocated using WinPcap.sendQueueAlloc method or can be directly instantiated
- * using one o the public constructors.
+ * using one of the public constructors.
+ * <p>
+ * Here is an example:
  * 
- * @author Mark Bednarczyk
+ * <pre>
+ * WinPcapSendQueue queue = WinPcap.sendQueueAlloc(512);
+ * PcapHeader hdr = new PcapHeader(128, 128);
+ * byte[] pkt = new byte[128];
+ * 
+ * Arrays.fill(pkt, (byte) 255); // Broadcast
+ * queue.queue(hdr, pkt); // Packet #1
+ * queue.queue(hdr, pkt); // Packet #2
+ * 
+ * Arrays.fill(pkt, (byte) 0x11); // Junk packet
+ * queue.queue(hdr, pkt); // Packet #3
+ * 
+ * r = pcap.sendQueueTransmit(queue, WinPcap.TRANSMIT_SYNCH_ASAP);
+ * if (r != queue.getLen()) {
+ * 	System.err.println(pcap.getErr());
+ * 	return;
+ * }
+ * 
+ * </pre>
+ * 
+ * </p>
+ * 
  * @author Sly Technologies, Inc.
  */
 @SuppressWarnings("deprecation")
@@ -97,6 +106,7 @@ public class WinPcapSendQueue extends JStruct {
 
 		this.buffer.setByteArray(0, data);
 		setMaxLen(data.length);
+		setLen(data.length);
 	}
 
 	/**
@@ -132,6 +142,7 @@ public class WinPcapSendQueue extends JStruct {
 		}
 		this.buffer.peer(buffer);
 		setMaxLen(this.buffer.size());
+		setLen(this.buffer.size());
 	}
 
 	/**
@@ -146,6 +157,7 @@ public class WinPcapSendQueue extends JStruct {
 		this.buffer.order(ByteOrder.nativeOrder()); // Force byte ordering
 
 		setMaxLen(size);
+		setLen(0);
 		setBuffer(buffer);
 	}
 
@@ -384,4 +396,14 @@ public class WinPcapSendQueue extends JStruct {
 	 *          the new max len
 	 */
 	public native void setMaxLen(int len);
+
+	/**
+	 * Returns a string with detailed information about the underlying
+	 * pcap_send_queue structure.
+	 * 
+	 * @return String with debug information
+	 * @see org.jnetpcap.nio.JMemory#toDebugString()
+	 */
+	@Override
+	public native String toDebugString();
 }

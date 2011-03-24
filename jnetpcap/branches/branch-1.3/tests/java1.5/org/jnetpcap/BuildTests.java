@@ -41,6 +41,8 @@ import org.jnetpcap.protocol.TestTcpIp;
 import org.jnetpcap.protocol.TestVoip;
 import org.jnetpcap.util.TestExpandableString;
 import org.jnetpcap.util.TestSearchPaths;
+import org.jnetpcap.winpcap.TestWinPcapSendQueueNotLive;
+import org.jnetpcap.winpcap.WinPcap;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -83,6 +85,10 @@ public class BuildTests {
 			suite.addTestSuite(TestNetwork.class);
 			suite.addTestSuite(TestHeaderState.class);
 			suite.addTestSuite(TestNoSystemOutOutput.class);
+
+			if (WinPcap.isSupported()) {
+				suite.addTestSuite(TestWinPcapSendQueueNotLive.class);
+			}
 		}
 
 		// $JUnit-END$
