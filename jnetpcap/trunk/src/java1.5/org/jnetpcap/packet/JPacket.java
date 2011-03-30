@@ -133,7 +133,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		public static native int sizeof(int count);
 
 		/** The flow key. */
-		private final JFlowKey flowKey = new JFlowKey();
+		private JFlowKey flowKey;
 
 		/**
 		 * Instantiates a new state.
@@ -210,10 +210,19 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * @return the flow key
 		 */
 		public JFlowKey getFlowKey() {
-			if (this.flowKey.isInitialized() == false) {
+			if (this.flowKey == null) {
+				this.flowKey = new JFlowKey();
+			}
+
+			peerFlowKey();
+
+			return this.flowKey;
+		}
+
+		private void peerFlowKey() {
+			if (this.flowKey != null) {
 				this.flowKey.peer(this);
 			}
-			return this.flowKey;
 		}
 
 		/**
@@ -293,7 +302,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		@Override
 		public int peer(ByteBuffer peer) throws PeeringException {
 			int r = super.peer(peer);
-			flowKey.peer(this);
+			peerFlowKey();
 			return r;
 		}
 
@@ -307,7 +316,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		public int peer(JBuffer peer) {
 			int r = super.peer(peer, 0, size());
 
-			flowKey.peer(this);
+			peerFlowKey();
 			return r;
 		}
 
@@ -328,7 +337,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 				throws IndexOutOfBoundsException {
 			int r = super.peer(peer, offset, length);
 
-			flowKey.peer(this);
+			peerFlowKey();
 			return r;
 		}
 
@@ -344,7 +353,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		public int peer(JMemory memory, int offset) {
 			int r = super.peer(memory, offset, size());
 
-			flowKey.peer(this);
+			peerFlowKey();
 			return r;
 		}
 
@@ -371,7 +380,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 				throws IndexOutOfBoundsException {
 			int r = super.peer(peer, offset, length);
 
-			flowKey.peer(this);
+			peerFlowKey();
 			return r;
 		}
 
@@ -385,7 +394,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		public int peer(State peer) {
 			int r = super.peer(peer, 0, size());
 
-			flowKey.peer(this);
+			peerFlowKey();
 			return r;
 		}
 
@@ -428,7 +437,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		public int peerTo(JBuffer buffer, int offset) {
 			int r = super.peer(buffer, offset, size());
 
-			flowKey.peer(this);
+			peerFlowKey();
 			return r;
 		}
 
@@ -446,7 +455,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		public int peerTo(JBuffer buffer, int offset, int size) {
 			int r = super.peer(buffer, offset, size);
 
-			flowKey.peer(this);
+			peerFlowKey();
 			return r;
 		}
 
@@ -462,7 +471,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		public int peerTo(State state, int offset) {
 			int r = super.peer(state, offset, state.size());
 
-			flowKey.peer(this);
+			peerFlowKey();
 			return r;
 		}
 
@@ -989,6 +998,86 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	 */
 	public State getState() {
 		return state;
+	}
+
+	/**
+	 * Gets the unique flow-key for this packet. This method instantiates a
+	 * flow-key object and peers is with native flow-key state. The flow-key
+	 * reference is retained and returned on any subsequent invocations.
+	 * <p>
+	 * Flow-keys are generated for each packet and can be used to group packets
+	 * into similar group of packets into flows. Flows associate packets that are
+	 * flowing in the same or are part of the same group of packets. For example,
+	 * TCP/IP group of packets will be grouped into flows, by generating
+	 * appropriate flow-keys, so that all packets part of the same TCP stream,
+	 * will have the exact same flow-key generated, allowing those packets to be
+	 * grouped into a single flow. Flow-keys can be uni or bi directional.
+	 * </p>
+	 * <p>
+	 * Uni-directional flow, is generated for packets that should be grouped, or
+	 * belong to the same flow, where packets are sent from System A to System B,
+	 * in a single or uni direction. Bi-directional keys are generated for packets
+	 * that should belong to the same flow, in both directions. Packets that are
+	 * sent from System A to System B and packets that are sent from System B to
+	 * System A.
+	 * </p>
+	 * <p>
+	 * The criteria used for generating flow-keys is different for each packet
+	 * based on protocol headers present in the packet. As an example, a flow-key
+	 * for a Ethernet/Ip4/Tcp packet is generated based on source and destination
+	 * ethernet addresses, source and destination Ip4 address, the Ip4
+	 * protocol/type number 16 which signifies that next protocol is TCP and
+	 * source and destination TCP port numbers. The flow-key generated for this
+	 * example is bidirectional, meaning that packets belonging to the same TCP
+	 * conversation in both directions between System A and System B will have the
+	 * exact same flow-key generated.
+	 * </p>
+	 * 
+	 * 
+	 * @return a unique flow-key object
+	 */
+	public JFlowKey getFlowKey() {
+		return state.getFlowKey();
+	}
+
+	/**
+	 * Gets the unique flow-key for this packet. This method peers the
+	 * <p>
+	 * Flow-keys are generated for each packet and can be used to group packets
+	 * into similar group of packets into flows. Flows associate packets that are
+	 * flowing in the same or are part of the same group of packets. For example,
+	 * TCP/IP group of packets will be grouped into flows, by generating
+	 * appropriate flow-keys, so that all packets part of the same TCP stream,
+	 * will have the exact same flow-key generated, allowing those packets to be
+	 * grouped into a single flow. Flow-keys can be uni or bi directional.
+	 * </p>
+	 * <p>
+	 * Uni-directional flow, is generated for packets that should be grouped, or
+	 * belong to the same flow, where packets are sent from System A to System B,
+	 * in a single or uni direction. Bi-directional keys are generated for packets
+	 * that should belong to the same flow, in both directions. Packets that are
+	 * sent from System A to System B and packets that are sent from System B to
+	 * System A.
+	 * </p>
+	 * <p>
+	 * The criteria used for generating flow-keys is different for each packet
+	 * based on protocol headers present in the packet. As an example, a flow-key
+	 * for a Ethernet/Ip4/Tcp packet is generated based on source and destination
+	 * ethernet addresses, source and destination Ip4 address, the Ip4
+	 * protocol/type number 16 which signifies that next protocol is TCP and
+	 * source and destination TCP port numbers. The flow-key generated for this
+	 * example is bidirectional, meaning that packets belonging to the same TCP
+	 * conversation in both directions between System A and System B will have the
+	 * exact same flow-key generated.
+	 * </p>
+	 * 
+	 * 
+	 * @return a unique flow-key object
+	 */
+	public JFlowKey getFlowKey(JFlowKey key) {
+		key.peer(state);
+
+		return key;
 	}
 
 	/**

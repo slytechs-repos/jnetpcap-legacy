@@ -22,15 +22,38 @@ import java.util.Formatter;
 
 import org.jnetpcap.nio.JStruct;
 
-// TODO: Auto-generated Javadoc
 /**
- * A unique key that identifies a flow of related packets.
+ * A unique key that identifies a flow of related packets. Flow-keys are
+ * generated for each packet and can be used to group packets into similar group
+ * of packets into flows. Flows associate packets that are flowing in the same
+ * or are part of the same group of packets. For example, TCP/IP group of
+ * packets will be grouped into flows, by generating appropriate flow-keys, so
+ * that all packets part of the same TCP stream, will have the exact same
+ * flow-key generated, allowing those packets to be grouped into a single flow.
+ * Flow-keys can be uni or bi directional.
+ * <p>
+ * Uni-directional flow, is generated for packets that should be grouped, or
+ * belong to the same flow, where packets are sent from System A to System B, in
+ * a single or uni direction. Bi-directional keys are generated for packets that
+ * should belong to the same flow, in both directions. Packets that are sent
+ * from System A to System B and packets that are sent from System B to System
+ * A.
+ * </p>
+ * <p>
+ * The criteria used for generating flow-keys is different for each packet based
+ * on protocol headers present in the packet. As an example, a flow-key for a
+ * Ethernet/Ip4/Tcp packet is generated based on source and destination ethernet
+ * addresses, source and destination Ip4 address, the Ip4 protocol/type number
+ * 16 which signifies that next protocol is TCP and source and destination TCP
+ * port numbers. The flow-key generated for this example is bidirectional,
+ * meaning that packets belonging to the same TCP conversation in both
+ * directions between System A and System B will have the exact same flow-key
+ * generated.
+ * </p>
  * 
- * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class JFlowKey
-    extends JStruct {
+public class JFlowKey extends JStruct {
 
 	/** The Constant FLAG_REVERSABLE. */
 	public static final int FLAG_REVERSABLE = 0x00000001;
@@ -122,7 +145,7 @@ public class JFlowKey
 	 * @return the id
 	 */
 	public native int getId(int index);
-	
+
 	/**
 	 * Gets the ids.
 	 * 
@@ -130,14 +153,13 @@ public class JFlowKey
 	 */
 	public int[] getIds() {
 		int[] ids = new int[getPairCount()];
-		
-		for (int i = 0; i < ids.length; i ++) {
+
+		for (int i = 0; i < ids.length; i++) {
 			ids[i] = getId(i);
 		}
-		
+
 		return ids;
 	}
-
 
 	/**
 	 * Gets the pair.
@@ -149,7 +171,7 @@ public class JFlowKey
 	 * @return the pair
 	 */
 	public native long getPair(int index, boolean reversePairs);
-	
+
 	/**
 	 * Gets the pairs.
 	 * 
@@ -157,11 +179,11 @@ public class JFlowKey
 	 */
 	public long[] getPairs() {
 		long[] pairs = new long[getPairCount()];
-		
-		for (int i = 0; i < pairs.length; i ++) {
+
+		for (int i = 0; i < pairs.length; i++) {
 			pairs[i] = getPair(i, false);
 		}
-		
+
 		return pairs;
 	}
 
@@ -182,7 +204,7 @@ public class JFlowKey
 	 * @return the pair p1
 	 */
 	public native int getPairP1(int index, boolean reversePairs);
-	
+
 	/**
 	 * Gets the pair p2.
 	 * 
@@ -240,11 +262,14 @@ public class JFlowKey
 	 * @return the string
 	 * @see org.jnetpcap.nio.JMemory#toDebugString()
 	 */
+	@Override
 	public String toDebugString() {
 		Formatter out = new Formatter();
 
-		out.format("[count=%d, map=0x%x, hash=0x%x]", getPairCount(),
-		    getHeaderMap(), hashCode());
+		out.format("[count=%d, map=0x%x, hash=0x%x]",
+				getPairCount(),
+				getHeaderMap(),
+				hashCode());
 
 		return out.toString();
 	}
