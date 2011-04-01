@@ -1,6 +1,6 @@
 ################################################################################
 #
-#    Copyright (C) 2007-2010 Sly Technologies, Inc.
+#    Copyright (C) 2007-2011 Sly Technologies, Inc.
 #
 #    This program is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU General Public License
@@ -20,28 +20,20 @@
 
 
                               jNetPcap Package
-                               Version 1.3.b4
+                               Version 1.3.0
                                Release Notes
-                            Created on 2010-12-15
+                            Created on 2011-04-01
 
 INTRODUCTION:
 ============
 
-This is a stable release beta #4 of jNetPcap library. The feature set for
+This is a production quality release of jNetPcap library. The feature set for
 1.3 release cycle is frozen and only bug fixes will be released in future
-1.3 updates. 
+1.3 maintenance releases. 
 
-Beta 4 addresses a significant memory utilization issue. Beta 4 replaced 
-Object finalization memory cleanup model, with java Reference and ReferenceQueue
-managed objects. No classes in jNetPcap library rely on Object.finalize() to
-perform any type of cleanup. Any class requiring cleanup, now uses the 
-java.lang.reference package mechanism to be notified when cleanup needs to 
-occur. This is Sun/Oracle recommended way of performing cleanup.
-
-Beta 4 adds a background system thread which schedules cleanup of resources. The
-cleanup thread, named after the class implementing most of the functionality,
-DisposableGC class, works in conjunction with memory allocation mechanism to
-ensure that memory is kept within default limits of 64mb. 
+Significant improvements have been done to 1.3 codebase when compared to 1.2.
+Memory utilization has been fully stabilized. Flow-key generation, protocol
+quality, performance and other attributes have been stabilized in this release.  
 
 Several system properties were added to control the behavior and limits of 
 DisposableGC. Properties 'nio.mx', 'nio.ms', 'nio.blocksize' control native
