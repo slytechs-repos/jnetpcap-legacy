@@ -34,6 +34,8 @@
 
 #include "jnetpcap_ids.h"
 
+#include "mac_addr.h" // Defines socket and DLPI based MAC address getters
+
 #include "jnetpcap_utils.h"
 #include "jnetpcap_bpf.h"
 #include "nio_jmemory.h"
@@ -605,27 +607,21 @@ JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_PcapUtils_getHardwareAddress
 
 #else
 
-   struct ifreq ifr;
+	u_char mac[6]; // MAC address is 6 bytes
 
-   int sd = socket(PF_INET, SOCK_DGRAM, 0);
-    if (sd < 0) {
-		throwException(env, IO_EXCEPTION, "cannot open socket.");
-        return NULL; // error: can't create socket.
-    }
+#if defined(Linux) || defined(HPUX) || defined(AIX) || defined(DARWIN) || \
+		defined(FREE_BSD) || defined(NET_BSD) || defined(OPEN_BSD)
 
-    /* set interface name (lo, eth0, eth1,..) */
-    memset(&ifr, 0, sizeof(ifr));
-    strncpy(ifr.ifr_ifrn.ifrn_name,buf, IFNAMSIZ);
+	mac_addr_sys(buf, mac);
 
-    /* get a Get Interface Hardware Address */
-    if (ioctl(sd, SIOCGIFHWADDR, &ifr) != 0) {
-	return NULL;
-    }
+#else
 
-    close(sd);
+	mac_addr_dlpi(buf, mac);
+
+#endif
 
     jba = env->NewByteArray((jsize) 6);
-    env->SetByteArrayRegion(jba, 0, 6, (jbyte *)ifr.ifr_ifru.ifru_hwaddr.sa_data);
+    env->SetByteArrayRegion(jba, 0, 6, (jbyte *)mac);
 #endif
 
 	return jba;
