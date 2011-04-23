@@ -42,11 +42,11 @@
 #define SLL_ADDR_LEN	8		      // length of address field
 
 typedef struct sll_t {
-	u_int16_t	sll_pkttype;	          // packet type
-	u_int16_t	sll_hatype;	            // link-layer address type
-	u_int16_t	sll_halen;	            // link-layer address length
-	u_int8_t	sll_addr[SLL_ADDR_LEN];	// link-layer address
-	u_int16_t	sll_protocol;         	// protocol
+	uint16_t	sll_pkttype;	          // packet type
+	uint16_t	sll_hatype;	            // link-layer address type
+	uint16_t	sll_halen;	            // link-layer address length
+	uint8_t		sll_addr[SLL_ADDR_LEN];	// link-layer address
+	uint16_t	sll_protocol;         	// protocol
 } sll_t;
 
 /*
