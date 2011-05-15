@@ -52,7 +52,7 @@ public class LinkSequence<T> implements Iterable<T> {
 
 	/** The first. */
 	private Link<T> first;
-	
+
 	/** The last. */
 	private Link<T> last;
 
@@ -99,6 +99,18 @@ public class LinkSequence<T> implements Iterable<T> {
 	 *          the l
 	 */
 	public void remove(Link<T> l) {
+
+		if (size-- == 0) {
+			final T e = l.linkElement();
+			final String name = (e == null) ? null : e.getClass().getSimpleName();
+			String msg =
+					String.format("%s:: size < 0 :: culprit=%s[%s]",
+							this.name,
+							name,
+							String.valueOf(e));
+			throw new IllegalStateException(msg);
+		}
+
 		final Link<T> p = l.linkPrev();
 		final Link<T> n = l.linkNext();
 
@@ -123,19 +135,6 @@ public class LinkSequence<T> implements Iterable<T> {
 		l.linkNext(null);
 		l.linkPrev(null);
 		l.linkCollection(null);
-
-		size--;
-
-		if (size < 0) {
-			final T e = l.linkElement();
-			final String name = (e == null) ? null : e.getClass().getSimpleName();
-			String msg =
-					String.format("%s:: size < 0 :: culprit=%s[%s]",
-							this.name,
-							name,
-							String.valueOf(e));
-			throw new IllegalStateException(msg);
-		}
 	}
 
 	/**
@@ -177,6 +176,7 @@ public class LinkSequence<T> implements Iterable<T> {
 	 * @return the string
 	 * @see java.lang.Object#toString()
 	 */
+	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();
 
