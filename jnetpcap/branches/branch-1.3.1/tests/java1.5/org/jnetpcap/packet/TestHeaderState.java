@@ -49,7 +49,6 @@ public class TestHeaderState extends TestUtils {
 
 		buffer.dispatchToJBuffeHandler(new JBufferHandler<String>() {
 
-			@Override
 			public void nextPacket(PcapHeader header, JBuffer buffer, String user) {
 				PcapPacket packet = new PcapPacket(header, buffer);
 				packet.scan(Ethernet.ID);
@@ -73,7 +72,6 @@ public class TestHeaderState extends TestUtils {
 
 		buffer.dispatchToJBuffeHandler(new JBufferHandler<String>() {
 
-			@Override
 			public void nextPacket(PcapHeader header, JBuffer buffer, String user) {
 				PcapPacket packet = new PcapPacket(header, buffer);
 				packet.scan(Ethernet.ID);
@@ -127,7 +125,6 @@ public class TestHeaderState extends TestUtils {
 
 		buffer.dispatchToJBuffeHandler(new JBufferHandler<String>() {
 
-			@Override
 			public void nextPacket(PcapHeader header, JBuffer buffer, String user) {
 				PcapPacket packet = new PcapPacket(header, buffer);
 				packet.scan(Ethernet.ID);
