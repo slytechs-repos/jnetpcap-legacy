@@ -211,8 +211,10 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 */
 	@Override
 	public String toString() {
-		return String.format("prev=%s, next=%s", (linkPrev == this) ? "self"
-				: linkPrev, (linkNext == this) ? "self" : linkNext);
+		return String.format("@%04X[@%04X,@%04X]",
+				(short) hashCode(),
+				(linkPrev == null) ? 0 : (short) linkPrev.hashCode(),
+				(linkNext == null) ? 0 : (short) linkNext.hashCode());
 	}
 
 	/**
