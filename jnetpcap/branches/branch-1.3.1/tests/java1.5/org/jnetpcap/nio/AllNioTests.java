@@ -25,7 +25,7 @@ import junit.framework.TestSuite;
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
- *
+ * 
  */
 public class AllNioTests {
 
@@ -36,10 +36,11 @@ public class AllNioTests {
 	 */
 	public static Test suite() {
 		TestSuite suite = new TestSuite("Test for org.jnetpcap.nio");
-		//$JUnit-BEGIN$
+		// $JUnit-BEGIN$
 		suite.addTestSuite(TestJBuffer.class);
 		suite.addTestSuite(TestJMemory.class);
-		//$JUnit-END$
+		suite.addTestSuite(TestLinkSequence.class);
+		// $JUnit-END$
 		return suite;
 	}
 
