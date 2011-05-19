@@ -1359,6 +1359,7 @@ svn copy ${svn.jnp.trunk} ${svn.jnp.builds} -m "${svn.tags.comment}"
 		<echo message="package-rpm     - generates a dist RPM file containing library binaries on Red Hat compatible OSes" />
 		<echo message="package-deb     - generates a dist Debian file containing library binaries on Debian compatible OSes" />
 		<echo message="package-javadoc - generates a dist ZIP file containing library source, test cases and examples" />
+		<echo message="package-tar - generates a compressed tar file package" />
 		<echo message=" " />
 		<echo message="build-jar       - compiles java source code and generates a JAR file in build directory" />
 		<echo message="build-rpm       - compiles native JNI and java code and generates a RPM file in build directory" />
