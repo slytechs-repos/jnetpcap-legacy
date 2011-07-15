@@ -34,14 +34,14 @@ import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.packet.format.JFormatter;
-import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.packet.format.JFormatter.Detail;
+import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.packet.structure.AnnotatedBindMethod;
 import org.jnetpcap.packet.structure.AnnotatedBinding;
 import org.jnetpcap.packet.structure.AnnotatedField;
 import org.jnetpcap.packet.structure.AnnotatedHeader;
 import org.jnetpcap.packet.structure.AnnotatedHeaderLengthMethod;
-import org.jnetpcap.packet.structure.DefaultField;
+import org.jnetpcap.packet.structure.AnnotatedJField;
 import org.jnetpcap.packet.structure.HeaderDefinitionError;
 import org.jnetpcap.packet.structure.JField;
 import org.jnetpcap.protocol.JProtocol;
@@ -53,18 +53,18 @@ import org.jnetpcap.protocol.network.Ip4;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class TestAnotatedDefinition
-    extends TestCase {
+public class TestAnotatedDefinition extends TestCase {
 
 	/** The errors. */
-	private List<HeaderDefinitionError> errors =
-	    new ArrayList<HeaderDefinitionError>();
+	private final List<HeaderDefinitionError> errors =
+			new ArrayList<HeaderDefinitionError>();
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see junit.framework.TestCase#setUp()
 	 */
+	@Override
 	protected void setUp() throws Exception {
 
 		/*
@@ -83,6 +83,7 @@ public class TestAnotatedDefinition
 	 * 
 	 * @see junit.framework.TestCase#tearDown()
 	 */
+	@Override
 	protected void tearDown() throws Exception {
 		if (errors.isEmpty() == false) {
 			System.out.println("Found errors:");
@@ -117,8 +118,7 @@ public class TestAnotatedDefinition
 	 * The Class TestHeader.
 	 */
 	@Header
-	public static class TestHeader
-	    extends JHeader {
+	public static class TestHeader extends JHeader {
 
 		/**
 		 * Header length.
@@ -189,28 +189,24 @@ public class TestAnotatedDefinition
 	 * The Class TestSubHeader.
 	 */
 	@Header(length = 40, id = 0)
-	public static class TestSubHeader
-	    extends JHeader {
+	public static class TestSubHeader extends JHeader {
 
 		/**
 		 * The Class Sub1.
 		 */
 		@Header(length = 30)
-		public static class Sub1
-		    extends JSubHeader<TestSubHeader> {
+		public static class Sub1 extends JSubHeader<TestSubHeader> {
 
 			/**
 			 * The Class Sub2.
 			 */
-			public static class Sub2
-			    extends Sub1 {
+			public static class Sub2 extends Sub1 {
 
 				/**
 				 * The Class Sub3.
 				 */
 				@Header(id = 1)
-				public static class Sub3
-				    extends Sub2 {
+				public static class Sub3 extends Sub2 {
 
 					/**
 					 * Len.
@@ -236,12 +232,12 @@ public class TestAnotatedDefinition
 	public void test2() {
 
 		AnnotatedHeader ah1 =
-		    AnnotatedHeader.inspectJHeaderClass(TestSubHeader.Sub1.Sub2.Sub3.class,
-		        errors);
+				AnnotatedHeader.inspectJHeaderClass(TestSubHeader.Sub1.Sub2.Sub3.class,
+						errors);
 
 		AnnotatedHeader ah2 =
-		    AnnotatedHeader.inspectJHeaderClass(TestSubHeader.Sub1.Sub2.Sub3.class,
-		        errors);
+				AnnotatedHeader.inspectJHeaderClass(TestSubHeader.Sub1.Sub2.Sub3.class,
+						errors);
 
 		assertTrue(ah1 == ah2); // Check if cached properly
 
@@ -252,8 +248,8 @@ public class TestAnotatedDefinition
 	 */
 	public void testWithMyHeader() {
 		@SuppressWarnings("unused")
-    AnnotatedHeader ah1 =
-		    AnnotatedHeader.inspectJHeaderClass(MyHeader.class, errors);
+		AnnotatedHeader ah1 =
+				AnnotatedHeader.inspectJHeaderClass(MyHeader.class, errors);
 
 	}
 
@@ -265,10 +261,10 @@ public class TestAnotatedDefinition
 	 */
 	public void testIp4() throws IOException {
 		AnnotatedHeader ah1 =
-		    AnnotatedHeader.inspectJHeaderClass(Ip4.class, errors);
+				AnnotatedHeader.inspectJHeaderClass(Ip4.class, errors);
 
 		AnnotatedField[] afs = ah1.getFields();
-		JField[] fields = DefaultField.fromAnnotatedFields(afs);
+		JField[] fields = AnnotatedJField.fromAnnotatedFields(afs);
 
 		for (JField field : fields) {
 			System.out.printf("field=%s\n", field.toString());

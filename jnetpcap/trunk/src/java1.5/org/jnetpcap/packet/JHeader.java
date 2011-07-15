@@ -26,7 +26,7 @@ import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JStruct;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.structure.AnnotatedHeader;
-import org.jnetpcap.packet.structure.DefaultField;
+import org.jnetpcap.packet.structure.AnnotatedJField;
 import org.jnetpcap.packet.structure.JField;
 import org.jnetpcap.protocol.JProtocol;
 
@@ -928,7 +928,7 @@ public abstract class JHeader extends JBuffer implements JPayloadAccessor {
 		this.name = header.getName();
 		this.nicname = header.getNicname();
 
-		this.fields = DefaultField.fromAnnotatedFields(header.getFields());
+		this.fields = AnnotatedJField.fromAnnotatedFields(header.getFields());
 	}
 
 	/**
