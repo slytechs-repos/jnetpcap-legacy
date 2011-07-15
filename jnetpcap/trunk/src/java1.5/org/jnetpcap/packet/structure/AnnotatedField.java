@@ -50,7 +50,7 @@ public class AnnotatedField {
 
 		if (method.isAnnotationPresent(Field.class) == false) {
 			throw new AnnotatedMethodException(c,
-			    "missing @Field annotation on field " + method.getName());
+					"missing @Field annotation on field " + method.getName());
 		}
 	}
 
@@ -67,28 +67,27 @@ public class AnnotatedField {
 	 *          the c
 	 * @return the annotated field
 	 */
-	public static AnnotatedField inspectEnumConstant(
-	    String field,
-	    Field enumAnnotation,
-	    Map<Property, AnnotatedFieldMethod> methods,
-	    Class<?> c) {
+	public static AnnotatedField inspectEnumConstant(String field,
+			Field enumAnnotation,
+			Map<Property, AnnotatedFieldMethod> methods,
+			Class<?> c) {
 
 		if (methods.containsKey(Property.VALUE) == false) {
 			throw new AnnotatedMethodException(c,
-			    "missing value getter method for field based on enum constant: "
-			        + field);
+					"missing value getter method for field based on enum constant: "
+							+ field);
 		}
 
 		if (methods.containsKey(Property.LENGTH) == false) {
 			throw new AnnotatedMethodException(c,
-			    "missing length getter method for field based on enum constant: "
-			        + field);
+					"missing length getter method for field based on enum constant: "
+							+ field);
 		}
 
 		if (methods.containsKey(Property.OFFSET) == false) {
 			throw new AnnotatedMethodException(c,
-			    "missing offset getter method for field based on enum constant: "
-			        + field);
+					"missing offset getter method for field based on enum constant: "
+							+ field);
 		}
 
 		return new AnnotatedField(field, enumAnnotation, methods, c);
@@ -103,9 +102,8 @@ public class AnnotatedField {
 	 *          the m
 	 * @return the annotated field
 	 */
-	public static AnnotatedField inspectMethod(
-	    Class<? extends JHeader> c,
-	    Method m) {
+	public static AnnotatedField inspectMethod(Class<? extends JHeader> c,
+			Method m) {
 
 		checkSingature(c, m);
 
@@ -146,6 +144,12 @@ public class AnnotatedField {
 			return Style.STRING_TEXT_DUMP;
 		} else if (format.contains("#bitfield#")) {
 			return Style.INT_BITS;
+		} else if (format.contains("#timestamp#")) {
+			return Style.TIMESTAMP;
+		} else if (format.contains("#timestamp_seconds#")) {
+			return Style.TIMESTAMP_SECONDS;
+		} else if (format.contains("#octets#")) {
+			return Style.BYTE_ARRAY_OCTET_STREAM;
 		} else {
 			return Style.STRING;
 		}
@@ -165,7 +169,7 @@ public class AnnotatedField {
 
 	/** The sub fields. */
 	private final List<AnnotatedField> subFields =
-	    new ArrayList<AnnotatedField>();
+			new ArrayList<AnnotatedField>();
 
 	/** The name. */
 	private String name;
@@ -195,11 +199,8 @@ public class AnnotatedField {
 	 * @param declaringClass
 	 *          the declaring class
 	 */
-	public AnnotatedField(
-	    String name,
-	    Field enumAnnotation,
-	    Map<Property, AnnotatedFieldMethod> methods,
-	    Class<?> declaringClass) {
+	public AnnotatedField(String name, Field enumAnnotation,
+			Map<Property, AnnotatedFieldMethod> methods, Class<?> declaringClass) {
 
 		this.name = name;
 		this.method = methods.get(Property.VALUE).method;
@@ -259,7 +260,7 @@ public class AnnotatedField {
 	 */
 	public final String getDisplay() {
 		return (annotation.display().length() == 0) ? getName() : annotation
-		    .display();
+				.display();
 	}
 
 	/**
@@ -311,7 +312,7 @@ public class AnnotatedField {
 			return name;
 		}
 		return (annotation.name().length() == 0) ? method.getName() : annotation
-		    .name();
+				.name();
 	}
 
 	/**
@@ -321,7 +322,7 @@ public class AnnotatedField {
 	 */
 	public final String getNicname() {
 		return (annotation.nicname().length() == 0) ? getName() : annotation
-		    .nicname();
+				.nicname();
 	}
 
 	/**

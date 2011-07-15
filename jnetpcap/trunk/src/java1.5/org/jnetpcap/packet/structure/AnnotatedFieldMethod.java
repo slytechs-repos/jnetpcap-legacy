@@ -35,14 +35,12 @@ import org.jnetpcap.packet.annotate.FieldDefinitionException;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public abstract class AnnotatedFieldMethod
-    extends AnnotatedMethod {
+public abstract class AnnotatedFieldMethod extends AnnotatedMethod {
 
 	/**
 	 * The Class BooleanFunction.
 	 */
-	private static class BooleanFunction
-	    extends AnnotatedFieldMethod {
+	private static class BooleanFunction extends AnnotatedFieldMethod {
 
 		/** The has static value. */
 		private boolean hasStaticValue = false;
@@ -62,6 +60,8 @@ public abstract class AnnotatedFieldMethod
 			super(field, function);
 
 			setValue(true); // Static fields are always available
+
+			field.getMethod().setAccessible(true);
 		}
 
 		/**
@@ -74,12 +74,16 @@ public abstract class AnnotatedFieldMethod
 		 */
 		public BooleanFunction(Method method, Field.Property function) {
 			super(method, function);
+
+			method.setAccessible(true);
 		}
 
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see org.jnetpcap.packet.AnnotatedFieldMethod#booleanMethod(org.jnetpcap.packet.JHeader)
+		 * @see
+		 * org.jnetpcap.packet.AnnotatedFieldMethod#booleanMethod(org.jnetpcap.packet
+		 * .JHeader)
 		 */
 		/**
 		 * Boolean method.
@@ -104,22 +108,23 @@ public abstract class AnnotatedFieldMethod
 		 *          the field
 		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#configFromField(org.jnetpcap.packet.structure.AnnotatedField)
 		 */
+		@Override
 		public final void configFromField(AnnotatedField field) {
 
 			switch (function) {
-				case CHECK:
-					break;
+			case CHECK:
+				break;
 
-				default:
-					throw new HeaderDefinitionError("Invalid Dynamic function type "
-					    + function.toString());
+			default:
+				throw new HeaderDefinitionError("Invalid Dynamic function type "
+						+ function.toString());
 
 			}
 
 			if (hasStaticValue == false && method == null) {
 				throw new FieldDefinitionException(field, "Missing '"
-				    + function.name().toLowerCase() + "' property. [@Dynamic(Property."
-				    + function.name() + ")]");
+						+ function.name().toLowerCase() + "' property. [@Dynamic(Property."
+						+ function.name() + ")]");
 			}
 		}
 
@@ -139,9 +144,9 @@ public abstract class AnnotatedFieldMethod
 
 			try {
 				if (isMapped) {
-					return (boolean) (Boolean) method.invoke(header, name);
+					return (Boolean) method.invoke(header, name);
 				} else {
-					return (boolean) (Boolean) method.invoke(header);
+					return (Boolean) method.invoke(header);
 				}
 
 			} catch (IllegalArgumentException e) {
@@ -168,8 +173,7 @@ public abstract class AnnotatedFieldMethod
 	/**
 	 * The Class IntFunction.
 	 */
-	private static class IntFunction
-	    extends AnnotatedFieldMethod {
+	private static class IntFunction extends AnnotatedFieldMethod {
 
 		/** The has static value. */
 		private boolean hasStaticValue = false;
@@ -190,6 +194,8 @@ public abstract class AnnotatedFieldMethod
 
 			configFromField(field);
 
+			field.getMethod().setAccessible(true);
+
 		}
 
 		/**
@@ -203,10 +209,12 @@ public abstract class AnnotatedFieldMethod
 		 *          the static value
 		 */
 		public IntFunction(AnnotatedField field, Field.Property function,
-		    int staticValue) {
+				int staticValue) {
 			super(field, function);
 
 			setValue(staticValue);
+
+			field.getMethod().setAccessible(true);
 		}
 
 		/**
@@ -219,6 +227,8 @@ public abstract class AnnotatedFieldMethod
 		 */
 		public IntFunction(Method method, Field.Property function) {
 			super(method, function);
+
+			method.setAccessible(true);
 		}
 
 		/**
@@ -228,32 +238,33 @@ public abstract class AnnotatedFieldMethod
 		 *          the field
 		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#configFromField(org.jnetpcap.packet.structure.AnnotatedField)
 		 */
+		@Override
 		public final void configFromField(AnnotatedField field) {
 
 			switch (function) {
-				case LENGTH:
-					if (field.getLength() != -1) {
-						setValue(field.getLength());
-					}
-					break;
+			case LENGTH:
+				if (field.getLength() != -1) {
+					setValue(field.getLength());
+				}
+				break;
 
-				case OFFSET:
-					if (field.getOffset() != -1) {
-						setValue(field.getOffset());
-					}
-					break;
+			case OFFSET:
+				if (field.getOffset() != -1) {
+					setValue(field.getOffset());
+				}
+				break;
 
-				default:
-					throw new HeaderDefinitionError("Invalid Dynamic function type "
-					    + function.toString());
+			default:
+				throw new HeaderDefinitionError("Invalid Dynamic function type "
+						+ function.toString());
 
 			}
 
 			if (hasStaticValue == false && method == null) {
 				throw new FieldDefinitionException(field, "Missing '"
-				    + function.name().toLowerCase() + "' property. [@Field("
-				    + function.name().toLowerCase() + "=<int>) or @Dynamic(Property."
-				    + function.name() + ")]");
+						+ function.name().toLowerCase() + "' property. [@Field("
+						+ function.name().toLowerCase() + "=<int>) or @Dynamic(Property."
+						+ function.name() + ")]");
 			}
 
 		}
@@ -274,9 +285,9 @@ public abstract class AnnotatedFieldMethod
 
 			try {
 				if (isMapped) {
-					return (int) (Integer) method.invoke(header, name);
+					return (Integer) method.invoke(header, name);
 				} else {
-					return (int) (Integer) method.invoke(header);
+					return (Integer) method.invoke(header);
 				}
 
 			} catch (IllegalArgumentException e) {
@@ -291,7 +302,9 @@ public abstract class AnnotatedFieldMethod
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see org.jnetpcap.packet.AnnotatedFieldMethod#intMethod(org.jnetpcap.packet.JHeader)
+		 * @see
+		 * org.jnetpcap.packet.AnnotatedFieldMethod#intMethod(org.jnetpcap.packet
+		 * .JHeader)
 		 */
 		/**
 		 * Int method.
@@ -324,8 +337,7 @@ public abstract class AnnotatedFieldMethod
 	/**
 	 * The Class LongFunction.
 	 */
-	private static class LongFunction
-	    extends AnnotatedFieldMethod {
+	private static class LongFunction extends AnnotatedFieldMethod {
 
 		/** The has static value. */
 		private boolean hasStaticValue = false;
@@ -346,6 +358,8 @@ public abstract class AnnotatedFieldMethod
 
 			configFromField(field);
 
+			field.getMethod().setAccessible(true);
+
 		}
 
 		/**
@@ -359,10 +373,12 @@ public abstract class AnnotatedFieldMethod
 		 *          the static value
 		 */
 		public LongFunction(AnnotatedField field, Field.Property function,
-		    long staticValue) {
+				long staticValue) {
 			super(field, function);
 
 			setValue(staticValue);
+
+			field.getMethod().setAccessible(true);
 		}
 
 		/**
@@ -375,6 +391,8 @@ public abstract class AnnotatedFieldMethod
 		 */
 		public LongFunction(Method method, Field.Property function) {
 			super(method, function);
+
+			method.setAccessible(true);
 		}
 
 		/**
@@ -384,26 +402,27 @@ public abstract class AnnotatedFieldMethod
 		 *          the field
 		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#configFromField(org.jnetpcap.packet.structure.AnnotatedField)
 		 */
+		@Override
 		public final void configFromField(AnnotatedField field) {
 
 			switch (function) {
 
-				case MASK:
+			case MASK:
 
-					setValue(field.getMask());
-					break;
+				setValue(field.getMask());
+				break;
 
-				default:
-					throw new HeaderDefinitionError("Invalid Dynamic function type "
-					    + function.toString());
+			default:
+				throw new HeaderDefinitionError("Invalid Dynamic function type "
+						+ function.toString());
 
 			}
 
 			if (hasStaticValue == false && method == null) {
 				throw new FieldDefinitionException(field, "Missing '"
-				    + function.name().toLowerCase() + "' property. [@Field("
-				    + function.name().toLowerCase() + "=<int>) or @Dynamic(Property."
-				    + function.name() + ")]");
+						+ function.name().toLowerCase() + "' property. [@Field("
+						+ function.name().toLowerCase() + "=<int>) or @Dynamic(Property."
+						+ function.name() + ")]");
 			}
 
 		}
@@ -424,9 +443,9 @@ public abstract class AnnotatedFieldMethod
 
 			try {
 				if (isMapped) {
-					return (long) (Long) method.invoke(header, name);
+					return (Long) method.invoke(header, name);
 				} else {
-					return (long) (Long) method.invoke(header);
+					return (Long) method.invoke(header);
 				}
 
 			} catch (IllegalArgumentException e) {
@@ -441,7 +460,9 @@ public abstract class AnnotatedFieldMethod
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see org.jnetpcap.packet.AnnotatedFieldMethod#longMethod(org.jnetpcap.packet.JHeader)
+		 * @see
+		 * org.jnetpcap.packet.AnnotatedFieldMethod#longMethod(org.jnetpcap.packet
+		 * .JHeader)
 		 */
 		/**
 		 * Long method.
@@ -474,8 +495,7 @@ public abstract class AnnotatedFieldMethod
 	/**
 	 * The Class ObjectFunction.
 	 */
-	private static class ObjectFunction
-	    extends AnnotatedFieldMethod {
+	private static class ObjectFunction extends AnnotatedFieldMethod {
 
 		/**
 		 * Instantiates a new object function.
@@ -488,6 +508,7 @@ public abstract class AnnotatedFieldMethod
 		public ObjectFunction(AnnotatedField field, Field.Property fuction) {
 			super(field, fuction, field.getMethod());
 
+			field.getMethod().setAccessible(true);
 		}
 
 		/**
@@ -500,6 +521,8 @@ public abstract class AnnotatedFieldMethod
 		 */
 		public ObjectFunction(Method method, Field.Property function) {
 			super(method, function);
+
+			method.setAccessible(true);
 		}
 
 		/**
@@ -509,27 +532,27 @@ public abstract class AnnotatedFieldMethod
 		 *          the field
 		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#configFromField(org.jnetpcap.packet.structure.AnnotatedField)
 		 */
+		@Override
 		public final void configFromField(AnnotatedField field) {
 
 			switch (function) {
-				case VALUE:
-					if (method == null) {
-						throw new HeaderDefinitionError(field.getDeclaringClass(),
-						    "no method set for field value getter [" + field.getName()
-						        + "]");
-					}
-					break;
-
-				default:
+			case VALUE:
+				if (method == null) {
 					throw new HeaderDefinitionError(field.getDeclaringClass(),
-					    "Invalid Dynamic function type " + function.toString());
+							"no method set for field value getter [" + field.getName() + "]");
+				}
+				break;
+
+			default:
+				throw new HeaderDefinitionError(field.getDeclaringClass(),
+						"Invalid Dynamic function type " + function.toString());
 
 			}
 
 			if (method == null) {
 				throw new FieldDefinitionException(field, "Missing field accessor '"
-				    + function.name().toLowerCase() + "' property. [@Dynamic(Property."
-				    + function.name() + ")]");
+						+ function.name().toLowerCase() + "' property. [@Dynamic(Property."
+						+ function.name() + ")]");
 			}
 		}
 
@@ -563,7 +586,9 @@ public abstract class AnnotatedFieldMethod
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see org.jnetpcap.packet.AnnotatedFieldMethod#objectMethod(org.jnetpcap.packet.JHeader)
+		 * @see
+		 * org.jnetpcap.packet.AnnotatedFieldMethod#objectMethod(org.jnetpcap.packet
+		 * .JHeader)
 		 */
 		/**
 		 * Object method.
@@ -585,8 +610,7 @@ public abstract class AnnotatedFieldMethod
 	/**
 	 * The Class StringFunction.
 	 */
-	private static class StringFunction
-	    extends AnnotatedFieldMethod {
+	private static class StringFunction extends AnnotatedFieldMethod {
 
 		/** The has static value. */
 		private boolean hasStaticValue = false;
@@ -605,6 +629,8 @@ public abstract class AnnotatedFieldMethod
 		public StringFunction(AnnotatedField field, Field.Property function) {
 			super(field, function);
 
+			field.getMethod().setAccessible(true);
+
 			configFromField(field);
 		}
 
@@ -618,6 +644,8 @@ public abstract class AnnotatedFieldMethod
 		 */
 		public StringFunction(Method method, Field.Property function) {
 			super(method, function);
+
+			method.setAccessible(true);
 		}
 
 		/**
@@ -627,43 +655,44 @@ public abstract class AnnotatedFieldMethod
 		 *          the field
 		 * @see org.jnetpcap.packet.structure.AnnotatedFieldMethod#configFromField(org.jnetpcap.packet.structure.AnnotatedField)
 		 */
+		@Override
 		public final void configFromField(AnnotatedField field) {
 
 			switch (function) {
-				case UNITS:
-					if (field.getUnits().length() != 0) {
-						setValue(field.getUnits());
-					} else if (method == null) {
-						setValue(null);
-					}
-					break;
-				case DISPLAY:
-					if (field.getDisplay().length() != 0) {
-						setValue(field.getDisplay());
-					} else if (method == null) {
-						setValue(null);
-					}
-					break;
+			case UNITS:
+				if (field.getUnits().length() != 0) {
+					setValue(field.getUnits());
+				} else if (method == null) {
+					setValue(null);
+				}
+				break;
+			case DISPLAY:
+				if (field.getDisplay().length() != 0) {
+					setValue(field.getDisplay());
+				} else if (method == null) {
+					setValue(null);
+				}
+				break;
 
-				case DESCRIPTION:
-					if (field.getDescription().length() != 0) {
-						setValue(field.getDescription());
-					} else if (method == null) {
-						setValue(null);
-					}
-					break;
+			case DESCRIPTION:
+				if (field.getDescription().length() != 0) {
+					setValue(field.getDescription());
+				} else if (method == null) {
+					setValue(null);
+				}
+				break;
 
-				default:
-					throw new HeaderDefinitionError("Invalid Dynamic function type "
-					    + function.toString());
+			default:
+				throw new HeaderDefinitionError("Invalid Dynamic function type "
+						+ function.toString());
 
 			}
 
 			if (hasStaticValue == false && method == null) {
 				throw new FieldDefinitionException(field, "Missing '"
-				    + function.name().toLowerCase() + "' property. [@Field("
-				    + function.name().toLowerCase()
-				    + "=<string>) or @Dynamic(Property." + function.name() + ")]");
+						+ function.name().toLowerCase() + "' property. [@Field("
+						+ function.name().toLowerCase()
+						+ "=<string>) or @Dynamic(Property." + function.name() + ")]");
 			}
 		}
 
@@ -711,7 +740,9 @@ public abstract class AnnotatedFieldMethod
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see org.jnetpcap.packet.AnnotatedFieldMethod#StringMethod(org.jnetpcap.packet.JHeader)
+		 * @see
+		 * org.jnetpcap.packet.AnnotatedFieldMethod#StringMethod(org.jnetpcap.packet
+		 * .JHeader)
 		 */
 		/**
 		 * String method.
@@ -776,14 +807,14 @@ public abstract class AnnotatedFieldMethod
 		 */
 		final Class<?>[] sig = method.getParameterTypes();
 		if ((sig.length == 1 && sig[0] != String.class) || sig.length > 1
-		    || method.getReturnType() != c) {
+				|| method.getReturnType() != c) {
 			throw new AnnotatedMethodException(declaringClass,
-			    "Invalid signature for " + method.getName() + "()");
+					"Invalid signature for " + method.getName() + "()");
 		}
 
 		if ((method.getModifiers() & Modifier.STATIC) != 0) {
 			throw new AnnotatedMethodException(declaringClass, method.getName()
-			    + "()" + " can not be declared static");
+					+ "()" + " can not be declared static");
 		}
 	}
 
@@ -796,32 +827,31 @@ public abstract class AnnotatedFieldMethod
 	 *          the field
 	 * @return the annotated field method
 	 */
-	public static AnnotatedFieldMethod generateFunction(
-	    Field.Property function,
-	    AnnotatedField field) {
+	public static AnnotatedFieldMethod generateFunction(Field.Property function,
+			AnnotatedField field) {
 
 		switch (function) {
-			case LENGTH:
-			case OFFSET:
-				return new IntFunction(field, function);
+		case LENGTH:
+		case OFFSET:
+			return new IntFunction(field, function);
 
-			case MASK:
-				return new LongFunction(field, function);
+		case MASK:
+			return new LongFunction(field, function);
 
-			case VALUE:
-				return new ObjectFunction(field, function);
+		case VALUE:
+			return new ObjectFunction(field, function);
 
-			case CHECK:
-				return new BooleanFunction(field, function);
+		case CHECK:
+			return new BooleanFunction(field, function);
 
-			case UNITS:
-			case DISPLAY:
-			case DESCRIPTION:
-				return new StringFunction(field, function);
+		case UNITS:
+		case DISPLAY:
+		case DESCRIPTION:
+			return new StringFunction(field, function);
 
-			default:
-				throw new HeaderDefinitionError("Unsupported Dynamic function type "
-				    + function.toString());
+		default:
+			throw new HeaderDefinitionError("Unsupported Dynamic function type "
+					+ function.toString());
 		}
 
 	}
@@ -873,32 +903,32 @@ public abstract class AnnotatedFieldMethod
 
 		Field.Property function = runtime.value();
 		switch (function) {
-			case LENGTH:
-			case OFFSET:
-				checkSignature(method, int.class);
-				return new IntFunction(method, function);
+		case LENGTH:
+		case OFFSET:
+			checkSignature(method, int.class);
+			return new IntFunction(method, function);
 
-			case MASK:
-				checkSignature(method, long.class);
-				return new LongFunction(method, function);
+		case MASK:
+			checkSignature(method, long.class);
+			return new LongFunction(method, function);
 
-			case VALUE:
-				checkSignature(method, Object.class);
+		case VALUE:
+			checkSignature(method, Object.class);
 
-				return new ObjectFunction(method, function);
+			return new ObjectFunction(method, function);
 
-			case CHECK:
-				checkSignature(method, boolean.class);
-				return new BooleanFunction(method, function);
+		case CHECK:
+			checkSignature(method, boolean.class);
+			return new BooleanFunction(method, function);
 
-			case DISPLAY:
-			case DESCRIPTION:
-				checkSignature(method, String.class);
-				return new StringFunction(method, function);
+		case DISPLAY:
+		case DESCRIPTION:
+			checkSignature(method, String.class);
+			return new StringFunction(method, function);
 
-			default:
-				throw new HeaderDefinitionError("Unsupported Dynamic function type "
-				    + function.toString());
+		default:
+			throw new HeaderDefinitionError("Unsupported Dynamic function type "
+					+ function.toString());
 		}
 	}
 
@@ -934,7 +964,7 @@ public abstract class AnnotatedFieldMethod
 	 *          the method
 	 */
 	public AnnotatedFieldMethod(AnnotatedField field, Field.Property function,
-	    Method method) {
+			Method method) {
 		super(method);
 		this.function = function;
 
@@ -956,7 +986,7 @@ public abstract class AnnotatedFieldMethod
 		Dynamic runtime = method.getAnnotation(Dynamic.class);
 		if (runtime == null) {
 			throw new HeaderDefinitionError(method.getDeclaringClass(),
-			    "unable get field's annotated runtime");
+					"unable get field's annotated runtime");
 		}
 
 		if (runtime.field().length() != 0) {
@@ -977,7 +1007,7 @@ public abstract class AnnotatedFieldMethod
 	 */
 	public boolean booleanMethod(JHeader header, String name) {
 		throw new UnsupportedOperationException(
-		    "this return type is invalid for this function type");
+				"this return type is invalid for this function type");
 	}
 
 	/**
@@ -1017,7 +1047,7 @@ public abstract class AnnotatedFieldMethod
 	 */
 	public int intMethod(JHeader header, String name) {
 		throw new UnsupportedOperationException(
-		    "this return type is invalid for this function type");
+				"this return type is invalid for this function type");
 	}
 
 	/**
@@ -1031,7 +1061,7 @@ public abstract class AnnotatedFieldMethod
 	 */
 	public Object objectMethod(JHeader header, String name) {
 		throw new UnsupportedOperationException(
-		    "this return type is invalid for this function type");
+				"this return type is invalid for this function type");
 	}
 
 	/**
@@ -1045,13 +1075,15 @@ public abstract class AnnotatedFieldMethod
 	 */
 	public String stringMethod(JHeader header, String name) {
 		throw new UnsupportedOperationException(
-		    "this return type is invalid for this function type");
+				"this return type is invalid for this function type");
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.packet.AnnotatedMethod#validateSignature(java.lang.reflect.Method)
+	 * @see
+	 * org.jnetpcap.packet.AnnotatedMethod#validateSignature(java.lang.reflect
+	 * .Method)
 	 */
 	/**
 	 * Validate signature.
@@ -1075,7 +1107,7 @@ public abstract class AnnotatedFieldMethod
 	 */
 	public long longMethod(JHeader header, String name) {
 		throw new UnsupportedOperationException(
-		    "this return type is invalid for this function type");
+				"this return type is invalid for this function type");
 	}
 
 }

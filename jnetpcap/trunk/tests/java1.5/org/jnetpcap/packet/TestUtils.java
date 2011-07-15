@@ -734,7 +734,7 @@ public class TestUtils extends TestCase {
 					if (i++ == index) {
 						PcapPacket packet = new PcapPacket(header, buffer);
 						packet.scan(JRegistry.mapDLTToId(pcap.datalink()));
-						System.out.println(packet.getState().toDebugString());
+						// System.out.println(packet.getState().toDebugString());
 						packet.transferStateAndDataTo(result);
 
 						pcap.breakloop();
@@ -929,13 +929,13 @@ public class TestUtils extends TestCase {
 
 		return buffer;
 	}
-	
+
 	public static JPcapRecordBuffer loadAllPacketsFromFile(String file) {
-		JPcapRecordBuffer buffer = loadAllPacketsFromFiles(new String[] {file});
+		JPcapRecordBuffer buffer = loadAllPacketsFromFiles(new String[] { file
+		});
 
 		return buffer;
 	}
-
 
 	/**
 	 * Open live.

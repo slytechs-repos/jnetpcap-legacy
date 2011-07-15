@@ -726,6 +726,29 @@ public class FormatUtils {
 	 *          data array
 	 * @param offset
 	 *          offset into the array
+	 * @return formatted string
+	 */
+	public static String hexLineStream(byte[] data, int offset) {
+		String s = "";
+
+		int i = 0;
+		for (i = 0; i + offset < data.length; i++) {
+			final int o = i + offset;
+
+			s += toHexString(data[o]);
+
+		}
+
+		return (s);
+	}
+
+	/**
+	 * Formats the data array as a hexdump.
+	 * 
+	 * @param data
+	 *          data array
+	 * @param offset
+	 *          offset into the array
 	 * @param markers
 	 *          the markers
 	 * @return formatted string
@@ -884,7 +907,7 @@ public class FormatUtils {
 	 * @return formatted string
 	 */
 	public static String toHexString(byte b) {
-		String s = Integer.toHexString(((int) b) & 0xFF);
+		String s = Integer.toHexString((b) & 0xFF);
 
 		if (s.length() == 1)
 			return ("0" + s);

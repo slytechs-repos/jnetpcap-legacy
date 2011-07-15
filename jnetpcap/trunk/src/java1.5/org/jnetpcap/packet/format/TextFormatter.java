@@ -36,14 +36,15 @@ import org.jnetpcap.protocol.JProtocol.Suite;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class TextFormatter
-    extends JFormatter {
+public class TextFormatter extends JFormatter {
+
+	public final static int COL1 = 40;
 
 	/** The Constant FIELD_ARRAY_FORMAT. */
-	private final static String FIELD_ARRAY_FORMAT = "%16s[%d] = ";
+	private final static String FIELD_ARRAY_FORMAT = "%" + COL1 + "s[%d] = ";
 
 	/** The Constant FIELD_FORMAT. */
-	private final static String FIELD_FORMAT = "%16s = ";
+	private final static String FIELD_FORMAT = "%" + COL1 + "s = ";
 
 	/** The Constant SEPARATOR. */
 	private static final String SEPARATOR = ": ";
@@ -96,15 +97,16 @@ public class TextFormatter
 	 *      org.jnetpcap.packet.structure.JField,
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
+	@Override
 	protected void fieldAfter(JHeader header, JField field, Detail detail)
-	    throws IOException {
+			throws IOException {
 
 		if (field.getStyle() == Style.INT_BITS) {
 
 		} else if (field.hasSubFields()) {
 			decLevel();
 		} else if (field.getStyle() != Style.BYTE_ARRAY_HEX_DUMP
-		    && field.getStyle() != Style.STRING_TEXT_DUMP) {
+				&& field.getStyle() != Style.STRING_TEXT_DUMP) {
 			decLevel();
 		}
 	}
@@ -124,8 +126,9 @@ public class TextFormatter
 	 *      org.jnetpcap.packet.structure.JField,
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
+	@Override
 	protected void fieldBefore(JHeader header, JField field, Detail detail)
-	    throws IOException {
+			throws IOException {
 
 		if (field.hasSubFields()) {
 			final String v = stylizeSingleLine(header, field, field.getValue(header));
@@ -137,15 +140,18 @@ public class TextFormatter
 			final String v = stylizeSingleLine(header, field, field.getValue(header));
 			final String d = field.getValueDescription(header);
 			final long i = field.longValue(header);
-			pad().format("%s = [%d] %s%s", v, i, field.getDisplay(header),
-			    ((d == null) ? "" : ": " + d));
+			pad().format("%s = [%d] %s%s",
+					v,
+					i,
+					field.getDisplay(header),
+					((d == null) ? "" : ": " + d));
 
 		} else if (field.getStyle() == Style.BYTE_ARRAY_HEX_DUMP
-		    || field.getStyle() == Style.STRING_TEXT_DUMP) {
+				|| field.getStyle() == Style.STRING_TEXT_DUMP) {
 			decLevel();
 			decLevel();
 			final String[] v =
-			    stylizeMultiLine(header, field, field.getValue(header));
+					stylizeMultiLine(header, field, field.getValue(header));
 			for (String i : v) {
 				pad().format("%s", i);
 			}
@@ -156,8 +162,10 @@ public class TextFormatter
 			int i = 0;
 			for (byte[] b : table) {
 				final String v = stylizeSingleLine(header, field, b);
-				pad().format(FIELD_ARRAY_FORMAT + "%s", field.getDisplay(header), i++,
-				    v);
+				pad().format(FIELD_ARRAY_FORMAT + "%s",
+						field.getDisplay(header),
+						i++,
+						v);
 			}
 
 			incLevel(0); // Inc for multi line fields
@@ -166,8 +174,10 @@ public class TextFormatter
 
 			int i = 0;
 			for (String b : table) {
-				pad().format(FIELD_ARRAY_FORMAT + "%s", field.getDisplay(header), i++,
-				    b);
+				pad().format(FIELD_ARRAY_FORMAT + "%s",
+						field.getDisplay(header),
+						i++,
+						b);
 			}
 
 			incLevel(0); // Inc for multi line fields
@@ -205,6 +215,7 @@ public class TextFormatter
 	 * @see org.jnetpcap.packet.format.JFormatter#headerAfter(org.jnetpcap.packet.JHeader,
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
+	@Override
 	protected void headerAfter(JHeader header, Detail detail) throws IOException {
 		pad();
 
@@ -224,6 +235,7 @@ public class TextFormatter
 	 * @see org.jnetpcap.packet.format.JFormatter#headerBefore(org.jnetpcap.packet.JHeader,
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
+	@Override
 	protected void headerBefore(JHeader header, Detail detail) throws IOException {
 
 		final String name = header.getNicname();
@@ -238,12 +250,19 @@ public class TextFormatter
 
 		if (header.hasDescription()) {
 			pad().format(" ******* %s - \"%s\" - offset=%d (0x%X) length=%d %s",
-			    header.getName(), header.getDescription(), header.getOffset(),
-			    header.getOffset(), header.getLength(), suiteStr);
+					header.getName(),
+					header.getDescription(),
+					header.getOffset(),
+					header.getOffset(),
+					header.getLength(),
+					suiteStr);
 		} else {
 			pad().format(" ******* %s offset=%d (0x%X) length=%d %s",
-			    header.getName(), header.getOffset(), header.getOffset(),
-			    header.getLength(), suiteStr);
+					header.getName(),
+					header.getOffset(),
+					header.getOffset(),
+					header.getLength(),
+					suiteStr);
 		}
 		pad();
 
@@ -252,8 +271,9 @@ public class TextFormatter
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.packet.format.JFormatter#packetAfter(org.jnetpcap.packet.JPacket,
-	 *      org.jnetpcap.packet.format.JFormatter.Detail)
+	 * @see
+	 * org.jnetpcap.packet.format.JFormatter#packetAfter(org.jnetpcap.packet.JPacket
+	 * , org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	/**
 	 * Packet after.
@@ -278,8 +298,9 @@ public class TextFormatter
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.packet.format.JFormatter#packetBefore(org.jnetpcap.packet.JPacket,
-	 *      org.jnetpcap.packet.format.JFormatter.Detail)
+	 * @see
+	 * org.jnetpcap.packet.format.JFormatter#packetBefore(org.jnetpcap.packet.
+	 * JPacket, org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	/**
 	 * Packet before.
@@ -300,22 +321,24 @@ public class TextFormatter
 		if (frameIndex != -1) {
 			pad().format(FIELD_FORMAT + "%d", "#", frameIndex);
 		} else {
-			pad().format(FIELD_FORMAT + "%d", "number",
-			    packet.getState().getFrameNumber());
+			pad().format(FIELD_FORMAT + "%d",
+					"number",
+					packet.getState().getFrameNumber());
 
 		}
 
 		pad()
-		    .format(
-		        FIELD_FORMAT + "%s",
-		        "timestamp",
-		        new Timestamp(packet.getCaptureHeader().timestampInMillis())
-		            .toString());
+				.format(FIELD_FORMAT + "%s",
+						"timestamp",
+						new Timestamp(packet.getCaptureHeader().timestampInMillis())
+								.toString());
 
-		pad().format(FIELD_FORMAT + "%d bytes", "wire length",
-		    packet.getCaptureHeader().wirelen());
-		pad().format(FIELD_FORMAT + "%d bytes", "captured length",
-		    packet.getCaptureHeader().caplen());
+		pad().format(FIELD_FORMAT + "%d bytes",
+				"wire length",
+				packet.getCaptureHeader().wirelen());
+		pad().format(FIELD_FORMAT + "%d bytes",
+				"captured length",
+				packet.getCaptureHeader().caplen());
 
 		pad();
 		decLevel();
@@ -339,9 +362,10 @@ public class TextFormatter
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.packet.format.JFormatter#subHeaderAfter(org.jnetpcap.packet.JHeader,
-	 *      org.jnetpcap.packet.JHeader,
-	 *      org.jnetpcap.packet.format.JFormatter.Detail)
+	 * @see
+	 * org.jnetpcap.packet.format.JFormatter#subHeaderAfter(org.jnetpcap.packet
+	 * .JHeader, org.jnetpcap.packet.JHeader,
+	 * org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	/**
 	 * Sub header after.
@@ -360,20 +384,21 @@ public class TextFormatter
 	 */
 	@Override
 	protected void subHeaderAfter(JHeader header, JHeader subHeader, Detail detail)
-	    throws IOException {
+			throws IOException {
 
 		// decLevel();
 		// decLevel();
-		//		
+		//
 		// incLevel(SEPARATOR);
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.packet.format.JFormatter#subHeaderBefore(org.jnetpcap.packet.JHeader,
-	 *      org.jnetpcap.packet.JHeader,
-	 *      org.jnetpcap.packet.format.JFormatter.Detail)
+	 * @see
+	 * org.jnetpcap.packet.format.JFormatter#subHeaderBefore(org.jnetpcap.packet
+	 * .JHeader, org.jnetpcap.packet.JHeader,
+	 * org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	/**
 	 * Sub header before.
@@ -391,17 +416,18 @@ public class TextFormatter
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
-	protected void subHeaderBefore(
-	    JHeader header,
-	    JHeader subHeader,
-	    Detail detail) throws IOException {
+	protected void subHeaderBefore(JHeader header,
+			JHeader subHeader,
+			Detail detail) throws IOException {
 		pad();
 		// decLevel();
-		//		
+		//
 		// incLevel(":" + subHeader.getNicname());
 		// incLevel(SEPARATOR);
 
-		pad().format("+ %s: offset=%d length=%d", subHeader.getName(),
-		    subHeader.getOffset(), subHeader.getLength());
+		pad().format("+ %s: offset=%d length=%d",
+				subHeader.getName(),
+				subHeader.getOffset(),
+				subHeader.getLength());
 	}
 }
