@@ -18,6 +18,9 @@
  */
 package org.jnetpcap.protocol.voip;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JSubHeader;
@@ -28,7 +31,6 @@ import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
 import org.jnetpcap.protocol.JProtocol;
 
-// TODO: Auto-generated Javadoc
 /**
  * <p>
  * The real-time transport protocol (RTP). RTP provides end-to-end network
@@ -81,7 +83,10 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@Header(spec = Rtp.RFC, suite = ProtocolSuite.VOIP, description = Rtp.DESCRIPTION)
+@Header(
+		spec = Rtp.RFC,
+		suite = ProtocolSuite.VOIP,
+		description = Rtp.DESCRIPTION)
 public class Rtp extends JHeader {
 
 	/**
@@ -190,6 +195,24 @@ public class Rtp extends JHeader {
 	}
 
 	/**
+	 * Generic RTP payload data type.
+	 */
+	public enum DataType {
+
+		/** The NONE. */
+		NONE,
+
+		/** The AUDIO. */
+		AUDIO,
+
+		/** The VIDEO. */
+		VIDEO,
+
+		/** The AUDI o_ video. */
+		AUDIO_VIDEO
+	}
+
+	/**
 	 * Constant payload types that have been defined for type field.
 	 * 
 	 * @author Mark Bednarczyk
@@ -197,68 +220,360 @@ public class Rtp extends JHeader {
 	 */
 	public enum PayloadType {
 
-		/** 13 -. */
-		CN,
+		/**
+		 * ITU-T G.711 PCM µ-Law Audio 64 kbit/s (type={@literal G711.type})
+		 */
+		G711(0, DataType.AUDIO, 1, 8000, 64000, 3551),
 
-		/** 6 -. */
-		DVI4_16K,
+		/** reserved, previously CELP Audio 4.8 kbit/s */
+		RESERVED1(1, DataType.AUDIO, 1, 8000, 4800, 1890, 3551),
 
-		/** 5 -. */
-		DVI4_8K,
+		/** reserved, previously ITU-T G.721 ADPCM Audio 32 kbit/s */
+		G721(2, DataType.AUDIO, 1, 8000, 32000, 3551),
+
+		/** European GSM Full Rate Audio 13 kbit/s (GSM 06.10) */
+		GSM(3, DataType.AUDIO, 1, 8000, 13000, 1890, 3551),
+
+		/** ITU-T G.723.1 */
+		G723(4, DataType.AUDIO, 1, 8000, PayloadType.VARIABLE, 3551),
+
+		/** IMA ADPCM Audio 32 kbit/s */
+		DVI4_8K(5, DataType.AUDIO, 1, 8000, 32000, 3551),
+
+		/** IMA ADPCM 64 kbit/s */
+		DVI4_16K(6, DataType.AUDIO, 1, 16000, 64000, 3551),
+
+		/** Experimental Linear Predictive Coding Audio */
+		LPC(7, DataType.AUDIO, 1, 8000, PayloadType.VARIABLE, 3551),
+
+		/** ITU-T G.711 PCM A-Law Audio 64 kbit/s */
+		PCMA(8, DataType.AUDIO, 1, 8000, 64000, 3551),
+
+		/** ITU-T G.722 Audio */
+		G722(9, DataType.AUDIO, 1, 8000, PayloadType.VARIABLE, 3551),
+
+		/** uncompressed Linear PCM 16-bit Stereo Audio 1411.2 kbit/s */
+		L16_2CH(10, DataType.AUDIO, 2, 44100, 1311200, 3551),
+
+		/** uncompressed Linear PCM 16-bit Audio 705.6 kbit/s */
+		L16_1CH(11, DataType.AUDIO, 1, 44100, 705600, 3551),
+
+		/** Qualcomm Code Excited Linear Prediction */
+		QCELP(12, DataType.AUDIO, 1, 8000, PayloadType.VARIABLE, 2658, 3551),
+
+		/** Comfort noise */
+		CN(13, DataType.AUDIO, 1, 8000, PayloadType.VARIABLE, 3389),
+
+		/** MPEG-1 or MPEG-2 Audio Only */
+		MPA(14, DataType.AUDIO, 1, 90000, PayloadType.VARIABLE, 2250, 3551),
+
+		/** ITU-T G.728 Audio 16 kbit/s */
+		G728(5, DataType.AUDIO, 1, 8000, 16000, 3551),
+
+		/** IMA ADPCM */
+		DVI4_11K(16, DataType.AUDIO, 1, 11025, PayloadType.VARIABLE, 3551),
+
+		/** IMA ADPCM */
+		DVI4_22K(17, DataType.AUDIO, 1, 22050, PayloadType.VARIABLE, 3551),
+
+		/** ITU-T G.729 and G.729a */
+		G729(18, DataType.AUDIO, 1, 8000, PayloadType.VARIABLE, 3551),
+
+		/** Sun's CellB Video Encoding */
+		CELB(25, DataType.VIDEO, 1, 90000, PayloadType.VARIABLE, 2029),
+
+		/** JPEG Video */
+		JPEG(26, DataType.VIDEO, 1, 90000, PayloadType.VARIABLE, 2435),
+
+		/** Xerox PARC's Network Video (nv) */
+		NV(28, DataType.VIDEO, 1, 90000, PayloadType.VARIABLE, 3551),
+
+		/** ITU-T H.261 Video */
+		H261(31, DataType.VIDEO, 1, 90000, PayloadType.VARIABLE, 4587),
+
+		/** MPEG-1 and MPEG-2 Video */
+		MPV(32, DataType.VIDEO, 1, 90000, PayloadType.VARIABLE, 2250),
+
+		/** MPEG-2 transport stream Video */
+		MP2T(33, DataType.AUDIO_VIDEO, 1, 90000, PayloadType.VARIABLE, 2250),
+
+		/** H.263 video, first version (1996) */
+		H263(35, DataType.VIDEO, 1, 90000, PayloadType.VARIABLE, 2190, 3551),
+
+		/** H.263 video, second version (1998) */
+		H263_1998(PayloadType.VARIABLE, DataType.VIDEO, 1, 90000,
+				PayloadType.VARIABLE, 2190, 4629, 3551),
+
+		/** H.263 video, third version (2000) */
+		H263_2000(PayloadType.VARIABLE, DataType.VIDEO, 1, 90000,
+				PayloadType.VARIABLE, 4629),
+
+		/** H.264 video (MPEG-4 Part 10) */
+		H264(PayloadType.VARIABLE, DataType.VIDEO, 1, 90000, PayloadType.VARIABLE,
+				3984),
+
+		/** Theora video */
+		THEORA(PayloadType.VARIABLE, DataType.VIDEO, 1, 90000,
+				PayloadType.VARIABLE, "draft-barbato-avt-rtp-theora-01"),
+
+		/** Internet low Bitrate Codec 13.33 or 15.2 kbit/s */
+		ILBC(PayloadType.VARIABLE, DataType.AUDIO, 1, PayloadType.VARIABLE,
+				PayloadType.VARIABLE, 3951),
+
+		/** ITU-T G.711.1, A-law */
+		PCMA_WB_ALAW(PayloadType.VARIABLE, DataType.AUDIO, 1, 16000,
+				PayloadType.VARIABLE, 5391),
+
+		/** ITU-T G.711.1, µ-law */
+		PCMA_WB_ULAW(PayloadType.VARIABLE, DataType.AUDIO, 1, 16000,
+				PayloadType.VARIABLE, 5391),
+
+		/** ITU-T G.718 */
+		G718(PayloadType.VARIABLE, DataType.AUDIO, 1, 32000, PayloadType.VARIABLE,
+				"draft-ietf-avt-rtp-g718-03"),
+
+		/** ITU-T G.719 */
+		G719(PayloadType.VARIABLE, DataType.AUDIO, PayloadType.VARIABLE, 48000,
+				PayloadType.VARIABLE, 5404),
+
+		/** ITU-T G.722.1 */
+		G7221(PayloadType.VARIABLE, DataType.AUDIO, PayloadType.VARIABLE,
+				PayloadType.VARIABLE, PayloadType.VARIABLE, 5577),
+
+		/** ITU-T G.726 audio with 16 kbit/s */
+		G726_16(PayloadType.VARIABLE, DataType.AUDIO, 1, 8000, 16000, 3551),
+
+		/** ITU-T G.726 audio with 24 kbit/s */
+		G726_24(PayloadType.VARIABLE, DataType.AUDIO, 1, 8000, 24000, 3551),
+
+		/** ITU-T G.726 audio with 32 kbit/s */
+		G726_32(PayloadType.VARIABLE, DataType.AUDIO, 1, 8000, 32000, 3551),
+
+		/** ITU-T G.726 audio with 40 kbit/s */
+		G726_40(PayloadType.VARIABLE, DataType.AUDIO, 1, 8000, 40000, 3551),
+
+		/** ITU-T G.729 Annex D */
+		G729D(PayloadType.VARIABLE, DataType.AUDIO, 1, 8000, PayloadType.VARIABLE,
+				3551),
+
+		/** ITU-T G.729 Annex E */
+		G729E(PayloadType.VARIABLE, DataType.AUDIO, 1, 8000, PayloadType.VARIABLE,
+				3551),
+
+		/** ITU-T G.729.1 */
+		G7291(PayloadType.VARIABLE, DataType.AUDIO, 1, PayloadType.VARIABLE,
+				PayloadType.VARIABLE, 3551),
+
+		/** ITU-T GSM-EFR (GSM 06.60) */
+		GSM_EFR(PayloadType.VARIABLE, DataType.AUDIO, 1, PayloadType.VARIABLE,
+				PayloadType.VARIABLE, 3551),
+
+		/** ITU-T GSM-HR (GSM 06.20) */
+		GSM_HR_08(PayloadType.VARIABLE, DataType.AUDIO, 1, PayloadType.VARIABLE,
+				PayloadType.VARIABLE, 5993),
+
+		/** Adaptive Multi-Rate audio */
+		AMR(PayloadType.VARIABLE, DataType.AUDIO, 1, 8000, PayloadType.VARIABLE,
+				4867),
+
+		/** Adaptive Multi-Rate Wideband audio (ITU-T G.722.2) */
+		AMR_WB(PayloadType.VARIABLE, DataType.AUDIO, 1, 16000,
+				PayloadType.VARIABLE, 4867),
+
+		/** Extended Adaptive Multi Rate – WideBand audio */
+		AMR_WB_PLUS(PayloadType.VARIABLE, DataType.AUDIO, PayloadType.VARIABLE,
+				72000, PayloadType.VARIABLE, 4352),
+
+		/** RTP Payload Format for Vorbis Encoded Audio */
+		VORBIS(PayloadType.VARIABLE, DataType.AUDIO, PayloadType.VARIABLE,
+				PayloadType.VARIABLE, PayloadType.VARIABLE, 5215),
+
+		/** RTP Payload Format for the Speex Codec */
+		SPEEX(PayloadType.VARIABLE, DataType.AUDIO, PayloadType.VARIABLE,
+				PayloadType.VARIABLE, PayloadType.VARIABLE, 5574),
+
+		/** Linear PCM 16-bit audio */
+		L16(PayloadType.VARIABLE, DataType.AUDIO, PayloadType.VARIABLE,
+				PayloadType.VARIABLE, PayloadType.VARIABLE, 3190),
+
+		/** Linear PCM 20-bit audio */
+		L20(PayloadType.VARIABLE, DataType.AUDIO, PayloadType.VARIABLE,
+				PayloadType.VARIABLE, PayloadType.VARIABLE, 3190),
+
+		/** Linear PCM 24-bit audio */
+		L24(PayloadType.VARIABLE, DataType.AUDIO, PayloadType.VARIABLE,
+				PayloadType.VARIABLE, PayloadType.VARIABLE, 3190),
+
+		/** UKNOWN RTP TYPELOAD TYPE. A catchall constant. */
+		UNKNOWN(PayloadType.VARIABLE, DataType.NONE, PayloadType.VARIABLE,
+				PayloadType.VARIABLE, PayloadType.VARIABLE, new int[0]),
+
+		//
+		/** The Constant VARIABLE. */
+		;
 
 		/**
-		 * 0 - PCMU is specified in CCITT/ITU-T recommendation G.711
+		 * A flag that indicates that a particular value is either variable,
+		 * undefined or unknown within the PayloadType table.
 		 */
-		G711,
+		public final static int VARIABLE = -1;
 
-		/** 2 -. */
-		G721,
+		/** RTP payload type value or -1 if variable or unknown. */
+		public final int type;
 
-		/** 9 -. */
-		G722,
+		/**
+		 * Generic data type, AUDIO, VIDEO or AUDIO/VIDEO, NONE if none defined.
+		 */
+		public final DataType data;
 
-		/** 4 -. */
-		G723,
+		/** Number of channels or -1 if variable or unknown. */
+		public final int channels;
 
-		/** 15 -. */
-		G728,
+		/** Clock rate in hertz or -1 if variable or unknown. */
+		public final int clock;
 
-		/** 3 -. */
-		GSM,
+		/** Base 10 bit rate in bits/second or -1 if unknown. */
+		public final int rate;
 
-		/** 11 -. */
-		L16_1CH,
+		/**
+		 * An array of specifications that are related to or define this PayloadType
+		 * codec.
+		 */
+		public final String[] specs;
 
-		/** 10 -. */
-		L16_2CH,
+		/**
+		 * Instantiates a new payload type.
+		 * 
+		 * @param type
+		 *          RTP payload type value or -1 if variable or unknown
+		 * @param data
+		 *          generic data type, AUDIO, VIDEO or AUDIO/VIDEO, NONE if none
+		 *          defined
+		 * @param channels
+		 *          number of channels or -1 if variable or unknown
+		 * @param clock
+		 *          clock rate in hertz or -1 if variable or unknown
+		 * @param rate
+		 *          base 10 bit rate in bits/second or -1 if unknown
+		 * @param rfcs
+		 *          a list of rfc numbers
+		 */
+		private PayloadType(int type, DataType data, int channels, int clock,
+				int rate, int... rfcs) {
+			this.type = type;
+			this.data = data;
+			this.channels = channels;
+			this.clock = clock;
+			this.rate = rate;
+			this.specs = new String[rfcs.length];
 
-		/** 7 -. */
-		LPC,
+			for (int i = 0; i < rfcs.length; i++) {
+				this.specs[i] = "RFC" + rfcs[i];
+			}
+		}
 
-		/** 14 -. */
-		MPA,
+		/**
+		 * Instantiates a new payload type.
+		 * 
+		 * @param type
+		 *          RTP payload type value or -1 if variable or unknown
+		 * @param data
+		 *          generic data type, AUDIO, VIDEO or AUDIO/VIDEO, NONE if none
+		 *          defined
+		 * @param channels
+		 *          number of channels or -1 if variable or unknown
+		 * @param clock
+		 *          clock rate in hertz or -1 if variable or unknown
+		 * @param rate
+		 *          base 10 bit rate in bits/second or -1 if unknown
+		 * @param specs
+		 *          a list of specifications that define or are related to this
+		 *          constant
+		 */
+		private PayloadType(int type, DataType data, int channels, int clock,
+				int rate, String... specs) {
+			this.type = type;
+			this.data = data;
+			this.channels = channels;
+			this.clock = clock;
+			this.rate = rate;
+			this.specs = specs;
 
-		/** 8 -. */
-		PCMA,
-
-		/** 12 -. */
-		QCELP,
-
-		/** 1 -. */
-		RESERVED1,
-
-		/** 16. */
-		RESERVED2;
+		}
 
 		/**
 		 * Looks up the payload type as integer and returns a constant.
 		 * 
 		 * @param type
 		 *          value of the payload field
-		 * @return constant representing the payload type
+		 * @return Constant representing the payload type or UNKNOWN if type is not
+		 *         defined in the table. This method never returns null.
 		 */
 		public static PayloadType valueOf(final int type) {
-			return values()[type];
+			for (PayloadType t : values()) {
+				if (t.type == type) {
+					return t;
+				}
+			}
+
+			return PayloadType.UNKNOWN;
+		}
+
+		/**
+		 * Gets a list of constant by clock rate.
+		 * 
+		 * @param clock
+		 *          the clock
+		 * @return the payload type[]
+		 */
+		public static PayloadType[] valuesByClockRate(int clock) {
+			List<PayloadType> list = new ArrayList<PayloadType>();
+
+			for (PayloadType t : values()) {
+				if (t.clock == clock) {
+					list.add(t);
+				}
+			}
+
+			return list.toArray(new PayloadType[list.size()]);
+		}
+
+		/**
+		 * Gets a list of constants by data type (AUDIO, VIDEO, AUDIO_VIDEO).
+		 * 
+		 * @param type
+		 *          the type
+		 * @return the payload type[]
+		 */
+		public static PayloadType[] valuesByDataType(DataType type) {
+			List<PayloadType> list = new ArrayList<PayloadType>();
+
+			for (PayloadType t : values()) {
+				if (t.data == type) {
+					list.add(t);
+				}
+			}
+
+			return list.toArray(new PayloadType[list.size()]);
+		}
+
+		/**
+		 * Gets a list of constants by channel count.
+		 * 
+		 * @param count
+		 *          the count
+		 * @return the payload type[]
+		 */
+		public static PayloadType[] valuesByChannelCount(int count) {
+			List<PayloadType> list = new ArrayList<PayloadType>();
+
+			for (PayloadType t : values()) {
+				if (t.channels == count) {
+					list.add(t);
+				}
+			}
+
+			return list.toArray(new PayloadType[list.size()]);
 		}
 	}
 
