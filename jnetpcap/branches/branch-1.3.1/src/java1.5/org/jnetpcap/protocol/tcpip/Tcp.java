@@ -1153,6 +1153,14 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 
 		for (int i = 20; i < hlen; i++) {
 			final int id = getUByte(i);
+
+			/*
+			 * Skip invalid headers
+			 */
+			if (id > MAX_HEADERS) {
+				i += getUByte(i + 1) - 1;
+				continue;
+			}
 			optionsOffsets[id] = i;
 			optionsBitmap |= (1 << id);
 
@@ -1258,7 +1266,13 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 	 * 
 	 * @return true if bit flag is set, otherwise false
 	 */
-	@Field(parent = "flags", offset = 4, length = 1, format = "%b", display = "ack", description = "acknowledgment")
+	@Field(
+			parent = "flags",
+			offset = 4,
+			length = 1,
+			format = "%b",
+			display = "ack",
+			description = "acknowledgment")
 	public boolean flags_ACK() {
 		return (flags() & FLAG_ACK) != 0;
 	}
@@ -1281,7 +1295,13 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 	 * 
 	 * @return true if bit flag is set, otherwise false
 	 */
-	@Field(parent = "flags", offset = 7, length = 1, format = "%b", display = "cwr", description = "reduced (cwr)")
+	@Field(
+			parent = "flags",
+			offset = 7,
+			length = 1,
+			format = "%b",
+			display = "cwr",
+			description = "reduced (cwr)")
 	public boolean flags_CWR() {
 		return (flags() & FLAG_CWR) != 0;
 	}
@@ -1304,7 +1324,13 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 	 * 
 	 * @return true if bit flag is set, otherwise false
 	 */
-	@Field(parent = "flags", offset = 6, length = 1, format = "%b", display = "ece", description = "ECN echo flag")
+	@Field(
+			parent = "flags",
+			offset = 6,
+			length = 1,
+			format = "%b",
+			display = "ece",
+			description = "ECN echo flag")
 	public boolean flags_ECE() {
 		return (flags() & FLAG_ECE) != 0;
 	}
@@ -1324,7 +1350,13 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 	 * 
 	 * @return true if bit flag is set, otherwise false
 	 */
-	@Field(parent = "flags", offset = 0, length = 1, format = "%b", display = "fin", description = "closing down connection")
+	@Field(
+			parent = "flags",
+			offset = 0,
+			length = 1,
+			format = "%b",
+			display = "fin",
+			description = "closing down connection")
 	public boolean flags_FIN() {
 		return (flags() & FLAG_FIN) != 0;
 	}
@@ -1345,7 +1377,13 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 	 * 
 	 * @return true if bit flag is set, otherwise false
 	 */
-	@Field(parent = "flags", offset = 3, length = 1, format = "%b", display = "ack", description = "push current segment of data")
+	@Field(
+			parent = "flags",
+			offset = 3,
+			length = 1,
+			format = "%b",
+			display = "ack",
+			description = "push current segment of data")
 	public boolean flags_PSH() {
 		return (flags() & FLAG_PSH) != 0;
 	}
@@ -1365,7 +1403,13 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 	 * 
 	 * @return true if bit flag is set, otherwise false
 	 */
-	@Field(parent = "flags", offset = 2, length = 1, format = "%b", display = "ack", description = "reset connection")
+	@Field(
+			parent = "flags",
+			offset = 2,
+			length = 1,
+			format = "%b",
+			display = "ack",
+			description = "reset connection")
 	public boolean flags_RST() {
 		return (flags() & FLAG_RST) != 0;
 	}
@@ -1388,7 +1432,13 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 	 * 
 	 * @return true if bit flag is set, otherwise false
 	 */
-	@Field(parent = "flags", offset = 1, length = 1, format = "%b", display = "ack", description = "synchronize connection, startup")
+	@Field(
+			parent = "flags",
+			offset = 1,
+			length = 1,
+			format = "%b",
+			display = "ack",
+			description = "synchronize connection, startup")
 	public boolean flags_SYN() {
 		return (flags() & FLAG_SYN) != 0;
 	}
@@ -1408,7 +1458,13 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 	 * 
 	 * @return true if bit flag is set, otherwise false
 	 */
-	@Field(parent = "flags", offset = 5, length = 1, format = "%b", display = "ack", description = "urgent, out-of-band data")
+	@Field(
+			parent = "flags",
+			offset = 5,
+			length = 1,
+			format = "%b",
+			display = "ack",
+			description = "urgent, out-of-band data")
 	public boolean flags_URG() {
 		return (flags() & FLAG_URG) != 0;
 	}
