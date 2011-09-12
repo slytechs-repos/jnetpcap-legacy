@@ -237,7 +237,7 @@ public final class DisposableGC {
 	/**
 	 * Drain ref queue.
 	 */
-	public void drainRefQueue() {
+	public synchronized void drainRefQueue() {
 		while (true) {
 			DisposableReference ref = (DisposableReference) refQueue.poll();
 			if (ref == null) {
@@ -815,34 +815,37 @@ public final class DisposableGC {
 	 * Sort generations.
 	 */
 	private void sortGenerations() {
-		final long ct = System.currentTimeMillis();
+		synchronized (g0) {
+			final long ct = System.currentTimeMillis();
 
-		/*
-		 * Check for G60(64 second) old generation
-		 */
-		for (DisposableReference ref : this.g10) {
-			if ((ct - ref.getTs()) > G60) {
-				g10.remove(ref);
-				g60.add(ref);
-			} else {
-				break;
+			/*
+			 * Check for G60(64 second) old generation
+			 */
+			for (DisposableReference ref : this.g10) {
+				if ((ct - ref.getTs()) > G60) {
+					g10.remove(ref);
+					g60.add(ref);
+				} else {
+					break;
+				}
+			}
+
+			/*
+			 * Check for G10 (10 second) old generation
+			 */
+			for (DisposableReference ref : this.g0) {
+				if ((ct - ref.getTs()) > G10) {
+					g0.remove(ref);
+					g10.add(ref);
+
+					// System.out.printf("DisposableGC:: %s%n", ref);
+				} else {
+					break;
+				}
+				// System.out.printf("DisposableGC:: delta=%d%n", (ct - ref.getTs()));
 			}
 		}
 
-		/*
-		 * Check for G10 (10 second) old generation
-		 */
-		for (DisposableReference ref : this.g0) {
-			if ((ct - ref.getTs()) > G10) {
-				g0.remove(ref);
-				g10.add(ref);
-
-				// System.out.printf("DisposableGC:: %s%n", ref);
-			} else {
-				break;
-			}
-			// System.out.printf("DisposableGC:: delta=%d%n", (ct - ref.getTs()));
-		}
 	}
 
 	/**
