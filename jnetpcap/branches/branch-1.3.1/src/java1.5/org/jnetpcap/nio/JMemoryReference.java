@@ -75,7 +75,9 @@ public class JMemoryReference extends DisposableReference {
 	 *          the size
 	 */
 	protected void disposeNative(long size) {
-		disposeNative0(address, size);
+		synchronized (JMemory.class) {
+			disposeNative0(address, size);
+		}
 	}
 	
 	/**
