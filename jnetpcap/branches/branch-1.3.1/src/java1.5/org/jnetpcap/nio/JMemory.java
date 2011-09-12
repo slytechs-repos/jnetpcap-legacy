@@ -134,7 +134,7 @@ public abstract class JMemory {
 	 *          the size
 	 * @return the long
 	 */
-	private static native long allocate0(int size);
+	private synchronized static native long allocate0(int size);
 
 	/**
 	 * Returns how much native memory is available for allocation. This is a limit
@@ -142,7 +142,7 @@ public abstract class JMemory {
 	 * 
 	 * @return the difference between maxDirectMemory and reservedDirectMemory
 	 */
-	public static native long availableDirectMemory();
+	public synchronized static native long availableDirectMemory();
 
 	/**
 	 * Initializes JNI ids.
@@ -180,7 +180,7 @@ public abstract class JMemory {
 	 *         </p>
 	 */
 
-	public static long maxDirectMemory() {
+	public synchronized static long maxDirectMemory() {
 		if (directMemory != 0) {
 			return directMemory;
 		}
@@ -206,7 +206,7 @@ public abstract class JMemory {
 	 * Used to trigger garbage collector. The method is private, but invoked from
 	 * JNI space.
 	 */
-	private static void maxDirectMemoryBreached() {
+	private synchronized static void maxDirectMemoryBreached() {
 		DisposableGC.getDefault().invokeSystemGCAndWait();
 	}
 
@@ -224,7 +224,7 @@ public abstract class JMemory {
 	 * 
 	 * @return the runtime default value for direct memory
 	 */
-	private static long maxDirectoryMemoryDefault() {
+	private synchronized static long maxDirectoryMemoryDefault() {
 		long max = Runtime.getRuntime().maxMemory();
 
 		if (max > MAX_DIRECT_MEMORY_DEFAULT) {
@@ -272,7 +272,7 @@ public abstract class JMemory {
 	 * 
 	 * @return amount of memory reserved/allocated at this moment
 	 */
-	public static native long reservedDirectMemory();
+	public synchronized static native long reservedDirectMemory();
 
 	/**
 	 * Sets a hard limit for the amount of memory native is allowed to allocate.
@@ -287,7 +287,7 @@ public abstract class JMemory {
 	 * @param size
 	 *          size in bytes
 	 */
-	private static native void setMaxDirectMemorySize(long size);
+	private synchronized static native void setMaxDirectMemorySize(long size);
 
 	/**
 	 * Sets a soft limit for the amount of memory native is allowed to allocate.
@@ -302,7 +302,7 @@ public abstract class JMemory {
 	 * @param size
 	 *          size in bytes
 	 */
-	private static native void setSoftDirectMemorySize(long size);
+	private synchronized static native void setSoftDirectMemorySize(long size);
 
 	/**
 	 * Returns the soft limit for native memory allocation. When the soft memory
@@ -333,7 +333,7 @@ public abstract class JMemory {
 	 * @return the amount of memory, in bytes, before we start requesting a
 	 *         forcible JVM GC.
 	 */
-	public static long softDirectMemory() {
+	public synchronized static long softDirectMemory() {
 		if (directMemorySoft != 0) {
 			return directMemorySoft;
 		}
@@ -362,7 +362,7 @@ public abstract class JMemory {
 	 * can not be invoked more then once within a certain amount of time which is
 	 * defined as {@value DisposableGC#MIN_SYSTEM_GC_INVOKE_TIMEOUT}.
 	 */
-	private static void softDirectMemoryBreached() {
+	private synchronized static void softDirectMemoryBreached() {
 		DisposableGC.getDefault().invokeSystemGCWithMarker();
 	}
 
@@ -377,7 +377,7 @@ public abstract class JMemory {
 	 * 
 	 * @return number of native memory bytes still allocated
 	 */
-	public static long totalActiveAllocated() {
+	public synchronized static long totalActiveAllocated() {
 		return totalAllocated() - totalDeAllocated();
 	}
 
@@ -389,7 +389,7 @@ public abstract class JMemory {
 	 * @return total number of function calls made to malloc since JMemory class
 	 *         was loaded into memory
 	 */
-	public native static long totalAllocateCalls();
+	public synchronized native static long totalAllocateCalls();
 
 	/**
 	 * Returns total number of bytes allocated through JMemory class. The memory
@@ -399,7 +399,7 @@ public abstract class JMemory {
 	 * @return total number of bytes allocated since JMemory class was loaded into
 	 *         memory
 	 */
-	public native static long totalAllocated();
+	public synchronized native static long totalAllocated();
 
 	/**
 	 * Returns the number of memory segments that were allocated by JMemory class
@@ -408,7 +408,7 @@ public abstract class JMemory {
 	 * 
 	 * @return the total number of memory segments in this size
 	 */
-	public native static long totalAllocatedSegments0To255Bytes();
+	public synchronized native static long totalAllocatedSegments0To255Bytes();
 
 	/**
 	 * Returns the number of memory segments that were allocated by JMemory class
@@ -417,7 +417,7 @@ public abstract class JMemory {
 	 * 
 	 * @return the total number of memory segments in this size
 	 */
-	public native static long totalAllocatedSegments256OrAbove();
+	public synchronized native static long totalAllocatedSegments256OrAbove();
 
 	/**
 	 * Returns total number of deallocate calls through JMemory class. The memory
@@ -427,7 +427,7 @@ public abstract class JMemory {
 	 * @return total number of function calls made to free since JMemory class was
 	 *         loaded into memory
 	 */
-	public native static long totalDeAllocateCalls();
+	public synchronized native static long totalDeAllocateCalls();
 
 	/**
 	 * Returns total number of bytes deallocated through JMemory class. The memory
@@ -437,7 +437,7 @@ public abstract class JMemory {
 	 * @return total number of bytes deallocated since JMemory class was loaded
 	 *         into memory
 	 */
-	public native static long totalDeAllocated();
+	public synchronized native static long totalDeAllocated();
 
 	/**
 	 * Transfer to0.
@@ -554,7 +554,7 @@ public abstract class JMemory {
 	 */
 	private long allocate(int size) {
 
-		this.physical = allocate0(size);
+		this.physical = allocate0(size); // static allocate0 is synchronized
 		this.size = size;
 		this.owner = true;
 		this.keeper = this;
