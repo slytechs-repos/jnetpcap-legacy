@@ -753,9 +753,10 @@ public abstract class JMemory {
 	protected int peer(JMemory peer, int offset, int length)
 			throws IndexOutOfBoundsException {
 
-		if (offset < 0 || length < 0 || offset + length > peer.size) {
+		if (offset < 0 || length < 0 || offset + length - 1 > peer.size) {
 			throw new IndexOutOfBoundsException("Invalid [" + offset + ","
-					+ (offset + length) + "," + length + ") range.");
+					+ (offset + length - 1) + "," + length + ") range (" + peer.size
+					+ ")\n" + toDebugString());
 		}
 
 		return peer0(peer.physical + offset, length, peer.keeper);
