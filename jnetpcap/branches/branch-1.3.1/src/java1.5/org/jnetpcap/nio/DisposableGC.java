@@ -42,11 +42,13 @@ import org.jnetpcap.util.Units;
  */
 public final class DisposableGC {
 
+	static final int BLOCK = 1024;
+
 	/** The Constant DEFAULT_CLEANUP_THREAD_TIMEOUT. */
 	private static final long DEFAULT_CLEANUP_THREAD_TIMEOUT = 20;
 
 	/** The default gc. */
-	private static DisposableGC defaultGC = new DisposableGC();
+	private static DisposableGC defaultGC;
 
 	/** The Constant G10. */
 	private static final long G10 = 10 * 1000;
@@ -59,7 +61,7 @@ public final class DisposableGC {
 
 	/**
 	 * When maxDirectMemorySize is breached, this is the minimum amount of memory
-	 * to release, triggering a System.gc() if necessary.
+	 * to , triggering a System.gc() if necessary.
 	 */
 	static final int MIN_MEMORY_RELEASE = 2 * Units.MEBIBYTE;
 
@@ -72,11 +74,43 @@ public final class DisposableGC {
 	static final long OUT_OF_MEMORY_TIMEOUT = 15 * 1000;
 
 	/**
+	 * Calculates the permits required from the memory subsystem for a specific
+	 * size of memory.
+	 * 
+	 * @param size
+	 *          memory size in bytes
+	 * @return equivalent semaphore permits for this memory subsystem
+	 */
+	private static int stopAfter = 0;
+
+	static int calculatePermits(int size) {
+
+		// System.out.printf("requested=%s%n", fb(size));
+		//
+		// Exception e = new RuntimeException("" + size);
+		// e.printStackTrace();
+		//
+		// if (stopAfter++ == 10) {
+		// System.exit(0);
+		// }
+
+		return size / BLOCK + 1;
+	}
+
+	/**
 	 * Gets the default.
 	 * 
 	 * @return the default
 	 */
 	public static DisposableGC getDefault() {
+		if (defaultGC == null) {
+			synchronized (DisposableGC.class) {
+				if (defaultGC == null) {
+					defaultGC = new DisposableGC();
+				}
+			}
+		}
+
 		return defaultGC;
 	}
 
@@ -172,8 +206,7 @@ public final class DisposableGC {
 	private Reference<Object> markerReference;
 
 	/** The memory semaphore. */
-	private final Semaphore memorySemaphore = new Semaphore(
-			DisposableGC.MIN_MEMORY_RELEASE);
+	final Semaphore memorySemaphore;
 
 	/** The ref queue. */
 	final ReferenceQueue<Object> refQueue = new ReferenceQueue<Object>();
@@ -197,6 +230,10 @@ public final class DisposableGC {
 	 * Instantiates a new disposable gc.
 	 */
 	private DisposableGC() {
+
+		this.memorySemaphore =
+				new Semaphore(calculatePermits((int) JMemory.maxDirectMemory()));
+
 		startCleanupThread();
 
 		try {
@@ -220,8 +257,7 @@ public final class DisposableGC {
 	private void dispose(DisposableReference ref) {
 
 		synchronized (g0) {
-			memorySemaphore.release(ref.size());
-
+			memorySemaphore.release(DisposableGC.calculatePermits(ref.size()));
 			totalDisposed++;
 			totalSize += ref.size();
 			ref.dispose();
@@ -423,7 +459,7 @@ public final class DisposableGC {
 	 *          the post
 	 * @return the string
 	 */
-	private String f(long l, int percision, String post) {
+	private static String f(long l, int percision, String post) {
 		String u = "";
 		double v = l;
 		int p = 0;
@@ -463,7 +499,7 @@ public final class DisposableGC {
 	 *          the l
 	 * @return the string
 	 */
-	private String fb(long l) {
+	private static String fb(long l) {
 		return f(l, -1, "b");
 	}
 
@@ -498,7 +534,7 @@ public final class DisposableGC {
 	 */
 	private boolean invokeSystemGC() {
 
-		if ((System.currentTimeMillis() - lastSystemGCInvoke) < MIN_SYSTEM_GC_INVOKE_TIMEOUT) {
+		if (!isSystemGCReady()) {
 			return false;
 		}
 
@@ -545,8 +581,9 @@ public final class DisposableGC {
 
 		try {
 			if (isCleanupThreadActive()) {
-				memorySemaphore.acquire(memorySemaphore.availablePermits());
-				memorySemaphore.tryAcquire(MIN_MEMORY_RELEASE,
+				// memorySemaphore.acquire(memorySemaphore.availablePermits());
+				memorySemaphore.tryAcquire(DisposableGC
+						.calculatePermits(MIN_MEMORY_RELEASE),
 						OUT_OF_MEMORY_TIMEOUT,
 						TimeUnit.MILLISECONDS);
 			} else {
@@ -710,12 +747,13 @@ public final class DisposableGC {
 		long waited = ts - firstSystemGCNeeded;
 
 		System.out
-				.printf("DisposableGC: issued JVM GC request %s.%d waited=%dms (reserved=%s, available=%s)%n",
+				.printf("DisposableGC: issued JVM GC request %s.%d waited=%dms (reserved=%s, available=%s) permits=%d%n",
 						new Time(ts),
 						fs,
 						waited,
 						fb(JMemory.reservedDirectMemory()),
-						fb(JMemory.availableDirectMemory()));
+						fb(JMemory.availableDirectMemory()),
+						memorySemaphore.availablePermits());
 
 	}
 
@@ -724,7 +762,7 @@ public final class DisposableGC {
 	 */
 	private void logUsage() {
 		System.out.printf("DisposableGC: [immediate=%3s(%4s)]=%3s(%7s) "
-				+ "[0sec=%3s(%6s),10sec=%3s(%6s),60sec=%3s(%6s)]=%6s%n",
+				+ "[0sec=%3s(%6s),10sec=%3s(%6s),60sec=%3s(%6s)]=%6s permits=%s%n",
 				f(deltaCount),
 				fb(deltaSize, 0),
 				f(totalDisposed),
@@ -735,7 +773,8 @@ public final class DisposableGC {
 				fb(mem(g10)),
 				f(g60.size()),
 				fb(mem(g60)),
-				fb(memoryHeldInRefCollection()));
+				fb(memoryHeldInRefCollection()),
+				f(memorySemaphore.availablePermits()));
 
 	}
 

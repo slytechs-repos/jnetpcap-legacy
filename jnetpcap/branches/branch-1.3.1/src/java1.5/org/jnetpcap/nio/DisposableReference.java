@@ -57,8 +57,6 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 * directly. All access should be done through a live instance of LinkSequence
 	 * class.
 	 */
-	/** The Constant gc. */
-	private final static DisposableGC gc = DisposableGC.getDefault();
 
 	/** The link next. */
 	private Link<DisposableReference> linkNext;
@@ -79,10 +77,11 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 *          the referant
 	 */
 	public DisposableReference(Object referant) {
-		super(referant, gc.refQueue);
+		super(referant, DisposableGC.getDefault().refQueue);
 
+		DisposableGC gc = DisposableGC.getDefault();
 		synchronized (gc.g0) {
-			gc.g0.add(this);
+			DisposableGC.getDefault().g0.add(this);
 		}
 
 		if (!gc.isCleanupThreadActive()) {

@@ -33,7 +33,7 @@ public class JMemoryReference extends DisposableReference {
 	 * object and during the destroy call.
 	 */
 	long address;
-	
+
 	/** The size. */
 	long size;
 
@@ -51,6 +51,12 @@ public class JMemoryReference extends DisposableReference {
 		super(referant);
 		this.address = address;
 		this.size = size;
+
+		try {
+			final DisposableGC gc = DisposableGC.getDefault();
+			gc.memorySemaphore.acquire(DisposableGC.calculatePermits((int) size));
+		} catch (InterruptedException e) {
+		}
 	}
 
 	/*
@@ -79,7 +85,7 @@ public class JMemoryReference extends DisposableReference {
 			disposeNative0(address, size);
 		}
 	}
-	
+
 	/**
 	 * Dispose native0.
 	 * 
@@ -117,7 +123,5 @@ public class JMemoryReference extends DisposableReference {
 	public int size() {
 		return (int) size;
 	}
-	
-	
 
 }
