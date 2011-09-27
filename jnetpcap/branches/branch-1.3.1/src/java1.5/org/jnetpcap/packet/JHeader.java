@@ -37,9 +37,7 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public abstract class JHeader
-    extends
-    JBuffer implements JPayloadAccessor {
+public abstract class JHeader extends JBuffer implements JPayloadAccessor {
 
 	/**
 	 * This class is peered state of a header a native state structure
@@ -66,9 +64,7 @@ public abstract class JHeader
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
-	public static class State
-	    extends
-	    JStruct {
+	public static class State extends JStruct {
 
 		/**
 		 * Flag set in the header_t structure, tells if the CRC, if performed, was
@@ -307,7 +303,7 @@ public abstract class JHeader
 		public int peer(State peer) {
 			if (peer.isDirect() == false) {
 				throw new IllegalStateException(
-				    "DirectState can only peer with another DirectState");
+						"DirectState can only peer with another DirectState");
 			}
 			return super.peer(peer);
 		}
@@ -326,9 +322,10 @@ public abstract class JHeader
 		 * 
 		 * @return light debug string for this object and header
 		 */
+		@Override
 		public String toString() {
 			return "(id=" + getId() + ", offset=" + getOffset() + ", length="
-			    + getLength() + ")";
+					+ getLength() + ")";
 		}
 	}
 
@@ -510,8 +507,6 @@ public abstract class JHeader
 		this.id = state.getId();
 		super.order(ByteOrder.nativeOrder());
 	}
-
-
 
 	/**
 	 * Method that gets called everytime a header is successfully peered with new
@@ -1068,6 +1063,7 @@ public abstract class JHeader
 	 * 
 	 * @return String with summary of the header
 	 */
+	@Override
 	public String toString() {
 		JFormatter out = JPacket.getFormatter();
 		out.reset();
@@ -1222,4 +1218,29 @@ public abstract class JHeader
 		return ((getState().getFlags() & JHeader.State.FLAG_HEADER_FRAGMENTED) > 0);
 	}
 
+	/**
+	 * Invoked by JPacket when an exception occurred during header decoder. The
+	 * fields must be validated to make sure that all of them accessible.
+	 */
+	void validateFieldAccessibility() {
+
+		int count = 0;
+
+		try {
+			for (JField field : fields) {
+
+				/*
+				 * We're not interested in the value, just so that we can access it
+				 * without error
+				 */
+				field.getValue(this);
+				count++;
+			}
+		} catch (Exception e) {
+			JField[] old = this.fields;
+			this.fields = new JField[count];
+
+			System.arraycopy(old, 0, this.fields, 0, count);
+		}
+	}
 }

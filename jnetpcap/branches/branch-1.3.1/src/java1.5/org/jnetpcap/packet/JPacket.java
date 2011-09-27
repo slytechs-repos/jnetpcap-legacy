@@ -19,6 +19,8 @@
 package org.jnetpcap.packet;
 
 import java.nio.ByteBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.jnetpcap.JCaptureHeader;
 import org.jnetpcap.nio.JBuffer;
@@ -381,9 +383,9 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 		 * @return the int
 		 */
 		public int peer(State peer) {
-			int r = super.peer(peer, 0, size());
+			int r = super.peer(peer, 0, peer.size());
 
-			flowKey.peer(this);
+			peer.flowKey.peer(this);
 			return r;
 		}
 
@@ -601,6 +603,8 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 	/** Default scanner used to scan a packet per user request. */
 	protected static JScanner defaultScanner;
 
+	private final static Logger log = Logger.getLogger("org.jnetpcap.packet");
+
 	/** The out. */
 	private static JFormatter out = new TextFormatter(new StringBuilder());
 
@@ -623,14 +627,6 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 			}
 		}
 		return defaultScanner;
-	}
-
-	/**
-	 * Shutdown.
-	 */
-	public static void shutdown() {
-		defaultScanner = null;
-		pool = null;
 	}
 
 	/**
@@ -673,6 +669,14 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 	 */
 	public static void setMemoryPool(JMemoryPool pool) {
 		JPacket.pool = pool;
+	}
+
+	/**
+	 * Shutdown.
+	 */
+	public static void shutdown() {
+		defaultScanner = null;
+		pool = null;
 	}
 
 	/**
@@ -833,7 +837,24 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 		header.peer(this, hstate.getOffset(), hstate.getLength());
 		header.setPacket(this); // Set the header's parent
 		header.setIndex(index); // Set the header's index into packet structure
-		header.decode(); // Call its decode routine if defined
+
+		try {
+			header.decode(); // Call its decode routine if defined
+		} catch (RuntimeException e) {
+
+			log.log(Level.FINE, e.getMessage());
+
+			StringBuilder b = new StringBuilder();
+			b.append(state.toDebugString());
+			log.log(Level.FINE, b.toString());
+
+			/*
+			 * The header validates which fields are accessible and which are not.
+			 * This will likely allow access to partial header, but it will not throw
+			 * an exception during JHeader.toString or JPacket.toString.
+			 */
+			header.validateFieldAccessibility();
+		}
 
 		return header;
 
@@ -998,14 +1019,21 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 	 * @return true header exists, otherwise false
 	 */
 	public boolean hasHeader(int id, int instance) {
-		check();
 
-		final int index = this.state.findHeaderIndex(id, instance);
-		if (index == -1) {
+		try {
+			check();
+
+			final int index = this.state.findHeaderIndex(id, instance);
+			if (index == -1) {
+				return false;
+			}
+
+			return true;
+		} catch (Throwable e) {
+			log.fine(e.getMessage() + "\n" + state.toDebugString());
 			return false;
 		}
 
-		return true;
 	}
 
 	/**
@@ -1021,8 +1049,14 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 	 * @return true header exists, otherwise false
 	 */
 	public <T extends JHeader> boolean hasHeader(T header) {
-		return (state.get64BitHeaderMap(0) & (1L << header.getId())) != 0
-				&& hasHeader(header, 0);
+
+		try {
+			return (state.get64BitHeaderMap(0) & (1L << header.getId())) != 0
+					&& hasHeader(header, 0);
+		} catch (Throwable e) {
+			log.fine(e.getMessage() + "\n" + state.toDebugString());
+			return false;
+		}
 	}
 
 	/**
@@ -1040,16 +1074,21 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor {
 	 * @return true header exists, otherwise false
 	 */
 	public <T extends JHeader> boolean hasHeader(T header, int instance) {
-		check();
+		try {
+			check();
 
-		final int index = this.state.findHeaderIndex(header.getId(), instance);
-		if (index == -1) {
+			final int index = this.state.findHeaderIndex(header.getId(), instance);
+			if (index == -1) {
+				return false;
+			}
+
+			getHeaderByIndex(index, header);
+
+			return true;
+		} catch (Throwable e) {
+			log.fine(e.getMessage() + "\n" + state.toDebugString());
 			return false;
 		}
-
-		getHeaderByIndex(index, header);
-
-		return true;
 	}
 
 	/**

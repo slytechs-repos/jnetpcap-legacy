@@ -32,9 +32,7 @@ import org.jnetpcap.packet.format.FormatUtils;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class JMemoryPacket
-    extends
-    JPacket {
+public class JMemoryPacket extends JPacket {
 
 	/**
 	 * A capture header that stores information about the creation of the packet.
@@ -70,7 +68,7 @@ public class JMemoryPacket
 		 */
 		public JMemoryHeader() {
 			this(0, 0, System.currentTimeMillis() / 1000, System.nanoTime());
-			
+
 		}
 
 		/**
@@ -235,7 +233,7 @@ public class JMemoryPacket
 		 */
 		public final void setWirelen(int wirelen) {
 			this.wirelen = wirelen;
-			
+
 			if (this.caplen == 0) {
 				this.caplen = wirelen;
 			}
@@ -343,12 +341,12 @@ public class JMemoryPacket
 	 */
 	public JMemoryPacket(ByteBuffer buffer) throws PeeringException {
 		super(Type.POINTER);
-		
+
 		final int size = buffer.limit() - buffer.position();
 
 		final JBuffer mem = getMemoryBuffer(size);
 		super.peer(mem);
-		
+
 		transferFrom(buffer);
 
 		header.setWirelen(size);
@@ -364,9 +362,9 @@ public class JMemoryPacket
 		super(size, 0);
 
 		header.setWirelen(size);
-		
+
 		/**
-		 * Bug #2878768	JMemoryPacket(int) constructor doesn't work
+		 * Bug #2878768 JMemoryPacket(int) constructor doesn't work
 		 */
 		super.peer(super.memory);
 	}
@@ -464,7 +462,7 @@ public class JMemoryPacket
 		b.transferFrom(buffer); // Make a buffer to buffer copy
 
 		peer(b, 0, len);
-		
+
 		header.setWirelen(len);
 	}
 
@@ -495,7 +493,7 @@ public class JMemoryPacket
 	 *          source packet
 	 */
 	public JMemoryPacket(JPacket packet) {
-		super(Type.POINTER);
+		super(packet.size(), 0);
 
 		transferFrom(packet);
 	}
@@ -635,7 +633,7 @@ public class JMemoryPacket
 	 * @param buffer
 	 *          buffer containing both state and data in the form
 	 * 
-	 * <pre>
+	 *          <pre>
 	 *          +--------------+-------------+
 	 *          | packet state | packet data |
 	 *          +--------------+-------------+
@@ -658,7 +656,7 @@ public class JMemoryPacket
 	 * @param buffer
 	 *          buffer containing both state and data in the form
 	 * 
-	 * <pre>
+	 *          <pre>
 	 *          +--------------+-------------+
 	 *          | packet state | packet data |
 	 *          +--------------+-------------+
@@ -684,7 +682,7 @@ public class JMemoryPacket
 	 * @param buffer
 	 *          buffer containing both state and data in the form
 	 * 
-	 * <pre>
+	 *          <pre>
 	 *          +--------------+-------------+
 	 *          | packet state | packet data |
 	 *          +--------------+-------------+
