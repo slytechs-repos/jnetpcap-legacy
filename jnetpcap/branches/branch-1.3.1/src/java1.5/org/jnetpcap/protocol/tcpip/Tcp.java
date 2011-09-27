@@ -24,6 +24,7 @@ import java.util.Set;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.JHeaderChecksum;
 import org.jnetpcap.packet.JHeaderMap;
+import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JSubHeader;
 import org.jnetpcap.packet.annotate.BindingVariable;
 import org.jnetpcap.packet.annotate.Dynamic;
@@ -1130,10 +1131,12 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 	 */
 	@Override
 	protected void decodeHeader() {
+
 		/*
 		 * Generate a bi-directional hashcode
 		 */
-		if ((getPacket() != null) && getPacket().hasHeader(this.ip)) {
+		final JPacket parent = getPacket();
+		if ((parent != null) && parent.hasHeader(this.ip)) {
 			this.biDirectionalHashcode =
 					(this.ip.destinationToInt() + destination())
 							^ (this.ip.sourceToInt() + source());
