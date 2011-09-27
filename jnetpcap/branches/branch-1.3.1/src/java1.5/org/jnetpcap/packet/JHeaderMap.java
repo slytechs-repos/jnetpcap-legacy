@@ -33,8 +33,8 @@ import org.jnetpcap.packet.structure.JField;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public abstract class JHeaderMap<B extends JHeader>
-    extends JHeader implements JCompoundHeader<B> {
+public abstract class JHeaderMap<B extends JHeader> extends JHeader implements
+		JCompoundHeader<B> {
 
 	/** The Constant MAX_HEADERS. */
 	public final static int MAX_HEADERS = 64;
@@ -112,7 +112,7 @@ public abstract class JHeaderMap<B extends JHeader>
 	 *          the unordered
 	 */
 	public JHeaderMap(int id, JField[] fields, String name, String nicname,
-	    JHeader[] unordered) {
+			JHeader[] unordered) {
 		super(id, fields, name, nicname);
 
 		reorderAndSave(unordered);
@@ -214,11 +214,19 @@ public abstract class JHeaderMap<B extends JHeader>
 	 * @return the sub headers
 	 * @see org.jnetpcap.packet.JHeader#getSubHeaders()
 	 */
+	@Override
 	public JHeader[] getSubHeaders() {
 		List<JHeader> headers = new ArrayList<JHeader>();
 		for (int i = 0; i < MAX_HEADERS; i++) {
 			if (hasSubHeader(i) && X_HEADERS[i] != null) {
+				final int offset = optionsOffsets[i];
+				final int length = optionsLength[i];
+				if (size() < (offset + length)) {
+					break;
+				}
+
 				JHeader header = X_HEADERS[i];
+
 				getSubHeader(header);
 				headers.add(X_HEADERS[i]);
 			}
@@ -277,10 +285,11 @@ public abstract class JHeaderMap<B extends JHeader>
 	 * @return true, if successful
 	 * @see org.jnetpcap.packet.JHeader#hasSubHeaders()
 	 */
+	@Override
 	public boolean hasSubHeaders() {
 		return this.optionsBitmap != 0;
 	}
-	
+
 	/**
 	 * Sets the sub header.
 	 * 

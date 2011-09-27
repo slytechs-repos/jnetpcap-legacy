@@ -21,12 +21,12 @@ package org.jnetpcap.packet.format;
 import java.io.IOException;
 import java.util.Formatter;
 import java.util.Stack;
+import java.util.logging.Logger;
 
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JHeaderPool;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
-import org.jnetpcap.packet.UnregisteredHeaderException;
 import org.jnetpcap.packet.structure.JField;
 import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.util.resolver.Resolver;
@@ -41,16 +41,18 @@ import org.jnetpcap.util.resolver.Resolver.ResolverType;
  */
 public abstract class JFormatter {
 
+	private final static Logger log = Logger.getLogger("org.jnetpcap");
+
 	/**
 	 * Detail level to include in formatted output.
 	 * 
-	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
 	public enum Detail {
-		
-		/** Full detail using multi line output if neccessary. */
+
+		/** Full detail using multi line output if necessary. */
 		MULTI_LINE_FULL_DETAIL {
+			@Override
 			public boolean isDisplayable(Priority priority) {
 				return true;
 			}
@@ -59,14 +61,16 @@ public abstract class JFormatter {
 
 		/** Summary of one major component per line. */
 		MULTI_LINE_SUMMARY {
+			@Override
 			public boolean isDisplayable(Priority priority) {
 				return priority == Priority.MEDIUM || priority == Priority.HIGH;
 			}
 
 		},
 
-		/** Supress output. */
+		/** Suppress output. */
 		NONE {
+			@Override
 			public boolean isDisplayable(Priority priority) {
 				return false;
 			}
@@ -75,6 +79,7 @@ public abstract class JFormatter {
 
 		/** Compress output to a single line of output for the entire component. */
 		ONE_LINE_SUMMARY {
+			@Override
 			public boolean isDisplayable(Priority priority) {
 				return priority == Priority.HIGH;
 			}
@@ -120,54 +125,67 @@ public abstract class JFormatter {
 	 * @author Sly Technologies, Inc.
 	 */
 	public enum Style {
-		
+
 		/** The BYT e_ arra y_ arra y_ i p4_ address. */
-		BYTE_ARRAY_ARRAY_IP4_ADDRESS, 
- /** The BYT e_ arra y_ colo n_ address. */
- BYTE_ARRAY_COLON_ADDRESS, 
- /** The BYT e_ arra y_ das h_ address. */
- BYTE_ARRAY_DASH_ADDRESS,
+		BYTE_ARRAY_ARRAY_IP4_ADDRESS,
+		/** The BYT e_ arra y_ colo n_ address. */
+		BYTE_ARRAY_COLON_ADDRESS,
+		/** The BYT e_ arra y_ das h_ address. */
+		BYTE_ARRAY_DASH_ADDRESS,
 
 		/** The BYT e_ arra y_ do t_ address. */
-		BYTE_ARRAY_DOT_ADDRESS, /** The BYT e_ arra y_ he x_ dump. */
- BYTE_ARRAY_HEX_DUMP, /** The BYT e_ arra y_ he x_ dum p_ address. */
- BYTE_ARRAY_HEX_DUMP_ADDRESS, /** The BYT e_ arra y_ he x_ dum p_ n o_ address. */
- BYTE_ARRAY_HEX_DUMP_NO_ADDRESS,
+		BYTE_ARRAY_DOT_ADDRESS,
+		/** The BYT e_ arra y_ he x_ dump. */
+		BYTE_ARRAY_HEX_DUMP,
+		/** The BYT e_ arra y_ he x_ dum p_ address. */
+		BYTE_ARRAY_HEX_DUMP_ADDRESS,
+		/** The BYT e_ arra y_ he x_ dum p_ n o_ address. */
+		BYTE_ARRAY_HEX_DUMP_NO_ADDRESS,
 
 		/** The BYT e_ arra y_ he x_ dum p_ n o_ text. */
-		BYTE_ARRAY_HEX_DUMP_NO_TEXT, /** The BYT e_ arra y_ he x_ dum p_ n o_ tex t_ address. */
- BYTE_ARRAY_HEX_DUMP_NO_TEXT_ADDRESS,
+		BYTE_ARRAY_HEX_DUMP_NO_TEXT,
+		/** The BYT e_ arra y_ he x_ dum p_ n o_ tex t_ address. */
+		BYTE_ARRAY_HEX_DUMP_NO_TEXT_ADDRESS,
 
 		/** The BYT e_ arra y_ he x_ dum p_ text. */
-		BYTE_ARRAY_HEX_DUMP_TEXT, /** The BYT e_ arra y_ i p4_ address. */
- BYTE_ARRAY_IP4_ADDRESS, /** The BYT e_ arra y_ i p6_ address. */
- BYTE_ARRAY_IP6_ADDRESS, /** The IN t_ bin. */
- INT_BIN, /** The IN t_ bits. */
- INT_BITS, /** The IN t_ dec. */
- INT_DEC,
-		
+		BYTE_ARRAY_HEX_DUMP_TEXT,
+		/** The BYT e_ arra y_ i p4_ address. */
+		BYTE_ARRAY_IP4_ADDRESS,
+		/** The BYT e_ arra y_ i p6_ address. */
+		BYTE_ARRAY_IP6_ADDRESS,
+		/** The IN t_ bin. */
+		INT_BIN,
+		/** The IN t_ bits. */
+		INT_BITS,
+		/** The IN t_ dec. */
+		INT_DEC,
+
 		/** Integer is converted to a hex with a preceding 0x in front. */
-		INT_HEX, 
- /** The IN t_ oct. */
- INT_OCT, 
- /** The IN t_ radi x_10. */
- INT_RADIX_10,
-		
+		INT_HEX,
+		/** The IN t_ oct. */
+		INT_OCT,
+		/** The IN t_ radi x_10. */
+		INT_RADIX_10,
+
 		/** Integer is convert to a hex without a preceding 0x in front. */
-		INT_RADIX_16, 
- /** The IN t_ radi x_2. */
- INT_RADIX_2, 
- /** The IN t_ radi x_8. */
- INT_RADIX_8, 
- /** The LON g_ dec. */
- LONG_DEC,
+		INT_RADIX_16,
+		/** The IN t_ radi x_2. */
+		INT_RADIX_2,
+		/** The IN t_ radi x_8. */
+		INT_RADIX_8,
+		/** The LON g_ dec. */
+		LONG_DEC,
 
 		/** The LON g_ hex. */
-		LONG_HEX, /** The STRING. */
- STRING, /** The STRIN g_ tex t_ dump. */
- STRING_TEXT_DUMP, /** The BOOLEAN. */
- BOOLEAN, /** The STRIN g_ array. */
- STRING_ARRAY,
+		LONG_HEX,
+		/** The STRING. */
+		STRING,
+		/** The STRIN g_ tex t_ dump. */
+		STRING_TEXT_DUMP,
+		/** The BOOLEAN. */
+		BOOLEAN,
+		/** The STRIN g_ array. */
+		STRING_ARRAY,
 	}
 
 	/** The Constant DEFAULT_DETAIL. */
@@ -232,7 +250,7 @@ public abstract class JFormatter {
 	}
 
 	/** The details per header. */
-	private Detail[] detailsPerHeader = new Detail[JRegistry.MAX_ID_COUNT];
+	private final Detail[] detailsPerHeader = new Detail[JRegistry.MAX_ID_COUNT];
 
 	/** The display payload. */
 	private boolean displayPayload;
@@ -241,7 +259,7 @@ public abstract class JFormatter {
 	protected int frameIndex = -1;
 
 	/** The headers. */
-	private JHeaderPool headers = new JHeaderPool();
+	private final JHeaderPool headers = new JHeaderPool();
 
 	/** The ip resolver. */
 	private Resolver ipResolver;
@@ -259,7 +277,7 @@ public abstract class JFormatter {
 	private StringBuilder outputBuffer;
 
 	/** The pad stack. */
-	private Stack<String> padStack = new Stack<String>();
+	private final Stack<String> padStack = new Stack<String>();
 
 	/** The resolve addresses. */
 	private boolean resolveAddresses = false;
@@ -398,11 +416,20 @@ public abstract class JFormatter {
 				continue;
 			}
 
-			format(header, field, detail);
+			try {
+				format(header, field, detail);
+			} catch (Throwable e) {
+				log.fine(e.getMessage());
+			}
 		}
 
 		for (JHeader subHeader : header.getSubHeaders()) {
-			format(header, subHeader, detail);
+			try {
+				format(header, subHeader, detail);
+			} catch (Throwable e) {
+				log.fine(e.getMessage() + "\n"
+						+ header.getPacket().getState().toDebugString());
+			}
 		}
 
 		headerAfter(header, detail);
@@ -452,7 +479,12 @@ public abstract class JFormatter {
 
 		if (field.hasSubFields()) {
 			for (JField sub : field.getSubFields()) {
-				format(header, sub, detail);
+				try {
+					format(header, sub, detail);
+				} catch (Throwable e) {
+					log.fine(e.getMessage() + "\n"
+							+ header.getPacket().getState().toDebugString());
+				}
 			}
 		}
 
@@ -489,7 +521,12 @@ public abstract class JFormatter {
 				continue;
 			}
 
-			format(subHeader, field, detail);
+			try {
+				format(subHeader, field, detail);
+			} catch (Throwable e) {
+				log.fine(e.getMessage() + "\n"
+						+ header.getPacket().getState().toDebugString());
+			}
 
 		}
 
@@ -546,8 +583,8 @@ public abstract class JFormatter {
 				}
 
 				format(header, headerDetail);
-			} catch (UnregisteredHeaderException e) {
-				throw new IllegalStateException(e); // Serious internal error
+			} catch (Throwable e) {
+				log.fine(e.getMessage() + "\n" + packet.getState().toDebugString());
 			}
 		}
 
@@ -1087,8 +1124,48 @@ public abstract class JFormatter {
 					+ value.toString() + ")";
 
 		case LONG_HEX:
-			return "0x" + Long.toHexString((long) (Long) value).toUpperCase() + " ("
+			return "0x" + Long.toHexString((Long) value).toUpperCase() + " ("
 					+ value.toString() + ")";
+
+		default:
+			return value.toString();
+		}
+	}
+
+	/**
+	 * Stylize single line.
+	 * 
+	 * @param header
+	 *          the header
+	 * @param field
+	 *          the field
+	 * @param value
+	 *          the value
+	 * @return the string
+	 */
+	protected String stylizeSingleLineDecimal(JHeader header,
+			JField field,
+			Object value) {
+
+		final Style style = field.getStyle();
+
+		switch (style) {
+		case BYTE_ARRAY_DASH_ADDRESS:
+			return FormatUtils.asString((byte[]) value, '-').toUpperCase();
+
+		case BYTE_ARRAY_COLON_ADDRESS:
+			return formatMacAddress((byte[]) value);
+
+		case BYTE_ARRAY_DOT_ADDRESS:
+			return FormatUtils.asString((byte[]) value, '.').toUpperCase();
+
+		case BYTE_ARRAY_ARRAY_IP4_ADDRESS:
+		case BYTE_ARRAY_IP4_ADDRESS:
+		case BYTE_ARRAY_IP6_ADDRESS:
+			return formatIpAddress((byte[]) value);
+
+		case INT_BITS:
+			return stylizeBitField(header, field, value);
 
 		default:
 			return value.toString();
@@ -1133,6 +1210,7 @@ public abstract class JFormatter {
 	 * @return the string
 	 * @see java.lang.Object#toString()
 	 */
+	@Override
 	public String toString() {
 		return this.out.toString();
 	}

@@ -51,12 +51,14 @@ public class XmlFormatter extends JFormatter {
 	 * org.jnetpcap.packet.format.JField,
 	 * org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
-	/** 
+	/**
 	 * @param header
 	 * @param field
 	 * @param detail
 	 * @throws IOException
-	 * @see org.jnetpcap.packet.format.JFormatter#fieldAfter(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.structure.JField, org.jnetpcap.packet.format.JFormatter.Detail)
+	 * @see org.jnetpcap.packet.format.JFormatter#fieldAfter(org.jnetpcap.packet.JHeader,
+	 *      org.jnetpcap.packet.structure.JField,
+	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	protected void fieldAfter(JHeader header, JField field, Detail detail)
@@ -113,12 +115,14 @@ public class XmlFormatter extends JFormatter {
 	 * org.jnetpcap.packet.format.JField,
 	 * org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
-	/** 
+	/**
 	 * @param header
 	 * @param field
 	 * @param detail
 	 * @throws IOException
-	 * @see org.jnetpcap.packet.format.JFormatter#fieldBefore(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.structure.JField, org.jnetpcap.packet.format.JFormatter.Detail)
+	 * @see org.jnetpcap.packet.format.JFormatter#fieldBefore(org.jnetpcap.packet.JHeader,
+	 *      org.jnetpcap.packet.structure.JField,
+	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	protected void fieldBefore(JHeader header, JField field, Detail detail)
@@ -165,16 +169,51 @@ public class XmlFormatter extends JFormatter {
 
 			incLevel(0); // Inc for multi line fields
 		} else {
-			final String v = stylizeSingleLine(header, field, field.getValue(header));
+			final String v =
+					escape(stylizeSingleLineDecimal(header, field, field.getValue(header)));
 
-			pad().format(LT
-					+ "field name=\"%s\" value=\"%s\" offset=\"%d\" length=\"%d\"/" + GT,
-					field.getName(),
-					v,
-					field.getOffset(header),
-					field.getLength(header));
+			pad().format(LT + "field name=%-15s offset=%-5s length=%-5s value=%s /"
+					+ GT,
+					"\"" + field.getName() + "\"",
+					"\"" + field.getOffset(header) + "\"",
+					"\"" + field.getLength(header) + "\"",
+					"\"" + v + "\"");
 		}
 
+	}
+
+	/**
+	 * Method that escapes quotes and other non portable sequences of characters.
+	 * 
+	 * @param line
+	 *          original line
+	 * @return new line with escaped sequences
+	 */
+	private String escape(String line) {
+		String escaped = line;
+		escaped = escaped.replace("\"", "&quot;");
+		escaped = escaped.replace("&", "&amp;");
+		escaped = escaped.replace("<", "&lt;");
+		escaped = escaped.replace(">", "&gt;");
+		escaped = escaped.replace("\n", "*n");
+		escaped = escaped.replace("\r", "*r");
+		escaped = escaped.replace("\t", "*t");
+		escaped = escaped.replace("\b", "*b");
+		escaped = escaped.replace("\f", "*f");
+		escaped = escaped.replace("\\", "\\\\");
+
+		// escaped = escaped.replace("\"", "&quot;");
+		// escaped = escaped.replace("&", "&amp;");
+		// escaped = escaped.replace("<", "\\<");
+		// escaped = escaped.replace(">", "\\>");
+		// escaped = escaped.replace("\n", "\\n");
+		// escaped = escaped.replace("\r", "\\r");
+		// escaped = escaped.replace("\t", "\\t");
+		// escaped = escaped.replace("\b", "\\b");
+		// escaped = escaped.replace("\f", "\\f");
+		// escaped = escaped.replace("\\", "\\\\");
+
+		return escaped;
 	}
 
 	/*
@@ -183,11 +222,12 @@ public class XmlFormatter extends JFormatter {
 	 * @see org.jnetpcap.packet.format.JFormatter#end(org.jnetpcap.packet.JHeader,
 	 * org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
-	/** 
+	/**
 	 * @param header
 	 * @param detail
 	 * @throws IOException
-	 * @see org.jnetpcap.packet.format.JFormatter#headerAfter(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.format.JFormatter.Detail)
+	 * @see org.jnetpcap.packet.format.JFormatter#headerAfter(org.jnetpcap.packet.JHeader,
+	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	protected void headerAfter(JHeader header, Detail detail) throws IOException {
@@ -203,21 +243,22 @@ public class XmlFormatter extends JFormatter {
 	 * org.jnetpcap.packet.format.JFormatter#start(org.jnetpcap.packet.JHeader,
 	 * org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
-	/** 
+	/**
 	 * @param header
 	 * @param detail
 	 * @throws IOException
-	 * @see org.jnetpcap.packet.format.JFormatter#headerBefore(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.format.JFormatter.Detail)
+	 * @see org.jnetpcap.packet.format.JFormatter#headerBefore(org.jnetpcap.packet.JHeader,
+	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	protected void headerBefore(JHeader header, Detail detail) throws IOException {
-		pad().format(LT + "header name=\"%s\"", header.getName());
-		incLevel(PAD + PAD);
+		pad().format(LT + "header name      = \"%s\"", header.getName());
+		incLevel(PAD + PAD + PAD + PAD);
 
-		pad().format("nicname=\"%s\"", header.getNicname());
-		pad().format("classname=\"%s\"", header.getClass().getCanonicalName());
-		pad().format("offset=\"%d\"", header.getOffset());
-		pad().format("length=\"%d\"" + GT, header.getLength());
+		pad().format("nicname   = \"%s\"", header.getNicname());
+		pad().format("classname = \"%s\"", header.getClass().getCanonicalName());
+		pad().format("offset    = \"%d\"", header.getOffset());
+		pad().format("length    = \"%d\" " + GT, header.getLength());
 		decLevel();
 	}
 
@@ -228,11 +269,12 @@ public class XmlFormatter extends JFormatter {
 	 * org.jnetpcap.packet.format.JFormatter#packetAfter(org.jnetpcap.packet.JPacket
 	 * , org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
-	/** 
+	/**
 	 * @param packet
 	 * @param detail
 	 * @throws IOException
-	 * @see org.jnetpcap.packet.format.JFormatter#packetAfter(org.jnetpcap.packet.JPacket, org.jnetpcap.packet.format.JFormatter.Detail)
+	 * @see org.jnetpcap.packet.format.JFormatter#packetAfter(org.jnetpcap.packet.JPacket,
+	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	public void packetAfter(JPacket packet, Detail detail) throws IOException {
@@ -249,11 +291,12 @@ public class XmlFormatter extends JFormatter {
 	 * org.jnetpcap.packet.format.JFormatter#packetBefore(org.jnetpcap.packet.
 	 * JPacket, org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
-	/** 
+	/**
 	 * @param packet
 	 * @param detail
 	 * @throws IOException
-	 * @see org.jnetpcap.packet.format.JFormatter#packetBefore(org.jnetpcap.packet.JPacket, org.jnetpcap.packet.format.JFormatter.Detail)
+	 * @see org.jnetpcap.packet.format.JFormatter#packetBefore(org.jnetpcap.packet.JPacket,
+	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	public void packetBefore(JPacket packet, Detail detail) throws IOException {
@@ -288,12 +331,14 @@ public class XmlFormatter extends JFormatter {
 	 * .JHeader, org.jnetpcap.packet.JHeader,
 	 * org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
-	/** 
+	/**
 	 * @param header
 	 * @param subHeader
 	 * @param detail
 	 * @throws IOException
-	 * @see org.jnetpcap.packet.format.JFormatter#subHeaderAfter(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.JHeader, org.jnetpcap.packet.format.JFormatter.Detail)
+	 * @see org.jnetpcap.packet.format.JFormatter#subHeaderAfter(org.jnetpcap.packet.JHeader,
+	 *      org.jnetpcap.packet.JHeader,
+	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	protected void subHeaderAfter(JHeader header, JHeader subHeader, Detail detail)
@@ -311,12 +356,14 @@ public class XmlFormatter extends JFormatter {
 	 * .JHeader, org.jnetpcap.packet.JHeader,
 	 * org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
-	/** 
+	/**
 	 * @param header
 	 * @param subHeader
 	 * @param detail
 	 * @throws IOException
-	 * @see org.jnetpcap.packet.format.JFormatter#subHeaderBefore(org.jnetpcap.packet.JHeader, org.jnetpcap.packet.JHeader, org.jnetpcap.packet.format.JFormatter.Detail)
+	 * @see org.jnetpcap.packet.format.JFormatter#subHeaderBefore(org.jnetpcap.packet.JHeader,
+	 *      org.jnetpcap.packet.JHeader,
+	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
 	protected void subHeaderBefore(JHeader header,
