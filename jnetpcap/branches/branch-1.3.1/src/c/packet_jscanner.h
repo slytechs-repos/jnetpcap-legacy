@@ -257,6 +257,7 @@ typedef struct packet_state_t {
 	uint64_t pkt_header_map; // bit map of presence of headers
 	
 	uint32_t pkt_wirelen;    // Original packet size
+	uint32_t pkt_buflen;     // Captured length
 
 	int8_t pkt_header_count; // total number of main headers found
 	header_t pkt_headers[];  // One per header + 1 more for payload

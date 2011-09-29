@@ -428,8 +428,6 @@ int validate_sip(scan_t *scan) {
 	} else {
 	  size = scan->buf_len - scan->offset; // Remaining in buffer
 	}
-
-	scan->length = size; // Size from previous tcp header
 	
 	/* First sanity check if we have printable chars */
 	if (size < 3 || 
@@ -756,8 +754,17 @@ void scan_tcp(scan_t *scan) {
 	}
 	
 	tcp_t *tcp = (tcp_t *) (scan->buf + scan->offset);
-	scan->length = tcp->doff * 4;
+	scan->length = tcp->doff << 2;
 	
+#ifdef DEBUG
+	printf("scan_tcp1(): tcp->doff=%d scan->length=%d\n",
+			tcp->doff,
+			scan->length
+			);
+	fflush(stdout);
+#endif
+
+
 	/*
 	 * Set the flow key pair for Tcp.
 	 * First, we check if Tcp has already been set by looking in the
@@ -786,19 +793,37 @@ void scan_tcp(scan_t *scan) {
 	fflush(stdout);
 #endif
 	}
+
+#ifdef DEBUG
+	printf("scan_tcp2(): tcp->doff=%d scan->length=%d\n",
+			tcp->doff,
+			scan->length
+			);
+	fflush(stdout);
+#endif
+
 	switch (BIG_ENDIAN16(tcp->dport)) {
 	case 80:
 	case 8080:
-	case 8081: scan->next_id = validate_next(HTTP_ID, scan);	return;
-	case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;		
+	case 8081: scan->next_id = validate_next(HTTP_ID, scan);	break;
+	case 5060: scan->next_id = validate_next(SIP_ID, scan);		break;
 	}
 	
 	switch (BIG_ENDIAN16(tcp->sport)) {
 	case 80:
 	case 8080:
-	case 8081: scan->next_id = validate_next(HTTP_ID, scan);	return;
-	case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;
+	case 8081: scan->next_id = validate_next(HTTP_ID, scan);	break;
+	case 5060: scan->next_id = validate_next(SIP_ID, scan);		break;
 	}
+
+#ifdef DEBUG
+	printf("scan_tcp3(): tcp->doff=%d scan->length=%d\n",
+			tcp->doff,
+			scan->length
+			);
+	fflush(stdout);
+#endif
+
 }
 
 
@@ -1381,11 +1406,13 @@ int validate_next(register int id, register scan_t *scan) {
 
 
 	int saved_offset = scan->offset;
+	int saved_length = scan->length;
 	scan->offset += scan->length + scan->hdr_gap;
 	
 	int result = validate_func(scan);
 	
 	scan->offset = saved_offset;
+	scan->length = saved_length;
 	
 	return result;
 }

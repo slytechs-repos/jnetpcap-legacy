@@ -649,6 +649,7 @@ int scanJPacket(JNIEnv *env, jobject obj, jobject jpacket, jobject jstate,
 	packet->pkt_header_count = 0;
 	packet->pkt_frame_num = scanner->sc_cur_frame_num++;
 	packet->pkt_wirelen = (uint32_t) wirelen;
+	packet->pkt_buflen = (uint32_t)buf_length;
 	packet->pkt_flags = 0;
 
 	if (buf_length != wirelen) {
