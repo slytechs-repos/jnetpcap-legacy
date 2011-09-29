@@ -458,7 +458,7 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_packet_JPacket_00024State_toDebugStr
 			"JPacket.State#%03d:   pkt_header_map=0x%X\n"
 			"JPacket.State#%03d:        pkt_flags=0x%x\n"
 			"JPacket.State#%03d: pkt_header_count=%d\n"
-			"JPacket.State#%03d:      pkt_wirelen=%d\n",
+			"JPacket.State#%03d:      length(wire/buf)=%d/%d\n",
 			fr, (int) sizeof(packet_state_t),
 			fr, (int) sizeof(header_t),
 			(int) packet->pkt_header_count,
@@ -466,7 +466,7 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_packet_JPacket_00024State_toDebugStr
 			fr, (int) packet->pkt_header_map,
 			fr, (int) packet->pkt_flags,
 			fr, (int) packet->pkt_header_count,
-			fr, (int) packet->pkt_wirelen);
+			fr, (int) packet->pkt_wirelen, (int)packet->pkt_buflen);
 	
 	char *p = buf;
 	
