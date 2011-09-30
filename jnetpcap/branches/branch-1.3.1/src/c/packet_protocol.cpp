@@ -449,9 +449,11 @@ int validate_sip(scan_t *scan) {
 			size >= 7 && strncmp(sip, "OPTIONS", 7) == 0 ||
 			size >= 6 && strncmp(sip, "INVITE", 6) == 0 || 
 			size >= 6 && strncmp(sip, "CANCEL", 6) == 0 || 
+			size >= 6 && strncmp(sip, "UPDATE", 6) == 0 ||
+			size >= 5 && strncmp(sip, "PRACK", 5) == 0 ||
+			size >= 5 && strncmp(sip, "REFER", 5) == 0 ||
 			size >= 3 && strncmp(sip, "ACK", 3) == 0 || 
 			size >= 3 && strncmp(sip, "BYE", 3) == 0 || 
-			size >= 3 && strncmp(sip, "PRACK", 5) == 0 || 
 			
 			/* SIP Response */
 			size >= 3 && strncmp(sip, "SIP", 3) == 0
