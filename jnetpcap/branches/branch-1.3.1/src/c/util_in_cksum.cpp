@@ -149,10 +149,10 @@ in_cksum(const vec_t *vec, int veclen)
 		sum += s_util.s;
 	}
 	REDUCE;
-//	sum = (~sum & 0xffff);
-//	return (sum << 8) | (sum >> 8);
+	sum = (~sum & 0xffff);
+	return (sum << 8) | (sum >> 8);
 	
-	return (~sum & 0xffff);
+//	return (~sum & 0xffff);
 }
 
 /*
