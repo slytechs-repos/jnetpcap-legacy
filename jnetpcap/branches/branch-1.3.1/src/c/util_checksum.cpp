@@ -420,7 +420,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_pseudoUdp
 
 	udp_t *pudp = (udp_t *)(buf + udp);
 	len = BIG_ENDIAN16(pudp->length);
-	if (udp + len >= size) {
+	if (udp + len > size) {
 		return 0;
 	}
 	
@@ -432,8 +432,8 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_pseudoUdp
 	in_checksum_add_ip_pseudo_header(buf + ip, &vec[0], 17, len, phdr);
 	vec[2].ptr = (buf + udp);
 	vec[2].len = len;
-	
-	return (jint) in_cksum(vec, 3 + in_checksum_pad_to_even(vec, 3, &pad));
+	is_padded = in_checksum_pad_to_even(vec, 3, &pad);
+	return (jint) in_cksum(vec, 3 + is_padded);
 }
 
 /*
