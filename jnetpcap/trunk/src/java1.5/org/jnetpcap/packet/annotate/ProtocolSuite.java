@@ -135,6 +135,11 @@ public enum ProtocolSuite implements Suite {
 	SUN,
 
 	/**
+	 * IEEE Sigtran working group
+	 */
+	SIGTRAN,
+
+	/**
 	 * Catch all suite for other types of protocols.
 	 */
 	OTHER,

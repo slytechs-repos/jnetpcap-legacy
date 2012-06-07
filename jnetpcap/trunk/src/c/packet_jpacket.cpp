@@ -482,7 +482,7 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_packet_JPacket_00024State_toDebugStr
 
 	sprintf(p,
 			"JPacket.State#%03d   : "
-			"[%10s(%2s/%4s) | %4s |"
+			"[%17s(%2s/%4s) | %4s |"
 			"%7s |"
 			"%7s |"
 			"%4s | "
@@ -506,7 +506,7 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_packet_JPacket_00024State_toDebugStr
 		
 		sprintf(p, 
 				"JPacket.State#%03d[%d]: "
-				"[%10s(%2d/%04X) | %5d | "
+				"[%17s(%2d/%04X) | %5d | "
 				"%6d | "
 				"%6d | "
 				"%3d | "

@@ -34,30 +34,30 @@ public class Checksum {
 	 * Calculate CCITT CRC16 checksum using a CRC32 CCITT seed.
 	 * 
 	 * @param buffer
-	 *          buffer to calculate crc on
+	 *            buffer to calculate crc on
 	 * @param offset
-	 *          offset into the buffer
+	 *            offset into the buffer
 	 * @param length
-	 *          length within the buffer
+	 *            length within the buffer
 	 * @return calculated crc
 	 */
 	public static native int crc16CCITT(JBuffer buffer, int offset, int length);
 
 	/**
-	 * A static read-only buffer that is filled with ZEROs. This buffer is usefull
-	 * if you need to perform a calculation that requires a certain amount of data
-	 * to be zeroed out. This is common when computing CRC on packet headers that
-	 * require the header field that stores the CRC value, to be zeroed out for
-	 * the computation on itself.
+	 * A static read-only buffer that is filled with ZEROs. This buffer is
+	 * usefull if you need to perform a calculation that requires a certain
+	 * amount of data to be zeroed out. This is common when computing CRC on
+	 * packet headers that require the header field that stores the CRC value,
+	 * to be zeroed out for the computation on itself.
 	 * 
 	 * @param buffer
-	 *          the buffer
+	 *            the buffer
 	 * @param offset
-	 *          the offset
+	 *            the offset
 	 * @param length
-	 *          the length
+	 *            the length
 	 * @param crc
-	 *          the crc
+	 *            the crc
 	 * @return the int
 	 */
 	// public final static JBuffer ZERO_BUFFER = new JBuffer(new byte[256]);
@@ -66,19 +66,17 @@ public class Checksum {
 	 * Calculate CCITT 16-bit checksum using a partially calculated CRC16.
 	 * 
 	 * @param buffer
-	 *          buffer to calculate crc on
+	 *            buffer to calculate crc on
 	 * @param offset
-	 *          offset into the buffer
+	 *            offset into the buffer
 	 * @param length
-	 *          length within the buffer
+	 *            length within the buffer
 	 * @param crc
-	 *          the preload value for the CRC16 computation
+	 *            the preload value for the CRC16 computation
 	 * @return calculated crc
 	 */
-	public static int crc16CCITTContinue(JBuffer buffer,
-			int offset,
-			int length,
-			int crc) {
+	public static int crc16CCITTContinue(JBuffer buffer, int offset,
+			int length, int crc) {
 		return crc16CCITTSeed(buffer, offset, length, ~crc);
 	}
 
@@ -86,60 +84,57 @@ public class Checksum {
 	 * Calculate CCITT 16-bit checksum using a custom seed.
 	 * 
 	 * @param buffer
-	 *          buffer to calculate crc on
+	 *            buffer to calculate crc on
 	 * @param offset
-	 *          offset into the buffer
+	 *            offset into the buffer
 	 * @param length
-	 *          length within the buffer
+	 *            length within the buffer
 	 * @param seed
-	 *          starting seed
+	 *            starting seed
 	 * @return calculated crc
 	 */
-	public static native int crc16CCITTSeed(JBuffer buffer,
-			int offset,
-			int length,
-			int seed);
+	public static native int crc16CCITTSeed(JBuffer buffer, int offset,
+			int length, int seed);
 
 	/**
 	 * Calculate CCITT CRC16 X.25 checksum using a CCITT seed.
 	 * 
 	 * @param buffer
-	 *          buffer to calculate crc on
+	 *            buffer to calculate crc on
 	 * @param offset
-	 *          offset into the buffer
+	 *            offset into the buffer
 	 * @param length
-	 *          length within the buffer
+	 *            length within the buffer
 	 * @return calculated crc
 	 */
-	public static native int crc16X25CCITT(JBuffer buffer, int offset, int length);
+	public static native int crc16X25CCITT(JBuffer buffer, int offset,
+			int length);
 
 	/**
 	 * Calculate a standard CRC32C checksum using a custom seed.
 	 * 
 	 * @param buffer
-	 *          buffer to calculate crc on
+	 *            buffer to calculate crc on
 	 * @param offset
-	 *          offset into the buffer
+	 *            offset into the buffer
 	 * @param length
-	 *          length within the buffer
+	 *            length within the buffer
 	 * @param crc
-	 *          the preload value for the CRC32C computation
+	 *            the preload value for the CRC32C computation
 	 * @return calculated crc
 	 */
-	public static native int crc32c(JBuffer buffer,
-			int offset,
-			int length,
+	public static native int crc32c(JBuffer buffer, int offset, int length,
 			int crc);
 
 	/**
 	 * Calculate CCITT CRC32 checksum using a CRC32 CCITT seed.
 	 * 
 	 * @param buffer
-	 *          buffer to calculate crc on
+	 *            buffer to calculate crc on
 	 * @param offset
-	 *          offset into the buffer
+	 *            offset into the buffer
 	 * @param length
-	 *          length within the buffer
+	 *            length within the buffer
 	 * @return calculated crc
 	 */
 	public static native long crc32CCITT(JBuffer buffer, int offset, int length);
@@ -148,19 +143,17 @@ public class Checksum {
 	 * Calculate a standard CRC32C checksum using a partially calculated CRC32.
 	 * 
 	 * @param buffer
-	 *          buffer to calculate crc on
+	 *            buffer to calculate crc on
 	 * @param offset
-	 *          offset into the buffer
+	 *            offset into the buffer
 	 * @param length
-	 *          length within the buffer
+	 *            length within the buffer
 	 * @param crc
-	 *          the preload value for the CRC32 computation
+	 *            the preload value for the CRC32 computation
 	 * @return calculated crc
 	 */
-	public static int crc32CCITTContinue(JBuffer buffer,
-			int offset,
-			int length,
-			int crc) {
+	public static int crc32CCITTContinue(JBuffer buffer, int offset,
+			int length, int crc) {
 		return crc32CCITTSeed(buffer, offset, length, ~crc);
 	}
 
@@ -168,29 +161,27 @@ public class Checksum {
 	 * Calculate CCITT CRC32 checksum using a custom seed.
 	 * 
 	 * @param buffer
-	 *          buffer to calculate crc on
+	 *            buffer to calculate crc on
 	 * @param offset
-	 *          offset into the buffer
+	 *            offset into the buffer
 	 * @param length
-	 *          length within the buffer
+	 *            length within the buffer
 	 * @param seed
-	 *          starting seed
+	 *            starting seed
 	 * @return calculated crc
 	 */
-	public static native int crc32CCITTSeed(JBuffer buffer,
-			int offset,
-			int length,
-			int seed);
+	public static native int crc32CCITTSeed(JBuffer buffer, int offset,
+			int length, int seed);
 
 	/**
 	 * Calculates IEEE 802 based checksums including ethernet/802.3.
 	 * 
 	 * @param buffer
-	 *          buffer to calculate for
+	 *            buffer to calculate for
 	 * @param offset
-	 *          offset into the buffer in bytes
+	 *            offset into the buffer in bytes
 	 * @param length
-	 *          number of bytes to run calculation on
+	 *            number of bytes to run calculation on
 	 * @return calculated checksum
 	 */
 	public static native int crc32IEEE802(JBuffer buffer, int offset, int length);
@@ -200,7 +191,7 @@ public class Checksum {
 	 * 0x04030201.
 	 * 
 	 * @param c
-	 *          source value
+	 *            source value
 	 * @return converted value
 	 */
 	public static long flip(long c) {
@@ -212,11 +203,11 @@ public class Checksum {
 	 * Icmp.
 	 * 
 	 * @param buffer
-	 *          the buffer
+	 *            the buffer
 	 * @param ipOffset
-	 *          the ip offset
+	 *            the ip offset
 	 * @param icmpOffset
-	 *          the icmp offset
+	 *            the icmp offset
 	 * @return the int
 	 */
 	public static native int icmp(JBuffer buffer, int ipOffset, int icmpOffset);
@@ -226,11 +217,11 @@ public class Checksum {
 	 * This method computes the CRC16 on a single buffer chunk.
 	 * 
 	 * @param buffer
-	 *          buffer to reach the chunk of data
+	 *            buffer to reach the chunk of data
 	 * @param offset
-	 *          offset into the buffer
+	 *            offset into the buffer
 	 * @param length
-	 *          number of bytes to include in calculation
+	 *            number of bytes to include in calculation
 	 * @return computed CRC16
 	 */
 	public static native int inChecksum(JBuffer buffer, int offset, int length);
@@ -240,9 +231,9 @@ public class Checksum {
 	 * checksum in the header's checksum field.
 	 * 
 	 * @param checksum
-	 *          checksum within the header's field
+	 *            checksum within the header's field
 	 * @param calculateChecksum
-	 *          checksum that was calculated
+	 *            checksum that was calculated
 	 * @return resulting checksum of the combination of the 2
 	 */
 	public static native int inChecksumShouldBe(int checksum,
@@ -252,26 +243,39 @@ public class Checksum {
 	 * Pseudo tcp.
 	 * 
 	 * @param buffer
-	 *          the buffer
+	 *            the buffer
 	 * @param ipOffset
-	 *          the ip offset
+	 *            the ip offset
 	 * @param tcpOffset
-	 *          the tcp offset
-	 * @return the int
+	 *            the tcp offset
+	 * @return the computed crc
 	 */
-	public static native int pseudoTcp(JBuffer buffer, int ipOffset, int tcpOffset);
+	public static native int pseudoTcp(JBuffer buffer, int ipOffset,
+			int tcpOffset);
 
 	/**
 	 * Pseudo udp.
 	 * 
 	 * @param buffer
-	 *          the buffer
+	 *            the buffer
 	 * @param ipOffset
-	 *          the ip offset
+	 *            the ip offset
 	 * @param udpOffset
-	 *          the udp offset
-	 * @return the int
+	 *            the udp offset
+	 * @return the computed crc
 	 */
-	public static native int pseudoUdp(JBuffer buffer, int ipOffset, int udpOffset);
+	public static native int pseudoUdp(JBuffer buffer, int ipOffset,
+			int udpOffset);
+
+	/**
+	 * Calculate CRC32c checksum of the SCTP message.
+	 * 
+	 * @param buffer
+	 *            the buffer
+	 * @param sctpOffset
+	 *            the sctp header offset
+	 * @return the computed crc
+	 */
+	public static native int sctp(JBuffer buffer, int sctpOffset, int length);
 
 }

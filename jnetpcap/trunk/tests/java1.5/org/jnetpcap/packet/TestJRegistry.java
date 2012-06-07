@@ -39,14 +39,12 @@ import org.jnetpcap.protocol.lan.Ethernet;
 import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.protocol.network.Ip6;
 
-
 // TODO: Auto-generated Javadoc
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class TestJRegistry
-    extends TestCase {
+public class TestJRegistry extends TestCase {
 
 	/**
 	 * A test class that simplifies creation of test bindings by not having it
@@ -55,18 +53,17 @@ public class TestJRegistry
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
-	public static class TestBinding
-	    extends DefaultJBinding {
+	public static class TestBinding extends DefaultJBinding {
 
 		/**
 		 * Instantiates a new test binding.
 		 * 
 		 * @param myId
-		 *          the my id
+		 *            the my id
 		 * @param targetId
-		 *          the target id
+		 *            the target id
 		 * @param dependencyIds
-		 *          the dependency ids
+		 *            the dependency ids
 		 */
 		public TestBinding(int myId, int targetId, int... dependencyIds) {
 			super(myId, targetId, dependencyIds);
@@ -75,16 +72,17 @@ public class TestJRegistry
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see org.jnetpcap.packet.JBinding#checkLength(org.jnetpcap.packet.JPacket,
-		 *      int)
+		 * @see
+		 * org.jnetpcap.packet.JBinding#checkLength(org.jnetpcap.packet.JPacket,
+		 * int)
 		 */
 		/**
 		 * Scan for next header.
 		 * 
 		 * @param packet
-		 *          the packet
+		 *            the packet
 		 * @param offset
-		 *          the offset
+		 *            the offset
 		 * @return the int
 		 */
 		public int scanForNextHeader(JPacket packet, int offset) {
@@ -104,8 +102,9 @@ public class TestJRegistry
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see org.jnetpcap.packet.JBinding#isBound(org.jnetpcap.packet.JPacket,
-		 *      int)
+		 * @see
+		 * org.jnetpcap.packet.JBinding#isBound(org.jnetpcap.packet.JPacket,
+		 * int)
 		 */
 		public boolean isBound(JPacket packet, int offset) {
 			// TODO Auto-generated method stub
@@ -115,8 +114,7 @@ public class TestJRegistry
 	};
 
 	/** The errors. */
-	private List<HeaderDefinitionError> errors =
-	    new ArrayList<HeaderDefinitionError>();
+	private List<HeaderDefinitionError> errors = new ArrayList<HeaderDefinitionError>();
 
 	/*
 	 * (non-Javadoc)
@@ -127,8 +125,9 @@ public class TestJRegistry
 
 		/*
 		 * Now reset error list and clear all the caches from all the relavent
-		 * classes for our tests. For our tests we want all the classes to always do
-		 * their annotation inspection instead of doing it once and caching it.
+		 * classes for our tests. For our tests we want all the classes to
+		 * always do their annotation inspection instead of doing it once and
+		 * caching it.
 		 */
 		errors.clear();
 		AnnotatedBinding.clearCache();
@@ -157,13 +156,13 @@ public class TestJRegistry
 	 * Test core protocol registration by j protocol.
 	 * 
 	 * @throws UnregisteredHeaderException
-	 *           the unregistered header exception
+	 *             the unregistered header exception
 	 */
 	public void testCoreProtocolRegistrationByJProtocol()
-	    throws UnregisteredHeaderException {
+			throws UnregisteredHeaderException {
 
 		for (JProtocol p : JProtocol.values()) {
-			assertEquals(p.getId(), JRegistry.lookupId(p));
+			assertEquals(p.toString(), p.getId(), JRegistry.lookupId(p));
 		}
 	}
 
@@ -171,15 +170,16 @@ public class TestJRegistry
 	 * Test core protocol registration by class.
 	 * 
 	 * @throws UnregisteredHeaderException
-	 *           the unregistered header exception
+	 *             the unregistered header exception
 	 */
 	public void testCoreProtocolRegistrationByClass()
-	    throws UnregisteredHeaderException {
+			throws UnregisteredHeaderException {
 
 		System.out.println(JRegistry.toDebugString());
 
 		for (JProtocol p : JProtocol.values()) {
-			assertEquals(p.getId(), JRegistry.lookupId(p.getHeaderClass()));
+			assertEquals(p.toString(), p.getId(),
+					JRegistry.lookupId(p.getHeaderClass()));
 		}
 	}
 
@@ -187,14 +187,17 @@ public class TestJRegistry
 	 * Test core protocol registration by name.
 	 * 
 	 * @throws UnregisteredHeaderException
-	 *           the unregistered header exception
+	 *             the unregistered header exception
 	 */
 	public void testCoreProtocolRegistrationByName()
-	    throws UnregisteredHeaderException {
+			throws UnregisteredHeaderException {
 
-		assertEquals(Ethernet.ID, JRegistry.lookupId(Ethernet.class));
-		assertEquals(JProtocol.IP4_ID, JRegistry.lookupId(Ip4.class));
-		assertEquals(Ip6.ID, JRegistry.lookupId(Ip6.class));
+		assertEquals(JProtocol.ETHERNET.toString(), Ethernet.ID,
+				JRegistry.lookupId(Ethernet.class));
+		assertEquals(JProtocol.IP4.toString(), JProtocol.IP4_ID,
+				JRegistry.lookupId(Ip4.class));
+		assertEquals(JProtocol.IP6.toString(), Ip6.ID,
+				JRegistry.lookupId(Ip6.class));
 	}
 
 	/**
@@ -208,8 +211,8 @@ public class TestJRegistry
 	 * Test j header annotated binding with packet.
 	 */
 	public void testJHeaderAnnotatedBindingWithPacket() {
-		JBinding[] bindings =
-		    AnnotatedBinding.inspectJHeaderClass(MyHeader.class, errors);
+		JBinding[] bindings = AnnotatedBinding.inspectJHeaderClass(
+				MyHeader.class, errors);
 		JBinding bindEthernet = bindings[0];
 		System.out.println(bindEthernet.toString());
 
@@ -222,8 +225,8 @@ public class TestJRegistry
 	 * Test all class annotated binding with packet.
 	 */
 	public void testAllClassAnnotatedBindingWithPacket() {
-		JBinding[] bindings =
-		    AnnotatedBinding.inspectClass(BindNetworkFamily.class, errors);
+		JBinding[] bindings = AnnotatedBinding.inspectClass(
+				BindNetworkFamily.class, errors);
 
 		assertTrue("no bindings found", bindings.length > 0);
 		JBinding bindEthernet = bindings[0];
@@ -240,14 +243,14 @@ public class TestJRegistry
 	 */
 	@SuppressWarnings("unused")
 	private static class TestBindings {
-		
+
 		/**
 		 * Bind ip4 to ethernet.
 		 * 
 		 * @param packet
-		 *          the packet
+		 *            the packet
 		 * @param eth
-		 *          the eth
+		 *            the eth
 		 * @return true, if successful
 		 */
 		@Bind(from = Ip4.class, to = Ethernet.class)
@@ -261,8 +264,7 @@ public class TestJRegistry
 	 * The Class TestHeader.
 	 */
 	@SuppressWarnings("unused")
-	private static class TestHeader
-	    extends JHeader {
+	private static class TestHeader extends JHeader {
 
 		/**
 		 * Field1.
@@ -324,7 +326,7 @@ public class TestJRegistry
 	 * Test registry dump.
 	 * 
 	 * @throws RegistryHeaderErrors
-	 *           the registry header errors
+	 *             the registry header errors
 	 */
 	public void testRegistryDump() throws RegistryHeaderErrors {
 		JRegistry.register(MyHeader.class);

@@ -446,6 +446,9 @@ public class Ip4 extends JHeaderMap<Ip4> implements JHeaderChecksum {
 		/** SKIP [Markson]. */
 		SKIP("SKIP", 57),
 
+		/** Stream Control Transport Protocol [RFC4960]. */
+		SCTP("SCTP", 132),
+		
 		/** Stream [RFC1190][RFC1819]. */
 		ST("Stream", 5),
 

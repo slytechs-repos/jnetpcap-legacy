@@ -229,7 +229,6 @@ public final class JRegistry {
 		 * Register CORE protocols
 		 */
 		for (JProtocol p : JProtocol.values()) {
-
 			try {
 				register(p);
 			} catch (Exception e) {
@@ -1048,7 +1047,11 @@ public final class JRegistry {
 				if (scanners[i] != null) {
 					out.format("scanner[%-2d] class=%-15s %s\n", i, lookupClass(i)
 							.getSimpleName(), scanners[i].toString());
-				}
+				} 
+				
+//				else {
+//					out.format("scanner[%-2d] class=%-15s %s\n", i, null, "");
+//				}
 			}
 
 			/*

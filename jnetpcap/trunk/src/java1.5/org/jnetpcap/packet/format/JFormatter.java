@@ -90,15 +90,15 @@ public abstract class JFormatter {
 		 * Checks if is displayable.
 		 * 
 		 * @param priority
-		 *          the priority
+		 *            the priority
 		 * @return true, if is displayable
 		 */
 		public abstract boolean isDisplayable(Priority priority);
 	}
 
 	/**
-	 * Priority assigned to JFields. The priority of a field is used to determine
-	 * which fields to include as part of format Detail.
+	 * Priority assigned to JFields. The priority of a field is used to
+	 * determine which fields to include as part of format Detail.
 	 * 
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
@@ -109,8 +109,8 @@ public abstract class JFormatter {
 		HIGH,
 
 		/**
-		 * Low priority fields are only included in MULTI_LINE_FULL_DETAIL output
-		 * type.
+		 * Low priority fields are only included in MULTI_LINE_FULL_DETAIL
+		 * output type.
 		 */
 		LOW,
 
@@ -152,8 +152,7 @@ public abstract class JFormatter {
 		/** The BYT e_ arra y_ i p4_ address. */
 		BYTE_ARRAY_IP4_ADDRESS,
 		/** The BYT e_ arra y_ i p6_ address. */
-		BYTE_ARRAY_IP6_ADDRESS,
-		BYTE_ARRAY_OCTET_STREAM,
+		BYTE_ARRAY_IP6_ADDRESS, BYTE_ARRAY_OCTET_STREAM,
 		/** The IN t_ bin. */
 		INT_BIN,
 		/** The IN t_ bits. */
@@ -163,6 +162,7 @@ public abstract class JFormatter {
 
 		/** Integer is converted to a hex with a preceding 0x in front. */
 		INT_HEX,
+
 		/** The IN t_ oct. */
 		INT_OCT,
 		/** The IN t_ radi x_10. */
@@ -186,9 +186,7 @@ public abstract class JFormatter {
 		/** The BOOLEAN. */
 		BOOLEAN,
 		/** The STRIN g_ array. */
-		STRING_ARRAY,
-		TIMESTAMP,
-		TIMESTAMP_SECONDS,
+		STRING_ARRAY, TIMESTAMP, TIMESTAMP_SECONDS,
 	}
 
 	/** The Constant DEFAULT_DETAIL. */
@@ -220,22 +218,22 @@ public abstract class JFormatter {
 	 * Sets the default.
 	 * 
 	 * @param formatter
-	 *          the new default
+	 *            the new default
 	 */
 	public static void setDefault(JFormatter formatter) {
 		global = formatter;
 	}
 
 	/**
-	 * Sets a global flag that will enable or disable display of payload header in
-	 * a packet. If packet contains a payload header at the end of the packet this
-	 * flag determines if the header is displayed along with the rest of the
-	 * display or not. The default is to enable. This method sets a global flag
-	 * for all new formatters. Any existing formatters already instantiated will
-	 * not have their flag changed by this global method.
+	 * Sets a global flag that will enable or disable display of payload header
+	 * in a packet. If packet contains a payload header at the end of the packet
+	 * this flag determines if the header is displayed along with the rest of
+	 * the display or not. The default is to enable. This method sets a global
+	 * flag for all new formatters. Any existing formatters already instantiated
+	 * will not have their flag changed by this global method.
 	 * 
 	 * @param enable
-	 *          true will enable display of payload header otherwise disable
+	 *            true will enable display of payload header otherwise disable
 	 * @see #setDisplayPayload(boolean)
 	 */
 	public static void setDefaultDisplayPayload(boolean enable) {
@@ -246,7 +244,7 @@ public abstract class JFormatter {
 	 * Sets the default resolve address.
 	 * 
 	 * @param enable
-	 *          the new default resolve address
+	 *            the new default resolve address
 	 */
 	public static void setDefaultResolveAddress(boolean enable) {
 		JFormatter.defaultResolveAddresses = enable;
@@ -301,7 +299,7 @@ public abstract class JFormatter {
 	 * Creates a formatter.
 	 * 
 	 * @param out
-	 *          appendable device where to send output
+	 *            appendable device where to send output
 	 */
 	public JFormatter(Appendable out) {
 		setDetail(DEFAULT_DETAIL);
@@ -314,7 +312,7 @@ public abstract class JFormatter {
 	 * Creates a formatter.
 	 * 
 	 * @param out
-	 *          buffer where to send output
+	 *            buffer where to send output
 	 */
 	public JFormatter(StringBuilder out) {
 
@@ -340,42 +338,41 @@ public abstract class JFormatter {
 	 * Field after.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @param field
-	 *          the field
+	 *            the field
 	 * @param detail
-	 *          the detail
+	 *            the detail
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *             Signals that an I/O exception has occurred.
 	 */
-	protected abstract void fieldAfter(JHeader header, JField field, Detail detail)
-			throws IOException;
+	protected abstract void fieldAfter(JHeader header, JField field,
+			Detail detail) throws IOException;
 
 	/**
 	 * Field before.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @param field
-	 *          the field
+	 *            the field
 	 * @param detail
-	 *          the detail
+	 *            the detail
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *             Signals that an I/O exception has occurred.
 	 */
-	protected abstract void fieldBefore(JHeader header,
-			JField field,
+	protected abstract void fieldBefore(JHeader header, JField field,
 			Detail detail) throws IOException;
 
 	/**
 	 * Field null.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @param field
-	 *          the field
+	 *            the field
 	 * @param detail
-	 *          the detail
+	 *            the detail
 	 */
 	protected void fieldNull(JHeader header, JField field, Detail detail) {
 		/* Do nothing by default */
@@ -385,9 +382,9 @@ public abstract class JFormatter {
 	 * Format.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *             Signals that an I/O exception has occurred.
 	 */
 	public void format(JHeader header) throws IOException {
 		format(header, DEFAULT_DETAIL);
@@ -397,11 +394,11 @@ public abstract class JFormatter {
 	 * Format.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @param detail
-	 *          the detail
+	 *            the detail
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *             Signals that an I/O exception has occurred.
 	 */
 	public void format(JHeader header, Detail detail) throws IOException {
 		if (header == null) {
@@ -434,11 +431,11 @@ public abstract class JFormatter {
 	 * Format.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @param field
-	 *          the field
+	 *            the field
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *             Signals that an I/O exception has occurred.
 	 */
 	public void format(JHeader header, JField field) throws IOException {
 		format(header, field, DEFAULT_DETAIL);
@@ -448,13 +445,13 @@ public abstract class JFormatter {
 	 * Format.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @param field
-	 *          the field
+	 *            the field
 	 * @param detail
-	 *          the detail
+	 *            the detail
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *             Signals that an I/O exception has occurred.
 	 */
 	public void format(JHeader header, JField field, Detail detail)
 			throws IOException {
@@ -485,13 +482,13 @@ public abstract class JFormatter {
 	 * Format.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @param subHeader
-	 *          the sub header
+	 *            the sub header
 	 * @param detail
-	 *          the detail
+	 *            the detail
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *             Signals that an I/O exception has occurred.
 	 */
 	public void format(JHeader header, JHeader subHeader, Detail detail)
 			throws IOException {
@@ -502,7 +499,8 @@ public abstract class JFormatter {
 
 		for (final JField field : fields) {
 
-			if (field == null || detail.isDisplayable(field.getPriority()) == false) {
+			if (field == null
+					|| detail.isDisplayable(field.getPriority()) == false) {
 				continue; // DEBUGING skip nulls for now
 			}
 
@@ -521,9 +519,9 @@ public abstract class JFormatter {
 	 * Format.
 	 * 
 	 * @param packet
-	 *          the packet
+	 *            the packet
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *             Signals that an I/O exception has occurred.
 	 */
 	public void format(JPacket packet) throws IOException {
 		format(packet, DEFAULT_DETAIL);
@@ -533,11 +531,11 @@ public abstract class JFormatter {
 	 * Formats a packet for output.
 	 * 
 	 * @param packet
-	 *          packet to format
+	 *            packet to format
 	 * @param detail
-	 *          detail level
+	 *            detail level
 	 * @throws IOException
-	 *           any IO errors when sending data to default output device
+	 *             any IO errors when sending data to default output device
 	 */
 	public void format(JPacket packet, Detail detail) throws IOException {
 
@@ -558,8 +556,9 @@ public abstract class JFormatter {
 
 			try {
 				final JHeader header = headers.getHeader(id);
-				final Detail headerDetail =
-						(detailsPerHeader[id] == null) ? detail : detailsPerHeader[id];
+				final Detail headerDetail = (detailsPerHeader[id] == null)
+						? detail
+						: detailsPerHeader[id];
 
 				packet.getHeaderByIndex(i, header);
 				if (header.getLength() == 0) {
@@ -579,9 +578,9 @@ public abstract class JFormatter {
 	 * Formats a packet for output.
 	 * 
 	 * @param out
-	 *          string buffer to send output to
+	 *            string buffer to send output to
 	 * @param packet
-	 *          packet to format
+	 *            packet to format
 	 */
 	public void format(StringBuilder out, JPacket packet) {
 
@@ -596,7 +595,7 @@ public abstract class JFormatter {
 	 * Format ip address.
 	 * 
 	 * @param address
-	 *          the address
+	 *            the address
 	 * @return the string
 	 */
 	private String formatIpAddress(byte[] address) {
@@ -605,7 +604,8 @@ public abstract class JFormatter {
 			return resolveIp(address);
 		}
 
-		return (address.length == 16) ? FormatUtils.asStringIp6(address, true)
+		return (address.length == 16)
+				? FormatUtils.asStringIp6(address, true)
 				: FormatUtils.asString(address, '.', 10).toUpperCase();
 	}
 
@@ -613,7 +613,7 @@ public abstract class JFormatter {
 	 * Format mac address.
 	 * 
 	 * @param address
-	 *          the address
+	 *            the address
 	 * @return the string
 	 */
 	private String formatMacAddress(byte[] address) {
@@ -622,11 +622,10 @@ public abstract class JFormatter {
 
 		if (resolveAddresses && ouiPrefixResolver.canBeResolved(address)) {
 			String prefix = ouiPrefixResolver.resolve(address);
-			String s =
-					prefix
-							+ "_"
-							+ FormatUtils.asStringZeroPad(address, ':', 16, 3, 3)
-									.toLowerCase();
+			String s = prefix
+					+ "_"
+					+ FormatUtils.asStringZeroPad(address, ':', 16, 3, 3)
+							.toLowerCase();
 			return s + " (" + f + ")";
 		}
 
@@ -637,11 +636,11 @@ public abstract class JFormatter {
 	 * Called as the last step after the header has been formatted.
 	 * 
 	 * @param header
-	 *          headercurrently being formatted
+	 *            headercurrently being formatted
 	 * @param detail
-	 *          detail level to include
+	 *            detail level to include
 	 * @throws IOException
-	 *           any IO errors while sending data to output device
+	 *             any IO errors while sending data to output device
 	 */
 	protected abstract void headerAfter(JHeader header, Detail detail)
 			throws IOException;
@@ -650,11 +649,11 @@ public abstract class JFormatter {
 	 * Called as the first step before the header has been formatted.
 	 * 
 	 * @param header
-	 *          headercurrently being formatted
+	 *            headercurrently being formatted
 	 * @param detail
-	 *          detail level to include
+	 *            detail level to include
 	 * @throws IOException
-	 *           any IO errors while sending data to output device
+	 *             any IO errors while sending data to output device
 	 */
 	protected abstract void headerBefore(JHeader header, Detail detail)
 			throws IOException;
@@ -663,9 +662,9 @@ public abstract class JFormatter {
 	 * Header null.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @param detail
-	 *          the detail
+	 *            the detail
 	 */
 	protected void headerNull(JHeader header, Detail detail) {
 		/* Do nothing by default */
@@ -675,7 +674,7 @@ public abstract class JFormatter {
 	 * Increment the padding level using default padding string.
 	 * 
 	 * @param count
-	 *          numer of pad strings to pad
+	 *            numer of pad strings to pad
 	 */
 	protected void incLevel(int count) {
 		incLevel(count, ' ');
@@ -685,9 +684,9 @@ public abstract class JFormatter {
 	 * Inc level.
 	 * 
 	 * @param count
-	 *          the count
+	 *            the count
 	 * @param c
-	 *          the c
+	 *            the c
 	 */
 	protected void incLevel(int count, char c) {
 		StringBuilder b = new StringBuilder();
@@ -703,7 +702,7 @@ public abstract class JFormatter {
 	 * Inc level.
 	 * 
 	 * @param pad
-	 *          the pad
+	 *            the pad
 	 */
 	protected void incLevel(String pad) {
 		this.level++;
@@ -714,11 +713,11 @@ public abstract class JFormatter {
 	 * Packet after.
 	 * 
 	 * @param packet
-	 *          the packet
+	 *            the packet
 	 * @param detail
-	 *          the detail
+	 *            the detail
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *             Signals that an I/O exception has occurred.
 	 */
 	public abstract void packetAfter(JPacket packet, Detail detail)
 			throws IOException;
@@ -727,11 +726,11 @@ public abstract class JFormatter {
 	 * Packet before.
 	 * 
 	 * @param packet
-	 *          the packet
+	 *            the packet
 	 * @param detail
-	 *          the detail
+	 *            the detail
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *             Signals that an I/O exception has occurred.
 	 */
 	public abstract void packetBefore(JPacket packet, Detail detail)
 			throws IOException;
@@ -740,9 +739,9 @@ public abstract class JFormatter {
 	 * Packet null.
 	 * 
 	 * @param packet
-	 *          the packet
+	 *            the packet
 	 * @param detail
-	 *          the detail
+	 *            the detail
 	 */
 	protected void packetNull(JPacket packet, Detail detail) {
 		/* Do nothing by default */
@@ -781,14 +780,13 @@ public abstract class JFormatter {
 	 * boolean address resolution flags.
 	 * 
 	 * @param address
-	 *          address to convert
-	 * @return formatted string with the address resolved or address and a failure
-	 *         message
+	 *            address to convert
+	 * @return formatted string with the address resolved or address and a
+	 *         failure message
 	 */
 	private String resolveIp(byte[] address) {
-		String f =
-				(address.length == 16) ? FormatUtils.asStringIp6(address, true)
-						: FormatUtils.asString(address, '.', 10).toUpperCase();
+		String f = (address.length == 16) ? FormatUtils.asStringIp6(address,
+				true) : FormatUtils.asString(address, '.', 10).toUpperCase();
 		String name = ipResolver.resolve(address);
 
 		if (name == null) {
@@ -803,7 +801,7 @@ public abstract class JFormatter {
 	 * Changes the detail level that is displayed with formatted output.
 	 * 
 	 * @param detail
-	 *          the level of detail to set for all headers
+	 *            the level of detail to set for all headers
 	 */
 	public void setDetail(Detail detail) {
 		for (int i = 0; i < JRegistry.MAX_ID_COUNT; i++) {
@@ -816,9 +814,9 @@ public abstract class JFormatter {
 	 * specific header type.
 	 * 
 	 * @param detail
-	 *          the level of detail set for this particular header
+	 *            the level of detail set for this particular header
 	 * @param id
-	 *          header id
+	 *            header id
 	 */
 	public void setDetail(Detail detail, int id) {
 		detailsPerHeader[id] = detail;
@@ -826,12 +824,12 @@ public abstract class JFormatter {
 
 	/**
 	 * Sets weather the payload header will be part of the display of a packet.
-	 * This is an instance method that defaults the global setting. You can change
-	 * this flag on an instance by instance basis.
+	 * This is an instance method that defaults the global setting. You can
+	 * change this flag on an instance by instance basis.
 	 * 
 	 * @param enable
-	 *          if true will include payload header in the display, otherwise it
-	 *          will not
+	 *            if true will include payload header in the display, otherwise
+	 *            it will not
 	 * @see #setDefaultDisplayPayload(boolean)
 	 */
 	public void setDisplayPayload(boolean enable) {
@@ -845,18 +843,18 @@ public abstract class JFormatter {
 	 * also set to new value between each format call.
 	 * 
 	 * @param index
-	 *          initial index for frame number
+	 *            initial index for frame number
 	 */
 	public void setFrameIndex(int index) {
 		this.frameIndex = index;
 	}
 
 	/**
-	 * Changes the output device for this formatter. Output produced will be sent
-	 * to the specified device.
+	 * Changes the output device for this formatter. Output produced will be
+	 * sent to the specified device.
 	 * 
 	 * @param out
-	 *          new formatter device
+	 *            new formatter device
 	 */
 	public void setOutput(Appendable out) {
 		this.out = new Formatter(out);
@@ -864,11 +862,11 @@ public abstract class JFormatter {
 	}
 
 	/**
-	 * Changes the output device for this formatter. Output produced will be sent
-	 * to the specified device.
+	 * Changes the output device for this formatter. Output produced will be
+	 * sent to the specified device.
 	 * 
 	 * @param out
-	 *          new formatter device
+	 *            new formatter device
 	 */
 	public void setOutput(StringBuilder out) {
 		this.outputBuffer = out;
@@ -881,16 +879,16 @@ public abstract class JFormatter {
 	 * formatter. The default is set to global default which is set using
 	 * 
 	 * @param enable
-	 *          true to enable address resolution, otherwise false
-	 *          {@link #setDefaultResolveAddress(boolean)}.
+	 *            true to enable address resolution, otherwise false
+	 *            {@link #setDefaultResolveAddress(boolean)}.
 	 * @see #setDefaultResolveAddress(boolean)
 	 */
 	public void setResolveAddresses(boolean enable) {
 		resolveAddresses = enable;
 
 		if (enable == true && ouiPrefixResolver == null) {
-			this.ouiPrefixResolver =
-					JRegistry.getResolver(ResolverType.IEEE_OUI_PREFIX);
+			this.ouiPrefixResolver = JRegistry
+					.getResolver(ResolverType.IEEE_OUI_PREFIX);
 			this.ipResolver = JRegistry.getResolver(ResolverType.IP);
 		} else {
 			ouiPrefixResolver = null;
@@ -902,11 +900,11 @@ public abstract class JFormatter {
 	 * Stylize bit field.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @param field
-	 *          the field
+	 *            the field
 	 * @param value
-	 *          the value
+	 *            the value
 	 * @return the string
 	 */
 	private String stylizeBitField(JHeader header, JField field, Object value) {
@@ -979,14 +977,15 @@ public abstract class JFormatter {
 	 * Stylize multi line.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @param field
-	 *          the field
+	 *            the field
 	 * @param value
-	 *          the value
+	 *            the value
 	 * @return the string[]
 	 */
-	protected String[] stylizeMultiLine(JHeader header, JField field, Object value) {
+	protected String[] stylizeMultiLine(JHeader header, JField field,
+			Object value) {
 		return stylizeMultiLine(header, field, field.getStyle(), value);
 	}
 
@@ -994,75 +993,48 @@ public abstract class JFormatter {
 	 * Stylize multi line.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @param field
-	 *          the field
+	 *            the field
 	 * @param style
-	 *          the style
+	 *            the style
 	 * @param value
-	 *          the value
+	 *            the value
 	 * @return the string[]
 	 */
-	protected String[] stylizeMultiLine(JHeader header,
-			JField field,
-			Style style,
-			Object value) {
+	protected String[] stylizeMultiLine(JHeader header, JField field,
+			Style style, Object value) {
 
 		switch (style) {
-		case BYTE_ARRAY_HEX_DUMP:
-			return FormatUtils.hexdump((byte[]) value,
-					header.getOffset(),
-					0,
-					true,
-					true,
-					true);
+			case BYTE_ARRAY_HEX_DUMP :
+				return FormatUtils.hexdump((byte[]) value, header.getOffset(),
+						0, true, true, true);
 
-		case BYTE_ARRAY_HEX_DUMP_NO_TEXT:
-			return FormatUtils.hexdump((byte[]) value,
-					header.getOffset(),
-					0,
-					true,
-					false,
-					true);
+			case BYTE_ARRAY_HEX_DUMP_NO_TEXT :
+				return FormatUtils.hexdump((byte[]) value, header.getOffset(),
+						0, true, false, true);
 
-		case BYTE_ARRAY_HEX_DUMP_NO_TEXT_ADDRESS:
-			return FormatUtils.hexdump((byte[]) value,
-					header.getOffset(),
-					0,
-					false,
-					false,
-					true);
+			case BYTE_ARRAY_HEX_DUMP_NO_TEXT_ADDRESS :
+				return FormatUtils.hexdump((byte[]) value, header.getOffset(),
+						0, false, false, true);
 
-		case BYTE_ARRAY_HEX_DUMP_NO_ADDRESS:
-			return FormatUtils.hexdump((byte[]) value,
-					header.getOffset(),
-					0,
-					false,
-					true,
-					true);
+			case BYTE_ARRAY_HEX_DUMP_NO_ADDRESS :
+				return FormatUtils.hexdump((byte[]) value, header.getOffset(),
+						0, false, true, true);
 
-		case BYTE_ARRAY_HEX_DUMP_ADDRESS:
-			return FormatUtils.hexdump((byte[]) value,
-					header.getOffset(),
-					0,
-					true,
-					false,
-					false);
+			case BYTE_ARRAY_HEX_DUMP_ADDRESS :
+				return FormatUtils.hexdump((byte[]) value, header.getOffset(),
+						0, true, false, false);
 
-		case BYTE_ARRAY_HEX_DUMP_TEXT:
-			return FormatUtils.hexdump((byte[]) value,
-					header.getOffset(),
-					0,
-					false,
-					true,
-					false);
+			case BYTE_ARRAY_HEX_DUMP_TEXT :
+				return FormatUtils.hexdump((byte[]) value, header.getOffset(),
+						0, false, true, false);
 
-		case STRING_TEXT_DUMP:
-			return ((String) value).split("\r\n");
+			case STRING_TEXT_DUMP :
+				return ((String) value).split("\r\n");
 
-		default:
-			return new String[] { stylizeSingleLine(header, field, value)
-			};
+			default :
+				return new String[]{stylizeSingleLine(header, field, value)};
 		}
 	}
 
@@ -1070,91 +1042,99 @@ public abstract class JFormatter {
 	 * Stylize single line.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @param field
-	 *          the field
+	 *            the field
 	 * @param value
-	 *          the value
+	 *            the value
 	 * @return the string
 	 */
-	protected String stylizeSingleLine(JHeader header, JField field, Object value) {
+	protected String stylizeSingleLine(JHeader header, JField field,
+			Object value) {
 
 		final Style style = field.getStyle();
 
 		switch (style) {
-		case BYTE_ARRAY_DASH_ADDRESS:
-			return FormatUtils.asString((byte[]) value, '-').toUpperCase();
+			case BYTE_ARRAY_DASH_ADDRESS :
+				return FormatUtils.asString((byte[]) value, '-').toUpperCase();
 
-		case BYTE_ARRAY_COLON_ADDRESS:
-			return formatMacAddress((byte[]) value);
+			case BYTE_ARRAY_COLON_ADDRESS :
+				return formatMacAddress((byte[]) value);
 
-		case BYTE_ARRAY_DOT_ADDRESS:
-			return FormatUtils.asString((byte[]) value, '.').toUpperCase();
+			case BYTE_ARRAY_DOT_ADDRESS :
+				return FormatUtils.asString((byte[]) value, '.').toUpperCase();
 
-		case BYTE_ARRAY_ARRAY_IP4_ADDRESS:
-		case BYTE_ARRAY_IP4_ADDRESS:
-		case BYTE_ARRAY_IP6_ADDRESS:
-			return formatIpAddress((byte[]) value);
+			case BYTE_ARRAY_ARRAY_IP4_ADDRESS :
+			case BYTE_ARRAY_IP4_ADDRESS :
+			case BYTE_ARRAY_IP6_ADDRESS :
+				return formatIpAddress((byte[]) value);
 
-		case BYTE_ARRAY_OCTET_STREAM:
-			return FormatUtils.hexLineStream((byte[]) value, 0);
+			case BYTE_ARRAY_OCTET_STREAM :
+				return FormatUtils.hexLineStream((byte[]) value, 0);
 
-		case INT_BITS:
-			return stylizeBitField(header, field, value);
+			case INT_BITS :
+				return stylizeBitField(header, field, value);
 
-		case INT_RADIX_16:
-			return Long.toHexString(((Number) value).longValue()).toUpperCase();
+			case INT_RADIX_16 :
+				return Long.toHexString(((Number) value).longValue())
+						.toUpperCase();
 
-		case INT_HEX:
-			return "0x"
-					+ Long.toHexString(((Number) value).longValue()).toUpperCase() + " ("
-					+ value.toString() + ")";
+			case INT_HEX :
+				long v = (value instanceof Long)
+						? ((Number) value).longValue()
+						: toUInt(((Number) value).intValue());
+				return "0x" + Long.toHexString(v).toUpperCase() + " ("
+						+ ((Long) v).toString() + ")";
 
-		case LONG_HEX:
-			return "0x" + Long.toHexString((Long) value).toUpperCase() + " ("
-					+ value.toString() + ")";
+			case LONG_HEX :
+				return "0x" + Long.toHexString((Long) value).toUpperCase()
+						+ " (" + value.toString() + ")";
 
-		case TIMESTAMP:
-			return new Timestamp((Long) value).toString();
+			case TIMESTAMP :
+				return new Timestamp((Long) value).toString();
 
-		case TIMESTAMP_SECONDS:
-			return new Timestamp(((Long) value) * 1000).toString();
+			case TIMESTAMP_SECONDS :
+				return new Timestamp(((Long) value) * 1000).toString();
 
-		default:
-			return String.valueOf(value);
+			default :
+				return String.valueOf(value);
 		}
+	}
+
+	private static long toUInt(int value) {
+		return value < 0
+				? ((long) value + (long) (Integer.MAX_VALUE) * 2L + 2) & 0xFFFFFFFF
+				: value;
 	}
 
 	/**
 	 * Sub header after.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @param subHeader
-	 *          the sub header
+	 *            the sub header
 	 * @param detail
-	 *          the detail
+	 *            the detail
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *             Signals that an I/O exception has occurred.
 	 */
-	protected abstract void subHeaderAfter(JHeader header,
-			JHeader subHeader,
+	protected abstract void subHeaderAfter(JHeader header, JHeader subHeader,
 			Detail detail) throws IOException;
 
 	/**
 	 * Sub header before.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @param subHeader
-	 *          the sub header
+	 *            the sub header
 	 * @param detail
-	 *          the detail
+	 *            the detail
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *             Signals that an I/O exception has occurred.
 	 */
-	protected abstract void subHeaderBefore(JHeader header,
-			JHeader subHeader,
+	protected abstract void subHeaderBefore(JHeader header, JHeader subHeader,
 			Detail detail) throws IOException;
 
 	/**
@@ -1172,7 +1152,7 @@ public abstract class JFormatter {
 	 * Println.
 	 * 
 	 * @param text
-	 *          the text
+	 *            the text
 	 */
 	public void println(String text) {
 		out.format("%s\n", text);
@@ -1182,9 +1162,9 @@ public abstract class JFormatter {
 	 * Printf.
 	 * 
 	 * @param format
-	 *          the format
+	 *            the format
 	 * @param args
-	 *          the args
+	 *            the args
 	 */
 	public void printf(String format, Object... args) {
 		out.format(format, args);
