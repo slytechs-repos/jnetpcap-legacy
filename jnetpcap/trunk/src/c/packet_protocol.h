@@ -32,8 +32,54 @@
 #define SDP_ID           org_jnetpcap_protocol_JProtocol_SDP_ID
 #define RTP_ID           org_jnetpcap_protocol_JProtocol_RTP_ID
 #define SLL_ID           org_jnetpcap_protocol_JProtocol_SLL_ID
+
+#define SCTP_ID              org_jnetpcap_protocol_JProtocol_SCTP_ID
+#define SCTP_CHUNK_ID        org_jnetpcap_protocol_JProtocol_SCTP_DATA_ID
+#define SCTP_DATA_ID         org_jnetpcap_protocol_JProtocol_SCTP_DATA_ID
+#define SCTP_INIT_ID         org_jnetpcap_protocol_JProtocol_SCTP_INIT_ID
+#define SCTP_INIT_ACK_ID     org_jnetpcap_protocol_JProtocol_SCTP_INIT_ACK_ID
+#define SCTP_SACK_ID         org_jnetpcap_protocol_JProtocol_SCTP_SACK_ID
+#define SCTP_HEARTBEAT_ID    org_jnetpcap_protocol_JProtocol_SCTP_HEARTBEAT_ID
+#define SCTP_HEARTBEAT_ACK_ID    org_jnetpcap_protocol_JProtocol_SCTP_HEARTBEAT_ACK_ID
+#define SCTP_ABORT_ID        org_jnetpcap_protocol_JProtocol_SCTP_ABORT_ID
+#define SCTP_SHUTDOWN_ID     org_jnetpcap_protocol_JProtocol_SCTP_SHUTDOWN_ID
+#define SCTP_SHUTDOWN_ACK_ID org_jnetpcap_protocol_JProtocol_SCTP_SHUTDOWN_ACK_ID
+#define SCTP_ERROR_ID        org_jnetpcap_protocol_JProtocol_SCTP_ERROR_ID
+#define SCTP_COOKIE_ID       org_jnetpcap_protocol_JProtocol_SCTP_COOKIE_ID
+#define SCTP_COOKIE_ACK_ID   org_jnetpcap_protocol_JProtocol_SCTP_COOKIE_ACK_ID
+#define SCTP_ECNE_ID         org_jnetpcap_protocol_JProtocol_SCTP_ECNE_ID
+#define SCTP_CWR_ID          org_jnetpcap_protocol_JProtocol_SCTP_CWR_ID
+#define SCTP_SHUTDOWN_COMPLETE_ID org_jnetpcap_protocol_JProtocol_SCTP_SHUTDOWN_COMPLETE_ID
+
 #define WEB_IMAGE_ID        org_jnetpcap_protocol_JProtocol_WEB_IMAGE_ID
 
+#define SCTP_DATA_FLAG_LAST_SEG		0x01
+#define SCTP_DATA_FLAG_FIRST_SEG	0x02
+#define SCTP_DATA_FLAG_ORDERED		0x04
+#define SCTP_DATA_FLAG_DELAY		0x08
+/**
+ * SCTP Chunk
+ */
+typedef struct sctp_chunk_ {
+
+	uint8_t		type;
+	uint8_t		flags;
+	uint16_t	length;
+
+} sctp_chunk_t;
+
+#define SCTP_LEN	12
+/**
+ * Stream Control Transport Protocol
+ */
+typedef struct sctp_ {
+
+	uint16_t	sport;
+	uint16_t	dport;
+	uint32_t	tag;
+	uint32_t	crc32;
+
+} sctp_t;
 
 /*
  * Linux Socket Cooked Capture header - a pseudo header as DL substitute

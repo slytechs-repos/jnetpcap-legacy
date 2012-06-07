@@ -495,3 +495,30 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_icmp
 	return (jint) in_cksum(vec, 1 + in_checksum_pad_to_even(vec, 1, &pad));
 }
 
+/*
+ * Class:     org_jnetpcap_util_checksum_Checksum
+ * Method:    sctp
+ * Signature: (Lorg/jnetpcap/nio/JBuffer;II)I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_sctp
+  (JNIEnv *env, jclass clazz, jobject jbuf, jint sctpOffset, jint length) {
+
+	const uint8_t *buf = (const uint8_t *)getJMemoryPhysical(env, jbuf);
+	if (buf == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "JBuffer not initialized");
+		return -1;
+	}
+
+	size_t size = (size_t) env->GetIntField(jbuf, jmemorySizeFID);
+	if (sctpOffset < 0  || length + sctpOffset > size) {
+		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
+		return -1;
+	}
+
+
+#define CRC32_SCTP_SEED		0xFFFFFFFF
+	int sum = calculate_crc32c(buf + sctpOffset, length, CRC32_SCTP_SEED);
+
+	return ~sum;
+}
+

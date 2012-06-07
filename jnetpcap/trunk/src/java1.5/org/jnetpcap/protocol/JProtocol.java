@@ -34,6 +34,22 @@ import org.jnetpcap.protocol.network.Arp;
 import org.jnetpcap.protocol.network.Icmp;
 import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.protocol.network.Ip6;
+import org.jnetpcap.protocol.sigtran.Sctp;
+import org.jnetpcap.protocol.sigtran.SctpAbort;
+import org.jnetpcap.protocol.sigtran.SctpCWR;
+import org.jnetpcap.protocol.sigtran.SctpCookie;
+import org.jnetpcap.protocol.sigtran.SctpCookieAck;
+import org.jnetpcap.protocol.sigtran.SctpData;
+import org.jnetpcap.protocol.sigtran.SctpECNE;
+import org.jnetpcap.protocol.sigtran.SctpError;
+import org.jnetpcap.protocol.sigtran.SctpHeartbeat;
+import org.jnetpcap.protocol.sigtran.SctpHeartbeatAck;
+import org.jnetpcap.protocol.sigtran.SctpInit;
+import org.jnetpcap.protocol.sigtran.SctpInitAck;
+import org.jnetpcap.protocol.sigtran.SctpSack;
+import org.jnetpcap.protocol.sigtran.SctpShutdown;
+import org.jnetpcap.protocol.sigtran.SctpShutdownAck;
+import org.jnetpcap.protocol.sigtran.SctpShutdownComplete;
 import org.jnetpcap.protocol.tcpip.Http;
 import org.jnetpcap.protocol.tcpip.Tcp;
 import org.jnetpcap.protocol.tcpip.Udp;
@@ -120,6 +136,53 @@ public enum JProtocol {
 	/** Linux cooked sockets. */
 	SLL(SLL.class, PcapDLT.LINUX_SLL),
 	
+	/** Stream Control Transport Protocol */
+	SCTP(Sctp.class),
+	
+	/** SCTP Data Chunk */
+	SCTP_DATA(SctpData.class),
+	
+	/** SCTP Init Chunk */
+	SCTP_INIT(SctpInit.class),
+	
+	/** SCTP Init Acknowledgment Chunk */
+	SCTP_INIT_ACK(SctpInitAck.class),
+	
+	/** SCTP Selective Acknowledgement Chunk */
+	SCTP_SACK(SctpSack.class),
+	
+	/** SCTP Heartbeat Request Chunk */
+	SCTP_HEARTBEAT(SctpHeartbeat.class),
+	
+	/** SCTP Heartbeat Acknowledgment Chunk */
+	SCTP_HEARTBEAT_ACK(SctpHeartbeatAck.class),
+	
+	/** SCTP Abort Chunk */
+	SCTP_ABORT(SctpAbort.class),
+	
+	/** SCTP Shutdown Chunk */
+	SCTP_SHUTDOWN(SctpShutdown.class),
+	
+	/** SCTP Shutdown Acknowledgment Chunk */
+	SCTP_SHUTDOWN_ACK(SctpShutdownAck.class),
+	
+	/** SCTP Error Chunk */
+	SCTP_ERROR(SctpError.class),
+	
+	/** SCTP Cookie Echo/State Cookie Chunk */
+	SCTP_COOKIE(SctpCookie.class),
+	
+	/** SCTP Cookie Acknowledgment Chunk */
+	SCTP_COOKIE_ACK(SctpCookieAck.class),
+	
+	/** SCTP Explicit Congestion Notification Echo Chunk */
+	SCTP_ECNE(SctpECNE.class),
+	
+	/** SCTP Congestion Window Reduced Chunk */
+	SCTP_CWR(SctpCWR.class),
+	
+	/** SCTP Shutdown Complete  Chunk */
+	SCTP_SHUTDOWN_COMPLETE(SctpShutdownComplete.class),
 	;
 
 	/**
@@ -221,6 +284,54 @@ public enum JProtocol {
 	
 	/** The Constant SLL_ID. */
 	public final static int SLL_ID = 20;
+	
+	/** The Constant SCTP_ID. */
+	public final static int SCTP_ID = 21;
+	
+	/** The Constant SCTP_DATA_ID. */
+	public final static int SCTP_DATA_ID = 22;
+	
+	/** The Constant SCTP_INIT_ID. */
+	public final static int SCTP_INIT_ID = 23;
+	
+	/** The Constant SCTP_INIT_ACK_ID. */
+	public final static int SCTP_INIT_ACK_ID = 24;
+	
+	/** The Constant SCTP_SACK_ID. */
+	public final static int SCTP_SACK_ID = 25;
+	
+	/** The Constant SCTP_HEARTBEAT_ID. */
+	public final static int SCTP_HEARTBEAT_ID = 26;
+	
+	/** The Constant SCTP_HEARTBEAT_ID. */
+	public final static int SCTP_HEARTBEAT_ACK_ID = 27;
+	
+	/** The Constant SCTP_ABORT_ID. */
+	public final static int SCTP_ABORT_ID = 28;
+	
+	/** The Constant SCTP_SHUTDOWN_ID. */
+	public final static int SCTP_SHUTDOWN_ID = 29;
+	
+	/** The Constant SCTP_SHUTDOWN_ACK_ID. */
+	public final static int SCTP_SHUTDOWN_ACK_ID = 30;
+	
+	/** The Constant SCTP_ERROR_ID. */
+	public final static int SCTP_ERROR_ID = 31;
+	
+	/** The Constant SCTP_COOKIE_ID. */
+	public final static int SCTP_COOKIE_ID = 32;
+	
+	/** The Constant SCTP_COOKIE_ACK_ID. */
+	public final static int SCTP_COOKIE_ACK_ID = 33;
+	
+	/** The Constant SCTP_ECNE_ID. */
+	public final static int SCTP_ECNE_ID = 34;
+	
+	/** The Constant SCTP_CWR_ID. */
+	public final static int SCTP_CWR_ID = 35;
+	
+	/** The Constant SCTP_SHUTDOWN_COMPLETE_ID. */
+	public final static int SCTP_SHUTDOWN_COMPLETE_ID = 36;
 	
 	/** The Constant LAST_ID. */
 	public final static int LAST_ID = JProtocol.values().length;

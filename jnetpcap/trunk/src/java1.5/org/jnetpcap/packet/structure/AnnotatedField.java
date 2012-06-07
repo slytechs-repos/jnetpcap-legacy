@@ -128,7 +128,11 @@ public class AnnotatedField {
 			return Style.BOOLEAN;
 		} else if (format.contains("%d")) {
 			return Style.INT_DEC;
+		} else if (format.contains("%lx")) {
+			return Style.LONG_HEX;
 		} else if (format.contains("%x")) {
+			return Style.INT_HEX;
+		} else if (format.contains("#x32#")) {
 			return Style.INT_HEX;
 		} else if (format.contains("#ip4#")) {
 			return Style.BYTE_ARRAY_IP4_ADDRESS;

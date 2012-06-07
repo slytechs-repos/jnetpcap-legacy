@@ -146,6 +146,15 @@ typedef struct dissect_t {
 	int 			d_offset;
 } dissect_t;
 
+#define SCAN_STACK_SIZE 8
+typedef struct scan_stack_ {
+
+	int next_id;
+	int offset;
+
+} scan_stack_t;
+
+
 /*
  * Structure maintains state for the duration of the scan in progress
  * 
@@ -178,7 +187,11 @@ typedef struct scan_t {
 	int id;
 	int next_id;
 	int flags;
+	int sctp_offset;
 	
+	int stack_index; // # of entries on the stack/Last index
+	scan_stack_t stack[SCAN_STACK_SIZE];
+
 	int hdr_prefix;
 	int hdr_gap;
 	int hdr_payload;

@@ -124,6 +124,7 @@ int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner,
 	scan.id = first_id;
 	scan.next_id = PAYLOAD_ID;
 	scan.flags = 0;
+	scan.stack_index = 0;
 
 	scan.hdr_flags = 0;
 	scan.hdr_prefix = 0;
@@ -202,7 +203,13 @@ int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner,
 			debug_scan("loop-length==0", &scan);
 #endif
 			if (scan.id == PAYLOAD_ID) {
-				scan.next_id = END_OF_HEADERS;
+				if (scan.stack_index == 0) {
+					scan.next_id = END_OF_HEADERS;
+				} else {
+					scan.stack_index --;
+					scan.next_id = scan.stack[scan.stack_index].next_id;
+					scan.offset = scan.stack[scan.stack_index].offset;
+				}
 			} else {
 				scan.next_id = PAYLOAD_ID;
 			}
