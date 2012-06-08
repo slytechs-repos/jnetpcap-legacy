@@ -426,48 +426,61 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 	 * @author Sly Technologies, Inc.
 	 */
 	public enum Flag {
-		/**
-		 * ACK (1 bit) - indicates that the Acknowledgment field is significant. All
-		 * packets after the initial SYN packet sent by the client should have this
-		 * flag set.
-		 */
-		ACK,
-		/**
-		 * CWR (1 bit) - Congestion Window Reduced (CWR) flag is set by the sending
-		 * host to indicate that it received a TCP segment with the ECE flag set and
-		 * had responded in congestion control mechanism (added to header by RFC
-		 * 3168).
-		 */
-		CWR,
-		/**
-		 * ECE (1 bit) - ECN-Echo indicates If the SYN flag is set, that the TCP
-		 * peer is ECN capable. If the SYN flag is clear, that a packet with
-		 * Congestion Experienced flag in IP header set is received during normal
-		 * transmission (added to header by RFC 3168).
-		 */
-		ECE,
-
-		/** FIN (1 bit) - No more data from sender. */
+		/** 0 - FIN (1 bit) - No more data from sender. */
 		FIN,
+		
 		/**
-		 * PSH (1 bit) - Push function. Asks to push the buffered data to the
-		 * receiving application.
-		 */
-		PSH,
-
-		/** RST (1 bit) - Reset the connection. */
-		RST,
-		/**
-		 * SYN (1 bit) - Synchronize sequence numbers. Only the first packet sent
+		 * 1 - SYN (1 bit) - Synchronize sequence numbers. Only the first packet sent
 		 * from each end should have this flag set. Some other flags change meaning
 		 * based on this flag, and some are only valid for when it is set, and
 		 * others when it is clear.
 		 */
 		SYN,
-
-		/** URG (1 bit) - indicates that the Urgent pointer field is significant. */
-		URG, ;
-
+		
+		/** 2 - RST (1 bit) - Reset the connection. */
+		RST,
+		
+		/**
+		 * 3 - PSH (1 bit) - Push function. Asks to push the buffered data to the
+		 * receiving application.
+		 */
+		PSH,
+		
+		/**
+		 * 4 - ACK (1 bit) - indicates that the Acknowledgment field is significant. All
+		 * packets after the initial SYN packet sent by the client should have this
+		 * flag set.
+		 */
+		ACK,
+		
+		/** 5 - URG (1 bit) - indicates that the Urgent pointer field is significant. */
+		URG, 
+		
+		/**
+		 * 6 - ECE (1 bit) - ECN-Echo indicates If the SYN flag is set, that the TCP
+		 * peer is ECN capable. If the SYN flag is clear, that a packet with
+		 * Congestion Experienced flag in IP header set is received during normal
+		 * transmission.
+		 * @see RFC3168
+		 */
+		ECE,
+		
+		/**
+		 * 6 - CWR (1 bit) - Congestion Window Reduced (CWR) flag is set by the sending
+		 * host to indicate that it received a TCP segment with the ECE flag set and
+		 * had responded in congestion control mechanism.
+		 * @see RFC3168
+		 */
+		CWR,
+		
+		/**
+		 * 8 - ECN-nonce concealment protection
+		 * @see RFC3540
+		 */
+		NS,
+		
+		/* END OF FLAGS */
+		;
 		/**
 		 * Converts 8 contigeous bits of an inteteger to a set collection of enum
 		 * constants, each representing if a flag is set in the original integer.
