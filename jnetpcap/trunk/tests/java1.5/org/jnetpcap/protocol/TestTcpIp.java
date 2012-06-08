@@ -21,7 +21,9 @@ package org.jnetpcap.protocol;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import org.jnetpcap.Pcap;
 import org.jnetpcap.nio.JBuffer;
@@ -37,22 +39,22 @@ import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.protocol.network.Ip6;
 import org.jnetpcap.protocol.tcpip.Tcp;
 import org.jnetpcap.protocol.tcpip.Udp;
+import org.jnetpcap.protocol.tcpip.Tcp.Flag;
 import org.jnetpcap.util.DataUtils;
 import org.jnetpcap.util.PcapPacketArrayList;
 import org.jnetpcap.util.checksum.Checksum;
+import org.junit.Test;
 
 // TODO: Auto-generated Javadoc
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public class TestTcpIp
-    extends
-    TestUtils {
+public class TestTcpIp extends TestUtils {
 
 	/** The Constant HTTP_IP6. */
 	public final static String HTTP_IP6 = "tests/v6-http.cap";
-	
+
 	/** The Constant SMALL_IMAP. */
 	public final static String SMALL_IMAP = "tests/test-small-imap.pcap";
 
@@ -67,8 +69,9 @@ public class TestTcpIp
 		int computed = Checksum.inChecksum(ip, 0, ip.size());
 
 		System.out.printf("1chunk=%x\n", computed);
-		System.out.printf("shoudbe=%x checksum=%x\n", Checksum.inChecksumShouldBe(
-		    ip.checksum(), computed), ip.checksum());
+		System.out.printf("shoudbe=%x checksum=%x\n",
+				Checksum.inChecksumShouldBe(ip.checksum(), computed),
+				ip.checksum());
 
 		assertTrue(ip.isChecksumValid());
 	}
@@ -102,7 +105,7 @@ public class TestTcpIp
 	 * Test ip4 cr c16 entire file.
 	 * 
 	 * @throws InterruptedException
-	 *           the interrupted exception
+	 *             the interrupted exception
 	 */
 	public void testIp4CRC16EntireFile() throws InterruptedException {
 		Ip4 ip = new Ip4();
@@ -122,8 +125,8 @@ public class TestTcpIp
 					System.out.println(packet.getState().toDebugString());
 					e.printStackTrace();
 				}
-				System.out
-				    .printf("#%d: ip.crc=%x computed=%x\n", f, ip.checksum(), crc);
+				System.out.printf("#%d: ip.crc=%x computed=%x\n", f,
+						ip.checksum(), crc);
 				System.out.println(ip.toHexdump());
 			}
 
@@ -141,36 +144,37 @@ public class TestTcpIp
 		assertNotNull(pcap);
 
 		pcap.dispatch(Pcap.DISPATCH_BUFFER_FULL, JProtocol.ETHERNET_ID,
-		    new PcapPacketHandler<Pcap>() {
-			    Ip4 ip = new Ip4();
+				new PcapPacketHandler<Pcap>() {
+					Ip4 ip = new Ip4();
 
-			    int i = 0, j = 0;
+					int i = 0, j = 0;
 
-			    // public void nextPacket(PcapHeader header, JBuffer buffer, String
-			    // user)
-			    // {
-			    public void nextPacket(PcapPacket packet, Pcap pcap) {
+					// public void nextPacket(PcapHeader header, JBuffer buffer,
+					// String
+					// user)
+					// {
+					public void nextPacket(PcapPacket packet, Pcap pcap) {
 
-				    // if (i++ % 1 == 0) {
-//				    packet = new PcapPacket(packet);
-				    j++;
-				    // }
+						// if (i++ % 1 == 0) {
+						// packet = new PcapPacket(packet);
+						j++;
+						// }
 
-				    long f = packet.getFrameNumber();
-				    assertTrue("#" + f, packet.hasHeader(ip));
-				    System.out.println(packet.getState().toDebugString());
+						long f = packet.getFrameNumber();
+						assertTrue("#" + f, packet.hasHeader(ip));
+						System.out.println(packet.getState().toDebugString());
 
-				    assertTrue("Frame #" + f, ip.isChecksumValid());
-			    }
+						assertTrue("Frame #" + f, ip.isChecksumValid());
+					}
 
-		    }, null);
+				}, null);
 	}
 
 	/**
 	 * Test compare2 sets of packets.
 	 * 
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *             Signals that an I/O exception has occurred.
 	 */
 	public void testCompare2SetsOfPackets() throws IOException {
 		List<PcapPacket> l1 = getPacketList(L2TP);
@@ -183,8 +187,8 @@ public class TestTcpIp
 			PcapPacket p2 = l2.get(i);
 
 			if (p1.size() != p2.size()) {
-				System.out.printf("#%d p1=%d p2=%d\n%s\n%s\n", i, l1.size(), l2.size(),
-				    p1.toHexdump(), p2.toHexdump());
+				System.out.printf("#%d p1=%d p2=%d\n%s\n%s\n", i, l1.size(),
+						l2.size(), p1.toHexdump(), p2.toHexdump());
 
 				System.out.println(p1.toString());
 				System.out.println(p2.toString());
@@ -201,7 +205,7 @@ public class TestTcpIp
 	 * Test compare checksum of2 sets.
 	 * 
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *             Signals that an I/O exception has occurred.
 	 */
 	public void testCompareChecksumOf2Sets() throws IOException {
 		List<PcapPacket> l1 = getPacketList(L2TP);
@@ -234,9 +238,9 @@ public class TestTcpIp
 	 * Compare j buffer.
 	 * 
 	 * @param b1
-	 *          the b1
+	 *            the b1
 	 * @param b2
-	 *          the b2
+	 *            the b2
 	 * @return true, if successful
 	 */
 	private boolean compareJBuffer(JBuffer b1, JBuffer b2) {
@@ -266,10 +270,10 @@ public class TestTcpIp
 	 * Gets the packet list.
 	 * 
 	 * @param file
-	 *          the file
+	 *            the file
 	 * @return the packet list
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *             Signals that an I/O exception has occurred.
 	 */
 	private List<PcapPacket> getPacketList(String file) throws IOException {
 		StringBuilder errbuf = new StringBuilder();
@@ -278,8 +282,8 @@ public class TestTcpIp
 			throw new IOException(errbuf.toString());
 		}
 
-		final PcapPacketArrayList list =
-		    new PcapPacketArrayList((int) new File(file).length() / 100);
+		final PcapPacketArrayList list = new PcapPacketArrayList(
+				(int) new File(file).length() / 100);
 
 		pcap.loop(Pcap.LOOP_INFINATE, list, null);
 
@@ -292,7 +296,7 @@ public class TestTcpIp
 	 * Test ip checksum.
 	 * 
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *             Signals that an I/O exception has occurred.
 	 */
 	public void testIpChecksum() throws IOException {
 		StringBuilder errbuf = new StringBuilder();
@@ -319,26 +323,31 @@ public class TestTcpIp
 				int c2 = ip2.calculateChecksum();
 
 				if (c1 != c2) {
-					System.out.printf("#%d crc_before=%x crc_after=%x\n", i, c1, c2);
-					System.out.printf(
-					    "P1: %s\nheader1=%s\n\nstate1=%s\npacket1=%s\n\nip1=%s\n", p1
-					        .toHexdump(), p1.getCaptureHeader().toDebugString(), p1
-					        .getState().toDebugString(), p1.toDebugString(), ip1
-					        .toDebugString());
+					System.out.printf("#%d crc_before=%x crc_after=%x\n", i,
+							c1, c2);
+					System.out
+							.printf("P1: %s\nheader1=%s\n\nstate1=%s\npacket1=%s\n\nip1=%s\n",
+									p1.toHexdump(), p1.getCaptureHeader()
+											.toDebugString(), p1.getState()
+											.toDebugString(), p1
+											.toDebugString(), ip1
+											.toDebugString());
 
 					System.out.println("---------------------------");
 
-					System.out.printf(
-					    "P2: %s\nheader2=%s\n\nstate2=%s\npacket2=%s\n\nip2=%s\n\n", p2
-					        .toHexdump(), p2.getCaptureHeader().toDebugString(), p2
-					        .getState().toDebugString(), p2.toDebugString(), ip2
-					        .toDebugString());
+					System.out
+							.printf("P2: %s\nheader2=%s\n\nstate2=%s\npacket2=%s\n\nip2=%s\n\n",
+									p2.toHexdump(), p2.getCaptureHeader()
+											.toDebugString(), p2.getState()
+											.toDebugString(), p2
+											.toDebugString(), ip2
+											.toDebugString());
 
 					System.out.println("p1-p2.memory.diff=\n"
-					    + FormatUtils.hexdump(DataUtils.diff(p1, p2)));
+							+ FormatUtils.hexdump(DataUtils.diff(p1, p2)));
 
 					System.out.println("ip1-ip2.memory.diff=\n"
-					    + FormatUtils.hexdump(DataUtils.diff(ip1, ip2)));
+							+ FormatUtils.hexdump(DataUtils.diff(ip1, ip2)));
 
 					user.breakloop();
 				}
@@ -355,7 +364,7 @@ public class TestTcpIp
 	 * Test compare2 sets of packets2.
 	 * 
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *             Signals that an I/O exception has occurred.
 	 */
 	public void testCompare2SetsOfPackets2() throws IOException {
 		List<PcapPacket> l1 = getPacketList(L2TP);
@@ -397,7 +406,8 @@ public class TestTcpIp
 
 			Tcp tcp = new Tcp();
 
-			// public void nextPacket(PcapHeader header, JBuffer buffer, String user)
+			// public void nextPacket(PcapHeader header, JBuffer buffer, String
+			// user)
 			// {
 			public void nextPacket(PcapPacket packet, String user) {
 
@@ -410,13 +420,13 @@ public class TestTcpIp
 				long f = packet.getFrameNumber();
 				assertTrue("#" + f, packet.hasHeader(ip));
 
-				final int crc =
-				    Checksum.pseudoTcp(packet, ip.getOffset(), tcp.getOffset());
+				final int crc = Checksum.pseudoTcp(packet, ip.getOffset(),
+						tcp.getOffset());
 
 				if (crc != 0 && tcp.checksum() != crc) {
 					System.out.println(tcp);
-					System.out.printf("#%d: tcp.crc=%x computed=%x\n", f, tcp.checksum(),
-					    crc);
+					System.out.printf("#%d: tcp.crc=%x computed=%x\n", f,
+							tcp.checksum(), crc);
 					// System.out.println(ip.toHexdump());
 					// System.out.println(tcp.toHexdump());
 					System.exit(0);
@@ -516,8 +526,8 @@ public class TestTcpIp
 				assertTrue("#" + f, packet.hasHeader(ip));
 
 				if (icmp.isChecksumValid() == false) {
-					System.out.printf("#%d shouldbe=%x checksum=%x\n", f, icmp
-					    .calculateChecksum(), icmp.checksum());
+					System.out.printf("#%d shouldbe=%x checksum=%x\n", f,
+							icmp.calculateChecksum(), icmp.checksum());
 				}
 
 				assertTrue("#" + f, icmp.isChecksumValid());
@@ -537,7 +547,7 @@ public class TestTcpIp
 			// System.out.println(eth);
 			// System.out.printf("flags=%x\n", eth.getState().getFlags());
 			assertNotSame(JHeader.State.FLAG_HEADER_FRAGMENTED, (eth.getState()
-			    .getFlags() & JHeader.State.FLAG_HEADER_FRAGMENTED));
+					.getFlags() & JHeader.State.FLAG_HEADER_FRAGMENTED));
 		}
 
 		Ip4 ip = new Ip4();
@@ -545,7 +555,7 @@ public class TestTcpIp
 			// System.out.println(ip);
 			// System.out.printf("flags=%x\n", ip.getState().getFlags());
 			assertEquals(JHeader.State.FLAG_HEADER_FRAGMENTED, (ip.getState()
-			    .getFlags() & JHeader.State.FLAG_HEADER_FRAGMENTED));
+					.getFlags() & JHeader.State.FLAG_HEADER_FRAGMENTED));
 		}
 
 		Icmp icmp = new Icmp();
@@ -553,7 +563,7 @@ public class TestTcpIp
 			// System.out.println(icmp);
 			// System.out.printf("flags=%x\n", icmp.getState().getFlags());
 			assertEquals(JHeader.State.FLAG_HEADER_FRAGMENTED, (icmp.getState()
-			    .getFlags() & JHeader.State.FLAG_HEADER_FRAGMENTED));
+					.getFlags() & JHeader.State.FLAG_HEADER_FRAGMENTED));
 		}
 
 	}
@@ -580,20 +590,61 @@ public class TestTcpIp
 		}
 
 	}
-	
+
 	/**
 	 * Test tcp options.
+	 * 
+	 * <pre>
+	 * 
+	 * </pre>
 	 */
 	public void testTcpOptions() {
 		JPacket packet = TestUtils.getPcapPacket(SMALL_IMAP, 1 - 1);
 		System.out.println(packet.toString());
-		
+
 		Tcp tcp = packet.getHeader(new Tcp());
 		Tcp.Timestamp ts = new Tcp.Timestamp();
-		
+
 		if (tcp.hasSubHeader(ts)) {
 			System.out.printf("tsval=%d tsecr=%d%n", ts.tsval(), ts.tsecr());
 		}
+	}
+
+	/**
+	 * Bug#3321797
+	 * 
+	 * <pre>
+	 * Details:
+	 * I use the following snippet to reproduce the bug.
+	 * I hope the information is sufficient for you to track it down.
+	 * Thanks a lot for this very nice software!
+	 * 
+	 * </pre>
+	 */
+	public void testFlagsToEnumSet() {
+		/*
+		 * 
+		 * From org.jnetpcap.protocol.tcpip.Tcp
+		 * 
+		 * The Constant FLAG_ACK. private static final int FLAG_ACK = 0x10;
+		 * 
+		 * ...
+		 * 
+		 * The Constant FLAG_SYN. private static final int FLAG_SYN = 0x02;
+		 */
+		int flags = 0x02 | 0x10;
+
+		Set<Tcp.Flag> flagSet = Tcp.Flag.asSet(flags);
+
+		assertEquals("[SYN, ACK]", flagSet.toString());
+		assertEquals(EnumSet.of(Flag.ACK, Flag.SYN), flagSet);
+
+		/*
+		 * Result: java.lang.AssertionError: expected:<[ACK, SYN]> but
+		 * was:<[CWR, PSH]> ...
+		 * 
+		 * JNetPcap Version: jnetpcap-1.4.r1300-1
+		 */
 	}
 
 }
