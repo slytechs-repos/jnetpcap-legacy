@@ -480,7 +480,9 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_peer(JNIEnv *env,
 		jobject obj, jobject jbytebuffer) {
 
 	if (jbytebuffer == NULL || byteBufferIsDirectMID == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "");
+		char buf[1024];
+		sprintf(buf, "jbytebuffer=%p byteBufferIsDirectMID=%p\n", jbytebuffer, byteBufferIsDirectMID);
+		throwException(env, NULL_PTR_EXCEPTION, buf);
 		return -1;
 	}
 
@@ -503,6 +505,8 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_peer(JNIEnv *env,
 
 	env->SetIntField(obj, jmemorySizeFID, (jint)(limit - position));
 	env->SetObjectField(obj, jmemoryKeeperFID, jbytebuffer);
+
+	return (limit - position);
 }
 
 /*

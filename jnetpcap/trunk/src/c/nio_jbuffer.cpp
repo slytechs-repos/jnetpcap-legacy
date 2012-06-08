@@ -46,8 +46,19 @@
  * 
  * **************************************************************
  ****************************************************************/
+
+jclass bufferClass = NULL;
+jclass byteBufferClass = NULL;
+
 jfieldID jbufferOrderFID = 0;
 jfieldID jbufferReadonlyFID = 0;
+jmethodID byteBufferIsDirectMID = 0;
+jmethodID bufferGetPositionMID = 0;
+jmethodID bufferGetLimitMID = 0;
+jmethodID bufferSetPositionMID = 0;
+jmethodID bufferSetLimitMID = 0;
+jmethodID bufferGetCapacityMID = 0;
+
 
 #define ITOA_BUF 16
 
@@ -61,17 +72,22 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_initIds
 
 	jclass c = clazz;
 	
-	if ( ( jbufferOrderFID = env->GetFieldID(c, "order", "Z")) == NULL) {
-		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field JBuffer.order:boolean");
-		return;
-	}
+	if ( (bufferClass = findClass(env, "java/nio/Buffer")) == NULL)	return;
+	if ( (byteBufferClass = findClass(env, "java/nio/ByteBuffer")) == NULL)	return;
 
-	if ( ( jbufferReadonlyFID = env->GetFieldID(c, "readonly", "Z")) == NULL) {
-		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field JBuffer.readonly:boolean");
-		return;
-	}
+	bufferClass = (jclass) env->NewGlobalRef(bufferClass);
+	byteBufferClass = (jclass) env->NewGlobalRef(byteBufferClass);
+
+	if ( ( jbufferOrderFID = env->GetFieldID(c, "order", "Z")) == NULL) return;
+	if ( ( jbufferReadonlyFID = env->GetFieldID(c, "readonly", "Z")) == NULL) return;
+
+	if ( (byteBufferIsDirectMID = env->GetMethodID(byteBufferClass, "isDirect",	"()Z")) == NULL) return;
+	if ( (bufferGetPositionMID = env->GetMethodID(bufferClass, "position", "()I")) == NULL) return;
+	if ( (bufferGetLimitMID = env->GetMethodID(bufferClass, "limit", "()I")) == NULL) return;
+	if ( (bufferSetPositionMID = env->GetMethodID(bufferClass, "position", "(I)Ljava/nio/Buffer;")) == NULL) return;
+	if ( (bufferSetLimitMID = env->GetMethodID(bufferClass, "limit", "(I)Ljava/nio/Buffer;")) == NULL) return;
+	if ( (bufferGetCapacityMID = env->GetMethodID(bufferClass, "capacity", "()I")) == NULL) return;
+
 }
 
 /*

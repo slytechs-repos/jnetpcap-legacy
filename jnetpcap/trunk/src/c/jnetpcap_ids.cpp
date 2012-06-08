@@ -31,8 +31,6 @@
  * Pcap.java IDs
  ******************************************************************************/
 jclass pcapClass = NULL;
-jclass bufferClass = NULL;
-jclass byteBufferClass = NULL;
 jclass stringBuilderClass = NULL;
 jclass pcapIntegerClass = NULL;
 
@@ -42,12 +40,6 @@ jfieldID pcapIntegerValueFID = 0;
 jmethodID pcapConstructorMID = 0;
 jmethodID appendMID = 0;
 jmethodID setLengthMID = 0;
-jmethodID byteBufferIsDirectMID = 0;
-jmethodID bufferGetPositionMID = 0;
-jmethodID bufferGetLimitMID = 0;
-jmethodID bufferSetPositionMID = 0;
-jmethodID bufferSetLimitMID = 0;
-jmethodID bufferGetCapacityMID = 0;
 
 jclass JBufferHandlerClass;
 jclass ByteBufferHandlerClass;
@@ -85,43 +77,7 @@ JNIEXPORT void JNICALL JNICALL Java_org_jnetpcap_Pcap_initIDs
 		return;
 	}
 
-	if ( (byteBufferClass = findClass(env, "java/nio/ByteBuffer")) == NULL) {
-		return;
-	}
-	
-	if ( (bufferClass = findClass(env, "java/nio/Buffer")) == NULL) {
-		return;
-	}
-	
-	if ( (byteBufferIsDirectMID = env->GetMethodID(byteBufferClass, "isDirect",
-			"()Z")) == NULL) {
-		return;
-	}
-	
-	if ( (bufferGetPositionMID = env->GetMethodID(bufferClass, "position",
-			"()I")) == NULL) {
-		return;
-	}
 
-	if ( (bufferGetLimitMID = env->GetMethodID(bufferClass, "limit",
-			"()I")) == NULL) {
-		return;
-	}
-	
-	if ( (bufferSetPositionMID = env->GetMethodID(bufferClass, "position",
-			"(I)Ljava/nio/Buffer;")) == NULL) {
-		return;
-	}
-
-	if ( (bufferSetLimitMID = env->GetMethodID(bufferClass, "limit",
-			"(I)Ljava/nio/Buffer;")) == NULL) {
-		return;
-	}
-	
-	if ( (bufferGetCapacityMID = env->GetMethodID(bufferClass, "capacity",
-			"()I")) == NULL) {
-		return;
-	}
 
 
 

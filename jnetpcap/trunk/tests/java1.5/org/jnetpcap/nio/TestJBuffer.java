@@ -826,25 +826,37 @@ public class TestJBuffer
 	 */
 	public void testJBufferDouble() throws PeeringException {
   	ByteBuffer src = ByteBuffer.allocateDirect(8);
+//  	src.put(new byte[] {
+//  	    (byte) 0,
+//  	    0,
+//  	    0,
+//  	    0,
+//  	    0,
+//  	    0,
+//  	    0,
+//  	    0 });
   	src.put(new byte[] {
-  	    (byte) 0xaa,
-  	    2,
-  	    10,
-  	    11,
-  	    12,
-  	    13,
-  	    3,
-  	    (byte) 0xbb });
+  			(byte) 0xaa,
+  			2,
+  			10,
+  			11,
+  			12,
+  			13,
+  			3,
+  			(byte) 0xbb });
   	src.flip();
   
   	JBuffer peer = new JBuffer(Type.POINTER);
-  	peer.peer(src);
+  	assertTrue(peer.peer(src) != 0);
   	assertEquals(8, peer.size());
   
   	src.order(ByteOrder.BIG_ENDIAN);
   	peer.order(ByteOrder.BIG_ENDIAN);
+  	
+  	Double.longBitsToDouble(0);
   
-  	assertEquals(src.getDouble(0), peer.getDouble(0));
+  	assertEquals(100.0, (peer.getDouble(0) / src.getDouble(0)) * 100.);
+//  	assertEquals(src.getDouble(0), peer.getDouble(0));
   
   	src.order(ByteOrder.LITTLE_ENDIAN);
   	peer.order(ByteOrder.LITTLE_ENDIAN);
