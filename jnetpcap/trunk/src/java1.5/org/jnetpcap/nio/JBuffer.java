@@ -29,14 +29,13 @@ import com.slytechs.library.JNILibrary;
 import com.slytechs.library.Library;
 import com.slytechs.library.LibraryInitializer;
 
-// TODO: Auto-generated Javadoc
 /**
  * A direct buffer stored in native memory.
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-@Library(jni = Pcap.LIBRARY)
+@Library(jni = Pcap.LIBRARY, preload = JMemory.class)
 public class JBuffer extends JMemory {
 
 	/**
@@ -247,7 +246,7 @@ public class JBuffer extends JMemory {
 	 * @return value read from the buffer
 	 */
 	public double getDouble(int index) {
-		return getDouble0(physical, order, check(index, 8, physical));
+		return Double.longBitsToDouble(getLong0(physical, order, check(index, 8, physical)));
 	}
 
 	/**
@@ -271,7 +270,7 @@ public class JBuffer extends JMemory {
 	 * @return value read from the buffer
 	 */
 	public float getFloat(int index) {
-		return getFloat0(physical, order, check(index, 4, physical));
+		return Float.intBitsToFloat(getInt0(physical, order, check(index, 4, physical)));
 	}
 
 	/**
@@ -284,6 +283,7 @@ public class JBuffer extends JMemory {
 	 * @param index
 	 *          the index
 	 * @return the float0
+	 * @deprecated use {@link Float#intBitsToFloat(int)} and {@link #getInt0(long, boolean, int)}
 	 */
 	private static native float getFloat0(long address, boolean order, int index);
 
