@@ -227,7 +227,7 @@ public class Ethernet extends JHeader implements JHeaderChecksum {
 	 */
 	@Dynamic(field = "checksum", value = Field.Property.CHECK)
 	public boolean checksumCheck() {
-		return getPostfixLength() >= 4;
+		return getPostfixLength() >= 4 && checksum() != 0;
 	}
 
 	/**
@@ -324,7 +324,7 @@ public class Ethernet extends JHeader implements JHeaderChecksum {
 	 */
 	@Override
 	public boolean isChecksumValid() {
-		if (getPostfixLength() < 4) {
+		if (getPostfixLength() < 4 && checksum() != 0) {
 			return true;
 		}
 
