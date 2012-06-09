@@ -1250,7 +1250,7 @@ void scan_ip4(register scan_t *scan) {
 	 * 802.3 frames already contain data-length field so no need to rely on
 	 * IP.
 	 */
-	if ((scan->hdr_count > 1) &&
+	if ((scan->hdr_count >= 1) &&
 			(tot_len <= scan->buf_len) &&
 			(eth = scan->header -1)->hdr_id == ETHERNET_ID) {
 
