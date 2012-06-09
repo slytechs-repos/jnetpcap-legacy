@@ -176,7 +176,7 @@ public class Ethernet extends JHeader implements JHeaderChecksum {
 
 		final JPacket packet = getPacket();
 		return Checksum.crc32IEEE802(packet, 0, getHeaderLength()
-				+ getPayloadLength());
+				+ getPayloadLength() + getPostfixLength() -4);
 	}
 
 	/**
@@ -192,7 +192,7 @@ public class Ethernet extends JHeader implements JHeaderChecksum {
 
 		final JPacket packet = getPacket();
 		packet.order(ByteOrder.BIG_ENDIAN);
-		return packet.getInt(getPostfixOffset());
+		return packet.getInt(packet.size() - 4);
 	}
 
 	/**
@@ -237,11 +237,11 @@ public class Ethernet extends JHeader implements JHeaderChecksum {
 	 */
 	@Dynamic(Field.Property.DESCRIPTION)
 	public String checksumDescription() {
-		final long crc32 = calculateChecksum();
+		final int crc32 = calculateChecksum();
 		if (checksum() == crc32) {
 			return "correct";
 		} else {
-			return "incorrect: 0x" + Long.toHexString(crc32).toUpperCase();
+			return "incorrect: 0x" + Long.toHexString(crc32 & 0xFFFFFFFF).toUpperCase();
 		}
 	}
 
