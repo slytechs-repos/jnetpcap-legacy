@@ -126,6 +126,7 @@ int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner,
 	scan.flags = 0;
 	scan.stack_index = 0;
 
+	scan.hdr_count = 0;
 	scan.hdr_flags = 0;
 	scan.hdr_prefix = 0;
 	scan.hdr_gap = 0;
@@ -453,6 +454,7 @@ void record_header(scan_t *scan) {
 	scan->hdr_payload = 0;
 	scan->hdr_postfix = 0;
 	scan->is_recorded = 1;
+	scan->hdr_count ++;
 
 	packet->pkt_header_count++; /* number of entries */
 
