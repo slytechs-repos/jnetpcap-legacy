@@ -136,10 +136,10 @@ ENTER(SLL_ID, "scan_null_header");
 	default: scan->next_id = PAYLOAD_ID;
 	}
 
-	printf("NATIVE >>> scan_null_header() id=%d next_id=%d type=%d\n",
-			scan->id,
-			scan->next_id,
-			nl->type);
+//	printf("NATIVE >>> scan_null_header() id=%d next_id=%d type=%d\n",
+//			scan->id,
+//			scan->next_id,
+//			nl->type);
 
 EXIT();
 }
