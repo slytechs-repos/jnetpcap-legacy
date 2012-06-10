@@ -1326,8 +1326,13 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 		// .toDebugString(), toHexdump());
 		final int hlen = hlen() * 4;
 
-		for (int i = 20; i < hlen; i++) {
+		for (int i = 20, p = 0; i < hlen && i != p; i++, p = i) {
 			final int id = getUByte(i);
+			if (id >= optionsOffsets.length) {
+				
+				i += getUByte(i + 1); // Skip to next option
+				break;
+			}
 			optionsOffsets[id] = i;
 			optionsBitmap |= (1 << id);
 
@@ -1362,9 +1367,9 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 				break;
 			}
 
-			// System.out.println();
-			// System.out.printf("i=%d id=%d bitmap=0x%X length=%d\n", i, id,
-			// optionsBitmap, optionsLength[id]);
+//			 System.out.println();
+//			 System.out.printf("i=%d id=%d bitmap=0x%X length=%d\n", i, id,
+//			 optionsBitmap, optionsLength[id]);
 		}
 
 	}
