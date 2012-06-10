@@ -29,6 +29,7 @@ import org.jnetpcap.protocol.lan.IEEE802dot1q;
 import org.jnetpcap.protocol.lan.IEEE802dot2;
 import org.jnetpcap.protocol.lan.IEEE802dot3;
 import org.jnetpcap.protocol.lan.IEEESnap;
+import org.jnetpcap.protocol.lan.NullHeader;
 import org.jnetpcap.protocol.lan.SLL;
 import org.jnetpcap.protocol.network.Arp;
 import org.jnetpcap.protocol.network.Icmp;
@@ -183,6 +184,9 @@ public enum JProtocol {
 	
 	/** SCTP Shutdown Complete  Chunk */
 	SCTP_SHUTDOWN_COMPLETE(SctpShutdownComplete.class),
+	
+	/** NullHeader - loopback/null header */
+	NULL_HEADER(NullHeader.class, PcapDLT.NULL),
 	;
 
 	/**
@@ -332,6 +336,9 @@ public enum JProtocol {
 	
 	/** The Constant SCTP_SHUTDOWN_COMPLETE_ID. */
 	public final static int SCTP_SHUTDOWN_COMPLETE_ID = 36;
+	
+	/** NullHeader - loopback/null header */
+	public final static int NULL_HEADER_ID = 37;
 	
 	/** The Constant LAST_ID. */
 	public final static int LAST_ID = JProtocol.values().length;

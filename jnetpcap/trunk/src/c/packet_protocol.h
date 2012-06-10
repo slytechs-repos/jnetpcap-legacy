@@ -51,7 +51,15 @@
 #define SCTP_CWR_ID          org_jnetpcap_protocol_JProtocol_SCTP_CWR_ID
 #define SCTP_SHUTDOWN_COMPLETE_ID org_jnetpcap_protocol_JProtocol_SCTP_SHUTDOWN_COMPLETE_ID
 
+#define NULL_HEADER_ID org_jnetpcap_protocol_JProtocol_NULL_HEADER_ID
+
 #define WEB_IMAGE_ID        org_jnetpcap_protocol_JProtocol_WEB_IMAGE_ID
+
+typedef struct null_header_ {
+
+	uint32_t	type; // PF_ protocol family type
+
+} null_header_t;
 
 #define SCTP_DATA_FLAG_LAST_SEG		0x01
 #define SCTP_DATA_FLAG_FIRST_SEG	0x02
