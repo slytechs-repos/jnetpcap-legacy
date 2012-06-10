@@ -114,6 +114,37 @@ void scan_not_implemented_yet(scan_t *scan) {
 }
 
 /*
+ * Scan NullHeader/Loopback header typically a DLT
+ */
+void scan_null_header(scan_t *scan) {
+ENTER(SLL_ID, "scan_null_header");
+	register null_header_t *nl = (null_header_t *)(scan->buf + scan->offset);
+	if (is_accessible(scan, 4) == FALSE) {
+		EXIT();
+		return;
+	}
+	scan->id = NULL_HEADER_ID;
+	scan->length = 4;
+
+	switch (nl->type) {
+	case 2: scan->next_id = IP4_ID; EXIT(); return;
+	default: scan->next_id = PAYLOAD_ID;
+	}
+
+	switch (BIG_ENDIAN32(nl->type)) {
+	case 2: scan->next_id = IP4_ID; EXIT(); return;
+	default: scan->next_id = PAYLOAD_ID;
+	}
+
+	printf("NATIVE >>> scan_null_header() id=%d next_id=%d type=%d\n",
+			scan->id,
+			scan->next_id,
+			nl->type);
+
+EXIT();
+}
+
+/*
  * Scan All SCTP CHUNK types
  */
 void scan_sctp_chunk(scan_t *scan) {
@@ -163,45 +194,13 @@ ENTER(SLL_ID, "scan_sctp_chunk");
 			case 8081: scan->next_id = validate_next(HTTP_ID, scan); break;
 			}
 
-//			printf("scan_sctp_chunk() #%d - sport=%d dport=%d next_id=%d(%s) len=%d\n",
-//					fn,
-//					BIG_ENDIAN16(sctp->sport),
-//					BIG_ENDIAN16(sctp->dport),
-//					scan->next_id,
-//					id2str(scan->next_id),
-//					len
-//					);
-//			fflush(stdout);
-
 		}
 	} else {	 // everything else grab entire chunk area
 		scan->length = len;
 		scan->next_id = SCTP_CHUNK_ID;
 	}
 
-//	char s1[64];
-//	char s2[64];
-//	strcpy(s1, id2str(scan->id));
-//	strcpy(s2, id2str(scan->next_id));
-//
-//	printf("scan_sctp_chunk() #%ld - offset=%d type=%d, flags=%X, len=%d\n",
-//			fn,
-//			scan->offset,
-//			(int)chunk->type,
-//			(int)chunk->flags,
-//			(int)BIG_ENDIAN16(chunk->length));
-//
-//	printf("scan_sctp_chunk() #%ld - id=%d(%s) next_id=%d(%s) scan->length=%d stack=%d\n",
-//			fn,
-//			scan->id,
-//			s1,
-//			scan->next_id,
-//			s2,
-//			scan->length,
-//			scan->stack_index);
-//	fflush(stdout);
-//
-
+	EXIT();
 }
 
 /*
@@ -222,9 +221,6 @@ ENTER(SLL_ID, "scan_sctp");
 	 * [SCTP][CHUNK][CHUNK][CHUNK]
 	 */
 	scan->next_id = SCTP_CHUNK_ID;
-
-//	printf("scan_sctp()       id=%d next_id=%d stack=%d\n", scan->id, scan->next_id, scan->stack_index);
-//	fflush(stdout);
 }
 
 /*
@@ -236,6 +232,7 @@ ENTER(SLL_ID, "scan_sll");
 	scan->length = SLL_LEN;
 
 	if (is_accessible(scan, 9) == FALSE) {
+		EXIT();
 		return;
 	}
 
@@ -245,6 +242,7 @@ ENTER(SLL_ID, "scan_sll");
 
 //	printf("scan_sll() next_id=%d\n", scan->next_id);
 //	fflush(stdout);
+	EXIT();
 }
 
 extern void debug_rtp(rtp_t *rtp);
@@ -543,7 +541,7 @@ int validate_sip(scan_t *scan) {
 	  size = scan->buf_len - scan->offset; // Remaining in buffer
 	}
 
-	scan->length = size; // Size from previous tcp header
+//	scan->length = size; // Size from previous tcp header
 
 	/* First sanity check if we have printable chars */
 	if (size < 3 ||
@@ -870,7 +868,10 @@ void scan_tcp(scan_t *scan) {
 	}
 
 	tcp_t *tcp = (tcp_t *) (scan->buf + scan->offset);
-	scan->length = tcp->doff * 4;
+	scan->length = tcp->doff << 2;
+//	printf("NATIVE >>> scan_tcp() - doff=%d length=%d\n",
+//			tcp->doff,
+//			scan->length);
 
 	/*
 	 * Set the flow key pair for Tcp.
@@ -1497,11 +1498,13 @@ int validate_next(register int id, register scan_t *scan) {
 
 
 	int saved_offset = scan->offset;
+	int saved_length = scan->length;
 	scan->offset += scan->length + scan->hdr_gap;
 
 	int result = validate_func(scan);
 
 	scan->offset = saved_offset;
+	scan->length = saved_length;
 
 	return result;
 }
@@ -1599,6 +1602,8 @@ void init_native_protocols() {
 	native_protocols[SCTP_CWR_ID]     			= &scan_sctp_chunk;
 	native_protocols[SCTP_SHUTDOWN_COMPLETE_ID] = &scan_sctp_chunk;
 
+	native_protocols[NULL_HEADER_ID] 			= &scan_null_header;
+
 
 	/*
 	 * Validation function table. This isn't the list of bindings, but 1 per
@@ -1680,6 +1685,7 @@ void init_native_protocols() {
 	native_protocol_names[SCTP_CWR_ID]               = "CWR";
 	native_protocol_names[SCTP_SHUTDOWN_COMPLETE_ID] = "SHUTDOWN_COMPLETE"; // SHUTDOWN COMPLETE
 
+	native_protocol_names[NULL_HEADER_ID]			 = "NULLHDR"; // NullHeader/Loopback
 
 	// Initialize debug loggers
 #ifdef DEBUG
