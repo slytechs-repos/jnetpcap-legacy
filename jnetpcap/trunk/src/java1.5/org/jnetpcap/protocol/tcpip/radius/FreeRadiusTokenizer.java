@@ -33,6 +33,7 @@ public class FreeRadiusTokenizer implements Iterable<Token>, Iterator<Token> {
 
 	public static class Token {
 
+		@SuppressWarnings("unused")
 		private final int lineno;
 
 		public final FreeRadiusTokenizer.TokenType type;
@@ -129,6 +130,7 @@ public class FreeRadiusTokenizer implements Iterable<Token>, Iterator<Token> {
 
 	private final BufferedReader in;
 
+	@SuppressWarnings("unused")
 	private String line;
 
 	private int lineno = 0;
@@ -422,6 +424,7 @@ public class FreeRadiusTokenizer implements Iterable<Token>, Iterator<Token> {
 		return Long.toString(num);
 	}
 
+	@SuppressWarnings("unused")
 	private long parseLong(String str, int radix) {
 		str = str.replaceFirst("0x", "");
 		long num = Long.parseLong(str, 16);
