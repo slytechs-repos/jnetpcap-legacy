@@ -9,6 +9,7 @@ import org.jnetpcap.PcapDLT;
 import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * BSD loopback encapsulation; the link-layer header is a 4-byte field, in host
@@ -30,6 +31,17 @@ import org.jnetpcap.packet.annotate.Header;
 @Header(length = 4, dlt = PcapDLT.NULL, osi = Header.Layer.DATALINK)
 public class NullHeader extends JHeader {
 
+	/**
+	 * Static numerical JRegistry generated ID for this protocol.
+	 */
+	public static final int ID = JProtocol.NULL_HEADER_ID;
+
+	/**
+	 * Creates a default NullHeader object, that first assumes a LITTLE_ENDIAN
+	 * byte encoding. The header byte-order is also checked at runtime during
+	 * "binding" process but LITTLE_ENDIAN is assumed first and more efficient
+	 * at performing the check.
+	 */
 	public NullHeader() {
 		super();
 		order(ByteOrder.LITTLE_ENDIAN);
