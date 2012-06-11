@@ -429,7 +429,7 @@ void record_header(scan_t *scan) {
 	/*
 	 * Initialize the header entry in our packet header array
 	 */
-	packet->pkt_header_map |= (1 << scan->id);
+	packet->pkt_header_map |= (uint64_t)(1ULL << scan->id);
 	header->hdr_id = scan->id;
 	header->hdr_offset = offset + scan->hdr_prefix;
 	header->hdr_analysis = NULL;
