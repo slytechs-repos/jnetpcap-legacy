@@ -21,6 +21,7 @@ package org.jnetpcap.protocol.sigtran;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * Heartbeat Request (HEARTBEAT) (4)
@@ -74,6 +75,12 @@ import org.jnetpcap.packet.annotate.ProtocolSuite;
  */
 @Header(description = "Heartbeat Request", suite = ProtocolSuite.SIGTRAN, nicname = "heartbeat")
 public class SctpHeartbeat extends SctpChunk {
+	
+	/**
+	 * Static numerical JRegistry generated ID for this protocol.
+	 */
+	public static final int ID = JProtocol.SCTP_HEARTBEAT_ID;
+
 
 	/**
 	 * Hearbeat type (1 - mandatory).

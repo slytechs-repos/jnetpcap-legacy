@@ -25,6 +25,7 @@ import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
+import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.util.checksum.Checksum;
 
 /**
@@ -51,6 +52,11 @@ import org.jnetpcap.util.checksum.Checksum;
  */
 @Header(length = 12, suite = ProtocolSuite.SIGTRAN, description = "Stream Control Transmission Protocol")
 public class Sctp extends JHeader implements JHeaderChecksum {
+
+	/**
+	 * Static numerical JRegistry generated ID for this protocol.
+	 */
+	public static final int ID = JProtocol.SCTP_ID;
 
 	/**
 	 * This is the SCTP sender's port number. It can be used by the receiver in

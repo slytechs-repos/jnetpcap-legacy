@@ -20,6 +20,7 @@ package org.jnetpcap.protocol.sigtran;
 
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * Shutdown Acknowledgement (SHUTDOWN ACK) (8)
@@ -44,5 +45,10 @@ import org.jnetpcap.packet.annotate.ProtocolSuite;
  */
 @Header(description = "Shutdown Acknowledgement", suite = ProtocolSuite.SIGTRAN, nicname = "shutdown-ack")
 public class SctpShutdownAck extends SctpChunk {
+
+	/**
+	 * Static numerical JRegistry generated ID for this protocol.
+	 */
+	public static final int ID = JProtocol.SCTP_SHUTDOWN_ACK_ID;
 
 }

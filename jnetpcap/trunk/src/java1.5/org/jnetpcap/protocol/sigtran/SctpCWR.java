@@ -21,6 +21,7 @@ package org.jnetpcap.protocol.sigtran;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * Congestion Window CWR (13)
@@ -51,6 +52,12 @@ import org.jnetpcap.packet.annotate.ProtocolSuite;
  */
 @Header(description = "Payload Data", suite = ProtocolSuite.SIGTRAN, nicname = "data")
 public class SctpCWR extends SctpChunk {
+	
+	/**
+	 * Static numerical JRegistry generated ID for this protocol.
+	 */
+	public static final int ID = JProtocol.SCTP_CWR_ID;
+
 
 	/**
 	 * The lowest TSN associated with the IP datagram marked with the CE bit

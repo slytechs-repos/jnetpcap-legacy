@@ -20,6 +20,7 @@ package org.jnetpcap.protocol.sigtran;
 
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * Shutdown Complete (SHUTDOWN COMPLETE) (14)
@@ -41,5 +42,10 @@ import org.jnetpcap.packet.annotate.ProtocolSuite;
  */
 @Header(description = "Shutdown Complete ", suite = ProtocolSuite.SIGTRAN, nicname = "shutdown-complete")
 public class SctpShutdownComplete extends SctpChunk {
+
+	/**
+	 * Static numerical JRegistry generated ID for this protocol.
+	 */
+	public static final int ID = JProtocol.SCTP_SHUTDOWN_COMPLETE_ID;
 
 }

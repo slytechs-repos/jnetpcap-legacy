@@ -20,6 +20,7 @@ package org.jnetpcap.protocol.sigtran;
 
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * Initiation SCTP Chunk(INIT) (1)
@@ -154,5 +155,10 @@ import org.jnetpcap.packet.annotate.ProtocolSuite;
  */
 @Header(description = "Initiation ", suite = ProtocolSuite.SIGTRAN, nicname = "init")
 public class SctpInit extends SctpInitBaseclass {
+
+	/**
+	 * Static numerical JRegistry generated ID for this protocol.
+	 */
+	public static final int ID = JProtocol.SCTP_INIT_ID;
 
 }

@@ -21,6 +21,7 @@ package org.jnetpcap.protocol.sigtran;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * Shutdown Association (SHUTDOWN) (7)
@@ -44,6 +45,11 @@ import org.jnetpcap.packet.annotate.ProtocolSuite;
  */
 @Header(description = "Shutdown Association", suite = ProtocolSuite.SIGTRAN, nicname = "shutdown")
 public class SctpShutdown extends SctpChunk {
+	
+	/**
+	 * Static numerical JRegistry generated ID for this protocol.
+	 */
+	public static final int ID = JProtocol.SCTP_SHUTDOWN_ID;
 
 	/**
 	 * This parameter contains the TSN of the last chunk received in sequence

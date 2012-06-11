@@ -22,6 +22,7 @@ import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * Payload Data (DATA) (0). The following format MUST be used for the DATA
@@ -50,6 +51,12 @@ import org.jnetpcap.packet.annotate.ProtocolSuite;
  */
 @Header(description = "Payload Data", suite = ProtocolSuite.SIGTRAN, nicname = "Data")
 public class SctpData extends SctpChunk {
+	
+	/**
+	 * Static numerical JRegistry generated ID for this protocol.
+	 */
+	public static final int ID = JProtocol.SCTP_DATA_ID;
+
 
 	/**
 	 * SCTP Payload Protocol Identifiers
