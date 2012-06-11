@@ -18,9 +18,7 @@
  */
 package com.slytechs.library;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.jnetpcap.Pcap;
@@ -116,7 +114,7 @@ public class NativeLibrary {
 	 * @param error
 	 */
 	NativeLibrary(String name) {
-		final List<Error> errors = new ArrayList<Error>(1);
+//		final List<Error> errors = new ArrayList<Error>(1);
 
 		this.address = dlopen(name);
 		this.error = null;

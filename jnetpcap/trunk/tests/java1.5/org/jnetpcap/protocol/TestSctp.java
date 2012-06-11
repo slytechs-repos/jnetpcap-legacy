@@ -24,7 +24,7 @@ import junit.framework.TestCase;
 
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.TestUtils;
-import org.jnetpcap.protocol.aaa.Diameter;
+import org.jnetpcap.protocol.sigtran.Sctp;
 
 /**
  * @author Sly Technologies, Inc.
@@ -36,24 +36,19 @@ public class TestSctp extends TestCase {
 	// private final static String FILE = "tests/diaS6a2K5tps10KTot2.pcap";
 
 	public void testSctpHeader() throws IOException {
-		Diameter diameter = new Diameter(); // Diameter is defined under
-											// test/java1.5 directory
-
+		Sctp sctp = new Sctp();
+		
 		// System.out.println(JRegistry.toDebugString());
 
 		JPacket.getDefaultScanner().setFrameNumber(1);
 
 		int i = 1;
 		for (JPacket packet : TestUtils.getIterable(FILE)) {
-			// System.out.println(packet.getState().toDebugString());
-			System.out.println(packet);
-			if (i == 6) {
-				// System.out.println(packet.toHexdump());
-				// System.out.println(packet.getHeader(new Sctp()));
-				System.out.println(packet.getState().toDebugString());
-				System.out.println(packet);
-				// break;
-			}
+//			 System.out.println(packet.getState().toDebugString());
+//			System.out.println(packet);
+
+			TestCase.assertTrue("", packet.hasHeader(Sctp.ID));
+			TestCase.assertTrue("", packet.hasHeader(sctp));
 			i++;
 		}
 
