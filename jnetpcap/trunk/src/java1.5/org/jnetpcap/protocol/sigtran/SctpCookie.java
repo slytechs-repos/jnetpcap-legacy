@@ -20,6 +20,7 @@ package org.jnetpcap.protocol.sigtran;
 
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * Cookie Echo (COOKIE ECHO) (10)
@@ -47,5 +48,10 @@ import org.jnetpcap.packet.annotate.ProtocolSuite;
  */
 @Header(description = "Cookie Echo", suite = ProtocolSuite.SIGTRAN, nicname = "cookie")
 public class SctpCookie extends SctpChunk {
+
+	/**
+	 * Static numerical JRegistry generated ID for this protocol.
+	 */
+	public static final int ID = JProtocol.SCTP_COOKIE_ID;
 
 }

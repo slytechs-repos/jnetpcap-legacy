@@ -24,8 +24,6 @@ import java.util.List;
 
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.annotate.Field;
-import org.jnetpcap.packet.annotate.Header;
-import org.jnetpcap.packet.annotate.ProtocolSuite;
 import org.jnetpcap.packet.format.FormatUtils;
 
 /**

@@ -24,6 +24,7 @@ import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * Selective Acknowledgement (SACK) (3)
@@ -90,6 +91,11 @@ import org.jnetpcap.packet.annotate.ProtocolSuite;
  */
 @Header(description = "Selective Acknowledgement", suite = ProtocolSuite.SIGTRAN, nicname = "sack")
 public class SctpSack extends SctpChunk {
+	
+	/**
+	 * Static numerical JRegistry generated ID for this protocol.
+	 */
+	public static final int ID = JProtocol.SCTP_SACK_ID;
 
 	/**
 	 * Cumulative TSN Ack: 32 bits (unsigned integer)

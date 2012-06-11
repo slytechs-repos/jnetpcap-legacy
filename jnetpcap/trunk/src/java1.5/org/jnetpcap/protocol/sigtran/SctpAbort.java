@@ -22,6 +22,7 @@ import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * Abort Association (ABORT) (6)
@@ -57,6 +58,12 @@ import org.jnetpcap.packet.annotate.ProtocolSuite;
  */
 @Header(description = "Abort Association", suite = ProtocolSuite.SIGTRAN, nicname = "abort")
 public class SctpAbort extends SctpChunk {
+	
+	/**
+	 * Static numerical JRegistry generated ID for this protocol.
+	 */
+	public static final int ID = JProtocol.SCTP_ABORT_ID;
+
 
 	private static final int SCTP_ABORT_T_FLAG = 0x01;
 

@@ -20,6 +20,7 @@ package org.jnetpcap.protocol.sigtran;
 
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * Initiation Acknowledgement (INIT ACK) (2)
@@ -58,5 +59,10 @@ import org.jnetpcap.packet.annotate.ProtocolSuite;
  */
 @Header(description = "Initiation Acknowledgement ", suite = ProtocolSuite.SIGTRAN, nicname = "init-ack")
 public class SctpInitAck extends SctpInitBaseclass {
+
+	/**
+	 * Static numerical JRegistry generated ID for this protocol.
+	 */
+	public static final int ID = JProtocol.SCTP_INIT_ACK_ID;
 
 }

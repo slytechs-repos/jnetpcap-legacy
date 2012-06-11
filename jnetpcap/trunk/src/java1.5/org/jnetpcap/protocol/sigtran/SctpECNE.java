@@ -21,6 +21,7 @@ package org.jnetpcap.protocol.sigtran;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * ECN-Echo (12):
@@ -48,6 +49,12 @@ import org.jnetpcap.packet.annotate.ProtocolSuite;
  */
 @Header(description = "SCTP ECN Negotiation", suite = ProtocolSuite.SIGTRAN, nicname = "ECNE")
 public class SctpECNE extends SctpChunk {
+	
+	/**
+	 * Static numerical JRegistry generated ID for this protocol.
+	 */
+	public static final int ID = JProtocol.SCTP_ECNE_ID;
+
 
 	/**
 	 * The lowest TSN associated with the IP datagram marked with the CE bit

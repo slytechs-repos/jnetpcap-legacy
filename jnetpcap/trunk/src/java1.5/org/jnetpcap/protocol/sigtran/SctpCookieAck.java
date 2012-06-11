@@ -20,6 +20,7 @@ package org.jnetpcap.protocol.sigtran;
 
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * Cookie Acknowledgement (COOKIE ACK) (11)
@@ -43,5 +44,10 @@ import org.jnetpcap.packet.annotate.ProtocolSuite;
  */
 @Header(description = "Cookie Acknowledgement", suite = ProtocolSuite.SIGTRAN, nicname = "cookie-ack")
 public class SctpCookieAck extends SctpChunk {
+
+	/**
+	 * Static numerical JRegistry generated ID for this protocol.
+	 */
+	public static final int ID = JProtocol.SCTP_COOKIE_ACK_ID;
 
 }

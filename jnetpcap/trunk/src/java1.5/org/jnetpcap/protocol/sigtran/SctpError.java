@@ -18,10 +18,9 @@
  */
 package org.jnetpcap.protocol.sigtran;
 
-import org.jnetpcap.packet.annotate.Dynamic;
-import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
+import org.jnetpcap.protocol.JProtocol;
 
 /**
  * Operation Error (ERROR) (9)
@@ -49,5 +48,10 @@ import org.jnetpcap.packet.annotate.ProtocolSuite;
  */
 @Header(description = "Operation Error", suite = ProtocolSuite.SIGTRAN, nicname = "error")
 public class SctpError extends SctpChunk {
+
+	/**
+	 * Static numerical JRegistry generated ID for this protocol.
+	 */
+	public static final int ID = JProtocol.SCTP_ERROR_ID;
 
 }
