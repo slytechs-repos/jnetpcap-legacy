@@ -46,7 +46,7 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Sly Technologies Inc.
  * @see RFC4960
  */
-@Header(description = "Operation Error", suite = ProtocolSuite.SIGTRAN, nicname = "error")
+@Header(description = "Operation Error", suite = ProtocolSuite.SIGTRAN, nicname = "Sctp-error")
 public class SctpError extends SctpChunk {
 
 	/**

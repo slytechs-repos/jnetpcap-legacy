@@ -56,7 +56,7 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Sly Technologies Inc.
  * @see RFC4960
  */
-@Header(description = "Abort Association", suite = ProtocolSuite.SIGTRAN, nicname = "abort")
+@Header(description = "Abort Association", suite = ProtocolSuite.SIGTRAN, nicname = "Sctp-abort")
 public class SctpAbort extends SctpChunk {
 	
 	/**

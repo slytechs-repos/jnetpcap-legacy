@@ -153,7 +153,7 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Sly Technologies Inc.
  * @see RFC4960
  */
-@Header(description = "Initiation ", suite = ProtocolSuite.SIGTRAN, nicname = "init")
+@Header(description = "Initiation ", suite = ProtocolSuite.SIGTRAN, nicname = "Sctp-init")
 public class SctpInit extends SctpInitBaseclass {
 
 	/**

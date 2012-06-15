@@ -89,7 +89,7 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Sly Technologies Inc.
  * @see RFC4960
  */
-@Header(description = "Selective Acknowledgement", suite = ProtocolSuite.SIGTRAN, nicname = "sack")
+@Header(description = "Selective Acknowledgement", suite = ProtocolSuite.SIGTRAN, nicname = "Sctp-sack")
 public class SctpSack extends SctpChunk {
 	
 	/**

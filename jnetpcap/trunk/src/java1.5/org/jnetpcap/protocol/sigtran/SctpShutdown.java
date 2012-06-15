@@ -43,7 +43,7 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Sly Technologies Inc.
  * @see RFC4960
  */
-@Header(description = "Shutdown Association", suite = ProtocolSuite.SIGTRAN, nicname = "shutdown")
+@Header(description = "Shutdown Association", suite = ProtocolSuite.SIGTRAN, nicname = "Sctp-shut")
 public class SctpShutdown extends SctpChunk {
 	
 	/**

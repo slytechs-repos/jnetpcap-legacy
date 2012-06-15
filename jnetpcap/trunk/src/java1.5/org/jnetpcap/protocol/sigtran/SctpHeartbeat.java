@@ -73,7 +73,7 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Sly Technologies Inc.
  * @see RFC4960
  */
-@Header(description = "Heartbeat Request", suite = ProtocolSuite.SIGTRAN, nicname = "heartbeat")
+@Header(description = "Heartbeat Request", suite = ProtocolSuite.SIGTRAN, nicname = "Sctp-hbeat")
 public class SctpHeartbeat extends SctpChunk {
 	
 	/**
