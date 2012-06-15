@@ -47,7 +47,7 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Sly Technologies Inc.
  * @see RFC4960
  */
-@Header(description = "SCTP ECN Negotiation", suite = ProtocolSuite.SIGTRAN, nicname = "ECNE")
+@Header(description = "SCTP ECN Negotiation", suite = ProtocolSuite.SIGTRAN, nicname = "Sctp-ECNE")
 public class SctpECNE extends SctpChunk {
 	
 	/**

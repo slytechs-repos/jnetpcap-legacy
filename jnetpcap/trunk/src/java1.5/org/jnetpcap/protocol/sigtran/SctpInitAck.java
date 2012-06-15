@@ -57,7 +57,7 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Sly Technologies Inc.
  * @see RFC4960
  */
-@Header(description = "Initiation Acknowledgement ", suite = ProtocolSuite.SIGTRAN, nicname = "init-ack")
+@Header(description = "Initiation Acknowledgement ", suite = ProtocolSuite.SIGTRAN, nicname = "Sctp-init-ack")
 public class SctpInitAck extends SctpInitBaseclass {
 
 	/**

@@ -50,7 +50,7 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Sly Technologies Inc.
  * @see RFC4960
  */
-@Header(description = "Payload Data", suite = ProtocolSuite.SIGTRAN, nicname = "data")
+@Header(description = "Congestion Window Request", suite = ProtocolSuite.SIGTRAN, nicname = "Sctp-CWR")
 public class SctpCWR extends SctpChunk {
 	
 	/**

@@ -49,7 +49,7 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Sly Technologies Inc.
  * @see RFC4960
  */
-@Header(description = "Payload Data", suite = ProtocolSuite.SIGTRAN, nicname = "Data")
+@Header(description = "Payload Data", suite = ProtocolSuite.SIGTRAN, nicname = "Sctp-data")
 public class SctpData extends SctpChunk {
 	
 	/**

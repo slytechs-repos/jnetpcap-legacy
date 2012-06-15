@@ -46,7 +46,7 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Sly Technologies Inc.
  * @see RFC4960
  */
-@Header(description = "Cookie Echo", suite = ProtocolSuite.SIGTRAN, nicname = "cookie")
+@Header(description = "Cookie Echo", suite = ProtocolSuite.SIGTRAN, nicname = "Sctp-cookie")
 public class SctpCookie extends SctpChunk {
 
 	/**

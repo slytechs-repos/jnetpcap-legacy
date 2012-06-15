@@ -50,7 +50,7 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Sly Technologies Inc.
  * @see RFC4960
  */
-@Header(description = "Heartbeat Acknowledgement", suite = ProtocolSuite.SIGTRAN, nicname = "heartbeat-ack")
+@Header(description = "Heartbeat Acknowledgement", suite = ProtocolSuite.SIGTRAN, nicname = "Sctp-hbeat-ack")
 public class SctpHeartbeatAck extends SctpChunk {
 	
 	/**
