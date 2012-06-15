@@ -28,7 +28,7 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Sly Technologies Inc.
  * @see http://linux.die.net/man/7/pcap-linktype
  */
-@Header(length = 4, dlt = PcapDLT.NULL, osi = Header.Layer.DATALINK)
+@Header(length = 4, dlt = PcapDLT.NULL, osi = Header.Layer.DATALINK, nicname = "Null")
 public class NullHeader extends JHeader {
 
 	/**
