@@ -32,11 +32,11 @@ import org.jnetpcap.packet.annotate.Format;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.Header.Characteristic;
 import org.jnetpcap.packet.annotate.Header.Layer;
+import org.jnetpcap.packet.annotate.ProtocolSuite;
 import org.jnetpcap.packet.structure.JField;
 import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.util.checksum.Checksum;
 
-// TODO: Auto-generated Javadoc
 /**
  * Ethernet2 definition. Datalink layer ethernet frame definition.
  * 
@@ -46,7 +46,7 @@ import org.jnetpcap.util.checksum.Checksum;
 @Header(length = 14, dlt = {
 		PcapDLT.EN10MB,
 		PcapDLT.FDDI
-}, osi = Layer.DATALINK, characteristics = Characteristic.CSMA_CD, nicname = "Eth", description = "Ethernet", url = "http://en.wikipedia.org/wiki/Ethernet")
+}, suite = ProtocolSuite.LAN, osi = Layer.DATALINK, characteristics = Characteristic.CSMA_CD, nicname = "Eth", description = "Ethernet", url = "http://en.wikipedia.org/wiki/Ethernet")
 public class Ethernet extends JHeader implements JHeaderChecksum {
 
 	/**
