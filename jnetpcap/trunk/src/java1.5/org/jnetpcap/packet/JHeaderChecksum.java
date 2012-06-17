@@ -28,7 +28,7 @@ public interface JHeaderChecksum {
 
 	/**
 	 * Calculates a checksum using protocol specification for a header. Checksums
-	 * for partial headers or fragmented packets (unless the protocol alows it)
+	 * for partial headers or fragmented packets (unless the protocol allows it)
 	 * are not calculated.
 	 * 
 	 * @return header's calculated checksum
@@ -56,7 +56,7 @@ public interface JHeaderChecksum {
 
 	/**
 	 * Validates the header's data against the stored checksum. Checksums for
-	 * partial headers or fragmented packets (unless the protocol alows it) are
+	 * partial headers or fragmented packets (unless the protocol allows it) are
 	 * not validated and true is always returned.
 	 * 
 	 * @return Calculates a checksum and validates it against the store checksum
