@@ -191,7 +191,12 @@ public class TextFormatter extends JFormatter {
 			Object value = field.getValue(header);
 			boolean isIPAddress = field.getStyle() == Style.BYTE_ARRAY_ARRAY_IP4_ADDRESS
 					|| field.getStyle() == Style.BYTE_ARRAY_IP4_ADDRESS
-					|| field.getStyle() == Style.BYTE_ARRAY_IP6_ADDRESS;
+					|| field.getStyle() == Style.BYTE_ARRAY_IP6_ADDRESS
+					|| field.getStyle() == Style.BYTE_ARRAY_DASH_ADDRESS
+					|| field.getStyle() == Style.BYTE_ARRAY_COLON_ADDRESS
+					|| field.getStyle() == Style.BYTE_ARRAY_DOT_ADDRESS
+					|| field.getStyle() == Style.BYTE_ARRAY_OCTET_STREAM
+					;
 
 			/* Handle arrays of supported formats in generically */
 			if (!isIPAddress && value.getClass().isArray()) {

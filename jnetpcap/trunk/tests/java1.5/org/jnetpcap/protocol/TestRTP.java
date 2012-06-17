@@ -9,6 +9,7 @@ import junit.framework.TestCase;
 
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.TestUtils;
+import org.jnetpcap.protocol.tcpip.Udp;
 import org.jnetpcap.protocol.voip.RtcpApp;
 import org.jnetpcap.protocol.voip.RtcpBye;
 import org.jnetpcap.protocol.voip.RtcpReceiverReport;
@@ -23,7 +24,7 @@ import org.junit.Test;
  * @author Sly Technologies Inc.
  */
 public class TestRTP extends TestCase {
-//	private final PrintStream out = TestUtils.DISCARD;
+	// private final PrintStream out = TestUtils.DISCARD;
 	private final PrintStream out = System.out;
 
 	private final static String FILE = "tests/test-sip-rtp.pcap";
@@ -49,22 +50,32 @@ public class TestRTP extends TestCase {
 		long mask = JProtocol.createMaskFromIds(RtcpSenderReport.ID,
 				RtcpReceiverReport.ID, RtcpSDES.ID, RtcpApp.ID, RtcpBye.ID);
 
-		out.printf("mask=0x%016X%n", mask);
 		boolean foundRtcp = false;
+		JPacket.getDefaultScanner().setFrameNumber(1);
 		for (JPacket packet : TestUtils.getIterable(FILE)) {
+			int group = JProtocol.maskToGroup(mask);
+			out.printf("group=%d mask=0x%016X map=%016X%n", group, mask, packet
+					.getState().get64BitHeaderMap(group));
+
+			if (packet.hasHeader(Udp.ID)) {
+				out.println(packet.getHeader(new Udp()));
+			}
+			out.println(packet.getState().toDebugString());
 			if (packet.hasAnyHeader(mask)) {
 				foundRtcp = true;
-				out.println(packet.getState().toDebugString());
 				out.println(packet);
 				out.printf("#%d - RTCP%n", packet.getFrameNumber());
 
+				break;
+			}
+			
+			if (packet.getFrameNumber() == 634) {
 				break;
 			}
 		}
 
 		TestCase.assertTrue("RTCP not found", foundRtcp);
 	}
-
 	public void testProtocolBitmaskCombine() {
 		long mask = JProtocol.createMaskFromIds(RtcpSenderReport.ID,
 				RtcpReceiverReport.ID, RtcpSDES.ID, RtcpApp.ID, RtcpBye.ID);
