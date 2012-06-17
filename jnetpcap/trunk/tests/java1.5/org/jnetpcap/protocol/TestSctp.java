@@ -19,6 +19,7 @@
 package org.jnetpcap.protocol;
 
 import java.io.IOException;
+import java.io.PrintStream;
 
 import junit.framework.TestCase;
 
@@ -35,25 +36,27 @@ import org.junit.Test;
  */
 public class TestSctp extends TestCase {
 
+	PrintStream out = TestUtils.DISCARD;
+
 	private final static String FILE = "tests/test-sctp-www.pcap";
 	// private final static String FILE = "tests/diaS6a2K5tps10KTot2.pcap";
 
 	public void testSctpHeader() throws IOException {
 		Sctp sctp = new Sctp();
 
-		// System.out.println(JRegistry.toDebugString());
+		// out.println(JRegistry.toDebugString());
 
 		JPacket.getDefaultScanner().setFrameNumber(1);
 
 		int i = 1;
 		for (JPacket packet : TestUtils.getIterable(FILE)) {
-			// System.out.println(packet.getState().toDebugString());
-			System.out.println(packet);
+			// out.println(packet.getState().toDebugString());
+			out.println(packet);
 
 			TestCase.assertTrue("", packet.hasHeader(Sctp.ID));
 			TestCase.assertTrue("", packet.hasHeader(sctp));
 			if (i++ == 76) {
-				System.out.println(packet.getState().toDebugString());
+				out.println(packet.getState().toDebugString());
 			}
 		}
 	}
@@ -68,7 +71,8 @@ public class TestSctp extends TestCase {
 			for (JHeaderChecksum sum : packet
 					.filterByType(JHeaderChecksum.class)) {
 				JHeader header = (JHeader) sum;
-				System.out.printf("#%d %10s sum=%08X%n", header.getPacket()
+				assertNotNull(header);
+				out.printf("#%d %10s sum=%08X%n", header.getPacket()
 						.getFrameNumber(), header.getName(), sum.checksum());
 			}
 		}
