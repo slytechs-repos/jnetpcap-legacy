@@ -96,7 +96,7 @@ native_dissect_func_t 	field_dissectors      [MAX_ID_COUNT];
 
 const char             	*native_protocol_names[MAX_ID_COUNT];
 
-//#define DEBUG
+#define DEBUG
 #ifdef DEBUG
 #ifndef ENTER
 #define ENTER(id, name) debug_enter(name)
@@ -197,7 +197,7 @@ ENTER(SLL_ID, "scan_sctp_chunk");
 			case 80:
 			case 8080:
 			case 8081: scan->next_id = validate_next(HTTP_ID, scan); break;
-			case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;
+			case 5060: scan->next_id = validate_next(SIP_ID, scan);	 break;
 			}
 
 			if (scan->next_id == PAYLOAD_ID)
@@ -205,7 +205,7 @@ ENTER(SLL_ID, "scan_sctp_chunk");
 			case 80:
 			case 8080:
 			case 8081: scan->next_id = validate_next(HTTP_ID, scan); break;
-			case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;
+			case 5060: scan->next_id = validate_next(SIP_ID, scan);	break;
 			}
 
 		}
@@ -262,25 +262,80 @@ ENTER(SLL_ID, "scan_sll");
 }
 
 /**
+ * validate_rtp validates values for RTP header at current scan.offset.
+ *
+ * DO NOT CHANGE any scan properties. This is a completely passive method, only
+ * the return value determines if validation passed or not. Return either
+ * constant INVALID or header ID constant.
+ */
+int validate_rtcp(scan_t *scan) {
+ENTER(RTCP_ID, "validate_rtcp");
+
+	if ((scan->buf_len - scan->offset) < sizeof(rtp_t)) {
+		TRACE("1st check", "(#%d) FAILED - len too small", scan->scanner->sc_cur_frame_num);
+		EXIT("validate_rtcp");
+		return INVALID;
+	}
+
+
+	register rtcp_t *rtcp = (rtcp_t *)(scan->buf + scan->offset);
+
+	/*
+	 * Modified check for rtp->rtp_type > 25 per Bug#3482647, which prevented DTMF payload
+	 * Removed check for rtp->rtp_seq == 0 per Bug#3482648
+	 *
+	 */
+	if ( /* 1st CHECK header properties */
+			rtcp->rtcp_ver != 2
+			|| rtcp->rtcp_rc > 15
+			|| rtcp->rtcp_type < 200
+			|| rtcp->rtcp_type > 205
+			) {
+		TRACE("2nd check", "(#%d) FAILED - header flags", scan->scanner->sc_cur_frame_num);
+		EXIT("validate_rtcp");
+		return INVALID;
+	}
+	TRACE("2nd check", "(#%d) PASSED", scan->scanner->sc_cur_frame_num);
+
+	if ((scan->dport & 0x01) != 1) {
+		TRACE("3rd check", "(#%d) FAILED - even port number", scan->scanner->sc_cur_frame_num);
+		EXIT("validate_rtp");
+		return INVALID;
+	}
+
+	TRACE("3rd check", "(#%d) PASSED", scan->scanner->sc_cur_frame_num);
+
+
+	EXIT("validate_rtcp");
+	return (RTCP_ID + (rtcp->rtcp_type - 200));
+}
+
+/**
  * Scan RTCP (Realtime Transport Control Protocol - sister RTP protocol)
  * @see RFC3550
  */
 void scan_rtcp(scan_t *scan) {
-ENTER(RTCP_ID, "scan_rtcp");
+	ENTER(RTCP_ID, "scan_rtcp");
 	register rtcp_t *rtcp = (rtcp_t *)(scan->buf + scan->offset);
 
 	ACCESS(4);
-	scan->length += (BIG_ENDIAN16(rtcp->rtcp_len) +1) << 2;
+	scan->length = (BIG_ENDIAN16(rtcp->rtcp_len) +1) << 2;
 
 	int id = rtcp->rtcp_type;
-	if (id >= RTCP_CHUNK_ID && id <= RTCP_APP_ID) {
-		scan->id = (id - RTCP_CHUNK_ID);
-		scan->next_id = RTCP_ID; // RTCP packets can be combined
+	TRACE("scan_rtcp", "(#%d) id=%02X len=%d data=0x%08X dport=%d",
+			scan->scanner->sc_cur_frame_num,
+			id,
+			scan->length,
+			*((int*)rtcp),
+			scan->dport);
+	if (id >= 200 && id <= 205) {
+		scan->id = (RTCP_ID + (id - 200));
+		scan->next_id = RTCP_ID; // Handle multiple RTCP packets
 	} else {
 		scan->id = PAYLOAD_ID;
 	}
 
-EXIT("scan_rtcp");
+	EXIT("scan_rtcp");
 }
 
 extern void debug_rtp(rtp_t *rtp);
@@ -376,17 +431,13 @@ ENTER(RTP_ID, "validate_rtp");
 		TRACE("3rd check", "PASSED");
 	}
 
-	if (PACKET_STATE_HAS_HEADER(scan->packet, UDP_ID)) {
-	  header_t *udph = &scan->packet->pkt_headers[scan->packet->pkt_header_count -1];
-	  udp_t *udp = (udp_t *)(scan->buf + udph->hdr_offset);
-	  if ((BIG_ENDIAN16(udp->dport) & 0x01) != 1) {
-		  TRACE("4th check", "FAILED - odd port number");
-		  EXIT("validate_rtp");
-		  return INVALID;
-	  }
-
-	  TRACE("4th check", "PASSED");
+	if ((scan->dport & 0x01) != 0) {
+		TRACE("4th check", "FAILED - odd port number");
+		EXIT("validate_rtp");
+		return INVALID;
 	}
+
+	TRACE("4th check", "PASSED");
 
 	if (payload_len < actual && scan->wire_len == scan->buf_len) {
 		TRACE("5th check", "FAILED - payload(%d) < rtp(%d)", payload_len, actual);
@@ -1081,6 +1132,7 @@ void scan_udp(scan_t *scan) {
 	case 1701: scan->next_id = validate_next(L2TP_ID, scan);	return;
 //	case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;
 	case 5004: scan->next_id = validate_next(RTP_ID, scan);		return;
+	case 5005: scan->next_id = validate_next(RTCP_ID, scan);	return;
 	case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;
 	}
 
@@ -1088,6 +1140,7 @@ void scan_udp(scan_t *scan) {
 	case 1701: scan->next_id = validate_next(L2TP_ID, scan);	return;
 //	case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;
 	case 5004: scan->next_id = validate_next(RTP_ID, scan);		return;
+	case 5005: scan->next_id = validate_next(RTCP_ID, scan);	return;
 	case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;
 	}
 
@@ -1705,6 +1758,7 @@ void init_native_protocols() {
 	native_protocols[HTTP_ID]     			= &scan_http;
 	native_protocols[HTML_ID]     			= &scan_html;
 	native_protocols[ARP_ID]      			= &scan_arp;
+	native_protocols[NULL_HEADER_ID] 		= &scan_null_header;
 
 	// Voice and Video
 	native_protocols[SIP_ID]     			= &scan_sip;
@@ -1728,7 +1782,11 @@ void init_native_protocols() {
 	native_protocols[SCTP_CWR_ID]     			= &scan_sctp_chunk;
 	native_protocols[SCTP_SHUTDOWN_COMPLETE_ID] = &scan_sctp_chunk;
 
-	native_protocols[NULL_HEADER_ID] 			= &scan_null_header;
+	native_protocols[RTCP_SENDER_REPORT_ID]		= &scan_rtcp;
+	native_protocols[RTCP_RECEIVER_REPORT_ID]	= &scan_rtcp;
+	native_protocols[RTCP_SDES_ID]   			= &scan_rtcp;
+	native_protocols[RTCP_BYE_ID]   			= &scan_rtcp;
+	native_protocols[RTCP_APP_ID]   			= &scan_rtcp;
 
 
 	/*
@@ -1738,6 +1796,7 @@ void init_native_protocols() {
 	validate_table[HTTP_ID] 				= &validate_http;
 	validate_table[SIP_ID]					= &validate_sip;
 	validate_table[RTP_ID]					= &validate_rtp;
+	validate_table[RTCP_ID]					= &validate_rtcp;
 
 
 	/*
@@ -1748,7 +1807,8 @@ void init_native_protocols() {
 	native_heuristics[TCP_ID][1]			= &validate_sip;
 
 	native_heuristics[UDP_ID][0]			= &validate_rtp;
-	native_heuristics[UDP_ID][1]			= &validate_sip;
+	native_heuristics[UDP_ID][1]			= &validate_rtcp;
+	native_heuristics[UDP_ID][2]			= &validate_sip;
 
 	/*
 	 * Dissector tables. Dissection == discovery of optional fields and 
@@ -1792,6 +1852,7 @@ void init_native_protocols() {
 	native_protocol_names[SDP_ID]           = "SDP";
 	native_protocol_names[RTP_ID]           = "RTP";
 	native_protocol_names[SLL_ID]           = "SLL";
+	native_protocol_names[NULL_HEADER_ID]	= "NULLHDR"; // NullHeader/Loopback
 
 	/* SCTP protocol and its CHUNKs RFC4960 */
 	native_protocol_names[SCTP_ID]                   = "SCTP";
@@ -1811,7 +1872,12 @@ void init_native_protocols() {
 	native_protocol_names[SCTP_CWR_ID]               = "CWR";
 	native_protocol_names[SCTP_SHUTDOWN_COMPLETE_ID] = "SHUTDOWN_COMPLETE"; // SHUTDOWN COMPLETE
 
-	native_protocol_names[NULL_HEADER_ID]			 = "NULLHDR"; // NullHeader/Loopback
+	native_protocol_names[RTCP_SENDER_REPORT_ID]    = "RTCP-SR";
+	native_protocol_names[RTCP_RECEIVER_REPORT_ID]  = "RTCP-RR";
+	native_protocol_names[RTCP_SDES_ID]   			= "RTCP-SDES";
+	native_protocol_names[RTCP_BYE_ID]   			= "RTCP-BYE";
+	native_protocol_names[RTCP_APP_ID]   			= "RTCP-APP";
+
 
 	// Initialize debug loggers
 #ifdef DEBUG
