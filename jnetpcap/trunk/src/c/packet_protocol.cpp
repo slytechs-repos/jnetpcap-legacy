@@ -96,7 +96,7 @@ native_dissect_func_t 	field_dissectors      [MAX_ID_COUNT];
 
 const char             	*native_protocol_names[MAX_ID_COUNT];
 
-#define DEBUG
+//#define DEBUG
 #ifdef DEBUG
 #ifndef ENTER
 #define ENTER(id, name) debug_enter(name)
