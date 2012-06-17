@@ -19,6 +19,7 @@
 package org.jnetpcap.packet.format;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.sql.Timestamp;
 import java.util.Formatter;
 
@@ -41,7 +42,7 @@ public class TextFormatter extends JFormatter {
 	public final static int COL1 = 40;
 
 	/** The Constant FIELD_ARRAY_FORMAT. */
-	private final static String FIELD_ARRAY_FORMAT = "%" + COL1 + "s[%d] = ";
+	private final static String FIELD_ARRAY_FORMAT = "%" + 37 + "s[%d] = ";
 
 	/** The Constant FIELD_FORMAT. */
 	private final static String FIELD_FORMAT = "%" + COL1 + "s = ";
@@ -66,7 +67,7 @@ public class TextFormatter extends JFormatter {
 	 * device.
 	 * 
 	 * @param out
-	 *          where to send output
+	 *            where to send output
 	 */
 	public TextFormatter(Appendable out) {
 		super(out);
@@ -76,7 +77,7 @@ public class TextFormatter extends JFormatter {
 	 * Creates a text formatter which sends its output to a string buffer.
 	 * 
 	 * @param out
-	 *          buffer where to send output
+	 *            buffer where to send output
 	 */
 	public TextFormatter(StringBuilder out) {
 		super(out);
@@ -86,13 +87,13 @@ public class TextFormatter extends JFormatter {
 	 * Field after.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @param field
-	 *          the field
+	 *            the field
 	 * @param detail
-	 *          the detail
+	 *            the detail
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *             Signals that an I/O exception has occurred.
 	 * @see org.jnetpcap.packet.format.JFormatter#fieldAfter(org.jnetpcap.packet.JHeader,
 	 *      org.jnetpcap.packet.structure.JField,
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
@@ -115,13 +116,13 @@ public class TextFormatter extends JFormatter {
 	 * Field before.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @param field
-	 *          the field
+	 *            the field
 	 * @param detail
-	 *          the detail
+	 *            the detail
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *             Signals that an I/O exception has occurred.
 	 * @see org.jnetpcap.packet.format.JFormatter#fieldBefore(org.jnetpcap.packet.JHeader,
 	 *      org.jnetpcap.packet.structure.JField,
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
@@ -131,27 +132,26 @@ public class TextFormatter extends JFormatter {
 			throws IOException {
 
 		if (field.hasSubFields()) {
-			final String v = stylizeSingleLine(header, field, field.getValue(header));
+			final String v = stylizeSingleLine(header, field,
+					field.getValue(header));
 			pad().format(FIELD_FORMAT + "%s", field.getDisplay(header), v);
 			incLevel(19);
 
 		} else if (field.getStyle() == Style.INT_BITS) {
 
-			final String v = stylizeSingleLine(header, field, field.getValue(header));
+			final String v = stylizeSingleLine(header, field,
+					field.getValue(header));
 			final String d = field.getValueDescription(header);
 			final long i = field.longValue(header);
-			pad().format("%s = [%d] %s%s",
-					v,
-					i,
-					field.getDisplay(header),
+			pad().format("%s = [%d] %s%s", v, i, field.getDisplay(header),
 					((d == null) ? "" : ": " + d));
 
 		} else if (field.getStyle() == Style.BYTE_ARRAY_HEX_DUMP
 				|| field.getStyle() == Style.STRING_TEXT_DUMP) {
 			decLevel();
 			decLevel();
-			final String[] v =
-					stylizeMultiLine(header, field, field.getValue(header));
+			final String[] v = stylizeMultiLine(header, field,
+					field.getValue(header));
 			for (String i : v) {
 				pad().format("%s", i);
 			}
@@ -163,9 +163,7 @@ public class TextFormatter extends JFormatter {
 			for (byte[] b : table) {
 				final String v = stylizeSingleLine(header, field, b);
 				pad().format(FIELD_ARRAY_FORMAT + "%s",
-						field.getDisplay(header),
-						i++,
-						v);
+						field.getDisplay(header), i++, v);
 			}
 
 			incLevel(0); // Inc for multi line fields
@@ -175,15 +173,40 @@ public class TextFormatter extends JFormatter {
 			int i = 0;
 			for (String b : table) {
 				pad().format(FIELD_ARRAY_FORMAT + "%s",
-						field.getDisplay(header),
-						i++,
-						b);
+						field.getDisplay(header), i++, b);
+			}
+
+		} else if (field.getStyle() == Style.INT_DEC_ARRAY) {
+			String[] table = (String[]) field.getValue(header);
+
+			int i = 0;
+			for (String b : table) {
+				pad().format(FIELD_ARRAY_FORMAT + "%s",
+						field.getDisplay(header), i++, b);
 			}
 
 			incLevel(0); // Inc for multi line fields
 		} else {
 
-			final String v = stylizeSingleLine(header, field, field.getValue(header));
+			Object value = field.getValue(header);
+			boolean isIPAddress = field.getStyle() == Style.BYTE_ARRAY_ARRAY_IP4_ADDRESS
+					|| field.getStyle() == Style.BYTE_ARRAY_IP4_ADDRESS
+					|| field.getStyle() == Style.BYTE_ARRAY_IP6_ADDRESS;
+
+			/* Handle arrays of supported formats in generically */
+			if (!isIPAddress && value.getClass().isArray()) {
+				for (int i = 0; i < Array.getLength(value); i++) {
+					final String v = stylizeSingleLine(header, field,
+							Array.get(value, i));
+					pad().format(FIELD_ARRAY_FORMAT + "%s",
+							field.getDisplay(header), i++, v);
+				}
+
+				return;
+			}
+
+			/* Everything else is assumed to be convertible to a String */
+			final String v = stylizeSingleLine(header, field, value);
 			final String description = field.getValueDescription(header);
 			final String units = field.getUnits(header);
 
@@ -202,21 +225,21 @@ public class TextFormatter extends JFormatter {
 		}
 
 	}
-
 	/**
 	 * Header after.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @param detail
-	 *          the detail
+	 *            the detail
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *             Signals that an I/O exception has occurred.
 	 * @see org.jnetpcap.packet.format.JFormatter#headerAfter(org.jnetpcap.packet.JHeader,
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
-	protected void headerAfter(JHeader header, Detail detail) throws IOException {
+	protected void headerAfter(JHeader header, Detail detail)
+			throws IOException {
 		pad();
 
 		decLevel();
@@ -227,16 +250,17 @@ public class TextFormatter extends JFormatter {
 	 * Header before.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @param detail
-	 *          the detail
+	 *            the detail
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *             Signals that an I/O exception has occurred.
 	 * @see org.jnetpcap.packet.format.JFormatter#headerBefore(org.jnetpcap.packet.JHeader,
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
-	protected void headerBefore(JHeader header, Detail detail) throws IOException {
+	protected void headerBefore(JHeader header, Detail detail)
+			throws IOException {
 
 		final String name = header.getNicname();
 		incLevel(name);
@@ -249,20 +273,15 @@ public class TextFormatter extends JFormatter {
 		}
 
 		if (header.hasDescription()) {
-			pad().format(" ******* %s - \"%s\" - offset=%d (0x%X) length=%d %s",
-					header.getName(),
-					header.getDescription(),
-					header.getOffset(),
-					header.getOffset(),
-					header.getLength(),
+			pad().format(
+					" ******* %s - \"%s\" - offset=%d (0x%X) length=%d %s",
+					header.getName(), header.getDescription(),
+					header.getOffset(), header.getOffset(), header.getLength(),
 					suiteStr);
 		} else {
 			pad().format(" ******* %s offset=%d (0x%X) length=%d %s",
-					header.getName(),
-					header.getOffset(),
-					header.getOffset(),
-					header.getLength(),
-					suiteStr);
+					header.getName(), header.getOffset(), header.getOffset(),
+					header.getLength(), suiteStr);
 		}
 		pad();
 
@@ -272,18 +291,18 @@ public class TextFormatter extends JFormatter {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.jnetpcap.packet.format.JFormatter#packetAfter(org.jnetpcap.packet.JPacket
-	 * , org.jnetpcap.packet.format.JFormatter.Detail)
+	 * org.jnetpcap.packet.format.JFormatter#packetAfter(org.jnetpcap.packet
+	 * .JPacket , org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	/**
 	 * Packet after.
 	 * 
 	 * @param packet
-	 *          the packet
+	 *            the packet
 	 * @param detail
-	 *          the detail
+	 *            the detail
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *             Signals that an I/O exception has occurred.
 	 * @see org.jnetpcap.packet.format.JFormatter#packetAfter(org.jnetpcap.packet.JPacket,
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
@@ -306,11 +325,11 @@ public class TextFormatter extends JFormatter {
 	 * Packet before.
 	 * 
 	 * @param packet
-	 *          the packet
+	 *            the packet
 	 * @param detail
-	 *          the detail
+	 *            the detail
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *             Signals that an I/O exception has occurred.
 	 * @see org.jnetpcap.packet.format.JFormatter#packetBefore(org.jnetpcap.packet.JPacket,
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
@@ -321,23 +340,20 @@ public class TextFormatter extends JFormatter {
 		if (frameIndex != -1) {
 			pad().format(FIELD_FORMAT + "%d", "#", frameIndex);
 		} else {
-			pad().format(FIELD_FORMAT + "%d",
-					"number",
+			pad().format(FIELD_FORMAT + "%d", "number",
 					packet.getState().getFrameNumber());
 
 		}
 
-		pad()
-				.format(FIELD_FORMAT + "%s",
-						"timestamp",
-						new Timestamp(packet.getCaptureHeader().timestampInMillis())
-								.toString());
+		pad().format(
+				FIELD_FORMAT + "%s",
+				"timestamp",
+				new Timestamp(packet.getCaptureHeader().timestampInMillis())
+						.toString());
 
-		pad().format(FIELD_FORMAT + "%d bytes",
-				"wire length",
+		pad().format(FIELD_FORMAT + "%d bytes", "wire length",
 				packet.getCaptureHeader().wirelen());
-		pad().format(FIELD_FORMAT + "%d bytes",
-				"captured length",
+		pad().format(FIELD_FORMAT + "%d bytes", "captured length",
 				packet.getCaptureHeader().caplen());
 
 		pad();
@@ -348,9 +364,9 @@ public class TextFormatter extends JFormatter {
 	 * Packet null.
 	 * 
 	 * @param packet
-	 *          the packet
+	 *            the packet
 	 * @param detail
-	 *          the detail
+	 *            the detail
 	 * @see org.jnetpcap.packet.format.JFormatter#packetNull(org.jnetpcap.packet.JPacket,
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
@@ -371,20 +387,20 @@ public class TextFormatter extends JFormatter {
 	 * Sub header after.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @param subHeader
-	 *          the sub header
+	 *            the sub header
 	 * @param detail
-	 *          the detail
+	 *            the detail
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *             Signals that an I/O exception has occurred.
 	 * @see org.jnetpcap.packet.format.JFormatter#subHeaderAfter(org.jnetpcap.packet.JHeader,
 	 *      org.jnetpcap.packet.JHeader,
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
-	protected void subHeaderAfter(JHeader header, JHeader subHeader, Detail detail)
-			throws IOException {
+	protected void subHeaderAfter(JHeader header, JHeader subHeader,
+			Detail detail) throws IOException {
 
 		// decLevel();
 		// decLevel();
@@ -404,20 +420,19 @@ public class TextFormatter extends JFormatter {
 	 * Sub header before.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @param subHeader
-	 *          the sub header
+	 *            the sub header
 	 * @param detail
-	 *          the detail
+	 *            the detail
 	 * @throws IOException
-	 *           Signals that an I/O exception has occurred.
+	 *             Signals that an I/O exception has occurred.
 	 * @see org.jnetpcap.packet.format.JFormatter#subHeaderBefore(org.jnetpcap.packet.JHeader,
 	 *      org.jnetpcap.packet.JHeader,
 	 *      org.jnetpcap.packet.format.JFormatter.Detail)
 	 */
 	@Override
-	protected void subHeaderBefore(JHeader header,
-			JHeader subHeader,
+	protected void subHeaderBefore(JHeader header, JHeader subHeader,
 			Detail detail) throws IOException {
 		pad();
 		// decLevel();
@@ -425,9 +440,7 @@ public class TextFormatter extends JFormatter {
 		// incLevel(":" + subHeader.getNicname());
 		// incLevel(SEPARATOR);
 
-		pad().format("+ %s: offset=%d length=%d",
-				subHeader.getName(),
-				subHeader.getOffset(),
-				subHeader.getLength());
+		pad().format("+ %s: offset=%d length=%d", subHeader.getName(),
+				subHeader.getOffset(), subHeader.getLength());
 	}
 }

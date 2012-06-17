@@ -29,6 +29,7 @@ import org.jnetpcap.nio.JStruct;
 import org.jnetpcap.packet.format.FormatUtils;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
+import org.jnetpcap.protocol.JProtocol;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -58,8 +59,10 @@ import org.jnetpcap.packet.format.TextFormatter;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public abstract class JPacket extends JBuffer implements JHeaderAccessor,
-		Iterable<JHeader> {
+public abstract class JPacket extends JBuffer
+		implements
+			JHeaderAccessor,
+			Iterable<JHeader> {
 
 	/**
 	 * Class maintains the decoded packet state. The class is peered with
@@ -89,13 +92,13 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	 * </pre>
 	 * 
 	 * <p>
-	 * The methods in this <code>State</code> provide 3 sets of functions. Looking
-	 * up global state of the packet found in packet_state_t structure, looking up
-	 * header information in <code>struct header_t</code> by header ID retrieved
-	 * from JRegistry and instance numbers, looking up header information by
-	 * direct indexes into native maps and arrays. Instance numbers specify which
-	 * instance of the header, if more than 1 exists in a packet. For example if
-	 * there is a packet with 2 Ip4 headers such as
+	 * The methods in this <code>State</code> provide 3 sets of functions.
+	 * Looking up global state of the packet found in packet_state_t structure,
+	 * looking up header information in <code>struct header_t</code> by header
+	 * ID retrieved from JRegistry and instance numbers, looking up header
+	 * information by direct indexes into native maps and arrays. Instance
+	 * numbers specify which instance of the header, if more than 1 exists in a
+	 * packet. For example if there is a packet with 2 Ip4 headers such as
 	 * 
 	 * <pre>
 	 * Ethernet-&gt;Ip4-&gt;Snmp-&gt;Ip4 
@@ -103,10 +106,10 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	 * Ethernet-&gt;Ip4-&gt;Ip4 (IP tunneled IP)
 	 * </pre>
 	 * 
-	 * the first Ip4 header is instance 0 and the second Ip4 header is instance 2.
-	 * You can use the method {@link #getInstanceCount(int)} to learn how many
-	 * instance headers exists. That information is stored in the packet_state_t
-	 * structure for efficiency.
+	 * the first Ip4 header is instance 0 and the second Ip4 header is instance
+	 * 2. You can use the method {@link #getInstanceCount(int)} to learn how
+	 * many instance headers exists. That information is stored in the
+	 * packet_state_t structure for efficiency.
 	 * </p>
 	 * 
 	 * @author Mark Bednarczyk
@@ -115,8 +118,8 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	public static class State extends JStruct {
 
 		/**
-		 * Flag which is set when the packet that was decoded was truncated and not
-		 * the original length seen on the wire.
+		 * Flag which is set when the packet that was decoded was truncated and
+		 * not the original length seen on the wire.
 		 */
 		public final static int FLAG_TRUNCATED = 0x01;
 
@@ -127,7 +130,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * Sizeof.
 		 * 
 		 * @param count
-		 *          header counter, number of headers to calaculate in
+		 *            header counter, number of headers to calaculate in
 		 * @return size in bytes
 		 */
 		public static native int sizeof(int count);
@@ -139,7 +142,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * Instantiates a new state.
 		 * 
 		 * @param size
-		 *          the size
+		 *            the size
 		 */
 		public State(int size) {
 			super(STRUCT_NAME, size);
@@ -149,7 +152,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * Instantiates a new state.
 		 * 
 		 * @param type
-		 *          the type
+		 *            the type
 		 */
 		public State(Type type) {
 			super(STRUCT_NAME, type);
@@ -169,7 +172,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * Find header index.
 		 * 
 		 * @param id
-		 *          the id
+		 *            the id
 		 * @return the int
 		 */
 		public int findHeaderIndex(int id) {
@@ -180,9 +183,9 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * Find header index.
 		 * 
 		 * @param id
-		 *          the id
+		 *            the id
 		 * @param instance
-		 *          the instance
+		 *            the instance
 		 * @return the int
 		 */
 		public native int findHeaderIndex(int id, int instance);
@@ -191,14 +194,14 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * Gets the 64 bit header map.
 		 * 
 		 * @param index
-		 *          TODO: remove index, its no longer used natively
+		 *            TODO: remove index, its no longer used natively
 		 * @return the 64 bit header map
 		 */
 		public native long get64BitHeaderMap(int index);
 
 		/**
-		 * Gets the 32-bit counter that contains packet's flags in packet_state_t
-		 * structure.
+		 * Gets the 32-bit counter that contains packet's flags in
+		 * packet_state_t structure.
 		 * 
 		 * @return bit flags for this packet
 		 */
@@ -238,7 +241,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * Gets the header id by index.
 		 * 
 		 * @param index
-		 *          the index
+		 *            the index
 		 * @return the header id by index
 		 */
 		public native int getHeaderIdByIndex(int index);
@@ -250,19 +253,19 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * information.
 		 * 
 		 * @param index
-		 *          header index
+		 *            header index
 		 * @return length in bytes of the header
 		 */
 		public native int getHeaderLengthByIndex(int index);
 
 		/**
-		 * A convenience method that gets the offset into the packet buffer of the
-		 * header at specified index. Typically header information is retrieved
-		 * using JHeader.State structure which can access all available header
-		 * information.
+		 * A convenience method that gets the offset into the packet buffer of
+		 * the header at specified index. Typically header information is
+		 * retrieved using JHeader.State structure which can access all
+		 * available header information.
 		 * 
 		 * @param index
-		 *          header index
+		 *            header index
 		 * @return offset in bytes of the start of the header
 		 */
 		public native int getHeaderOffsetByIndex(int index);
@@ -271,7 +274,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * Gets the instance count.
 		 * 
 		 * @param id
-		 *          the id
+		 *            the id
 		 * @return the instance count
 		 */
 		public native int getInstanceCount(int id);
@@ -287,10 +290,10 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * Peer.
 		 * 
 		 * @param peer
-		 *          the peer
+		 *            the peer
 		 * @return the int
 		 * @throws PeeringException
-		 *           the peering exception
+		 *             the peering exception
 		 * @see org.jnetpcap.nio.JMemory#peer(java.nio.ByteBuffer)
 		 */
 		@Override
@@ -304,7 +307,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * Peer.
 		 * 
 		 * @param peer
-		 *          the peer
+		 *            the peer
 		 * @return the int
 		 */
 		public int peer(JBuffer peer) {
@@ -318,14 +321,14 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * Peer.
 		 * 
 		 * @param peer
-		 *          the peer
+		 *            the peer
 		 * @param offset
-		 *          the offset
+		 *            the offset
 		 * @param length
-		 *          the length
+		 *            the length
 		 * @return the int
 		 * @throws IndexOutOfBoundsException
-		 *           the index out of bounds exception
+		 *             the index out of bounds exception
 		 */
 		public int peer(JBuffer peer, int offset, int length)
 				throws IndexOutOfBoundsException {
@@ -339,9 +342,9 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * Peer.
 		 * 
 		 * @param memory
-		 *          the memory
+		 *            the memory
 		 * @param offset
-		 *          the offset
+		 *            the offset
 		 * @return the int
 		 */
 		public int peer(JMemory memory, int offset) {
@@ -354,21 +357,22 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see org.jnetpcap.nio.JPeerable#peer(org.jnetpcap.nio.JMemoryPool.Block,
+		 * @see
+		 * org.jnetpcap.nio.JPeerable#peer(org.jnetpcap.nio.JMemoryPool.Block,
 		 * int, int)
 		 */
 		/**
 		 * Peer.
 		 * 
 		 * @param peer
-		 *          the peer
+		 *            the peer
 		 * @param offset
-		 *          the offset
+		 *            the offset
 		 * @param length
-		 *          the length
+		 *            the length
 		 * @return the int
 		 * @throws IndexOutOfBoundsException
-		 *           the index out of bounds exception
+		 *             the index out of bounds exception
 		 */
 		public int peer(JMemoryPool.Block peer, int offset, int length)
 				throws IndexOutOfBoundsException {
@@ -382,7 +386,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * Peer.
 		 * 
 		 * @param peer
-		 *          the peer
+		 *            the peer
 		 * @return the int
 		 */
 		public int peer(State peer) {
@@ -402,11 +406,11 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * Peer header by id.
 		 * 
 		 * @param id
-		 *          the id
+		 *            the id
 		 * @param instance
-		 *          the instance
+		 *            the instance
 		 * @param dst
-		 *          the dst
+		 *            the dst
 		 * @return the int
 		 */
 		public native int peerHeaderById(int id, int instance, JHeader.State dst);
@@ -415,12 +419,12 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * Peer header by index.
 		 * 
 		 * @param index
-		 *          the index
+		 *            the index
 		 * @param dst
-		 *          the dst
+		 *            the dst
 		 * @return the int
 		 * @throws IndexOutOfBoundsException
-		 *           the index out of bounds exception
+		 *             the index out of bounds exception
 		 */
 		public native int peerHeaderByIndex(int index, JHeader.State dst)
 				throws IndexOutOfBoundsException;
@@ -429,9 +433,9 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * Peers this packet's state to buffer.
 		 * 
 		 * @param buffer
-		 *          source buffer
+		 *            source buffer
 		 * @param offset
-		 *          offset into the buffer
+		 *            offset into the buffer
 		 * @return number of bytes peered
 		 */
 		public int peerTo(JBuffer buffer, int offset) {
@@ -445,11 +449,11 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * Peers this packet's state to buffer.
 		 * 
 		 * @param buffer
-		 *          source buffer
+		 *            source buffer
 		 * @param offset
-		 *          offset into the buffer
+		 *            offset into the buffer
 		 * @param size
-		 *          specifies the number of bytes to peer
+		 *            specifies the number of bytes to peer
 		 * @return number of bytes peered
 		 */
 		public int peerTo(JBuffer buffer, int offset, int size) {
@@ -463,9 +467,9 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * Peer to.
 		 * 
 		 * @param state
-		 *          the state
+		 *            the state
 		 * @param offset
-		 *          the offset
+		 *            the offset
 		 * @return the int
 		 */
 		public int peerTo(State state, int offset) {
@@ -479,7 +483,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * Sets the 32-bit counter with packet flags.
 		 * 
 		 * @param flags
-		 *          bit flags for this packet
+		 *            bit flags for this packet
 		 */
 		public native void setFlags(int flags);
 
@@ -487,7 +491,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * Sets the packet's wire length.
 		 * 
 		 * @param length
-		 *          the original length of the packet before truncation
+		 *            the original length of the packet before truncation
 		 */
 		public native void setWirelen(int length);
 
@@ -513,14 +517,14 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * // hdr_length = length in bytes of the entire header
 		 * </pre>
 		 * 
-		 * Packet state is made up of 2 structures: packet_stat_t and an array of
-		 * header_t, one per header. Total size in bytes is all of the header
+		 * Packet state is made up of 2 structures: packet_stat_t and an array
+		 * of header_t, one per header. Total size in bytes is all of the header
 		 * structures combined, that is 16 + 32 = 48 bytes. Each bit in the
-		 * header_map represents the presence of that header type. The index of the
-		 * bit is the numerical ID of the header. If 2 headers of the same type are
-		 * present, they are both represented by a single bit in the bitmap. This
-		 * way the implementation JPacket.hasHeader(int id) is a simple bit
-		 * operation to test if the header is present or not.
+		 * header_map represents the presence of that header type. The index of
+		 * the bit is the numerical ID of the header. If 2 headers of the same
+		 * type are present, they are both represented by a single bit in the
+		 * bitmap. This way the implementation JPacket.hasHeader(int id) is a
+		 * simple bit operation to test if the header is present or not.
 		 * </p>
 		 * 
 		 * @return multiline string containing dump of the entire structure
@@ -542,9 +546,9 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * Transfer to.
 		 * 
 		 * @param dst
-		 *          the dst
+		 *            the dst
 		 * @param dstOffset
-		 *          the dst offset
+		 *            the dst offset
 		 * @return the int
 		 */
 		public int transferTo(byte[] dst, int dstOffset) {
@@ -555,18 +559,19 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * Transfer to.
 		 * 
 		 * @param dst
-		 *          the dst
+		 *            the dst
 		 * @param srcOffset
-		 *          the src offset
+		 *            the src offset
 		 * @param length
-		 *          the length
+		 *            the length
 		 * @param dstOffset
-		 *          the dst offset
+		 *            the dst offset
 		 * @return the int
 		 * @see org.jnetpcap.nio.JMemory#transferTo(byte[], int, int, int)
 		 */
 		@Override
-		public int transferTo(byte[] dst, int srcOffset, int length, int dstOffset) {
+		public int transferTo(byte[] dst, int srcOffset, int length,
+				int dstOffset) {
 			return super.transferTo(dst, srcOffset, size(), dstOffset);
 		}
 
@@ -574,19 +579,20 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * Transfer to.
 		 * 
 		 * @param dst
-		 *          the dst
+		 *            the dst
 		 * @param srcOffset
-		 *          the src offset
+		 *            the src offset
 		 * @param length
-		 *          the length
+		 *            the length
 		 * @param dstOffset
-		 *          the dst offset
+		 *            the dst offset
 		 * @return the int
-		 * @see org.jnetpcap.nio.JMemory#transferTo(org.jnetpcap.nio.JBuffer, int,
-		 *      int, int)
+		 * @see org.jnetpcap.nio.JMemory#transferTo(org.jnetpcap.nio.JBuffer,
+		 *      int, int, int)
 		 */
 		@Override
-		public int transferTo(JBuffer dst, int srcOffset, int length, int dstOffset) {
+		public int transferTo(JBuffer dst, int srcOffset, int length,
+				int dstOffset) {
 			return super.transferTo(dst, srcOffset, size(), dstOffset);
 		}
 
@@ -594,7 +600,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 		 * Transfer to.
 		 * 
 		 * @param dst
-		 *          the dst
+		 *            the dst
 		 * @return the int
 		 */
 		public int transferTo(State dst) {
@@ -603,9 +609,10 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	}
 
 	/**
-	 * Default number of headers used when calculating memory requirements for an
-	 * empty packet state structure. This value will be multiplied by the
-	 * sizeof(header_t) structure and added to the size of the packet_t strcutre.
+	 * Default number of headers used when calculating memory requirements for
+	 * an empty packet state structure. This value will be multiplied by the
+	 * sizeof(header_t) structure and added to the size of the packet_t
+	 * strcutre.
 	 */
 	public final static int DEFAULT_STATE_HEADER_COUNT = 20;
 
@@ -619,7 +626,8 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	private static JFormatter out = new TextFormatter(new StringBuilder());
 
 	/**
-	 * Packet's default memory pool out of which allocates memory for deep copies.
+	 * Packet's default memory pool out of which allocates memory for deep
+	 * copies.
 	 */
 	protected static JMemoryPool pool = new JMemoryPool();
 
@@ -671,7 +679,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	 * Sets the default header pool.
 	 * 
 	 * @param headerPool
-	 *          the new default header pool
+	 *            the new default header pool
 	 */
 	public static void setDefaultHeaderPool(JHeaderPool headerPool) {
 		JPacket.headerPool = headerPool;
@@ -681,10 +689,10 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	 * Replaced the default formatter for formatting output in the.
 	 * 
 	 * @param out
-	 *          new formatter {@link #toString} method. The new formatter will be
-	 *          used by default for all packets. The formatter should internally
-	 *          build a string that will be returned with out.toString() method
-	 *          call to get meaningfull output.
+	 *            new formatter {@link #toString} method. The new formatter will
+	 *            be used by default for all packets. The formatter should
+	 *            internally build a string that will be returned with
+	 *            out.toString() method call to get meaningfull output.
 	 */
 	public static void setFormatter(JFormatter out) {
 		JPacket.out = out;
@@ -694,7 +702,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	 * Replaces the default memory allocation mechanism with user supplied one.
 	 * 
 	 * @param pool
-	 *          new memory pool to use.
+	 *            new memory pool to use.
 	 */
 	public static void setMemoryPool(JMemoryPool pool) {
 		JPacket.pool = pool;
@@ -719,14 +727,14 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	protected final State state = new State(Type.POINTER);
 
 	/**
-	 * Allocates a memory block and peers both the state and data buffer with it.
-	 * The size parameter has to be big enough to hold both state and data for the
-	 * packet.
+	 * Allocates a memory block and peers both the state and data buffer with
+	 * it. The size parameter has to be big enough to hold both state and data
+	 * for the packet.
 	 * 
 	 * @param size
-	 *          amount of memory to allocate for packet data
+	 *            amount of memory to allocate for packet data
 	 * @param state
-	 *          size of the state
+	 *            size of the state
 	 */
 	public JPacket(int size, int state) {
 		super(Type.POINTER);
@@ -737,28 +745,28 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	/**
 	 * A JPacket pointer. This is a pointer type constructor that does not
 	 * allocate any memory but its intended to be pointed at a scanner packet_t
-	 * structure that contains meta information about the structure of the packet
-	 * data buffer.
+	 * structure that contains meta information about the structure of the
+	 * packet data buffer.
 	 * <p>
-	 * JPacket constists of 2 peers. The first and the main memory peering is with
-	 * the packet_state_t structure which stores information about the decoded
-	 * state of the packet, another words the result of the scanned packet data
-	 * buffer. The second peer is to the actual packet data buffer which is a
-	 * seperate pointer.
+	 * JPacket constists of 2 peers. The first and the main memory peering is
+	 * with the packet_state_t structure which stores information about the
+	 * decoded state of the packet, another words the result of the scanned
+	 * packet data buffer. The second peer is to the actual packet data buffer
+	 * which is a seperate pointer.
 	 * <h2>Peering struct packet_t</h2>
-	 * This structure contains the "packet state". This is the decoded state which
-	 * specifies what headers are in the buffer and at what offsets. This
+	 * This structure contains the "packet state". This is the decoded state
+	 * which specifies what headers are in the buffer and at what offsets. This
 	 * structure is the output of a JScanner.scan() method. The memory for this
 	 * state can be anywhere, but by default JScanner stores it in a round-robin
-	 * buffer it uses for decoding fast incoming packets. The state can easily be
-	 * copied into another buffer for longer storage using such methods as
-	 * <code>transferStateAndDataTo</code> which will copy the packet state and/or
-	 * data buffer into another memory area, such as a direct ByteBuffer or
-	 * JBuffer.
+	 * buffer it uses for decoding fast incoming packets. The state can easily
+	 * be copied into another buffer for longer storage using such methods as
+	 * <code>transferStateAndDataTo</code> which will copy the packet state
+	 * and/or data buffer into another memory area, such as a direct ByteBuffer
+	 * or JBuffer.
 	 * </p>
 	 * 
 	 * @param type
-	 *          the type
+	 *            the type
 	 */
 	public JPacket(Type type) {
 		super(type);
@@ -768,7 +776,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	 * Creates a new memory buffer of given size for internal usage.
 	 * 
 	 * @param size
-	 *          size in bytes
+	 *            size in bytes
 	 */
 	public void allocate(int size) {
 		pool.allocate(size, memory);
@@ -778,9 +786,9 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	 * Filter existing header instances by specified type.
 	 * 
 	 * @param <T>
-	 *          the generic type
+	 *            the generic type
 	 * @param type
-	 *          the clazz
+	 *            the clazz
 	 * @return the iterable
 	 * @since 1.4
 	 */
@@ -820,31 +828,32 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	 * reference is retained and returned on any subsequent invocations.
 	 * <p>
 	 * Flow-keys are generated for each packet and can be used to group packets
-	 * into similar group of packets into flows. Flows associate packets that are
-	 * flowing in the same or are part of the same group of packets. For example,
-	 * TCP/IP group of packets will be grouped into flows, by generating
-	 * appropriate flow-keys, so that all packets part of the same TCP stream,
-	 * will have the exact same flow-key generated, allowing those packets to be
-	 * grouped into a single flow. Flow-keys can be uni or bi directional.
+	 * into similar group of packets into flows. Flows associate packets that
+	 * are flowing in the same or are part of the same group of packets. For
+	 * example, TCP/IP group of packets will be grouped into flows, by
+	 * generating appropriate flow-keys, so that all packets part of the same
+	 * TCP stream, will have the exact same flow-key generated, allowing those
+	 * packets to be grouped into a single flow. Flow-keys can be uni or bi
+	 * directional.
 	 * </p>
 	 * <p>
 	 * Uni-directional flow, is generated for packets that should be grouped, or
-	 * belong to the same flow, where packets are sent from System A to System B,
-	 * in a single or uni direction. Bi-directional keys are generated for packets
-	 * that should belong to the same flow, in both directions. Packets that are
-	 * sent from System A to System B and packets that are sent from System B to
-	 * System A.
+	 * belong to the same flow, where packets are sent from System A to System
+	 * B, in a single or uni direction. Bi-directional keys are generated for
+	 * packets that should belong to the same flow, in both directions. Packets
+	 * that are sent from System A to System B and packets that are sent from
+	 * System B to System A.
 	 * </p>
 	 * <p>
 	 * The criteria used for generating flow-keys is different for each packet
-	 * based on protocol headers present in the packet. As an example, a flow-key
-	 * for a Ethernet/Ip4/Tcp packet is generated based on source and destination
-	 * ethernet addresses, source and destination Ip4 address, the Ip4
-	 * protocol/type number 16 which signifies that next protocol is TCP and
+	 * based on protocol headers present in the packet. As an example, a
+	 * flow-key for a Ethernet/Ip4/Tcp packet is generated based on source and
+	 * destination ethernet addresses, source and destination Ip4 address, the
+	 * Ip4 protocol/type number 16 which signifies that next protocol is TCP and
 	 * source and destination TCP port numbers. The flow-key generated for this
 	 * example is bidirectional, meaning that packets belonging to the same TCP
-	 * conversation in both directions between System A and System B will have the
-	 * exact same flow-key generated.
+	 * conversation in both directions between System A and System B will have
+	 * the exact same flow-key generated.
 	 * </p>
 	 * 
 	 * 
@@ -858,31 +867,32 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	 * Gets the unique flow-key for this packet. This method peers the
 	 * <p>
 	 * Flow-keys are generated for each packet and can be used to group packets
-	 * into similar group of packets into flows. Flows associate packets that are
-	 * flowing in the same or are part of the same group of packets. For example,
-	 * TCP/IP group of packets will be grouped into flows, by generating
-	 * appropriate flow-keys, so that all packets part of the same TCP stream,
-	 * will have the exact same flow-key generated, allowing those packets to be
-	 * grouped into a single flow. Flow-keys can be uni or bi directional.
+	 * into similar group of packets into flows. Flows associate packets that
+	 * are flowing in the same or are part of the same group of packets. For
+	 * example, TCP/IP group of packets will be grouped into flows, by
+	 * generating appropriate flow-keys, so that all packets part of the same
+	 * TCP stream, will have the exact same flow-key generated, allowing those
+	 * packets to be grouped into a single flow. Flow-keys can be uni or bi
+	 * directional.
 	 * </p>
 	 * <p>
 	 * Uni-directional flow, is generated for packets that should be grouped, or
-	 * belong to the same flow, where packets are sent from System A to System B,
-	 * in a single or uni direction. Bi-directional keys are generated for packets
-	 * that should belong to the same flow, in both directions. Packets that are
-	 * sent from System A to System B and packets that are sent from System B to
-	 * System A.
+	 * belong to the same flow, where packets are sent from System A to System
+	 * B, in a single or uni direction. Bi-directional keys are generated for
+	 * packets that should belong to the same flow, in both directions. Packets
+	 * that are sent from System A to System B and packets that are sent from
+	 * System B to System A.
 	 * </p>
 	 * <p>
 	 * The criteria used for generating flow-keys is different for each packet
-	 * based on protocol headers present in the packet. As an example, a flow-key
-	 * for a Ethernet/Ip4/Tcp packet is generated based on source and destination
-	 * ethernet addresses, source and destination Ip4 address, the Ip4
-	 * protocol/type number 16 which signifies that next protocol is TCP and
+	 * based on protocol headers present in the packet. As an example, a
+	 * flow-key for a Ethernet/Ip4/Tcp packet is generated based on source and
+	 * destination ethernet addresses, source and destination Ip4 address, the
+	 * Ip4 protocol/type number 16 which signifies that next protocol is TCP and
 	 * source and destination TCP port numbers. The flow-key generated for this
 	 * example is bidirectional, meaning that packets belonging to the same TCP
-	 * conversation in both directions between System A and System B will have the
-	 * exact same flow-key generated.
+	 * conversation in both directions between System A and System B will have
+	 * the exact same flow-key generated.
 	 * </p>
 	 * 
 	 * 
@@ -905,13 +915,13 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	}
 
 	/**
-	 * Peers the supplied header with the native header state structure and packet
-	 * data buffer.
+	 * Peers the supplied header with the native header state structure and
+	 * packet data buffer.
 	 * 
 	 * @param <T>
-	 *          name of the header
+	 *            name of the header
 	 * @param header
-	 *          instance of a header object
+	 *            instance of a header object
 	 * @return the supplied instance of the header
 	 */
 	public <T extends JHeader> T getHeader(T header) {
@@ -919,23 +929,28 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	}
 
 	/**
-	 * Peers the supplied header with the native header state structure and packet
-	 * data buffer. This method allows retrieval of a specific instance of a
-	 * header if more than one instance has been found.
+	 * Peers the supplied header with the native header state structure and
+	 * packet data buffer. This method allows retrieval of a specific instance
+	 * of a header if more than one instance has been found.
 	 * 
 	 * @param <T>
-	 *          name of the header
+	 *            name of the header
 	 * @param header
-	 *          instance of a header object
+	 *            instance of a header object
 	 * @param instance
-	 *          instance number of the header since more than one header of the
-	 *          same type can exist in the same packet buffer
+	 *            instance number of the header since more than one header of
+	 *            the same type can exist in the same packet buffer
 	 * @return the supplied instance of the header
 	 */
 	public <T extends JHeader> T getHeader(T header, int instance) {
 		check();
 
-		final int index = this.state.findHeaderIndex(header.getId(), instance);
+		final int id = header.getId();
+		if (!hasHeader(id)) { // Simple bitmap test speeds things up
+			return null;
+		}
+
+		final int index = this.state.findHeaderIndex(id, instance);
 		if (index == -1) {
 			return null;
 		}
@@ -944,21 +959,26 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	}
 
 	/**
-	 * Peers a header with specific index, not the numerical header ID assigned by
-	 * JRegistry, of a header.
+	 * Peers a header with specific index, not the numerical header ID assigned
+	 * by JRegistry, of a header.
 	 * 
 	 * @param <T>
-	 *          name of the header
+	 *            name of the header
 	 * @param index
-	 *          index into the header array the scanner has found
+	 *            index into the header array the scanner has found
 	 * @param header
-	 *          instance of a header object
+	 *            instance of a header object
 	 * @return the supplied header
 	 * @throws IndexOutOfBoundsException
-	 *           the index out of bounds exception
+	 *             the index out of bounds exception
 	 */
 	public <T extends JHeader> T getHeaderByIndex(int index, T header)
 			throws IndexOutOfBoundsException {
+
+		final int id = header.getId();
+		if (!hasHeader(id)) { // Simple bitmap test speeds things up
+			return null;
+		}
 
 		JHeader.State hstate = header.getState();
 		this.state.peerHeaderByIndex(index, hstate);
@@ -973,8 +993,8 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	}
 
 	/**
-	 * Gets number of headers found within the packet header. The last header may
-	 * or may not be the builtin Payload header
+	 * Gets number of headers found within the packet header. The last header
+	 * may or may not be the builtin Payload header
 	 * 
 	 * @return number of headers present
 	 */
@@ -983,11 +1003,11 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	}
 
 	/**
-	 * Gets the numerical ID of the header at specified index into header array as
-	 * found by the packet scanner.
+	 * Gets the numerical ID of the header at specified index into header array
+	 * as found by the packet scanner.
 	 * 
 	 * @param index
-	 *          index into the header array
+	 *            index into the header array
 	 * @return numerical ID of the header found at the specific index
 	 */
 	public int getHeaderIdByIndex(int index) {
@@ -995,12 +1015,12 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	}
 
 	/**
-	 * Gets number of headers with the same numerical ID as assigned by JRegistry
-	 * within the same packet. For example Ip4 in ip4 packet would contain 2
-	 * instances of Ip4 header.
+	 * Gets number of headers with the same numerical ID as assigned by
+	 * JRegistry within the same packet. For example Ip4 in ip4 packet would
+	 * contain 2 instances of Ip4 header.
 	 * 
 	 * @param id
-	 *          numerical ID of the header to search for
+	 *            numerical ID of the header to search for
 	 * @return number of headers of the same type in the packet
 	 */
 	public int getHeaderInstanceCount(int id) {
@@ -1012,7 +1032,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	 * The internal memory buffer is allocated if neccessary.
 	 * 
 	 * @param buffer
-	 *          source array buffer to copy data out of
+	 *            source array buffer to copy data out of
 	 * @return the memory buffer
 	 */
 	protected JBuffer getMemoryBuffer(byte[] buffer) {
@@ -1027,12 +1047,13 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	 * The internal memory buffer is allocated if neccessary.
 	 * 
 	 * @param buffer
-	 *          source array buffer to copy data out of
+	 *            source array buffer to copy data out of
 	 * @return the memory buffer
 	 * @throws PeeringException
-	 *           the peering exception
+	 *             the peering exception
 	 */
-	protected JBuffer getMemoryBuffer(ByteBuffer buffer) throws PeeringException {
+	protected JBuffer getMemoryBuffer(ByteBuffer buffer)
+			throws PeeringException {
 		memory.peer(buffer);
 
 		return memory;
@@ -1040,11 +1061,11 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 
 	/**
 	 * Retrieves a memory buffer, allocated if neccessary, at least minSize in
-	 * bytes. If existing buffer is already big enough, it is returned, otherwise
-	 * a new buffer is allocated and the existing one released.
+	 * bytes. If existing buffer is already big enough, it is returned,
+	 * otherwise a new buffer is allocated and the existing one released.
 	 * 
 	 * @param minSize
-	 *          minimum number of bytes required for the buffer
+	 *            minimum number of bytes required for the buffer
 	 * @return the buffer
 	 */
 	protected JBuffer getMemoryBuffer(int minSize) {
@@ -1060,7 +1081,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	 * internal memory buffer is allocated if neccessary.
 	 * 
 	 * @param buffer
-	 *          source array buffer to copy data out of
+	 *            source array buffer to copy data out of
 	 * @return the memory buffer
 	 */
 	protected JBuffer getMemoryBuffer(JBuffer buffer) {
@@ -1070,9 +1091,9 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	}
 
 	/**
-	 * Gets the wire length of the packet. This is the original length as seen on
-	 * the wire. This length may different JPacket.size() length, as the packet
-	 * may have been truncated at the time of the capture.
+	 * Gets the wire length of the packet. This is the original length as seen
+	 * on the wire. This length may different JPacket.size() length, as the
+	 * packet may have been truncated at the time of the capture.
 	 * 
 	 * @return original packet length
 	 */
@@ -1109,15 +1130,50 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	public abstract int getTotalSize();
 
 	/**
+	 * Checks if all of the headers present in the bitmask are found in the
+	 * packet.
+	 * 
+	 * @param mask
+	 *            bitmask of encoded headers
+	 * @return true if all of the headers are present
+	 * @since 1.4
+	 */
+	public boolean hasAllHeaders(final long mask) {
+		final long headerMap = state.get64BitHeaderMap(JProtocol
+				.maskToGroup(mask));
+		return (headerMap & mask) == mask;
+	}
+
+	/**
+	 * Checks if any of the headers present in the bitmask are found in the
+	 * packet.
+	 * 
+	 * @param mask
+	 *            bitmask of encoded headers
+	 * @return true if any (1 or more) of the headers in the bitmask are present
+	 * @see JProtocol#createMaskFromIds(int...)
+	 * @see JProtocol#createMaskFromMasks(long...)
+	 * @since 1.4
+	 */
+	public boolean hasAnyHeader(final long mask) {
+		final long headerMap = state.get64BitHeaderMap(JProtocol
+				.maskToGroup(mask));
+		return (headerMap & mask & JProtocol.BITMASK_PROTCOL_MASK) != 0
+				&& (headerMap & JProtocol.BITMASK_GROUP_MASK) == (mask & JProtocol.BITMASK_GROUP_MASK);
+	}
+
+	/**
 	 * Checks if header with specified numerical ID exists within the decoded
 	 * packet.
 	 * 
 	 * @param id
-	 *          protocol header ID as assigned by JRegistry
+	 *            protocol header ID as assigned by JRegistry
 	 * @return true header exists, otherwise false
 	 */
-	public boolean hasHeader(int id) {
-		return hasHeader(id, 0);
+	public boolean hasHeader(final int id) {
+		final long headerMap = state.get64BitHeaderMap(JProtocol.idToGroup(id));
+		final long mask = JProtocol.idToMask(id);
+		return (headerMap & mask) != 0;
 	}
 
 	/**
@@ -1125,9 +1181,9 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	 * within the decoded packet.
 	 * 
 	 * @param id
-	 *          protocol header ID as assigned by JRegistry
+	 *            protocol header ID as assigned by JRegistry
 	 * @param instance
-	 *          instance number of the specific header within the packet
+	 *            instance number of the specific header within the packet
 	 * @return true header exists, otherwise false
 	 */
 	public boolean hasHeader(int id, int instance) {
@@ -1144,50 +1200,66 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	/**
 	 * Check if requested instance of header with specified numerical ID exists
 	 * within the decoded packet and if found peers the supplied header with the
-	 * located header within the decoded packet. This method executes as hasHeader
-	 * followed by getHeader if found more efficiently.
+	 * located header within the decoded packet. This method executes as
+	 * hasHeader followed by getHeader if found more efficiently.
 	 * 
 	 * @param <T>
-	 *          name of the header type
+	 *            name of the header type
 	 * @param header
-	 *          protocol header object instance
+	 *            protocol header object instance
 	 * @return true header exists, otherwise false
 	 */
 	public <T extends JHeader> boolean hasHeader(T header) {
-		return (state.get64BitHeaderMap(0) & (1L << header.getId())) != 0
-				&& hasHeader(header, 0);
+		return getHeader(header, 0) != null;
 	}
-
 	/**
 	 * Check if requested instance of header with specified numerical ID exists
 	 * within the decoded packet and if found peers the supplied header with the
-	 * located header within the decoded packet. This method executes as hasHeader
-	 * followed by getHeader if found more efficiently.
+	 * located header within the decoded packet. This method executes as
+	 * hasHeader followed by getHeader if found more efficiently.
 	 * 
 	 * @param <T>
-	 *          name of the header type
+	 *            name of the header type
 	 * @param header
-	 *          protocol header object instance
+	 *            protocol header object instance
 	 * @param instance
-	 *          instance number of the specific header within the packet
+	 *            instance number of the specific header within the packet
 	 * @return true header exists, otherwise false
 	 */
 	public <T extends JHeader> boolean hasHeader(T header, int instance) {
 		check();
 
-		final int index = this.state.findHeaderIndex(header.getId(), instance);
+		int id = header.getId();
+
+		/*
+		 * Make sure we have at least 1 header of our type
+		 */
+		if (!hasHeader(id)) {
+			return false;
+		}
+
+		/*
+		 * Now find the exact instance of the header, 1st, 2nd, or 3rd, etc...
+		 */
+		final int index = this.state.findHeaderIndex(id, instance);
 		if (index == -1) {
 			return false;
 		}
 
+		/*
+		 * Peer state to header object
+		 */
 		getHeaderByIndex(index, header);
 
+		/*
+		 * We are done, header found and peered
+		 */
 		return true;
 	}
 
 	/**
-	 * Uses a thread-local based <code>JHeaderPool</code> to iterate over all the
-	 * headers within a packet.
+	 * Uses a thread-local based <code>JHeaderPool</code> to iterate over all
+	 * the headers within a packet.
 	 * 
 	 * @return the iterator
 	 * @see java.lang.Iterable#iterator()
@@ -1226,13 +1298,14 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	}
 
 	/**
-	 * Uses a thread-local based <code>JHeaderPool</code> to iterate over all the
-	 * headers within a packet that are instances of the specified type.
+	 * Uses a thread-local based <code>JHeaderPool</code> to iterate over all
+	 * the headers within a packet that are instances of the specified type.
 	 * 
 	 * @param <T>
-	 *          the generic type
+	 *            the generic type
 	 * @param type
-	 *          the class used to check if a header is in assignable to this type
+	 *            the class used to check if a header is in assignable to this
+	 *            type
 	 * @return the iterator
 	 */
 	public <T> Iterator<T> iterator(final Class<T> type) {
@@ -1290,11 +1363,11 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	}
 
 	/**
-	 * Calculates the number of bytes remaining within the packet given a specific
-	 * offset.
+	 * Calculates the number of bytes remaining within the packet given a
+	 * specific offset.
 	 * 
 	 * @param offset
-	 *          offset into the packet in bytes
+	 *            offset into the packet in bytes
 	 * @return number of bytes remaining from specified offset
 	 */
 	public int remaining(int offset) {
@@ -1308,9 +1381,9 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	 * has been truncated and remaining number of bytes is less.
 	 * 
 	 * @param offset
-	 *          offset of the header to take into account
+	 *            offset of the header to take into account
 	 * @param length
-	 *          length of the header
+	 *            length of the header
 	 * @return smaller number of bytes either remaining or legth
 	 */
 	public int remaining(int offset, int length) {
@@ -1324,8 +1397,8 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	 * replaces any existing packet state already asigned to this packet.
 	 * 
 	 * @param id
-	 *          numerical ID as assigned by JRegistry of the first protocol header
-	 *          to be found in the packet, the DLT
+	 *            numerical ID as assigned by JRegistry of the first protocol
+	 *            header to be found in the packet, the DLT
 	 */
 	public void scan(int id) {
 		getDefaultScanner().scan(this, id, getCaptureHeader().wirelen());

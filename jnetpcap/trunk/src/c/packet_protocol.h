@@ -51,9 +51,19 @@
 #define SCTP_CWR_ID          org_jnetpcap_protocol_JProtocol_SCTP_CWR_ID
 #define SCTP_SHUTDOWN_COMPLETE_ID org_jnetpcap_protocol_JProtocol_SCTP_SHUTDOWN_COMPLETE_ID
 
+#define RTCP_ID 		org_jnetpcap_protocol_JProtocol_RTCP_SENDER_REPORT_ID
+#define RTCP_CHUNK_ID 		org_jnetpcap_protocol_JProtocol_RTCP_SENDER_REPORT_ID
+#define RTCP_SENDER_REPORT_ID org_jnetpcap_protocol_JProtocol_RTCP_SENDER_REPORT_ID
+#define RTCP_RECEIVER_REPORT_ID org_jnetpcap_protocol_JProtocol_RTCP_RECEIVER_REPORT_ID
+#define RTCP_SDES_ID org_jnetpcap_protocol_JProtocol_RTCP_SDES_ID
+#define RTCP_BYE_ID org_jnetpcap_protocol_JProtocol_RTCP_BYE_ID
+#define RTCP_APP_ID org_jnetpcap_protocol_JProtocol_RTCP_APP_ID
+
 #define NULL_HEADER_ID org_jnetpcap_protocol_JProtocol_NULL_HEADER_ID
 
 #define WEB_IMAGE_ID        org_jnetpcap_protocol_JProtocol_WEB_IMAGE_ID
+
+#define NETBIOS_ID END_OF_HEADERS
 
 typedef struct null_header_ {
 
@@ -116,6 +126,65 @@ typedef struct rtpx_t {
 	
 } rtpx_t;
 
+/*
+ *  RTP and RTCP family of protocols
+ *  See RFC3550
+ */
+
+/**
+ * RTCP SSRC Sender Report (section 3 of the header)
+ */
+typedef struct rtcp_ssrc_ {
+	uint32_t	ssrc_id; // SSRC identifier of the source
+	uint32_t	ssrc_fract_loss:8; // Fraction of RTP data lost
+	uint32_t	ssrc_total_loss:24; // Cumulative of RTP data lost
+	uint32_t	ssrc_high_seq; // Extended highest seq received
+	uint32_t	ssrc_jitter; // Interarrival Jitter
+	uint32_t	ssrc_lsr; // Last SR timestamp
+	uint32_t	ssrc_dlsr; // Delay since last SR
+
+} rtcp_ssrc_t;
+
+/*
+ * RTCP Sender Report (SR)
+ * (Section 2 of the header)
+ */
+typedef struct rtcp_sr_ {
+
+	uint64_t	sr_ntp; // NTP timestamp
+	uint32_t	sr_pkt_count; // Sender's packet count
+	uint32_t	sr_octet_count; // Sender's octet count
+
+} rtcp_sr_t;
+
+/*
+ * RTCP - main static header present in every RTCP packet.
+ * RTCP packets are always on odd port number, while RTP on even (see RFC3550)
+ * (Section 1 of the header)
+ */
+typedef struct rtcp_ {
+
+#  if __BYTE_ORDER == __LITTLE_ENDIAN
+	uint8_t 	rtcp_rc:5; // Reception Report Count (RC)
+	uint8_t 	rtcp_pad:1;
+	uint8_t		rtcp_ver:2; // Must be 2
+
+#  elif __BYTE_ORDER == __BIG_ENDIAN
+	uint8_t		rtcp_ver:2; // Must be 2
+	uint8_t 	rtcp_pad:1;
+	uint8_t 	rtcp_rc:5; // Reception Report Count (RC)
+
+#  else
+#   error "Adjust your <bits/endian.h> defines"
+#  endif
+
+	uint8_t		rtcp_type; // SR==200, RR==201
+	uint16_t	rtcp_len;  // 32-bit word count (including header -1)
+	uint32_t	rtcp_ssrc; // Synchronization source ID
+
+} rtcp_t;
+
+
 typedef struct rtp_t {
 
 #  if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -143,7 +212,6 @@ typedef struct rtp_t {
 	uint16_t	rtp_seq;
 	uint32_t	rtp_ts;
 	uint32_t	rtp_ssrc;
-
 
 } rtp_t;
 

@@ -72,6 +72,10 @@ public abstract class AbstractMessageHeader extends JMappedHeader {
 			"NOT", // NOTIFY
 			"INF", // INFO
 			"PRA", // PRACK
+			"UPD", // UPDATE
+			"SUB", // SUBSCRIBE
+			"PUB", // PUBLISH
+			"MES", // MESSAGE
 	};
 
 	/**

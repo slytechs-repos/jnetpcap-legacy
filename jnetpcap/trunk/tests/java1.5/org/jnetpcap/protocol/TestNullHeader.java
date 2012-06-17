@@ -38,6 +38,9 @@ public class TestNullHeader {
 					packet.hasHeader(JProtocol.NULL_HEADER_ID));
 			TestCase.assertTrue("NullHeader by object missing",
 					packet.hasHeader(nh));
+			
+			System.out.println(packet);
+			System.out.println(packet.getState().toDebugString());
 		}
 	}
 

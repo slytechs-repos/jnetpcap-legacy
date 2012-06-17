@@ -159,9 +159,11 @@ public abstract class JFormatter {
 		INT_BITS,
 		/** The IN t_ dec. */
 		INT_DEC,
+		INT_DEC_ARRAY,
 
 		/** Integer is converted to a hex with a preceding 0x in front. */
 		INT_HEX,
+		INT_HEX_ARRAY,
 
 		/** The IN t_ oct. */
 		INT_OCT,

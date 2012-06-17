@@ -600,6 +600,7 @@ public class TestTcpIp extends TestUtils {
 	 */
 	public void testTcpOptions() {
 		JPacket packet = TestUtils.getPcapPacket(SMALL_IMAP, 1 - 1);
+		System.out.println(packet.getState().toDebugString());
 		System.out.println(packet.toString());
 
 		Tcp tcp = packet.getHeader(new Tcp());

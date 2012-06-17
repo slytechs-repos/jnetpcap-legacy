@@ -96,11 +96,20 @@ native_dissect_func_t 	field_dissectors      [MAX_ID_COUNT];
 
 const char             	*native_protocol_names[MAX_ID_COUNT];
 
-#define ENTER(id, msg)
-#define EXIT()
-#define TRACE(frmt...)
+//#define DEBUG
+#ifdef DEBUG
+#ifndef ENTER
+#define ENTER(id, name) debug_enter(name)
+#define EXIT(name) debug_exit(name)
+#define TRACE(msg, frmt...) debug_trace(msg, frmt)
 #define CALL(name)
-
+#endif
+#else /* DEBUG */
+#define ENTER(id, name)
+#define EXIT(name)
+#define TRACE(msg, frmt...)
+#define CALL(name)
+#endif /* DEBUG */
 
 
 /*
@@ -120,19 +129,19 @@ void scan_null_header(scan_t *scan) {
 ENTER(SLL_ID, "scan_null_header");
 	register null_header_t *nl = (null_header_t *)(scan->buf + scan->offset);
 	if (is_accessible(scan, 4) == FALSE) {
-		EXIT();
+		EXIT("scan_null_header");
 		return;
 	}
 	scan->id = NULL_HEADER_ID;
 	scan->length = 4;
 
 	switch (nl->type) {
-	case 2: scan->next_id = IP4_ID; EXIT(); return;
+	case 2: scan->next_id = IP4_ID; EXIT("scan_null_header"); return;
 	default: scan->next_id = PAYLOAD_ID;
 	}
 
 	switch (BIG_ENDIAN32(nl->type)) {
-	case 2: scan->next_id = IP4_ID; EXIT(); return;
+	case 2: scan->next_id = IP4_ID; EXIT("scan_null_header"); return;
 	default: scan->next_id = PAYLOAD_ID;
 	}
 
@@ -141,7 +150,7 @@ ENTER(SLL_ID, "scan_null_header");
 //			scan->next_id,
 //			nl->type);
 
-EXIT();
+EXIT("scan_null_header");
 }
 
 /*
@@ -153,6 +162,7 @@ ENTER(SLL_ID, "scan_sctp_chunk");
 	sctp_t *sctp = NULL;
 	register sctp_chunk_t *chunk = (sctp_chunk_t *)(scan->buf + scan->offset);
 	if (is_accessible(scan, 4) == FALSE) {
+		EXIT("scan_sctp_chunk");
 		return;
 	}
 
@@ -180,18 +190,22 @@ ENTER(SLL_ID, "scan_sctp_chunk");
 		if ((chunk->flags & SCTP_DATA_FLAG_FIRST_SEG) != 0) {
 			sctp = (sctp_t *)(scan->buf + scan->sctp_offset);
 
+			scan->dport = BIG_ENDIAN16(sctp->dport);
+			scan->sport = BIG_ENDIAN16(sctp->sport);
 
-			switch (BIG_ENDIAN16(sctp->dport)) {
+			switch (scan->dport) {
 			case 80:
 			case 8080:
 			case 8081: scan->next_id = validate_next(HTTP_ID, scan); break;
+			case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;
 			}
 
 			if (scan->next_id == PAYLOAD_ID)
-			switch (BIG_ENDIAN16(sctp->sport)) {
+			switch (scan->sport) {
 			case 80:
 			case 8080:
 			case 8081: scan->next_id = validate_next(HTTP_ID, scan); break;
+			case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;
 			}
 
 		}
@@ -200,7 +214,7 @@ ENTER(SLL_ID, "scan_sctp_chunk");
 		scan->next_id = SCTP_CHUNK_ID;
 	}
 
-	EXIT();
+	EXIT("scan_sctp_chunk");
 }
 
 /*
@@ -213,6 +227,7 @@ ENTER(SLL_ID, "scan_sctp");
 	scan->sctp_offset = scan->offset;
 
 	if (is_accessible(scan, SCTP_LEN) == FALSE) {
+		EXIT("scan_sctp");
 		return;
 	}
 
@@ -221,6 +236,7 @@ ENTER(SLL_ID, "scan_sctp");
 	 * [SCTP][CHUNK][CHUNK][CHUNK]
 	 */
 	scan->next_id = SCTP_CHUNK_ID;
+	EXIT("scan_sctp");
 }
 
 /*
@@ -232,17 +248,39 @@ ENTER(SLL_ID, "scan_sll");
 	scan->length = SLL_LEN;
 
 	if (is_accessible(scan, 9) == FALSE) {
-		EXIT();
+		EXIT("scan_sll");
 		return;
 	}
 
 	switch(BIG_ENDIAN16(sll->sll_protocol)) {
-	case 0x800:	scan->next_id = validate_next(IP4_ID, scan); EXIT(); return;
+	case 0x800:	scan->next_id = validate_next(IP4_ID, scan); EXIT("scan_sll"); return;
 	}
 
 //	printf("scan_sll() next_id=%d\n", scan->next_id);
 //	fflush(stdout);
-	EXIT();
+	EXIT("scan_sll");
+}
+
+/**
+ * Scan RTCP (Realtime Transport Control Protocol - sister RTP protocol)
+ * @see RFC3550
+ */
+void scan_rtcp(scan_t *scan) {
+ENTER(RTCP_ID, "scan_rtcp");
+	register rtcp_t *rtcp = (rtcp_t *)(scan->buf + scan->offset);
+
+	ACCESS(4);
+	scan->length += (BIG_ENDIAN16(rtcp->rtcp_len) +1) << 2;
+
+	int id = rtcp->rtcp_type;
+	if (id >= RTCP_CHUNK_ID && id <= RTCP_APP_ID) {
+		scan->id = (id - RTCP_CHUNK_ID);
+		scan->next_id = RTCP_ID; // RTCP packets can be combined
+	} else {
+		scan->id = PAYLOAD_ID;
+	}
+
+EXIT("scan_rtcp");
 }
 
 extern void debug_rtp(rtp_t *rtp);
@@ -255,40 +293,47 @@ extern void debug_rtp(rtp_t *rtp);
  * constant INVALID or header ID constant.
  */
 int validate_rtp(scan_t *scan) {
-
-	if ((scan->buf_len - scan->offset) < sizeof(rtp_t)) {
-		return INVALID;
-	}
-
 ENTER(RTP_ID, "validate_rtp");
 
-	register rtp_t *rtp = (rtp_t *)(scan->buf + scan->offset);
-
-	if (rtp->rtp_ver != 2 ||
-			rtp->rtp_cc > 15 ||
-			rtp->rtp_type > 25 ||
-			rtp->rtp_seq == 0 ||
-			rtp->rtp_ts == 0 ||
-			rtp->rtp_ssrc == 0
-			) {
-TRACE("INVALID header flad");
-CALL(debug_rtp(rtp));
-EXIT();
-
+	if ((scan->buf_len - scan->offset) < sizeof(rtp_t)) {
+		EXIT("validate_rtp");
 		return INVALID;
 	}
+
+
+	register rtp_t *rtp = (rtp_t *)(scan->buf + scan->offset);
+	debug_rtp(rtp);
+
+	/*
+	 * Modified check for rtp->rtp_type > 25 per Bug#3482647, which prevented DTMF payload
+	 * Removed check for rtp->rtp_seq == 0 per Bug#3482648
+	 *
+	 */
+	if ( /* 1st CHECK header properties */
+			rtp->rtp_ver != 2
+			|| rtp->rtp_cc > 15
+			|| rtp->rtp_ts == 0
+			|| rtp->rtp_type > 34
+			) {
+		TRACE("1st check", "FAILED - header flags");
+		EXIT("validate_rtp");
+		return INVALID;
+	}
+
+
+	TRACE("1st check", "PASSED");
 
 	uint32_t *c = (uint32_t *)(rtp + 1);
 	for (int i = 0; i < rtp->rtp_cc; i ++) {
-		TRACE("CSRC[%d]=0x%x", i, BIG_ENDIAN32(c[i]));
-		if (BIG_ENDIAN32(c[i]) == 0) {
-
-			TRACE("INVALID CSRC entry is 0");
-			EXIT();
-
-			return INVALID;
-
-		}
+		TRACE("2nd check", "CSRC[%d]=0x%x", i, BIG_ENDIAN32(c[i]));
+//		if (BIG_ENDIAN32(c[i]) == 0) {
+//
+//			TRACE("INVALID CSRC entry is 0");
+//			EXIT();
+//
+//			return INVALID;
+//
+//		}
 
 		/*
 		 * Check for any duplicates CSRC ids within the table. Normally there
@@ -297,13 +342,18 @@ EXIT();
 		for (int j = i + 1; j < rtp->rtp_cc; j ++) {
 			if (BIG_ENDIAN32(c[i]) == BIG_ENDIAN32(c[j])) {
 
-TRACE("INVALID duplicates CSRC entries");
-EXIT();
+				TRACE("2nd check", "FAILED - CSRC[%d]%d == CSRC[%d]%d",
+						i, BIG_ENDIAN32(c[i]),
+						j, BIG_ENDIAN32(c[j]));
+				EXIT("validate_rtp");
 				return INVALID;
 			}
 		}
 	}
+	TRACE("2nd check", "PASSED");
 
+	int payload_len = scan->wire_len - scan->offset;
+	int actual = ((rtp->rtp_cc * 4) + RTP_LENGTH);
 	if (rtp->rtp_ext) {
 		rtpx_t * rtpx = (rtpx_t *)(
 					scan->buf +
@@ -315,24 +365,51 @@ EXIT();
 				(scan->offset + xlen > scan->wire_len))	||
 				(xlen > 1500) ) {
 
-TRACE("INVALID rtpx_len > %d bytes (wire_len) in extension header",
-		scan->wire_len);
-EXIT();
+			TRACE("3rd check", "FAILED - rtpx_len > %d bytes (wire_len) in extension header",
+					scan->wire_len);
+			EXIT("validate_rtp");
 			return INVALID;
 		}
+
+		actual += xlen;
+
+		TRACE("3rd check", "PASSED");
 	}
 
-TRACE("OK");
-EXIT();
-CALL(debug_rtp(rtp));
+	if (PACKET_STATE_HAS_HEADER(scan->packet, UDP_ID)) {
+	  header_t *udph = &scan->packet->pkt_headers[scan->packet->pkt_header_count -1];
+	  udp_t *udp = (udp_t *)(scan->buf + udph->hdr_offset);
+	  if ((BIG_ENDIAN16(udp->dport) & 0x01) != 1) {
+		  TRACE("4th check", "FAILED - odd port number");
+		  EXIT("validate_rtp");
+		  return INVALID;
+	  }
 
+	  TRACE("4th check", "PASSED");
+	}
+
+	if (payload_len < actual && scan->wire_len == scan->buf_len) {
+		TRACE("5th check", "FAILED - payload(%d) < rtp(%d)", payload_len, actual);
+		EXIT("validate_rtp");
+		return INVALID;
+	}
+	TRACE("5th check", "PASSED");
+
+
+	/*
+	 * Check for even port number. RTP can only appear on even port numbers. RTCP on odd.
+	 */
+
+	TRACE("validate_rtp", "PASSED");
+	EXIT("validate_rtp");
+	CALL(debug_rtp(rtp));
 	return RTP_ID;
 }
 
 void debug_rtp(rtp_t *rtp) {
 	ENTER(RTP_ID, "debug_rtp");
 
-	TRACE("struct rtp_t::" "ver=%d pad=%d ext=%d cc=%d marker=%d type=%d seq=%d ts=%d",
+	TRACE("RTP", "ver=%d pad=%d ext=%d cc=%d marker=%d type=%d seq=%d ts=%d",
 			(int) rtp->rtp_ver,
 			(int) rtp->rtp_pad,
 			(int) rtp->rtp_ext,
@@ -346,26 +423,27 @@ void debug_rtp(rtp_t *rtp) {
 	if (rtp->rtp_cc) {
 		int *csrc = (int *) (rtp + 1);
 		for (int i = 0; i < rtp->rtp_cc; i ++) {
-			TRACE("uin32[]::" "CSRC[%d] = 0x%x", i, BIG_ENDIAN32(csrc[i]));
+			TRACE("RTP", "uin32[]::" "CSRC[%d] = 0x%x", i, BIG_ENDIAN32(csrc[i]));
 		}
 	}
 
 	if (rtp->rtp_ext) {
 		rtpx_t *rtpx = (rtpx_t *) ((char *)(rtp + 1) + (rtp->rtp_cc * 4)); // At the end of main RTP header
-		TRACE("struct rtpx_t::" "profile=0x%x len=%d",
+		TRACE("RTP", "profile=0x%x len=%d",
 				BIG_ENDIAN16(rtpx->rtpx_profile),
 				BIG_ENDIAN16(rtpx->rtpx_len));
 	}
-	EXIT();
+	EXIT("debug_rtp");
 }
 
 /*
  * Scan Session Data Protocol header
  */
 void scan_rtp(scan_t *scan) {
+ENTER(RTP_ID, "scan_rtp");
 	register rtp_t *rtp = (rtp_t *)(scan->buf + scan->offset);
 
-	ACCESS(0);
+	ACCESS(RTP_LENGTH);
 	scan->length += RTP_LENGTH + rtp->rtp_cc * 4;
 
 	/*
@@ -418,6 +496,7 @@ void scan_rtp(scan_t *scan) {
 	}
 ****************/
 
+	EXIT("scan_rtp");
 }
 
 
@@ -435,6 +514,7 @@ void scan_sdp(scan_t *scan) {
  * Scan Session Initiation Protocol header
  */
 void scan_sip(scan_t *scan) {
+ENTER(SIP_ID, "scan_sip");
 	register char *sip = (char *)(scan->buf + scan->offset);
 	packet_state_t *packet = scan->packet;
 
@@ -445,7 +525,7 @@ void scan_sip(scan_t *scan) {
 	int size;
 	int remain = scan->buf_len - scan->offset;
 
-	if ((packet->pkt_header_map & (1 << TCP_ID)) != 0) {
+	if (PACKET_STATE_HAS_HEADER(scan->packet, TCP_ID)) {
 	  header_t tcph = packet->pkt_headers[packet->pkt_header_count -1];
 	  size = (remain < tcph.hdr_payload) ? remain : tcph.hdr_payload;
 
@@ -462,7 +542,7 @@ void scan_sip(scan_t *scan) {
 	strncpy(b, sip, (size <= 31)? size : 31);
 
 	if (size < 10)
-	printf("scan_sip(): #%d INVALID size=%d sip=%s\n",
+	TRACE("scan_sip", "#%d INVALID size=%d sip=%s\n",
 			(int) scan->packet->pkt_frame_num, size, b);
 #endif 
 
@@ -499,6 +579,7 @@ void scan_sip(scan_t *scan) {
 
 	if (content_type == NULL || remain < 15) {
 		scan->next_id = PAYLOAD_ID;
+		EXIT("scan_sip");
 		return;
 	}
 
@@ -510,9 +591,13 @@ void scan_sip(scan_t *scan) {
 	}
 
 	if (strncmp(content_type, "application/sdp", 15)) {
-		scan->next_id = validate_next(SDP_ID, scan);	return;
+		scan->next_id = validate_next(SDP_ID, scan);
+
+		EXIT("scan_sip");
+		return;
 	}
 
+	EXIT("scan_sip");
 	return;
 }
 
@@ -524,6 +609,7 @@ void scan_sip(scan_t *scan) {
  * constant INVALID or header ID constant.
  */
 int validate_sip(scan_t *scan) {
+ENTER(SIP_ID, "validate_sip");
 	char *sip = (char *)(scan->buf + scan->offset);
 	packet_state_t *packet = scan->packet;
 
@@ -533,7 +619,7 @@ int validate_sip(scan_t *scan) {
 	char *buf = scan->buf;
 	int size;
 
-	if ((packet->pkt_header_map & (1 << TCP_ID)) != 0) {
+	if (PACKET_STATE_HAS_HEADER(packet, TCP_ID)) {
 	  header_t tcph = packet->pkt_headers[packet->pkt_header_count -1];
 	  size = tcph.hdr_payload;
 
@@ -553,22 +639,32 @@ int validate_sip(scan_t *scan) {
 		b[31] = '\0';
 		strncpy(b, sip, (size <= 31)? size : 31);
 
-		printf("validate_sip(): UNMATCHED size=%d sip=%s\n", size, b);
+		TRACE("validate_sip", "UNMATCHED size=%d sip=%s", size, b);
 #endif 
+		EXIT("validate_sip");
 		return INVALID;
 	}
 
+	/**
+	 * Applied suggestions using patch found in Bug#3415846
+	 */
 	if (	/* SIP Requests */
-			size >= 8 && strncmp(sip, "REGISTER", 8) == 0 ||
-			size >= 7 && strncmp(sip, "OPTIONS", 7) == 0 ||
-			size >= 6 && strncmp(sip, "INVITE", 6) == 0 ||
-			size >= 6 && strncmp(sip, "CANCEL", 6) == 0 ||
-			size >= 3 && strncmp(sip, "ACK", 3) == 0 ||
-			size >= 3 && strncmp(sip, "BYE", 3) == 0 ||
-			size >= 3 && strncmp(sip, "PRACK", 5) == 0 ||
+			 size >= 9 && strncmp(sip, "REGISTER ", 9) == 0 ||
+		 	 size >= 8 && strncmp(sip, "OPTIONS ", 8) == 0 ||
+		 	 size >= 7 && strncmp(sip, "INVITE ", 7) == 0 ||
+		 	 size >= 7 && strncmp(sip, "CANCEL ", 7) == 0 ||
+		 	 size >= 4 && strncmp(sip, "ACK ", 4) == 0 ||
+		 	 size >= 4 && strncmp(sip, "BYE ", 4) == 0 ||
+		 	 size >= 6 && strncmp(sip, "PRACK ", 6) == 0 ||
+		 	 size >= 6 && strncmp(sip, "REFER ", 6) == 0 ||
+		 	 size >= 7 && strncmp(sip, "UPDATE ", 7) == 0 ||
+		 	 size >= 7 && strncmp(sip, "NOTIFY ", 7) == 0 ||
+		 	 size >= 10 && strncmp(sip, "SUBSCRIBE ", 10) == 0 ||
+		 	 size >= 8 && strncmp(sip, "PUBLISH ", 8) == 0 ||
+		 	 size >= 8 && strncmp(sip, "MESSAGE ", 8) == 0 ||
 
 			/* SIP Response */
-			size >= 3 && strncmp(sip, "SIP", 3) == 0
+		 	 size >= 8 && strncmp(sip, "SIP/2.0 ", 8) == 0
 
 	) {
 
@@ -579,13 +675,14 @@ int validate_sip(scan_t *scan) {
 		strncpy(b, sip, (size <= 31)? size : 31);
 
 		if (size < 10)
-		printf("validate_sip(): #%d INVALID size=%d sip=%s\n",
+		TRACE("validate_sip", "#%d INVALID size=%d sip=%s",
 				(int) scan->packet->pkt_frame_num, size, b);
 #endif 
-
+		EXIT("validate_sip");
 		return SIP_ID;
 	}
 
+	EXIT("validate_sip");
 	return INVALID;
 }
 
@@ -612,7 +709,7 @@ void scan_http(scan_t *scan) {
 	char *buf = scan->buf;
 	int size;
 
-	if ((packet->pkt_header_map & (1 << TCP_ID)) != 0) {
+	if (PACKET_STATE_HAS_HEADER(packet, TCP_ID)) {
 	  header_t tcph = packet->pkt_headers[packet->pkt_header_count -1];
 	  size = tcph.hdr_payload;
 
@@ -652,7 +749,7 @@ int validate_http(scan_t *scan) {
 	char *buf = scan->buf;
 	int size;
 
-	if ((packet->pkt_header_map & (1 << TCP_ID)) != 0) {
+	if (PACKET_STATE_HAS_HEADER(packet, TCP_ID)) {
 	  header_t tcph = packet->pkt_headers[packet->pkt_header_count -1];
 	  size = tcph.hdr_payload;
 
@@ -901,18 +998,33 @@ void scan_tcp(scan_t *scan) {
 	fflush(stdout);
 #endif
 	}
-	switch (BIG_ENDIAN16(tcp->dport)) {
+
+	scan->dport = BIG_ENDIAN16(tcp->dport);
+	scan->sport = BIG_ENDIAN16(tcp->sport);
+
+	switch (scan->dport) {
 	case 80:
 	case 8080:
 	case 8081: scan->next_id = validate_next(HTTP_ID, scan);	return;
 	case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;
 	}
 
-	switch (BIG_ENDIAN16(tcp->sport)) {
+	switch (scan->sport) {
 	case 80:
 	case 8080:
 	case 8081: scan->next_id = validate_next(HTTP_ID, scan);	return;
 	case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;
+	}
+
+	/*
+	 * For very standard protocols on ports < 1024, lets make sure we do not try to
+	 * run heuristics by explicitly exiting the scan loop.
+	 */
+	if (	0
+			|| scan->dport < 1024
+			|| scan->sport < 1024
+			|| 0) {
+		scan->next_id = END_OF_HEADERS;
 	}
 }
 
@@ -963,18 +1075,32 @@ void scan_udp(scan_t *scan) {
 		scan->packet->pkt_flow_key.flags |= FLOW_KEY_FLAG_REVERSABLE_PAIRS;
 	}
 
-	switch (BIG_ENDIAN16(udp->dport)) {
+	scan->dport = BIG_ENDIAN16(udp->dport);
+	scan->sport = BIG_ENDIAN16(udp->sport);
+	switch (scan->dport) {
 	case 1701: scan->next_id = validate_next(L2TP_ID, scan);	return;
 //	case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;
 	case 5004: scan->next_id = validate_next(RTP_ID, scan);		return;
+	case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;
 	}
 
-	switch (BIG_ENDIAN16(udp->sport)) {
+	switch (scan->sport) {
 	case 1701: scan->next_id = validate_next(L2TP_ID, scan);	return;
 //	case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;
 	case 5004: scan->next_id = validate_next(RTP_ID, scan);		return;
+	case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;
 	}
 
+	/*
+	 * For very standard protocols on ports < 1024, lets make sure we do not try to
+	 * run heuristics by explicitly exiting the scan loop.
+	 */
+	if (	0
+			|| scan->dport < 1024
+			|| scan->sport < 1024
+			|| 0) {
+		scan->next_id = END_OF_HEADERS;
+	}
 }
 
 /*

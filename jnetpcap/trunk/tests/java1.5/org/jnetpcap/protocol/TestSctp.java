@@ -22,9 +22,12 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
+import org.jnetpcap.packet.JHeader;
+import org.jnetpcap.packet.JHeaderChecksum;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.TestUtils;
 import org.jnetpcap.protocol.sigtran.Sctp;
+import org.junit.Test;
 
 /**
  * @author Sly Technologies, Inc.
@@ -37,21 +40,38 @@ public class TestSctp extends TestCase {
 
 	public void testSctpHeader() throws IOException {
 		Sctp sctp = new Sctp();
-		
+
 		// System.out.println(JRegistry.toDebugString());
 
 		JPacket.getDefaultScanner().setFrameNumber(1);
 
 		int i = 1;
 		for (JPacket packet : TestUtils.getIterable(FILE)) {
-//			 System.out.println(packet.getState().toDebugString());
-//			System.out.println(packet);
+			// System.out.println(packet.getState().toDebugString());
+			System.out.println(packet);
 
 			TestCase.assertTrue("", packet.hasHeader(Sctp.ID));
 			TestCase.assertTrue("", packet.hasHeader(sctp));
-			i++;
+			if (i++ == 76) {
+				System.out.println(packet.getState().toDebugString());
+			}
 		}
+	}
 
+	@Test
+	public void testPacketFilterByType() {
+
+		JPacket.getDefaultScanner().setFrameNumber(1);
+
+		for (JPacket packet : TestUtils.getIterable(FILE)) {
+
+			for (JHeaderChecksum sum : packet
+					.filterByType(JHeaderChecksum.class)) {
+				JHeader header = (JHeader) sum;
+				System.out.printf("#%d %10s sum=%08X%n", header.getPacket()
+						.getFrameNumber(), header.getName(), sum.checksum());
+			}
+		}
 	}
 
 }
