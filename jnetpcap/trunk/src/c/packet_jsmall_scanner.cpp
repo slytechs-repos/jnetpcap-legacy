@@ -314,6 +314,9 @@ int scan(JNIEnv *env, jobject obj, jobject jpacket, scanner_t *scanner,
 							break;
 						}
 
+#ifdef DEBUG
+						debug_trace("heurists_post", "[%d]", i);
+#endif
 						if ((scan.next_id = validate_func(&scan)) != INVALID) {
 
 #ifdef DEBUG
@@ -429,7 +432,8 @@ void record_header(scan_t *scan) {
 	/*
 	 * Initialize the header entry in our packet header array
 	 */
-	packet->pkt_header_map |= (uint64_t)(1ULL << scan->id);
+//	packet->pkt_header_map |= (uint64_t)(1ULL << scan->id);
+	PACKET_STATE_ADD_HEADER(packet, scan->id);
 	header->hdr_id = scan->id;
 	header->hdr_offset = offset + scan->hdr_prefix;
 	header->hdr_analysis = NULL;
@@ -654,10 +658,10 @@ int scanJPacket(JNIEnv *env, jobject obj, jobject jpacket, jobject jstate,
 	 * initialize everything since we may be wrapping around and writting over 
 	 * previously stored data.
 	 */
-	packet->pkt_header_map = 0;
 	packet->pkt_header_count = 0;
 	packet->pkt_frame_num = scanner->sc_cur_frame_num++;
 	packet->pkt_wirelen = (uint32_t) wirelen;
+	packet->pkt_caplen = (uint32_t) buf_length;
 	packet->pkt_flags = 0;
 
 	if (buf_length != wirelen) {

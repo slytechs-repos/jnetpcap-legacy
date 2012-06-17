@@ -75,6 +75,8 @@ public class TestSubHeader
 		JFormatter out = new TextFormatter();
 		out.format(packet);
 		
+		System.out.println(packet.getState().toDebugString());
+		
 		assertNotNull(packet);
 		assertTrue(packet.hasHeader(ip));
 		assertTrue(ip.hasSubHeaders());

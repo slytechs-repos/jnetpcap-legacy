@@ -121,10 +121,10 @@ public final class JRegistry {
 	 * private so no one outside this class knows about it. Got tired of having to
 	 * move MAX_ID_COUNT definition around after each source sort.
 	 */
-	private final static int A_MAX_ID_COUNT = 64;
+	private final static int A_MAX_ID_COUNT = 256;
 
 	/** Number of core protocols defined by jNetPcap. */
-	public static final int CORE_ID_COUNT = JProtocol.values().length;
+	public static final int CORE_ID_COUNT = JProtocol.LAST_ID;
 
 	/** The Constant DLTS_TO_IDS. */
 	private final static int[] DLTS_TO_IDS;
@@ -164,7 +164,7 @@ public final class JRegistry {
 	private final static int[] IDS_TO_DLTS;
 
 	/** The LAS t_ id. */
-	private static int LAST_ID = JProtocol.values().length;
+	private static int LAST_ID = JProtocol.LAST_ID;
 
 	/** The Constant MAP_BY_ID. */
 	private final static Entry[] MAP_BY_ID = new Entry[A_MAX_ID_COUNT];
@@ -184,7 +184,7 @@ public final class JRegistry {
 	 * Maximum number of protocol header entries allowed by this implementation of
 	 * JRegistry.
 	 */
-	public final static int MAX_ID_COUNT = 64;
+	public final static int MAX_ID_COUNT = 256;
 
 	/**
 	 * A constant if returned from {@link #mapDLTToId} or {@link #mapIdToDLT} that
@@ -870,6 +870,9 @@ public final class JRegistry {
 
 		Entry e = new Entry(protocol.getId(), protocol.getHeaderClassName());
 		mapByClassName.put(protocol.getHeaderClassName(), e);
+		if (MAP_BY_ID[protocol.getId()] != null) {
+			throw new IllegalStateException("protocol already registred? " + protocol.getId());
+		}
 		MAP_BY_ID[protocol.getId()] = e;
 
 		try {

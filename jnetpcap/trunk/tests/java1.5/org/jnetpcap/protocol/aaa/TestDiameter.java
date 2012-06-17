@@ -63,7 +63,7 @@ public class TestDiameter
 
 		System.out.println(packet.toHexdump(128, false, false, true));
 
-		long map = packet.getState().get64BitHeaderMap(0);
+		long map = packet.getState().get64BitHeaderMap(JProtocol.idToGroup(Diameter.ID));
 		
 		JRegistry.addBindings(Diameter.class);
 		System.out.println(JRegistry.toDebugString());

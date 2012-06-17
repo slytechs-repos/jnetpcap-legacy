@@ -128,6 +128,8 @@ public class AnnotatedField {
 			return Style.BOOLEAN;
 		} else if (format.contains("%d")) {
 			return Style.INT_DEC;
+		} else if (format.contains("%d[]")) {
+			return Style.INT_DEC_ARRAY;
 		} else if (format.contains("%lx")) {
 			return Style.LONG_HEX;
 		} else if (format.contains("%x")) {

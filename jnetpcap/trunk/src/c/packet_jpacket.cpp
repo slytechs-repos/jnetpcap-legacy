@@ -162,7 +162,7 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_packet_JPacket_00024State_get64BitHead
 		return -1;
 	}
 
-	return (jlong) packet->pkt_header_map;
+	return (jlong) packet->pkt_header_map[index];
 }
 
 /*
@@ -455,18 +455,26 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_packet_JPacket_00024State_toDebugStr
 	sprintf(buf, 
 			"JPacket.State#%03d: sizeof(packet_state_t)=%d\n"
 			"JPacket.State#%03d: sizeof(header_t)=%d and *%d=%d\n"
-			"JPacket.State#%03d:   pkt_header_map=0x%X\n"
-			"JPacket.State#%03d:        pkt_flags=0x%x\n"
-			"JPacket.State#%03d: pkt_header_count=%d\n"
-			"JPacket.State#%03d:      pkt_wirelen=%d\n",
+			"JPacket.State#%03d: pkt_header_map[0]=0x%016X\n"
+			"JPacket.State#%03d: pkt_header_map[1]=0x%016X\n"
+			"JPacket.State#%03d: pkt_header_map[2]=0x%016X\n"
+			"JPacket.State#%03d: pkt_header_map[3]=0x%016X\n"
+			"JPacket.State#%03d:         pkt_flags=0x%08X\n"
+			"JPacket.State#%03d:  pkt_header_count=%d\n"
+			"JPacket.State#%03d:       pkt_wirelen=%d bytes\n"
+			"JPacket.State#%03d:        pkt_caplen=%d bytes\n",
 			fr, (int) sizeof(packet_state_t),
 			fr, (int) sizeof(header_t),
 			(int) packet->pkt_header_count,
 			(int) sizeof(header_t) * packet->pkt_header_count,
-			fr, (int) packet->pkt_header_map,
+			fr, (int) packet->pkt_header_map[0],
+			fr, (int) packet->pkt_header_map[1],
+			fr, (int) packet->pkt_header_map[2],
+			fr, (int) packet->pkt_header_map[3],
 			fr, (int) packet->pkt_flags,
 			fr, (int) packet->pkt_header_count,
-			fr, (int) packet->pkt_wirelen);
+			fr, (int) packet->pkt_wirelen,
+			fr, (int) packet->pkt_caplen);
 	
 	char *p = buf;
 	

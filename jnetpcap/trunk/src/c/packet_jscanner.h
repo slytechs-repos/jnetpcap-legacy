@@ -20,6 +20,7 @@
  */
 #define JREGISTRY org_jnetpcap_packet_JRegistry_
 #define MAX_ID_COUNT 					org_jnetpcap_packet_JRegistry_MAX_ID_COUNT
+#define MAX_MAP_COUNT					(MAX_ID_COUNT / 32)
 #define FLAG_OVERRIDE_LENGTH 			org_jnetpcap_packet_JRegistry_FLAG_OVERRIDE_LENGTH
 #define FLAG_OVERRIDE_BINDING 			org_jnetpcap_packet_JRegistry_FLAG_OVERRIDE_BINDING
 #define FLAG_HEURISTIC_BINDING 			org_jnetpcap_packet_JRegistry_FLAG_HEURISTIC_BINDING
@@ -201,6 +202,9 @@ typedef struct scan_t {
 	
 	int hdr_count;
 	int hdr_index;
+
+	int dport; // Transport destination port
+	int sport; // Transport source port
 } scan_t;
 
 #define SCAN_IS_FRAGMENT(scan) (scan->flags & HEADER_FLAG_FRAGMENTED)
@@ -262,14 +266,22 @@ typedef struct header_t {
 	jobject  hdr_analysis;   // Java JAnalysis based object if not null
 } header_t;
 
+#define ID2MAP(id) (id >> 5)
+#define MASK2MAP(m) (map >> 32)
+#define ID2MASK(id)	((uint64_t)((uint64_t)(id & ~0x1F) << 27) | (1ULL << (id & 0x1F)))
+
+#define PACKET_STATE_ADD_HEADER(pkt, id) pkt->pkt_header_map[ID2MAP(id)] |= ID2MASK(id)
+#define PACKET_STATE_HAS_HEADER(pkt, id) (pkt->pkt_header_map[ID2MAP(id)] & ID2MAP(id) != 0)
+
 typedef struct packet_state_t {
 	flow_key_t pkt_flow_key; // Flow key calculated for this packet, must be first
 	uint8_t pkt_flags;       // flags for this packet
 	jobject pkt_analysis;    // Java JAnalysis based object if not null
 	uint64_t pkt_frame_num;  // Packet's frame number assigned by scanner
-	uint64_t pkt_header_map; // bit map of presence of headers
+	uint64_t pkt_header_map[MAX_MAP_COUNT]; // bit map of presence of headers
 	
 	uint32_t pkt_wirelen;    // Original packet size
+	uint32_t pkt_caplen;    // Original packet size
 
 	int8_t pkt_header_count; // total number of main headers found
 	header_t pkt_headers[];  // One per header + 1 more for payload
