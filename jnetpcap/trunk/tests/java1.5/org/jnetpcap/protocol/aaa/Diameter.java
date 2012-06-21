@@ -28,18 +28,17 @@ import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.protocol.sigtran.Sctp;
 import org.jnetpcap.protocol.sigtran.SctpData;
 import org.jnetpcap.protocol.tcpip.Tcp;
+import org.jnetpcap.util.JThreadLocal;
 
 // TODO: Auto-generated Javadoc
 /**
  * The Class Diameter.
  */
 @Header(length = 20)
-public class Diameter
-    extends JHeaderMap<Diameter> {
-	
+public class Diameter extends JHeaderMap<Diameter> {
+
 	/** The ID. */
 	public static int ID;
-	
 
 	static {
 		try {
@@ -48,43 +47,45 @@ public class Diameter
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Bind to tcp.
 	 * 
 	 * @param packet
-	 *          the packet
+	 *            the packet
 	 * @param tcp
-	 *          the tcp
+	 *            the tcp
 	 * @return true, if successful
 	 */
-	@Bind(to=Tcp.class)
+	@Bind(to = Tcp.class)
 	public static boolean bindToTcp(JPacket packet, Tcp tcp) {
 		return tcp.destination() == 3868 || tcp.source() == 3868;
 	}
 
-	private final static Sctp sctp = new Sctp();
+	private final static JThreadLocal<Sctp> local = new JThreadLocal<Sctp>(
+			Sctp.class);
 
-	@Bind(to=SctpData.class)
+	@Bind(to = SctpData.class)
 	public static boolean bindToTcp(JPacket packet, SctpData data) {
+		final Sctp sctp = local.get();
 		return packet.hasHeader(sctp)
 				&& (sctp.destination() == 3868 || sctp.source() == 3868);
 	}
-	
+
 	/**
 	 * Header length.
 	 * 
 	 * @param buffer
-	 *          the buffer
+	 *            the buffer
 	 * @param offset
-	 *          the offset
+	 *            the offset
 	 * @return the int
 	 */
-//	@HeaderLength
-//	public static int headerLength(JBuffer buffer, int offset) {
-//	    return (int) buffer.getUInt(offset) & 0x00FFFFFF;	
-//	}
-	
+	// @HeaderLength
+	// public static int headerLength(JBuffer buffer, int offset) {
+	// return (int) buffer.getUInt(offset) & 0x00FFFFFF;
+	// }
+
 	// Diameter header accessors
 	/**
 	 * Gets the version.
@@ -95,7 +96,7 @@ public class Diameter
 	public int getVersion() {
 		return super.getUByte(0);
 	}
-	
+
 	/**
 	 * Gets the message length.
 	 * 
@@ -105,7 +106,7 @@ public class Diameter
 	public int getMessageLength() {
 		return (int) super.getUInt(0) & 0x00FFFFFF;
 	}
-	
+
 	/**
 	 * Gets the command flags.
 	 * 
@@ -115,7 +116,7 @@ public class Diameter
 	public int getCommandFlags() {
 		return super.getUByte(4);
 	}
-	
+
 	/**
 	 * Gets the command code.
 	 * 
@@ -125,12 +126,12 @@ public class Diameter
 	public int getCommandCode() {
 		return (int) super.getUInt(4) & 0x00FFFFFF;
 	}
-	
-	@Field(offset= 8 * 8, length= 4 * 8, format= "%d", display= "Application-ID")
+
+	@Field(offset = 8 * 8, length = 4 * 8, format = "%d", display = "Application-ID")
 	public int applicationID() {
 		return (int) super.getUInt(8);
 	}
-	
+
 	@Field(offset = 12 * BYTE, length = 32, format = "%x", display = "Hop-by-Hop Identifier")
 	public int getHopByHopIdentifier() {
 		return super.getInt(12);
