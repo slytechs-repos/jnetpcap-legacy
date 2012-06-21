@@ -713,6 +713,7 @@ ENTER(SIP_ID, "validate_sip");
 		 	 size >= 10 && strncmp(sip, "SUBSCRIBE ", 10) == 0 ||
 		 	 size >= 8 && strncmp(sip, "PUBLISH ", 8) == 0 ||
 		 	 size >= 8 && strncmp(sip, "MESSAGE ", 8) == 0 ||
+		 	 size >= 5 && strncmp(sip, "INFO ", 5) == 0 ||
 
 			/* SIP Response */
 		 	 size >= 8 && strncmp(sip, "SIP/2.0 ", 8) == 0
