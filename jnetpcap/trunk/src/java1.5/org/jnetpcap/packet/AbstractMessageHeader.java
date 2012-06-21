@@ -217,9 +217,9 @@ public abstract class AbstractMessageHeader extends JMappedHeader {
 
 			String c[] = line.split(":", 2);
 
-			if (c.length == 1) {
+			if (i == 0) {
 				if (c[0].length() > 0) {
-					decodeFirstLine(c[0]);
+					decodeFirstLine(line);
 				}
 				continue;
 			}
