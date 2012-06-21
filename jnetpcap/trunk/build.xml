@@ -572,7 +572,7 @@
 	<!-- Determines packager type on linux systems.                          -->
 	<!-- Sets the property "packager.*" for the appropriate packager type    -->
 	<!-- =================================================================== -->
-	<target name="check-packager-type">
+	<target name="check-packager-type" if="platform.linux">
 		<exec executable="which" resultproperty="result.rpm" outputproperty="devnull" errorproperty="devnull" failifexecutionfails="false">
 			<arg value="rpm" />
 		</exec>
@@ -625,6 +625,87 @@
 		
 		<echo message="Fixed SONAME: ${build.libpcap.so}" />
 		<echo message="${out.readelf.libpcap.so}" />
+	</target>
+	<!-- =================================================================== -->
+	<!-- Generates shared JNI library file from C++ sources                  -->
+	<!-- =================================================================== -->
+	<target name="comp-jni-rhel" depends="prep-jni,prep-lib,comp-javah,prep-libpcap" if="platform.rhel">
+
+		<!-- Not supplying "outtype", disables the LINKER in CC tag
+     		outtype="shared"
+    		outfile="${build.library.filename.nosuffix}"
+				<linkerarg value="- -add-stdcall-alias" />
+      	-->
+		<echo>arch=${os.arch}</echo>
+		<echo>name=${os.name}</echo>
+
+		<echo message="compiling JNI C++ files to object code" />
+		<echo message="using ${compiler.cc.cmd} compiler" />
+		<echo message="system include = ${java.sdk.include.dir}" />
+		<cc runtime="dynamic" outtype="shared" outfile="${build.lib.dir}/${lib.pcap.basename}" debug="${compiler.debug}" objdir="${build.obj.dir}" multithreaded="compiler.multithreaded" exceptions="compiler.exceptions" warnings="${compiler.warnings}">
+
+			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
+
+			<fileset dir="${src.c.dir}" />
+			<includepath location="${build.include.dir}" />
+			<includepath location="${src.c.dir}" />
+			<sysincludepath location="${java.sdk.include.dir}" />
+			<sysincludepath location="${java.sdk.include.dir}/linux" />
+			<defineset define="LIBPCAP_VERSION=0x${compiler.LIBPCAP_VERSION}" />
+			<defineset define="LIBPCAP_PCAP_CREATE=0x100" />
+			<defineset define="DEBUG" if="DEBUG" />
+
+
+			<linker name="${compiler.ld.cmd}">
+				<syslibset libs="pcap" />
+
+				<linkerarg value="-Wl,-soname,lib${lib.pcap.basename}.so" />
+
+				<linkerarg value="-lstdc++" />
+			</linker>
+		</cc>
+
+		<cc runtime="dynamic" outtype="shared" outfile="${build.lib.dir}/${jni.pcap100.basename}" debug="${compiler.debug}" objdir="${build.obj.dir}" multithreaded="compiler.multithreaded" exceptions="compiler.exceptions" warnings="${compiler.warnings}">
+
+			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
+
+			<fileset dir="${src.c.dir}" >
+				<include name="*_pcap100.cpp" />
+				<include name="api_*.cpp" />
+			</fileset>
+			<includepath location="${build.include.dir}" />
+			<includepath location="${src.c.dir}" />
+			<sysincludepath location="${java.sdk.include.dir}" />
+			<sysincludepath location="${java.sdk.include.dir}/linux" />
+			<defineset define="LIBPCAP_VERSION=0x${compiler.LIBPCAP_VERSION}" />
+			<defineset define="LIBPCAP_PCAP_CREATE=0x100" />
+			<defineset define="DEBUG" if="DEBUG" />
+			<defineset define="Linux" />
+
+
+			<linker name="${compiler.ld.cmd}">
+				<syslibset libs="jnetpcap,pcap" />
+				<libset dir="${build.lib.dir}" libs="jnetpcap" />
+
+				<linkerarg value="-Wl,-soname,${jni.pcap100.file}" />
+
+				<linkerarg value="-lstdc++" />
+			</linker>
+		</cc>
+
+		<echo message="Created shared JNI library: ${jni.build.pcap100.filepath}" />
+		<echo message="Created shared JNI library: ${jni.build.filepath}" />
+
+		<copy tofile="${build.lib.dir}/${lib.pcap.fullname}" file="${build.lib.dir}/${lib.pcap.name}" />
+
+		<echo message="Created shared JNI libary: ${build.lib.dir}/${lib.pcap.fullname}" />
+
+		<property name="jni.lib.file" value="${build.lib.dir}/${lib.pcap.name}" />
+		<property name="jni.lib.pcap100.file" value="${jni.build.pcap100.filepath}" />
+		
+		<echo message="Cleanup modified libpcap.so" />
+		<delete file="${build.libpcap.so}" />
+
 	</target>
 
 	<!-- =================================================================== -->
@@ -712,7 +793,7 @@
 	<!-- =================================================================== -->
 	<!-- Compiles java files using JavaDoc                                   -->
 	<!-- =================================================================== -->
-	<target name="comp-jni" depends="comp-jni-linux,comp-jni-win32,comp-jni-win64">
+	<target name="comp-jni" depends="comp-jni-rhel,comp-jni-linux,comp-jni-win32,comp-jni-win64">
 	</target>
 
 
