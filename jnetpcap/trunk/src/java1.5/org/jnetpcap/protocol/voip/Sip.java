@@ -22,6 +22,7 @@ import org.jnetpcap.packet.AbstractMessageHeader;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.protocol.JProtocol;
+import org.jnetpcap.protocol.voip.Sip.Method;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -58,9 +59,7 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Sly Technologies, Inc.
  */
 @Header()
-public class Sip
-    extends
-    AbstractMessageHeader {
+public class Sip extends AbstractMessageHeader {
 
 	/**
 	 * A table of SIP protocol codes and their meanings.
@@ -69,7 +68,7 @@ public class Sip
 	 * @author Sly Technologies, Inc.
 	 */
 	public enum Code {
-		
+
 		/** Address incomplete field (484). */
 		Address_Incomplete(484, "Address Incomplete"),
 
@@ -95,8 +94,8 @@ public class Sip
 		Busy_Here(486, "Busy Here"),
 
 		/** Call leg transaction does not exist (481). */
-		Call_Leg_Transaction_Does_Not_Exist(
-		    481, "Call Leg/Transaction Does Not Exist"),
+		Call_Leg_Transaction_Does_Not_Exist(481,
+				"Call Leg/Transaction Does Not Exist"),
 
 		/** Decline (603). */
 		Decline(603, "Decline"),
@@ -139,7 +138,7 @@ public class Sip
 
 		/** Not acceptable here (488). */
 		Not_Acceptable_Here(488, "Not Acceptable Here"),
-		
+
 		/** Not acceptable 400 (406). */
 		Not_Acceptable400(406, "Not Acceptable"),
 
@@ -163,10 +162,10 @@ public class Sip
 
 		/** Request entity too large (413). */
 		Request_Entity_Too_Large(413, "Request Entity Too Large"),
-		
+
 		/** Request pending (491). */
 		Request_Pending(491, "Request Pending"),
-		
+
 		/** Request terminated (487). */
 		Request_Terminated(487, "Request Terminated"),
 
@@ -196,7 +195,7 @@ public class Sip
 
 		/** Undecipherable (493). */
 		Undecipherable(493, "Undecipherable"),
-		
+
 		/** Unsupported media type (415). */
 		Unsupported_Media_Type(415, "Unsupported Media Type"),
 
@@ -216,9 +215,9 @@ public class Sip
 		 * Instantiates a new code.
 		 * 
 		 * @param code
-		 *          the code
+		 *            the code
 		 * @param description
-		 *          the description
+		 *            the description
 		 */
 		private Code(final int code, final String description) {
 			this.code = code;
@@ -248,7 +247,7 @@ public class Sip
 		 * Converts a numerical code into a enum constant.
 		 * 
 		 * @param code
-		 *          numerical code value
+		 *            numerical code value
 		 * @return constant if found or null if not convertable
 		 */
 		public Code valueOf(final int code) {
@@ -266,7 +265,7 @@ public class Sip
 		 * corresponding enum constant.
 		 * 
 		 * @param code
-		 *          string containing iteger value
+		 *            string containing iteger value
 		 * @return corresponding enum code constant or null if not found
 		 */
 		public Code valueOfUsingCode(final String code) {
@@ -282,10 +281,10 @@ public class Sip
 	 * @author Sly Technologies, Inc.
 	 */
 	public enum ContentType {
-		
+
 		/** Content type other. */
 		OTHER,
-		
+
 		/** Application pkcs7-mine type. */
 		PKCS7_MIME("application/pkcs7-mime"),
 
@@ -299,7 +298,7 @@ public class Sip
 		 * Parses a string containing content type ot a enum constant.
 		 * 
 		 * @param type
-		 *          string containing content type
+		 *            string containing content type
 		 * @return constant if found, otherwise returns ContentType.OTHER
 		 */
 		public static ContentType parseContentType(final String type) {
@@ -329,7 +328,7 @@ public class Sip
 		 * Instantiates a new content type.
 		 * 
 		 * @param magic
-		 *          the magic
+		 *            the magic
 		 */
 		private ContentType(final String... magic) {
 			this.magic = magic;
@@ -344,7 +343,7 @@ public class Sip
 	 */
 	@Field
 	public enum Fields {
-		
+
 		/** Accept field. */
 		Accept,
 
@@ -359,7 +358,7 @@ public class Sip
 
 		/** Allow field. */
 		Allow,
-		
+
 		/** Authentication info field. */
 		Authentication_Info,
 
@@ -374,7 +373,7 @@ public class Sip
 
 		/** Contact field. */
 		Contact,
-		
+
 		/** Content disposition field. */
 		Content_Disposition,
 
@@ -392,85 +391,85 @@ public class Sip
 
 		/** CSequence field. */
 		CSeq,
-		
+
 		/** Date field. */
 		Date,
-		
+
 		/** Error info field. */
 		Error_Info,
-		
+
 		/** Expires field. */
 		Expires,
-		
+
 		/** From field. */
 		From,
-		
+
 		/** In reply to field. */
 		In_Reply_To,
-		
+
 		/** MAX forwards field. */
 		Max_Forwards,
-		
+
 		/** MIME version field. */
 		MIME_Version,
 
 		/** MIN expires field. */
 		Min_Expires,
-		
+
 		/** Organization field. */
 		Organization,
-		
+
 		/** Priority field. */
 		Priority,
-		
+
 		/** Proxy authenticate field. */
 		Proxy_Authenticate,
-		
+
 		/** Proxy authorization field. */
 		Proxy_Authorization,
-		
+
 		/** Proxy require field. */
 		Proxy_Require,
-		
+
 		/** Record route field. */
 		Record_Route,
-		
+
 		/** Reply to field. */
 		Reply_To,
-		
+
 		/** Require field. */
 		Require,
-		
+
 		/** Retry after field. */
 		Retry_After,
-		
+
 		/** Route field. */
 		Route,
-		
+
 		/** Server field. */
 		Server,
-		
+
 		/** Subject field. */
 		Subject,
-		
+
 		/** Supported field. */
 		Supported,
-		
+
 		/** Timestamp field. */
 		Timestamp,
-		
+
 		/** To field. */
 		To,
-		
+
 		/** Unsupported field. */
 		Unsupported,
-		
+
 		/** User agent field. */
 		User_Agent,
-		
+
 		/** Via field. */
 		Via,
-		
+
 		/** Warning field. */
 		Warning,
 
@@ -487,13 +486,13 @@ public class Sip
 	 */
 	@Field
 	public enum Request {
-		
+
 		/** Request type. */
 		RequestMethod,
-		
+
 		/** URL field of the request. */
 		RequestUrl,
-		
+
 		/** Request version. */
 		RequestVersion,
 
@@ -510,22 +509,73 @@ public class Sip
 	 */
 	@Field
 	public enum Response {
-		
+
 		/** Response url. */
 		RequestUrl,
-		
+
 		/** Request version. */
 		RequestVersion,
-		
+
 		/** Response code. */
 		ResponseCode,
-		
+
 		/** Response code message. */
 		ResponseCodeMsg,
 	}
 
+	/**
+	 * Request method
+	 * 
+	 * @author Sly Technologies Inc.
+	 */
+	public enum Method {
+		/** [RFC3261] */
+		ACK,
+
+		/** [RFC3261] */
+		BYE,
+
+		/** [RFC3261] */
+		CANCEL,
+
+		/** [RFC6086] */
+		INFO,
+
+		/** [RFC3261][RFC6026] */
+		INVITE,
+
+		/** [RFC3428] */
+		MESSAGE,
+
+		/** [RFC3265] */
+		NOTIFY,
+
+		/** [RFC3261] */
+		OPTIONS,
+
+		/** [RFC3262] */
+		PRACK,
+
+		/** [RFC3903] */
+		PUBLISH,
+
+		/** [RFC3515] */
+		REFER,
+
+		/** [RFC3261] */
+		REGISTER,
+
+		/** [RFC3265] */
+		SUBSCRIBE,
+
+		/** [RFC3311] */
+		UPDATE
+
+	}
+
 	/** Constant numerial ID for this protocol's header. */
 	public static int ID = JProtocol.SIP_ID;
+	private Method method;
 
 	/**
 	 * Returns the value of the Content_Length field if present.
@@ -536,7 +586,7 @@ public class Sip
 	public int contentLength() {
 		if (hasField(Fields.Content_Length)) {
 			return Integer.parseInt(super.fieldValue(String.class,
-			    Fields.Content_Length));
+					Fields.Content_Length));
 		} else {
 			return 0;
 		}
@@ -563,13 +613,15 @@ public class Sip
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.packet.AbstractMessageHeader#decodeFirstLine(java.lang.String)
+	 * @see
+	 * org.jnetpcap.packet.AbstractMessageHeader#decodeFirstLine(java.lang.String
+	 * )
 	 */
 	/**
 	 * Decode first line.
 	 * 
 	 * @param line
-	 *          the line
+	 *            the line
 	 * @see org.jnetpcap.packet.AbstractMessageHeader#decodeFirstLine(java.lang.String)
 	 */
 	@Override
@@ -586,20 +638,48 @@ public class Sip
 			super.addField(Response.ResponseCode, c[1], line.indexOf(c[1]));
 			super.addField(Response.ResponseCodeMsg, c[2], line.indexOf(c[2]));
 
+			setMethod(null); // Reset
+
 		} else {
 			super.setMessageType(MessageType.REQUEST);
 
 			super.addField(Request.RequestMethod, c[0], line.indexOf(c[0]));
 			super.addField(Request.RequestUrl, c[1], line.indexOf(c[1]));
 			super.addField(Request.RequestVersion, c[2], line.indexOf(c[2]));
+
+			final Method method = Method.valueOf(c[0]);
+			setMethod(method);
 		}
+	}
+
+	/**
+	 * Sets the method for this sip message
+	 * 
+	 * @param method method or null if not recognized
+	 */
+	private void setMethod(Method method) {
+		this.method = method;
+	}
+
+	/**
+	 * Gets the "request" method for this Sip message
+	 * 
+	 * @return method for this sip message or null if not recognized
+	 *         (non-standard)
+	 */
+	public Method getMethod() {
+		return this.method;
+	}
+	
+	public boolean hasMethod(Method method) {
+		return this.method == method;
 	}
 
 	/**
 	 * Looks up a field value using Fields table.
 	 * 
 	 * @param field
-	 *          field to lookup
+	 *            field to lookup
 	 * @return the value of the field or null if not present
 	 */
 	public String fieldValue(final Sip.Fields field) {
@@ -610,7 +690,7 @@ public class Sip
 	 * Looks up a field value using Request field constant.
 	 * 
 	 * @param field
-	 *          field to lookup
+	 *            field to lookup
 	 * @return the value of the field or null if not present
 	 */
 	public String fieldValue(final Sip.Request field) {
@@ -621,7 +701,7 @@ public class Sip
 	 * Looks up a field value using Response field constant.
 	 * 
 	 * @param field
-	 *          field to lookup
+	 *            field to lookup
 	 * @return the value of the field or null if not present
 	 */
 	public String fieldValue(final Sip.Response field) {
@@ -651,10 +731,18 @@ public class Sip
 	 * Checks if a specific field is present within the message.
 	 * 
 	 * @param field
-	 *          field to lookup
+	 *            field to lookup
 	 * @return true if field is found within the message otherwise falst
 	 */
 	public boolean hasField(final Fields field) {
+		return super.hasField(field);
+	}
+
+	public boolean hasField(final Request field) {
+		return super.hasField(field);
+	}
+
+	public boolean hasField(final Response field) {
 		return super.hasField(field);
 	}
 
@@ -670,8 +758,8 @@ public class Sip
 	/**
 	 * Checks if this message is a response message.
 	 * 
-	 * @return true if response message, otherwise false indicating its a request
-	 *         message type
+	 * @return true if response message, otherwise false indicating its a
+	 *         request message type
 	 */
 	public boolean isResponse() {
 		return getMessageType() == MessageType.RESPONSE;
