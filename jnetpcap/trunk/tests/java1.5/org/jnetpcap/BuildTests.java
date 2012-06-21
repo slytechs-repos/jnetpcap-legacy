@@ -39,6 +39,7 @@ import org.jnetpcap.packet.TestPcapUtils;
 import org.jnetpcap.protocol.TestNetwork;
 import org.jnetpcap.protocol.TestRTP;
 import org.jnetpcap.protocol.TestSctp;
+import org.jnetpcap.protocol.TestSip;
 import org.jnetpcap.protocol.TestTcpIp;
 import org.jnetpcap.protocol.TestVoip;
 import org.jnetpcap.util.TestExpandableString;
@@ -86,6 +87,7 @@ public class BuildTests {
 			suite.addTestSuite(TestNetwork.class);
 			suite.addTestSuite(TestHeaderState.class);
 			suite.addTestSuite(TestRTP.class);
+			suite.addTestSuite(TestSip.class);
 			suite.addTestSuite(TestNoSystemOutOutput.class);
 		}
 
