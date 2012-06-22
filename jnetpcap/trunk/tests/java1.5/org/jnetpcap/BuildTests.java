@@ -64,6 +64,7 @@ public class BuildTests {
 			// $JUnit-BEGIN$
 			suite.addTestSuite(TestPcapUtils.class);
 			suite.addTestSuite(TestPcapPacket.class);
+			suite.addTestSuite(TestPcapDumper.class);
 			suite.addTestSuite(JHandlerTest.class);
 			suite.addTestSuite(TestJRegistry.class);
 			suite.addTestSuite(TestJScanner.class);
