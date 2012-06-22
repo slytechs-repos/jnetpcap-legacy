@@ -103,84 +103,19 @@ EXTERN void JNICALL Java_org_jnetpcap_PcapDumper_initIDs
 
 /*
  * Class:     org_jnetpcap_PcapDumper
- * Method:    dump
- * Signature: (Lorg/jnetpcap/PcapHeader;Ljava/nio/ByteBuffer;)V
+ * Method:    dump0
+ * Signature: (JII[BII)V
  */
-JNIEXPORT void JNICALL Java_org_jnetpcap_PcapDumper_dump__Lorg_jnetpcap_PcapHeader_2Ljava_nio_ByteBuffer_2
-  (JNIEnv *env, jobject obj, jobject jpcapheader, jobject jbytebuffer) {
-	
-	if (jbytebuffer == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "buffer argument null");
-		return;
-	}
+JNIEXPORT void JNICALL Java_org_jnetpcap_PcapDumper_dump0
+  (JNIEnv *env, jobject obj,
+		  jlong seconds,
+		  jint useconds,
+		  jint wirelen,
+		  jbyteArray array,
+		  jint offset,
+		  jint length) {
 
-	pcap_dumper_t *d = getPcapDumper(env, obj);
-	if (d == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "dumper argument null");
-		return; // Exception already thrown
-	}
-	
-	pcap_pkthdr *hdr = (pcap_pkthdr *)getJMemoryPhysical(env, jpcapheader);
-	if (hdr == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "header argument null");
-		return;
-	}
-
-
-	const u_char *b = (u_char *)env->GetDirectBufferAddress(jbytebuffer);
-	if (b == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION,
-				"Unable to retrieve native address from ByteBuffer object");
-		return;
-	}
-
-	pcap_dump((u_char *)d, hdr, b);
-}
-
-/*
- * Class:     org_jnetpcap_PcapDumper
- * Method:    dump
- * Signature: (Lorg/jnetpcap/PcapHeader;Lorg/jnetpcap/nio/JBuffer;)V
- */
-JNIEXPORT void JNICALL Java_org_jnetpcap_PcapDumper_dump__Lorg_jnetpcap_PcapHeader_2Lorg_jnetpcap_nio_JBuffer_2
-  (JNIEnv *env, jobject obj, jobject jpcapheader, jobject jbuffer) {
-	
-	if (jbuffer == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "buffer argument null");
-		return;
-	}
-
-	pcap_dumper_t *d = getPcapDumper(env, obj);
-	if (d == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "dumper argument null");
-		return; // Exception already thrown
-	}
-	
-	pcap_pkthdr *hdr = (pcap_pkthdr *)getJMemoryPhysical(env, jpcapheader);
-	if (hdr == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "header argument null");
-		return;
-	}
-
-	const u_char *b = (u_char *)getJMemoryPhysical(env, jbuffer);
-	if (hdr == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "header argument null");
-		return;
-	}
-
-	pcap_dump((u_char *)d, hdr, b);
-}
-
-
-/*
- * Class:     org_jnetpcap_PcapDumper
- * Method:    dump
- * Signature: (JIIILjava/nio/ByteBuffer;)V
- */
-EXTERN void JNICALL Java_org_jnetpcap_PcapDumper_dump__JIIILjava_nio_ByteBuffer_2
-(JNIEnv *env, jobject obj, jlong jsec, jint jusec, jint jcap, jint jlen, jobject jbytebuffer) {
-
-	if (jbytebuffer == NULL) {
+	if (array == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, "buffer argument null");
 		return;
 	}
@@ -191,10 +126,51 @@ EXTERN void JNICALL Java_org_jnetpcap_PcapDumper_dump__JIIILjava_nio_ByteBuffer_
 	}
 
 	pcap_pkthdr hdr;
+	hdr.ts.tv_sec = (int)seconds;
+	hdr.ts.tv_usec = (int) useconds;
+	hdr.caplen = (int)length;
+	hdr.len = (int) wirelen;
+
+	jsize size = env->GetArrayLength(array);
+	if (offset + length > size || offset < 0 || length < 0) {
+		throwException(env, INDEX_OUT_OF_BOUNDS_EXCEPTION, "");
+		return;
+	}
+
+	jbyte *buffer = env->GetByteArrayElements(array, NULL);
+
+	const u_char *b = (u_char *)(buffer + offset);
+
+	pcap_dump((u_char *)d, &hdr, b);
+
+	env->ReleaseByteArrayElements(array, buffer, JNI_ABORT);
+}
+
+/*
+ * Class:     org_jnetpcap_PcapDumper
+ * Method:    dump1
+ * Signature: (JIILjava/nio/ByteBuffer;II)V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_PcapDumper_dump1
+(JNIEnv *env, jobject obj, jlong jsec, jint jusec, jint wirelen, jobject jbytebuffer, jint position, jint limit) {
+
+	if (jbytebuffer == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "buffer argument null");
+		return;
+	}
+
+	pcap_dumper_t *d = getPcapDumper(env, obj);
+	if (d == NULL) {
+		return; // Exception already thrown
+	}
+
+	jsize length = limit - position;
+	pcap_pkthdr hdr;
 	hdr.ts.tv_sec = (int)jsec;
 	hdr.ts.tv_usec = (int) jusec;
-	hdr.caplen = (int)jcap;
-	hdr.len = (int) jlen;
+	hdr.caplen = (int)length;
+	hdr.len = (int) wirelen;
+
 	const u_char *b = (u_char *)env->GetDirectBufferAddress(jbytebuffer);
 	if (b == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION,
@@ -202,8 +178,59 @@ EXTERN void JNICALL Java_org_jnetpcap_PcapDumper_dump__JIIILjava_nio_ByteBuffer_
 		return;
 	}
 
+	b += position;
+
 	pcap_dump((u_char *)d, &hdr, b);
 }
+
+/*
+ * Class:     org_jnetpcap_PcapDumper
+ * Method:    dump2
+ * Signature: (JIILorg/jnetpcap/nio/JBuffer;II)V
+ */
+JNIEXPORT void JNICALL Java_org_jnetpcap_PcapDumper_dump2
+  (JNIEnv *env, jobject obj,
+		  jlong seconds,
+		  jint useconds,
+		  jint wirelen,
+		  jobject jbuffer,
+		  jint offset,
+		  jint length) {
+
+	if (jbuffer == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "buffer argument null");
+		return;
+	}
+
+	pcap_dumper_t *d = getPcapDumper(env, obj);
+	if (d == NULL) {
+		return; // Exception already thrown
+	}
+
+	pcap_pkthdr hdr;
+	hdr.ts.tv_sec = (int)seconds;
+	hdr.ts.tv_usec = (int) useconds;
+	hdr.caplen = (int)length;
+	hdr.len = (int) wirelen;
+
+	const u_char *b = (u_char *)getJMemoryPhysical(env, jbuffer);
+	if (b == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION,
+				"Unable to retrieve native address from JBuffer object");
+		return;
+	}
+
+	jsize size = env->GetIntField(jbuffer, jmemorySizeFID);
+
+	if (offset + length > size || offset < 0 || length < 0) {
+		throwException(env, INDEX_OUT_OF_BOUNDS_EXCEPTION, "");
+		return;
+	}
+
+
+	pcap_dump((u_char *)d, &hdr, b + offset);
+}
+
 
 /*
  * Class:     org_jnetpcap_PcapDumper
