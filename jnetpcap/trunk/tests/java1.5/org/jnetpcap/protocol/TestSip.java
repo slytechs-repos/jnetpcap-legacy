@@ -3,6 +3,7 @@
  */
 package org.jnetpcap.protocol;
 
+import java.io.File;
 import java.io.PrintStream;
 
 import junit.framework.TestCase;
@@ -22,9 +23,9 @@ import org.junit.Test;
  * @author Sly Technologies Inc.
  */
 public class TestSip extends TestCase {
-	
+
 //	private final static PrintStream out = System.out;
-	private final static PrintStream out = TestUtils.DISCARD;
+	 private final static PrintStream out = TestUtils.DISCARD;
 
 	@Test
 	public void testSipINFO() {
@@ -175,8 +176,8 @@ public class TestSip extends TestCase {
 				+ "663e3c2f6469616c6f6773746172743" + "e3c2f6d736d6c3e" + "");
 
 		final JPacket packet = new JMemoryPacket(SLL.ID, data);
-		 out.println(packet.getState().toDebugString());
-		 out.println(packet);
+		out.println(packet.getState().toDebugString());
+		out.println(packet);
 
 		TestCase.assertTrue(packet.hasHeader(sip));
 		TestCase.assertEquals(MessageType.REQUEST, sip.getMessageType());
@@ -285,8 +286,8 @@ public class TestSip extends TestCase {
 						+ "3a2074616c6b2c20686f6c642c2072656665720d0a436f6e74656e742d4c656e"
 						+ "6774683a20300d0a0d0a");
 		final JPacket packet = new JMemoryPacket(SLL.ID, data);
-		 out.println(packet.getState().toDebugString());
-		 out.println(packet);
+		out.println(packet.getState().toDebugString());
+		out.println(packet);
 
 		TestCase.assertTrue(packet.hasHeader(sip));
 		TestCase.assertEquals(MessageType.REQUEST, sip.getMessageType());
@@ -413,8 +414,8 @@ public class TestSip extends TestCase {
 						+ "666d74703a31303120302d31360d0a613d7074696d653a32300d0a");
 
 		final JPacket packet = new JMemoryPacket(SLL.ID, data);
-		 out.println(packet.getState().toDebugString());
-		 out.println(packet);
+		out.println(packet.getState().toDebugString());
+		out.println(packet);
 
 		TestCase.assertTrue(packet.hasHeader(sip));
 		TestCase.assertEquals(MessageType.REQUEST, sip.getMessageType());
@@ -515,8 +516,8 @@ public class TestSip extends TestCase {
 						+ "0a0d0a");
 
 		final JPacket packet = new JMemoryPacket(SLL.ID, data);
-		 out.println(packet.getState().toDebugString());
-		 out.println(packet);
+		out.println(packet.getState().toDebugString());
+		out.println(packet);
 
 		TestCase.assertTrue(packet.hasHeader(sip));
 		TestCase.assertEquals(MessageType.REQUEST, sip.getMessageType());
@@ -634,5 +635,32 @@ public class TestSip extends TestCase {
 		TestCase.assertEquals("BYE", sip.fieldValue(Sip.Request.RequestMethod));
 		TestCase.assertEquals(Method.BYE, sip.getMethod());
 		TestCase.assertTrue(sip.hasMethod(Method.BYE));
+	}
+
+	@Test
+	public void testReadAllPackets() {
+		String[] files = {"z:/data/test-sip-rtp.pcap",
+				"z:/data/test-sip-rtp-g711.pcap",
+				"z:/data/test-sip-info-packets.pcap"};
+
+		int i = 1;
+		Sip sip = new Sip();
+		for (String file : files) {
+			if (!new File(file).exists()) {
+				continue;
+			}
+			out.println("================= " + file + " =================");
+			for (JPacket packet : TestUtils.getIterable(file)) {
+
+				if (packet.hasHeader(sip)) {
+					if (sip.getMethod() == null) {
+						out.println(sip);
+					}
+					out.printf("#%d: method=%s type=%s%n", i++,
+							sip.getMethod(), sip.getMessageType());
+
+				}
+			}
+		}
 	}
 }
