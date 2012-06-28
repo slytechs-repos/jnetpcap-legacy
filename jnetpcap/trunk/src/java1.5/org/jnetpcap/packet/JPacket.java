@@ -30,6 +30,7 @@ import org.jnetpcap.packet.format.FormatUtils;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.protocol.JProtocol;
+import org.jnetpcap.util.JThreadLocal;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -617,7 +618,7 @@ public abstract class JPacket extends JBuffer
 	public final static int DEFAULT_STATE_HEADER_COUNT = 20;
 
 	/** Default scanner used to scan a packet per user request. */
-	protected static JScanner defaultScanner;
+	protected static JThreadLocal<JScanner> defaultScanner;
 
 	/** The header pool. */
 	private static JHeaderPool headerPool = new JHeaderPool();
@@ -649,11 +650,11 @@ public abstract class JPacket extends JBuffer
 		if (defaultScanner == null) {
 			synchronized (JScanner.class) {
 				if (defaultScanner == null) {
-					defaultScanner = new JScanner();
+					defaultScanner = new JThreadLocal<JScanner>(JScanner.class);
 				}
 			}
 		}
-		return defaultScanner;
+		return defaultScanner.get();
 	}
 
 	/**
@@ -1109,7 +1110,7 @@ public abstract class JPacket extends JBuffer
 	 */
 	@Deprecated
 	public JScanner getScanner() {
-		return defaultScanner;
+		return defaultScanner.get();
 	}
 
 	/**
