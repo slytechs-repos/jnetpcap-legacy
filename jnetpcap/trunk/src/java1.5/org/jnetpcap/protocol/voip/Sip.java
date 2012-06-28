@@ -652,6 +652,21 @@ public class Sip extends AbstractMessageHeader {
 		}
 	}
 
+	@Override
+	protected void decodeHeader() {
+		super.decodeHeader();
+		
+		if (getMessageType() == MessageType.RESPONSE) {
+			String value = fieldValue(Fields.CSeq);
+			if (value != null) {
+				String[] c = value.trim().split(" ");
+				if (c.length == 2) {
+					setMethod(Method.valueOf(c[1]));
+				}
+			}
+		}
+	}
+
 	/**
 	 * Sets the method for this sip message
 	 * 
