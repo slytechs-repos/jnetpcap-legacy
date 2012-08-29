@@ -65,7 +65,7 @@ public class LinkSequence<T> implements Iterable<T> {
 	 * @param l
 	 *          the l
 	 */
-	public void add(Link<T> l) {
+	public synchronized void add(Link<T> l) {
 		if (l.linkNext() != null || l.linkPrev() != null) {
 			throw new IllegalStateException("link element already part of list");
 		}
@@ -88,7 +88,7 @@ public class LinkSequence<T> implements Iterable<T> {
 	 * 
 	 * @return true, if is empty
 	 */
-	public boolean isEmpty() {
+	public synchronized boolean isEmpty() {
 		return size == 0;
 	}
 
@@ -98,7 +98,7 @@ public class LinkSequence<T> implements Iterable<T> {
 	 * @param l
 	 *          the l
 	 */
-	public void remove(Link<T> l) {
+	public synchronized void remove(Link<T> l) {
 		final Link<T> p = l.linkPrev();
 		final Link<T> n = l.linkNext();
 
