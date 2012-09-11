@@ -60,10 +60,8 @@ import org.jnetpcap.util.JThreadLocal;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public abstract class JPacket extends JBuffer
-		implements
-			JHeaderAccessor,
-			Iterable<JHeader> {
+public abstract class JPacket extends JBuffer implements JHeaderAccessor,
+		Iterable<JHeader> {
 
 	/**
 	 * Class maintains the decoded packet state. The class is peered with
@@ -625,6 +623,15 @@ public abstract class JPacket extends JBuffer
 
 	/** The out. */
 	private static JFormatter out = new TextFormatter(new StringBuilder());
+	private static ThreadLocal<TextFormatter> formatterPool =
+			new ThreadLocal<TextFormatter>() {
+
+				@Override
+				protected TextFormatter initialValue() {
+					return new TextFormatter(new StringBuilder());
+				}
+
+			};
 
 	/**
 	 * Packet's default memory pool out of which allocates memory for deep
@@ -1140,8 +1147,8 @@ public abstract class JPacket extends JBuffer
 	 * @since 1.4
 	 */
 	public boolean hasAllHeaders(final long mask) {
-		final long headerMap = state.get64BitHeaderMap(JProtocol
-				.maskToGroup(mask));
+		final long headerMap =
+				state.get64BitHeaderMap(JProtocol.maskToGroup(mask));
 		return (headerMap & mask) == mask;
 	}
 
@@ -1157,8 +1164,8 @@ public abstract class JPacket extends JBuffer
 	 * @since 1.4
 	 */
 	public boolean hasAnyHeader(final long mask) {
-		final long headerMap = state.get64BitHeaderMap(JProtocol
-				.maskToGroup(mask));
+		final long headerMap =
+				state.get64BitHeaderMap(JProtocol.maskToGroup(mask));
 		return (headerMap & mask & JProtocol.BITMASK_PROTCOL_MASK) != 0
 				&& (headerMap & JProtocol.BITMASK_GROUP_MASK) == (mask & JProtocol.BITMASK_GROUP_MASK);
 	}
@@ -1213,6 +1220,7 @@ public abstract class JPacket extends JBuffer
 	public <T extends JHeader> boolean hasHeader(T header) {
 		return getHeader(header, 0) != null;
 	}
+
 	/**
 	 * Check if requested instance of header with specified numerical ID exists
 	 * within the decoded packet and if found peers the supplied header with the
@@ -1425,11 +1433,15 @@ public abstract class JPacket extends JBuffer
 	 * Generates text formatted output using the default builtin formatter. The
 	 * default is to generate TextFormatter that uses a StringBuilder for output
 	 * buffer and gerate a single string that is returned from here.
+	 * <p>
+	 * This method is multi-thread safe, but not reenterant from the same thread.
+	 * </p>
 	 * 
 	 * @return formatted output of this packet
 	 */
 	@Override
 	public String toString() {
+		TextFormatter out = formatterPool.get();
 		out.reset();
 		try {
 			out.format(this);
