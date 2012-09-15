@@ -59,14 +59,19 @@ public abstract class JField {
 
 		/** The header. */
 		private JHeader header;
+		
+		@SuppressWarnings("unused")
+		public JFieldComp() {
+			
+		}
 
 		/**
 		 * Compare.
 		 * 
 		 * @param o1
-		 *          the o1
+		 *            the o1
 		 * @param o2
-		 *          the o2
+		 *            the o2
 		 * @return the int
 		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 		 */
@@ -82,7 +87,7 @@ public abstract class JField {
 		 * Sets the ascending.
 		 * 
 		 * @param ascending
-		 *          the new ascending
+		 *            the new ascending
 		 */
 		public void setAscending(boolean ascending) {
 			this.ascending = ascending;
@@ -92,7 +97,7 @@ public abstract class JField {
 		 * Sets the header.
 		 * 
 		 * @param header
-		 *          the new header
+		 *            the new header
 		 */
 		public void setHeader(JHeader header) {
 			this.header = header;
@@ -101,25 +106,34 @@ public abstract class JField {
 	}
 
 	/** The Constant SORT_BY_OFFSET. */
-	private final static JFieldComp SORT_BY_OFFSET = new JFieldComp();
+	private final static ThreadLocal<JFieldComp> SORT_BY_OFFSET =
+			new ThreadLocal<JFieldComp>() {
+
+				@Override
+				protected JFieldComp initialValue() {
+					return new JFieldComp();
+				}
+		
+	};
 
 	/**
 	 * Sort field by offset.
 	 * 
 	 * @param fields
-	 *          the fields
+	 *            the fields
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @param ascending
-	 *          the ascending
+	 *            the ascending
 	 */
-	public static void sortFieldByOffset(JField[] fields,
-			JHeader header,
+	public static void sortFieldByOffset(JField[] fields, JHeader header,
 			boolean ascending) {
 
-		SORT_BY_OFFSET.setAscending(ascending);
-		SORT_BY_OFFSET.setHeader(header);
-		Arrays.sort(fields, SORT_BY_OFFSET);
+		JFieldComp byOffset = SORT_BY_OFFSET.get();
+
+		byOffset.setAscending(ascending);
+		byOffset.setHeader(header);
+		Arrays.sort(fields, byOffset);
 	}
 
 	/** The parent. */
@@ -137,7 +151,7 @@ public abstract class JField {
 	 * Gets the display.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @return the display
 	 */
 	public abstract String getDisplay(JHeader header);
@@ -146,7 +160,7 @@ public abstract class JField {
 	 * Gets the length.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @return the length
 	 */
 	public abstract int getLength(JHeader header);
@@ -155,7 +169,7 @@ public abstract class JField {
 	 * Gets the mask.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @return the mask
 	 */
 	public abstract long getMask(JHeader header);
@@ -178,7 +192,7 @@ public abstract class JField {
 	 * Gets the offset.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @return the offset
 	 */
 	public abstract int getOffset(JHeader header);
@@ -217,7 +231,7 @@ public abstract class JField {
 	 * Gets the units.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @return the units
 	 */
 	public abstract String getUnits(JHeader header);
@@ -226,11 +240,11 @@ public abstract class JField {
 	 * Gets the value.
 	 * 
 	 * @param <T>
-	 *          the generic type
+	 *            the generic type
 	 * @param c
-	 *          the c
+	 *            the c
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @return the value
 	 */
 	public abstract <T> T getValue(Class<T> c, JHeader header);
@@ -239,7 +253,7 @@ public abstract class JField {
 	 * Gets the value.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @return the value
 	 */
 	public abstract Object getValue(JHeader header);
@@ -248,7 +262,7 @@ public abstract class JField {
 	 * Gets the value description.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @return the value description
 	 */
 	public abstract String getValueDescription(JHeader header);
@@ -257,7 +271,7 @@ public abstract class JField {
 	 * Checks for field.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @return true, if successful
 	 */
 	public abstract boolean hasField(JHeader header);
@@ -273,16 +287,17 @@ public abstract class JField {
 	 * Long value.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @return the long
 	 */
 	public abstract long longValue(JHeader header);
 
 	/**
-	 * Sets the parent of this sub-field and only when this field is a sub-field.
+	 * Sets the parent of this sub-field and only when this field is a
+	 * sub-field.
 	 * 
 	 * @param parent
-	 *          the parent to set
+	 *            the parent to set
 	 */
 	public final void setParent(JField parent) {
 		this.parent = parent;
@@ -292,7 +307,7 @@ public abstract class JField {
 	 * Sets the style.
 	 * 
 	 * @param style
-	 *          the new style
+	 *            the new style
 	 */
 	public abstract void setStyle(Style style);
 

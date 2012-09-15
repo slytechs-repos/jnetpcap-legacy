@@ -990,8 +990,11 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 
 		JHeader.State hstate = header.getState();
 		this.state.peerHeaderByIndex(index, hstate);
+		
+		final int offset = hstate.getOffset();
+		final int length = hstate.getLength();
 
-		header.peer(this, hstate.getOffset(), hstate.getLength());
+		header.peer(this, offset, length);
 		header.setPacket(this); // Set the header's parent
 		header.setIndex(index); // Set the header's index into packet structure
 		header.decode(); // Call its decode routine if defined

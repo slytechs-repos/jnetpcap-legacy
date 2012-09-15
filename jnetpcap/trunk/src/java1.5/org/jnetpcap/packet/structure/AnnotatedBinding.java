@@ -40,7 +40,7 @@ public class AnnotatedBinding implements JBinding {
 
 	/** The Constant cache. */
 	private final static Map<Class<?>, JBinding[]> cache =
-	    new HashMap<Class<?>, JBinding[]>();
+			new HashMap<Class<?>, JBinding[]>();
 
 	/**
 	 * Clear cache.
@@ -53,7 +53,7 @@ public class AnnotatedBinding implements JBinding {
 	 * Creates the header from class.
 	 * 
 	 * @param c
-	 *          the c
+	 *            the c
 	 * @return the j header
 	 */
 	private static JHeader createHeaderFromClass(Class<? extends JHeader> c) {
@@ -61,11 +61,11 @@ public class AnnotatedBinding implements JBinding {
 			JHeader header = c.newInstance();
 			return header;
 		} catch (InstantiationException e) {
-			throw new HeaderDefinitionError(c, "problem in the default constructor",
-			    e);
+			throw new HeaderDefinitionError(c,
+					"problem in the default constructor", e);
 		} catch (IllegalAccessException e) {
-			throw new HeaderDefinitionError(c, "problem in the default constructor",
-			    e);
+			throw new HeaderDefinitionError(c,
+					"problem in the default constructor", e);
 		}
 	}
 
@@ -73,21 +73,20 @@ public class AnnotatedBinding implements JBinding {
 	 * Inspect class.
 	 * 
 	 * @param c
-	 *          the c
+	 *            the c
 	 * @param errors
-	 *          the errors
+	 *            the errors
 	 * @return the j binding[]
 	 */
-	public static JBinding[] inspectClass(
-	    Class<?> c,
-	    List<HeaderDefinitionError> errors) {
+	public static JBinding[] inspectClass(Class<?> c,
+			List<HeaderDefinitionError> errors) {
 
 		if (cache.containsKey(c)) {
 			return cache.get(c);
 		}
 
 		AnnotatedBindMethod[] bindMethods =
-		    AnnotatedBindMethod.inspectClass(c, errors);
+				AnnotatedBindMethod.inspectClass(c, errors);
 
 		return createBindings(c, bindMethods, errors);
 	}
@@ -96,17 +95,16 @@ public class AnnotatedBinding implements JBinding {
 	 * Creates the bindings.
 	 * 
 	 * @param c
-	 *          the c
+	 *            the c
 	 * @param bindMethods
-	 *          the bind methods
+	 *            the bind methods
 	 * @param errors
-	 *          the errors
+	 *            the errors
 	 * @return the j binding[]
 	 */
-	private static JBinding[] createBindings(
-	    Class<?> c,
-	    AnnotatedBindMethod[] bindMethods,
-	    List<HeaderDefinitionError> errors) {
+	private static JBinding[] createBindings(Class<?> c,
+			AnnotatedBindMethod[] bindMethods,
+			List<HeaderDefinitionError> errors) {
 
 		List<JBinding> list = new ArrayList<JBinding>();
 		Class<? extends JHeader> target = null;
@@ -121,7 +119,7 @@ public class AnnotatedBinding implements JBinding {
 				Class<? extends JHeader>[] dependencies = bind.dependencies();
 
 				list.add(new AnnotatedBinding(c, source, target, boundMethod,
-				    dependencies));
+						dependencies));
 
 			} catch (AnnotatedMethodException e) {
 				errors.add(e);
@@ -139,23 +137,22 @@ public class AnnotatedBinding implements JBinding {
 	 * Inspect j header class.
 	 * 
 	 * @param <T>
-	 *          the generic type
+	 *            the generic type
 	 * @param c
-	 *          the c
+	 *            the c
 	 * @param errors
-	 *          the errors
+	 *            the errors
 	 * @return the j binding[]
 	 */
 	public static <T extends JHeader> JBinding[] inspectJHeaderClass(
-	    Class<T> c,
-	    List<HeaderDefinitionError> errors) {
+			Class<T> c, List<HeaderDefinitionError> errors) {
 
 		if (cache.containsKey(c)) {
 			return cache.get(c);
 		}
 
 		AnnotatedBindMethod[] bindMethods =
-		    AnnotatedBindMethod.inspectJHeaderClass(c, errors);
+				AnnotatedBindMethod.inspectJHeaderClass(c, errors);
 
 		Class<T> source = c;
 		List<JBinding> list = new ArrayList<JBinding>();
@@ -170,7 +167,7 @@ public class AnnotatedBinding implements JBinding {
 				Class<? extends JHeader>[] dependencies = bind.dependencies();
 
 				list.add(new AnnotatedBinding(c, source, target, boundMethod,
-				    dependencies));
+						dependencies));
 
 			} catch (AnnotatedMethodException e) {
 				errors.add(e);
@@ -193,10 +190,10 @@ public class AnnotatedBinding implements JBinding {
 	protected final int[] dependencies;
 
 	/**
-	 * Our working protocol header that we use to peer with packet and dispatch to
-	 * isBound method.
+	 * Our working protocol header that we use to peer with packet and dispatch
+	 * to isBound method.
 	 */
-	private final JHeader header;
+	private final ThreadLocal<JHeader> headerPool;
 
 	/** The source id. */
 	private final int sourceId;
@@ -211,22 +208,20 @@ public class AnnotatedBinding implements JBinding {
 	 * Instantiates a new annotated binding.
 	 * 
 	 * @param definitionClass
-	 *          the definition class
+	 *            the definition class
 	 * @param source
-	 *          the source
+	 *            the source
 	 * @param target
-	 *          the target
+	 *            the target
 	 * @param bindingMethod
-	 *          the binding method
+	 *            the binding method
 	 * @param dependencies
-	 *          the dependencies
+	 *            the dependencies
 	 */
-	private AnnotatedBinding(
-	    Class<?> definitionClass,
-	    Class<? extends JHeader> source,
-	    Class<? extends JHeader> target,
-	    AnnotatedBindMethod bindingMethod,
-	    Class<? extends JHeader>... dependencies) {
+	private AnnotatedBinding(Class<?> definitionClass,
+			Class<? extends JHeader> source, Class<? extends JHeader> target,
+			AnnotatedBindMethod bindingMethod,
+			Class<? extends JHeader>... dependencies) {
 
 		this.definitionClass = definitionClass;
 		this.targetClass = target;
@@ -243,7 +238,14 @@ public class AnnotatedBinding implements JBinding {
 			this.dependencies[i++] = JRegistry.lookupId(c);
 		}
 
-		header = createHeaderFromClass(target);
+		headerPool = new ThreadLocal<JHeader>() {
+
+			@Override
+			protected JHeader initialValue() {
+				return createHeaderFromClass(targetClass);
+			}
+
+		};
 	}
 
 	/*
@@ -288,23 +290,28 @@ public class AnnotatedBinding implements JBinding {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.jnetpcap.packet.JBinding#isBound(org.jnetpcap.packet.JPacket, int)
+	 * @see org.jnetpcap.packet.JBinding#isBound(org.jnetpcap.packet.JPacket,
+	 * int)
 	 */
 	/**
 	 * Checks if is bound.
 	 * 
 	 * @param packet
-	 *          the packet
+	 *            the packet
 	 * @param offset
-	 *          the offset
+	 *            the offset
 	 * @return true, if is bound
-	 * @see org.jnetpcap.packet.JBinding#isBound(org.jnetpcap.packet.JPacket, int)
+	 * @see org.jnetpcap.packet.JBinding#isBound(org.jnetpcap.packet.JPacket,
+	 *      int)
 	 */
 	public boolean isBound(JPacket packet, int offset) {
 
+		final JHeader header = headerPool.get();
+
 		packet.getHeader(header);
 
-		return header.isHeaderTruncated() == false && annotatedBound.isBound(packet, offset, header);
+		return header.isHeaderTruncated() == false
+				&& annotatedBound.isBound(packet, offset, header);
 	}
 
 	/*
@@ -334,21 +341,20 @@ public class AnnotatedBinding implements JBinding {
 		String target = this.targetClass.getSimpleName();
 
 		return def + "." + method + "(JPacket packet, " + target + " header):"
-		    + "boolean";
+				+ "boolean";
 	}
 
 	/**
 	 * Inspect class.
 	 * 
 	 * @param bindingSuite
-	 *          the binding suite
+	 *            the binding suite
 	 * @param errors
-	 *          the errors
+	 *            the errors
 	 * @return the j binding[]
 	 */
-	public static JBinding[] inspectClass(
-	    Object bindingSuite,
-	    List<HeaderDefinitionError> errors) {
+	public static JBinding[] inspectClass(Object bindingSuite,
+			List<HeaderDefinitionError> errors) {
 		return inspectClass(bindingSuite.getClass(), errors);
 	}
 
@@ -356,14 +362,13 @@ public class AnnotatedBinding implements JBinding {
 	 * Inspect object.
 	 * 
 	 * @param object
-	 *          the object
+	 *            the object
 	 * @param errors
-	 *          the errors
+	 *            the errors
 	 * @return the j binding[]
 	 */
-	public static JBinding[] inspectObject(
-	    Object object,
-	    List<HeaderDefinitionError> errors) {
+	public static JBinding[] inspectObject(Object object,
+			List<HeaderDefinitionError> errors) {
 
 		Class<?> c = object.getClass();
 
@@ -372,7 +377,7 @@ public class AnnotatedBinding implements JBinding {
 		}
 
 		AnnotatedBindMethod[] bindMethods =
-		    AnnotatedBindMethod.inspectObject(object, errors);
+				AnnotatedBindMethod.inspectObject(object, errors);
 
 		return createBindings(c, bindMethods, errors);
 
