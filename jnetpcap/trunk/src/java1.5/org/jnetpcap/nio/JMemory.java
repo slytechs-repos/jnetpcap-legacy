@@ -31,7 +31,6 @@ import com.slytechs.library.Library;
 import com.slytechs.library.LibraryInitializer;
 import com.slytechs.library.LibraryMember;
 
-// TODO: Auto-generated Javadoc
 /**
  * A base class for all other PEERED classes to native c structures. The class
  * only contains the physical address of the native C structure. The class also
@@ -222,8 +221,8 @@ public abstract class JMemory {
 	 * constant {@link #MAX_DIRECT_MEMORY_DEFAULT} or '-Xmx' cmd option, if
 	 * specified.
 	 * <p>
-	 * The reason for the complexity with this calcualtion and we just don't
-	 * default to '-Xmx' or JVM deault, is that JVM on 64-bit system defaults to
+	 * The reason for the complexity with this calculation and we just don't
+	 * default to '-Xmx' or JVM default, is that JVM on 64-bit system defaults to
 	 * 512Mb, which way too much to also reserve our nio use. Without this
 	 * algorithm, the combined total on 64-bit system is 1Gb of memory.
 	 * </p>
@@ -479,7 +478,7 @@ public abstract class JMemory {
 	 * therefore will not try and deallocate that memory upon cleanup.
 	 * <p>
 	 * Remember that physical field is set from within a native call and any
-	 * object subclassing JMemory can be made to reference any memory location
+	 * object sub-classing JMemory can be made to reference any memory location
 	 * including another JMemory object's allocated memory or anywhere for that
 	 * matter.
 	 * </p>
@@ -550,7 +549,7 @@ public abstract class JMemory {
 	}
 
 	/**
-	 * Method allocates native memory to hold the subclassed C structure if the
+	 * Method allocates native memory to hold the sub-classed C structure if the
 	 * size is knows ahead of time. The physical field is set to the address of
 	 * the allocated structure.
 	 * 
@@ -612,12 +611,12 @@ public abstract class JMemory {
 
 	/**
 	 * Called to clean up and release any allocated memory. This method should be
-	 * overriden if the allocated memory is not simply a single memory block and
-	 * something more complex. This method is safe to call at anytime even if the
+	 * Overridden if the allocated memory is not simply a single memory block and
+	 * something more complex. This method is safe to call at any time even if the
 	 * object does not hold any allocated memory or is not the owner of the memory
-	 * it is peered with. The method will reset this object to orignal unpeered
+	 * it is peered with. The method will reset this object to original un-peered
 	 * state releasing any allocated and own memory at the same time if
-	 * neccessary.
+	 * necessary.
 	 */
 	protected void cleanup() {
 		if (ref != null) {
@@ -643,7 +642,7 @@ public abstract class JMemory {
 	 * disposal.
 	 * <p>
 	 * This method is protected and allows subclasses to provide their own cleanup
-	 * code. If this method is not overriden, it will return a JMemoryReference
+	 * code. If this method is not overridden, it will return a JMemoryReference
 	 * object suitable to cleanup after this memory object.
 	 * </p>
 	 * 
@@ -704,9 +703,9 @@ public abstract class JMemory {
 	 * providing rudimentary memory allocation mechanism.
 	 * </p>
 	 * <p>
-	 * Lastly care must be taken, to ensure that the lifespans do not conflict.
+	 * Lastly care must be taken, to ensure that the life-spans do not conflict.
 	 * The memory that we are peering to must not be deallocated prior the
-	 * termination of the lifespan of this object or at minimum calling
+	 * termination of the life-span of this object or at minimum calling
 	 * 
 	 * @param peer
 	 *          The ByteBuffer whose allocated native memory we want to peer with.
@@ -742,7 +741,7 @@ public abstract class JMemory {
 	 * and peer remains at the same state as it did before. This instance does not
 	 * become the owner of the memory. The function allows peering to a sub
 	 * portion of the peer given the specified offset and length. The function
-	 * strictly checks and inforces the bounds of the request to guarrantee that
+	 * strictly checks and enforces the bounds of the request to guarantee that
 	 * peer is not allowed to access physical memory outside of actual peer range.
 	 * 
 	 * @param peer
@@ -761,7 +760,7 @@ public abstract class JMemory {
 
 		if (offset < 0 || length < 0 || offset + length > peer.size) {
 			throw new IndexOutOfBoundsException("Invalid [" + offset + ","
-					+ (offset + length) + "," + length + ") range.");
+					+ (offset + length) + "," + length + ") range.\n" + toDebugString());
 		}
 
 		return peer0(peer.physical + offset, length, peer.keeper);
