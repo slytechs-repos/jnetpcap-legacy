@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jnetpcap.nio.JBuffer;
-import org.jnetpcap.packet.annotate.Dynamic;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
@@ -225,18 +224,25 @@ public class RtcpSDES extends RtcpSSRC {
 		int offset = start + 4;
 		for (int i = 0; i < 255; i++) {
 			int itemType = RtcpSDESItem.readType(buffer, offset);
-			int itemLen = RtcpSDESItem.readLength(buffer, offset);
+			if (itemType == 0) {
+				
+				chunkLength = pad4(chunkLength);
+				offset = pad4(offset);
+				break;
+			}
+			
+			int itemLen = RtcpSDESItem.readLength(buffer, offset);		
+
+			if (offset + itemLen + 2 > buffer.size()) {
+				System.out.printf("readChunk(): RTCP-SDES item: type=%d len=%d%n", itemType, itemLen);
+				continue;
+			}
+
 			chunk.list.add(new RtcpSDESItem(buffer, offset, itemLen + 2));
 
 			chunkLength += itemLen + 2;
 			offset += itemLen + 2;
 
-			if (itemType == 0) {
-
-				chunkLength = pad4(chunkLength);
-				offset = pad4(offset);
-				break;
-			}
 		}
 
 		chunk.setCount(chunk.list.size());
