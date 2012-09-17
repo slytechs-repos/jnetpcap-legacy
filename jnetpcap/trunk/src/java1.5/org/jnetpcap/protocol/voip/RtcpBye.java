@@ -21,7 +21,7 @@ import org.jnetpcap.protocol.JProtocol;
  */
 @Header(length = 4, name = "RTCP-BYE", suite = ProtocolSuite.TCP_IP)
 public class RtcpBye extends Rtcp {
-	
+
 	/**
 	 * BYE: Goodbye RTCP Packet
 	 */
@@ -76,14 +76,14 @@ public class RtcpBye extends Rtcp {
 
 	@Dynamic(field = "reason", value = Field.Property.CHECK)
 	public boolean hasReason() {
-		int len = super.length() << 2 + 4;
+		int len = (super.length() << 2) + 4;
 
-		return len >= (sc() * 4 + 4);
+		return len > (sc() * 4 + 4);
 	}
 
 	@Dynamic(field = "reason", value = Field.Property.OFFSET)
 	public int reasonOffset() {
-		return (sc() * 4 + 4) * BYTE;
+		return ((sc() << 2) + 4) * BYTE;
 	}
 
 	@Dynamic(field = "reason", value = Field.Property.LENGTH)
@@ -97,7 +97,7 @@ public class RtcpBye extends Rtcp {
 	 * @return length of the, possibly null padded, reason string
 	 */
 	public int reasonLength() {
-		final int offset = reasonOffset() >> 3;
+		final int offset = (sc() << 2) + 4;
 		return super.getUByte(offset);
 	}
 
@@ -113,7 +113,7 @@ public class RtcpBye extends Rtcp {
 			return "";
 		}
 
-		final int offset = reasonOffset() >> 3; // Its returned in bits
+		final int offset = (sc() << 2) + 4;
 
 		int len = super.getUByte(offset); // Length of string
 		boolean isPadded = (len & 3) != 0; // If padded null terminated,
