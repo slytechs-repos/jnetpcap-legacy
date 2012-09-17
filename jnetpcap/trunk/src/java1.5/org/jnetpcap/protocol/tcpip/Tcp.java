@@ -821,6 +821,22 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 	 * @author Sly Technologies, Inc.
 	 */
 	public static abstract class TcpOption extends JSubHeader<Tcp> {
+		
+		/**
+		 * Calculates the length of a tcp option header.
+		 * 
+		 * @param buffer
+		 *          buffer containing tcp option header data
+		 * @param offset
+		 *          offset into the buffer where tcp option header start (in bytes)
+		 * @return number of bytes occupied by the tcp header, including any tcp
+		 *         options
+		 */
+		@HeaderLength
+		public static int headerLength(final JBuffer buffer, final int offset) {
+			return buffer.getUByte(offset + 1);
+		}
+
 
 		/**
 		 * Options (Variable 0-320 bits, divisible by 32) - The length of this field
