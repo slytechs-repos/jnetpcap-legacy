@@ -45,7 +45,10 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
-	@Header(length = 4, id = IcmpType.DESTINATION_UNREACHABLE_ID, nicname = "unreach")
+	@Header(
+			length = 4,
+			id = IcmpType.DESTINATION_UNREACHABLE_ID,
+			nicname = "unreach")
 	public static class DestinationUnreachable extends Reserved {
 	}
 
@@ -118,11 +121,14 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 		DESTINATION_HOST_UNKNOWN(IcmpType.DESTINATION_UNREACHABLE, 7),
 
 		/** The DESTINATIO n_ hos t_ unreachabl e_ fo r_ service. */
-		DESTINATION_HOST_UNREACHABLE_FOR_SERVICE(IcmpType.DESTINATION_UNREACHABLE,
+		DESTINATION_HOST_UNREACHABLE_FOR_SERVICE(
+				IcmpType.DESTINATION_UNREACHABLE,
 				12),
 
 		/** The DESTINATIO n_ networ k_ admi n_ prohibited. */
-		DESTINATION_NETWORK_ADMIN_PROHIBITED(IcmpType.DESTINATION_UNREACHABLE, 9),
+		DESTINATION_NETWORK_ADMIN_PROHIBITED(
+				IcmpType.DESTINATION_UNREACHABLE,
+				9),
 
 		/** The DESTINATIO n_ networ k_ redirect. */
 		DESTINATION_NETWORK_REDIRECT(IcmpType.DESTINATION_UNREACHABLE, 0),
@@ -132,7 +138,8 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 
 		/** The DESTINATIO n_ networ k_ unreachabl e_ fo r_ service. */
 		DESTINATION_NETWORK_UNREACHABLE_FOR_SERVICE(
-				IcmpType.DESTINATION_UNREACHABLE, 11),
+				IcmpType.DESTINATION_UNREACHABLE,
+				11),
 
 		/** The DESTINATIO n_ n o_ frag. */
 		DESTINATION_NO_FRAG(IcmpType.DESTINATION_UNREACHABLE, 4),
@@ -174,9 +181,9 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 		 * To string.
 		 * 
 		 * @param type
-		 *          the type
+		 *            the type
 		 * @param code
-		 *          the code
+		 *            the code
 		 * @return the string
 		 */
 		public static String toString(int type, int code) {
@@ -193,9 +200,9 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 		 * Value of.
 		 * 
 		 * @param type
-		 *          the type
+		 *            the type
 		 * @param code
-		 *          the code
+		 *            the code
 		 * @return the icmp code
 		 */
 		public static IcmpCode valueOf(int type, int code) {
@@ -221,25 +228,26 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 		 * Instantiates a new icmp code.
 		 * 
 		 * @param type
-		 *          the type
+		 *            the type
 		 * @param code
-		 *          the code
+		 *            the code
 		 */
 		private IcmpCode(IcmpType type, int code) {
 			this.type = type;
 			this.code = code;
-			this.description = name().toString().toLowerCase().replace('_', ' ');
+			this.description =
+					name().toString().toLowerCase().replace('_', ' ');
 		}
 
 		/**
 		 * Instantiates a new icmp code.
 		 * 
 		 * @param type
-		 *          the type
+		 *            the type
 		 * @param code
-		 *          the code
+		 *            the code
 		 * @param description
-		 *          the description
+		 *            the description
 		 */
 		private IcmpCode(IcmpType type, int code, String description) {
 			this.type = type;
@@ -283,33 +291,44 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 	 * @author Sly Technologies, Inc.
 	 */
 	public enum IcmpType {
+		/** The ECH o_ reply. */
+		ECHO_REPLY(0, "echo reply"),
+
+		/** Unassigned */
+		UNASSIGNED1(1, "unassigned"),
+
+		/** Unassigned */
+		UNASSIGNED2(2, "unassigned"),
 
 		/** The DESTINATIO n_ unreachable. */
 		DESTINATION_UNREACHABLE(3, "destination unreachable"),
 
-		/** The ECH o_ reply. */
-		ECHO_REPLY(0, "echo reply"),
-
-		/** The ECH o_ request. */
-		ECHO_REQUEST(8, "echo request"),
-
-		/** The INF o_ request. */
-		INFO_REQUEST(15, "info request"),
-
-		/** The INF o_ response. */
-		INFO_RESPONSE(16, "info response"),
-
-		/** The PARA m_ problem. */
-		PARAM_PROBLEM(12, "parameter problem"),
+		/** The SOURC e_ quench. */
+		SOURCE_QUENCH(4, "source quench"),
 
 		/** The REDIRECT. */
 		REDIRECT(5, "redirect"),
 
-		/** The SOURC e_ quench. */
-		SOURCE_QUENCH(4, "source quench"),
+		/** The Alternate Host Address. */
+		ALTERNATIVE_HOST_ADDRESS(6, "Alternate Host Address"),
+
+		/** Unassigned */
+		UNASSIGNED7(7, "unassigned"),
+
+		/** The ECH o_ request. */
+		ECHO_REQUEST(8, "echo request"),
+
+		/** Router Advertisement */
+		ROUTER_ADVERTISEMENT(9, "Router Advertisement"),
+
+		/** Router Selection */
+		ROUTER_SELECTION(10, " Router Selection"),
 
 		/** The TIM e_ exceeded. */
 		TIME_EXCEEDED(11, "time exceeded"),
+
+		/** The PARA m_ problem. */
+		PARAM_PROBLEM(12, "parameter problem"),
 
 		/** The TIMESTAM p_ request. */
 		TIMESTAMP_REQUEST(13, "timestamp request"),
@@ -317,7 +336,91 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 		/** The TIMESTAM p_ response. */
 		TIMESTAMP_RESPONSE(14, "timestamp response"),
 
-		;
+		/** The INF o_ request. */
+		INFO_REQUEST(15, "info request"),
+
+		/** The INF o_ response. */
+		INFO_RESPONSE(16, "info response"),
+
+		/** Address Mask Request */
+		ADDRESS_MASK_REQUEST(17, "Address Mask Request"),
+
+		/** Address Mask Reply */
+		ADDRESS_MASK_REPLY(18, "Address Mask Reply"),
+
+		/** Unassigned */
+		UNASSIGNED19(19, "unassigned (for security)"),
+
+		/** Unassigned */
+		UNASSIGNED20(20, "unassigned (for Robustness Experiment)"),
+
+		/** Unassigned */
+		UNASSIGNED21(21, "unassigned (for Robustness Experiment)"),
+
+		/** Unassigned */
+		UNASSIGNED22(22, "unassigned (for Robustness Experiment)"),
+
+		/** Unassigned */
+		UNASSIGNED23(23, "unassigned (for Robustness Experiment)"),
+
+		/** Unassigned */
+		UNASSIGNED24(24, "unassigned (for Robustness Experiment)"),
+
+		/** Unassigned */
+		UNASSIGNED25(25, "unassigned (for Robustness Experiment)"),
+
+		/** Unassigned */
+		UNASSIGNED26(26, "unassigned (for Robustness Experiment)"),
+
+		/** Unassigned */
+		UNASSIGNED27(27, "unassigned (for Robustness Experiment)"),
+
+		/** Unassigned */
+		UNASSIGNED28(28, "unassigned (for Robustness Experiment)"),
+
+		/** Unassigned */
+		UNASSIGNED29(29, "unassigned (for Robustness Experiment)"),
+
+		/** Traceroute */
+		TRACEROUTE(30, "Traceroute"),
+
+		/** Datagram Conversion Error */
+		DATAGRAM_CONVERSION_ERROR(31, "Datagram Conversion Error"),
+
+		/** Mobile Host Redirect */
+		MOBILE_HOST_REDIRECT(32, "Mobile Host Redirect"),
+
+		/** IPv6 Where-Are-You */
+		IPV6_WHERE_ARE_YOU(33, "IPv6 Where-Are-You"),
+
+		/** IPv6 I-Am-Here */
+		IPV6_I_AM_HERE(34, "IPv6 I-Am-Here"),
+
+		/** Mobile Registration Request */
+		MOBILE_REGISTRATION_REQUEST(35, "Mobile Registration Request"),
+
+		/** Mobile Registration Reply */
+		MOBILE_REGISTRATION_REPLY(36, "Mobile Registration Reply"),
+
+		/** Domain Name Request */
+		DOMAIN_NAME_REQUEST(37, "Domain Name Request"),
+
+		/** Domain Name Reply */
+		DOMAIN_NAME_REPLY(38, "Domain Name Reply"),
+
+		/** SKIP */
+		SKIP(39, "SKIP"),
+
+		/** Photuris */
+		PHOTURIS(40, "Photuris"),
+
+		/**
+		 * ICMP messages utilized by experimental mobility protocols such as
+		 * Seamoby
+		 */
+		EXPERIMENTAL(
+				41,
+				"ICMP messages utilized by experimental mobility protocols such as Seamoby"), ;
 
 		/** The Constant DESTINATION_UNREACHABLE_ID. */
 		public final static int DESTINATION_UNREACHABLE_ID = 3;
@@ -356,7 +459,7 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 		 * To string.
 		 * 
 		 * @param id
-		 *          the id
+		 *            the id
 		 * @return the string
 		 */
 		public static String toString(int id) {
@@ -373,7 +476,7 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 		 * Value of.
 		 * 
 		 * @param type
-		 *          the type
+		 *            the type
 		 * @return the icmp type
 		 */
 		public static IcmpType valueOf(int type) {
@@ -392,11 +495,16 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 		/** The id. */
 		public final int id;
 
+		private IcmpType() {
+			this.id = ordinal();
+			this.description = "reserved";
+		}
+
 		/**
 		 * Instantiates a new icmp type.
 		 * 
 		 * @param id
-		 *          the id
+		 *            the id
 		 */
 		private IcmpType(int id) {
 			this.id = id;
@@ -407,9 +515,9 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 		 * Instantiates a new icmp type.
 		 * 
 		 * @param id
-		 *          the id
+		 *            the id
 		 * @param description
-		 *          the description
+		 *            the description
 		 */
 		private IcmpType(int id, String description) {
 			this.id = id;
@@ -522,9 +630,9 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 	 * Header length.
 	 * 
 	 * @param buffer
-	 *          the buffer
+	 *            the buffer
 	 * @param offset
-	 *          the offset
+	 *            the offset
 	 * @return the int
 	 */
 	@HeaderLength
@@ -543,9 +651,9 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 	}
 
 	/**
-	 * Calculates a checksum using protocol specification for a header. Checksums
-	 * for partial headers or fragmented packets (unless the protocol alows it)
-	 * are not calculated.
+	 * Calculates a checksum using protocol specification for a header.
+	 * Checksums for partial headers or fragmented packets (unless the protocol
+	 * alows it) are not calculated.
 	 * 
 	 * @return header's calculated checksum
 	 */
@@ -575,7 +683,7 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 	 * Sets a new value in the CRC/checksum field of this header.
 	 * 
 	 * @param crc
-	 *          new computed crc value
+	 *            new computed crc value
 	 * @see org.jnetpcap.packet.JHeaderChecksum#checksum(int)
 	 */
 	public boolean checksum(int crc) {
@@ -647,13 +755,13 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 	}
 
 	/**
-	 * Checks if the checksum is valid, for un-fragmented packets. If a packet is
-	 * fragmented, the checksum is not verified as data to is incomplete, but the
-	 * method returns true none the less.
+	 * Checks if the checksum is valid, for un-fragmented packets. If a packet
+	 * is fragmented, the checksum is not verified as data to is incomplete, but
+	 * the method returns true none the less.
 	 * 
-	 * @return true if checksum checks out or if this is a fragment, otherwise if
-	 *         the computed checksum does not match the stored checksum false is
-	 *         returned
+	 * @return true if checksum checks out or if this is a fragment, otherwise
+	 *         if the computed checksum does not match the stored checksum false
+	 *         is returned
 	 */
 	public boolean isChecksumValid() {
 
@@ -675,7 +783,8 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 	 * checksum field.
 	 * 
 	 * @return true if setter succeeded, or false if unable to set the checksum
-	 *         such as when its the case when header is truncated or not complete
+	 *         such as when its the case when header is truncated or not
+	 *         complete
 	 * @see org.jnetpcap.packet.JHeaderChecksum#recalculateChecksum()
 	 */
 	@Override
@@ -700,7 +809,8 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 	 */
 	@Dynamic(Field.Property.DESCRIPTION)
 	public String typeDescription() {
-		return IcmpType.valueOf(type()).getDescription();
+		IcmpType type = IcmpType.valueOf(type());
+		return (type == null) ? "reserved" : type.getDescription();
 	}
 
 	/**
