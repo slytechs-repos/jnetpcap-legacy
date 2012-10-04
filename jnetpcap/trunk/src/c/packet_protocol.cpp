@@ -943,7 +943,24 @@ void scan_vlan(scan_t *scan) {
 	vlan_t *vlan = (vlan_t *)(scan->buf + scan->offset);
 	scan->length = sizeof(vlan_t);
 
-	scan->next_id = validate_next(lookup_ethertype(vlan->type), scan);
+	if (is_accessible(scan, 14) == FALSE) {
+		return;
+	}
+
+	int vlan_type = BIG_ENDIAN16(vlan->type);
+//	int vlan_type = vlan->type;
+//	printf("scan_vlan() #%d - vlan_type=%04X\n",
+//			scan->scanner->sc_cur_frame_num,
+//			vlan_type);
+//	fflush(stdout);
+
+	if (vlan_type < 0x600) { // We have an IEEE 802.3 frame
+		scan->next_id = validate_next(IEEE_802DOT2_ID, scan); // LLC v2
+
+		scan->hdr_payload = vlan_type - scan->length - scan->offset;
+	} else {
+		scan->next_id = validate_next(lookup_ethertype(vlan_type), scan);
+	}
 }
 
 /*
@@ -1001,8 +1018,10 @@ void scan_snap(scan_t *scan) {
 
 	switch (BIG_ENDIAN32(snap->oui)) {
 	case 0x0000f8: // OUI_CISCO_90
-	case 0: scan->next_id =
-		validate_next(lookup_ethertype(*(uint16_t *)(b + 3)), scan); break;
+	case 0:
+		int type = *(uint16_t *)(b + 3);
+		scan->next_id = validate_next(lookup_ethertype(BIG_ENDIAN16(type)), scan);
+		break;
 	}
 }
 
@@ -1486,12 +1505,12 @@ void scan_ip4(register scan_t *scan) {
 #ifdef DEBUG
 	printf("scan_ip4(): type=%d frag_off=%d @ frag_off.pos=%X\n",
 			ip4->protocol,
-			BIG_ENDIAN16(ip4->frag_off) & IP4_FRAG_OFF_MASK,
+			frag & IP4_FRAG_OFF_MASK,
 			(int)((char *)&ip4->frag_off - scan->buf));
 	fflush(stdout);
 #endif
 
-	if ( (BIG_ENDIAN16(ip4->frag_off) & IP4_FRAG_OFF_MASK) != 0) {
+	if ( (frag & IP4_FRAG_OFF_MASK) != 0) {
 		scan->next_id = PAYLOAD_ID;
 		return;
 	}
@@ -1608,6 +1627,8 @@ void scan_ethernet(scan_t *scan) {
 		return;
 	}
 
+	int type = BIG_ENDIAN16(eth->type);
+
 	/*
 	 * Set the flow key pair for Ethernet.
 	 * First, we check if Ethernet has already been set by looking in the
@@ -1631,8 +1652,8 @@ void scan_ethernet(scan_t *scan) {
 		t = *(uint32_t *)&eth->shost[2] ^ (*(uint16_t *)&eth->shost[0]);
 		scan->packet->pkt_flow_key.forward_pair[0][1] = t;
 
-		scan->packet->pkt_flow_key.forward_pair[1][0] = eth->type;
-		scan->packet->pkt_flow_key.forward_pair[1][1] = eth->type;
+		scan->packet->pkt_flow_key.forward_pair[1][0] = type;
+		scan->packet->pkt_flow_key.forward_pair[1][1] = type;
 
 		scan->packet->pkt_flow_key.id[0] = ETHERNET_ID;
 		scan->packet->pkt_flow_key.id[1] = ETHERNET_ID;
@@ -1643,10 +1664,10 @@ void scan_ethernet(scan_t *scan) {
 		return;
 	}
 
-	if (BIG_ENDIAN16(eth->type) < 0x600) { // We have an IEEE 802.3 frame
+	if (type < 0x600) { // We have an IEEE 802.3 frame
 		scan_802dot3(scan);
 	} else {
-		scan->next_id = validate_next(lookup_ethertype(eth->type), scan);
+		scan->next_id = validate_next(lookup_ethertype(type), scan);
 	}
 }
 
@@ -1705,12 +1726,15 @@ int validate(register int id, register scan_t *scan) {
 
 
 int lookup_ethertype(uint16_t type) {
-//	printf("type=0x%x\n", BIG_ENDIAN16(type));
-	switch (BIG_ENDIAN16(type)) {
+//	printf("lookup_ethertype() - type=0x%x\n", BIG_ENDIAN16(type));
+//	fflush(stdout);
+	switch (type) {
 	case 0x0800: return IP4_ID;
 	case 0x0806: return ARP_ID;
 	case 0x86DD: return IP6_ID;
-	case 0x8100: return IEEE_802DOT1Q_ID;
+	case 0x8100: return IEEE_802DOT1Q_ID; // 802.1q (Vlan) C-VLAN
+	case 0x88a8: return IEEE_802DOT1Q_ID; // 802.1ad (QinQ) S-VLAN
+	case 0x9100: return IEEE_802DOT1Q_ID; // Old style 802.1ad (QinQ) S-VLAN
 	}
 
 	return PAYLOAD_ID;
