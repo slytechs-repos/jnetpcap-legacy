@@ -24,9 +24,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class AnnotatedMethod.
+ * The Class AnnotatedMethod is a base class for all of the annotated methods
+ * used through out jnetpcap. Provides various accessor to reflected methods
+ * and works well with defined annotations for their intended purpose.
  * 
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
@@ -35,15 +36,15 @@ public abstract class AnnotatedMethod {
 
 	/** The method. */
 	protected final Method method;
-	
+
 	/** The is mapped. */
 	protected boolean isMapped = false;
-	
+
 	/**
 	 * Sets the checks if is mapped.
 	 * 
 	 * @param state
-	 *          the new checks if is mapped
+	 *            the new checks if is mapped
 	 */
 	public void setIsMapped(boolean state) {
 		this.isMapped = state;
@@ -57,7 +58,7 @@ public abstract class AnnotatedMethod {
 
 	/** The cache. */
 	private static HashMap<Integer, Method[]> cache =
-	    new HashMap<Integer, Method[]>(20);
+			new HashMap<Integer, Method[]>(20);
 
 	/**
 	 * Instantiates a new annotated method.
@@ -73,14 +74,19 @@ public abstract class AnnotatedMethod {
 	 * Instantiates a new annotated method.
 	 * 
 	 * @param method
-	 *          the method
+	 *            the method
 	 * @param object
-	 *          the object
+	 *            the object
 	 */
 	public AnnotatedMethod(Method method, Object object) {
 		this.object = object;
 		this.method = method;
 		this.declaringClass = method.getDeclaringClass();
+
+		/**
+		 * BUG#3599244
+		 */
+		this.method.setAccessible(true);
 
 	}
 
@@ -88,7 +94,7 @@ public abstract class AnnotatedMethod {
 	 * Instantiates a new annotated method.
 	 * 
 	 * @param method
-	 *          the method
+	 *            the method
 	 */
 	public AnnotatedMethod(Method method) {
 		this.method = method;
@@ -96,6 +102,11 @@ public abstract class AnnotatedMethod {
 		this.object = null;
 
 		validateSignature(method);
+
+		/**
+		 * BUG#3599244
+		 */
+		this.method.setAccessible(true);
 	}
 
 	/**
@@ -111,7 +122,7 @@ public abstract class AnnotatedMethod {
 	 * Validate signature.
 	 * 
 	 * @param method
-	 *          the method
+	 *            the method
 	 */
 	protected abstract void validateSignature(Method method);
 
@@ -125,23 +136,22 @@ public abstract class AnnotatedMethod {
 		if (method == null) {
 			return "";
 		} else {
-			return declaringClass.getSimpleName() + "." + method.getName() + "()";
+			return declaringClass.getSimpleName() + "." + method.getName()
+					+ "()";
 		}
 	}
-
 
 	/**
 	 * Gets the methods.
 	 * 
 	 * @param c
-	 *          the c
+	 *            the c
 	 * @param annotation
-	 *          the annotation
+	 *            the annotation
 	 * @return the methods
 	 */
-	public static Method[] getMethods(
-	    Class<?> c,
-	    Class<? extends Annotation> annotation) {
+	public static Method[] getMethods(Class<?> c,
+			Class<? extends Annotation> annotation) {
 
 		final int hash = c.hashCode() + annotation.hashCode();
 		if (cache.containsKey(hash)) {
@@ -155,8 +165,7 @@ public abstract class AnnotatedMethod {
 			}
 		}
 
-
-		Method[] m =  methods.toArray(new Method[methods.size()]);
+		Method[] m = methods.toArray(new Method[methods.size()]);
 		cache.put(hash, m);
 		return m;
 	}
