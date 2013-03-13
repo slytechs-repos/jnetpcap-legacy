@@ -107,7 +107,7 @@ import org.jnetpcap.protocol.JProtocol;
  * field of every SCTP packet that the receiver of the INIT transmits within
  * this association. </p>
  * <p>
- * The Initiate Tag is allowed to have any value except 0. See Section 5.3.1 for
+ * The Initiate Tag is allowed to have any value except 0. See RFC 4960 Section 5.3.1 for
  * more on the selection of the tag value.
  * </p>
  * <p>
@@ -138,7 +138,7 @@ import org.jnetpcap.protocol.JProtocol;
  * </p>
  * <p>
  * Note: There is no negotiation of the actual number of streams but instead the
- * two endpoints will use the min(requested, offered). See Section 5.1.1 for
+ * two endpoints will use the min(requested, offered). See RFC 4960 Section 5.1.1 for
  * details.
  * </p>
  * <p>

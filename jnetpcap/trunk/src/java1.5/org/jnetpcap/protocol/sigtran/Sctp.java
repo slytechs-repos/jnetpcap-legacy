@@ -50,7 +50,10 @@ import org.jnetpcap.util.checksum.Checksum;
  * @see RFC4960
  * @see http://en.wikipedia.org/wiki/Stream_Control_Transmission_Protocol
  */
-@Header(length = 12, suite = ProtocolSuite.SIGTRAN, description = "Stream Control Transmission Protocol")
+@Header(
+		length = 12,
+		suite = ProtocolSuite.SIGTRAN,
+		description = "Stream Control Transmission Protocol")
 public class Sctp extends JHeader implements JHeaderChecksum {
 
 	/**
@@ -87,45 +90,45 @@ public class Sctp extends JHeader implements JHeaderChecksum {
 	}
 
 	/**
-	 * Field description 
+	 * Field description
 	 * 
 	 * @return description
 	 */
 	@Dynamic(Field.Property.DESCRIPTION)
 	public String sourceDescription() {
 		switch (source()) {
-			case 80 :
-			case 8080 :
-			case 8081 :
-				return "HTTP";
-				
-			case 3868:
-				return "DIAMETER";
+		case 80:
+		case 8080:
+		case 8081:
+			return "HTTP";
+
+		case 3868:
+			return "DIAMETER";
 		}
 
 		return null;
 	}
 
 	/**
-	 * Field description 
+	 * Field description
 	 * 
 	 * @return description
 	 */
 	@Dynamic(Field.Property.DESCRIPTION)
 	public String destinationDescription() {
 		switch (destination()) {
-			case 80 :
-			case 8080 :
-			case 8081 :
-				return "HTTP";
-				
-			case 3868:
-				return "DIAMETER";
+		case 80:
+		case 8080:
+		case 8081:
+			return "HTTP";
+
+		case 3868:
+			return "DIAMETER";
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * This is the SCTP port number to which this packet is destined. The
 	 * receiving host will use this port number to de-multiplex the SCTP packet
@@ -169,7 +172,7 @@ public class Sctp extends JHeader implements JHeaderChecksum {
 	 * 
 	 * <li>A packet containing an ABORT chunk may have the verification tag
 	 * copied from the packet that caused the ABORT to be sent. For details see
-	 * Section 8.4 and Section 8.5.
+	 * RFC 4960 Section 8.4 and Section 8.5.
 	 * </ul>
 	 * 
 	 * @return verification tag
@@ -195,7 +198,7 @@ public class Sctp extends JHeader implements JHeaderChecksum {
 	 * 
 	 * <li>A packet containing an ABORT chunk may have the verification tag
 	 * copied from the packet that caused the ABORT to be sent. For details see
-	 * Section 8.4 and Section 8.5.
+	 * RFC 4960 Section 8.4 and Section 8.5.
 	 * </ul>
 	 * 
 	 * @param tag
@@ -207,13 +210,17 @@ public class Sctp extends JHeader implements JHeaderChecksum {
 
 	/**
 	 * This field contains the checksum of this SCTP packet. Its calculation is
-	 * discussed in Section 6.8. SCTP uses the CRC32c algorithm as described in
-	 * Appendix B for calculating the checksum.
+	 * discussed in RFC 4960 Section 6.8. SCTP uses the CRC32c algorithm as
+	 * described in RFC 4960 Appendix B for calculating the checksum.
 	 * 
 	 * @return value of the checksum field
 	 * @see RFC4960 TODO: Work around the formatter bug where unsigned
 	 */
-	@Field(offset = 8 * BYTE, length = 4 * BYTE, format = "%x", name = "checksum")
+	@Field(
+			offset = 8 * BYTE,
+			length = 4 * BYTE,
+			format = "%x",
+			name = "checksum")
 	public int checksum() {
 		return super.getInt(8);
 	}
@@ -242,8 +249,9 @@ public class Sctp extends JHeader implements JHeaderChecksum {
 		final JPacket packet = getPacket();
 		int save = checksum();
 		checksum(0); // Reset to 0, a requirement for calculation
-		int crc = Checksum.sctp(packet, getOffset(), getHeaderLength()
-				+ getPayloadLength());
+		int crc =
+				Checksum.sctp(packet, getOffset(), getHeaderLength()
+						+ getPayloadLength());
 		// int crc = Checksum.crc32IEEE802(packet, 0, getHeaderLength()
 		// + getPayloadLength());
 
@@ -254,8 +262,8 @@ public class Sctp extends JHeader implements JHeaderChecksum {
 
 	/**
 	 * This field contains the checksum of this SCTP packet. Its calculation is
-	 * discussed in Section 6.8. SCTP uses the CRC32c algorithm as described in
-	 * Appendix B for calculating the checksum.
+	 * discussed in RFC 4960 Section 6.8. SCTP uses the CRC32c algorithm as
+	 * described in Appendix B for calculating the checksum.
 	 * 
 	 * @param crc
 	 *            value of the checksum field

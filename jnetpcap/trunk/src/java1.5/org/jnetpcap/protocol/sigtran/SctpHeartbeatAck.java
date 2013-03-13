@@ -27,9 +27,9 @@ import org.jnetpcap.protocol.JProtocol;
  * Heartbeat Acknowledgement (HEARTBEAT ACK) (5)
  * <p>
  * An endpoint should send this chunk to its peer endpoint as a response to a
- * HEARTBEAT chunk (see Section 8.3). A HEARTBEAT ACK is always sent to the
- * source IP address of the IP datagram containing the HEARTBEAT chunk to which
- * this ack is responding.
+ * HEARTBEAT chunk (see RFC 4960 Section 8.3). A HEARTBEAT ACK is always sent to
+ * the source IP address of the IP datagram containing the HEARTBEAT chunk to
+ * which this ack is responding.
  * </p>
  * <p>
  * The parameter field contains a variable-length opaque data structure.
@@ -50,9 +50,12 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Sly Technologies Inc.
  * @see RFC4960
  */
-@Header(description = "Heartbeat Acknowledgement", suite = ProtocolSuite.SIGTRAN, nicname = "Sctp-hbeat-ack")
+@Header(
+		description = "Heartbeat Acknowledgement",
+		suite = ProtocolSuite.SIGTRAN,
+		nicname = "Sctp-hbeat-ack")
 public class SctpHeartbeatAck extends SctpChunk {
-	
+
 	/**
 	 * Static numerical JRegistry generated ID for this protocol.
 	 */
@@ -63,7 +66,10 @@ public class SctpHeartbeatAck extends SctpChunk {
 	 * 
 	 * @return the type, typically 0x0001
 	 */
-	@Field(offset = 4 * BYTE, length = 2 * BYTE, display = "Heartbeat Info Type")
+	@Field(
+			offset = 4 * BYTE,
+			length = 2 * BYTE,
+			display = "Heartbeat Info Type")
 	public int infoType() {
 		return super.getUShort(4);
 	}
@@ -83,7 +89,10 @@ public class SctpHeartbeatAck extends SctpChunk {
 	 * 
 	 * @return length of TLV field
 	 */
-	@Field(offset = 6 * BYTE, length = 2 * BYTE, display = "Heartbeat Info Length")
+	@Field(
+			offset = 6 * BYTE,
+			length = 2 * BYTE,
+			display = "Heartbeat Info Length")
 	public int infoLength() {
 		return super.getUShort(6);
 	}
@@ -103,7 +112,11 @@ public class SctpHeartbeatAck extends SctpChunk {
 	 * 
 	 * @return array containing the heartbeat data
 	 */
-	@Field(offset = 8 * BYTE, length = 0 * BYTE, display = "Heartbeat Info", format = "#hexdump#")
+	@Field(
+			offset = 8 * BYTE,
+			length = 0 * BYTE,
+			display = "Heartbeat Info",
+			format = "#hexdump#")
 	public byte[] info() {
 		return info(new byte[infoLength() - 4]);
 	}
