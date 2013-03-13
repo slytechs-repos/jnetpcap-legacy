@@ -50,7 +50,7 @@ import org.jnetpcap.protocol.JProtocol;
  * Heartbeat Information: variable length
  * </p>
  * <p>
- * Defined as a variable-length parameter using the format described in Section
+ * Defined as a variable-length parameter using the format described in RFC 4960 Section
  * 3.2.1, i.e.:
  * </p>
  * 

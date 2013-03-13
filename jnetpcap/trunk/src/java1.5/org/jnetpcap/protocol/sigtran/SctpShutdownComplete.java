@@ -26,7 +26,7 @@ import org.jnetpcap.protocol.JProtocol;
  * Shutdown Complete (SHUTDOWN COMPLETE) (14)
  * <p>
  * This chunk MUST be used to acknowledge the receipt of the SHUTDOWN ACK chunk
- * at the completion of the shutdown process; see Section 9.2 for details.
+ * at the completion of the shutdown process; see RFC 4960 Section 9.2 for details.
  * </p>
  * 
  * <pre>

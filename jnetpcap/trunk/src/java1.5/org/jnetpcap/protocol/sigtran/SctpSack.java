@@ -47,7 +47,7 @@ import org.jnetpcap.protocol.JProtocol;
  * <p>
  * </p>
  * The handling of a_rwnd by the receiver of the SACK is discussed in detail in
- * Section 6.2.1.
+ * RFC 4960 Section 6.2.1.
  * <p>
  * </p>
  * The SACK also contains zero or more Gap Ack Blocks. Each Gap Ack Block
@@ -131,7 +131,7 @@ public class SctpSack extends SctpChunk {
 	 * Advertised Receiver Window Credit (a_rwnd): 32 bits (unsigned integer)
 	 * <p>
 	 * This field indicates the updated receive buffer space in bytes of the
-	 * sender of this SACK; see Section 6.2.1 for details.
+	 * sender of this SACK; see RFC 4960 Section 6.2.1 for details.
 	 * </p>
 	 * 
 	 * @return value window credit
@@ -145,7 +145,7 @@ public class SctpSack extends SctpChunk {
 	 * Advertised Receiver Window Credit (a_rwnd): 32 bits (unsigned integer)
 	 * <p>
 	 * This field indicates the updated receive buffer space in bytes of the
-	 * sender of this SACK; see Section 6.2.1 for details.
+	 * sender of this SACK; see RFC 4960 Section 6.2.1 for details.
 	 * </p>
 	 * 
 	 * @param value

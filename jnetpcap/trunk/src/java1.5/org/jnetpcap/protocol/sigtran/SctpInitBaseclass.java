@@ -112,7 +112,7 @@ import org.jnetpcap.packet.format.FormatUtils;
  * field of every SCTP packet that the receiver of the INIT transmits within
  * this association. </p>
  * <p>
- * The Initiate Tag is allowed to have any value except 0. See Section 5.3.1 for
+ * The Initiate Tag is allowed to have any value except 0. See RFC 4960 Section 5.3.1 for
  * more on the selection of the tag value.
  * </p>
  * <p>
@@ -143,7 +143,7 @@ import org.jnetpcap.packet.format.FormatUtils;
  * </p>
  * <p>
  * Note: There is no negotiation of the actual number of streams but instead the
- * two endpoints will use the min(requested, offered). See Section 5.1.1 for
+ * two endpoints will use the min(requested, offered). See RFC 4960 Section 5.1.1 for
  * details.
  * </p>
  * <p>
@@ -356,7 +356,7 @@ public abstract class SctpInitBaseclass extends SctpChunk {
 
 	/**
 	 * Baseclass for Type-Length-Value parameters. The following parameters
-	 * follow the Type-Length-Value format as defined in Section 3.2.1. Any
+	 * follow the Type-Length-Value format as defined in RFC 4960 Section 3.2.1. Any
 	 * Type-Length-Value fields MUST come after the fixed-length fields defined
 	 * in the previous section.
 	 * 
@@ -615,7 +615,7 @@ public abstract class SctpInitBaseclass extends SctpChunk {
 	 * </p>
 	 * <p>
 	 * Note: There is no negotiation of the actual number of streams but instead
-	 * the two endpoints will use the min(requested, offered). See Section 5.1.1
+	 * the two endpoints will use the min(requested, offered). See RFC 4960 Section 5.1.1
 	 * for details.
 	 * </p>
 	 * <p>
@@ -639,7 +639,7 @@ public abstract class SctpInitBaseclass extends SctpChunk {
 	 * </p>
 	 * <p>
 	 * Note: There is no negotiation of the actual number of streams but instead
-	 * the two endpoints will use the min(requested, offered). See Section 5.1.1
+	 * the two endpoints will use the min(requested, offered). See RFC 4960 Section 5.1.1
 	 * for details.
 	 * </p>
 	 * <p>
@@ -711,7 +711,7 @@ public abstract class SctpInitBaseclass extends SctpChunk {
 	 * within this association.
 	 * </p>
 	 * <p>
-	 * The Initiate Tag is allowed to have any value except 0. See Section 5.3.1
+	 * The Initiate Tag is allowed to have any value except 0. See RFC 4960 Section 5.3.1
 	 * for more on the selection of the tag value.
 	 * </p>
 	 * <p>
@@ -736,7 +736,7 @@ public abstract class SctpInitBaseclass extends SctpChunk {
 	 * within this association.
 	 * </p>
 	 * <p>
-	 * The Initiate Tag is allowed to have any value except 0. See Section 5.3.1
+	 * The Initiate Tag is allowed to have any value except 0. See RFC 4960 Section 5.3.1
 	 * for more on the selection of the tag value.
 	 * </p>
 	 * <p>
