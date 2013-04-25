@@ -41,7 +41,7 @@ public class Rip1 extends Rip {
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
 	 */
-	@Header
+	@Header(length = 10)
 	public static class EntryV1 extends JSubHeader<Rip1> {
 
 		/**

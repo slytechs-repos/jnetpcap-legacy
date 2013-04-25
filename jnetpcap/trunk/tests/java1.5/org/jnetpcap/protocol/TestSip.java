@@ -639,9 +639,9 @@ public class TestSip extends TestCase {
 
 	@Test
 	public void testReadAllPackets() {
-		String[] files = {"z:/data/test-sip-rtp.pcap",
-				"z:/data/test-sip-rtp-g711.pcap",
-				"z:/data/test-sip-info-packets.pcap"};
+		String[] files = {"tests/test-sip-rtp.pcap",
+				"tests/test-sip-rtp-g711.pcap",
+				"tests/test-sip-info-packets.pcap"};
 
 		int i = 1;
 		Sip sip = new Sip();
@@ -653,12 +653,12 @@ public class TestSip extends TestCase {
 			for (JPacket packet : TestUtils.getIterable(file)) {
 
 				if (packet.hasHeader(sip)) {
+					System.out.println(packet.getState().toDebugString());
 					if (sip.getMethod() == null) {
 						out.println(sip);
 					}
-					out.printf("#%d: method=%s type=%s%n", i++,
-							sip.getMethod(), sip.getMessageType());
-
+//					out.printf("#%d: method=%s type=%s%n", i++,
+//							sip.getMethod(), sip.getMessageType());
 				}
 			}
 		}

@@ -31,6 +31,7 @@ import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
+import org.jnetpcap.protocol.application.Html.Tag.Param;
 import org.jnetpcap.protocol.tcpip.Http;
 import org.jnetpcap.util.JThreadLocal;
 
@@ -42,9 +43,7 @@ import org.jnetpcap.util.JThreadLocal;
  * @author Sly Technologies, Inc.
  */
 @Header(nicname = "Html", suite = ProtocolSuite.APPLICATION)
-public class Html
-    extends
-    JHeader {
+public class Html extends JHeader {
 
 	/**
 	 * Html tag instance parsed from the html document.
@@ -58,13 +57,13 @@ public class Html
 		 * The Enum Type.
 		 */
 		public enum Type {
-			
+
 			/** The ATOMIC. */
 			ATOMIC,
-			
+
 			/** The CLOSE. */
 			CLOSE,
-			
+
 			/** The OPEN. */
 			OPEN,
 		}
@@ -94,25 +93,20 @@ public class Html
 		 * Instantiates a new html tag.
 		 * 
 		 * @param tag
-		 *          the tag
+		 *            the tag
 		 * @param type
-		 *          the type
+		 *            the type
 		 * @param tagString
-		 *          the tag string
+		 *            the tag string
 		 * @param source
-		 *          the source
+		 *            the source
 		 * @param start
-		 *          the start
+		 *            the start
 		 * @param end
-		 *          the end
+		 *            the end
 		 */
-		public HtmlTag(
-		    Tag tag,
-		    Type type,
-		    String tagString,
-		    String source,
-		    int start,
-		    int end) {
+		public HtmlTag(Tag tag, Type type, String tagString, String source,
+				int start, int end) {
 
 			this.tag = tag;
 			this.type = type;
@@ -194,28 +188,34 @@ public class Html
 		 * Parses the tag.
 		 * 
 		 * @param tag
-		 *          the tag
+		 *            the tag
 		 * @param tagString
-		 *          the tag string
+		 *            the tag string
 		 */
 		private void parseTag(Tag tag, String tagString) {
 			String[] p = tagString.split(" ");
+			
+			System.out.printf("html::parseTag=%s%n", tagString);
 
 			if (p.length > 1) {
 				this.params = new HashMap<Tag.Param, String>(p.length - 1);
 			}
 
-			for (String s : p) {
-				s = s.trim();
-				String[] c = s.split("=");
-
-				if (c.length == 2) {
-					if (c[1].charAt(0) == '"' || c[1].charAt(0) == '\"') {
-						c[1] = c[1].substring(1, c[1].length() - 2);
-					}
-					this.params.put(Tag.Param.parseStringPrefix(c[0]), c[1]);
-				}
-			}
+//			for (String s : p) {
+//				s = s.trim();
+//				String[] c = s.split("=");
+//
+//				if (c.length == 2) {
+//					if (c[1].charAt(0) == '"' || c[1].charAt(0) == '\"') {
+//						c[1] = c[1].substring(1, c[1].length() - 2);
+//					}
+//					Param key = Tag.Param.parseStringPrefix(c[0]);
+//					System.out.printf("key=%s, c[1]=%s%n", key, c[1]);
+//					if (key != null) {
+//						this.params.put(key, c[1]);
+//					}
+//				}
+//			}
 		}
 
 		/**
@@ -228,15 +228,15 @@ public class Html
 			StringBuilder b = new StringBuilder();
 
 			switch (type) {
-				case ATOMIC:
-					// b.append(tag.name()).append("<>");
-					break;
-				case CLOSE:
-					b.append(tag.name()).append("/>");
-					break;
-				case OPEN:
-					b.append(tag.name()).append('<');
-					break;
+			case ATOMIC:
+				// b.append(tag.name()).append("<>");
+				break;
+			case CLOSE:
+				b.append(tag.name()).append("/>");
+				break;
+			case OPEN:
+				b.append(tag.name()).append('<');
+				break;
 			}
 
 			if (tag == Tag.TEXT) {
@@ -263,130 +263,130 @@ public class Html
 	 * @author Sly Technologies, Inc.
 	 */
 	public enum Tag {
-		
+
 		/** The A. */
 		A,
-		
+
 		/** The B. */
 		B,
-		
+
 		/** The BODY. */
 		BODY,
-		
+
 		/** The BUTTON. */
 		BUTTON,
-		
+
 		/** The CAPTION. */
 		CAPTION,
-		
+
 		/** The CENTER. */
 		CENTER,
-		
+
 		/** The DIV. */
 		DIV,
-		
+
 		/** The EM. */
 		EM,
-		
+
 		/** The FORM. */
 		FORM,
-		
+
 		/** The H1. */
 		H1,
-		
+
 		/** The H2. */
 		H2,
-		
+
 		/** The H3. */
 		H3,
-		
+
 		/** The H4. */
 		H4,
-		
+
 		/** The H5. */
 		H5,
-		
+
 		/** The H6. */
 		H6,
-		
+
 		/** The HEAD. */
 		HEAD,
-		
+
 		/** The HTML. */
 		HTML,
-		
+
 		/** The I. */
 		I,
-		
+
 		/** The IFRAME. */
 		IFRAME,
-		
+
 		/** The IMG. */
 		IMG,
-		
+
 		/** The INPUT. */
 		INPUT,
-		
+
 		/** The LABEL. */
 		LABEL,
-		
+
 		/** The LI. */
 		LI,
-		
+
 		/** The LINK. */
 		LINK("rel", "type", "href"),
-		
+
 		/** The META. */
 		META,
-		
+
 		/** The NOSCRIPT. */
 		NOSCRIPT,
-		
+
 		/** The OBJECT. */
 		OBJECT,
-		
+
 		/** The OL. */
 		OL,
-		
+
 		/** The P. */
 		P,
-		
+
 		/** The REL. */
 		REL,
-		
+
 		/** The SCRIPT. */
 		SCRIPT,
-		
+
 		/** The SPAN. */
 		SPAN,
-		
+
 		/** The TABLE. */
 		TABLE,
-		
+
 		/** The TBODY. */
 		TBODY,
-		
+
 		/** The TD. */
 		TD,
-		
+
 		/** The TEXT. */
 		TEXT,
-		
+
 		/** The TH. */
 		TH,
-		
+
 		/** The TITLE. */
 		TITLE,
-		
+
 		/** The TR. */
 		TR,
-		
+
 		/** The U. */
 		U,
-		
+
 		/** The UL. */
 		UL,
-		
+
 		/** The UNKNOWN. */
 		UNKNOWN;
 
@@ -397,34 +397,34 @@ public class Html
 		 * @author Sly Technologies, Inc.
 		 */
 		public enum Param {
-			
+
 			/** The ALT. */
 			ALT,
-			
+
 			/** The CLASS. */
 			CLASS,
-			
+
 			/** The HEIGHT. */
 			HEIGHT,
-			
+
 			/** The HREF. */
 			HREF,
-			
+
 			/** The ID. */
 			ID,
-			
+
 			/** The SRC. */
 			SRC,
-			
+
 			/** The TITLE. */
 			TITLE,
-			
+
 			/** The TYPE. */
 			TYPE,
-			
+
 			/** The UNKNOWN. */
 			UNKNOWN,
-			
+
 			/** The WIDTH. */
 			WIDTH;
 
@@ -432,7 +432,7 @@ public class Html
 			 * Parses the string prefix.
 			 * 
 			 * @param name
-			 *          the name
+			 *            the name
 			 * @return the param
 			 */
 			public static Param parseStringPrefix(String name) {
@@ -451,7 +451,7 @@ public class Html
 		 * Parses the string prefix.
 		 * 
 		 * @param name
-		 *          the name
+		 *            the name
 		 * @return the tag
 		 */
 		public static Tag parseStringPrefix(String name) {
@@ -471,7 +471,7 @@ public class Html
 		 * Instantiates a new tag.
 		 * 
 		 * @param params
-		 *          the params
+		 *            the params
 		 */
 		private Tag(String... params) {
 
@@ -498,37 +498,39 @@ public class Html
 	 * Bind2 http.
 	 * 
 	 * @param packet
-	 *          the packet
+	 *            the packet
 	 * @param http
-	 *          the http
+	 *            the http
 	 * @return true, if successful
 	 */
 	@Bind(to = Http.class, stringValue = "text/html")
 	public static boolean bind2Http(JPacket packet, Http http) {
-		return http.hasContentType() && http.contentType().startsWith("text/html;");
+		return http.hasContentType()
+				&& http.contentType().startsWith("text/html;");
 	}
 
 	/**
 	 * Bind2 http as css.
 	 * 
 	 * @param packet
-	 *          the packet
+	 *            the packet
 	 * @param http
-	 *          the http
+	 *            the http
 	 * @return true, if successful
 	 */
 	@Bind(to = Http.class, stringValue = "text/css")
 	public static boolean bind2HttpAsCSS(JPacket packet, Http http) {
-		return http.hasContentType() && http.contentType().startsWith("text/css;");
+		return http.hasContentType()
+				&& http.contentType().startsWith("text/css;");
 	}
 
 	/**
 	 * Header length.
 	 * 
 	 * @param buffer
-	 *          the buffer
+	 *            the buffer
 	 * @param offset
-	 *          the offset
+	 *            the offset
 	 * @return the int
 	 */
 	@HeaderLength
@@ -541,11 +543,11 @@ public class Html
 
 	/** The Constant stringLocal. */
 	private static final JThreadLocal<StringBuilder> stringLocal =
-	    new JThreadLocal<StringBuilder>(StringBuilder.class);
+			new JThreadLocal<StringBuilder>(StringBuilder.class);
 
 	/** The Constant parserLocal. */
 	private static final JThreadLocal<HtmlParser> parserLocal =
-	    new JThreadLocal<HtmlParser>(HtmlParser.class);
+			new JThreadLocal<HtmlParser>(HtmlParser.class);
 
 	/** The tags. */
 	private HtmlTag[] tags;
