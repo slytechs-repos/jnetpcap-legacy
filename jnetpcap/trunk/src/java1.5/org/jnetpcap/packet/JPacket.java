@@ -19,6 +19,7 @@
 package org.jnetpcap.packet;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Iterator;
 
 import org.jnetpcap.JCaptureHeader;
@@ -32,7 +33,6 @@ import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.util.JThreadLocal;
 
-// TODO: Auto-generated Javadoc
 /**
  * A native packet buffer object. This class references both packet data buffer
  * and decoded native packet structure. JPacket class is a subclass of a more
@@ -45,8 +45,8 @@ import org.jnetpcap.util.JThreadLocal;
  * data buffer at the time the packet was scanned, the user can use
  * {@link #hasHeader} methods. The method returns true if a particular header is
  * found within the packet data buffer, otherwise false. A convenience method
- * {@link #hasHeader(JHeader)} exists that performs both an existance check and
- * initializes the header instace supplied to point at the header within the
+ * {@link #hasHeader(JHeader)} exists that performs both an existence check and
+ * initializes the header instance supplied to point at the header within the
  * packet.
  * </p>
  * <p>
@@ -353,13 +353,6 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 			return r;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * org.jnetpcap.nio.JPeerable#peer(org.jnetpcap.nio.JMemoryPool.Block,
-		 * int, int)
-		 */
 		/**
 		 * Peer.
 		 * 
@@ -700,7 +693,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	 *            new formatter {@link #toString} method. The new formatter will
 	 *            be used by default for all packets. The formatter should
 	 *            internally build a string that will be returned with
-	 *            out.toString() method call to get meaningfull output.
+	 *            out.toString() method call to get meaningful output.
 	 */
 	public static void setFormatter(JFormatter out) {
 		JPacket.out = out;
@@ -725,7 +718,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	}
 
 	/**
-	 * The allocated memory buffer. Initialy this buffer is empty, but may be
+	 * The allocated memory buffer. Initially this buffer is empty, but may be
 	 * peered with allocated memory for internal usage such as copying header,
 	 * state and data into a single buffer
 	 */
@@ -746,6 +739,8 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	 */
 	public JPacket(int size, int state) {
 		super(Type.POINTER);
+		
+		order(ByteOrder.BIG_ENDIAN);
 
 		allocate(size + state);
 	}
@@ -756,11 +751,11 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	 * structure that contains meta information about the structure of the
 	 * packet data buffer.
 	 * <p>
-	 * JPacket constists of 2 peers. The first and the main memory peering is
+	 * JPacket consists of 2 peers. The first and the main memory peering is
 	 * with the packet_state_t structure which stores information about the
 	 * decoded state of the packet, another words the result of the scanned
 	 * packet data buffer. The second peer is to the actual packet data buffer
-	 * which is a seperate pointer.
+	 * which is a separate pointer.
 	 * <h2>Peering struct packet_t</h2>
 	 * This structure contains the "packet state". This is the decoded state
 	 * which specifies what headers are in the buffer and at what offsets. This
@@ -778,6 +773,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	 */
 	public JPacket(Type type) {
 		super(type);
+		order(ByteOrder.BIG_ENDIAN);
 	}
 
 	/**
@@ -1040,7 +1036,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 
 	/**
 	 * Gets the memory buffer with the supplied byte array data copied into it.
-	 * The internal memory buffer is allocated if neccessary.
+	 * The internal memory buffer is allocated if necessary.
 	 * 
 	 * @param buffer
 	 *            source array buffer to copy data out of
@@ -1071,7 +1067,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	}
 
 	/**
-	 * Retrieves a memory buffer, allocated if neccessary, at least minSize in
+	 * Retrieves a memory buffer, allocated if necessary, at least minSize in
 	 * bytes. If existing buffer is already big enough, it is returned,
 	 * otherwise a new buffer is allocated and the existing one released.
 	 * 
@@ -1089,7 +1085,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 
 	/**
 	 * Gets the memory buffer with the supplied JBuffer data copied into it. The
-	 * internal memory buffer is allocated if neccessary.
+	 * internal memory buffer is allocated if necessary.
 	 * 
 	 * @param buffer
 	 *            source array buffer to copy data out of
@@ -1406,7 +1402,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 
 	/**
 	 * Scan and decode the packet using current scanner. The new packet state
-	 * replaces any existing packet state already asigned to this packet.
+	 * replaces any existing packet state already assigned to this packet.
 	 * 
 	 * @param id
 	 *            numerical ID as assigned by JRegistry of the first protocol
@@ -1435,9 +1431,9 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	/**
 	 * Generates text formatted output using the default builtin formatter. The
 	 * default is to generate TextFormatter that uses a StringBuilder for output
-	 * buffer and gerate a single string that is returned from here.
+	 * buffer and generate a single string that is returned from here.
 	 * <p>
-	 * This method is multi-thread safe, but not reenterant from the same thread.
+	 * This method is multi-thread safe, but not reentrant from the same thread.
 	 * </p>
 	 * 
 	 * @return formatted output of this packet
