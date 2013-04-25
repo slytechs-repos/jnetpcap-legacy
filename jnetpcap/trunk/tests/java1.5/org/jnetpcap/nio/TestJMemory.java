@@ -20,6 +20,8 @@ package org.jnetpcap.nio;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 import junit.framework.TestCase;
 
@@ -30,8 +32,7 @@ import org.jnetpcap.packet.PeeringException;
 /**
  * The Class TestJMemory.
  */
-public class TestJMemory
-    extends TestCase {
+public class TestJMemory extends TestCase {
 
 	/*
 	 * (non-Javadoc)
@@ -70,7 +71,7 @@ public class TestJMemory
 	 * Test peer with direct byte buffer.
 	 * 
 	 * @throws PeeringException
-	 *           the peering exception
+	 *             the peering exception
 	 */
 	public void testPeerWithDirectByteBuffer() throws PeeringException {
 		ByteBuffer b = ByteBuffer.allocateDirect(4);
@@ -130,6 +131,52 @@ public class TestJMemory
 			// expected
 		}
 
+	}
+
+	public void testLargeMemoryAllocations() {
+
+		final long timeout = 1000;
+		long expire = System.currentTimeMillis() + timeout;
+
+		DisposableGC.getDefault().setVerbose(true);
+		final BlockingQueue<JMemory> queue =
+				new ArrayBlockingQueue<JMemory>(100000, true);
+
+		Thread consumer = new Thread() {
+			public void run() {
+
+				while (true) {
+					try {
+						queue.take();
+//						Thread.sleep(1);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+
+			}
+		};
+		consumer.start();
+
+		final int COUNT = 100000000;
+		final int SIZE = 1 * 8 * 1024;
+		long total = 0;
+		JMemoryPool pool = new JMemoryPool();
+		for (int i = 0; i < COUNT; i++) {
+			JMemory memory = new JMemory(JMemory.POINTER) {
+			};
+			pool.allocate(SIZE, memory);
+//			queue.offer(memory);
+			total += SIZE;
+
+//			if (System.currentTimeMillis() >= expire) {
+//				System.out.printf("size=%dMB queue.size=%d%n",
+//						(total) / (1000000),
+//						queue.size());
+//				expire = System.currentTimeMillis() + timeout;
+//			}
+		}
 	}
 
 }
