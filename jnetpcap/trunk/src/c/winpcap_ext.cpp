@@ -400,6 +400,49 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_offlineFilter__Lorg_jne
 
 /*
  * Class:     org_jnetpcap_winpcap_WinPcap
+ * Method:    offlineFilter
+ * Signature: (Lorg/jnetpcap/PcapBpfProgram;Lorg/jnetpcap/PcapHeader;Lorg/jnetpcap/nio/JBuffer;)I
+ */
+JNIEXPORT jint JNICALL Java_org_jnetpcap_winpcap_WinPcap_offlineFilter__Lorg_jnetpcap_PcapBpfProgram_2Lorg_jnetpcap_PcapHeader_2Lorg_jnetpcap_nio_JBuffer_2
+(JNIEnv *env, jclass clazz, jobject jbpf, jobject jhdr, jobject jbuf) {
+
+#ifdef WIN32
+	/*
+	 * Make sure extensions are supported, these methods will compile on
+	 * non WinPcap based systems, so we rely on exception handling to prevent
+	 * people from using these methods.
+	 */
+	if (testExtensionSupportAndThrow(env) == JNI_FALSE) {
+		return -1; // Exception already thrown
+	}
+
+	if (jbpf == NULL || jhdr == NULL || jbuf == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, NULL);
+		return -1;
+	}
+
+	bpf_program *bpf = getBpfProgram(env, jbpf);
+	if (bpf == NULL) {
+		return -1; // Exception already thrown
+	}
+
+	pcap_pkthdr *hdr;
+	hdr = (pcap_pkthdr *)getJMemoryPhysical(env, jhdr);
+
+	u_char *b = (u_char *)getJMemoryPhysical(env, jbuf);
+	if (b == NULL) {
+		return -1; // Exception already thrown
+	}
+
+	return (jint) pcap_offline_filter (bpf, hdr, b);
+#else
+	throwException(env, PCAP_EXTENSION_NOT_AVAILABLE_EXCEPTION, NULL);
+	return -1;
+#endif
+}
+
+/*
+ * Class:     org_jnetpcap_winpcap_WinPcap
  * Method:    liveDump
  * Signature: (Ljava/lang/String;II)I
  */

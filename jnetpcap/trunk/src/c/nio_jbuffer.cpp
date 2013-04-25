@@ -70,8 +70,8 @@ jmethodID bufferGetCapacityMID = 0;
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_initIds
 (JNIEnv *env, jclass clazz) {
 
-	jclass c = clazz;
-	
+	jclass c;
+	if ( (c = findClass(env, "org/jnetpcap/nio/JBuffer")) == NULL)	return;
 	if ( (bufferClass = findClass(env, "java/nio/Buffer")) == NULL)	return;
 	if ( (byteBufferClass = findClass(env, "java/nio/ByteBuffer")) == NULL)	return;
 
