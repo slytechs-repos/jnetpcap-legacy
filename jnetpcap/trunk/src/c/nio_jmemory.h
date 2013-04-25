@@ -75,6 +75,12 @@ void jmemoryResize(JNIEnv *env, jobject obj, size_t size);
 char *jmemoryAllocate(JNIEnv *env, size_t size, jobject obj);
 char *jmemoryToDebugString(JNIEnv *env, jobject obj, char *buf);
 
+#ifdef ENABLE_ASSERT
+#define TOKEN_TO_STRING(TOK) # TOK
+#define ASSERT(cond) if (!(cond)) { fprintf(stderr, "ASSERT FAILED: %s:%d \"%s\"\n", __FILE__, __LINE__, TOKEN_TO_STRING(cond)); fflush(stderr); exit(1);}
+#else
+#define ASSERT(cond)
+#endif
 
 #ifdef __cplusplus
 }

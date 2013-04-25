@@ -24,11 +24,15 @@
 #include <unistd.h>
 #endif /*WIN32*/
 
+//#define ENABLE_ASSERT
 #include "nio_jmemory.h"
 #include "jnetpcap_utils.h"
 #include "jnetpcap_ids.h"
 #include "org_jnetpcap_nio_JMemory.h"
+#include "org_jnetpcap_nio_JBuffer.h"
 #include "export.h"
+
+//#define DEBUG
 
 /****************************************************************
  * **************************************************************
@@ -82,6 +86,12 @@ jobject defaultMemoryPool = NULL;
  */
 memory_usage_t memory_usage;
 
+static void register_natives(JNIEnv *env) {
+	if (jmemoryClass == NULL) {
+		Java_org_jnetpcap_nio_JMemory_initIDs(env, NULL);
+	}
+}
+
 /*
  * Class:     org_jnetpcap_nio_JMemory
  * Method:    initIDs
@@ -94,152 +104,51 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_initIDs
 
 	jclass c;
 
-	if ( (jmemoryClass = c = findClass(env, "org/jnetpcap/nio/JMemory")) == NULL) {
-		throwException(env, CLASS_NOT_FOUND_EXCEPTION,
-				"Unable to initialize class org.jnetpcap.JMemory");
-		return;
-	}
+	if ( (jmemoryClass = c = findClass(env, "org/jnetpcap/nio/JMemory")) == NULL) return;
 
-	if ( ( jmemoryPhysicalFID = env->GetFieldID(c, "physical", "J")) == NULL) {
-		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field JMemory.physical:long");
-		return;
-	}
+	if ( ( jmemoryPhysicalFID = env->GetFieldID(c, "physical", "J")) == NULL) return;
 
-	if ( ( jmemorySizeFID = env->GetFieldID(c, "size", "I")) == NULL) {
-		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field JMemory.size:int");
-		return;
-	}
+	if ( ( jmemorySizeFID = env->GetFieldID(c, "size", "I")) == NULL) return;
 
-	if ( ( jmemoryOwnerFID = env->GetFieldID(c, "owner", "Z")) == NULL) {
-		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field JMemory.owner:boolean");
-		return;
-	}
+	if ( ( jmemoryOwnerFID = env->GetFieldID(c, "owner", "Z")) == NULL) return;
 
-	if ( ( jmemoryKeeperFID = env->GetFieldID(c, "keeper", "Ljava/lang/Object;")) == NULL) {
-		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field JMemory.keeper:Object");
-		return;
-	}
+	if ( ( jmemoryKeeperFID = env->GetFieldID(c, "keeper", "Ljava/lang/Object;")) == NULL) return;
 
-	if ( ( jmemoryRefFID = env->GetFieldID(c, "ref", "Lorg/jnetpcap/nio/JMemoryReference;")) == NULL) {
-		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field JMemory.ref:JMemoryReference");
-		fprintf(stderr, "Unable to initialize field JMemory.ref");
-		return;
-	}
+	if ( ( jmemoryRefFID = env->GetFieldID(c, "ref", "Lorg/jnetpcap/nio/JMemoryReference;")) == NULL) return;
 
-	if ( ( jmemoryCleanupMID = env->GetMethodID(c, "cleanup", "()V")) == NULL) {
-		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize method JMemory.cleanup()");
-		fprintf(stderr, "Unable to initialize method JMemory.cleanup()");
-		return;
-	}
+	if ( ( jmemoryCleanupMID = env->GetMethodID(c, "cleanup", "()V")) == NULL) return;
 
-	if ( ( jmemoryAllocateMID = env->GetMethodID(c, "allocate", "(I)J")) == NULL) {
-		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize method JMemory.allocate()");
-		fprintf(stderr, "Unable to initialize method JMemory.allocate()");
-		return;
-	}
+	if ( ( jmemoryAllocateMID = env->GetMethodID(c, "allocate", "(I)J")) == NULL) return;
 
-	if ( ( jmemoryPeer0MID = env->GetMethodID(c, "peer0", "(JILjava/lang/Object;)I")) == NULL) {
-		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize method JMemory.peer0()");
-		fprintf(stderr, "Unable to initialize method JMemory.peer0()");
-		return;
-	}
+	if ( ( jmemoryPeer0MID = env->GetMethodID(c, "peer0", "(JILjava/lang/Object;)I")) == NULL) return;
 
-	if ( ( jmemoryCreateReferenceMID = env->GetMethodID(c, "createReference", "(JJ)Lorg/jnetpcap/nio/JMemoryReference;")) == NULL) {
-		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize method JMemory.createReference()");
-		fprintf(stderr, "Unable to initialize method JMemory.createReference()");
-		return;
-	}
+	if ( ( jmemoryCreateReferenceMID = env->GetMethodID(c, "createReference", "(JJ)Lorg/jnetpcap/nio/JMemoryReference;")) == NULL) return;
 
-	if ( ( jmemorySetSize0MID = env->GetMethodID(c, "setSize0", "(I)V")) == NULL) {
-		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize method JMemory.setSize()");
-		fprintf(stderr, "Unable to initialize method JMemory.setSize()");
-		return;
-	}
+	if ( ( jmemorySetSize0MID = env->GetMethodID(c, "setSize0", "(I)V")) == NULL) return;
 
-	if ( ( jmemoryMaxDirectMemoryBreachMID = env->GetStaticMethodID(c, "maxDirectMemoryBreached", "()V")) == NULL) {
-		throwException(env, NO_SUCH_METHOD_EXCEPTION,
-				"Unable to initialize method JMemory.maxDirectMemoryBreached()");
-		fprintf(stderr, "Unable to initialize method JMemory.maxDirectMemoryBreached()");
-		return;
-	}
-	if ( ( jmemorySoftDirectMemoryBreachMID = env->GetStaticMethodID(c, "softDirectMemoryBreached", "()V")) == NULL) {
-		throwException(env, NO_SUCH_METHOD_EXCEPTION,
-				"Unable to initialize method JMemory.softDirectMemoryBreached()");
-		fprintf(stderr, "Unable to initialize method JMemory.softDirectMemoryBreached()");
-		return;
-	}
+	if ( ( jmemoryMaxDirectMemoryBreachMID = env->GetStaticMethodID(c, "maxDirectMemoryBreached", "()V")) == NULL) return;
+	if ( ( jmemorySoftDirectMemoryBreachMID = env->GetStaticMethodID(c, "softDirectMemoryBreached", "()V")) == NULL) return;
 
-	if ( ( jmemoryToDebugStringMID = env->GetMethodID(c, "toDebugString", "()Ljava/lang/String;")) == NULL) {
-		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize method JMemory.toDebugString():String");
-		fprintf(stderr, "Unable to initialize method JMemory.toDebugString():String");
-		return;
-	}
+	if ( ( jmemoryToDebugStringMID = env->GetMethodID(c, "toDebugString", "()Ljava/lang/String;")) == NULL) return;
 
 	jclass typeClass;
-	if ( (typeClass = findClass(env, "org/jnetpcap/nio/JMemory$Type")) == NULL) {
-		throwException(env, CLASS_NOT_FOUND_EXCEPTION,
-				"Unable to find class JMemory.Type");
-		fprintf(stderr, "Unable to find class JMemory.Type");
-		return;
-	}
+	if ( (typeClass = findClass(env, "org/jnetpcap/nio/JMemory$Type")) == NULL) return;
 
 	if ( ( jmemoryPOINTERFID = env->GetStaticFieldID(
 							typeClass, "POINTER",
-							"Lorg/jnetpcap/nio/JMemory$Type;")) == NULL) {
-
-		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field JMemory.Type.POINTER:JMemory.Type");
-		fprintf(stderr, "Unable to initialize field JMemory.Type.POINTER:JMemory.Type");
-		return;
-	}
+							"Lorg/jnetpcap/nio/JMemory$Type;")) == NULL) return;
 
 	jmemoryPOINTER_CONST = env->NewGlobalRef(
 			env->GetStaticObjectField(typeClass, jmemoryPOINTERFID));
 
-	if ( (jmemoryPoolClass = c = findClass(env, "org/jnetpcap/nio/JMemoryPool")) == NULL) {
-		throwException(env, CLASS_NOT_FOUND_EXCEPTION,
-				"Unable to initialize class org.jnetpcap.JMemoryPool");
-		return;
-	}
+	if ( (jmemoryPoolClass = c = findClass(env, "org/jnetpcap/nio/JMemoryPool")) == NULL) return;
 
-	if ( ( jmemoryPoolAllocateExclusiveMID = env->GetMethodID(c, "allocateExclusive", "(I)Lorg/jnetpcap/nio/JMemory;")) == NULL) {
-		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize method JMemoryPool.allocateExlusive():JMemory");
-		fprintf(stderr, "Unable to initialize method JMemoryPool.allocateExlusive():JMemory");
-		return;
-	}
+	if ( ( jmemoryPoolAllocateExclusiveMID = env->GetMethodID(c, "allocateExclusive", "(I)Lorg/jnetpcap/nio/JMemory;")) == NULL) return;
 
-	if ( ( jmemoryPoolDefaultMemoryPoolMID = env->GetStaticMethodID(c, "defaultMemoryPool", "()Lorg/jnetpcap/nio/JMemoryPool;")) == NULL) {
-		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize method JMemoryPool.defaultMemoryPool():JMemoryPool");
-		fprintf(stderr, "Unable to initialize method JMemoryPool.defaultMemoryPool():JMemoryPool");
-		return;
-	}
+	if ( ( jmemoryPoolDefaultMemoryPoolMID = env->GetStaticMethodID(c, "defaultMemoryPool", "()Lorg/jnetpcap/nio/JMemoryPool;")) == NULL) return;
 
-	if ( (jmemoryRefClass = c = findClass(env, "org/jnetpcap/nio/JMemoryReference")) == NULL) {
-		throwException(env, CLASS_NOT_FOUND_EXCEPTION,
-				"Unable to initialize class org.jnetpcap.nio.JMemoryReference");
-		fprintf(stderr, "Unable to initialize class org.jnetpcap.nio.JMemoryReference");
-		return;
-	}
-
-	if ( ( jmemoryRefAddressFID = env->GetFieldID(c, "address", "J")) == NULL) {
-		throwException(env, NO_SUCH_FIELD_EXCEPTION,
-				"Unable to initialize field JMemoryReference.address:long");
-		return;
-	}
-
+	if ( (jmemoryRefClass = c = findClass(env, "org/jnetpcap/nio/JMemoryReference")) == NULL) return;
+	if ( ( jmemoryRefAddressFID = env->GetFieldID(c, "address", "J")) == NULL) return;
 
 #ifdef DEBUG
 	printf("initIds() - SUCCESS");
@@ -249,6 +158,8 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JMemory_initIDs
 	 * Now initialize some jmemory state that is needed for global memory allocation
 	 */
 	init_jmemory(env);
+
+	Java_org_jnetpcap_nio_JBuffer_initIds(env, NULL);
 }
 
 void init_jmemory(JNIEnv *env) {
@@ -588,10 +499,10 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferTo0
 /*
  * Class:     org_jnetpcap_nio_JMemory
  * Method:    transferTo
- * Signature: (Lorg/jnetpcap/JMemory;III)I
+ * Signature: (Lorg/jnetpcap/nio/JMemory;III)I
  */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferTo__Lorg_jnetpcap_nio_JMemory_2III(
-		JNIEnv *env, jobject obj, jobject jdst, jint jsrcOffset, jint jlen,
+JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferTo
+		(JNIEnv *env, jobject obj, jobject jdst, jint jsrcOffset, jint jlen,
 		jint jdstOffset) {
 
 	char *src = (char *) getJMemoryPhysical(env, obj);
@@ -634,15 +545,29 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferTo__Lorg_jnetpcap_n
  * Method:    transferToDirect
  * Signature: (Ljava/nio/ByteBuffer;II)I
  */
-JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferToDirect__Ljava_nio_ByteBuffer_2II(
-		JNIEnv *env, jobject obj, jobject jbytebuffer, jint jsrcOffset,
+JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferToDirect
+		(JNIEnv *env, jobject obj, jobject jbytebuffer, jint jsrcOffset,
 		jint len) {
 
+#ifdef DEBUG
+	printf("JMemory.transferTo(ByteBuffer): enter\n");
+	fflush(stdout);
+#endif
+
+	register_natives(env);
+
+	ASSERT(obj != NULL);
 	char *src = (char *) getJMemoryPhysical(env, obj);
 	if (src == NULL || jbytebuffer == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, "");
 		return -1;
 	}
+
+	ASSERT(obj != NULL);
+	ASSERT(jbytebuffer != NULL);
+	ASSERT(bufferGetLimitMID != NULL);
+	ASSERT(bufferGetPositionMID != NULL);
+	ASSERT(jmemorySizeFID != NULL);
 
 	//	jint capacity = env->CallIntMethod(jbytebuffer, bufferGetCapacityMID);
 	jint limit = env->CallIntMethod(jbytebuffer, bufferGetLimitMID);
@@ -662,12 +587,14 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JMemory_transferToDirect__Ljava_nio
 	}
 
 	char *b = (char *) env->GetDirectBufferAddress(jbytebuffer);
+	ASSERT(b != NULL);
 
-	memcpy(b + position, (void *) (src + jsrcOffset), len);
 #ifdef DEBUG
 	printf("JMemory.transferTo(ByteBuffer): position=%d limit=%d len=%d\n",
 			position, limit, len);
+	fflush(stdout);
 #endif
+	memcpy(b + position, (void *) (src + jsrcOffset), len);
 
 	env->CallObjectMethod(jbytebuffer, bufferSetPositionMID, position + len);
 
