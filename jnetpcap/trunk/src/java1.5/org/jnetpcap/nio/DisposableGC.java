@@ -58,8 +58,8 @@ public final class DisposableGC {
 	static final private int MANUAL_DRAING_MAX = 2;
 
 	/**
-	 * When maxDirectMemorySize is breached, this is the minimum amount of memory
-	 * to release, triggering a System.gc() if necessary.
+	 * When maxDirectMemorySize is breached, this is the minimum amount of
+	 * memory to release, triggering a System.gc() if necessary.
 	 */
 	static final int MIN_MEMORY_RELEASE = 2 * Units.MEBIBYTE;
 
@@ -84,7 +84,7 @@ public final class DisposableGC {
 	 * Mem.
 	 * 
 	 * @param c
-	 *          the c
+	 *            the c
 	 * @return the long
 	 */
 	private static long mem(LinkSequence<DisposableReference> c) {
@@ -103,8 +103,8 @@ public final class DisposableGC {
 	private final AtomicBoolean cleanupThreadActive = new AtomicBoolean(false);
 
 	/** The cleanup thread processing. */
-	private final AtomicBoolean cleanupThreadProcessing =
-			new AtomicBoolean(false);
+	private final AtomicBoolean cleanupThreadProcessing = new AtomicBoolean(
+			false);
 
 	/** The cleanup timeout. */
 	private final AtomicLong cleanupTimeout = new AtomicLong(
@@ -200,14 +200,26 @@ public final class DisposableGC {
 		startCleanupThread();
 
 		try {
-			setVerbose(Boolean.parseBoolean(System
-					.getProperty("nio.verbose", "false")));
+			setVerbose(Boolean.parseBoolean(System.getProperty("nio.verbose",
+					"false")));
 			setVVerbose(Boolean.parseBoolean(System.getProperty("nio.vverbose",
 					"false")));
-			setVVVerbose(Boolean.parseBoolean(System.getProperty("nio.vvverbose",
-					"false")));
+			setVVVerbose(Boolean.parseBoolean(System
+					.getProperty("nio.vvverbose", "false")));
 		} catch (Exception e) {
 			// Ignore any formatting exceptions from the command line
+		}
+	}
+
+	public void addReference(DisposableReference ref) {
+
+		synchronized (g0) {
+			g0.add(ref);
+			// memorySemaphore.acquire(ref.size());
+		}
+
+		if (!isCleanupThreadActive()) {
+			drainRefQueueBounded();
 		}
 	}
 
@@ -215,21 +227,26 @@ public final class DisposableGC {
 	 * Dispose.
 	 * 
 	 * @param ref
-	 *          the ref
+	 *            the ref
 	 */
 	private void dispose(DisposableReference ref) {
 
-		synchronized (g0) {
-			memorySemaphore.release(ref.size());
+		try {
+			synchronized (g0) {
+				memorySemaphore.release(ref.size());
 
-			totalDisposed++;
-			totalSize += ref.size();
-			ref.dispose();
-			ref.remove();
+				totalDisposed++;
+				totalSize += ref.size();
+				ref.dispose();
+				ref.remove();
 
-			if (g0.isEmpty() && g10.isEmpty() && g60.isEmpty()) {
-				g0.notifyAll();
+				if (g0.isEmpty() && g10.isEmpty() && g60.isEmpty()) {
+					g0.notifyAll();
+				}
 			}
+		} catch (RuntimeException e) {
+			logUsage();
+			throw e;
 		}
 
 	}
@@ -252,11 +269,11 @@ public final class DisposableGC {
 	 * Drain ref queue.
 	 * 
 	 * @param timeout
-	 *          the timeout
+	 *            the timeout
 	 * @throws IllegalArgumentException
-	 *           the illegal argument exception
+	 *             the illegal argument exception
 	 * @throws InterruptedException
-	 *           the interrupted exception
+	 *             the interrupted exception
 	 */
 	public void drainRefQueue(long timeout) throws IllegalArgumentException,
 			InterruptedException {
@@ -266,12 +283,13 @@ public final class DisposableGC {
 		// them
 
 		/*
-		 * Breakup the timeout into 100 partitions so that we can check the permits
-		 * more often then just a single monolithic times.
+		 * Breakup the timeout into 100 partitions so that we can check the
+		 * permits more often then just a single monolithic times.
 		 */
 		long partition = timeout / 100;
 		while (memorySemaphore.availablePermits() < MIN_MEMORY_RELEASE) {
-			DisposableReference ref = (DisposableReference) refQueue.remove(timeout);
+			DisposableReference ref =
+					(DisposableReference) refQueue.remove(timeout);
 
 			if (ref == null && partition++ < 100) {
 				continue;
@@ -305,7 +323,7 @@ public final class DisposableGC {
 	 * Drain ref queue loop.
 	 * 
 	 * @throws InterruptedException
-	 *           the interrupted exception
+	 *             the interrupted exception
 	 */
 	void drainRefQueueLoop() throws InterruptedException {
 
@@ -342,7 +360,8 @@ public final class DisposableGC {
 				/*
 				 * Means, we just finished processing
 				 */
-			} else if (deltaCount != 0 && (System.currentTimeMillis() - ts) >= 1000) {
+			} else if (deltaCount != 0
+					&& (System.currentTimeMillis() - ts) >= 1000) {
 				ts = System.currentTimeMillis();
 				sortGenerations();
 				if (verbose && deltaCount > 00) {
@@ -376,13 +395,18 @@ public final class DisposableGC {
 				}
 			}
 
+			if (memorySemaphore.availablePermits() > MIN_MEMORY_RELEASE) {
+				memorySemaphore.drainPermits();
+			}
+
 			dispose(ref);
 		}
 
 		if (verbose && deltaCount != 0) {
-			System.out.printf("DisposableGC: disposed of %d entries [total=%dM]%n",
-					deltaCount,
-					totalDisposed / 1000000);
+			System.out
+					.printf("DisposableGC: disposed of %d entries [total=%dM]%n",
+							deltaCount,
+							totalDisposed / 1000000);
 			deltaCount = 0;
 		}
 	}
@@ -391,7 +415,7 @@ public final class DisposableGC {
 	 * F.
 	 * 
 	 * @param l
-	 *          the l
+	 *            the l
 	 * @return the string
 	 */
 	private String f(long l) {
@@ -402,9 +426,9 @@ public final class DisposableGC {
 	 * F.
 	 * 
 	 * @param l
-	 *          the l
+	 *            the l
 	 * @param percision
-	 *          the percision
+	 *            the percision
 	 * @return the string
 	 */
 	@SuppressWarnings("unused")
@@ -416,11 +440,11 @@ public final class DisposableGC {
 	 * F.
 	 * 
 	 * @param l
-	 *          the l
+	 *            the l
 	 * @param percision
-	 *          the percision
+	 *            the percision
 	 * @param post
-	 *          the post
+	 *            the post
 	 * @return the string
 	 */
 	private String f(long l, int percision, String post) {
@@ -460,7 +484,7 @@ public final class DisposableGC {
 	 * Fb.
 	 * 
 	 * @param l
-	 *          the l
+	 *            the l
 	 * @return the string
 	 */
 	private String fb(long l) {
@@ -471,9 +495,9 @@ public final class DisposableGC {
 	 * Fb.
 	 * 
 	 * @param l
-	 *          the l
+	 *            the l
 	 * @param percision
-	 *          the percision
+	 *            the percision
 	 * @return the string
 	 */
 	private String fb(long l, int percision) {
@@ -491,8 +515,8 @@ public final class DisposableGC {
 
 	/**
 	 * Makes sure that JVM GC is not invoked more then a certain timeout value
-	 * since the last time it was invoked. Avoids too many JVM GC invocation calls
-	 * that might overlap
+	 * since the last time it was invoked. Avoids too many JVM GC invocation
+	 * calls that might overlap
 	 * 
 	 * @return true if JVM GC was invoked, otherwise false
 	 */
@@ -556,6 +580,9 @@ public final class DisposableGC {
 		} catch (IllegalArgumentException e) {
 		} catch (InterruptedException e) {
 		}
+
+		 memorySemaphore.drainPermits();
+		 memorySemaphore.release(DisposableGC.MIN_MEMORY_RELEASE);
 
 		if (vverbose) {
 			System.out.printf("DisposableGC: waiting for System.gc to finish:"
@@ -723,19 +750,21 @@ public final class DisposableGC {
 	 * Log usage.
 	 */
 	private void logUsage() {
-		System.out.printf("DisposableGC: [immediate=%3s(%4s)]=%3s(%7s) "
-				+ "[0sec=%3s(%6s),10sec=%3s(%6s),60sec=%3s(%6s)]=%6s%n",
-				f(deltaCount),
-				fb(deltaSize, 0),
-				f(totalDisposed),
-				fb(totalSize),
-				f(g0.size()),
-				fb(mem(g0)),
-				f(g10.size()),
-				fb(mem(g10)),
-				f(g60.size()),
-				fb(mem(g60)),
-				fb(memoryHeldInRefCollection()));
+		System.out
+				.printf("DisposableGC: [immediate=%3s(%4s)] [total=%3s(%7s), sem=%s] "
+						+ "[gens: 0sec=%3s(%6s),10sec=%3s(%6s),60sec=%3s(%6s)]=%6s%n",
+						f(deltaCount),
+						fb(deltaSize, 0),
+						f(totalDisposed),
+						fb(totalSize),
+						f(memorySemaphore.availablePermits()),
+						f(g0.size()),
+						fb(mem(g0)),
+						f(g10.size()),
+						fb(mem(g10)),
+						f(g60.size()),
+						fb(mem(g60)),
+						fb(memoryHeldInRefCollection()));
 
 	}
 
@@ -758,7 +787,7 @@ public final class DisposableGC {
 	 * Sets the cleanup thread timeout.
 	 * 
 	 * @param timeout
-	 *          the new cleanup thread timeout
+	 *            the new cleanup thread timeout
 	 */
 	public void setCleanupThreadTimeout(long timeout) {
 		cleanupTimeout.set(timeout);
@@ -768,7 +797,7 @@ public final class DisposableGC {
 	 * Sets the verbose.
 	 * 
 	 * @param verbose
-	 *          the verbose to set
+	 *            the verbose to set
 	 */
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
@@ -786,7 +815,7 @@ public final class DisposableGC {
 	 * Sets the v verbose.
 	 * 
 	 * @param vverbose
-	 *          the vverbose to set
+	 *            the vverbose to set
 	 */
 	public void setVVerbose(boolean vverbose) {
 		if (vverbose) {
@@ -802,7 +831,7 @@ public final class DisposableGC {
 	 * Sets the vV verbose.
 	 * 
 	 * @param vvverbose
-	 *          the vvverbose to set
+	 *            the vvverbose to set
 	 */
 	public void setVVVerbose(boolean vvverbose) {
 		if (vvverbose) {
@@ -841,7 +870,8 @@ public final class DisposableGC {
 			} else {
 				break;
 			}
-			// System.out.printf("DisposableGC:: delta=%d%n", (ct - ref.getTs()));
+			// System.out.printf("DisposableGC:: delta=%d%n", (ct -
+			// ref.getTs()));
 		}
 	}
 
@@ -888,7 +918,7 @@ public final class DisposableGC {
 	 * Stop cleanup thread.
 	 * 
 	 * @throws InterruptedException
-	 *           the interrupted exception
+	 *             the interrupted exception
 	 */
 	public void stopCleanupThread() throws InterruptedException {
 		if (isCleanupThreadActive()) {
@@ -906,17 +936,19 @@ public final class DisposableGC {
 	 * Wait for forcable cleanup.
 	 * 
 	 * @throws InterruptedException
-	 *           the interrupted exception
+	 *             the interrupted exception
 	 */
 	public void waitForForcableCleanup() throws InterruptedException {
 		System.gc();
 		while (waitForFullCleanup(5 * 1000) == false) {
 			if (verbose && !cleanupThreadProcessing.get()) {
-				System.out.printf("DisposableGC: waiting on %d elements%n", g0.size());
+				// System.out.printf("DisposableGC: waiting on %d elements%n",
+				// g0.size());
 				for (int i = 0; i < g0.size(); i++) {
 					DisposableReference o = g0.get(i);
 					if (o != null && o.get() != null) {
-						System.out.printf("DisposableGC:#%d: %s%n", i, o.get());
+						// System.out.printf("DisposableGC:#%d: %s%n", i,
+						// o.get());
 					}
 				}
 			}
@@ -928,10 +960,10 @@ public final class DisposableGC {
 	 * Wait for forcable cleanup.
 	 * 
 	 * @param timeout
-	 *          the timeout
+	 *            the timeout
 	 * @return true, if successful
 	 * @throws InterruptedException
-	 *           the interrupted exception
+	 *             the interrupted exception
 	 */
 	public boolean waitForForcableCleanup(long timeout)
 			throws InterruptedException {
@@ -947,7 +979,7 @@ public final class DisposableGC {
 	 * Wait for full cleanup.
 	 * 
 	 * @throws InterruptedException
-	 *           the interrupted exception
+	 *             the interrupted exception
 	 */
 	public void waitForFullCleanup() throws InterruptedException {
 
@@ -966,10 +998,10 @@ public final class DisposableGC {
 	 * Wait for full cleanup.
 	 * 
 	 * @param timeout
-	 *          the timeout
+	 *            the timeout
 	 * @return true, if successful
 	 * @throws InterruptedException
-	 *           the interrupted exception
+	 *             the interrupted exception
 	 */
 	public boolean waitForFullCleanup(long timeout) throws InterruptedException {
 

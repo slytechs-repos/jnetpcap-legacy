@@ -49,13 +49,13 @@ public abstract class DisposableReference extends PhantomReference<Object>
 
 	/*
 	 * Since DisposableGC needs to keep a hard reference to us, so that the
-	 * DisposableReference part of the Object and Reference combo doesn't get GCed
-	 * either, this class implements the Link interface. Its a linked list of
-	 * objects that keep references to object before and an object after. This
-	 * relationship is maintained by an instance of LinkSequence class in
+	 * DisposableReference part of the Object and Reference combo doesn't get
+	 * GCed either, this class implements the Link interface. Its a linked list
+	 * of objects that keep references to object before and an object after.
+	 * This relationship is maintained by an instance of LinkSequence class in
 	 * DisposableGC. This class should not attempt to modify any link fields
-	 * directly. All access should be done through a live instance of LinkSequence
-	 * class.
+	 * directly. All access should be done through a live instance of
+	 * LinkSequence class.
 	 */
 	/** The Constant gc. */
 	private final static DisposableGC gc = DisposableGC.getDefault();
@@ -76,18 +76,12 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 * Instantiates a new disposable reference.
 	 * 
 	 * @param referant
-	 *          the referant
+	 *            the referant
 	 */
 	public DisposableReference(Object referant) {
 		super(referant, gc.refQueue);
 
-		synchronized (gc.g0) {
-			gc.g0.add(this);
-		}
-
-		if (!gc.isCleanupThreadActive()) {
-			gc.drainRefQueueBounded();
-		}
+		gc.addReference(this);
 	}
 
 	/*
@@ -134,7 +128,7 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 * Link collection.
 	 * 
 	 * @param collection
-	 *          the collection
+	 *            the collection
 	 * @see org.jnetpcap.nio.Link#linkCollection(org.jnetpcap.nio.LinkSequence)
 	 */
 	public void linkCollection(LinkSequence<DisposableReference> collection) {
@@ -165,7 +159,7 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 * Link next.
 	 * 
 	 * @param l
-	 *          the l
+	 *            the l
 	 * @see org.jnetpcap.nio.Link#linkNext(org.jnetpcap.nio.Link)
 	 */
 	public void linkNext(Link<DisposableReference> l) {
@@ -196,7 +190,7 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 * Link prev.
 	 * 
 	 * @param l
-	 *          the l
+	 *            the l
 	 * @see org.jnetpcap.nio.Link#linkPrev(org.jnetpcap.nio.Link)
 	 */
 	public void linkPrev(Link<DisposableReference> l) {
@@ -244,7 +238,7 @@ public abstract class DisposableReference extends PhantomReference<Object>
 	 * Sets the ts.
 	 * 
 	 * @param ts
-	 *          the ts to set
+	 *            the ts to set
 	 */
 	public void setTs(long ts) {
 		this.ts = ts;
