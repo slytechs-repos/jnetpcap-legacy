@@ -328,7 +328,7 @@ public abstract class JFormatter {
 	 * Dec level.
 	 */
 	protected void decLevel() {
-		if (this.level == 0) {
+		if (this.level == 0 || padStack.isEmpty()) {
 			return;
 		}
 
