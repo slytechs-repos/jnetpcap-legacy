@@ -160,7 +160,7 @@ public class TestJMemory extends TestCase {
 		consumer.start();
 
 		final int COUNT = 100000000;
-		final int SIZE = 1 * 8 * 1024;
+		final int SIZE = 1 * 1024 * 1024;
 		long total = 0;
 		JMemoryPool pool = new JMemoryPool();
 		for (int i = 0; i < COUNT; i++) {
