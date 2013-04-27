@@ -138,7 +138,7 @@ public abstract class JMemory {
 	 * @return the long
 	 */
 	@LibraryMember("malloc")
-	private static native long allocate0(int size);
+	private synchronized static native long allocate0(int size);
 
 	/**
 	 * Returns how much native memory is available for allocation. This is a limit
