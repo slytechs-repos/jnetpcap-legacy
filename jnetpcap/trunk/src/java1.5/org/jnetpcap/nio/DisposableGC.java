@@ -453,7 +453,7 @@ public final class DisposableGC {
 		int p = 0;
 		if (l > Units.TEBIBYTE) {
 			u = "t";
-			v /= 3;
+			v /= Units.TEBIBYTE;
 			p = 4;
 		} else if (l > Units.GIGIBYTE) {
 			u = "g";
