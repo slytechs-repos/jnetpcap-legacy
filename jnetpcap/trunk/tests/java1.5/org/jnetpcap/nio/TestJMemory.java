@@ -20,18 +20,19 @@ package org.jnetpcap.nio;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
 
 import junit.framework.TestCase;
 
 import org.jnetpcap.nio.JNumber.Type;
+import org.jnetpcap.packet.JMemoryPacket;
 import org.jnetpcap.packet.PeeringException;
 
 // TODO: Auto-generated Javadoc
 /**
  * The Class TestJMemory.
  */
+@SuppressWarnings("unused")
 public class TestJMemory extends TestCase {
 
 	/*
@@ -133,50 +134,37 @@ public class TestJMemory extends TestCase {
 
 	}
 
-	public void testLargeMemoryAllocations() {
-
-		final long timeout = 1000;
-		long expire = System.currentTimeMillis() + timeout;
+	public void testLargeMemoryAllocationsFrom50Threads() throws InterruptedException {
 
 		DisposableGC.getDefault().setVerbose(true);
-		final BlockingQueue<JMemory> queue =
-				new ArrayBlockingQueue<JMemory>(100000, true);
 
-		Thread consumer = new Thread() {
-			public void run() {
+		final int COUNT = 50;
+		final int LOOPS = 5000;
+		final CountDownLatch latch = new CountDownLatch(COUNT);
 
-				while (true) {
-					try {
-						queue.take();
-//						Thread.sleep(1);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+		for (int i = 0; i < COUNT; i++) {
+			final int mult = i;
+			final JMemoryPool POOL = new JMemoryPool();
+			final int SIZE = 1 * 1024 * mult;
+
+			Thread consumer = new Thread() {
+				public void run() {
+
+					for (int i = 0; i < LOOPS; i++) {
+						new JMemoryPacket(SIZE);
+//						POOL.allocate(SIZE, new JBuffer(JMemory.POINTER));
 					}
+
+					latch.countDown();
 				}
 
-			}
-		};
-		consumer.start();
-
-		final int COUNT = 100000000;
-		final int SIZE = 1 * 1024 * 1024;
-		long total = 0;
-		JMemoryPool pool = new JMemoryPool();
-		for (int i = 0; i < COUNT; i++) {
-			JMemory memory = new JMemory(JMemory.POINTER) {
 			};
-			pool.allocate(SIZE, memory);
-//			queue.offer(memory);
-			total += SIZE;
-
-//			if (System.currentTimeMillis() >= expire) {
-//				System.out.printf("size=%dMB queue.size=%d%n",
-//						(total) / (1000000),
-//						queue.size());
-//				expire = System.currentTimeMillis() + timeout;
-//			}
+			consumer.start();
 		}
+
+		latch.await();
+		DisposableGC.getDefault().setVerbose(false);
+
 	}
 
 }
