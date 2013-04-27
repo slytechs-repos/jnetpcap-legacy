@@ -108,7 +108,7 @@ public class TestPcapDispatchers
 	 */
 	private void loop(String file, JPacketHandler<Counter> handler) {
 		pcap = open(file);
-		assertEquals(Pcap.OK, pcap.loop(Pcap.LOOP_INFINATE, handler, COUNTER));
+		assertEquals(Pcap.OK, pcap.loop(Pcap.LOOP_INFINITE, handler, COUNTER));
 
 		pcap.close();
 		pcap = null;
@@ -141,7 +141,7 @@ public class TestPcapDispatchers
 	 */
 	private void loop(String file, PcapPacketHandler<Counter> handler) {
 		pcap = open(file);
-		assertEquals(Pcap.OK, pcap.loop(Pcap.LOOP_INFINATE, handler, COUNTER));
+		assertEquals(Pcap.OK, pcap.loop(Pcap.LOOP_INFINITE, handler, COUNTER));
 
 		pcap.close();
 		pcap = null;
@@ -175,7 +175,7 @@ public class TestPcapDispatchers
 	 */
 	private void loop(String file, JBufferHandler<Counter> handler) {
 		pcap = open(file);
-		assertEquals(Pcap.OK, pcap.loop(Pcap.LOOP_INFINATE, handler, COUNTER));
+		assertEquals(Pcap.OK, pcap.loop(Pcap.LOOP_INFINITE, handler, COUNTER));
 
 		pcap.close();
 		pcap = null;
@@ -208,7 +208,7 @@ public class TestPcapDispatchers
 	 */
 	private void loop(String file, ByteBufferHandler<Counter> handler) {
 		pcap = open(file);
-		assertEquals(Pcap.OK, pcap.loop(Pcap.LOOP_INFINATE, handler, COUNTER));
+		assertEquals(Pcap.OK, pcap.loop(Pcap.LOOP_INFINITE, handler, COUNTER));
 
 		pcap.close();
 		pcap = null;

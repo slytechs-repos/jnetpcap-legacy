@@ -31,6 +31,7 @@ import org.jnetpcap.protocol.network.Rip1;
  * @author Sly Technologies, Inc.
  * 
  */
+@SuppressWarnings("unused")
 public class TestNetwork extends TestUtils {
 
 	/** The Constant RIP_V1. */

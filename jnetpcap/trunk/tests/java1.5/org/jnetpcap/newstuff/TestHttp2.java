@@ -30,6 +30,7 @@ import org.jnetpcap.packet.format.TextFormatter;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@SuppressWarnings("unused")
 public class TestHttp2
     extends
     TestUtils {

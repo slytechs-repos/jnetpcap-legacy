@@ -192,7 +192,6 @@ private static final int snaplen = 64 * 1024;
 	/**
 	 * Test send queue depracated.
 	 */
-	@SuppressWarnings("deprecation")
   public void testSendQueueDepracated() {
 		WinPcapSendQueue queue = WinPcap.sendQueueAlloc(512);
 

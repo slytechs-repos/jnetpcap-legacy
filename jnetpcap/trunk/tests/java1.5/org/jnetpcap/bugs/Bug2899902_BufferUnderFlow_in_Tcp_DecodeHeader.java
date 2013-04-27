@@ -21,7 +21,6 @@ package org.jnetpcap.bugs;
 import junit.framework.TestCase;
 
 import org.jnetpcap.packet.JMemoryPacket;
-import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.protocol.JProtocol;
 

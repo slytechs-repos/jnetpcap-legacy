@@ -31,7 +31,6 @@ import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.packet.annotate.ProtocolSuite;
-import org.jnetpcap.protocol.application.Html.Tag.Param;
 import org.jnetpcap.protocol.tcpip.Http;
 import org.jnetpcap.util.JThreadLocal;
 

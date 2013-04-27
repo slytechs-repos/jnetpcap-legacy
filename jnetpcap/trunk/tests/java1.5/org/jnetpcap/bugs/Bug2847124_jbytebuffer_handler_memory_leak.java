@@ -29,10 +29,8 @@ import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapHeader;
 import org.jnetpcap.PcapUtils;
 import org.jnetpcap.nio.JBuffer;
-import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JPacketHandler;
-import org.jnetpcap.packet.JScanner;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.PcapPacketHandler;
 import org.jnetpcap.packet.TestUtils;
@@ -305,7 +303,7 @@ public class Bug2847124_jbytebuffer_handler_memory_leak
 				Pcap pcap = Pcap.openOffline(DIR.toString() + "/" + fname, errbuf);
 				assertNotNull(errbuf.toString(), pcap);
 
-				pcap.loop(Pcap.LOOP_INFINATE, new JPacketHandler<Pcap>() {
+				pcap.loop(Pcap.LOOP_INFINITE, new JPacketHandler<Pcap>() {
 
 					public void nextPacket(JPacket packet, Pcap user) {
 						assertNotNull(packet);
@@ -388,7 +386,7 @@ public class Bug2847124_jbytebuffer_handler_memory_leak
 				Pcap pcap = Pcap.openOffline(DIR.toString() + "/" + fname, errbuf);
 				assertNotNull(errbuf.toString(), pcap);
 
-				pcap.loop(Pcap.LOOP_INFINATE, new PcapPacketHandler<Pcap>() {
+				pcap.loop(Pcap.LOOP_INFINITE, new PcapPacketHandler<Pcap>() {
 
 					public void nextPacket(PcapPacket packet, Pcap user) {
 						assertNotNull(packet);
@@ -433,7 +431,7 @@ public class Bug2847124_jbytebuffer_handler_memory_leak
 				Pcap pcap = Pcap.openOffline(DIR.toString() + "/" + fname, errbuf);
 				assertNotNull(errbuf.toString(), pcap);
 
-				pcap.loop(Pcap.LOOP_INFINATE, new JBufferHandler<Pcap>() {
+				pcap.loop(Pcap.LOOP_INFINITE, new JBufferHandler<Pcap>() {
 
 					public void nextPacket(PcapHeader header, JBuffer buffer, Pcap user) {
 						count++;

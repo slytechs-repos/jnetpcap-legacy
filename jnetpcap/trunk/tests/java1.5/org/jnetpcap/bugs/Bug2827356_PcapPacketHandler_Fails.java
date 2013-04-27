@@ -28,7 +28,6 @@ import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.packet.PcapPacketHandler;
 import org.jnetpcap.packet.TestUtils;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class Bug2827356_PcapPacketHandler_Fails.
  */
@@ -68,7 +67,7 @@ public class Bug2827356_PcapPacketHandler_Fails
 	 */
   public void testValidateHttpJBufferPacketHandler() {
   
-  	pcap.loop(Pcap.LOOP_INFINATE, new JBufferHandler<Pcap>() {
+  	pcap.loop(Pcap.LOOP_INFINITE, new JBufferHandler<Pcap>() {
   
   		public void nextPacket(PcapHeader header, JBuffer buffer, Pcap user) {
   			assertNotNull(buffer);
@@ -82,7 +81,7 @@ public class Bug2827356_PcapPacketHandler_Fails
 	 */
 	public void testValidateHttpPcapPacketHandler() {
 
-		pcap.loop(Pcap.LOOP_INFINATE, new PcapPacketHandler<Pcap>() {
+		pcap.loop(Pcap.LOOP_INFINITE, new PcapPacketHandler<Pcap>() {
 
 			public void nextPacket(PcapPacket packet, Pcap user) {
 				assertNotNull(packet);
@@ -98,7 +97,7 @@ public class Bug2827356_PcapPacketHandler_Fails
 	 */
 	public void testValidateHttpJBufferPacketHandlerWithLocalPacketScanner() {
 
-		pcap.loop(Pcap.LOOP_INFINATE, new JBufferHandler<Pcap>() {
+		pcap.loop(Pcap.LOOP_INFINITE, new JBufferHandler<Pcap>() {
 
 			public void nextPacket(PcapHeader header, JBuffer buffer, Pcap pcap) {
 				assertNotNull(buffer);
@@ -119,7 +118,7 @@ public class Bug2827356_PcapPacketHandler_Fails
 	 */
 	public void testValidateHttpJBufferPacketHandlerWithGlobalScanner() {
 
-		pcap.loop(Pcap.LOOP_INFINATE, new JBufferHandler<Pcap>() {
+		pcap.loop(Pcap.LOOP_INFINITE, new JBufferHandler<Pcap>() {
 
 			public void nextPacket(PcapHeader header, JBuffer buffer, Pcap pcap) {
 				assertNotNull(buffer);

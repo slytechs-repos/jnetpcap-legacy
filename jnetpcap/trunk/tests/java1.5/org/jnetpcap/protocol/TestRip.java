@@ -12,6 +12,7 @@ import org.junit.Test;
  * 
  * @author Sly Technologies Inc.
  */
+@SuppressWarnings("unused")
 public class TestRip {
 
 	@Test

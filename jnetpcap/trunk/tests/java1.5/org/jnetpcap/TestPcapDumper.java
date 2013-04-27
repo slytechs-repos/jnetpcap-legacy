@@ -111,20 +111,6 @@ public class TestPcapDumper extends TestCase {
 	}
 
 	/**
-	 * Test method for {@link org.jnetpcap.PcapDumper#dump(long, int, int, int, java.nio.ByteBuffer)}.
-	 */
-	@Test
-	public void testDumpLongIntIntIntByteBuffer() {
-		ByteBuffer buffer = ByteBuffer.allocateDirect(data.length);
-		buffer.put(data);
-		buffer.flip();
-
-		dumper.dump(seconds, useconds, data.length, data.length, buffer);
-		
-		checkFileSize();
-	}
-
-	/**
 	 * Test method for {@link org.jnetpcap.PcapDumper#dump(long, int, int, org.jnetpcap.nio.JBuffer)}.
 	 */
 	@Test

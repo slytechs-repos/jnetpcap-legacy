@@ -127,7 +127,7 @@ public class TestJScanner
 		long start = System.currentTimeMillis();
 		final TextFormatter out = new TextFormatter();
 
-		pcap.loop(Pcap.LOOP_INFINATE, new ByteBufferHandler<String>() {
+		pcap.loop(Pcap.LOOP_INFINITE, new ByteBufferHandler<String>() {
 			int i = 0;
 
 			public void nextPacket(PcapHeader header, ByteBuffer buffer, String user) {
@@ -181,7 +181,7 @@ public class TestJScanner
 		long start = System.currentTimeMillis();
 		final TextFormatter out = new TextFormatter();
 
-		pcap.loop(Pcap.LOOP_INFINATE, new JBufferHandler<String>() {
+		pcap.loop(Pcap.LOOP_INFINITE, new JBufferHandler<String>() {
 			int i = 0;
 
 			public void nextPacket(PcapHeader header, JBuffer buffer, String user) {
@@ -231,7 +231,7 @@ public class TestJScanner
 		@SuppressWarnings("unused")
 		final JScanner scanner = new JScanner();
 
-		pcap.loop(Pcap.LOOP_INFINATE, JProtocol.ETHERNET_ID,
+		pcap.loop(Pcap.LOOP_INFINITE, JProtocol.ETHERNET_ID,
 		    new JPacketHandler<String>() {
 			    @SuppressWarnings("unused")
 			    int i = 0;

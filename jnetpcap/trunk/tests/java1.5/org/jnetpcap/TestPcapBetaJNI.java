@@ -1060,7 +1060,6 @@ public class TestPcapBetaJNI
 	/**
 	 * Test lookup dev and lookup net deprecated api.
 	 */
-	@SuppressWarnings("deprecation")
   public void testLookupDevAndLookupNetDeprecatedAPI() {
 		String device = Pcap.lookupDev(errbuf);
 		assertNotNull(errbuf.toString(), device);
@@ -1078,7 +1077,6 @@ public class TestPcapBetaJNI
 	/**
 	 * Test lookup dev and lookup net new api.
 	 */
-	@SuppressWarnings("deprecation")
   public void testLookupDevAndLookupNetNewAPI() {
 		String device = Pcap.lookupDev(errbuf);
 		assertNotNull(errbuf.toString(), device);

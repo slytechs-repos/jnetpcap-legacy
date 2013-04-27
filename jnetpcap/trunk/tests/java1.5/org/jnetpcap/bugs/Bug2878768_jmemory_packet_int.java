@@ -36,6 +36,7 @@ import org.jnetpcap.util.checksum.Checksum;
  * @author Sly Technologies, Inc.
  *
  */
+@SuppressWarnings("unused")
 public class Bug2878768_jmemory_packet_int
     extends
     TestCase {

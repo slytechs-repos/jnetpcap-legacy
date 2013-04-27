@@ -59,7 +59,7 @@ public class TestLibrary extends TestUtils {
 		assertNotNull(lib);
 		
 		System.out.printf("testDlsymbols() - lib=%X/%s%n", lib.address, lib.name);
-		long address = lib.dlsymbol("Java_org_jnetpcap_Pcap_close");
+		lib.dlsymbol("Java_org_jnetpcap_Pcap_close");
 		lib.dlsymbol("pcap_open_live");
 		lib.dlsymbol("Java_org_jnetpcap_Pcap_create");
 		
@@ -111,7 +111,7 @@ public class TestLibrary extends TestUtils {
 
 		JNILibrary.register(Pcap.class);
 		assertTrue(Pcap.isPcap080Loaded());
-		JNILibrary lib = JNILibrary.loadLibrary(Pcap.LIBRARY);
+		JNILibrary.loadLibrary(Pcap.LIBRARY);
 		Method create =
 				Pcap.class.getMethod("create", String.class, StringBuilder.class);
 		JNISymbol symbol = JNILibrary.findSymbol(create);
@@ -135,7 +135,7 @@ public class TestLibrary extends TestUtils {
 		JNILibrary.register(JBuffer.class);
 		JNILibrary.register(NativeLibrary.class);
 
-		JNILibrary lib = JNILibrary.loadLibrary(Pcap.LIBRARY);
+		JNILibrary.loadLibrary(Pcap.LIBRARY);
 
 		System.out.println(JNILibrary.toStringClassSymbols(NativeLibrary.class,
 				JMemory.class));

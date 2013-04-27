@@ -26,12 +26,10 @@ import junit.framework.TestCase;
 
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.PcapPacket;
-import org.jnetpcap.packet.RegistryHeaderErrors;
 import org.jnetpcap.packet.TestUtils;
 import org.jnetpcap.packet.format.JFormatter;
 import org.jnetpcap.packet.format.TextFormatter;
 import org.jnetpcap.protocol.application.Html;
-import org.jnetpcap.protocol.application.Html.HtmlTag;
 import org.jnetpcap.protocol.lan.Ethernet;
 import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.protocol.tcpip.Http;
@@ -44,6 +42,7 @@ import org.jnetpcap.util.resolver.Resolver;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@SuppressWarnings("unused")
 public class TestHttp
     extends
     TestCase {
