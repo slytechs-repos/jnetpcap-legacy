@@ -31,6 +31,7 @@ import org.jnetpcap.protocol.lan.Ethernet;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@SuppressWarnings("unused")
 public class TestDiameter
     extends TestCase {
 

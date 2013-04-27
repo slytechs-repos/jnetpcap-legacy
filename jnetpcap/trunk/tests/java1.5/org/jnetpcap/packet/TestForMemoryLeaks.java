@@ -46,6 +46,7 @@ import org.jnetpcap.protocol.tcpip.Tcp;
 /**
  * The Class TestForMemoryLeaks.
  */
+@SuppressWarnings("unused")
 public class TestForMemoryLeaks extends TestUtils {
 
 	/** The Constant DIR. */
@@ -374,7 +375,7 @@ public class TestForMemoryLeaks extends TestUtils {
 				Pcap pcap = Pcap.openOffline(DIR.toString() + "/" + fname, errbuf);
 				assertNotNull(errbuf.toString(), pcap);
 
-				pcap.loop(Pcap.LOOP_INFINATE, new JPacketHandler<Pcap>() {
+				pcap.loop(Pcap.LOOP_INFINITE, new JPacketHandler<Pcap>() {
 
 					public void nextPacket(JPacket packet, Pcap user) {
 						assertNotNull(packet);
@@ -464,7 +465,7 @@ public class TestForMemoryLeaks extends TestUtils {
 				Pcap pcap = Pcap.openOffline(DIR.toString() + "/" + fname, errbuf);
 				assertNotNull(errbuf.toString(), pcap);
 
-				pcap.loop(Pcap.LOOP_INFINATE, new PcapPacketHandler<Pcap>() {
+				pcap.loop(Pcap.LOOP_INFINITE, new PcapPacketHandler<Pcap>() {
 
 					public void nextPacket(PcapPacket packet, Pcap user) {
 						assertNotNull(packet);
@@ -514,7 +515,7 @@ public class TestForMemoryLeaks extends TestUtils {
 				Pcap pcap = Pcap.openOffline(DIR.toString() + "/" + fname, errbuf);
 				assertNotNull(errbuf.toString(), pcap);
 
-				pcap.loop(Pcap.LOOP_INFINATE, new JBufferHandler<Pcap>() {
+				pcap.loop(Pcap.LOOP_INFINITE, new JBufferHandler<Pcap>() {
 
 					public void nextPacket(PcapHeader header, JBuffer buffer, Pcap user) {
 						count++;

@@ -60,7 +60,6 @@ public abstract class JField {
 		/** The header. */
 		private JHeader header;
 		
-		@SuppressWarnings("unused")
 		public JFieldComp() {
 			
 		}

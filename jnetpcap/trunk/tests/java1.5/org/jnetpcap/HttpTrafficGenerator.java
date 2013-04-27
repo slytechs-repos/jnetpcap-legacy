@@ -45,6 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@SuppressWarnings("unused")
 public class HttpTrafficGenerator implements Runnable {
 
 	/** The Constant SLEEP. */
@@ -145,7 +146,6 @@ public class HttpTrafficGenerator implements Runnable {
 		int count = 0;
 		while (runflag.get()) {
 			try {
-				@SuppressWarnings("unused")
 				Object o = website.getContent(); // Get the webpage
 
 				// System.out.printf("Worker working. content=%s\n", o.toString());

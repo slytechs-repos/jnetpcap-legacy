@@ -713,7 +713,7 @@ public class TestUtils extends TestCase {
 		 * packet we are looking for.
 		 **************************************************************************/
 		try {
-			pcap.loop(Pcap.LOOP_INFINATE, new JBufferHandler<Pcap>() {
+			pcap.loop(Pcap.LOOP_INFINITE, new JBufferHandler<Pcap>() {
 				int i = 0;
 
 				public void nextPacket(PcapHeader header, JBuffer buffer, Pcap pcap) {
@@ -902,8 +902,7 @@ public class TestUtils extends TestCase {
 			assertNotNull(errbuf.toString(), pcap);
 
 			try {
-				pcap.loop(Pcap.LOOP_INFINATE, new JBufferHandler<String>() {
-					private final int index = 1;
+				pcap.loop(Pcap.LOOP_INFINITE, new JBufferHandler<String>() {
 
 					public void nextPacket(PcapHeader header, JBuffer buffer, String fname) {
 						buf.append(header, buffer);
@@ -944,7 +943,7 @@ public class TestUtils extends TestCase {
 	 *          the handler
 	 */
 	public static void openLive(JPacketHandler<Pcap> handler) {
-		openLive(Pcap.LOOP_INFINATE, handler);
+		openLive(Pcap.LOOP_INFINITE, handler);
 	}
 
 	/**
@@ -1040,7 +1039,7 @@ public class TestUtils extends TestCase {
 			pcap.setFilter(program);
 		}
 
-		pcap.loop(Pcap.LOOP_INFINATE, handler, pcap);
+		pcap.loop(Pcap.LOOP_INFINITE, handler, pcap);
 
 		pcap.close();
 	}

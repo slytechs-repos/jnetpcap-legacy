@@ -601,7 +601,6 @@ public class TestPcapJNI
 	/**
 	 * Test lookup dev and lookup net deprecated api.
 	 */
-	@SuppressWarnings("deprecation")
 	public void testLookupDevAndLookupNetDeprecatedAPI() {
 		String device = Pcap.lookupDev(errbuf);
 		assertNotNull(errbuf.toString(), device);

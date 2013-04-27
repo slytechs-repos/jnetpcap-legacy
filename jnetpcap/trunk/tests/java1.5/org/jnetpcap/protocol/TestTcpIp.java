@@ -38,18 +38,18 @@ import org.jnetpcap.protocol.network.Icmp;
 import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.protocol.network.Ip6;
 import org.jnetpcap.protocol.tcpip.Tcp;
-import org.jnetpcap.protocol.tcpip.Udp;
 import org.jnetpcap.protocol.tcpip.Tcp.Flag;
+import org.jnetpcap.protocol.tcpip.Udp;
 import org.jnetpcap.util.DataUtils;
 import org.jnetpcap.util.PcapPacketArrayList;
 import org.jnetpcap.util.checksum.Checksum;
-import org.junit.Test;
 
 // TODO: Auto-generated Javadoc
 /**
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
+@SuppressWarnings("unused")
 public class TestTcpIp extends TestUtils {
 
 	/** The Constant HTTP_IP6. */
@@ -285,7 +285,7 @@ public class TestTcpIp extends TestUtils {
 		final PcapPacketArrayList list = new PcapPacketArrayList(
 				(int) new File(file).length() / 100);
 
-		pcap.loop(Pcap.LOOP_INFINATE, list, null);
+		pcap.loop(Pcap.LOOP_INFINITE, list, null);
 
 		pcap.close();
 
@@ -305,7 +305,7 @@ public class TestTcpIp extends TestUtils {
 			throw new IOException(errbuf.toString());
 		}
 
-		assertTrue(pcap.loop(Pcap.LOOP_INFINATE, new PcapPacketHandler<Pcap>() {
+		assertTrue(pcap.loop(Pcap.LOOP_INFINITE, new PcapPacketHandler<Pcap>() {
 			Ip4 ip1 = new Ip4();
 
 			Ip4 ip2 = new Ip4();
@@ -401,7 +401,7 @@ public class TestTcpIp extends TestUtils {
 
 		assertNotNull(errbuf.toString(), pcap);
 
-		pcap.loop(Pcap.LOOP_INFINATE, new PcapPacketHandler<String>() {
+		pcap.loop(Pcap.LOOP_INFINITE, new PcapPacketHandler<String>() {
 			Ip4 ip = new Ip4();
 
 			Tcp tcp = new Tcp();
@@ -447,7 +447,7 @@ public class TestTcpIp extends TestUtils {
 
 		assertNotNull(errbuf.toString(), pcap);
 
-		pcap.loop(Pcap.LOOP_INFINATE, new PcapPacketHandler<String>() {
+		pcap.loop(Pcap.LOOP_INFINITE, new PcapPacketHandler<String>() {
 			Ip6 ip = new Ip6();
 
 			Tcp tcp = new Tcp();
@@ -478,7 +478,7 @@ public class TestTcpIp extends TestUtils {
 
 		assertNotNull(errbuf.toString(), pcap);
 
-		pcap.loop(Pcap.LOOP_INFINATE, new PcapPacketHandler<String>() {
+		pcap.loop(Pcap.LOOP_INFINITE, new PcapPacketHandler<String>() {
 			Ip6 ip = new Ip6();
 
 			Udp udp = new Udp();
@@ -509,7 +509,7 @@ public class TestTcpIp extends TestUtils {
 
 		assertNotNull(errbuf.toString(), pcap);
 
-		pcap.loop(Pcap.LOOP_INFINATE, new PcapPacketHandler<String>() {
+		pcap.loop(Pcap.LOOP_INFINITE, new PcapPacketHandler<String>() {
 			Ip4 ip = new Ip4();
 
 			Icmp icmp = new Icmp();

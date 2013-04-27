@@ -22,6 +22,7 @@ import org.junit.Test;
  * 
  * @author Sly Technologies Inc.
  */
+@SuppressWarnings("unused")
 public class TestSip extends TestCase {
 
 //	private final static PrintStream out = System.out;

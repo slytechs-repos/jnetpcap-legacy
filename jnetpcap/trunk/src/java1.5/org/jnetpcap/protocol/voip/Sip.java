@@ -22,7 +22,6 @@ import org.jnetpcap.packet.AbstractMessageHeader;
 import org.jnetpcap.packet.annotate.Field;
 import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.protocol.JProtocol;
-import org.jnetpcap.protocol.voip.Sip.Method;
 
 // TODO: Auto-generated Javadoc
 /**

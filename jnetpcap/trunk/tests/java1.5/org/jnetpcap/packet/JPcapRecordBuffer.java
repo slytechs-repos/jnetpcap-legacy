@@ -79,6 +79,7 @@ public class JPcapRecordBuffer extends JBuffer implements JPcapRecordIterable {
 	 * @param value
 	 *          the new packet record count
 	 */
+	@SuppressWarnings("unused")
 	private void setPacketRecordCount(int value) {
 		super.setUInt(0, value);
 
@@ -95,7 +96,7 @@ public class JPcapRecordBuffer extends JBuffer implements JPcapRecordIterable {
 	 */
 	public void append(PcapHeader header, JBuffer packet) {
 		header.transferTo(this, position);
-		position += header.sizeof();
+		position += JHeader.sizeof();
 
 		packet.transferTo(this, 0, packet.size(), position);
 		position += packet.size();
@@ -278,7 +279,6 @@ public class JPcapRecordBuffer extends JBuffer implements JPcapRecordIterable {
 		// handler.nextPacket(record.header, record.packet, user);
 		// }
 
-		final JPcapRecordBuffer.Iterator i = this.iterator();
 		for (JPcapRecordBuffer.Record record : this) {
 
 			// final PcapPacket pkt = new PcapPacket(record.header, record.packet);
