@@ -96,7 +96,7 @@ public class JPcapRecordBuffer extends JBuffer implements JPcapRecordIterable {
 	 */
 	public void append(PcapHeader header, JBuffer packet) {
 		header.transferTo(this, position);
-		position += JHeader.sizeof();
+		position += PcapHeader.sizeof();
 
 		packet.transferTo(this, 0, packet.size(), position);
 		position += packet.size();
