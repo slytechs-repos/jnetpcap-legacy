@@ -29,7 +29,6 @@ import org.jnetpcap.packet.JPacket;
 import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.annotate.Bind;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class AnnotatedBinding.
  * 
@@ -78,7 +77,7 @@ public class AnnotatedBinding implements JBinding {
 	 *            the errors
 	 * @return the j binding[]
 	 */
-	public static JBinding[] inspectClass(Class<?> c,
+	public synchronized static JBinding[] inspectClass(Class<?> c,
 			List<HeaderDefinitionError> errors) {
 
 		if (cache.containsKey(c)) {

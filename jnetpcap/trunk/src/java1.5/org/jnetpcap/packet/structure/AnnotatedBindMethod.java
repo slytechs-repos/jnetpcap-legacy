@@ -128,7 +128,7 @@ public class AnnotatedBindMethod
 	 *          the errors
 	 * @return the annotated bind method[]
 	 */
-	public static AnnotatedBindMethod[] inspectClass(
+	public synchronized static AnnotatedBindMethod[] inspectClass(
 	    final Class<?> c,
 	    final List<HeaderDefinitionError> errors) {
 
@@ -187,7 +187,7 @@ public class AnnotatedBindMethod
 	 *          the errors
 	 * @return the annotated bind method[]
 	 */
-	private static <T extends JHeader> AnnotatedBindMethod[] inspectAnyClass(
+	private synchronized static <T extends JHeader> AnnotatedBindMethod[] inspectAnyClass(
 	    final Class<?> c,
 	    final List<HeaderDefinitionError> errors) {
 
@@ -235,7 +235,7 @@ public class AnnotatedBindMethod
 	 *          the errors
 	 * @return the annotated bind method[]
 	 */
-	public static AnnotatedBindMethod[] inspectObject(
+	public synchronized static AnnotatedBindMethod[] inspectObject(
 	    final Object object,
 	    final List<HeaderDefinitionError> errors) {
 
@@ -294,7 +294,7 @@ public class AnnotatedBindMethod
 	 *          the errors
 	 * @return the annotated bind method[]
 	 */
-	public static <T extends JHeader> AnnotatedBindMethod[] inspectJHeaderClass(
+	public synchronized static <T extends JHeader> AnnotatedBindMethod[] inspectJHeaderClass(
 	    final Class<? extends JHeader> c,
 	    final List<HeaderDefinitionError> errors) {
 
