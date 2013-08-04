@@ -34,21 +34,40 @@ import java.util.List;
  */
 public abstract class AnnotatedMethod {
 
+	/**
+	 * Gets the methods.
+	 * 
+	 * @param c
+	 *            the c
+	 * @param annotation
+	 *            the annotation
+	 * @return the methods
+	 */
+	public synchronized static Method[] getMethods(Class<?> c,
+			Class<? extends Annotation> annotation) {
+
+		final int hash = c.hashCode() + annotation.hashCode();
+		if (cache.containsKey(hash)) {
+			return cache.get(hash);
+		}
+
+		List<Method> methods = new ArrayList<Method>(50);
+		for (Method method : c.getMethods()) {
+			if (method.isAnnotationPresent(annotation)) {
+				methods.add(method);
+			}
+		}
+
+		Method[] m = methods.toArray(new Method[methods.size()]);
+		cache.put(hash, m);
+		return m;
+	}
+
 	/** The method. */
 	protected final Method method;
 
 	/** The is mapped. */
 	protected boolean isMapped = false;
-
-	/**
-	 * Sets the checks if is mapped.
-	 * 
-	 * @param state
-	 *            the new checks if is mapped
-	 */
-	public void setIsMapped(boolean state) {
-		this.isMapped = state;
-	}
 
 	/** The declaring class. */
 	protected final Class<?> declaringClass;
@@ -75,6 +94,25 @@ public abstract class AnnotatedMethod {
 	 * 
 	 * @param method
 	 *            the method
+	 */
+	public AnnotatedMethod(Method method) {
+		this.method = method;
+		this.declaringClass = method.getDeclaringClass();
+		this.object = null;
+
+		validateSignature(method);
+
+		/**
+		 * BUG#3599244
+		 */
+		this.method.setAccessible(true);
+	}
+
+	/**
+	 * Instantiates a new annotated method.
+	 * 
+	 * @param method
+	 *            the method
 	 * @param object
 	 *            the object
 	 */
@@ -91,25 +129,6 @@ public abstract class AnnotatedMethod {
 	}
 
 	/**
-	 * Instantiates a new annotated method.
-	 * 
-	 * @param method
-	 *            the method
-	 */
-	public AnnotatedMethod(Method method) {
-		this.method = method;
-		this.declaringClass = method.getDeclaringClass();
-		this.object = null;
-
-		validateSignature(method);
-
-		/**
-		 * BUG#3599244
-		 */
-		this.method.setAccessible(true);
-	}
-
-	/**
 	 * Gets the method.
 	 * 
 	 * @return the method
@@ -119,12 +138,14 @@ public abstract class AnnotatedMethod {
 	}
 
 	/**
-	 * Validate signature.
+	 * Sets the checks if is mapped.
 	 * 
-	 * @param method
-	 *            the method
+	 * @param state
+	 *            the new checks if is mapped
 	 */
-	protected abstract void validateSignature(Method method);
+	public void setIsMapped(boolean state) {
+		this.isMapped = state;
+	}
 
 	/**
 	 * To string.
@@ -142,31 +163,10 @@ public abstract class AnnotatedMethod {
 	}
 
 	/**
-	 * Gets the methods.
+	 * Validate signature.
 	 * 
-	 * @param c
-	 *            the c
-	 * @param annotation
-	 *            the annotation
-	 * @return the methods
+	 * @param method
+	 *            the method
 	 */
-	public static Method[] getMethods(Class<?> c,
-			Class<? extends Annotation> annotation) {
-
-		final int hash = c.hashCode() + annotation.hashCode();
-		if (cache.containsKey(hash)) {
-			return cache.get(hash);
-		}
-
-		List<Method> methods = new ArrayList<Method>(50);
-		for (Method method : c.getMethods()) {
-			if (method.isAnnotationPresent(annotation)) {
-				methods.add(method);
-			}
-		}
-
-		Method[] m = methods.toArray(new Method[methods.size()]);
-		cache.put(hash, m);
-		return m;
-	}
+	protected abstract void validateSignature(Method method);
 }

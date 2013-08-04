@@ -53,7 +53,7 @@ public class AnnotatedHeaderLengthMethod
 	 * @return array containing length methods for various header "record"
 	 *         sub-structures
 	 */
-	public static AnnotatedHeaderLengthMethod[] inspectClass(
+	public synchronized static AnnotatedHeaderLengthMethod[] inspectClass(
 	    Class<? extends JHeader> c) {
 
 		/*

@@ -31,7 +31,6 @@ import org.jnetpcap.packet.JRegistry;
 import org.jnetpcap.packet.JScan;
 import org.jnetpcap.packet.annotate.Scanner;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class AnnotatedScannerMethod.
  * 
@@ -52,7 +51,7 @@ public class AnnotatedScannerMethod
 	 *          the c
 	 * @return the annotated scanner method[]
 	 */
-	public static AnnotatedScannerMethod[] inspectJHeaderClass(
+	public synchronized static AnnotatedScannerMethod[] inspectJHeaderClass(
 	    Class<? extends JHeader> c) {
 
 		if (cache.containsKey(c)) {
@@ -86,7 +85,7 @@ public class AnnotatedScannerMethod
 	 *          the c
 	 * @return the annotated scanner method[]
 	 */
-	public static AnnotatedScannerMethod[] inspectClass(Class<? extends JHeader> c) {
+	public synchronized static AnnotatedScannerMethod[] inspectClass(Class<? extends JHeader> c) {
 
 		if (cache.containsKey(c)) {
 			return cache.get(c);
@@ -122,7 +121,7 @@ public class AnnotatedScannerMethod
 	 *          the container
 	 * @return the annotated scanner method[]
 	 */
-	public static AnnotatedScannerMethod[] inspectObject(Object container) {
+	public synchronized static AnnotatedScannerMethod[] inspectObject(Object container) {
 		Class<?> c = container.getClass();
 
 		if (cache.containsKey(c)) {

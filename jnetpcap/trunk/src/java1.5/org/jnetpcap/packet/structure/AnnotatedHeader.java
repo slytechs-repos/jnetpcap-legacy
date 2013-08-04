@@ -185,7 +185,7 @@ public class AnnotatedHeader {
 	 *          the errors
 	 * @return the annotated header
 	 */
-	public static AnnotatedHeader inspectJHeaderClass(
+	public synchronized static AnnotatedHeader inspectJHeaderClass(
 	    Class<? extends JHeader> c,
 	    List<HeaderDefinitionError> errors) {
 
