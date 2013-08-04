@@ -61,9 +61,9 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 	public static abstract class Echo extends JSubHeader<Icmp> {
 
 		/**
-		 * Id.
+		 * Value of the ICMP id.
 		 * 
-		 * @return the int
+		 * @return 16-bit integer id field value
 		 */
 		@Field(offset = 0, length = 16, format = "%x")
 		public int id() {
@@ -71,13 +71,33 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 		}
 
 		/**
+		 * Sets a new value for ICMP id field.
+		 * 
+		 * @param value
+		 *            new 16-bit integer value
+		 */
+		public void id(int value) {
+			super.setUShort(0, value);
+		}
+
+		/**
 		 * Sequence.
 		 * 
-		 * @return the int
+		 * @return 16-bit integer sequence field value
 		 */
 		@Field(offset = 16, length = 16, format = "%x")
 		public int sequence() {
 			return super.getUShort(2);
+		}
+
+		/**
+		 * Sets a new value for ICMP sequence field.
+		 * 
+		 * @param value
+		 *            new 16-bit integer value
+		 */
+		public void sequence(int value) {
+			super.setUShort(2, value);
 		}
 	};
 
@@ -565,9 +585,19 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 		}
 
 		/**
-		 * Reserved.
+		 * Sets the new pointer field value
 		 * 
-		 * @return the int
+		 * @param value
+		 *            new 8-bit integer value
+		 */
+		public void pointer(int value) {
+			setUByte(0, value);
+		}
+
+		/**
+		 * A reserved 24-bit field.
+		 * 
+		 * @return the 24-bit integer value in the reserved field
 		 */
 		@Field(offset = 8, length = 24)
 		public int reserved() {
@@ -585,12 +615,27 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 	public static class Redirect extends JSubHeader<Icmp> {
 
 		/**
-		 * Gateway.
+		 * Gateway IP4 address.
 		 * 
-		 * @return the byte[]
+		 * @return the 32-bit address
 		 */
 		public byte[] gateway() {
 			return getByteArray(0, 4);
+		}
+
+		/**
+		 * Sets the new gateway 32-bit ip4 address
+		 * 
+		 * @param value
+		 *            32-bit address
+		 */
+		public void gateway(byte[] value) {
+			if (value.length != 4) {
+				throw new IllegalArgumentException(
+						"expecting 32-bit ip4 address value");
+			}
+
+			setByteArray(0, value);
 		}
 	}
 
@@ -609,6 +654,16 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 		 */
 		public long reserved() {
 			return getUInt(0);
+		}
+
+		/**
+		 * Sets the value in the reserved field
+		 * 
+		 * @param value
+		 *            32-bit integer value
+		 */
+		public void reserved(int value) {
+			setUInt(0, value);
 		}
 	}
 
@@ -719,11 +774,21 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 	/**
 	 * Code.
 	 * 
-	 * @return the int
+	 * @return gets the 8-bit code value
 	 */
 	@Field(offset = 1 * 8, length = 8, format = "%x")
 	public int code() {
 		return super.getUByte(1);
+	}
+
+	/**
+	 * Sets the new code value
+	 * 
+	 * @param value
+	 *            8-bit integer value
+	 */
+	public void code(int value) {
+		setUByte(1, value);
 	}
 
 	/**
@@ -793,13 +858,23 @@ public class Icmp extends JHeaderMap<Icmp> implements JHeaderChecksum {
 	}
 
 	/**
-	 * Type.
+	 * Gets the type value
 	 * 
-	 * @return the int
+	 * @return 8-bit integer value
 	 */
 	@Field(offset = 0 * 8, length = 8, format = "%x")
 	public int type() {
 		return super.getUByte(0);
+	}
+
+	/**
+	 * Sets the new type value
+	 * 
+	 * @param value
+	 *            8-bit integer value
+	 */
+	public void type(int value) {
+		setUByte(0, value);
 	}
 
 	/**
