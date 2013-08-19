@@ -285,6 +285,11 @@ public class FormatUtils {
 	 * @return formatted string
 	 */
 	public static String asStringIp6(byte[] array, boolean holes) {
+		
+		if (array.length != 16) {
+			throw new IllegalArgumentException("expecting 16 byte ip6 address array");
+		}
+		
 		StringBuilder buf = new StringBuilder();
 
 		int len = 0;
