@@ -363,12 +363,14 @@ ENTER(RTP_ID, "validate_rtp");
 	 * Modified check for rtp->rtp_type > 25 per Bug#3482647, which prevented DTMF payload
 	 * Removed check for rtp->rtp_seq == 0 per Bug#3482648
 	 *
+	 * Bug# 118 DTMF RTP paylaod is not supported
 	 */
 	if ( /* 1st CHECK header properties */
 			rtp->rtp_ver != 2
 			|| rtp->rtp_cc > 15
 			|| rtp->rtp_ts == 0
-			|| rtp->rtp_type > 34
+			|| rtp->rtp_type > 34 && rtp->rtp_type < 96
+			|| rtp->rtp_type > 127
 			) {
 		TRACE("1st check", "FAILED - header flags");
 		EXIT("validate_rtp");
