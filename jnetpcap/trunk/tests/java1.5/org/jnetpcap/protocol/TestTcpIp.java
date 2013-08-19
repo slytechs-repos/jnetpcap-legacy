@@ -457,6 +457,7 @@ public class TestTcpIp extends TestUtils {
 				if (packet.hasHeader(tcp) == false) {
 					return;
 				}
+				System.out.println(packet.toString());
 
 				// PcapPacket packet = new PcapPacket(header, buffer);
 
