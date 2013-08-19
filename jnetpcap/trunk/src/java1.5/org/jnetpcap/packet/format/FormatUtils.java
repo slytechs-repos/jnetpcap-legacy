@@ -74,7 +74,8 @@ public class FormatUtils {
 		}
 
 		for (int i = 31; i < 127; i++)
-			table[i] = new String(new byte[] { (byte) i
+			table[i] = new String(new byte[] {
+				(byte) i
 			});
 
 		for (int i = 127; i < 256; i++) {
@@ -95,9 +96,7 @@ public class FormatUtils {
 
 		for (int i = 31; i < 127; i++)
 			table[i] = new String(new byte[] {
-					(byte) i,
-					' ',
-					' '
+					(byte) i, ' ', ' '
 			});
 
 		for (int i = 127; i < 256; i++) {
@@ -122,7 +121,7 @@ public class FormatUtils {
 	 * character.
 	 * 
 	 * @param array
-	 *          array to convert
+	 *            array to convert
 	 * @return the converted string
 	 */
 	public static String asString(byte[] array) {
@@ -134,9 +133,9 @@ public class FormatUtils {
 	 * character.
 	 * 
 	 * @param array
-	 *          array to convert
+	 *            array to convert
 	 * @param separator
-	 *          separator character to use in between array elements
+	 *            separator character to use in between array elements
 	 * @return the converted string
 	 */
 	public static String asString(byte[] array, char separator) {
@@ -148,11 +147,11 @@ public class FormatUtils {
 	 * character and radix for conversion of the numerical component.
 	 * 
 	 * @param array
-	 *          array to convert
+	 *            array to convert
 	 * @param separator
-	 *          separator character to use in between array elements
+	 *            separator character to use in between array elements
 	 * @param radix
-	 *          numerical radix to use for numbers
+	 *            numerical radix to use for numbers
 	 * @return the converted string
 	 */
 	public static String asString(byte[] array, char separator, int radix) {
@@ -164,22 +163,19 @@ public class FormatUtils {
 	 * character.
 	 * 
 	 * @param array
-	 *          array to convert
+	 *            array to convert
 	 * @param separator
-	 *          separator character to use in between array elements
+	 *            separator character to use in between array elements
 	 * @param radix
-	 *          the radix
+	 *            the radix
 	 * @param start
-	 *          the start
+	 *            the start
 	 * @param len
-	 *          the len
+	 *            the len
 	 * @return the converted string
 	 */
-	public static String asString(byte[] array,
-			char separator,
-			int radix,
-			int start,
-			int len) {
+	public static String asString(byte[] array, char separator, int radix,
+			int start, int len) {
 
 		final StringBuilder buf = new StringBuilder();
 
@@ -189,7 +185,8 @@ public class FormatUtils {
 				buf.append(separator);
 			}
 
-			buf.append(Integer.toString((b < 0) ? b + 256 : b, radix).toUpperCase());
+			buf.append(Integer.toString((b < 0) ? b + 256 : b, radix)
+					.toUpperCase());
 		}
 
 		return buf.toString();
@@ -200,22 +197,19 @@ public class FormatUtils {
 	 * character.
 	 * 
 	 * @param array
-	 *          array to convert
+	 *            array to convert
 	 * @param separator
-	 *          separator character to use in between array elements
+	 *            separator character to use in between array elements
 	 * @param radix
-	 *          the radix
+	 *            the radix
 	 * @param start
-	 *          the start
+	 *            the start
 	 * @param len
-	 *          the len
+	 *            the len
 	 * @return the converted string
 	 */
-	public static String asStringZeroPad(byte[] array,
-			char separator,
-			int radix,
-			int start,
-			int len) {
+	public static String asStringZeroPad(byte[] array, char separator,
+			int radix, int start, int len) {
 
 		final StringBuilder buf = new StringBuilder();
 
@@ -226,7 +220,8 @@ public class FormatUtils {
 			}
 
 			final String s =
-					Integer.toString((b < 0) ? b + 256 : b, radix).toUpperCase();
+					Integer.toString((b < 0) ? b + 256 : b, radix)
+							.toUpperCase();
 
 			if (s.length() == 1) {
 				buf.append('0');
@@ -242,7 +237,7 @@ public class FormatUtils {
 	 * Ip.
 	 * 
 	 * @param address
-	 *          the address
+	 *            the address
 	 * @return the string
 	 */
 	public static String ip(byte[] address) {
@@ -257,7 +252,7 @@ public class FormatUtils {
 	 * Mac.
 	 * 
 	 * @param address
-	 *          the address
+	 *            the address
 	 * @return the string
 	 */
 	public static String mac(byte[] address) {
@@ -279,32 +274,38 @@ public class FormatUtils {
 	 * .
 	 * 
 	 * @param array
-	 *          address array
+	 *            address array
 	 * @param holes
-	 *          if true holes are allowed
+	 *            if true holes are allowed
 	 * @return formatted string
 	 */
 	public static String asStringIp6(byte[] array, boolean holes) {
-		
+
 		if (array.length != 16) {
-			throw new IllegalArgumentException("expecting 16 byte ip6 address array");
+			throw new IllegalArgumentException(
+					"expecting 16 byte ip6 address array");
 		}
-		
+
 		StringBuilder buf = new StringBuilder();
 
 		int len = 0;
 		int start = -1;
 		/*
-		 * Check for byte compression where sequential zeros are replaced with ::
+		 * Check for byte compression where sequential zeros are replaced with
+		 * ::
+		 */
+		/*
+		 * Bug Fix#117 - FormatUtils.asStringIp6() causes an
+		 * OutOfMemoryException
 		 */
 		for (int i = 0; i < array.length && holes; i++) {
-			if (array[i] == 0) {
+			if ((i % 2) == 0 && array[i] == 0 && array[i + 1] == 0) {
 				if (len == 0) {
 					start = i;
 				}
-
-				len++;
 			}
+			i++;
+			len += 2;
 
 			/*
 			 * Only the first sequence of 0s is compressed, so break out
@@ -342,7 +343,11 @@ public class FormatUtils {
 			if (buf.length() != 0 && (i % 2) == 0) {
 				buf.append(':');
 			}
-			if (b < 16) {
+			
+			/*
+			 * Bug fix#125 FormatUtils.asStringIp6 prepends byte values < 0 with zeros 
+			 */
+			if (b >=0 && b < 16) {
 				buf.append('0');
 			}
 			buf.append(Integer.toHexString((b < 0) ? b + 256 : b).toUpperCase());
@@ -355,7 +360,7 @@ public class FormatUtils {
 	 * Formats a delta time.
 	 * 
 	 * @param millis
-	 *          delta timestamp in millis
+	 *            delta timestamp in millis
 	 * @return formatted string
 	 */
 	public static String formatTimeInMillis(long millis) {
@@ -408,25 +413,21 @@ public class FormatUtils {
 	 * Formats a byte array to a hexdump string.
 	 * 
 	 * @param array
-	 *          array to convert
+	 *            array to convert
 	 * @param addressOffset
-	 *          offset of the address space reported
+	 *            offset of the address space reported
 	 * @param dataOffset
-	 *          offset of the data space reported
+	 *            offset of the data space reported
 	 * @param doAddress
-	 *          flag which specifies if address should be printed
+	 *            flag which specifies if address should be printed
 	 * @param doText
-	 *          flag which specifies if text should printed
+	 *            flag which specifies if text should printed
 	 * @param doData
-	 *          flag which specifies if data should printed
+	 *            flag which specifies if data should printed
 	 * @return converted string array, one array element per line of output
 	 */
-	public static String[] hexdump(byte[] array,
-			int addressOffset,
-			int dataOffset,
-			boolean doAddress,
-			boolean doText,
-			boolean doData) {
+	public static String[] hexdump(byte[] array, int addressOffset,
+			int dataOffset, boolean doAddress, boolean doText, boolean doData) {
 
 		return hexdump(array,
 				addressOffset,
@@ -441,7 +442,7 @@ public class FormatUtils {
 	 * Markers.
 	 * 
 	 * @param state
-	 *          the state
+	 *            the state
 	 * @return the int[][]
 	 */
 	public static int[][] markers(JPacket.State state) {
@@ -461,42 +462,34 @@ public class FormatUtils {
 	 * Formats a byte array to a hexdump string.
 	 * 
 	 * @param array
-	 *          array to convert
+	 *            array to convert
 	 * @param addressOffset
-	 *          offset of the address space reported
+	 *            offset of the address space reported
 	 * @param dataOffset
-	 *          offset of the data space reported
+	 *            offset of the data space reported
 	 * @param doAddress
-	 *          flag which specifies if address should be printed
+	 *            flag which specifies if address should be printed
 	 * @param doText
-	 *          flag which specifies if text should printed
+	 *            flag which specifies if text should printed
 	 * @param doData
-	 *          flag which specifies if data should printed
+	 *            flag which specifies if data should printed
 	 * @param markers
-	 *          the markers
+	 *            the markers
 	 * @return converted string array, one array element per line of output
 	 */
-	public static String[] hexdump(byte[] array,
-			int addressOffset,
-			int dataOffset,
-			boolean doAddress,
-			boolean doText,
-			boolean doData,
+	public static String[] hexdump(byte[] array, int addressOffset,
+			int dataOffset, boolean doAddress, boolean doText, boolean doData,
 			int[][] markers) {
 
 		multiLineStringList.clear();
 
 		for (int i = 0; i + dataOffset < array.length; i += 16) {
-			multiLineStringList.add(hexLine(array,
-					i + addressOffset,
-					i + dataOffset,
-					doAddress,
-					doText,
-					doData,
-					markers));
+			multiLineStringList.add(hexLine(array, i + addressOffset, i
+					+ dataOffset, doAddress, doText, doData, markers));
 		}
 
-		return multiLineStringList.toArray(new String[multiLineStringList.size()]);
+		return multiLineStringList.toArray(new String[multiLineStringList
+				.size()]);
 	}
 
 	/**
@@ -504,7 +497,7 @@ public class FormatUtils {
 	 * all possible options turned on.
 	 * 
 	 * @param array
-	 *          source array
+	 *            source array
 	 * @return a multi-line string containing verbose hexdump
 	 */
 	public static String hexdump(byte[] array) {
@@ -513,11 +506,11 @@ public class FormatUtils {
 
 	/**
 	 * Formats the supplied packet for single line combined hexdump output using
-	 * all possible options turned on. Also displays markers which mark boundaries
-	 * between each header.
+	 * all possible options turned on. Also displays markers which mark
+	 * boundaries between each header.
 	 * 
 	 * @param packet
-	 *          source of data
+	 *            source of data
 	 * @return a multi-line string containing verbose hexdump
 	 */
 	public static String hexdump(JPacket packet) {
@@ -529,9 +522,9 @@ public class FormatUtils {
 	 * all possible options turned on.
 	 * 
 	 * @param array
-	 *          source array
+	 *            source array
 	 * @param state
-	 *          the state
+	 *            the state
 	 * @return a multi-line string containing verbose hexdump
 	 */
 	public static String hexdump(byte[] array, JPacket.State state) {
@@ -542,25 +535,21 @@ public class FormatUtils {
 	 * Converts the byte arra to hexdump string.
 	 * 
 	 * @param array
-	 *          array to convert
+	 *            array to convert
 	 * @param addressOffset
-	 *          offset of the address space reported
+	 *            offset of the address space reported
 	 * @param dataOffset
-	 *          offset of the data space reported
+	 *            offset of the data space reported
 	 * @param doAddress
-	 *          flag which specifies if address should be printed
+	 *            flag which specifies if address should be printed
 	 * @param doText
-	 *          flag which specifies if text should printed
+	 *            flag which specifies if text should printed
 	 * @param doData
-	 *          flag which specifies if data should printed
+	 *            flag which specifies if data should printed
 	 * @return converted string
 	 */
-	public static String hexdumpCombined(byte[] array,
-			int addressOffset,
-			int dataOffset,
-			boolean doAddress,
-			boolean doText,
-			boolean doData) {
+	public static String hexdumpCombined(byte[] array, int addressOffset,
+			int dataOffset, boolean doAddress, boolean doText, boolean doData) {
 
 		return hexdumpCombined(array,
 				addressOffset,
@@ -575,27 +564,23 @@ public class FormatUtils {
 	 * Converts the byte arra to hexdump string.
 	 * 
 	 * @param array
-	 *          array to convert
+	 *            array to convert
 	 * @param addressOffset
-	 *          offset of the address space reported
+	 *            offset of the address space reported
 	 * @param dataOffset
-	 *          offset of the data space reported
+	 *            offset of the data space reported
 	 * @param doAddress
-	 *          flag which specifies if address should be printed
+	 *            flag which specifies if address should be printed
 	 * @param doText
-	 *          flag which specifies if text should printed
+	 *            flag which specifies if text should printed
 	 * @param doData
-	 *          flag which specifies if data should printed
+	 *            flag which specifies if data should printed
 	 * @param markers
-	 *          the markers
+	 *            the markers
 	 * @return converted string
 	 */
-	public static String hexdumpCombined(byte[] array,
-			int addressOffset,
-			int dataOffset,
-			boolean doAddress,
-			boolean doText,
-			boolean doData,
+	public static String hexdumpCombined(byte[] array, int addressOffset,
+			int dataOffset, boolean doAddress, boolean doText, boolean doData,
 			int[][] markers) {
 		StringBuilder b = new StringBuilder();
 		for (String s : hexdump(array,
@@ -615,27 +600,23 @@ public class FormatUtils {
 	 * Converts the byte arra to hexdump string.
 	 * 
 	 * @param array
-	 *          array to convert
+	 *            array to convert
 	 * @param addressOffset
-	 *          offset of the address space reported
+	 *            offset of the address space reported
 	 * @param dataOffset
-	 *          offset of the data space reported
+	 *            offset of the data space reported
 	 * @param doAddress
-	 *          flag which specifies if address should be printed
+	 *            flag which specifies if address should be printed
 	 * @param doText
-	 *          flag which specifies if text should printed
+	 *            flag which specifies if text should printed
 	 * @param doData
-	 *          flag which specifies if data should printed
+	 *            flag which specifies if data should printed
 	 * @param markers
-	 *          the markers
+	 *            the markers
 	 * @return converted string array, one array element per line of output
 	 */
-	public static String hexLine(byte[] array,
-			int addressOffset,
-			int dataOffset,
-			boolean doAddress,
-			boolean doText,
-			boolean doData,
+	public static String hexLine(byte[] array, int addressOffset,
+			int dataOffset, boolean doAddress, boolean doText, boolean doData,
 			int[][] markers) {
 
 		String s = "";
@@ -664,7 +645,7 @@ public class FormatUtils {
 	 * Format an address.
 	 * 
 	 * @param address
-	 *          integer address
+	 *            integer address
 	 * @return formatted address string
 	 */
 	public static String hexLineAddress(int address) {
@@ -682,9 +663,9 @@ public class FormatUtils {
 	 * Formats the data array as a hexdump.
 	 * 
 	 * @param data
-	 *          data array
+	 *            data array
 	 * @param offset
-	 *          offset into the array
+	 *            offset into the array
 	 * @return formatted string
 	 */
 	public static String hexLineData(byte[] data, int offset) {
@@ -728,9 +709,9 @@ public class FormatUtils {
 	 * Formats the data array as a hexdump.
 	 * 
 	 * @param data
-	 *          data array
+	 *            data array
 	 * @param offset
-	 *          offset into the array
+	 *            offset into the array
 	 * @return formatted string
 	 */
 	public static String hexLineStream(byte[] data, int offset) {
@@ -751,11 +732,11 @@ public class FormatUtils {
 	 * Formats the data array as a hexdump.
 	 * 
 	 * @param data
-	 *          data array
+	 *            data array
 	 * @param offset
-	 *          offset into the array
+	 *            offset into the array
 	 * @param markers
-	 *          the markers
+	 *            the markers
 	 * @return formatted string
 	 */
 	public static String hexLineData(byte[] data, int offset, int[][] markers) {
@@ -767,8 +748,7 @@ public class FormatUtils {
 		final StringBuilder b = new StringBuilder();
 
 		final String m[] = {
-				"*",
-				"*"
+				"*", "*"
 		};
 
 		int marker = findMarker(markers, offset);
@@ -823,9 +803,9 @@ public class FormatUtils {
 	 * Find marker.
 	 * 
 	 * @param markers
-	 *          the markers
+	 *            the markers
 	 * @param offset
-	 *          the offset
+	 *            the offset
 	 * @return the int
 	 */
 	private static int findMarker(int[][] markers, int offset) {
@@ -842,13 +822,13 @@ public class FormatUtils {
 	}
 
 	/**
-	 * Formats the array data to human readable text that appears at the end of a
-	 * hexline of a hexdump.
+	 * Formats the array data to human readable text that appears at the end of
+	 * a hexline of a hexdump.
 	 * 
 	 * @param data
-	 *          data array
+	 *            data array
 	 * @param offset
-	 *          offset into data array
+	 *            offset into data array
 	 * @return formatted string
 	 */
 	public static String hexLineText(byte[] data, int offset) {
@@ -880,7 +860,7 @@ public class FormatUtils {
 	 * Parses a string containing hex numbers to a byte array.
 	 * 
 	 * @param source
-	 *          source string
+	 *            source string
 	 * @return byte array from the parsed data
 	 */
 	public static byte[] toByteArray(String source) {
@@ -892,7 +872,8 @@ public class FormatUtils {
 		if ((s.length() % 2) != 0) {
 			System.err.println(s);
 			throw new IllegalArgumentException(
-					"need even number of hex double digits [" + s.length() + "]");
+					"need even number of hex double digits [" + s.length()
+							+ "]");
 		}
 
 		for (int i = 0; i < s.length(); i += 2) {
@@ -908,7 +889,7 @@ public class FormatUtils {
 	 * Formats a number to hext.
 	 * 
 	 * @param b
-	 *          input byte
+	 *            input byte
 	 * @return formatted string
 	 */
 	public static String toHexString(byte b) {
