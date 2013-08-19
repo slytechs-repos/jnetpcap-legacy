@@ -1012,12 +1012,12 @@ public abstract class JMemory {
 	 */
 	protected int transferFrom(ByteBuffer src, int dstOffset) {
 		if (src.isDirect()) {
-			return transferFromDirect(src, 0);
+			return transferFromDirect(src, dstOffset);
 		} else {
 			return transferFrom(src.array(),
 					src.position(),
 					src.limit() - src.position(),
-					0);
+					dstOffset);
 		}
 	}
 
