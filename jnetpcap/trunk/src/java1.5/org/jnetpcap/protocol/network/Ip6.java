@@ -32,30 +32,47 @@ import org.jnetpcap.protocol.JProtocol;
  * @author Sly Technologies, Inc.
  */
 @Header(length = 40)
-public class Ip6
-    extends JHeader {
+public class Ip6 extends JHeader {
 
 	/** The Constant ID. */
 	public static final int ID = JProtocol.IP6_ID;
 
 	/**
-	 * Version.
+	 * Destination.
 	 * 
-	 * @return the int
+	 * @return the byte[]
 	 */
-	@Field(offset = 0, length = 4)
-	public int version() {
-		return getUByte(0) >> 4;
+	@Field(offset = 8 * 8, length = 128, format = "#ip6#")
+	@FlowKey(index = 0)
+	public byte[] destination() {
+		return getByteArray(24, 16);
 	}
 
 	/**
-	 * Traffic class.
+	 * Destination to byte array.
 	 * 
-	 * @return the int
+	 * @param address
+	 *            the address
+	 * @return the byte[]
 	 */
-	@Field(offset = 4, length = 8)
-	public int trafficClass() {
-		return getUShort(0) & 0x0FFF;
+	public byte[] destinationToByteArray(byte[] address) {
+		if (address.length != 16) {
+			throw new IllegalArgumentException("address must be 16 byte long");
+		}
+		return getByteArray(24, address);
+	}
+
+	/**
+	 * Converts the 16-byte IP6 address to a 4-byte hash of the value
+	 * 
+	 * @return 32-bit hash
+	 */
+	public int destinationToIntHash() {
+		int hash = 0;
+		for (int i = 0; i < 16; i += 4) {
+			hash ^= super.getUInt(i + 24);
+		}
+		return hash;
 	}
 
 	/**
@@ -66,6 +83,16 @@ public class Ip6
 	@Field(offset = 12, length = 20)
 	public int flowLabel() {
 		return getInt(0) & 0x000FFFFF; // We drop the sign bits anyway
+	}
+
+	/**
+	 * Hop limit.
+	 * 
+	 * @return the int
+	 */
+	@Field(offset = 7 * 8, length = 8)
+	public int hopLimit() {
+		return getUByte(7);
 	}
 
 	/**
@@ -90,16 +117,6 @@ public class Ip6
 	}
 
 	/**
-	 * Hop limit.
-	 * 
-	 * @return the int
-	 */
-	@Field(offset = 7 * 8, length = 8)
-	public int hopLimit() {
-		return getUByte(7);
-	}
-
-	/**
 	 * Source.
 	 * 
 	 * @return the byte[]
@@ -114,7 +131,7 @@ public class Ip6
 	 * Source to byte array.
 	 * 
 	 * @param address
-	 *          the address
+	 *            the address
 	 * @return the byte[]
 	 */
 	public byte[] sourceToByteArray(byte[] address) {
@@ -125,28 +142,53 @@ public class Ip6
 	}
 
 	/**
-	 * Destination.
+	 * Converts the 16-byte IP6 address to a 4-byte hash of the value
 	 * 
-	 * @return the byte[]
+	 * @return 32-bit hash
 	 */
-	@Field(offset = 8 * 8, length = 128, format = "#ip6#")
-	@FlowKey(index = 0)
-	public byte[] destination() {
-		return getByteArray(24, 16);
+	public int sourceToIntHash() {
+		int hash = 0;
+		for (int i = 0; i < 16; i += 4) {
+			hash ^= super.getUInt(i + 8);
+		}
+		return hash;
 	}
 
 	/**
-	 * Destination to byte array.
+	 * Traffic class.
 	 * 
-	 * @param address
-	 *          the address
-	 * @return the byte[]
+	 * @return the int
 	 */
-	public byte[] destinationToByteArray(byte[] address) {
-		if (address.length != 16) {
-			throw new IllegalArgumentException("address must be 16 byte long");
-		}
-		return getByteArray(24, address);
+	@Field(offset = 4, length = 8)
+	public int trafficClass() {
+		return getUShort(0) & 0x0FFF;
+	}
+
+	public void trafficClass(int value) {
+		int data = getUShort(0);
+		value = (value & 0x0F);
+		setUShort(0, value);
+	}
+
+	/**
+	 * Gets the value from the version field
+	 * 
+	 * @return reads the 4-bit version value
+	 */
+	@Field(offset = 0, length = 4)
+	public int version() {
+		return getUByte(0) >> 4;
+	}
+
+	/**
+	 * Sets the version field value
+	 * 
+	 * @param 4-bit integer value
+	 */
+	public void version(int value) {
+		int data = getUByte(0) & 0x0F; // Clear upper 4 bits
+		data |= (value & 0x0F) << 4; // Set in upper 4 bits
+		setUByte(0, data);
 	}
 
 }
