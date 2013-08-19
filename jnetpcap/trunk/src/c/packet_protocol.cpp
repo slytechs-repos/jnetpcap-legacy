@@ -1217,7 +1217,7 @@ void scan_ip6(scan_t *scan) {
 	 * IP.
 	 */
 	if (scan->hdr_count > 1 && (eth = scan->header -1)->hdr_id == ETHERNET_ID) {
-		int postfix = (scan->buf_len - 14 - BIG_ENDIAN16(ip6->ip6_plen)
+		int postfix = (scan->buf_len - scan->offset - BIG_ENDIAN16(ip6->ip6_plen)
 				- IP6_HEADER_LENGTH);
 
 		if (postfix > 0) {
@@ -1456,7 +1456,7 @@ void scan_ip4(register scan_t *scan) {
 			(tot_len <= scan->buf_len) &&
 			(eth = scan->header -1)->hdr_id == ETHERNET_ID) {
 
-			int postfix = (scan->buf_len - 14 - tot_len);
+			int postfix = (scan->buf_len - scan->offset - tot_len);
 			if (postfix > 0) {
 				eth->hdr_postfix = (uint16_t) postfix;
 				eth->hdr_payload -= postfix; // Adjust payload
