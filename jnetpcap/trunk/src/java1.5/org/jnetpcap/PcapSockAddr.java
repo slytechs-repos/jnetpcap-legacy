@@ -18,6 +18,8 @@
  */
 package org.jnetpcap;
 
+import org.jnetpcap.packet.format.FormatUtils;
+
 import com.slytechs.library.JNILibrary;
 import com.slytechs.library.Library;
 import com.slytechs.library.LibraryInitializer;
@@ -94,14 +96,15 @@ public class PcapSockAddr {
 	 */
 	@Override
 	public String toString() {
+		/*
+		 * Fixed bug#128 - PcapSockAddr.toString() should use standard IPv6
+		 */
 		switch (family) {
 		case AF_INET:
-			return "[INET4:" + u(data[0]) + "." + u(data[1]) + "." + u(data[2]) + "."
-					+ u(data[3]) + "]";
+			return "[INET4:" + FormatUtils.ip(data) + "]";
 
 		case AF_INET6:
-			return "[INET6:" + data[0] + "." + data[1] + "." + data[2] + "."
-					+ data[3] + "]";
+			return "[INET6:" + FormatUtils.ip(data) + "]";
 
 		default:
 			return "[" + family + "]";
