@@ -33,6 +33,7 @@ import org.jnetpcap.packet.annotate.Header;
 import org.jnetpcap.packet.annotate.HeaderLength;
 import org.jnetpcap.protocol.JProtocol;
 import org.jnetpcap.protocol.network.Ip4;
+import org.jnetpcap.protocol.network.Ip6;
 import org.jnetpcap.util.checksum.Checksum;
 
 // TODO: Auto-generated Javadoc
@@ -1227,7 +1228,8 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 	private int biDirectionalHashcode;
 
 	/** The ip. */
-	private final Ip4 ip = new Ip4();
+	private final Ip4 ip4 = new Ip4();
+	private final Ip6 ip6 = new Ip6();
 
 	/**
 	 * Computed in decodeHeader. The hashcode is made up of IP address and port
@@ -1339,6 +1341,15 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jnetpcap.packet.JHeader#getPayload()
+	 */
+	@Override
+	public byte[] getPayload() {
+		// TODO Auto-generated method stub
+		return super.getPayload();
+	}
+
 	/**
 	 * Decode header.
 	 * 
@@ -1349,14 +1360,21 @@ public class Tcp extends JHeaderMap<Tcp> implements JHeaderChecksum {
 		/*
 		 * Generate a bi-directional hashcode
 		 */
-		if ((getPacket() != null) && getPacket().hasHeader(this.ip)) {
+		if ((getPacket() != null) && getPacket().hasHeader(this.ip4)) {
 			this.biDirectionalHashcode =
-					(this.ip.destinationToInt() + destination())
-							^ (this.ip.sourceToInt() + source());
+					(this.ip4.destinationToInt() + destination())
+							^ (this.ip4.sourceToInt() + source());
 
 			this.uniDirectionalHashcode =
-					(this.ip.destinationToInt() + destination());
+					(this.ip4.destinationToInt() + destination());
 
+		} else if ((getPacket() != null) && getPacket().hasHeader(this.ip6) ) {
+			this.biDirectionalHashcode =
+					(this.ip6.destinationToIntHash() + destination())
+							^ (this.ip6.sourceToIntHash() + source());
+
+			this.uniDirectionalHashcode =
+					(this.ip6.destinationToIntHash() + destination());
 		} else {
 			this.biDirectionalHashcode = super.hashCode();
 		}
