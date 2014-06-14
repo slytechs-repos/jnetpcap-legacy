@@ -123,7 +123,10 @@ import com.slytechs.library.LibraryMember;
  * 
  * int timeout = 60 * 1000; // In milliseconds
  * 
- * Pcap pcap = Pcap.openLive(netInterface.getName(), snaplen, promiscous, timeout,
+ * Pcap pcap = Pcap.openLive(netInterface.getName(),
+ * 		snaplen,
+ * 		promiscous,
+ * 		timeout,
  * 		errbuf);
  * </pre>
  * 
@@ -236,12 +239,14 @@ import com.slytechs.library.LibraryMember;
  * 
  * @author Sly Technologies, Inc.
  */
-@Library(preload = {PcapDumper.class, PcapIf.class, PcapBpfProgram.class,
-		PcapDumper.class
+@Library(preload = {
+		PcapDumper.class, PcapIf.class, PcapBpfProgram.class, PcapDumper.class
 
-}, natives = {Pcap.WINPCAP_LIBRARY, Pcap.PCAP_LIBRARY, "packet"
+}, natives = {
+		Pcap.WINPCAP_LIBRARY, Pcap.PCAP_LIBRARY, "packet"
 
-}, jni = {Pcap.LIBRARY, Pcap.PCAP100_WRAPPER
+}, jni = {
+		Pcap.LIBRARY, Pcap.PCAP100_WRAPPER
 
 })
 public class Pcap {
@@ -500,8 +505,8 @@ public class Pcap {
 		JNILibrary.register(Pcap.class);
 
 		LIBRARY_LOAD_STATUS = JNILibrary.loadLibrary(Pcap.LIBRARY).isLoaded();
-		PCAP100_LOAD_STATUS = JNILibrary.loadLibrary(Pcap.PCAP100_WRAPPER)
-				.isLoaded();
+		PCAP100_LOAD_STATUS =
+				JNILibrary.loadLibrary(Pcap.PCAP100_WRAPPER).isLoaded();
 
 		// initIDs();
 	}
@@ -792,7 +797,7 @@ public class Pcap {
 	 */
 	public static Error getPcap080LoadError() {
 		JNILibrary lib = JNILibrary.loadLibrary(Pcap.LIBRARY);
-		return (lib.errors.isEmpty()) ? null : lib.errors.get(0);
+		return (lib.getErrors().isEmpty()) ? null : lib.getErrors().get(0);
 	}
 
 	/**
@@ -1462,8 +1467,14 @@ public class Pcap {
 	 */
 	public <T> int dispatch(int cnt, int id, JPacketHandler<T> handler, T user) {
 		final PcapPacket packet = new PcapPacket(Type.POINTER);
-		return dispatch(cnt, id, handler, user, packet, packet.getState(),
-				packet.getCaptureHeader(), JScanner.getThreadLocal());
+		return dispatch(cnt,
+				id,
+				handler,
+				user,
+				packet,
+				packet.getState(),
+				packet.getCaptureHeader(),
+				JScanner.getThreadLocal());
 	}
 
 	/**
@@ -1562,8 +1573,14 @@ public class Pcap {
 	public <T> int dispatch(int cnt, int id, PcapPacketHandler<T> handler,
 			T user) {
 		final PcapPacket packet = new PcapPacket(Type.POINTER);
-		return dispatch(cnt, id, handler, user, packet, packet.getState(),
-				packet.getCaptureHeader(), JScanner.getThreadLocal());
+		return dispatch(cnt,
+				id,
+				handler,
+				user,
+				packet,
+				packet.getState(),
+				packet.getCaptureHeader(),
+				JScanner.getThreadLocal());
 	}
 
 	/**
@@ -1649,7 +1666,10 @@ public class Pcap {
 	 * @since 1.2
 	 */
 	public <T> int dispatch(int cnt, JBufferHandler<T> handler, T user) {
-		return dispatch(cnt, handler, user, new PcapHeader(Type.POINTER),
+		return dispatch(cnt,
+				handler,
+				user,
+				new PcapHeader(Type.POINTER),
 				new JBuffer(Type.POINTER));
 	}
 
@@ -1768,8 +1788,13 @@ public class Pcap {
 	 */
 	public <T> int dispatch(int cnt, JPacketHandler<T> handler, T user) {
 		final PcapPacket packet = new PcapPacket(Type.POINTER);
-		return dispatch(cnt, datalinkToId(), handler, user, packet,
-				packet.getState(), packet.getCaptureHeader(),
+		return dispatch(cnt,
+				datalinkToId(),
+				handler,
+				user,
+				packet,
+				packet.getState(),
+				packet.getCaptureHeader(),
 				JScanner.getThreadLocal());
 	}
 
@@ -1871,8 +1896,14 @@ public class Pcap {
 	public <T> int dispatch(int cnt, JPacketHandler<T> handler, T user,
 			JScanner scanner) {
 		final PcapPacket packet = new PcapPacket(Type.POINTER);
-		return dispatch(cnt, datalinkToId(), handler, user, packet,
-				packet.getState(), packet.getCaptureHeader(), scanner);
+		return dispatch(cnt,
+				datalinkToId(),
+				handler,
+				user,
+				packet,
+				packet.getState(),
+				packet.getCaptureHeader(),
+				scanner);
 	}
 
 	/**
@@ -2002,8 +2033,13 @@ public class Pcap {
 	@Deprecated
 	public <T> int dispatch(int cnt, PcapPacketHandler<T> handler, T user) {
 		final PcapPacket packet = new PcapPacket(Type.POINTER);
-		return dispatch(cnt, datalinkToId(), handler, user, packet,
-				packet.getState(), packet.getCaptureHeader(),
+		return dispatch(cnt,
+				datalinkToId(),
+				handler,
+				user,
+				packet,
+				packet.getState(),
+				packet.getCaptureHeader(),
 				JScanner.getThreadLocal());
 	}
 
@@ -2068,8 +2104,14 @@ public class Pcap {
 	public <T> int dispatch(int cnt, PcapPacketHandler<T> handler, T user,
 			JScanner scanner) {
 		final PcapPacket packet = new PcapPacket(Type.POINTER);
-		return dispatch(cnt, datalinkToId(), handler, user, packet,
-				packet.getState(), packet.getCaptureHeader(), scanner);
+		return dispatch(cnt,
+				datalinkToId(),
+				handler,
+				user,
+				packet,
+				packet.getState(),
+				packet.getCaptureHeader(),
+				scanner);
 	}
 
 	/**
@@ -2196,7 +2238,8 @@ public class Pcap {
 
 			return injectPrivate(direct, 0, length);
 		} else {
-			return injectPrivate(buf, buf.position(),
+			return injectPrivate(buf,
+					buf.position(),
 					buf.limit() - buf.position());
 		}
 	}
@@ -2536,7 +2579,10 @@ public class Pcap {
 	 * @since 1.2
 	 */
 	public <T> int loop(int cnt, JBufferHandler<T> handler, T user) {
-		return loop(cnt, handler, user, new PcapHeader(Type.POINTER),
+		return loop(cnt,
+				handler,
+				user,
+				new PcapHeader(Type.POINTER),
 				new JBuffer(Type.POINTER));
 	}
 
@@ -2623,8 +2669,13 @@ public class Pcap {
 	 */
 	public <T> int loop(int cnt, JPacketHandler<T> handler, T user) {
 		final PcapPacket packet = new PcapPacket(Type.POINTER);
-		return loop(cnt, datalinkToId(), handler, user, packet,
-				packet.getState(), packet.getCaptureHeader(),
+		return loop(cnt,
+				datalinkToId(),
+				handler,
+				user,
+				packet,
+				packet.getState(),
+				packet.getCaptureHeader(),
 				JScanner.getThreadLocal());
 	}
 
@@ -2693,8 +2744,14 @@ public class Pcap {
 	public <T> int loop(int cnt, JPacketHandler<T> handler, T user,
 			JScanner scanner) {
 		final PcapPacket packet = new PcapPacket(Type.POINTER);
-		return loop(cnt, datalinkToId(), handler, user, packet,
-				packet.getState(), packet.getCaptureHeader(), scanner);
+		return loop(cnt,
+				datalinkToId(),
+				handler,
+				user,
+				packet,
+				packet.getState(),
+				packet.getCaptureHeader(),
+				scanner);
 	}
 
 	/**
@@ -2804,8 +2861,13 @@ public class Pcap {
 	 */
 	public <T> int loop(int cnt, PcapPacketHandler<T> handler, T user) {
 		final PcapPacket packet = new PcapPacket(Type.POINTER);
-		return loop(cnt, datalinkToId(), handler, user, packet,
-				packet.getState(), packet.getCaptureHeader(),
+		return loop(cnt,
+				datalinkToId(),
+				handler,
+				user,
+				packet,
+				packet.getState(),
+				packet.getCaptureHeader(),
 				JScanner.getThreadLocal());
 	}
 
@@ -2874,8 +2936,14 @@ public class Pcap {
 	public <T> int loop(int cnt, PcapPacketHandler<T> handler, T user,
 			JScanner scanner) {
 		final PcapPacket packet = new PcapPacket(Type.POINTER);
-		return loop(cnt, datalinkToId(), handler, user, packet,
-				packet.getState(), packet.getCaptureHeader(), scanner);
+		return loop(cnt,
+				datalinkToId(),
+				handler,
+				user,
+				packet,
+				packet.getState(),
+				packet.getCaptureHeader(),
+				scanner);
 	}
 
 	/**
@@ -3115,7 +3183,8 @@ public class Pcap {
 
 			return sendPacketPrivate(direct, 0, length);
 		} else {
-			return sendPacketPrivate(buf, buf.position(),
+			return sendPacketPrivate(buf,
+					buf.position(),
 					buf.limit() - buf.position());
 		}
 	}
