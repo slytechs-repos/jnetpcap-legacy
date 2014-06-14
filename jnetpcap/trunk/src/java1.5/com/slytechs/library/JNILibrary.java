@@ -20,7 +20,6 @@ package com.slytechs.library;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -45,7 +44,7 @@ public class JNILibrary extends NativeLibrary {
 	 * Filter all native methods.
 	 * 
 	 * @param declaredMethods
-	 *          the declared methods
+	 *            the declared methods
 	 * @return the method[]
 	 */
 	private static Method[] filterAllNativeMethods(Method[] declaredMethods) {
@@ -65,9 +64,9 @@ public class JNILibrary extends NativeLibrary {
 	 * Find annotated methods.
 	 * 
 	 * @param clazz
-	 *          the clazz
+	 *            the clazz
 	 * @param annotation
-	 *          the annotation
+	 *            the annotation
 	 * @return the method[]
 	 */
 	private static Method[] findAnnotatedMethods(Class<?> clazz,
@@ -84,8 +83,7 @@ public class JNILibrary extends NativeLibrary {
 		return list.toArray(new Method[list.size()]);
 	}
 
-	public static JNISymbol findSymbol(Class<?> clazz,
-			String methodName,
+	public static JNISymbol findSymbol(Class<?> clazz, String methodName,
 			Class<?>... parameterTypes) {
 		try {
 			return findSymbol(clazz.getMethod(methodName, parameterTypes));
@@ -98,7 +96,7 @@ public class JNILibrary extends NativeLibrary {
 	 * Find symbol.
 	 * 
 	 * @param m
-	 *          the m
+	 *            the m
 	 * @return the jNI symbol
 	 */
 	public static JNISymbol findSymbol(Method m) {
@@ -111,7 +109,7 @@ public class JNILibrary extends NativeLibrary {
 
 		return null;
 	}
-	
+
 	public static String toStringAllLibraries() {
 		StringBuilder b = new StringBuilder();
 		for (JNILibrary lib : cache.values()) {
@@ -121,12 +119,11 @@ public class JNILibrary extends NativeLibrary {
 		return b.toString();
 	}
 
-
 	/**
 	 * Invoke static initializer on class.
 	 * 
 	 * @param clazz
-	 *          the clazz
+	 *            the clazz
 	 */
 	private static void invokeStaticInitializerOnClass(Class<?> clazz) {
 
@@ -134,7 +131,8 @@ public class JNILibrary extends NativeLibrary {
 
 		for (Method init : inits) {
 			try {
-				init.setAccessible(true); // Override security for private methods
+				init.setAccessible(true); // Override security for private
+											// methods
 				init.invoke(null); // Its a static method
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -148,7 +146,7 @@ public class JNILibrary extends NativeLibrary {
 	 * messages if necessary.
 	 * 
 	 * @param name
-	 *          native library (not extensions or directory paths)
+	 *            native library (not extensions or directory paths)
 	 * @return the library
 	 */
 	public static JNILibrary loadLibrary(String name) {
@@ -157,9 +155,14 @@ public class JNILibrary extends NativeLibrary {
 		}
 
 		List<Error> errors = new LinkedList<Error>();
-		JNILibrary lib =
-				(loadLibrary(name, errors)) ? new JNILibrary(name) : new JNILibrary(
-						name, errors);
+
+		JNILibrary lib;
+		if (loadLibrary(name, errors)) {
+			lib = new JNILibrary(name);
+		} else {
+			lib = new JNILibrary(name, errors);
+		}
+
 		cache.put(name, lib);
 
 		return lib;
@@ -170,9 +173,9 @@ public class JNILibrary extends NativeLibrary {
 	 * messages if necessary.
 	 * 
 	 * @param name
-	 *          native library (not extensions or directory paths)
+	 *            native library (not extensions or directory paths)
 	 * @param errors
-	 *          the errors
+	 *            the errors
 	 * @return the library
 	 */
 	public static boolean loadLibrary(String name, List<Error> errors) {
@@ -189,9 +192,8 @@ public class JNILibrary extends NativeLibrary {
 
 			if (msg.contains("dependent libraries")) {
 				error =
-						new UnsatisfiedLinkError(mappedName
-								+ " native library is found, but needs "
-								+ " dependency library(ies) installed first.");
+						new UnsatisfiedLinkError("missing depencies! ("
+								+ mappedName + " is found)");
 			}
 
 			if (msg.contains("specified procedure")) {
@@ -206,12 +208,13 @@ public class JNILibrary extends NativeLibrary {
 
 			if (msg.contains("java.library.path")) {
 				error =
-						new UnsatisfiedLinkError(mappedName
-								+ " native library is not found. "
-								+ "Make sure its installed in /usr/lib or /usr/lib64 or "
-								+ "\\windows\\system32 or \\widows\\system64 or "
-								+ "set JVM -Djava.library.path=<dir_path_jnetpcap_library> to "
-								+ "its location.");
+						new UnsatisfiedLinkError(
+								mappedName
+										+ " native library is not found. "
+										+ "Make sure its installed in /usr/lib or /usr/lib64 or "
+										+ "\\windows\\system32 or \\widows\\system64 or "
+										+ "set JVM -Djava.library.path=<dir_path_jnetpcap_library> to "
+										+ "its location.");
 			}
 
 		} catch (Error e) {
@@ -230,7 +233,7 @@ public class JNILibrary extends NativeLibrary {
 	 * Open.
 	 * 
 	 * @param name
-	 *          the name
+	 *            the name
 	 * @return the jNI library
 	 */
 	public static JNILibrary open(String name) {
@@ -241,7 +244,7 @@ public class JNILibrary extends NativeLibrary {
 	 * Register.
 	 * 
 	 * @param clazz
-	 *          the clazz
+	 *            the clazz
 	 */
 	public static void register(Class<?> clazz) {
 		Library annotatedLibrary = clazz.getAnnotation(Library.class);
@@ -260,7 +263,7 @@ public class JNILibrary extends NativeLibrary {
 	 * Register.
 	 * 
 	 * @param annotatedLibrary
-	 *          the annotated library
+	 *            the annotated library
 	 */
 	public static void register(Library annotatedLibrary) {
 		register(annotatedLibrary.natives(),
@@ -272,13 +275,14 @@ public class JNILibrary extends NativeLibrary {
 	 * Register.
 	 * 
 	 * @param natives
-	 *          the natives
+	 *            the natives
 	 * @param jni
-	 *          the jni
+	 *            the jni
 	 * @param preload
-	 *          the preload
+	 *            the preload
 	 */
-	public static void register(String[] natives, String[] jni, Class<?>[] preload) {
+	public static void register(String[] natives, String[] jni,
+			Class<?>[] preload) {
 
 		/*
 		 * Load JNI libraries. These libraries have definitions for our class
@@ -286,14 +290,17 @@ public class JNILibrary extends NativeLibrary {
 		 * System.loadLibrary() call.
 		 */
 		for (String name : jni) {
-			JNILibrary.loadLibrary(name);
+			JNILibrary lib = JNILibrary.loadLibrary(name);
+			if (!lib.isLoaded()) {
+				throw new UnsatisfiedLinkError(lib.errors.toString());
+			}
 		}
 
 		/*
-		 * Load 3rd party, external native raw libraries. These libraries are opened
-		 * using dlopen call, and not loaded like JNI libraries. They are typically
-		 * loaded as a dependency to one of the JNI libraries, but not necessarily.
-		 * Any native library can be opened this way.
+		 * Load 3rd party, external native raw libraries. These libraries are
+		 * opened using dlopen call, and not loaded like JNI libraries. They are
+		 * typically loaded as a dependency to one of the JNI libraries, but not
+		 * necessarily. Any native library can be opened this way.
 		 */
 		for (String name : natives) {
 			NativeLibrary.loadLibrary(name);
@@ -301,8 +308,8 @@ public class JNILibrary extends NativeLibrary {
 
 		/*
 		 * Pre-load a list of classes. This forces each class to be loaded and
-		 * initialized. It also allows each of those classes to register themselves
-		 * and initialize their own libraries.
+		 * initialized. It also allows each of those classes to register
+		 * themselves and initialize their own libraries.
 		 */
 		for (Class<?> clazz : preload) {
 			try {
@@ -317,9 +324,9 @@ public class JNILibrary extends NativeLibrary {
 	 * Register native methods.
 	 * 
 	 * @param defaultApi
-	 *          the default api
+	 *            the default api
 	 * @param methods
-	 *          the methods
+	 *            the methods
 	 * @return true, if successful
 	 */
 	public static boolean registerNativeMethods(String defaultApi,
@@ -337,7 +344,7 @@ public class JNILibrary extends NativeLibrary {
 	 * Resolve symbols.
 	 * 
 	 * @param clazz
-	 *          the clazz
+	 *            the clazz
 	 * @return true, if successful
 	 */
 	public static boolean resolveSymbols(Class<?> clazz) {
@@ -366,7 +373,8 @@ public class JNILibrary extends NativeLibrary {
 		for (JNILibrary lib : cache.values()) {
 			boolean hadSymbol = false;
 			b.setLength(0);
-			b.append(lib.name).append("@0x").append(Long.toString(lib.address, 16));
+			b.append(lib.name).append("@0x")
+					.append(Long.toString(lib.address, 16));
 
 			b.append('[');
 			int div = b.length();
@@ -402,9 +410,6 @@ public class JNILibrary extends NativeLibrary {
 	/** The dependencies loaded. */
 	private final boolean dependenciesLoaded = true;
 
-	/** The errors. */
-	public final List<Error> errors;
-
 	/** The symbols. */
 	private final Map<String, JNISymbol> symbols =
 			new HashMap<String, JNISymbol>();
@@ -413,41 +418,38 @@ public class JNILibrary extends NativeLibrary {
 	 * Instantiates a new jNI library.
 	 * 
 	 * @param name
-	 *          the name
+	 *            the name
 	 */
 	private JNILibrary(String name) {
 		super(name);
-
-		this.errors = Collections.emptyList();
 	}
 
 	/**
 	 * Instantiates a new jNI library.
 	 * 
 	 * @param name
-	 *          the name
+	 *            the name
 	 * @param errors
-	 *          the errors
+	 *            the errors
 	 */
 	private JNILibrary(String name, List<Error> errors) {
-		super(name);
-
-		this.errors = errors;
+		super(name, errors);
 	}
 
 	/**
 	 * Gets the symbol.
 	 * 
 	 * @param method
-	 *          the method
+	 *            the method
 	 * @return the symbol
 	 * @throws SecurityException
-	 *           the security exception
+	 *             the security exception
 	 */
 	JNISymbol getSymbol(Method method) throws SecurityException {
 
 		final String jniNameShort = JNISymbol.toJNIName(method);
-		final String jniNameAndSignature = JNISymbol.toJNINameAndSignature(method);
+		final String jniNameAndSignature =
+				JNISymbol.toJNINameAndSignature(method);
 		// System.out.printf("getSymbol() - %s%n", jniNameAndSignature);
 
 		if (symbols.containsKey(jniNameShort)) {
@@ -478,7 +480,8 @@ public class JNILibrary extends NativeLibrary {
 	 * dependencies. Optional dependencies, even when failed to load, are not
 	 * reported by this method.
 	 * 
-	 * @return true means library and its reuired dependencies loaded successfully
+	 * @return true means library and its reuired dependencies loaded
+	 *         successfully
 	 * @see com.slytechs.library.NativeLibrary#isLoaded()
 	 */
 	@Override
