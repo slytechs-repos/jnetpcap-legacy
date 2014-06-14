@@ -18,7 +18,10 @@
  */
 package com.slytechs.library;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.jnetpcap.Pcap;
@@ -32,7 +35,8 @@ import org.jnetpcap.Pcap;
  * 
  * @author Sly Technologies, Inc.
  */
-@Library(natives = { "Kernel"
+@Library(natives = {
+	"Kernel"
 }, jni = Pcap.LIBRARY)
 public class NativeLibrary {
 
@@ -55,7 +59,7 @@ public class NativeLibrary {
 	 * Dlopen.
 	 * 
 	 * @param name
-	 *          the name
+	 *            the name
 	 * @return the long
 	 */
 	@LibraryMember
@@ -66,11 +70,11 @@ public class NativeLibrary {
 	 * messages if necessary.
 	 * 
 	 * @param name
-	 *          native library (not extensions or directory paths)
+	 *            native library (not extensions or directory paths)
 	 * @param clazz
-	 *          the clazz
+	 *            the clazz
 	 * @param min
-	 *          the min
+	 *            the min
 	 * @return the library
 	 */
 	public static NativeLibrary loadLibrary(String name) {
@@ -88,7 +92,7 @@ public class NativeLibrary {
 	 * Gets the native library handle.
 	 * 
 	 * @param name
-	 *          the name
+	 *            the name
 	 * @return the native library handle
 	 */
 	public static NativeLibrary open(String name) {
@@ -98,7 +102,14 @@ public class NativeLibrary {
 	/** The address. */
 	protected final long address;
 
-	private final Error error;
+	protected final List<Error> errors = new ArrayList<Error>();
+
+	/**
+	 * @return the errors
+	 */
+	public List<Error> getErrors() {
+		return errors;
+	}
 
 	/** The name. */
 	public final String name;
@@ -110,15 +121,32 @@ public class NativeLibrary {
 	 * Instantiates a new native library.
 	 * 
 	 * @param name
-	 *          the name
+	 *            the name
 	 * @param error
 	 */
 	NativeLibrary(String name) {
-//		final List<Error> errors = new ArrayList<Error>(1);
+		// final List<Error> errors = new ArrayList<Error>(1);
 
 		this.address = dlopen(name);
-		this.error = null;
 		ref = (address != 0) ? new NativeLibraryReference(this, address) : null;
+
+		this.name = name;
+	}
+
+	/**
+	 * Instantiates a new native library with errors.
+	 * 
+	 * @param name
+	 *            library name
+	 * @param errors
+	 *            existing errors
+	 */
+	NativeLibrary(String name, List<Error> errors) {
+		// final List<Error> errors = new ArrayList<Error>(1);
+
+		this.address = 0;
+		this.errors.addAll(errors);
+		ref = null;
 
 		this.name = name;
 	}
@@ -127,9 +155,9 @@ public class NativeLibrary {
 	 * Dlsymbol.
 	 * 
 	 * @param address
-	 *          the address
+	 *            the address
 	 * @param name
-	 *          the name
+	 *            the name
 	 * @return the long
 	 */
 	@LibraryMember
@@ -139,7 +167,7 @@ public class NativeLibrary {
 	 * Dlsymbol.
 	 * 
 	 * @param name
-	 *          the name
+	 *            the name
 	 * @return the long
 	 */
 	long dlsymbol(String name) {
@@ -150,7 +178,7 @@ public class NativeLibrary {
 	 * Gets the symbol.
 	 * 
 	 * @param name
-	 *          the name
+	 *            the name
 	 * @return the symbol
 	 */
 	public NativeSymbol getSymbol(String name) {
@@ -164,7 +192,8 @@ public class NativeLibrary {
 		}
 
 		NativeSymbol symbol =
-				new NativeSymbol(name, address, System.mapLibraryName(this.name));
+				new NativeSymbol(name, address,
+						System.mapLibraryName(this.name));
 		symbols.put(name, symbol);
 
 		return symbol;
