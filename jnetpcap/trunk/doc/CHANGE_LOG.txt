@@ -21,16 +21,48 @@
                               jNetPcap Package
                                  Change Log
 
-== Release 1.4.r1433  (2015-2-7) ==
+== Release 1.4.r14??  (2015-?-?) ==
+
+* Note: this change log is in preparation for a release. The files have
+	not been released yet as of 2015-2-7.
 
 * IA64 (Intel Itanium) port
 
 	- Replaced structure bit-field access with more portable MACROS:
 		  
-		+ Added IP4_GET_* macros for struct ip4_t; removed struct bit-fields
+		+ Added IP4_GET_* accessors
+		+ Added IP6_GET_* accessors
+		+ Added ETHERNET_GET_* accessors
+		+ Added TCP_GET_* accessors
+		+ Added UDP_GET_* accessors
+		+ Added LLC_GET_* accessors
+		+ Added SNAP_GET_* accessors
+		+ Added VLAN_GET_* accessors
+		+ Added L2TP_GET_* accessors
+		+ Added PPP_GET_* accessors
+		+ Added ICMP4_GET_* accessors
+		+ Added ARP_GET_* accessors
+		+ Added RTP_GET_* accessors
+		+ Added RTCP_GET_* accessors
+		+ Added RTCP_SR_GET_* accessors
+		+ Added RTCP_SSRC_GET_* accessors
+		+ Added RTPX_GET_* accessors
+		+ Added SLL_GET_* accessors
+		+ Added SCTP_GET_* accessors
+		+ Added SCTP_CHUNK_GET_* accessors
+		+ Added NULL_GET_* accessors
 		
-		+ 
-		                       
+	- Updated all protocol structures to use struct *_s; as name of
+		structure and typedef struct *_s {} *_t; as typedef name
+		             
+	- Added *_STRUCT_LENGTH macro for all protocols
+	
+	- Added *_CALC_LENGTH(p) macro for all protocols with variable header
+		length which calculates the actual length of the header
+		
+	- In many cases allows both struct bit-field access as well 
+		as byte-aligned non bit-field access to all protocol structures	                    
+		                
 == Release 1.3.b4  (2010-12-15) ==
 
 * Fixes

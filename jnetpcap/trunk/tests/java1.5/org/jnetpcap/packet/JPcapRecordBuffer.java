@@ -32,6 +32,106 @@ import org.jnetpcap.protocol.lan.Ethernet;
  */
 public class JPcapRecordBuffer extends JBuffer implements JPcapRecordIterable {
 
+	/**
+	 * The Class Iterator.
+	 */
+	public class Iterator implements
+			java.util.Iterator<JPcapRecordBuffer.Record> {
+
+		/** The offset. */
+		private int offset = start;
+
+		/** The index. */
+		private int index = 0;
+
+		/** The PCA p_ heade r_ sizeof. */
+		final int PCAP_HEADER_SIZEOF = PcapHeader.sizeof();
+
+		/**
+		 * Gets the packet record count.
+		 * 
+		 * @return the packet record count
+		 */
+		public long getPacketRecordCount() {
+			return count;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.util.Iterator#hasNext()
+		 */
+		public boolean hasNext() {
+			return index < count;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.util.Iterator#next()
+		 */
+		public JPcapRecordBuffer.Record next() {
+			return records[index++];
+		}
+
+		/**
+		 * Next.
+		 * 
+		 * @param header
+		 *            the header
+		 * @param packet
+		 *            the packet
+		 */
+		public void next(PcapHeader header, JBuffer packet) {
+			// System.out.printf("next():: offset=%d index=%d size=%d count=%d%n",
+			// offset,
+			// index,
+			// size(),
+			// count);
+			// System.out.flush();
+
+			offset += header.peerTo(JPcapRecordBuffer.this, offset);
+			// offset += PCAP_HEADER_SIZEOF;
+
+			offset += packet.peer(JPcapRecordBuffer.this, offset,
+					header.caplen());
+			// offset += header.caplen();
+			index++;
+
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.util.Iterator#remove()
+		 */
+		public void remove() {
+			throw new UnsupportedOperationException(
+					"optional method not implemented");
+		}
+
+		/**
+		 * Reset.
+		 */
+		public void reset() {
+			offset = start;
+			index = 0;
+		}
+
+	}
+
+	/**
+	 * The Class Record.
+	 */
+	public static class Record {
+
+		/** The header. */
+		public PcapHeader header;
+
+		/** The packet. */
+		public JBuffer packet;
+	}
+
 	/** The start. */
 	private final int start = 4;
 
@@ -50,11 +150,20 @@ public class JPcapRecordBuffer extends JBuffer implements JPcapRecordIterable {
 	/** The records. */
 	private Record[] records;
 
+	/** The header. */
+	final PcapHeader header = new PcapHeader(JMemory.POINTER);
+
+	/** The pkt_buf. */
+	final JBuffer pkt_buf = new JBuffer(JMemory.POINTER);
+
+	/** The packet. */
+	final PcapPacket packet = new PcapPacket(JMemory.POINTER);
+
 	/**
 	 * Instantiates a new j pcap record buffer.
 	 * 
 	 * @param size
-	 *          the size
+	 *            the size
 	 */
 	public JPcapRecordBuffer(int size) {
 		super(size);
@@ -65,34 +174,12 @@ public class JPcapRecordBuffer extends JBuffer implements JPcapRecordIterable {
 	}
 
 	/**
-	 * Gets the packet record count.
-	 * 
-	 * @return the packet record count
-	 */
-	public int getPacketRecordCount() {
-		return count;
-	}
-
-	/**
-	 * Sets the packet record count.
-	 * 
-	 * @param value
-	 *          the new packet record count
-	 */
-	@SuppressWarnings("unused")
-	private void setPacketRecordCount(int value) {
-		super.setUInt(0, value);
-
-		count = value;
-	}
-
-	/**
 	 * Append.
 	 * 
 	 * @param header
-	 *          the header
+	 *            the header
 	 * @param packet
-	 *          the packet
+	 *            the packet
 	 */
 	public void append(PcapHeader header, JBuffer packet) {
 		header.transferTo(this, position);
@@ -132,122 +219,6 @@ public class JPcapRecordBuffer extends JBuffer implements JPcapRecordIterable {
 		}
 	}
 
-	/**
-	 * The Class Record.
-	 */
-	public static class Record {
-
-		/** The header. */
-		public PcapHeader header;
-
-		/** The packet. */
-		public JBuffer packet;
-	}
-
-	/**
-	 * The Class Iterator.
-	 */
-	public class Iterator implements java.util.Iterator<JPcapRecordBuffer.Record> {
-
-		/** The offset. */
-		private int offset = start;
-
-		/** The index. */
-		private int index = 0;
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.util.Iterator#hasNext()
-		 */
-		public boolean hasNext() {
-			return index < count;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.util.Iterator#next()
-		 */
-		public JPcapRecordBuffer.Record next() {
-			return records[index++];
-		}
-
-		/** The PCA p_ heade r_ sizeof. */
-		final int PCAP_HEADER_SIZEOF = PcapHeader.sizeof();
-
-		/**
-		 * Next.
-		 * 
-		 * @param header
-		 *          the header
-		 * @param packet
-		 *          the packet
-		 */
-		public void next(PcapHeader header, JBuffer packet) {
-			// System.out.printf("next():: offset=%d index=%d size=%d count=%d%n",
-			// offset,
-			// index,
-			// size(),
-			// count);
-			// System.out.flush();
-
-			offset += header.peerTo(JPcapRecordBuffer.this, offset);
-			// offset += PCAP_HEADER_SIZEOF;
-
-			offset += packet.peer(JPcapRecordBuffer.this, offset, header.caplen());
-			// offset += header.caplen();
-			index++;
-
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.util.Iterator#remove()
-		 */
-		public void remove() {
-			throw new UnsupportedOperationException("optional method not implemented");
-		}
-
-		/**
-		 * Reset.
-		 */
-		public void reset() {
-			offset = start;
-			index = 0;
-		}
-
-		/**
-		 * Gets the packet record count.
-		 * 
-		 * @return the packet record count
-		 */
-		public long getPacketRecordCount() {
-			return count;
-		}
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.jnetpcap.packet.JPcapRecordIterable#iterator()
-	 */
-	public JPcapRecordBuffer.Iterator iterator() {
-		return new JPcapRecordBuffer.Iterator();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return "packets = " + count;
-	}
-
 	public <T> long dispatchToJBuffeHandler(JBufferHandler<T> handler, T user) {
 
 		for (Record record : this) {
@@ -263,15 +234,6 @@ public class JPcapRecordBuffer extends JBuffer implements JPcapRecordIterable {
 		return this.getPacketRecordCount();
 	}
 
-	/** The header. */
-	final PcapHeader header = new PcapHeader(JMemory.POINTER);
-
-	/** The pkt_buf. */
-	final JBuffer pkt_buf = new JBuffer(JMemory.POINTER);
-
-	/** The packet. */
-	final PcapPacket packet = new PcapPacket(JMemory.POINTER);
-
 	public <T> long dispatchToPcapPacketHandler(PcapPacketHandler<T> handler,
 			T user) {
 
@@ -281,12 +243,78 @@ public class JPcapRecordBuffer extends JBuffer implements JPcapRecordIterable {
 
 		for (JPcapRecordBuffer.Record record : this) {
 
-			// final PcapPacket pkt = new PcapPacket(record.header, record.packet);
+			// final PcapPacket pkt = new PcapPacket(record.header,
+			// record.packet);
 			packet.transferHeaderAndDataFrom(record.header, record.packet);
 			packet.scan(Ethernet.ID);
 			handler.nextPacket(packet, user);
 		}
 
 		return this.getPacketRecordCount();
+	}
+
+	public int getCapacity() {
+		return capacity;
+	}
+
+	public int getLimit() {
+		return limit;
+	}
+
+	/**
+	 * Gets the packet record count.
+	 * 
+	 * @return the packet record count
+	 */
+	public int getPacketRecordCount() {
+		return count;
+	}
+
+	public int getPosition() {
+		return position;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jnetpcap.packet.JPcapRecordIterable#iterator()
+	 */
+	public JPcapRecordBuffer.Iterator iterator() {
+		return new JPcapRecordBuffer.Iterator();
+	}
+
+	public int remaining() {
+		return limit - position;
+	}
+
+	public void setLimit(int limit) {
+		this.limit = limit;
+	}
+
+	/**
+	 * Sets the packet record count.
+	 * 
+	 * @param value
+	 *            the new packet record count
+	 */
+	@SuppressWarnings("unused")
+	private void setPacketRecordCount(int value) {
+		super.setUInt(0, value);
+
+		count = value;
+	}
+
+	public void setPosition(int position) {
+		this.position = position;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "packets = " + count;
 	}
 }
