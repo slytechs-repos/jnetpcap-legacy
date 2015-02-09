@@ -128,19 +128,19 @@ void scan_not_implemented_yet(scan_t *scan) {
 void scan_null_header(scan_t *scan) {
 ENTER(SLL_ID, "scan_null_header");
 	register null_header_t *nl = (null_header_t *)(scan->buf + scan->offset);
-	if (is_accessible(scan, 4) == FALSE) {
+	if (is_accessible(scan, NULL_STRUCT_LENGTH) == FALSE) {
 		EXIT("scan_null_header");
 		return;
 	}
 	scan->id = NULL_HEADER_ID;
-	scan->length = 4;
+	scan->length = NULL_STRUCT_LENGTH;
 
-	switch (nl->type) {
+	switch (NULL_GET_TYPE(nl)) {
 	case 2: scan->next_id = IP4_ID; EXIT("scan_null_header"); return;
 	default: scan->next_id = PAYLOAD_ID;
 	}
 
-	switch (BIG_ENDIAN32(nl->type)) {
+	switch (NULL_GET_TYPE(nl)) {
 	case 2: scan->next_id = IP4_ID; EXIT("scan_null_header"); return;
 	default: scan->next_id = PAYLOAD_ID;
 	}
@@ -161,7 +161,7 @@ ENTER(SLL_ID, "scan_sctp_chunk");
 	int len;
 	sctp_t *sctp = NULL;
 	register sctp_chunk_t *chunk = (sctp_chunk_t *)(scan->buf + scan->offset);
-	if (is_accessible(scan, 4) == FALSE) {
+	if (is_accessible(scan, SCTP_CHUNK_STRUCT_LENGTH) == FALSE) {
 		EXIT("scan_sctp_chunk");
 		return;
 	}
@@ -169,11 +169,11 @@ ENTER(SLL_ID, "scan_sctp_chunk");
 	static int fn = 0;
 	fn ++;
 
-	len = BIG_ENDIAN16(chunk->length);
+	len = SCTP_CHUNK_GET_LENGTH(chunk);
 	len = (len + ((4 - (len % 4)) & 0x03)); // 4-byte boundary padded (implicit)
-	scan->id = SCTP_CHUNK_ID + chunk->type; // They are defined in the correct order
+	scan->id = SCTP_CHUNK_ID + SCTP_CHUNK_GET_TYPE(chunk); // They are defined in the correct order
 
-	if (chunk->type == 0) { // Data chunk grabs only 4 byte header
+	if (SCTP_CHUNK_GET_TYPE(chunk) == 0) { // Data chunk grabs only 4 byte header
 		scan->length = 16;
 
 		/*
@@ -187,11 +187,11 @@ ENTER(SLL_ID, "scan_sctp_chunk");
 		scan->stack_index++;
 		scan->next_id = PAYLOAD_ID;
 
-		if ((chunk->flags & SCTP_DATA_FLAG_FIRST_SEG) != 0) {
+		if ((SCTP_CHUNK_GET_FLAGS(chunk) & SCTP_DATA_FLAG_FIRST_SEG) != 0) {
 			sctp = (sctp_t *)(scan->buf + scan->sctp_offset);
 
-			scan->dport = BIG_ENDIAN16(sctp->dport);
-			scan->sport = BIG_ENDIAN16(sctp->sport);
+			scan->dport = SCTP_GET_DPORT(sctp);
+			scan->sport = SCTP_GET_SPORT(sctp);
 
 			switch (scan->dport) {
 			case 80:
@@ -223,10 +223,10 @@ ENTER(SLL_ID, "scan_sctp_chunk");
 void scan_sctp(scan_t *scan) {
 ENTER(SLL_ID, "scan_sctp");
 	register sctp_t *sctp = (sctp_t *)(scan->buf + scan->offset);
-	scan->length = SCTP_LEN;
+	scan->length = SCTP_STRUCT_LENGTH;
 	scan->sctp_offset = scan->offset;
 
-	if (is_accessible(scan, SCTP_LEN) == FALSE) {
+	if (is_accessible(scan, SCTP_STRUCT_LENGTH) == FALSE) {
 		EXIT("scan_sctp");
 		return;
 	}
@@ -245,14 +245,14 @@ ENTER(SLL_ID, "scan_sctp");
 void scan_sll(scan_t *scan) {
 ENTER(SLL_ID, "scan_sll");
 	register sll_t *sll = (sll_t *)(scan->buf + scan->offset);
-	scan->length = SLL_LEN;
+	scan->length = SLL_STRUCT_LENGTH;
 
-	if (is_accessible(scan, 9) == FALSE) {
+	if (is_accessible(scan, SLL_STRUCT_LENGTH) == FALSE) {
 		EXIT("scan_sll");
 		return;
 	}
 
-	switch(BIG_ENDIAN16(sll->sll_protocol)) {
+	switch(SLL_GET_PROTOCOL(sll)) {
 	case 0x800:	scan->next_id = validate_next(IP4_ID, scan); EXIT("scan_sll"); return;
 	}
 
@@ -271,7 +271,7 @@ ENTER(SLL_ID, "scan_sll");
 int validate_rtcp(scan_t *scan) {
 ENTER(RTCP_ID, "validate_rtcp");
 
-	if ((scan->buf_len - scan->offset) < sizeof(rtp_t)) {
+	if ((scan->buf_len - scan->offset) < RTCP_STRUCT_LENGTH) {
 		TRACE("1st check", "(#%d) FAILED - len too small", scan->scanner->sc_cur_frame_num);
 		EXIT("validate_rtcp");
 		return INVALID;
@@ -286,10 +286,10 @@ ENTER(RTCP_ID, "validate_rtcp");
 	 *
 	 */
 	if ( /* 1st CHECK header properties */
-			rtcp->rtcp_ver != 2
-			|| rtcp->rtcp_rc > 15
-			|| rtcp->rtcp_type < 200
-			|| rtcp->rtcp_type > 205
+			RTCP_GET_VER(rtcp) != 2
+			|| RTCP_GET_RC(rtcp) > 15
+			|| RTCP_GET_TYPE(rtcp) < 200
+			|| RTCP_GET_TYPE(rtcp) > 205
 			) {
 		TRACE("2nd check", "(#%d) FAILED - header flags", scan->scanner->sc_cur_frame_num);
 		EXIT("validate_rtcp");
@@ -307,7 +307,7 @@ ENTER(RTCP_ID, "validate_rtcp");
 
 
 	EXIT("validate_rtcp");
-	return (RTCP_ID + (rtcp->rtcp_type - 200));
+	return (RTCP_ID + (RTCP_GET_TYPE(rtcp) - 200));
 }
 
 /**
@@ -319,9 +319,9 @@ void scan_rtcp(scan_t *scan) {
 	register rtcp_t *rtcp = (rtcp_t *)(scan->buf + scan->offset);
 
 	ACCESS(4);
-	scan->length = (BIG_ENDIAN16(rtcp->rtcp_len) +1) << 2;
+	scan->length = (RTCP_GET_LEN(rtcp) +1) << 2;
 
-	int id = rtcp->rtcp_type;
+	int id = RTCP_GET_TYPE(rtcp);
 	TRACE("scan_rtcp", "(#%d) id=%02X len=%d data=0x%08X dport=%d",
 			scan->scanner->sc_cur_frame_num,
 			id,
@@ -366,11 +366,11 @@ ENTER(RTP_ID, "validate_rtp");
 	 * Bug# 118 DTMF RTP paylaod is not supported
 	 */
 	if ( /* 1st CHECK header properties */
-			rtp->rtp_ver != 2
-			|| rtp->rtp_cc > 15
-			|| rtp->rtp_ts == 0
-			|| rtp->rtp_type > 34 && rtp->rtp_type < 96
-			|| rtp->rtp_type > 127
+			RTP_GET_VER(rtp) != 2
+			|| RTP_GET_CC(rtp) > 15
+			|| RTP_GET_TS(rtp) == 0
+			|| RTP_GET_TYPE(rtp) > 34 && RTP_GET_TYPE(rtp) < 96
+			|| RTP_GET_TYPE(rtp) > 127
 			) {
 		TRACE("1st check", "FAILED - header flags");
 		EXIT("validate_rtp");
@@ -381,7 +381,7 @@ ENTER(RTP_ID, "validate_rtp");
 	TRACE("1st check", "PASSED");
 
 	uint32_t *c = (uint32_t *)(rtp + 1);
-	for (int i = 0; i < rtp->rtp_cc; i ++) {
+	for (int i = 0; i < RTP_GET_CC(rtp); i ++) {
 		TRACE("2nd check", "CSRC[%d]=0x%x", i, BIG_ENDIAN32(c[i]));
 //		if (BIG_ENDIAN32(c[i]) == 0) {
 //
@@ -396,7 +396,7 @@ ENTER(RTP_ID, "validate_rtp");
 		 * Check for any duplicates CSRC ids within the table. Normally there
 		 * can't be any duplicates.
 		 */
-		for (int j = i + 1; j < rtp->rtp_cc; j ++) {
+		for (int j = i + 1; j < RTP_GET_CC(rtp); j ++) {
 			if (BIG_ENDIAN32(c[i]) == BIG_ENDIAN32(c[j])) {
 
 				TRACE("2nd check", "FAILED - CSRC[%d]%d == CSRC[%d]%d",
@@ -410,14 +410,14 @@ ENTER(RTP_ID, "validate_rtp");
 	TRACE("2nd check", "PASSED");
 
 	int payload_len = scan->wire_len - scan->offset;
-	int actual = ((rtp->rtp_cc * 4) + RTP_LENGTH);
-	if (rtp->rtp_ext) {
+	int actual = ((RTP_GET_CC(rtp) * 4) + RTP_STRUCT_LENGTH);
+	if (RTP_GET_EXT(rtp) == 1) {
 		rtpx_t * rtpx = (rtpx_t *)(
 					scan->buf +
 					scan->offset +
-					RTP_LENGTH +
-					(rtp->rtp_cc * 4));
-		register int xlen = BIG_ENDIAN16(rtpx->rtpx_len) * 4;
+					RTP_STRUCT_LENGTH +
+					(RTP_GET_CC(rtp) * 4));
+		register int xlen = RTPX_GET_LEN(rtpx) * 4;
 		if ((!SCAN_IS_FRAGMENT(scan) &&
 				(scan->offset + xlen > scan->wire_len))	||
 				(xlen > 1500) ) {
@@ -463,28 +463,28 @@ void debug_rtp(rtp_t *rtp) {
 	ENTER(RTP_ID, "debug_rtp");
 
 	TRACE("RTP", "ver=%d pad=%d ext=%d cc=%d marker=%d type=%d seq=%d ts=%d",
-			(int) rtp->rtp_ver,
-			(int) rtp->rtp_pad,
-			(int) rtp->rtp_ext,
-			(int) rtp->rtp_cc,
-			(int) rtp->rtp_marker,
-			(int) rtp->rtp_type,
-			(int) BIG_ENDIAN16(rtp->rtp_seq),
-			(int) BIG_ENDIAN32(rtp->rtp_ts)
+			(int) RTP_GET_VER(rtp),
+			(int) RTP_GET_PAD(rtp),
+			(int) RTP_GET_EXT(rtp),
+			(int) RTP_GET_CC(rtp),
+			(int) RTP_GET_MARKER(rtp),
+			(int) RTP_GET_TYPE(rtp),
+			(int) RTP_GET_SEQ(rtp),
+			(int) RTP_GET_TS(rtp)
 			);
 
-	if (rtp->rtp_cc) {
+	if (RTP_GET_CC(rtp) == 1) {
 		int *csrc = (int *) (rtp + 1);
-		for (int i = 0; i < rtp->rtp_cc; i ++) {
+		for (int i = 0; i < RTP_GET_CC(rtp); i ++) {
 			TRACE("RTP", "uin32[]::" "CSRC[%d] = 0x%x", i, BIG_ENDIAN32(csrc[i]));
 		}
 	}
 
-	if (rtp->rtp_ext) {
-		rtpx_t *rtpx = (rtpx_t *) ((char *)(rtp + 1) + (rtp->rtp_cc * 4)); // At the end of main RTP header
+	if (RTP_GET_EXT(rtp) == 1) {
+		rtpx_t *rtpx = (rtpx_t *) ((char *)(rtp + 1) + (RTP_GET_CC(rtp) * 4)); // At the end of main RTP header
 		TRACE("RTP", "profile=0x%x len=%d",
-				BIG_ENDIAN16(rtpx->rtpx_profile),
-				BIG_ENDIAN16(rtpx->rtpx_len));
+				RTPX_GET_PROFILE(rtpx),
+				RTPX_GET_LEN(rtpx));
 	}
 	EXIT("debug_rtp");
 }
@@ -496,24 +496,24 @@ void scan_rtp(scan_t *scan) {
 ENTER(RTP_ID, "scan_rtp");
 	register rtp_t *rtp = (rtp_t *)(scan->buf + scan->offset);
 
-	ACCESS(RTP_LENGTH);
-	scan->length += RTP_LENGTH + rtp->rtp_cc * 4;
+	ACCESS(RTP_STRUCT_LENGTH);
+	scan->length += RTP_STRUCT_LENGTH + RTP_GET_CC(rtp) * 4;
 
 	/*
 	 * Check for extension. We don't care here what it is, just want to add up
 	 * all the lengths
 	 */
 	ACCESS(scan->length + 4);
-	if (rtp->rtp_ext) {
+	if (RTP_GET_EXT(rtp) == 1) {
 		rtpx_t * rtpx = (rtpx_t *)(scan->buf + scan->offset + scan->length);
 
-		scan->length += (BIG_ENDIAN16(rtpx->rtpx_len) * 4) + RTPX_LENGTH;
+		scan->length += (RTPX_GET_LEN(rtpx) * 4) + RTPX_STRUCT_LENGTH;
 	}
 
 	/* If RTP payload is padded, the last byte contains number of pad bytes
 	 * used.
 	 */
-	if (rtp->rtp_pad) {
+	if (RTP_GET_PAD(rtp) == 1) {
 		ACCESS(scan->wire_len -1);
 		scan->hdr_postfix = scan->buf[scan->wire_len -1];
 	}
@@ -850,17 +850,17 @@ int validate_http(scan_t *scan) {
  * Scan Internet Control Message Protocol header
  */
 void scan_icmp(scan_t *scan) {
-	if ((scan->buf_len - scan->offset) < sizeof(icmp_t)) {
+	if ((scan->buf_len - scan->offset) < ICMP4_STRUCT_LENGTH) {
 		return;
 	}
 
-	icmp_t *icmp = (icmp_t *)(scan->buf + scan->offset);
+	icmp4_t *icmp = (icmp4_t *)(scan->buf + scan->offset);
 
-	switch (icmp->type) {
+	switch (ICMP4_GET_TYPE(icmp)) {
 
 	case 3: // UNREACHABLE
 	case 12: // PARAM PROBLEM
-		scan->length = sizeof(icmp_t) + 4;
+		scan->length = ICMP4_STRUCT_LENGTH + 4;
 		scan->next_id = validate_next(IP4_ID, scan);
 		scan->flags |= HEADER_FLAG_IGNORE_BOUNDS; // Needed for encapsulated Ip4
 		break;
@@ -887,14 +887,14 @@ void scan_icmp(scan_t *scan) {
  */
 void scan_ppp(scan_t *scan) {
 
-	if ((scan->buf_len - scan->offset) < sizeof(ppp_t)) {
+	if ((scan->buf_len - scan->offset) < PPP_STRUCT_LENGTH) {
 		return;
 	}
 
 	ppp_t *ppp = (ppp_t *)(scan->buf + scan->offset);
-	scan->length = sizeof(ppp_t);
+	scan->length = PPP_STRUCT_LENGTH;
 
-	switch (BIG_ENDIAN16(ppp->protocol)) {
+	switch (PPP_GET_PROTOCOL(ppp)) {
 	case 0x0021: scan->next_id = validate_next(IP4_ID, scan); break;
 	case 0x0057: scan->next_id = validate_next(IP6_ID, scan); break;
 	}
@@ -911,15 +911,15 @@ void scan_l2tp(scan_t *scan) {
 	}
 
 	l2tp_t *l2tp = (l2tp_t *)(scan->buf + scan->offset);
-	scan->length = 6;
-	if (l2tp->l == 1) {
-		scan->length += 2;
+	scan->length = L2TP_STRUCT_LENGTH;
+	if (L2TP_GET_L(l2tp) == 1) {
+		scan->length += L2TP_OPTIONAL_LENGTH;
 	}
-	if (l2tp->s == 1) {
-		scan->length += 4;
+	if (L2TP_GET_S(l2tp) == 1) {
+		scan->length += L2TP_OPTIONAL_SESSION;
 	}
-	if (l2tp->o == 1) {
-		scan->length += 4;
+	if (L2TP_GET_O(l2tp) == 1) {
+		scan->length += L2TP_OPTIONAL_OFFSET;
 	}
 
 #ifdef DEBUG
@@ -928,7 +928,7 @@ void scan_l2tp(scan_t *scan) {
 	fflush(stdout);
 #endif
 
-	if (l2tp->t == 0) {
+	if (L2TP_GET_T(l2tp) == 0) {
 		scan->next_id = validate_next(PPP_ID, scan);
 	}
 }
@@ -938,18 +938,18 @@ void scan_l2tp(scan_t *scan) {
  */
 void scan_vlan(scan_t *scan) {
 
-	if ((scan->buf_len - scan->offset) < sizeof(vlan_t)) {
+	if ((scan->buf_len - scan->offset) < VLAN_STRUCT_LENGTH) {
 		return;
 	}
 
 	vlan_t *vlan = (vlan_t *)(scan->buf + scan->offset);
-	scan->length = sizeof(vlan_t);
+	scan->length = VLAN_STRUCT_LENGTH;
 
-	if (is_accessible(scan, 14) == FALSE) {
+	if (is_accessible(scan, VLAN_STRUCT_LENGTH) == FALSE) {
 		return;
 	}
 
-	int vlan_type = BIG_ENDIAN16(vlan->type);
+	int vlan_type = VLAN_GET_TYPE(vlan);
 //	int vlan_type = vlan->type;
 //	printf("scan_vlan() #%d - vlan_type=%04X\n",
 //			scan->scanner->sc_cur_frame_num,
@@ -970,18 +970,18 @@ void scan_vlan(scan_t *scan) {
  */
 void scan_llc(scan_t *scan) {
 
-	if ((scan->buf_len - scan->offset) < sizeof(llc_t)) {
+	if ((scan->buf_len - scan->offset) < LLC_STRUCT_LENGTH) {
 		return;
 	}
 
 	llc_t *llc = (llc_t *) (scan->buf + scan->offset);
-	if (llc->control & 0x3 == 0x3) {
+	if (LLC_GET_CONTROL(llc) & 0x3 == 0x3) {
 		scan->length = 3;
 	} else {
 		scan->length = 4;
 	}
 
-	switch (llc->dsap) {
+	switch (LLC_GET_DSAP(llc)) {
 	case 0xaa: scan->next_id = validate_next(IEEE_SNAP_ID, scan); break;
 	}
 }
@@ -991,7 +991,7 @@ void scan_llc(scan_t *scan) {
  */
 void scan_snap(scan_t *scan) {
 
-	if ((scan->buf_len - scan->offset) < sizeof(snap_t)) {
+	if ((scan->buf_len - scan->offset) < SNAP_STRUCT_LENGTH) {
 		return;
 	}
 
@@ -1012,13 +1012,13 @@ void scan_snap(scan_t *scan) {
 		 * pair[1] is next protocol in on both sides of the pair
 		 */
 		scan->packet->pkt_flow_key.pair_count = 2;
-		scan->packet->pkt_flow_key.forward_pair[1][0] = BIG_ENDIAN16(snap->pid);
-		scan->packet->pkt_flow_key.forward_pair[1][1] = BIG_ENDIAN16(snap->pid);
+		scan->packet->pkt_flow_key.forward_pair[1][0] = SNAP_GET_PID(snap);
+		scan->packet->pkt_flow_key.forward_pair[1][1] = SNAP_GET_PID(snap);
 
 		scan->packet->pkt_flow_key.id[1] = IEEE_SNAP_ID;
 	}
 
-	switch (BIG_ENDIAN32(snap->oui)) {
+	switch (SNAP_GET_OUI(snap)) {
 	case 0x0000f8: // OUI_CISCO_90
 	case 0:
 		int type = *(uint16_t *)(b + 3);
@@ -1033,12 +1033,12 @@ void scan_snap(scan_t *scan) {
 void scan_tcp(scan_t *scan) {
 
 	const int remain = (scan->buf_len - scan->offset);
-	if (remain < sizeof(tcp_t)) {
+	if (remain < TCP_STRUCT_LENGTH) {
 		return;
 	}
 
 	tcp_t *tcp = (tcp_t *) (scan->buf + scan->offset);
-	scan->length = tcp->doff << 2;
+	scan->length = TCP_CALC_LENGTH(tcp);
 //	printf("NATIVE >>> scan_tcp() - doff=%d length=%d\n",
 //			tcp->doff,
 //			scan->length);
@@ -1056,8 +1056,8 @@ void scan_tcp(scan_t *scan) {
 		 * pair[0] is tcp source and destination ports
 		 */
 		int count = scan->packet->pkt_flow_key.pair_count++;
-		scan->packet->pkt_flow_key.forward_pair[count][0] = BIG_ENDIAN16(tcp->sport);
-		scan->packet->pkt_flow_key.forward_pair[count][1] = BIG_ENDIAN16(tcp->dport);
+		scan->packet->pkt_flow_key.forward_pair[count][0] = TCP_GET_SPORT(tcp);
+		scan->packet->pkt_flow_key.forward_pair[count][1] = TCP_GET_DPORT(tcp);
 
 		scan->packet->pkt_flow_key.id[count] = TCP_ID;
 
@@ -1072,8 +1072,8 @@ void scan_tcp(scan_t *scan) {
 #endif
 	}
 
-	scan->dport = BIG_ENDIAN16(tcp->dport);
-	scan->sport = BIG_ENDIAN16(tcp->sport);
+	scan->dport = TCP_GET_DPORT(tcp);
+	scan->sport = TCP_GET_SPORT(tcp);
 
 	switch (scan->dport) {
 	case 80:
@@ -1106,10 +1106,10 @@ void debug_udp(udp_t *udp) {
 	debug_enter("debug_udp");
 
 	debug_trace("struct udp_t", "sport=%d dport=%d len=%d crc=0x%x",
-			(int) BIG_ENDIAN16(udp->sport),
-			(int) BIG_ENDIAN16(udp->dport),
-			(int) BIG_ENDIAN16(udp->length),
-			(int) BIG_ENDIAN16(udp->checksum)
+			(int) UDP_GET_SPORT(udp),
+			(int) UDP_GET_DPORT(udp),
+			(int) UDP_GET_LENGTH(udp),
+			(int) UDP_GET_CRC(udp)
 			);
 
 	debug_exit("debug_udp");
@@ -1125,7 +1125,7 @@ void scan_udp(scan_t *scan) {
 	}
 
 	udp_t *udp = (udp_t *) (scan->buf + scan->offset);
-	scan->length = sizeof(udp_t);
+	scan->length = UDP_STRUCT_LENGTH;
 
 	/*
 	 * Set the flow key pair for Udp.
@@ -1140,16 +1140,16 @@ void scan_udp(scan_t *scan) {
 		 * pair[0] is tcp source and destination ports
 		 */
 		int count = scan->packet->pkt_flow_key.pair_count++;
-		scan->packet->pkt_flow_key.forward_pair[count][0] = BIG_ENDIAN16(udp->sport);
-		scan->packet->pkt_flow_key.forward_pair[count][1] = BIG_ENDIAN16(udp->dport);
+		scan->packet->pkt_flow_key.forward_pair[count][0] = UDP_GET_SPORT(udp);
+		scan->packet->pkt_flow_key.forward_pair[count][1] = UDP_GET_DPORT(udp);
 
 		scan->packet->pkt_flow_key.id[count] = UDP_ID;
 
 		scan->packet->pkt_flow_key.flags |= FLOW_KEY_FLAG_REVERSABLE_PAIRS;
 	}
 
-	scan->dport = BIG_ENDIAN16(udp->dport);
-	scan->sport = BIG_ENDIAN16(udp->sport);
+	scan->dport = UDP_GET_DPORT(udp);
+	scan->sport = UDP_GET_SPORT(udp);
 	switch (scan->dport) {
 	case 1701: scan->next_id = validate_next(L2TP_ID, scan);	return;
 //	case 5060: scan->next_id = validate_next(SIP_ID, scan);		return;
@@ -1182,13 +1182,13 @@ void scan_udp(scan_t *scan) {
  * Scan Address Resolution Protocol header
  */
 void scan_arp(scan_t *scan) {
-	if ((scan->buf_len - scan->offset) < sizeof(arp_t)) {
+	if ((scan->buf_len - scan->offset) < ARP_STRUCT_LENGTH) {
 		return;
 	}
 
 	arp_t *arp = (arp_t *)(scan->buf + scan->offset);
 
-	scan->length = (arp->hlen + arp->plen) * 2 + 8;
+	scan->length = ((ARP_GET_HLEN(arp) + ARP_GET_PLEN(arp)) * 2) + 8;
 }
 
 /*
@@ -1202,9 +1202,9 @@ void scan_ip6(scan_t *scan) {
 		return;
 	}
 
-	ip6_t *ip6 = (ip6_t *)(scan->buf + scan->offset);
-	scan->length = IP6_HEADER_LENGTH;
-	scan->hdr_payload = BIG_ENDIAN16(ip6->ip6_plen);
+	ip6_t *ip = (ip6_t *)(scan->buf + scan->offset);
+	scan->length = IP6_STRUCT_LENGTH;
+	scan->hdr_payload = IP6_GET_PLEN(ip);
 	uint8_t *buf = (uint8_t *)(scan->buf + scan->offset + sizeof(ip6_t));
 
 	if(is_accessible(scan, 40) == FALSE) {
@@ -1217,8 +1217,8 @@ void scan_ip6(scan_t *scan) {
 	 * IP.
 	 */
 	if (scan->hdr_count > 1 && (eth = scan->header -1)->hdr_id == ETHERNET_ID) {
-		int postfix = (scan->buf_len - scan->offset - BIG_ENDIAN16(ip6->ip6_plen)
-				- IP6_HEADER_LENGTH);
+		int postfix = (scan->buf_len - scan->offset - IP6_GET_PLEN(ip)
+				- IP6_STRUCT_LENGTH);
 
 		if (postfix > 0) {
 			eth->hdr_postfix = (uint16_t) postfix;
@@ -1245,26 +1245,26 @@ void scan_ip6(scan_t *scan) {
 		register uint32_t t;
 		scan->packet->pkt_flow_key.pair_count = 2;
 
-		t = *(uint32_t *)&ip6->ip6_src[0] ^
-			*(uint32_t *)&ip6->ip6_src[4] ^
-			*(uint32_t *)&ip6->ip6_src[8] ^
-			*(uint32_t *)&ip6->ip6_src[12];
+		t = *(uint32_t *)&ip->ip6_src[0] ^
+			*(uint32_t *)&ip->ip6_src[4] ^
+			*(uint32_t *)&ip->ip6_src[8] ^
+			*(uint32_t *)&ip->ip6_src[12];
 		scan->packet->pkt_flow_key.forward_pair[0][0] = t;
 
-		t = *(uint32_t *)&ip6->ip6_dst[0] ^
-			*(uint32_t *)&ip6->ip6_dst[4] ^
-			*(uint32_t *)&ip6->ip6_dst[8] ^
-			*(uint32_t *)&ip6->ip6_dst[12];
+		t = *(uint32_t *)&ip->ip6_dst[0] ^
+			*(uint32_t *)&ip->ip6_dst[4] ^
+			*(uint32_t *)&ip->ip6_dst[8] ^
+			*(uint32_t *)&ip->ip6_dst[12];
 		scan->packet->pkt_flow_key.forward_pair[0][1] = t;
 
-		scan->packet->pkt_flow_key.forward_pair[1][0] = ip6->ip6_nxt;
-		scan->packet->pkt_flow_key.forward_pair[1][1] = ip6->ip6_nxt;
+		scan->packet->pkt_flow_key.forward_pair[1][0] = IP6_GET_NXT(ip);
+		scan->packet->pkt_flow_key.forward_pair[1][1] = IP6_GET_NXT(ip);
 
 		scan->packet->pkt_flow_key.id[0] = IP6_ID;
 		scan->packet->pkt_flow_key.id[1] = IP6_ID;
 	}
 
-	int type = ip6->ip6_nxt;
+	int type = IP6_GET_NXT(ip);
 	int len;
 
 #ifdef DEBUG
@@ -1357,18 +1357,16 @@ header_t *get_subheader_storage(scanner_t *scanner, int min) {
 void debug_ip4(ip4_t *ip) {
 	debug_enter("debug_ip4");
 
-	int flags = BIG_ENDIAN16(ip->frag_off);
-
 	debug_trace("struct ip4_t",
 			"ver=%d hlen=%d tot_len=%d flags=0x%x(%s%s%s) protocol=%d",
-			(int) ip->version,
-			(int) ip->ihl,
-			(int) BIG_ENDIAN16(ip->tot_len),
-			(int) flags >> 13,
-			((flags & IP4_FLAG_RESERVED)?"R":""),
-			((flags & IP4_FLAG_DF)?"D":""),
-			((flags & IP4_FLAG_MF)?"M":""),
-			(int) ip->protocol);
+			(int) IP4_GET_VER(ip),
+			(int) IP4_GET_IHL(ip),
+			(int) IP4_GET_LEN(ip),
+			(int) IP4_GET_FLAGS(ip),
+			(IP4_GET_FLAG_RESERVED(ip) ? "R":""),
+			(IP4_GET_FLAG_MF(ip) ? "D":""),
+			(IP4_GET_FLAG_DF(ip) ? "M":""),
+			(int) IP4_GET_PROTO(ip));
 
 	debug_exit("debug_ip4");
 }
@@ -1379,7 +1377,7 @@ void dissect_ip4_headers(dissect_t *dissect) {
 	ip4_t *ip = (ip4_t *) buf;
 
 
-	if (ip->ihl == 5) {
+	if (IP4_GET_IHL(ip) == 5) {
 		return; // No options
 	}
 
@@ -1387,7 +1385,7 @@ void dissect_ip4_headers(dissect_t *dissect) {
 	header->hdr_flags |= HEADER_FLAG_SUBHEADERS_DISSECTED;
 	scanner_t *scanner = dissect->d_scanner;
 
-	int end = ip->ihl * 4; // End of IP header
+	int end = IP4_CALC_LENGTH(ip); // End of IP header
 	int len = 0; // Length of current option
 
 	header_t *sub;
@@ -1438,9 +1436,9 @@ void scan_ip4(register scan_t *scan) {
 		return;
 	}
 
-	register ip4_t *ip4 = (ip4_t *) (scan->buf + scan->offset);
-	uint16_t tot_len = BIG_ENDIAN16(ip4->tot_len);
-	scan->length = ip4->ihl * 4;
+	register ip4_t *ip = (ip4_t *) (scan->buf + scan->offset);
+	uint16_t tot_len = IP4_GET_LEN(ip);
+	scan->length = IP4_CALC_LENGTH(ip);
 	scan->hdr_payload = tot_len - scan->length;
 
 	if (is_accessible(scan, 8) == FALSE) {
@@ -1465,8 +1463,8 @@ void scan_ip4(register scan_t *scan) {
 	}
 
 	/* Check if this IP packet is a fragment and record in flags */
-	int frag = BIG_ENDIAN16(ip4->frag_off);
-	if (frag & IP4_FLAG_MF || (frag & IP4_FRAG_OFF_MASK > 0)) {
+	int frag = IP4_GET_FRAG_OFF(ip);
+	if (IP4_GET_FLAG_MF(ip) || (frag > 0)) {
 		scan->flags |= CUMULATIVE_FLAG_HEADER_FRAGMENTED;
 		/* Adjust payload length for a fragment */
 		scan->hdr_payload = scan->buf_len - scan->length - scan->offset;
@@ -1494,11 +1492,13 @@ void scan_ip4(register scan_t *scan) {
 		 * pair[0] is Ip addresses
 		 * pair[1] is next protocol in on both sides of the pair
 		 */
+		uint32_t	saddr = IP4_GET_SADDR32(ip);
+		uint32_t	daddr = IP4_GET_DADDR32(ip);
 		scan->packet->pkt_flow_key.pair_count = 2;
-		scan->packet->pkt_flow_key.forward_pair[0][0] = BIG_ENDIAN32(ip4->saddr);
-		scan->packet->pkt_flow_key.forward_pair[0][1] = BIG_ENDIAN32(ip4->daddr);
-		scan->packet->pkt_flow_key.forward_pair[1][0] = ip4->protocol;
-		scan->packet->pkt_flow_key.forward_pair[1][1] = ip4->protocol;
+		scan->packet->pkt_flow_key.forward_pair[0][0] = saddr;
+		scan->packet->pkt_flow_key.forward_pair[0][1] = daddr;
+		scan->packet->pkt_flow_key.forward_pair[1][0] = IP4_GET_PROTO(ip);
+		scan->packet->pkt_flow_key.forward_pair[1][1] = IP4_GET_PROTO(ip);
 
 		scan->packet->pkt_flow_key.id[0] = IP4_ID;
 		scan->packet->pkt_flow_key.id[1] = IP4_ID;
@@ -1506,18 +1506,18 @@ void scan_ip4(register scan_t *scan) {
 
 #ifdef DEBUG
 	printf("scan_ip4(): type=%d frag_off=%d @ frag_off.pos=%X\n",
-			ip4->protocol,
-			frag & IP4_FRAG_OFF_MASK,
+			IP4_GET_PROTO(ip),
+			frag,
 			(int)((char *)&ip4->frag_off - scan->buf));
 	fflush(stdout);
 #endif
 
-	if ( (frag & IP4_FRAG_OFF_MASK) != 0) {
+	if (frag != 0) {
 		scan->next_id = PAYLOAD_ID;
 		return;
 	}
 
-	switch (ip4->protocol) {
+	switch (IP4_GET_PROTO(ip)) {
 		case 1: scan->next_id = validate_next(ICMP_ID, scan); break;
 		case 4: scan->next_id = validate_next(IP4_ID, scan);  break;
 		case 6: scan->next_id = validate_next(TCP_ID, scan);  break;
@@ -1563,7 +1563,7 @@ void scan_802dot3(scan_t *scan) {
 		return;
 	}
 
- 	if (BIG_ENDIAN16(eth->type) >= PROTO_802_3_MAX_LEN) { // We have an Ethernet frame
+ 	if (ETHERNET_GET_TYPE(eth) >= PROTO_802_3_MAX_LEN) { // We have an Ethernet frame
  		scan_ethernet(scan);
 		return;
 
@@ -1571,7 +1571,7 @@ void scan_802dot3(scan_t *scan) {
 		scan->next_id = validate_next(IEEE_802DOT2_ID, scan); // LLC v2
 	}
 
- 	int frame_len = BIG_ENDIAN16(eth->type);
+ 	int frame_len = ETHERNET_GET_TYPE(eth);
  	scan->hdr_payload = frame_len - PROTO_ETHERNET_HEADER_LENGTH;
  	scan->hdr_postfix = scan->buf_len - frame_len;
 
@@ -1600,10 +1600,11 @@ void scan_802dot3(scan_t *scan) {
 		 * remaining bytes with first 2 bytes
 		 */
 		register uint32_t t;
+		uint32_t *i = (uint32_t *)eth;
 		scan->packet->pkt_flow_key.pair_count = 1;
-		t = *(uint32_t *)&eth->dhost[2] ^ (*(uint16_t *)&eth->dhost[0]);
+		t = i[0] ^ (i[1] >> 16);
 		scan->packet->pkt_flow_key.forward_pair[0][0] = t;
-		t = *(uint32_t *)&eth->shost[2] ^ (*(uint16_t *)&eth->shost[0]);
+		t = i[2] ^ (i[1] & 0x0000FFFF);
 		scan->packet->pkt_flow_key.forward_pair[0][1] = t;
 
 		scan->packet->pkt_flow_key.id[0] = IEEE_802DOT3_ID;
@@ -1617,19 +1618,19 @@ void scan_802dot3(scan_t *scan) {
  */
 void scan_ethernet(scan_t *scan) {
 
-	if ((scan->buf_len - scan->offset) < sizeof(ethernet_t)) {
+	if ((scan->buf_len - scan->offset) < ETHERNET_STRUCT_LENGTH) {
 		return;
 	}
 
 	ethernet_t *eth = (ethernet_t *) (scan->buf + scan->offset);
 
-	scan->length = sizeof(ethernet_t);
+	scan->length = ETHERNET_STRUCT_LENGTH;
 
-	if (is_accessible(scan, 12) == FALSE) {
+	if (is_accessible(scan, ETHERNET_STRUCT_LENGTH) == FALSE) {
 		return;
 	}
 
-	int type = BIG_ENDIAN16(eth->type);
+	int type = ETHERNET_GET_TYPE(eth);
 
 	/*
 	 * Set the flow key pair for Ethernet.
@@ -1648,10 +1649,11 @@ void scan_ethernet(scan_t *scan) {
 		 * remaining bytes with first 2 bytes
 		 */
 		register uint32_t t;
+		uint32_t *i = (uint32_t *)eth;
 		scan->packet->pkt_flow_key.pair_count = 2;
-		t = *(uint32_t *)&eth->dhost[2] ^ (*(uint16_t *)&eth->dhost[0]);
+		t = i[0] ^ (i[1] >> 16);
 		scan->packet->pkt_flow_key.forward_pair[0][0] = t;
-		t = *(uint32_t *)&eth->shost[2] ^ (*(uint16_t *)&eth->shost[0]);
+		t = i[2] ^ (i[1] & 0x0000FFFF);
 		scan->packet->pkt_flow_key.forward_pair[0][1] = t;
 
 		scan->packet->pkt_flow_key.forward_pair[1][0] = type;
@@ -1662,11 +1664,11 @@ void scan_ethernet(scan_t *scan) {
 	}
 
 
-	if (is_accessible(scan, 14) == FALSE) {
+	if (is_accessible(scan, ETHERNET_STRUCT_LENGTH) == FALSE) {
 		return;
 	}
 
-	if (type < 0x600) { // We have an IEEE 802.3 frame
+	if (type < ETHERNET_TYPE_BOUNDRY) { // We have an IEEE 802.3 frame
 		scan_802dot3(scan);
 	} else {
 		scan->next_id = validate_next(lookup_ethertype(type), scan);

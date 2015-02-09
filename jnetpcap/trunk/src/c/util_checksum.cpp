@@ -358,14 +358,14 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_pseudoTcp
 	ip4_t *ip4 = (ip4_t *)(buf + ip);
 	ip6_t *ip6;
 
-	switch (ip4->version) {
+	switch (IP4_GET_VER(ip4)) {
 	case 4:
-		len = BIG_ENDIAN16(ip4->tot_len) - (ip4->ihl * 4);
+		len = IP4_GET_LEN(ip4) - IP4_CALC_LENGTH(ip4);
 		break;
 		
 	case 6:
 		ip6 = (ip6_t *)(buf + ip);	
-		len = BIG_ENDIAN16(ip6->ip6_plen - (tcp - (ip + 40)));
+		len = IP6_GET_PLEN(ip6) - (tcp - (ip + IP6_STRUCT_LENGTH));
 		break;
 		
 	default:
@@ -377,7 +377,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_pseudoTcp
 	}
 
 	tcp_t *tcp_hdr = (tcp_t *)(buf + tcp);
-	int hlen = (tcp_hdr->doff << 2);
+	int hlen = TCP_CALC_LENGTH(tcp_hdr);
 	if ((tcp + hlen) > size) {
 		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
 		return 0;
@@ -419,12 +419,12 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_pseudoUdp
 	int is_padded;
 
 	udp_t *pudp = (udp_t *)(buf + udp);
-	len = BIG_ENDIAN16(pudp->length);
+	len = UDP_GET_LENGTH(pudp);
 	if (udp + len >= size) {
 		return 0;
 	}
 	
-	if ((udp + 8) > size) {
+	if ((udp + UDP_STRUCT_LENGTH) > size) {
 		throwVoidException(env, BUFFER_UNDERFLOW_EXCEPTION);
 		return 0;
 	}
@@ -465,14 +465,14 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_util_checksum_Checksum_icmp
 	ip4_t *ip4 = (ip4_t *)(buf + ip);
 	ip6_t *ip6;
 
-	switch (ip4->version) {
+	switch (IP4_GET_VER(ip4)) {
 	case 4:
-		len = BIG_ENDIAN16(ip4->tot_len) - (ip4->ihl * 4);
+		len = IP4_GET_LEN(ip4) - IP4_CALC_LENGTH(ip4);
 		break;
 		
 	case 6:
 		ip6 = (ip6_t *)(buf + ip);	
-		len = BIG_ENDIAN16(ip6->ip6_plen - (icmp - (ip + 40)));
+		len = IP6_GET_PLEN(ip6) - (icmp - (ip + IP6_STRUCT_LENGTH));
 		break;
 		
 	default:

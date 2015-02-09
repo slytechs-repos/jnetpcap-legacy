@@ -36,8 +36,8 @@ public class TestIpv6
     extends TestCase {
 	
 	/** The Constant OUT. */
-	private final static Appendable OUT = TestUtils.DEV_NULL;
-//	private final static Appendable OUT = System.out;
+//	private final static Appendable OUT = TestUtils.DEV_NULL;
+	private final static Appendable OUT = System.out;
 
 	/*
 	 * (non-Javadoc)
