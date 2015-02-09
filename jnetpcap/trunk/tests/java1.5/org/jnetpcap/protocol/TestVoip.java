@@ -96,7 +96,7 @@ public class TestVoip
 		System.out.flush();
 
 		assertNotNull(packet);
-		assertTrue(packet.hasHeader(JProtocol.RTP_ID));
+		assertTrue("RTP_ID not found", packet.hasHeader(JProtocol.RTP_ID));
 	}
 
 	/**

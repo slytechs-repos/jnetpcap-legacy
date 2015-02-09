@@ -462,15 +462,18 @@ ENTER(RTP_ID, "validate_rtp");
 void debug_rtp(rtp_t *rtp) {
 	ENTER(RTP_ID, "debug_rtp");
 
-	TRACE("RTP", "ver=%d pad=%d ext=%d cc=%d marker=%d type=%d seq=%d ts=%d",
+	TRACE("RTP", "ver=%d pad=%d ext=%d cc=%d marker=%d type=%d/0x%X seq=%d ts=%d, b0=0x%X, b1=0x%X",
 			(int) RTP_GET_VER(rtp),
 			(int) RTP_GET_PAD(rtp),
 			(int) RTP_GET_EXT(rtp),
 			(int) RTP_GET_CC(rtp),
 			(int) RTP_GET_MARKER(rtp),
 			(int) RTP_GET_TYPE(rtp),
+			(int) RTP_GET_TYPE(rtp),
 			(int) RTP_GET_SEQ(rtp),
-			(int) RTP_GET_TS(rtp)
+			(int) RTP_GET_TS(rtp),
+			(int) rtp->rtp_b0,
+			(int) rtp->rtp_b1
 			);
 
 	if (RTP_GET_CC(rtp) == 1) {
@@ -924,7 +927,7 @@ void scan_l2tp(scan_t *scan) {
 
 #ifdef DEBUG
 	printf("scan() lL2TP_ID: b[0]=%d t=%d\n",
-			(int)*(scan->buf + scan->offset), l2tp->t);
+			(int)*(scan->buf + scan->offset), L2TP_GET_T(l2tp));
 	fflush(stdout);
 #endif
 
@@ -1508,7 +1511,7 @@ void scan_ip4(register scan_t *scan) {
 	printf("scan_ip4(): type=%d frag_off=%d @ frag_off.pos=%X\n",
 			IP4_GET_PROTO(ip),
 			frag,
-			(int)((char *)&ip4->frag_off - scan->buf));
+			(int)IP4_GET_FRAG_OFF(ip));
 	fflush(stdout);
 #endif
 

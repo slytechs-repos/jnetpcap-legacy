@@ -898,13 +898,22 @@ public class TestUtils extends TestCase {
 		final JPcapRecordBuffer buf = new JPcapRecordBuffer(size);
 
 		for (final String fname : files) {
-			Pcap pcap = Pcap.openOffline(fname, errbuf);
+			final Pcap pcap = Pcap.openOffline(fname, errbuf);
 			assertNotNull(errbuf.toString(), pcap);
 
 			try {
 				pcap.loop(Pcap.LOOP_INFINITE, new JBufferHandler<String>() {
-
+					
 					public void nextPacket(PcapHeader header, JBuffer buffer, String fname) {
+						
+						final int remaining = buf.remaining();
+						
+						if (buffer.size() + 16 > remaining) {
+							pcap.breakloop();
+							return;
+						}
+						
+						System.out.printf("remaining=%d, size=%d%n", remaining, buffer.size() + 16);
 						buf.append(header, buffer);
 					}
 				},

@@ -176,6 +176,7 @@ typedef struct rtcp_ssrc_s {
 	uint32_t	ssrc_dlsr; // Delay since last SR
 
 } rtcp_ssrc_t;
+
 #define ssrc_i0				ssrc_s1.ssrc_i0
 #define	ssrc_fract_loss		ssrc_s1.ssrc_u1.ssrc_fract_loss
 #define	ssrc_total_loss		ssrc_s1.ssrc_u1.ssrc_total_loss
@@ -288,7 +289,7 @@ typedef struct rtp_s {
 #define RTP_GET_EXT(p)		((p->rtp_b0 >> 4) & 0x01)
 #define RTP_GET_CC(p)		((p->rtp_b0 >> 0) & 0x0F)
 #define RTP_GET_MARKER(p)	((p->rtp_b1 >> 7) & 0x01)
-#define RTP_GET_TYPE(p)		((p->rtp_b1 >> 0) & 0xEF)
+#define RTP_GET_TYPE(p)		((p->rtp_b1 >> 0) & 0x7F)
 #define RTP_GET_SEQ(p)		BIG_ENDIAN16(p->rtp_seq)
 #define RTP_GET_TS(p)		BIG_ENDIAN32(p->rtp_ts)
 #define RTP_GET_SSRC(p)		BIG_ENDIAN32(p->rtp_ts)
@@ -409,7 +410,7 @@ typedef struct vlan_s {
 
 #define VLAN_STRUCT_LENGTH	4
 
-#define vlan_tci	vlan_control.vlan_tci
+#define vlan_tci		vlan_control.vlan_tci
 #define vlan_priority	vlan_control.vlan_u1.vlan_priority
 #define vlan_cfi		vlan_control.vlan_u1.vlan_cfi
 #define	vlan_id			vlan_control.vlan_u1.vlan_id
@@ -435,7 +436,9 @@ typedef struct snap_s {
 
 #define SNAP_STRUCT_LENGTH	5
 
-#define snap_b0	snap_raw.snap_b0
+#define snap_b0		snap_raw.snap_b0
+#define snap_oui	snap_raw.snap_oui
+#define	snap_pid	snap_raw.snap_pid
 
 #define SNAP_GET_OUI(p)		((uint32_t)((p->snap_b0[0] << 16) | (p->snap_b0[1] << 8) | (p->snap_b0[2] << 0)))
 #define SNAP_GET_PID(p)		((uint16_t)((p->snap_b0[3] << 8) | (p->snap_b0[4] << 0)))
@@ -450,15 +453,18 @@ typedef struct llc_s {
 	uint8_t llc_control;
 	union {
 		uint8_t llc_info;
-	} llc_u1;
+	} llc_optional;
+
 } llc_t;
+
+#define llc_info	llc_optional.llc_info
 
 #define LLC_STRUCT_LENGTH	3
 
-#define LLC_GET_DSAP(p)	(p->llc_dsap)
-#define LLC_GET_SSAP(p)	(p->llc_ssap)
+#define LLC_GET_DSAP(p)		(p->llc_dsap)
+#define LLC_GET_SSAP(p)		(p->llc_ssap)
 #define LLC_GET_CONTROL(p)	(p->llc_control)
-#define LLC_GET_INFO(p)	(p->llc_u1.llc_info)
+#define LLC_GET_INFO(p)		(p->llc_info)
 
 /**
  * UDP structure
@@ -545,6 +551,7 @@ typedef struct ethernet_s {
 	uint8_t eth_daddr[6]; /* destination eth addr */
 	uint8_t eth_saddr[6]; /* destination eth addr */
 	uint16_t eth_type; /* destination e(IP4_GET_IHL(p) << 2)th addr */
+
 } ethernet_t;
 
 #define ETHERNET_STRUCT_LENGTH	14
@@ -567,31 +574,32 @@ typedef struct ip6_s {
 			uint8_t  ip6_un1_nxt;	/* next header */
 			uint8_t  ip6_un1_hlim;	/* hop limit */
 		} ip6_un1;
+
 		uint8_t ip6_un2_vfc;	/* 4 bits version, 4 bits class */
+
 	} ip6_ctlun;
+
 	uint8_t ip6_src[16];	/* source address */
 	uint8_t ip6_dst[16];	/* destination address */
 } ip6_t;
 
-#define _ip6_flow	ip6_ctlun.ip6_un1.ip6_un1_flow
-#define _ip6_plen	ip6_ctlun.ip6_un1.ip6_un1_plen
-#define _ip6_nxt		ip6_ctlun.ip6_un1.ip6_un1_nxt
-#define _ip6_hlim	ip6_ctlun.ip6_un1.ip6_un1_hlim
-#define _ip6_vfc		ip6_ctlun.ip6_un2_vfc
-#define _ip6_hops	ip6_ctlun.ip6_un1.ip6_un1_hlim
-#define _ip6_src	_ip6_src
-#define _ip6_dst	_ip6_dst
+#define ip6_flow	ip6_ctlun.ip6_un1.ip6_un1_flow
+#define ip6_plen	ip6_ctlun.ip6_un1.ip6_un1_plen
+#define ip6_nxt		ip6_ctlun.ip6_un1.ip6_un1_nxt
+#define ip6_hlim	ip6_ctlun.ip6_un1.ip6_un1_hlim
+#define ip6_hops	ip6_ctlun.ip6_un1.ip6_un1_hlim
+#define ip6_vfc		ip6_ctlun.ip6_un2_vfc
 
-#define IP6_GET_FLOW(p)	BIG_ENDIAN32(p->_ip6_flow)
-#define IP6_GET_PLEN(p)	BIG_ENDIAN16(p->_ip6_plen)
-#define IP6_GET_NXT(p)	(p->_ip6_nxt)
-#define IP6_GET_HOPS(p)	(p->_ip6_hlim)
-#define IP6_GET_VFC(p)	(p->_ip6_vfc)
-#define IP6_GET_SADDR(p)	(p->_ip6_src)
-#define IP6_GET_DADDR(p)	(p->_ip6_dst)
+#define IP6_GET_FLOW(p)		BIG_ENDIAN32(p->ip6_flow)
+#define IP6_GET_PLEN(p)		BIG_ENDIAN16(p->ip6_plen)
+#define IP6_GET_NXT(p)		(p->ip6_nxt)
+#define IP6_GET_HOPS(p)		(p->ip6_hlim)
+#define IP6_GET_VFC(p)		(p->ip6_vfc)
+#define IP6_GET_SADDR(p)	(p->ip6_src)
+#define IP6_GET_DADDR(p)	(p->ip6_dst)
 
-#define IP6_STRUCT_LENGTH 40
-#define IP6_CALC_LENGTH(p) IP6_STRUCT_LENGTH
+#define IP6_STRUCT_LENGTH 	40
+#define IP6_CALC_LENGTH(p) 	IP6_STRUCT_LENGTH
 
 #define IP6_OPT_HOP_BY_HOP 		0
 #define IP6_OPT_DEST_OPTIONS	60
@@ -606,8 +614,6 @@ typedef struct ip6_s {
  * IP v4 structure
  */
 typedef struct ip4_s {
-	uint8_t ip4_b0;
-
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 //	unsigned int ihl :4;
 //	unsigned int version :4;
@@ -618,6 +624,8 @@ typedef struct ip4_s {
 #else
 # error "Please fix <bits/endian.h>"
 #endif
+
+	uint8_t ip4_b0;
 
 	uint8_t ip4_tos;
 	uint16_t ip4_tot_len;
@@ -638,6 +646,7 @@ typedef struct ip4_s {
 			uint32_t ip4_daddr32;
 		} ip4_un2;
 	} ip4_addr;
+
 	/*The options start here. */
 } ip4_t;
 
