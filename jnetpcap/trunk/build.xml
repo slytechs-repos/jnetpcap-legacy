@@ -239,7 +239,7 @@
 	<target name="comp-java-jre" depends="prep-java">
 		<property name="compiler.debuglevel" value="lines,vars,source" />
 
-		<javac srcdir="${src.java.dir}${compiler.target}" destdir="${build.classes.dir}${compiler.target}" debug="${compiler.debug}" debuglevel="${compiler.debuglevel}" deprecation="${compiler.deprecate}" optimize="${compiler.optimize}" classpathref="compiler.classpath" source="${compiler.target}" target="${compiler.target}" />
+		<javac srcdir="${src.java.dir}${compiler.target}" destdir="${build.classes.dir}${compiler.target}" debug="${compiler.debug}" debuglevel="${compiler.debuglevel}" deprecation="${compiler.deprecate}" optimize="${compiler.optimize}" classpathref="compiler.classpath" source="${compiler.source}" target="${compiler.target}" />
 
 		<copy todir="${build.classes.dir}${compiler.target}/resources">
 			<fileset dir="${src.java.dir}${compiler.target}/resources" />
@@ -564,7 +564,38 @@
 
 	</target>
 
-	<target name="check-libpcap-version" depends="check-libpcap-version-rpm,check-libpcap-version-dpkg">
+	<!-- =================================================================== -->
+	<!-- Checks for libpcap version on platforms running solaris PKG.        -->
+	<!-- The version number is set in  "${compiler.LIBPCAP_VERSION}"         -->
+	<!-- property.                                                           -->
+	<!-- =================================================================== -->
+	<target name="check-libpcap-version-sunos" if="packager.pkg">
+
+		<exec executable="pkg" outputproperty="result.pkg.line">
+			<arg value="list" />
+			<arg value="system/library/libpcap" />
+		</exec>
+
+		<exec executable="ggrep" inputstring="${result.pkg.line}" outputproperty="result.ggrep">
+			<arg value="-Po" />
+			<arg value="[0-9]+" />
+		</exec>
+
+		<exec executable="sed" inputstring="${result.ggrep}" outputproperty="result.sed">
+			<arg value="s/[\.-]//g" />
+		</exec>
+
+		<exec executable="head" inputstring="${result.sed}" outputproperty="compiler.LIBPCAP_VERSION">
+			<arg value="-1" />
+		</exec>
+
+
+		<echo message="Libpcap solaris pkg version = ${compiler.LIBPCAP_VERSION}" />
+
+
+	</target>
+
+	<target name="check-libpcap-version" depends="check-libpcap-version-rpm,check-libpcap-version-dpkg,check-libpcap-version-sunos">
 		<echo message="compiler.LIBPCAP_VERSION = ${compiler.LIBPCAP_VERSION}" />
 	</target>
 
@@ -711,6 +742,89 @@
 	<!-- =================================================================== -->
 	<!-- Generates shared JNI library file from C++ sources                  -->
 	<!-- =================================================================== -->
+	<target name="comp-jni-hpux" depends="prep-jni,prep-lib,comp-javah" if="platform.hpux">
+
+		<!-- Not supplying "outtype", disables the LINKER in CC tag
+     		outtype="shared"
+    		outfile="${build.library.filename.nosuffix}"
+				<linkerarg value="- -add-stdcall-alias" />
+      	-->
+		<echo>arch=${os.arch}</echo>
+		<echo>name=${os.name}</echo>
+
+		<echo message="Using pcap version ${compiler.LIBPCAP_VERSION}" />
+		<echo message="compiling JNI C++ files to object code" />
+		<echo message="using ${compiler.cc.cmd} compiler" />
+		<echo message="system include = ${java.sdk.include.dir}" />
+		<cc runtime="dynamic" outtype="shared" outfile="${build.lib.dir}/${lib.pcap.basename}" debug="${compiler.debug}" objdir="${build.obj.dir}" multithreaded="compiler.multithreaded" exceptions="compiler.exceptions" warnings="${compiler.warnings}">
+
+<!--                     	<compilerarg value="-mlp32" /> -->
+
+			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
+
+			<fileset dir="${src.c.dir}" />
+			<includepath location="${build.include.dir}" />
+			<includepath location="${src.c.dir}" />
+			<sysincludepath location="${java.sdk.include.dir}" />
+			<sysincludepath location="${java.sdk.include.dir}/hp-ux" />
+			<defineset define="LIBPCAP_VERSION=0x100" />
+			<defineset define="DEBUG" if="DEBUG" />
+			<defineset define="HPUX" />
+
+
+			<linker name="${compiler.ld.cmd}">
+				<syslibset libs="pcap" />
+
+				<linkerarg value="-L/usr/local/lib/hpux32" />
+
+				<linkerarg value="-lstdc++" />
+			</linker>
+		</cc>
+
+		<cc runtime="dynamic" outtype="shared" outfile="${build.lib.dir}/${jni.pcap100.basename}" debug="${compiler.debug}" objdir="${build.obj.dir}" multithreaded="compiler.multithreaded" exceptions="compiler.exceptions" warnings="${compiler.warnings}">
+
+			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
+
+			<fileset dir="${src.c.dir}" >
+				<include name="*_pcap100.cpp" />
+				<include name="api_*.cpp" />
+			</fileset>
+			<includepath location="${build.include.dir}" />
+			<includepath location="${src.c.dir}" />
+			<sysincludepath location="${java.sdk.include.dir}" />
+			<sysincludepath location="${java.sdk.include.dir}/hp-ux" />
+			<defineset define="LIBPCAP_VERSION=0x100" />
+			<defineset define="DEBUG" if="DEBUG" />
+			<defineset define="HPUX" />
+
+
+			<linker name="${compiler.ld.cmd}">
+				<syslibset libs="pcap" />
+				<linkerarg value="-L/usr/local/lib/hpux32" />
+
+				<linkerarg value="-lstdc++" />
+			</linker>
+		</cc>
+
+		<echo message="Created shared JNI library: ${jni.build.pcap100.filepath}" />
+		<echo message="Created shared JNI library: ${jni.build.filepath}" />
+
+		<copy tofile="${build.lib.dir}/${lib.pcap.fullname}" file="${build.lib.dir}/${lib.pcap.name}" />
+
+		<echo message="Created shared JNI libary: ${build.lib.dir}/${lib.pcap.fullname}" />
+
+		<property name="jni.lib.file" value="${build.lib.dir}/${lib.pcap.name}" />
+		<property name="jni.lib.pcap100.file" value="${jni.build.pcap100.filepath}" />
+		
+		<echo message="Cleanup modified libpcap.so" />
+		<delete file="${build.libpcap.so}" />
+
+	</target>
+	
+
+	<!-- =================================================================== -->
+	<!-- Generates shared JNI library file from C++ sources                  -->
+	<!-- =================================================================== -->
 	<target name="comp-jni-linux" depends="check-libpcap-version,prep-checks,prep-jni,prep-lib,comp-javah,prep-libpcap" if="platform.linux">
 
 		<!-- Not supplying "outtype", disables the LINKER in CC tag
@@ -788,6 +902,88 @@
 		<delete file="${build.libpcap.so}" />
 
 	</target>
+	
+	<!-- =================================================================== -->
+	<!-- Generates shared JNI library file from C++ sources                  -->
+	<!-- =================================================================== -->
+	<target name="comp-jni-sunos" depends="check-libpcap-version,prep-checks,prep-jni,prep-lib,comp-javah,prep-libpcap" if="platform.sunox">
+
+		<!-- Not supplying "outtype", disables the LINKER in CC tag
+     		outtype="shared"
+    		outfile="${build.library.filename.nosuffix}"
+				<linkerarg value="- -add-stdcall-alias" />
+      	-->
+		<echo>arch=${os.arch}</echo>
+		<echo>name=${os.name}</echo>
+
+		<echo message="Using pcap version ${compiler.LIBPCAP_VERSION}" />
+		<echo message="compiling JNI C++ files to object code" />
+		<echo message="using ${compiler.cc.cmd} compiler" />
+		<echo message="system include = ${java.sdk.include.dir}" />
+		<cc runtime="dynamic" outtype="shared" outfile="${build.lib.dir}/${lib.pcap.basename}" debug="${compiler.debug}" objdir="${build.obj.dir}" multithreaded="compiler.multithreaded" exceptions="compiler.exceptions" warnings="${compiler.warnings}">
+
+			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
+
+			<fileset dir="${src.c.dir}" />
+			<includepath location="${build.include.dir}" />
+			<includepath location="${src.c.dir}" />
+			<sysincludepath location="${java.sdk.include.dir}" />
+			<sysincludepath location="${java.sdk.include.dir}/solarisq" />
+			<defineset define="LIBPCAP_VERSION=0x${compiler.LIBPCAP_VERSION}" if="compiler.LIBPCAP_VERSION" />
+			<defineset define="DEBUG" if="DEBUG" />
+
+
+			<linker name="${compiler.ld.cmd}">
+				<syslibset libs=":../lib/libpcap.so" />
+
+				<linkerarg value="-Wl,-soname,lib${lib.pcap.basename}.so" />
+
+				<linkerarg value="-lstdc++" />
+			</linker>
+		</cc>
+
+		<cc runtime="dynamic" outtype="shared" outfile="${build.lib.dir}/${jni.pcap100.basename}" debug="${compiler.debug}" objdir="${build.obj.dir}" multithreaded="compiler.multithreaded" exceptions="compiler.exceptions" warnings="${compiler.warnings}">
+
+			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
+
+			<fileset dir="${src.c.dir}" >
+				<include name="*_pcap100.cpp" />
+				<include name="api_*.cpp" />
+			</fileset>
+			<includepath location="${build.include.dir}" />
+			<includepath location="${src.c.dir}" />
+			<sysincludepath location="${java.sdk.include.dir}" />
+			<sysincludepath location="${java.sdk.include.dir}/linux" />
+			<defineset define="LIBPCAP_VERSION=0x${compiler.LIBPCAP_VERSION}" if="compiler.LIBPCAP_VERSION" />
+			<defineset define="DEBUG" if="DEBUG" />
+			<defineset define="Linux" />
+
+
+			<linker name="${compiler.ld.cmd}">
+				<syslibset libs="jnetpcap,:../lib/libpcap.so" />
+				<libset dir="${build.lib.dir}" libs="jnetpcap" />
+
+				<linkerarg value="-Wl,-soname,${jni.pcap100.file}" />
+
+				<linkerarg value="-lstdc++" />
+			</linker>
+		</cc>
+
+		<echo message="Created shared JNI library: ${jni.build.pcap100.filepath}" />
+		<echo message="Created shared JNI library: ${jni.build.filepath}" />
+
+		<copy tofile="${build.lib.dir}/${lib.pcap.fullname}" file="${build.lib.dir}/${lib.pcap.name}" />
+
+		<echo message="Created shared JNI libary: ${build.lib.dir}/${lib.pcap.fullname}" />
+
+		<property name="jni.lib.file" value="${build.lib.dir}/${lib.pcap.name}" />
+		<property name="jni.lib.pcap100.file" value="${jni.build.pcap100.filepath}" />
+		
+		<echo message="Cleanup modified libpcap.so" />
+		<delete file="${build.libpcap.so}" />
+
+	</target>
+
 	
     <target name="comp-jni-aix" depends="comp-jni-aix-xlc" if="platform.aix">
     </target>
@@ -1053,7 +1249,7 @@ ed" exceptions="compiler.exceptions" warnings="${compiler.warnings}">
 	<!-- =================================================================== -->
 	<!-- Compiles java files using JavaDoc                                   -->
 	<!-- =================================================================== -->
-	<target name="comp-jni" depends="comp-jni-aix,comp-jni-rhel,comp-jni-linux,comp-jni-win32,comp-jni-win64">
+	<target name="comp-jni" depends="comp-jni-hpux,comp-jni-aix,comp-jni-rhel,comp-jni-linux,comp-jni-win32,comp-jni-win64,comp-jni-sunos">
 	</target>
 
 
@@ -1630,7 +1826,7 @@ svn copy ${svn.jnp.trunk} ${svn.jnp.builds} -m "${svn.tags.comment}"
 	<!-- =================================================================== -->
 	<!-- Execute jUnit test cases -->
 	<!-- =================================================================== -->
-	<target name="run-test">
+	<target name="run-test-full">
 		<junit printsummary="withOutAndErr" fork="yes" failureproperty="test.failed">
 
 			<!-- jvmarg value="-verbose:jni" /-->
@@ -1639,7 +1835,7 @@ svn copy ${svn.jnp.trunk} ${svn.jnp.builds} -m "${svn.tags.comment}"
 			<sysproperty key="java.library.path" value="${jni.build.dir}:lib/hyperic-sigar-1.6.3" />
 
 			<test name="org.jnetpcap.BuildTests" todir="${report.dir}" />
-			<test name="org.jnetpcap.bugs.AllBugTests" todir="${report.dir}" />
+			<!-- test name="org.jnetpcap.bugs.AllBugTests" todir="${report.dir}" /-->
 
 			<!-- test 
 				name="org.jnetpcap.winpcap.TestWinPcapExtensions" 
@@ -1650,6 +1846,26 @@ svn copy ${svn.jnp.trunk} ${svn.jnp.builds} -m "${svn.tags.comment}"
 		</junit>
 
 	</target>
+
+	<!-- =================================================================== -->
+	<!-- Execute jUnit test case TestPcapPacket (a simple test)              -->
+	<!-- =================================================================== -->
+	<target name="run-test">
+		<junit printsummary="withOutAndErr" fork="yes" failureproperty="test.failed">
+
+			<!-- jvmarg value="-verbose:jni" /-->
+
+			<formatter type="plain" usefile="false" />
+			<sysproperty key="java.library.path" value="${jni.build.dir}" />
+
+			<test name="org.jnetpcap.packet.TestPcapPacket" todir="${report.dir}" />
+
+			<classpath refid="test.classpath" />
+
+		</junit>
+
+	</target>
+
 	
 	<!-- =================================================================== -->
 	<!-- Execute jUnit test cases -->
