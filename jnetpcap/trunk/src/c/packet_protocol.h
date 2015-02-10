@@ -680,8 +680,8 @@ typedef struct ip4_s {
 #define IP4_GET_CRC(p) BIG_ENDIAN16(p->ip4_crc)
 #define IP4_GET_SADDR32(p) BIG_ENDIAN32(p->ip4_saddr32)
 #define IP4_GET_DADDR32(p) BIG_ENDIAN32(p->ip4_daddr32)
-#define IP4_GET_SADDR(p) (p->ip4_saddr_array)
-#define IP4_GET_DADDR(p) (p->ip4_daddr_array)
+#define IP4_GET_SADDR(p) (p->ip4_saddr)
+#define IP4_GET_DADDR(p) (p->ip4_daddr)
 
 
 /****************************************************************
