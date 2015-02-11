@@ -40,13 +40,7 @@ xlC
 
  
 
-gcc 
--L/usr/local/lib 
--lstdc++ 
--g 
--shared 
--o libjnetpcap.so 
-../obj/jnetpcap.o ../obj/packet_flow.o ../obj/packet_jheader.o ../obj/jnetpcap_pcap_header.o 
+cc -L/usr/local/lib -lstdc++ -g -shared -o libjnetpcap.so ../obj/jnetpcap.o ../obj/packet_flow.o ../obj/packet_jheader.o ../obj/jnetpcap_pcap_header.o 
 ../obj/nio_jbuffer.o ../obj/winpcap_stat_ex.o ../obj/winpcap_send_queue.o ../obj/winpcap_ext.o 
 ../obj/util_debug.o ../obj/util_crc16.o ../obj/jnetpcap_ids.o ../obj/jnetpcap_dumper.o 
 ../obj/jnetpcap_utils.o ../obj/util_in_cksum.o ../obj/jnetpcap_beta.o ../obj/nio_jmemory.o 

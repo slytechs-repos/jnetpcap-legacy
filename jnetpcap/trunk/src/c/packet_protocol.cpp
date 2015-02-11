@@ -96,7 +96,7 @@ native_dissect_func_t 	field_dissectors      [MAX_ID_COUNT];
 
 const char             	*native_protocol_names[MAX_ID_COUNT];
 
-//#define DEBUG
+#define DEBUG
 #ifdef DEBUG
 #ifndef ENTER
 #define ENTER(id, name) debug_enter(name)
@@ -475,6 +475,7 @@ void debug_rtp(rtp_t *rtp) {
 			(int) rtp->rtp_b0,
 			(int) rtp->rtp_b1
 			);
+	fflush(stdout);
 
 	if (RTP_GET_CC(rtp) == 1) {
 		int *csrc = (int *) (rtp + 1);
@@ -496,7 +497,8 @@ void debug_rtp(rtp_t *rtp) {
  * Scan Session Data Protocol header
  */
 void scan_rtp(scan_t *scan) {
-ENTER(RTP_ID, "scan_rtp");
+	ENTER(RTP_ID, "scan_rtp");
+
 	register rtp_t *rtp = (rtp_t *)(scan->buf + scan->offset);
 
 	ACCESS(RTP_STRUCT_LENGTH);
@@ -507,6 +509,7 @@ ENTER(RTP_ID, "scan_rtp");
 	 * all the lengths
 	 */
 	ACCESS(scan->length + 4);
+
 	if (RTP_GET_EXT(rtp) == 1) {
 		rtpx_t * rtpx = (rtpx_t *)(scan->buf + scan->offset + scan->length);
 
@@ -1433,9 +1436,12 @@ void dissect_ip4_headers(dissect_t *dissect) {
  */
 void scan_ip4(register scan_t *scan) {
 
+	ENTER(IP4_ID, "scan_ip4");
+
 	header_t *eth;
 
 	if ((scan->buf_len - scan->offset) < sizeof(ip4_t)) {
+		EXIT("scan_ip4");
 		return;
 	}
 
@@ -1445,6 +1451,7 @@ void scan_ip4(register scan_t *scan) {
 	scan->hdr_payload = tot_len - scan->length;
 
 	if (is_accessible(scan, 8) == FALSE) {
+		EXIT("scan_ip4");
 		return;
 	}
 
@@ -1473,12 +1480,10 @@ void scan_ip4(register scan_t *scan) {
 		scan->hdr_payload = scan->buf_len - scan->length - scan->offset;
 	}
 
-#ifdef DEBUG
-		printf("ip4->frag_off=%x\n", frag);
-		fflush(stdout);
-#endif
+	TRACE("scan_ip4", "ip4->frag_off=%x\n", frag);
 
 	if (is_accessible(scan, 16) == FALSE) {
+		EXIT("scan_ip4");
 		return;
 	}
 
@@ -1507,16 +1512,15 @@ void scan_ip4(register scan_t *scan) {
 		scan->packet->pkt_flow_key.id[1] = IP4_ID;
 	}
 
-#ifdef DEBUG
-	printf("scan_ip4(): type=%d frag_off=%d @ frag_off.pos=%X\n",
+	TRACE("scan_ip4()", "type=%d frag_off=%d @ frag_off.pos=%X\n",
 			IP4_GET_PROTO(ip),
 			frag,
 			(int)IP4_GET_FRAG_OFF(ip));
 	fflush(stdout);
-#endif
 
 	if (frag != 0) {
 		scan->next_id = PAYLOAD_ID;
+		EXIT("scan_ip4");
 		return;
 	}
 
@@ -1546,6 +1550,8 @@ void scan_ip4(register scan_t *scan) {
 
 
 	}
+
+	EXIT("scan_ip4");
 }
 
 /*
@@ -1621,6 +1627,12 @@ void scan_802dot3(scan_t *scan) {
  */
 void scan_ethernet(scan_t *scan) {
 
+	TRACE("scan_ethernet", "BO=%d, BE=%d, LE=%d\n",
+			__BYTE_ORDER,
+			__BIG_ENDIAN,
+			__LITTLE_ENDIAN);
+
+
 	if ((scan->buf_len - scan->offset) < ETHERNET_STRUCT_LENGTH) {
 		return;
 	}
@@ -1634,6 +1646,8 @@ void scan_ethernet(scan_t *scan) {
 	}
 
 	int type = ETHERNET_GET_TYPE(eth);
+
+	TRACE("scan_ethernet", "eth.type=0x%X\n", type);
 
 	/*
 	 * Set the flow key pair for Ethernet.

@@ -122,11 +122,13 @@ typedef struct sctp_s {
 #define SLL_ADDR_LEN	8		      // length of address field
 
 typedef struct sll_s {
+
 	uint16_t	sll_pkttype;	          // packet type
 	uint16_t	sll_hatype;	            // link-layer address type
 	uint16_t	sll_halen;	            // link-layer address length
 	uint8_t		sll_addr[SLL_ADDR_LEN];	// link-layer address
 	uint16_t	sll_protocol;         	// protocol
+
 } sll_t;
 
 #define SLL_STRUCT_LENGTH	16
@@ -161,13 +163,20 @@ typedef struct rtpx_s {
  * RTCP SSRC Sender Report (section 3 of the header)
  */
 typedef struct rtcp_ssrc_s {
+
 	uint32_t	ssrc_id; // SSRC identifier of the source
+
 	union {
+
 		uint32_t		ssrc_i0;
+
 		struct {
+
 			uint32_t	ssrc_fract_loss:8; // Fraction of RTP data lost
 			uint32_t	ssrc_total_loss:24; // Cumulative of RTP data lost
+
 		} ssrc_u1;
+
 	} ssrc_s1;
 
 	uint32_t	ssrc_high_seq; // Extended highest seq received
@@ -191,7 +200,6 @@ typedef struct rtcp_ssrc_s {
 #define RTCP_SSRC_GET_LSR(p)		BIG_ENDIAN32(p->ssrc_lsr)
 #define RTCP_SSRC_GET_DLSR(p)		BIG_ENDIAN32(p->ssrc_dlsr)
 
-
 /*
  * RTCP Sender Report (SR)
  * (Section 2 of the header)
@@ -210,7 +218,6 @@ typedef struct rtcp_sr_s {
 #define	RTCP_SR_GET_PKT_COUNT(p)	BIG_ENDIAN32(p->sr_pkt_count)
 #define	RTCP_SR_GET_OCTET_COUNT(p)	BIG_ENDIAN32(p->sr_octet_count)
 
-
 /*
  * RTCP - main static header present in every RTCP packet.
  * RTCP packets are always on odd port number, while RTP on even (see RFC3550)
@@ -219,11 +226,13 @@ typedef struct rtcp_sr_s {
 typedef struct rtcp_s {
 
 #  if __BYTE_ORDER == __LITTLE_ENDIAN
+
 //	uint8_t 	rtcp_rc:5; // Reception Report Count (RC)
 //	uint8_t 	rtcp_pad:1;
 //	uint8_t		rtcp_ver:2; // Must be 2
 
 #  elif __BYTE_ORDER == __BIG_ENDIAN
+
 //	uint8_t		rtcp_ver:2; // Must be 2
 //	uint8_t 	rtcp_pad:1;
 //	uint8_t 	rtcp_rc:5; // Reception Report Count (RC)
@@ -253,6 +262,7 @@ typedef struct rtcp_s {
 typedef struct rtp_s {
 
 #  if __BYTE_ORDER == __LITTLE_ENDIAN
+
 //	uint8_t 	rtp_cc:4;
 //	uint8_t 	rtp_ext:1;
 //	uint8_t 	rtp_pad:1;
@@ -262,6 +272,7 @@ typedef struct rtp_s {
 //	uint8_t		rtp_marker:1;
 	
 #  elif __BYTE_ORDER == __BIG_ENDIAN
+
 //	uint8_t		rtp_ver:2;
 //	uint8_t 	rtp_pad:1;
 //	uint8_t 	rtp_ext:1;
@@ -292,16 +303,18 @@ typedef struct rtp_s {
 #define RTP_GET_TYPE(p)		((p->rtp_b1 >> 0) & 0x7F)
 #define RTP_GET_SEQ(p)		BIG_ENDIAN16(p->rtp_seq)
 #define RTP_GET_TS(p)		BIG_ENDIAN32(p->rtp_ts)
-#define RTP_GET_SSRC(p)		BIG_ENDIAN32(p->rtp_ts)
+#define RTP_GET_SSRC(p)		BIG_ENDIAN32(p->rtp_ssrc)
 
 /*
- * Address Resulution Protocol
+ * Address Resolution Protocol
  */
 typedef struct arp_s {
+
 	uint16_t arp_htype;
 	uint16_t arp_ptype;
 	uint8_t  arp_hlen;
 	uint8_t  arp_plen;
+
 } arp_t;
 
 #define ARP_STRUCT_LENGTH	6
@@ -315,6 +328,7 @@ typedef struct arp_s {
  * Internet Control Message Protocol
  */
 typedef struct icmp4_s {
+
 	uint8_t 	icmp4_type;
 	uint8_t 	icmp4_code;
 	uint16_t 	icmp4_crc;
@@ -332,9 +346,11 @@ typedef struct icmp4_s {
  * Point to Point Protocol
  */
 typedef struct ppp_s {
+
 	uint8_t ppp_addr;
 	uint8_t ppp_control;
 	uint16_t ppp_protocol;
+
 } ppp_t;
 
 #define PPP_STRUCT_LENGTH	4
@@ -347,7 +363,9 @@ typedef struct ppp_s {
  * Layer 2 tunneling protocol
  */
 typedef struct l2tp_s {
+
 #  if __BYTE_ORDER == __LITTLE_ENDIAN
+
 //	uint16_t p :1;
 //	uint16_t o :1;
 //	uint16_t res2 :1;
@@ -357,7 +375,9 @@ typedef struct l2tp_s {
 //	uint16_t t :1;
 //	uint16_t version :4;
 //	uint16_t res3 :4;
+
 #  elif __BYTE_ORDER == __BIG_ENDIAN
+
 //	uint16_t t:1;
 //	uint16_t l:1;
 //	uint16_t res1:2;
@@ -367,6 +387,7 @@ typedef struct l2tp_s {
 //	uint16_t p:1;
 //	uint16_t res3:4;
 //	uint16_t version:4;
+
 #  else
 #   error "Adjust your <bits/endian.h> defines"
 #  endif
@@ -395,17 +416,22 @@ typedef struct l2tp_s {
  * IEEE 802.1q VLAN header
  */
 typedef struct vlan_s {
-
 	union {
+
 		uint16_t	vlan_tci;
+
 		struct {
+
 			uint16_t vlan_priority :3;
 			uint16_t vlan_cfi :1;
 			uint16_t vlan_id :12;
+
 		} vlan_u1;
+
 	} vlan_control;
 
 	uint16_t vlan_type;
+
 } vlan_t;
 
 #define VLAN_STRUCT_LENGTH	4
@@ -426,12 +452,18 @@ typedef struct vlan_s {
  */
 typedef struct snap_s {
 	union {
+
 		uint8_t	snap_b0[5];
+
 		struct {
+
 			uint32_t snap_oui:24;
 			uint16_t snap_pid;
+
 		} snap_u1;
+
 	} snap_raw;
+
 } snap_t;
 
 #define SNAP_STRUCT_LENGTH	5
@@ -448,11 +480,15 @@ typedef struct snap_s {
  * LLC IEEE802.2
  */
 typedef struct llc_s {
+
 	uint8_t llc_dsap;
 	uint8_t llc_ssap;
 	uint8_t llc_control;
+
 	union {
+
 		uint8_t llc_info;
+
 	} llc_optional;
 
 } llc_t;
@@ -470,6 +506,7 @@ typedef struct llc_s {
  * UDP structure
  */
 typedef struct udp_s {
+
 	uint16_t udp_sport;
 	uint16_t udp_dport;
 	uint16_t udp_length;
@@ -491,7 +528,9 @@ typedef struct tcp_s {
 	uint16_t tcp_dport;
 	uint32_t tcp_seq;
 	uint32_t tcp_ack_seq;
+
 #  if __BYTE_ORDER == __LITTLE_ENDIAN
+
 //	uint16_t res1 :4;
 //	uint16_t doff :4;
 //	uint16_t fin :1;
@@ -501,7 +540,9 @@ typedef struct tcp_s {
 //	uint16_t ack :1;
 //	uint16_t urg :1;
 //	uint16_t res2 :2;
+
 #  elif __BYTE_ORDER == __BIG_ENDIAN
+
 //	uint16_t doff:4;
 //	uint16_t res1:4;
 //	uint16_t res2:2;
@@ -511,14 +552,17 @@ typedef struct tcp_s {
 //	uint16_t rst:1;
 //	uint16_t syn:1;
 //	uint16_t fin:1;
+
 #  else
 #   error "Adjust your <bits/endian.h> defines"
 #  endif
+
 	uint8_t	tcp_b13;
 	uint8_t	tcp_b14;
 	uint16_t tcp_window;
 	uint16_t tcp_crc;
 	uint16_t tcp_urg_ptr;
+
 } tcp_t;
 
 #define PROTO_ETHERNET_HEADER_LENGTH 14
@@ -548,8 +592,10 @@ typedef struct tcp_s {
  * Ethernet 2 structure
  */
 typedef struct ethernet_s {
-	uint8_t eth_daddr[6]; /* destination eth addr */
-	uint8_t eth_saddr[6]; /* destination eth addr */
+
+#define ETHERNET_ADDRESS_LENGTH	6
+	uint8_t eth_daddr[ETHERNET_ADDRESS_LENGTH]; /* destination eth addr */
+	uint8_t eth_saddr[ETHERNET_ADDRESS_LENGTH]; /* destination eth addr */
 	uint16_t eth_type; /* destination e(IP4_GET_IHL(p) << 2)th addr */
 
 } ethernet_t;
@@ -569,10 +615,12 @@ typedef struct ethernet_s {
 typedef struct ip6_s {
 	union {
 		struct ip6_hdrctl {
+
 			uint32_t ip6_un1_flow;	/* 20 bits of flow-ID */
 			uint16_t ip6_un1_plen;	/* payload length */
 			uint8_t  ip6_un1_nxt;	/* next header */
 			uint8_t  ip6_un1_hlim;	/* hop limit */
+
 		} ip6_un1;
 
 		uint8_t ip6_un2_vfc;	/* 4 bits version, 4 bits class */
@@ -581,6 +629,7 @@ typedef struct ip6_s {
 
 	uint8_t ip6_src[16];	/* source address */
 	uint8_t ip6_dst[16];	/* destination address */
+
 } ip6_t;
 
 #define ip6_flow	ip6_ctlun.ip6_un1.ip6_un1_flow
@@ -645,6 +694,7 @@ typedef struct ip4_s {
 			uint32_t ip4_saddr32;
 			uint32_t ip4_daddr32;
 		} ip4_un2;
+
 	} ip4_addr;
 
 	/*The options start here. */
@@ -655,7 +705,6 @@ typedef struct ip4_s {
 #define	ip4_saddr	ip4_addr.ip4_un1.ip4_saddr
 #define	ip4_daddr	ip4_addr.ip4_un1.ip4_daddr
 
-
 #define IP4_FLAGS_MASK 0xE000
 #define IP4_FRAG_OFF_MASK ~IP4_FLAGS_MASK
 #define IP4_FLAG_MF 0x2000
@@ -665,23 +714,29 @@ typedef struct ip4_s {
 #define IP4_STRUCT_LENGTH 20
 #define IP4_CALC_LENGTH(p) (IP4_GET_IHL(p) << 2)
 
-#define IP4_GET_VER(p) (((p->ip4_b0) & 0xF0) >> 4)
-#define IP4_GET_IHL(p) (((p->ip4_b0) & 0x0F) >> 0)
-#define IP4_GET_TOS(p) (p->ip4_tos)
-#define IP4_GET_LEN(p) BIG_ENDIAN16(p->ip4_tot_len)
-#define IP4_GET_ID(p) BIG_ENDIAN16(p->ip4_id)
+#define IP4_GET_VER(p) 		(((p->ip4_b0) & 0xF0) >> 4)
+#define IP4_GET_IHL(p) 		(((p->ip4_b0) & 0x0F) >> 0)
+#define IP4_GET_TOS(p) 		(p->ip4_tos)
+#define IP4_GET_LEN(p) 		BIG_ENDIAN16(p->ip4_tot_len)
+#define IP4_GET_ID(p) 		BIG_ENDIAN16(p->ip4_id)
 #define IP4_GET_FRAG_OFF(p) (BIG_ENDIAN16(p->ip4_frag_off) & IP4_FRAG_OFF_MASK)
-#define IP4_GET_FLAGS(p)  ((BIG_ENDIAN16(p->ip4_frag_off ) & IP4_FLAGS_MASK) >> 13)
-#define IP4_GET_FLAG_MF(p) (IP4_GET_FLAGS(p) & 0x1)
-#define IP4_GET_FLAG_DF(p) (IP4_GET_FLAGS(p) & 0x2)
+#define IP4_GET_FLAGS(p)  	((BIG_ENDIAN16(p->ip4_frag_off ) & IP4_FLAGS_MASK) >> 13)
+#define IP4_GET_FLAG_MF(p) 	(IP4_GET_FLAGS(p) & 0x1)
+#define IP4_GET_FLAG_DF(p) 	(IP4_GET_FLAGS(p) & 0x2)
 #define IP4_GET_FLAG_RESERVED(p) (IP4_GET_FLAGS(p) & 0x4)
-#define IP4_GET_TTL(p) (p->ip4_ttl)
-#define IP4_GET_PROTO(p) (p->ip4_protocol)
-#define IP4_GET_CRC(p) BIG_ENDIAN16(p->ip4_crc)
-#define IP4_GET_SADDR32(p) BIG_ENDIAN32(p->ip4_saddr32)
-#define IP4_GET_DADDR32(p) BIG_ENDIAN32(p->ip4_daddr32)
-#define IP4_GET_SADDR(p) (p->ip4_saddr)
-#define IP4_GET_DADDR(p) (p->ip4_daddr)
+#define IP4_GET_TTL(p) 		(p->ip4_ttl)
+#define IP4_GET_PROTO(p) 	(p->ip4_protocol)
+#define IP4_GET_CRC(p) 		BIG_ENDIAN16(p->ip4_crc)
+#ifdef __STRICT_ALIGNMENT
+#define IP4_GET_SADDR(p) 	(p->ip4_saddr)
+#define IP4_GET_DADDR(p) 	(p->ip4_daddr)
+#else
+#define IP4_GET_SADDR32(p) 	BIG_ENDIAN32(p->ip4_saddr32)
+#define IP4_GET_DADDR32(p) 	BIG_ENDIAN32(p->ip4_daddr32)
+#endif
+
+#define IP4_GET_SADDR32(p) 	BIG_ENDIAN32_GET(p->ip4_saddr)
+#define IP4_GET_DADDR32(p) 	BIG_ENDIAN32_GET(p->ip4_daddr)
 
 
 /****************************************************************
@@ -693,10 +748,6 @@ typedef struct ip4_s {
  ****************************************************************/
 
 int lookup_ethertype(uint16_t type);
-//
-//void scan_ethernet (scan_t *scan);
-//void scan_ip4      (scan_t *scan);
-
 
 #endif
 #endif

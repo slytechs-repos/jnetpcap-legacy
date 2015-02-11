@@ -174,7 +174,15 @@ JNIEXPORT jfloat JNICALL Java_org_jnetpcap_nio_JBuffer_getFloat0
 JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JBuffer_getInt0
 (JNIEnv *env, jclass clazz, jlong address, jboolean big, jint index) {
 	
-	jint *mem = (jint *)toPtr(address + index);
+	address += index;
+
+	if (!IS_INT32_ALIGNED(address)) {
+		uint8_t *p = (uint8_t *)toPtr(address);
+
+		return ENDIAN32_GET_UNALIGNED(big, p);
+	}
+
+	jint *mem = (jint *)toPtr(address);
 
 	/*
 	 * For efficiency of the endian byte swapping, convert to an atom and use
@@ -193,7 +201,15 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JBuffer_getInt0
 JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JBuffer_getLong0
 (JNIEnv *env, jclass clazz, jlong address, jboolean big, jint index) {
 	
-	uint64_t *mem = (uint64_t *)toPtr(address + index);
+	address += index;
+
+	if (!IS_INT64_ALIGNED(address)) {
+		uint8_t *p = (uint8_t *)toPtr(address);
+
+		return ENDIAN64_GET_UNALIGNED(big, p);
+	}
+
+	uint64_t *mem = (uint64_t *)toPtr(address);
 
 	/*
 	 * For efficiency of the endian byte swapping, convert to an atom and use
@@ -212,7 +228,15 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JBuffer_getLong0
 JNIEXPORT jshort JNICALL Java_org_jnetpcap_nio_JBuffer_getShort0
 (JNIEnv *env, jclass clazz, jlong address, jboolean big, jint index) {
 	
-	jshort *mem = (jshort *)toPtr(address + index);
+	address += index;
+
+	if (!IS_INT16_ALIGNED(address)) {
+		uint8_t *p = (uint8_t *)toPtr(address);
+
+		return ENDIAN16_GET_UNALIGNED(big, p);
+	}
+
+	jshort *mem = (jshort *)toPtr(address);
 
 	/*
 	 * For efficiency of the endian byte swapping, convert to an atom and use
@@ -251,7 +275,15 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JBuffer_getUByte0
 JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JBuffer_getUInt0
 (JNIEnv *env, jclass clazz, jlong address, jboolean big, jint index) {
 	
-	uint32_t *mem = (uint32_t *)toPtr(address + index);
+	address += index;
+
+	if (!IS_INT32_ALIGNED(address)) {
+		uint8_t *p = (uint8_t *)toPtr(address);
+
+		return ENDIAN32_GET_UNALIGNED(big, p);
+	}
+
+	uint32_t *mem = (uint32_t *)toPtr(address);
 
 	/*
 	 * For efficiency of the endian byte swapping, convert to an atom and use
@@ -271,7 +303,15 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JBuffer_getUInt0
 JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JBuffer_getUShort0
 (JNIEnv *env, jclass clazz, jlong address, jboolean big, jint index) {
 	
-	uint16_t *mem = (uint16_t *)toPtr(address + index);
+	address += index;
+
+	if (!IS_INT16_ALIGNED(address)) {
+		uint8_t *p = (uint8_t *)toPtr(address);
+
+		return ENDIAN16_GET_UNALIGNED(big, p);
+	}
+
+	uint16_t *mem = (uint16_t *)toPtr(address);
 
 	/*
 	 * For efficiency of the endian byte swapping, convert to an atom and use
@@ -303,7 +343,9 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setByte0
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setByteArray0
   (JNIEnv *env, jclass clazz, jlong address, jint index, jbyteArray jarray, jint jarraySize) {
 	
-	jbyte *mem = (jbyte *)toPtr(address + index);
+	address += index;
+
+	jbyte *mem = (jbyte *)toPtr(address);
 	
 	env->GetByteArrayRegion(jarray, 0, jarraySize, (mem));
 	
@@ -318,7 +360,9 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setByteArray0
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setDouble0
 (JNIEnv *env, jclass clazz, jlong address, jboolean big, jint index, jdouble jval) {
 	
-	uint64_t *mem = (uint64_t *)toPtr(address + index);
+	address += index;
+
+	uint64_t *mem = (uint64_t *)toPtr(address);
 	
 	/*
 	 * For efficiency of the endian byte swapping, convert to an atom and use
@@ -341,7 +385,9 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setDouble0
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setFloat0
 (JNIEnv *env, jclass clazz, jlong address, jboolean big, jint index, jfloat jval) {
 	
-	uint32_t *mem = (uint32_t *)toPtr(address + index);
+	address += index;
+
+	uint32_t *mem = (uint32_t *)toPtr(address);
 	
 	/*
 	 * For efficiency of the endian byte swapping, convert to an atom and use
@@ -364,7 +410,9 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setFloat0
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setInt0
 (JNIEnv *env, jclass clazz, jlong address, jboolean big, jint index, jint jval) {
 	
-	uint32_t *mem = (uint32_t *)toPtr(address + index);
+	address += index;
+
+	uint32_t *mem = (uint32_t *)toPtr(address);
 	
 	*(mem) = ENDIAN32_GET(big, jval);
 }
@@ -377,7 +425,9 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setInt0
 JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setLong0
 (JNIEnv *env, jclass clazz, jlong address, jboolean big, jint index, jlong jval) {
 	
-	uint64_t *mem = (uint64_t *)toPtr(address + index);
+	address += index;
+
+	uint64_t *mem = (uint64_t *)toPtr(address);
 	
 	*(mem) = ENDIAN64_GET(big, jval);
 }

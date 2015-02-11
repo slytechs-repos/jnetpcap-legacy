@@ -40,6 +40,22 @@ public class TestPcapPacket
 	private PcapPacket packet;
 
 	private PcapPacket packet2;
+	
+    public static void main(String[] args) {
+        System.loadLibrary("jnetpcap");
+        JPacket packet = TestUtils.getPcapPacket("tests/test-l2tp.pcap", 0);
+
+        int size = packet.getTotalSize();
+
+        System.out.printf("len=%d%n", size);
+        System.out.println(packet.getState().toDebugString());
+        System.out.println(packet);
+
+//        TestPcapPacket test = new TestPcapPacket();
+//        test.testPcapHeader();
+//        test.testPcapPacketInt();
+    }
+
 
 	/*
 	 * (non-Javadoc)
