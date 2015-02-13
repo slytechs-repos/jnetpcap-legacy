@@ -65,6 +65,9 @@
 
 #define NETBIOS_ID END_OF_HEADERS
 
+#pragma pack(push)  /* push current alignment to stack */
+#pragma pack(1)     /* set alignment to 1 byte boundary */
+
 typedef struct null_header_s {
 
 	uint32_t	null_type; // PF_ protocol family type
@@ -73,7 +76,7 @@ typedef struct null_header_s {
 
 #define NULL_STRUCT_LENGTH	4
 
-#define NULL_GET_TYPE(p)	BIG_ENDIAN32(p->null_type)
+#define NULL_GET_TYPE(p)	BIG_ENDIAN32_ALIGNED(p->null_type)
 
 /**
  * SCTP Chunk
@@ -95,7 +98,7 @@ typedef struct sctp_chunk_ {
 
 #define SCTP_CHUNK_GET_TYPE(p)		(p->chunk_type)
 #define SCTP_CHUNK_GET_FLAGS(p)		(p->chunk_flags)
-#define SCTP_CHUNK_GET_LENGTH(p)	BIG_ENDIAN16(p->chunk_type)
+#define SCTP_CHUNK_GET_LENGTH(p)	BIG_ENDIAN16_ALIGNED(p->chunk_type)
 
 /**
  * Stream Control Transport Protocol
@@ -111,10 +114,10 @@ typedef struct sctp_s {
 
 #define SCTP_STRUCT_LENGTH	12
 
-#define SCTP_GET_SPORT(p)	BIG_ENDIAN16(p->sctp_sport)
-#define SCTP_GET_DPORT(p)	BIG_ENDIAN16(p->sctp_dport)
-#define SCTP_GET_TAG(p)		BIG_ENDIAN32(p->sctp_stag)
-#define SCTP_GET_CRC32(p)	BIG_ENDIAN32(p->sctp_crc32)
+#define SCTP_GET_SPORT(p)	BIG_ENDIAN16_ALIGNED(p->sctp_sport)
+#define SCTP_GET_DPORT(p)	BIG_ENDIAN16_ALIGNED(p->sctp_dport)
+#define SCTP_GET_TAG(p)		BIG_ENDIAN32_ALIGNED(p->sctp_stag)
+#define SCTP_GET_CRC32(p)	BIG_ENDIAN32_ALIGNED(p->sctp_crc32)
 
 /*
  * Linux Socket Cooked Capture header - a pseudo header as DL substitute
@@ -133,11 +136,11 @@ typedef struct sll_s {
 
 #define SLL_STRUCT_LENGTH	16
 
-#define	SLL_GET_PKTTYPE(p)	BIG_ENDIAN16(p->ssl_pkttype)
-#define	SLL_GET_HATYPE(p)	BIG_ENDIAN16(p->sll_hatype)
-#define	SLL_GET_HALEN(p)	BIG_ENDIAN16(p->sll_halen)
+#define	SLL_GET_PKTTYPE(p)	BIG_ENDIAN16_ALIGNED(p->ssl_pkttype)
+#define	SLL_GET_HATYPE(p)	BIG_ENDIAN16_ALIGNED(p->sll_hatype)
+#define	SLL_GET_HALEN(p)	BIG_ENDIAN16_ALIGNED(p->sll_halen)
 #define	SLL_GET_ADDR(p)		(p->sll_addr)
-#define	SLL_GET_PROTOCOL(p)	BIG_ENDIAN16(p->sll_protocol)
+#define	SLL_GET_PROTOCOL(p)	BIG_ENDIAN16_ALIGNED(p->sll_protocol)
 
 /*
  * Realtime Transfer Protocol and extension
@@ -151,8 +154,8 @@ typedef struct rtpx_s {
 
 #define RTPX_STRUCT_LENGTH	4
 
-#define RTPX_GET_PROFILE(p)	BIG_ENDIAN16(p->rtpx_profile)
-#define RTPX_GET_LEN(p)		BIG_ENDIAN16(p->rtpx_len)
+#define RTPX_GET_PROFILE(p)	BIG_ENDIAN16_ALIGNED(p->rtpx_profile)
+#define RTPX_GET_LEN(p)		BIG_ENDIAN16_ALIGNED(p->rtpx_len)
 
 /*
  *  RTP and RTCP family of protocols
@@ -192,13 +195,13 @@ typedef struct rtcp_ssrc_s {
 
 #define RTCP_SSRC_STRUCT_LENGTH	24
 
-#define RTCP_SSRC_GET_ID(p)			BIG_ENDIAN32(p->ssrc_id)
+#define RTCP_SSRC_GET_ID(p)			BIG_ENDIAN32_ALIGNED(p->ssrc_id)
 #define	RTCP_SSRC_GET_FRACT_LOSS(p)	((p->ssrc_i0 >> 24) & 0x000000FF)
-#define	RTCP_SSRC_GET_TOTAL_LOSS(p)	((BIG_ENDIAN32(p->ssrc_i0) >> 0)  & 0x00FFFFFF)
-#define RTCP_SSRC_GET_HIGH_SEQ(p)	BIG_ENDIAN32(p->ssrc_high_seq)
-#define RTCP_SSRC_GET_JITTER(p)		BIG_ENDIAN32(p->ssrc_jitter)
-#define RTCP_SSRC_GET_LSR(p)		BIG_ENDIAN32(p->ssrc_lsr)
-#define RTCP_SSRC_GET_DLSR(p)		BIG_ENDIAN32(p->ssrc_dlsr)
+#define	RTCP_SSRC_GET_TOTAL_LOSS(p)	((BIG_ENDIAN32_ALIGNED(p->ssrc_i0) >> 0)  & 0x00FFFFFF)
+#define RTCP_SSRC_GET_HIGH_SEQ(p)	BIG_ENDIAN32_ALIGNED(p->ssrc_high_seq)
+#define RTCP_SSRC_GET_JITTER(p)		BIG_ENDIAN32_ALIGNED(p->ssrc_jitter)
+#define RTCP_SSRC_GET_LSR(p)		BIG_ENDIAN32_ALIGNED(p->ssrc_lsr)
+#define RTCP_SSRC_GET_DLSR(p)		BIG_ENDIAN32_ALIGNED(p->ssrc_dlsr)
 
 /*
  * RTCP Sender Report (SR)
@@ -214,9 +217,9 @@ typedef struct rtcp_sr_s {
 
 #define RTCP_SR_STRUCT_LENGTH	16
 
-#define	RTCP_SR_GET_NTP(p)			BIG_ENDIAN64(p->sr_ntp)
-#define	RTCP_SR_GET_PKT_COUNT(p)	BIG_ENDIAN32(p->sr_pkt_count)
-#define	RTCP_SR_GET_OCTET_COUNT(p)	BIG_ENDIAN32(p->sr_octet_count)
+#define	RTCP_SR_GET_NTP(p)			BIG_ENDIAN64_ALIGNED(p->sr_ntp)
+#define	RTCP_SR_GET_PKT_COUNT(p)	BIG_ENDIAN32_ALIGNED(p->sr_pkt_count)
+#define	RTCP_SR_GET_OCTET_COUNT(p)	BIG_ENDIAN32_ALIGNED(p->sr_octet_count)
 
 /*
  * RTCP - main static header present in every RTCP packet.
@@ -255,8 +258,8 @@ typedef struct rtcp_s {
 #define RTCP_GET_PAD(p)		((p->rtcp_b0 >> 5) & 0x01)
 #define RTCP_GET_RC(p)		((p->rtcp_b0 >> 0) & 0x1F)
 #define RTCP_GET_TYPE(p)	(p->rtcp_type)
-#define RTCP_GET_LEN(p)		BIG_ENDIAN16(p->rtcp_len)
-#define RTCP_GET_SSRC(p)	BIG_ENDIAN32(p->rtcp_ssrc)
+#define RTCP_GET_LEN(p)		BIG_ENDIAN16_ALIGNED(p->rtcp_len)
+#define RTCP_GET_SSRC(p)	BIG_ENDIAN32_ALIGNED(p->rtcp_ssrc)
 
 
 typedef struct rtp_s {
@@ -301,9 +304,10 @@ typedef struct rtp_s {
 #define RTP_GET_CC(p)		((p->rtp_b0 >> 0) & 0x0F)
 #define RTP_GET_MARKER(p)	((p->rtp_b1 >> 7) & 0x01)
 #define RTP_GET_TYPE(p)		((p->rtp_b1 >> 0) & 0x7F)
-#define RTP_GET_SEQ(p)		BIG_ENDIAN16(p->rtp_seq)
-#define RTP_GET_TS(p)		BIG_ENDIAN32(p->rtp_ts)
-#define RTP_GET_SSRC(p)		BIG_ENDIAN32(p->rtp_ssrc)
+#define RTP_GET_SEQ(p)		BIG_ENDIAN16_ALIGNED(p->rtp_seq)
+#define RTP_GET_TS(p)		BIG_ENDIAN32_ALIGNED(p->rtp_ts)
+#define RTP_GET_SSRC(p)		BIG_ENDIAN32_ALIGNED(p->rtp_ssrc)
+
 
 /*
  * Address Resolution Protocol
@@ -319,8 +323,8 @@ typedef struct arp_s {
 
 #define ARP_STRUCT_LENGTH	6
 
-#define ARP_GET_HTYPE(p)	BIG_ENDIAN16(p->arp_htype)
-#define ARP_GET_PTYPE(p)	BIG_ENDIAN16(p->arp_ptype)
+#define ARP_GET_HTYPE(p)	BIG_ENDIAN16_ALIGNED(p->arp_htype)
+#define ARP_GET_PTYPE(p)	BIG_ENDIAN16_ALIGNED(p->arp_ptype)
 #define ARP_GET_HLEN(p)		(p->arp_hlen)
 #define ARP_GET_PLEN(p)		(p->arp_plen)
 
@@ -339,7 +343,7 @@ typedef struct icmp4_s {
 
 #define ICMP4_GET_TYPE(p)	(p->icmp4_type)
 #define ICMP4_GET_CODE(p)	(p->icmp4_code)
-#define ICMP4_GET_CRC(p)	BIG_ENDIAN16(p->icmp4_crc)
+#define ICMP4_GET_CRC(p)	BIG_ENDIAN16_ALIGNED(p->icmp4_crc)
 
 
 /*
@@ -357,7 +361,7 @@ typedef struct ppp_s {
 
 #define PPP_GET_ADDR(p)		(p->ppp_addr)
 #define PPP_GET_CONTROL(p)	(p->ppp_control)
-#define PPP_GET_PROTOCOL(p)	BIG_ENDIAN16(p->ppp_protocol)
+#define PPP_GET_PROTOCOL(p)	BIG_ENDIAN16_ALIGNED(p->ppp_protocol)
 
 /*
  * Layer 2 tunneling protocol
@@ -441,11 +445,11 @@ typedef struct vlan_s {
 #define vlan_cfi		vlan_control.vlan_u1.vlan_cfi
 #define	vlan_id			vlan_control.vlan_u1.vlan_id
 
-#define VLAN_GET_TCI(p)			BIG_ENDIAN16(p->vlan_tci)
-#define VLAN_GET_PRIORITY(p)	((BIG_ENDIAN16(p->vlan_tci) & 0xE000) >> 13)
-#define VLAN_GET_CFI(p)			((BIG_ENDIAN16(p->vlan_tci) & 0x1000) >> 12)
-#define VLAN_GET_ID(p)			((BIG_ENDIAN16(p->vlan_tci) & 0x0FFF) >> 0)
-#define VLAN_GET_TYPE(p)		BIG_ENDIAN16(p->vlan_type)
+#define VLAN_GET_TCI(p)			BIG_ENDIAN16_ALIGNED(p->vlan_tci)
+#define VLAN_GET_PRIORITY(p)	((BIG_ENDIAN16_ALIGNED(p->vlan_tci) & 0xE000) >> 13)
+#define VLAN_GET_CFI(p)			((BIG_ENDIAN16_ALIGNED(p->vlan_tci) & 0x1000) >> 12)
+#define VLAN_GET_ID(p)			((BIG_ENDIAN16_ALIGNED(p->vlan_tci) & 0x0FFF) >> 0)
+#define VLAN_GET_TYPE(p)		BIG_ENDIAN16_ALIGNED(p->vlan_type)
 
 /**
  * SNAP IEEE
@@ -515,10 +519,10 @@ typedef struct udp_s {
 } udp_t;
 
 #define UDP_STRUCT_LENGTH	8
-#define UDP_GET_SPORT(p)	BIG_ENDIAN16(p->udp_sport)
-#define UDP_GET_DPORT(p)	BIG_ENDIAN16(p->udp_dport)
-#define UDP_GET_LENGTH(p)	BIG_ENDIAN16(p->udp_length)
-#define UDP_GET_CRC(p)		BIG_ENDIAN16(p->udp_crc)
+#define UDP_GET_SPORT(p)	BIG_ENDIAN16_ALIGNED(p->udp_sport)
+#define UDP_GET_DPORT(p)	BIG_ENDIAN16_ALIGNED(p->udp_dport)
+#define UDP_GET_LENGTH(p)	BIG_ENDIAN16_ALIGNED(p->udp_length)
+#define UDP_GET_CRC(p)		BIG_ENDIAN16_ALIGNED(p->udp_crc)
 
 /**
  * TCP structure
@@ -571,10 +575,10 @@ typedef struct tcp_s {
 #define TCP_STRUCT_LENGTH	20
 #define TCP_CALC_LENGTH(p)	(TCP_GET_DOFF(p) << 2)
 
-#define TCP_GET_SPORT(p)	BIG_ENDIAN16(p->tcp_sport)
-#define TCP_GET_DPORT(p)	BIG_ENDIAN16(p->tcp_dport)
-#define TCP_GET_SEQ(p)		BIG_ENDIAN32(p->tcp_seq)
-#define TCP_GET_ACK(p)		BIG_ENDIAN32(p->tcp_ack_seq)
+#define TCP_GET_SPORT(p)	BIG_ENDIAN16_ALIGNED(p->tcp_sport)
+#define TCP_GET_DPORT(p)	BIG_ENDIAN16_ALIGNED(p->tcp_dport)
+#define TCP_GET_SEQ(p)		BIG_ENDIAN32_ALIGNED(p->tcp_seq)
+#define TCP_GET_ACK(p)		BIG_ENDIAN32_ALIGNED(p->tcp_ack_seq)
 #define TCP_GET_DOFF(p)		((p->tcp_b13 & 0xF0) >> 4)
 #define TCP_GET_RES1(p)		((p->tcp_b13 & 0x0F) >> 0)
 #define TCP_GET_RES2(p)		((p->tcp_b14 & 0xC0) >> 6)
@@ -584,9 +588,9 @@ typedef struct tcp_s {
 #define TCP_GET_RST(p)		((p->tcp_b14 & 0x04) >> 2)
 #define TCP_GET_SYN(p)		((p->tcp_b14 & 0x02) >> 1)
 #define TCP_GET_FIN(p)		((p->tcp_b14 & 0x01) >> 0)
-#define TCP_GET_WINDOW(p)	BIG_ENDIAN16(p->tcp_window)
-#define TCP_GET_CRC(p)		BIG_ENDIAN16(p->tcp_crc)
-#define TCP_GET_URG_PTR(p)	BIG_ENDIAN16(p->tcp_urg_ptr)
+#define TCP_GET_WINDOW(p)	BIG_ENDIAN16_ALIGNED(p->tcp_window)
+#define TCP_GET_CRC(p)		BIG_ENDIAN16_ALIGNED(p->tcp_crc)
+#define TCP_GET_URG_PTR(p)	BIG_ENDIAN16_ALIGNED(p->tcp_urg_ptr)
 
 /**
  * Ethernet 2 structure
@@ -606,7 +610,7 @@ typedef struct ethernet_s {
 
 #define ETHERNET_GET_DADDR(p)	(p->eth_daddr)
 #define ETHERNET_GET_SADDR(p)	(p->eth_saddr)
-#define ETHERNET_GET_TYPE(p)	BIG_ENDIAN16(p->eth_type)
+#define ETHERNET_GET_TYPE(p)	BIG_ENDIAN16_ALIGNED(p->eth_type)
 
 /**
  * IP v6 structure
@@ -639,8 +643,8 @@ typedef struct ip6_s {
 #define ip6_hops	ip6_ctlun.ip6_un1.ip6_un1_hlim
 #define ip6_vfc		ip6_ctlun.ip6_un2_vfc
 
-#define IP6_GET_FLOW(p)		BIG_ENDIAN32(p->ip6_flow)
-#define IP6_GET_PLEN(p)		BIG_ENDIAN16(p->ip6_plen)
+#define IP6_GET_FLOW(p)		BIG_ENDIAN32_ALIGNED(p->ip6_flow)
+#define IP6_GET_PLEN(p)		BIG_ENDIAN16_ALIGNED(p->ip6_plen)
 #define IP6_GET_NXT(p)		(p->ip6_nxt)
 #define IP6_GET_HOPS(p)		(p->ip6_hlim)
 #define IP6_GET_VFC(p)		(p->ip6_vfc)
@@ -727,17 +731,22 @@ typedef struct ip4_s {
 #define IP4_GET_TTL(p) 		(p->ip4_ttl)
 #define IP4_GET_PROTO(p) 	(p->ip4_protocol)
 #define IP4_GET_CRC(p) 		BIG_ENDIAN16(p->ip4_crc)
-#ifdef __STRICT_ALIGNMENT
 #define IP4_GET_SADDR(p) 	(p->ip4_saddr)
 #define IP4_GET_DADDR(p) 	(p->ip4_daddr)
-#else
-#define IP4_GET_SADDR32(p) 	BIG_ENDIAN32(p->ip4_saddr32)
-#define IP4_GET_DADDR32(p) 	BIG_ENDIAN32(p->ip4_daddr32)
-#endif
+
+#ifdef __STRICT_ALIGNMENT
 
 #define IP4_GET_SADDR32(p) 	BIG_ENDIAN32_GET(p->ip4_saddr)
 #define IP4_GET_DADDR32(p) 	BIG_ENDIAN32_GET(p->ip4_daddr)
 
+#else
+
+#define IP4_GET_SADDR32(p) 	BIG_ENDIAN32(p->ip4_saddr32)
+#define IP4_GET_DADDR32(p) 	BIG_ENDIAN32(p->ip4_daddr32)
+
+#endif
+
+#pragma pack(pop)   /* restore original alignment from stack */
 
 /****************************************************************
  * **************************************************************

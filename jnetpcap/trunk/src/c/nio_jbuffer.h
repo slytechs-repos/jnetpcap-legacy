@@ -15,8 +15,6 @@ extern "C" {
 
 #include <jni.h>
 
-#define __STRICT_ALIGNMENT
-
 // Generic MACROS
 #ifndef __BYTE_ORDER
 
@@ -55,22 +53,81 @@ extern jfieldID jbufferReadonlyFID;
  ****************************************************************/
 
 #define IS_INT8_ALIGNED(p)		(TRUE)
-#define IS_INT16_ALIGNED(p)		((p & 0x01) == 0)
-#define IS_INT32_ALIGNED(p)		((p & 0x02) == 0)
-#define IS_INT64_ALIGNED(p)		((p & 0x03) == 0)
+#define IS_INT16_ALIGNED(p)		((p & 0x0001) == 0)
+#define IS_INT32_ALIGNED(p)		((p & 0x0003) == 0)
+#define IS_INT64_ALIGNED(p)		((p & 0x0007) == 0)
+#define IS_INT128_ALIGNED(p)	((p & 0x000F) == 0)
+#define IS_INT256_ALIGNED(p)	((p & 0x001F) == 0)
+#define IS_INT512_ALIGNED(p)	((p & 0x003F) == 0)
+#define IS_INT1024_ALIGNED(p)	((p & 0x007F) == 0)
+#define IS_INT2048_ALIGNED(p)	((p & 0x00FF) == 0)
+#define IS_INT4096_ALIGNED(p)	((p & 0x01FF) == 0)
+#define IS_INT9182_ALIGNED(p)	((p & 0x03FF) == 0)
+
+#ifdef __STRICT_ALIGNMENT
+
+#define BIG_ENDIAN8_ALIGNED(p) 	BIG_ENDIAN8_REF(p)
+#define BIG_ENDIAN16_ALIGNED(p)	BIG_ENDIAN16_REF(p)
+#define BIG_ENDIAN32_ALIGNED(p)	BIG_ENDIAN32_REF(p)
+#define BIG_ENDIAN64_ALIGNED(p)	BIG_ENDIAN64_REF(p)
+
+#define LITTLE_ENDIAN8_ALIGNED(p)	LITTLE_ENDIAN8_REF(p)
+#define LITTLE_ENDIAN16_ALIGNED(p) 	LITTLE_ENDIAN16_REF(p)
+#define LITTLE_ENDIAN32_ALIGNED(p) 	LITTLE_ENDIAN32_REF(p)
+#define LITTLE_ENDIAN64_ALIGNED(p) 	LITTLE_ENDIAN64_REF(p)
+
+#else // !__STRICT_ALIGNMENT
+
+#define BIG_ENDIAN8_ALIGNED(p) 	BIG_ENDIAN8(p)
+#define BIG_ENDIAN16_ALIGNED(p)	BIG_ENDIAN16(p)
+#define BIG_ENDIAN32_ALIGNED(p)	BIG_ENDIAN32(p)
+#define BIG_ENDIAN64_ALIGNED(p)	BIG_ENDIAN64(p)
+
+#define LITTLE_ENDIAN8_ALIGNED(p)	LITTLE_ENDIAN8(p)
+#define LITTLE_ENDIAN16_ALIGNED(p) 	LITTLE_ENDIAN16(p)
+#define LITTLE_ENDIAN32_ALIGNED(p) 	LITTLE_ENDIAN32(p)
+#define LITTLE_ENDIAN64_ALIGNED(p) 	LITTLE_ENDIAN64(p)
+
+#endif // __STRICT_ALIGNMENT
+
+#define REF_TO_PTR(p) 	((uint8_t *)&(p))
+#define REF2_TO_PTR(p) 	((((uint8_t *)p) + offsetof(typeof(*p), m)))
+
+#define BIG_ENDIAN8_REF(p) 		BIG_ENDIAN8_GET(REF_TO_PTR(p))
+#define BIG_ENDIAN16_REF(p) 	BIG_ENDIAN16_GET(REF_TO_PTR(p))
+#define BIG_ENDIAN32_REF(p) 	BIG_ENDIAN32_GET(REF_TO_PTR(p))
+#define BIG_ENDIAN64_REF(p) 	BIG_ENDIAN64_GET(REF_TO_PTR(p))
+
+#define LITTLE_ENDIAN8_REF(p) 	LITTLE_ENDIAN8_GET(REF_TO_PTR(p))
+#define LITTLE_ENDIAN16_REF(p) 	LITTLE_ENDIAN16_GET(REF_TO_PTR(p))
+#define LITTLE_ENDIAN32_REF(p) 	LITTLE_ENDIAN32_GET(REF_TO_PTR(p))
+#define LITTLE_ENDIAN64_REF(p)	LITTLE_ENDIAN64_GET(REF_TO_PTR(p))
+
+#define BIG_ENDIAN8_REF2(p,m) 	BIG_ENDIAN8_GET(REF2_TO_PTR(p,m))
+#define BIG_ENDIAN16_REF2(p,m) 	BIG_ENDIAN16_GET(REF2_TO_PTR(p,m))
+#define BIG_ENDIAN32_REF2(p,m) 	BIG_ENDIAN32_GET(REF2_TO_PTR(p,m))
+#define BIG_ENDIAN64_REF2(p,m) 	BIG_ENDIAN64_GET(REF2_TO_PTR(p,m))
+
+#define LITTLE_ENDIAN8_REF2(p,m) 	LITTLE_ENDIAN8_GET(REF2_TO_PTR(p,m))
+#define LITTLE_ENDIAN16_REF2(p,m) 	LITTLE_ENDIAN16_GET(REF2_TO_PTR(p,m))
+#define LITTLE_ENDIAN32_REF2(p,m) 	LITTLE_ENDIAN32_GET(REF2_TO_PTR(p,m))
+#define LITTLE_ENDIAN64_REF2(p,m)	LITTLE_ENDIAN64_GET(REF2_TO_PTR(p,m))
 
 #define BIG_ENDIAN8_GET(p) \
 	((uint8_t)p[0])
 
+
 #define BIG_ENDIAN16_GET(p) \
 	(((uint16_t)p[0]) << 8L) | \
 	(((uint16_t)p[1]) << 0L)
+
 
 #define BIG_ENDIAN32_GET(p) \
 	(((uint32_t)p[0]) << 24L) | \
 	(((uint32_t)p[1]) << 16L) | \
 	(((uint32_t)p[2]) << 8L)  | \
 	(((uint32_t)p[3]) << 0L)
+
 
 #define BIG_ENDIAN64_GET(p) \
 	(((uint64_t)p[0]) << 56L) | \
