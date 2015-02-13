@@ -96,19 +96,23 @@ native_dissect_func_t 	field_dissectors      [MAX_ID_COUNT];
 
 const char             	*native_protocol_names[MAX_ID_COUNT];
 
-#define DEBUG
+//#define DEBUG
 #ifdef DEBUG
+
 #ifndef ENTER
 #define ENTER(id, name) debug_enter(name)
 #define EXIT(name) debug_exit(name)
 #define TRACE(msg, frmt...) debug_trace(msg, frmt)
 #define CALL(name)
+
 #endif
+
 #else /* DEBUG */
 #define ENTER(id, name)
 #define EXIT(name)
 #define TRACE(msg, frmt...)
 #define CALL(name)
+
 #endif /* DEBUG */
 
 
@@ -700,7 +704,7 @@ ENTER(SIP_ID, "validate_sip");
 
 		TRACE("validate_sip", "UNMATCHED size=%d sip=%s", size, b);
 #endif 
-		EXIT("validate_sip");
+		EXIT("validate_sip1");
 		return INVALID;
 	}
 
@@ -738,15 +742,13 @@ ENTER(SIP_ID, "validate_sip");
 		TRACE("validate_sip", "#%d INVALID size=%d sip=%s",
 				(int) scan->packet->pkt_frame_num, size, b);
 #endif 
-		EXIT("validate_sip");
+		EXIT("validate_sip2");
 		return SIP_ID;
 	}
 
-	EXIT("validate_sip");
+	EXIT("validate_sip3");
 	return INVALID;
 }
-
-
 
 /*
  * Scan Hyper Text Markup Language header
