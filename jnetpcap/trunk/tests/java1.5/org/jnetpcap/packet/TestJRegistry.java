@@ -328,7 +328,7 @@ public class TestJRegistry extends TestCase {
 	 * @throws RegistryHeaderErrors
 	 *             the registry header errors
 	 */
-	public void testRegistryDump() throws RegistryHeaderErrors {
+	public void AtestRegistryDump() throws RegistryHeaderErrors {
 		JRegistry.register(MyHeader.class);
 
 		JRegistry.lookupId(MyHeader.class);

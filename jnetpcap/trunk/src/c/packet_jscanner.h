@@ -6,6 +6,7 @@
 
 #include <stdint.h>
 
+#include "nio_jbuffer.h"
 #include "export.h"
 #include "org_jnetpcap_packet_JScanner.h"
 #include "org_jnetpcap_packet_JRegistry.h"
@@ -190,9 +191,6 @@ typedef struct scan_t {
 	int flags;
 	int sctp_offset;
 	
-	int stack_index; // # of entries on the stack/Last index
-	scan_stack_t stack[SCAN_STACK_SIZE];
-
 	int hdr_prefix;
 	int hdr_gap;
 	int hdr_payload;
@@ -205,6 +203,10 @@ typedef struct scan_t {
 
 	int dport; // Transport destination port
 	int sport; // Transport source port
+
+	int stack_index; // # of entries on the stack/Last index
+	scan_stack_t stack[SCAN_STACK_SIZE];
+
 } scan_t;
 
 #define SCAN_IS_FRAGMENT(scan) (scan->flags & HEADER_FLAG_FRAGMENTED)

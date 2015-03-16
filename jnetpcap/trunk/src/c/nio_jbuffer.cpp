@@ -126,13 +126,13 @@ JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_nio_JBuffer_getByteArray0
 JNIEXPORT jdouble JNICALL Java_org_jnetpcap_nio_JBuffer_getDouble0
 (JNIEnv *env, jclass clazz, jlong address, jboolean big, jint index) {
 	
-	uint8_t *mem = (uint8_t *)toPtr(address + index);
+	address += index;
 
 	/*
 	 * For efficiency of the endian byte swapping, convert to an atom and use
 	 * a CPU register if possible during conversion.
 	 */
-	 uint64_t data = *(mem);
+	uint64_t data = UINT64_GETA(address);
 	 
 	/*
 	 * We can't just typecast uint64 to a double. The double has to be read
@@ -149,14 +149,14 @@ JNIEXPORT jdouble JNICALL Java_org_jnetpcap_nio_JBuffer_getDouble0
  */
 JNIEXPORT jfloat JNICALL Java_org_jnetpcap_nio_JBuffer_getFloat0
 (JNIEnv *env, jclass clazz, jlong address, jboolean big, jint index) {
-	
-	uint32_t *mem = (uint32_t *)toPtr(address + index);
-	
+
+	address += index;
+
 	/*
 	 * For efficiency of the endian byte swapping, convert to an atom and use
 	 * a CPU register if possible during conversion.
 	 */
-	uint32_t data = *(mem);
+	uint32_t data = UINT64_GETA(address);
 
 	/*
 	 * We can't just typecast uint32 to a float. The float has to be read
@@ -176,19 +176,11 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JBuffer_getInt0
 	
 	address += index;
 
-	if (!IS_INT32_ALIGNED(address)) {
-		uint8_t *p = (uint8_t *)toPtr(address);
-
-		return ENDIAN32_GET_UNALIGNED(big, p);
-	}
-
-	jint *mem = (jint *)toPtr(address);
-
 	/*
 	 * For efficiency of the endian byte swapping, convert to an atom and use
 	 * a CPU register if possible during conversion.
 	 */
-	register jint data = *(mem);
+	register int32_t data = INT32_GETA(address);
 	
 	return ENDIAN32_GET(big, data);
 }
@@ -203,19 +195,11 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JBuffer_getLong0
 	
 	address += index;
 
-	if (!IS_INT64_ALIGNED(address)) {
-		uint8_t *p = (uint8_t *)toPtr(address);
-
-		return ENDIAN64_GET_UNALIGNED(big, p);
-	}
-
-	uint64_t *mem = (uint64_t *)toPtr(address);
-
 	/*
 	 * For efficiency of the endian byte swapping, convert to an atom and use
 	 * a CPU register if possible during conversion.
 	 */
-	register uint64_t data = *(mem);
+	register int64_t data = INT64_GETA(address);
 	
 	return ENDIAN64_GET(big, data);
 }
@@ -230,20 +214,12 @@ JNIEXPORT jshort JNICALL Java_org_jnetpcap_nio_JBuffer_getShort0
 	
 	address += index;
 
-	if (!IS_INT16_ALIGNED(address)) {
-		uint8_t *p = (uint8_t *)toPtr(address);
-
-		return ENDIAN16_GET_UNALIGNED(big, p);
-	}
-
-	jshort *mem = (jshort *)toPtr(address);
-
 	/*
 	 * For efficiency of the endian byte swapping, convert to an atom and use
 	 * a CPU register if possible during conversion.
 	 */
-	register jshort data = *(mem);
-	
+	register uint16_t data = INT16_GETA(address);
+
 	return ENDIAN16_GET(big, data);
 }
 
@@ -277,22 +253,13 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_nio_JBuffer_getUInt0
 	
 	address += index;
 
-	if (!IS_INT32_ALIGNED(address)) {
-		uint8_t *p = (uint8_t *)toPtr(address);
-
-		return ENDIAN32_GET_UNALIGNED(big, p);
-	}
-
-	uint32_t *mem = (uint32_t *)toPtr(address);
-
 	/*
 	 * For efficiency of the endian byte swapping, convert to an atom and use
 	 * a CPU register if possible during conversion.
 	 */
-	register uint32_t data = *(mem);
+	register uint32_t data = UINT32_GETA(address);
 	
 	return (jlong) ENDIAN32_GET(big, data);
-
 }
 
 /*
@@ -305,19 +272,11 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_nio_JBuffer_getUShort0
 	
 	address += index;
 
-	if (!IS_INT16_ALIGNED(address)) {
-		uint8_t *p = (uint8_t *)toPtr(address);
-
-		return ENDIAN16_GET_UNALIGNED(big, p);
-	}
-
-	uint16_t *mem = (uint16_t *)toPtr(address);
-
 	/*
 	 * For efficiency of the endian byte swapping, convert to an atom and use
 	 * a CPU register if possible during conversion.
 	 */
-	register uint16_t data = *(mem);
+	register uint16_t data = UINT16_GETA(address);
 	
 	return (jint) ENDIAN16_GET(big, data);
 }

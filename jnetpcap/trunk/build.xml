@@ -41,8 +41,13 @@
 
 	<!-- Deployable packages and their structure -->
 	<property file="package.properties" />
+	
+	<!-- load the build properties file -->
+	<property file="compiler_${os.arch}.properties" />
+	<property file=".properties" />
 
 	<!-- load the build properties file -->
+	<property file="build_${os.arch}.properties" />
 	<property file="build.properties" />
 
 	<!-- Platform dependent properties -->
@@ -437,7 +442,7 @@
 
 		<echo message="Using WinPcap version ${pcap.version}" />
 		<echo message="compiling JNI C++ files to object code" />
-		<echo message="using ${compiler.cc.cmd} compiler" />
+		<echo message="using ${compiler.cc.cmd} compiler found at ${compiler.cc.bin.dir}" />
 		<echo message="system include = ${java.sdk.include.dir}" />
 		<echo message="path=${env.Path}" />
 		
@@ -770,7 +775,10 @@
 			<defineset define="LIBPCAP_VERSION=0x100" />
 			<defineset define="DEBUG" if="DEBUG" />
 			<defineset define="HPUX" />
-
+			<defineset define="__STRICT_ALIGNMENT" if="compiler.cc.strict.alignment"/>
+			<defineset define="__LITTLE_ENDIAN=1" />
+			<defineset define="__BIG_ENDIAN=2" />
+			<defineset define="__BYTE_ORDER=__BIG_ENDIAN" />
 
 			<linker name="${compiler.ld.cmd}">
 				<syslibset libs="pcap" />
@@ -796,7 +804,9 @@
 			<defineset define="LIBPCAP_VERSION=0x100" />
 			<defineset define="DEBUG" if="DEBUG" />
 			<defineset define="HPUX" />
-
+			<defineset define="__LITTLE_ENDIAN=1" />
+			<defineset define="__BIG_ENDIAN=2" />
+			<defineset define="__BYTE_ORDER=__BIG_ENDIAN" />
 
 			<linker name="${compiler.ld.cmd}">
 				<syslibset libs="pcap" />

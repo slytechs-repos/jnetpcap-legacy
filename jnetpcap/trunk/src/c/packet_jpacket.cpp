@@ -25,6 +25,7 @@
 #endif /*WIN32*/
 
 #include "nio_jmemory.h"
+#include "nio_jbuffer.h"
 #include "packet_jscanner.h"
 #include "jnetpcap_utils.h"
 #include "org_jnetpcap_packet_JPacket_State.h"
@@ -300,9 +301,20 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getFrameNumb
 		return -1;
 	}
 
-	return (jint) packet->pkt_frame_num;
-}
+	printf("getFrameNumber() - aligned=%d, %p/%0X/%0X, offset=%d/%d/%d, sizeof=%d\n",
+			IS_INT64_ALIGNED2(packet, pkt_frame_num),
 
+			packet,
+			REF2_TO_LONG(packet, pkt_frame_num),
+			(uint64_t)(packet) + __builtin_offsetof(typeof(*packet), pkt_frame_num),
+
+			ALIGNMENT_OFFSET2(packet, pkt_frame_num),
+			ALIGNMENT_OFFSET(packet),
+			__builtin_offsetof(typeof(*packet), pkt_frame_num),
+			sizeof(packet_state_t));
+
+	return (jlong) packet->pkt_frame_num;
+}
 
 /*
  * Class:     org_jnetpcap_packet_JPacket_State
