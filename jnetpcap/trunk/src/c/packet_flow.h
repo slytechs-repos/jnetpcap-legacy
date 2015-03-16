@@ -31,9 +31,9 @@ typedef struct flow_key_t {
 #define FLOW_KEY_FLAG_REVERSABLE_PAIRS org_jnetpcap_packet_JFlowKey_FLAG_REVERSABLE
 	uint16_t flags; // flags
 	uint16_t pair_count;  // number of pairs upto FLOW_KEY_PAIR_COUNT
-	uint8_t id[FLOW_KEY_PAIR_COUNT];
 	uint32_t forward_pair[FLOW_KEY_PAIR_COUNT][2];
 	uint32_t reverse_pair[FLOW_KEY_PAIR_COUNT][2];
+	uint8_t id[FLOW_KEY_PAIR_COUNT];
 } flow_key_t;
 
 /**

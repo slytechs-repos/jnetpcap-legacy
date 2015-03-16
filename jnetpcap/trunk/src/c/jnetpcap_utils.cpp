@@ -803,12 +803,16 @@ void cb_jbuffer_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 		const u_char *pkt_data) {
 
+	printf("cb_pcap_packet_dispatch() - ENTER\n"); fflush(stdout);
+
 	cb_packet_t *data = (cb_packet_t *)user;
 
 	JNIEnv *env = data->env;
 
 	jmemoryPeer(env, data->header, pkt_header, sizeof(pcap_pkthdr), data->pcap);
 	jmemoryPeer(env, data->packet, pkt_data, pkt_header->caplen, data->pcap);
+
+	printf("cb_pcap_packet_dispatch() - Java_org_jnetpcap_packet_JScanner_scan\n"); fflush(stdout);
 
 	if (Java_org_jnetpcap_packet_JScanner_scan(
 			env,
@@ -819,6 +823,8 @@ void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 			pkt_header->len) < 0) {
 		return;
 	}
+
+	printf("cb_pcap_packet_dispatch() - transferToNewBuffer\n"); fflush(stdout);
 
 	jobject pcap_packet =
 		transferToNewBuffer(env, pkt_header, pkt_data, data->state);
@@ -831,14 +837,31 @@ void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 		return;
 	}
 
+	printf("cb_pcap_packet_dispatch() - CallVoidMethod\n"); fflush(stdout);
+
+	jobject obj = data->obj;
+	jmethodID mid = data->mid;
+
+	printf("cb_pcap_packet_dispatch() - obj=%p, mid=%p, pcap_packet=%p, user=%p\n",
+			obj,
+			mid,
+			pcap_packet,
+			data->user); fflush(stdout);
+
 	env->CallVoidMethod(
 			data->obj,
 			data->mid,
-//			data->packet,
 			pcap_packet,
 			data->user);
+//			NULL,
+//			NULL);
+
+
+	printf("cb_pcap_packet_dispatch() - DeleteLocalRef\n"); fflush(stdout);
 
 	env->DeleteLocalRef(pcap_packet);
+
+	printf("cb_pcap_packet_dispatch() - ExceptionCheck\n"); fflush(stdout);
 
 	if (env->ExceptionCheck() == JNI_TRUE) {
 		data->exception = env->ExceptionOccurred();
@@ -927,7 +950,7 @@ jobject transferToNewBuffer(
 	
 	memcpy(ptr, pkt_data, pkt_header->caplen);
 	jmemoryPeer(env, pcap_packet, ptr, pkt_header->caplen, jheader);
-	ptr += pkt_header->caplen;
+	ptr += pkt_header->caplen + (pkt_header->caplen % 8);
 
 	memcpy(ptr, packet, state_size);
 	jmemoryPeer(env, jstate, ptr, state_size, jheader);

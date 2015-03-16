@@ -66,7 +66,7 @@ public class BuildTests {
 			suite.addTestSuite(TestPcapPacket.class);
 //			suite.addTestSuite(TestPcapDumper.class);
 			suite.addTestSuite(JHandlerTest.class);
-			suite.addTestSuite(TestJRegistry.class);
+//			suite.addTestSuite(TestJRegistry.class);
 			suite.addTestSuite(TestJScanner.class);
 			suite.addTestSuite(TestPcapUtils.class);
 			suite.addTestSuite(TestSubHeader.class);

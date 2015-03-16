@@ -137,7 +137,6 @@ public class TestPcapPacket
 
 		assertTrue("memory was not reallocated",
 		    packet2.getAllocatedMemorySize() > 10); // Reallocated
-
 	}
 
 	/**
@@ -159,7 +158,6 @@ public class TestPcapPacket
 
 		assertTrue("memory was not reallocated",
 		    packet2.getAllocatedMemorySize() > 10); // Reallocated
-
 	}
 
 	/**
@@ -303,7 +301,6 @@ public class TestPcapPacket
 		    .size());
 
 		// System.out.println(packet2.toString());
-		
 	}
 	
 	public final void testPcapPacketPcapHeaderJBuffer() {
@@ -317,8 +314,7 @@ public class TestPcapPacket
 		assertEquals(packet.getCaptureHeader().size(), packet2.getCaptureHeader()
 		    .size());
 
-		// System.out.println(packet2.toString());
-		
+		// System.out.println(packet2.toString());	
 	}
 	
 	public final void testPcapHeader() {
@@ -332,7 +328,5 @@ public class TestPcapPacket
 		packet.scan(Ethernet.ID);
 		
 		System.out.println(packet);
-		
 	}
-
 }
