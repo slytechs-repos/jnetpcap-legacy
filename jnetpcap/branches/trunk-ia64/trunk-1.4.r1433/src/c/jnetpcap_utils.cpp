@@ -693,7 +693,11 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_PcapUtils_injectLoop
 	return jcnt;
 }
 
+#define JUMBO_FRAME_SIZE (9 * 1024)
 
+#ifndef __STRICT_ALIGNMENT
+#define __STRICT_ALIGNMENT
+#endif
 
 /*
  * Legacy ByteBuffer dispatch function - deprecated.
@@ -704,6 +708,22 @@ void pcap_callback(u_char *user, const pcap_pkthdr *pkt_header,
 	pcap_user_data_t *data = (pcap_user_data_t *)user;
 
 	JNIEnv *env = data->env;
+
+#ifdef __STRICT_ALIGNMENT
+
+	pcap_pkthdr temp;
+	if (!IS_INT64_ALIGNED(pkt_header)) {
+		memcpy(&temp, pkt_header, sizeof(pcap_pkthdr));
+		pkt_header = &temp;
+	}
+
+	u_char buf[JUMBO_FRAME_SIZE];
+	if (!IS_INT64_ALIGNED(pkt_data)) {
+		memcpy(buf, pkt_data, pkt_header->caplen);
+		pkt_data = buf;
+	}
+
+#endif
 
 	/**
 	 * Check for pending exceptions
@@ -747,6 +767,20 @@ void cb_byte_buffer_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 
 	JNIEnv *env = data->env;
 
+#ifdef __STRICT_ALIGNMENT
+	pcap_pkthdr temp;
+	if (!IS_INT64_ALIGNED(pkt_header)) {
+		memcpy(&temp, pkt_header, sizeof(pcap_pkthdr));
+		pkt_header = &temp;
+	}
+
+	u_char buf[JUMBO_FRAME_SIZE];
+	if (!IS_INT64_ALIGNED(pkt_data)) {
+		memcpy(buf, pkt_data, pkt_header->caplen);
+		pkt_data = buf;
+	}
+#endif
+
 	setJMemoryPhysical(env, data->header, toLong((void*)pkt_header));
 
 	jobject buffer = env->NewDirectByteBuffer((void *)pkt_data,
@@ -780,9 +814,22 @@ void cb_jbuffer_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 
 	JNIEnv *env = data->env;
 
+#ifdef __STRICT_ALIGNMENT
+	pcap_pkthdr temp;
+	if (!IS_INT64_ALIGNED(pkt_header)) {
+		memcpy(&temp, pkt_header, sizeof(pcap_pkthdr));
+		pkt_header = &temp;
+	}
+
+	u_char buf[JUMBO_FRAME_SIZE];
+	if (!IS_INT64_ALIGNED(pkt_data)) {
+		memcpy(buf, pkt_data, pkt_header->caplen);
+		pkt_data = buf;
+	}
+#endif
+
 	jmemoryPeer(env, data->header, pkt_header, sizeof(pcap_pkthdr), data->pcap);
 	jmemoryPeer(env, data->buffer, pkt_data, pkt_header->caplen, data->pcap);
-
 
 	env->CallVoidMethod(
 			data->obj,
@@ -806,6 +853,20 @@ void cb_pcap_packet_dispatch(u_char *user, const pcap_pkthdr *pkt_header,
 	cb_packet_t *data = (cb_packet_t *)user;
 
 	JNIEnv *env = data->env;
+
+#ifdef __STRICT_ALIGNMENT
+	pcap_pkthdr temp;
+	if (!IS_INT64_ALIGNED(pkt_header)) {
+		memcpy(&temp, pkt_header, sizeof(pcap_pkthdr));
+		pkt_header = &temp;
+	}
+
+	u_char buf[JUMBO_FRAME_SIZE];
+	if (!IS_INT64_ALIGNED(pkt_data)) {
+		memcpy(buf, pkt_data, pkt_header->caplen);
+		pkt_data = buf;
+	}
+#endif
 
 	jmemoryPeer(env, data->header, pkt_header, sizeof(pcap_pkthdr), data->pcap);
 	jmemoryPeer(env, data->packet, pkt_data, pkt_header->caplen, data->pcap);
@@ -895,6 +956,9 @@ jobject transferToNewBuffer(
 		return NULL;
 	}
 
+	if ((size % 8) != 0) {
+		size += 8 - (size % 8);
+	}
 
 	jobject pcap_packet = env->NewObject(
 			pcapPacketClass,
@@ -928,6 +992,10 @@ jobject transferToNewBuffer(
 	memcpy(ptr, pkt_data, pkt_header->caplen);
 	jmemoryPeer(env, pcap_packet, ptr, pkt_header->caplen, jheader);
 	ptr += pkt_header->caplen;
+
+	if ((((uint64_t)ptr) % 8) != 0) {
+		ptr += 8 - (((uint64_t)ptr) % 8);
+	}
 
 	memcpy(ptr, packet, state_size);
 	jmemoryPeer(env, jstate, ptr, state_size, jheader);

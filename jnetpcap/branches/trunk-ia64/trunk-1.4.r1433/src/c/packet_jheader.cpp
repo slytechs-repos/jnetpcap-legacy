@@ -56,6 +56,7 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getAnalysi
 
 	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
 	if (header == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "header");
 		return NULL;
 	}
 
@@ -72,6 +73,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getId
 
 	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
 	if (header == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "header");
 		return -1;
 	}
 
@@ -88,6 +90,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getOffset
 
 	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
 	if (header == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "header");
 		return -1;
 	}
 
@@ -104,6 +107,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getLength
 
 	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
 	if (header == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "header");
 		return -1;
 	}
 
@@ -121,6 +125,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getPrefix
 
 	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
 	if (header == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "header");
 		return -1;
 	}
 	
@@ -137,6 +142,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getGap
 
 	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
 	if (header == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "header");
 		return -1;
 	}
 	
@@ -153,6 +159,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getPayload
 
 	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
 	if (header == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "header");
 		return -1;
 	}
 	
@@ -169,6 +176,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getPostfix
 
 	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
 	if (header == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "header");
 		return -1;
 	}
 	
@@ -185,9 +193,10 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JHeader_00024State_getFlags
 
 	header_t *header = (header_t *)getJMemoryPhysical(env, obj);
 	if (header == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "header");
 		return -1;
 	}
-	
+
 	return (jint)header->hdr_flags;
 }
 

@@ -143,6 +143,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_findHeaderInd
 	
 	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
 	if (packet == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "packet");
 		return -1;
 	}
 	
@@ -159,6 +160,7 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_packet_JPacket_00024State_get64BitHead
 	
 	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
 	if (packet == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "packet");
 		return -1;
 	}
 
@@ -175,6 +177,7 @@ JNIEXPORT jobject JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getAnalysi
   (JNIEnv *env, jobject obj) {
 	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
 	if (packet == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "packet");
 		return NULL;
 	}
 
@@ -192,8 +195,16 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getHeaderCoun
 	
 	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
 	if (packet == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "packet");
 		return -1;
 	}
+
+//	printf("getHeaderCount(): packet@%p%%8=%d, pkt_header_count%8=%d, sizeof(pkt_header_count)=%d\n",
+//			packet,
+//			((uint64_t) packet) % 8,
+//			((uint64_t) &packet->pkt_header_count) % 8,
+//			sizeof(packet->pkt_header_count));
+//	fflush(stdout);
 
 	return (jint) packet->pkt_header_count;
 
@@ -209,9 +220,18 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getInstanceCo
 	
 	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
 	if (packet == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "packet");
 		return -1;
 	}
 	
+//	printf("getInstanceCount(): packet@%p%%8=%d, pkt_header_count%8=%d, sizeof(pkt_header_count)=%d\n",
+//			packet,
+//			((uint64_t) packet) % 8,
+//			((uint64_t) &packet->pkt_header_count) % 8,
+//			sizeof(packet->pkt_header_count));
+//	fflush(stdout);
+
+
 	int count = 0;
 	for (int i = 0; i < packet->pkt_header_count; i ++) {
 		if (packet->pkt_headers[i].hdr_id == id) {
@@ -232,6 +252,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getFlags
 
 	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
 	if (packet == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "packet");
 		return -1;
 	}
 	
@@ -248,6 +269,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JPacket_00024State_setFlags
 	
 	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
 	if (packet == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "packet");
 		return;
 	}
 	
@@ -264,6 +286,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getWirelen
 	
 	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
 	if (packet == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "packet");
 		return -1;
 	}
 	
@@ -280,6 +303,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_packet_JPacket_00024State_setWirelen
 	
 	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
 	if (packet == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "packet");
 		return;
 	}
 	
@@ -297,6 +321,7 @@ JNIEXPORT jlong JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getFrameNumb
   (JNIEnv *env, jobject obj) {
 	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
 	if (packet == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "packet");
 		return -1;
 	}
 
@@ -314,6 +339,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getHeaderIdBy
 	
 	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
 	if (packet == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "packet");
 		return -1;
 	}
 	
@@ -344,6 +370,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getHeaderLeng
 	
 	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
 	if (packet == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "packet");
 		return -1;
 	}
 	
@@ -365,6 +392,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_getHeaderOffs
 	
 	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
 	if (packet == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "packet");
 		return -1;
 	}
 	
@@ -386,6 +414,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_peerHeaderByI
 	
 	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
 	if (packet == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "packet");
 		return -1;
 	}
 	
@@ -411,6 +440,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_packet_JPacket_00024State_peerHeaderByI
 	
 	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
 	if (packet == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "packet");
 		return -1;
 	}
 	
@@ -447,9 +477,15 @@ JNIEXPORT jstring JNICALL Java_org_jnetpcap_packet_JPacket_00024State_toDebugStr
 	
 	packet_state_t *packet = (packet_state_t *)getJMemoryPhysical(env, obj);
 	if (packet == NULL) {
+		throwException(env, NULL_PTR_EXCEPTION, "packet");
 		return NULL;
 	}
 	
+//	printf("toDebugStringJPacketState(): packet@%p%%8=%d\n",
+//			packet,
+//			((uint64_t) packet) % 8);
+//	fflush(stdout);
+
 	int fr = packet->pkt_frame_num;
 	
 	sprintf(buf, 

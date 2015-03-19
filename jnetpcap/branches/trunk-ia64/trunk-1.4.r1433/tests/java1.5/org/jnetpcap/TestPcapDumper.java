@@ -71,7 +71,7 @@ public class TestPcapDumper extends TestCase {
 	}
 	
 	private void checkFileSize(int size) {
-		TestCase.assertEquals(size, (int)file.length());
+		TestCase.assertEquals(size, (int)dumper.ftell());
 	}
 	
 	private void checkFileSize() {

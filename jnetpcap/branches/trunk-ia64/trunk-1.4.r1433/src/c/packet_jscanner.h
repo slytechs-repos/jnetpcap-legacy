@@ -138,13 +138,13 @@ extern char str_buf[1024];
  */
 typedef struct dissect_t {
 	JNIEnv *env;
-	
+
 	packet_state_t 	*d_packet;
 	header_t 		*d_header;
 	scanner_t 		*d_scanner;
-	
+
 	uint8_t			*d_buf;
-	int   			d_buf_len;  
+	int   			d_buf_len;
 	int 			d_offset;
 } dissect_t;
 
@@ -154,7 +154,7 @@ typedef struct scan_stack_ {
 	int next_id;
 	int offset;
 
-} scan_stack_t;
+} __attribute__ ((aligned)) scan_stack_t;
 
 
 /*
@@ -172,16 +172,17 @@ typedef struct scan_stack_ {
  *    needs to decode.
  */
 typedef struct scan_t {
+	scan_stack_t stack[SCAN_STACK_SIZE];
 	JNIEnv *env;
 	jobject jscanner;
 	jobject jpacket;
 	jobject jscan; // This structure as a java object
 	scanner_t *scanner;
-	
+
 	packet_state_t *packet;
 	header_t *header;
 	char *buf;
-	int   buf_len;  
+	int   buf_len;
 	int   wire_len;
 	int   mem_len;
 	int offset;
@@ -190,14 +191,14 @@ typedef struct scan_t {
 	int next_id;
 	int flags;
 	int sctp_offset;
-	
+
 	int hdr_prefix;
 	int hdr_gap;
 	int hdr_payload;
 	int hdr_postfix;
 	int hdr_flags;
 	int is_recorded;
-	
+
 	int hdr_count;
 	int hdr_index;
 
@@ -205,9 +206,8 @@ typedef struct scan_t {
 	int sport; // Transport source port
 
 	int stack_index; // # of entries on the stack/Last index
-	scan_stack_t stack[SCAN_STACK_SIZE];
 
-} scan_t;
+} __attribute__ ((aligned)) scan_t;
 
 #define SCAN_IS_FRAGMENT(scan) (scan->flags & HEADER_FLAG_FRAGMENTED)
 #define SCAN_IGNORE_BOUNDS(scan) (scan->flags & HEADER_FLAG_IGNORE_BOUNDS)
@@ -252,21 +252,23 @@ typedef struct scan_t {
  * represented here for future compatibility.
  */
 typedef struct header_t {
-	uint8_t  hdr_id;         // header ID
-	
-	uint8_t  hdr_prefix;     // length of the prefix (preamble) before the header 
-	uint8_t  hdr_gap;        // length of the gap between header and payload
-	uint16_t  hdr_flags;      // flags for this header
-	uint16_t hdr_postfix;    // length of the postfix (trailer) after the payload
+	jobject  hdr_analysis;   // Java JAnalysis based object if not null
+	header_t  *hdr_subheader;   // Index of the first subheader in packet_t
+
 	uint32_t hdr_offset;     // offset into the packet_t->data buffer
 	uint32_t hdr_length;     // length of the header in packet_t->data buffer
 	uint32_t hdr_payload;    // length of the payload
-	
+
+	uint16_t  hdr_flags;      // flags for this header
+	uint16_t hdr_postfix;    // length of the postfix (trailer) after the payload
+
 	uint8_t	  hdr_subcount;	 // number of sub-headers
-	header_t  *hdr_subheader;   // Index of the first subheader in packet_t
-	
-	jobject  hdr_analysis;   // Java JAnalysis based object if not null
-} header_t;
+	uint8_t  hdr_id;         // header ID
+
+	uint8_t  hdr_prefix;     // length of the prefix (preamble) before the header
+	uint8_t  hdr_gap;        // length of the gap between header and payload
+
+} __attribute__ ((aligned)) header_t;
 
 #define ID2MAP(id) (id >> 5)
 #define MASK2MAP(m) (map >> 32)
@@ -276,34 +278,22 @@ typedef struct header_t {
 #define PACKET_STATE_HAS_HEADER(pkt, id) (pkt->pkt_header_map[ID2MAP(id)] & ID2MAP(id) != 0)
 
 typedef struct packet_state_t {
+	uint64_t pkt_header_map[MAX_MAP_COUNT]; // bit map of presence of headers
+	header_t pkt_headers[8];  // One per header + 1 more for payload
+	header_t pkt_subheaders[8];  // One per header + 1 more for payload
 	flow_key_t pkt_flow_key; // Flow key calculated for this packet, must be first
-	uint8_t pkt_flags;       // flags for this packet
 	jobject pkt_analysis;    // Java JAnalysis based object if not null
 	uint64_t pkt_frame_num;  // Packet's frame number assigned by scanner
-	uint64_t pkt_header_map[MAX_MAP_COUNT]; // bit map of presence of headers
-	
+
 	uint32_t pkt_wirelen;    // Original packet size
 	uint32_t pkt_caplen;    // Original packet size
 
+	uint8_t pkt_flags;       // flags for this packet
 	int8_t pkt_header_count; // total number of main headers found
-	header_t pkt_headers[];  // One per header + 1 more for payload
-	
 	int8_t pkt_subheader_count;  // total number of sub headers found
-	header_t pkt_subheaders[];  // One per header + 1 more for payload
-} packet_state_t;
+} __attribute__ ((aligned)) packet_state_t;
 
 typedef struct scanner_t {
-	int32_t sc_len; // bytes allocated for sc_packets buffer
-	
-	uint64_t sc_cur_frame_num; // Current frame number
-
-	uint32_t sc_flags[MAX_ID_COUNT]; // protocol flags
-//	uint64_t sc_native_header_scanner_map;  // java binding map
-	
-	jobject sc_jscan; // Java JScan structure for interacting with java space
-
-	jobject sc_java_header_scanners[MAX_ID_COUNT]; // java scanners
-	
 	/*
 	 * A per scanner instance table that can be populated with native and
 	 * java scanners at the same time.
@@ -311,22 +301,32 @@ typedef struct scanner_t {
 	native_protocol_func_t sc_scan_table[MAX_ID_COUNT];
 	native_validate_func_t sc_heuristics_table[MAX_ID_COUNT][MAX_ID_COUNT]; // Huristic
 
-	
-	/* Packet and main header ring-buffer */
-	int			 	sc_offset; // offset into sc_packets for next packet
-	packet_state_t *sc_packet; 	// ptr into scanner_t where the first packet begins
-	
-	/* Sub-header ring buffer */
-	int			sc_sublen;		// Length of the sub-header ring-buffer
-	int 		sc_subindex; 	// sub-header offset
 	header_t 	*sc_subheader; // ptr where first sub-headers begin
-	
-	int			sc_heap_len;
-	int			sc_heap_offset;
+	jobject sc_jscan; // Java JScan structure for interacting with java space
+	jobject sc_java_header_scanners[MAX_ID_COUNT]; // java scanners
 	jobject		sc_heap_owner;
+
+	uint64_t sc_cur_frame_num; // Current frame number
+	int32_t sc_len; // bytes allocated for sc_packets buffer
+
+
+	uint32_t sc_flags[MAX_ID_COUNT]; // protocol flags
+//	uint64_t sc_native_header_scanner_map;  // java binding map
+
+
+	/* Packet and main header ring-buffer */
+	int32_t			 	sc_offset; // offset into sc_packets for next packet
+	packet_state_t *sc_packet; 	// ptr into scanner_t where the first packet begins
+
+	/* Sub-header ring buffer */
+	int32_t			sc_sublen;		// Length of the sub-header ring-buffer
+	int32_t 		sc_subindex; 	// sub-header offset
+
+	int32_t			sc_heap_len;
+	int32_t			sc_heap_offset;
 	uint8_t		*sc_heap;
-	
-} scanner_t;
+
+} __attribute__ ((aligned)) scanner_t;
 
 
 

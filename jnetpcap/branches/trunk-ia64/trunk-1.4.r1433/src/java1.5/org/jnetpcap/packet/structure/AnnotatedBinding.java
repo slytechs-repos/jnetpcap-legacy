@@ -308,23 +308,37 @@ public class AnnotatedBinding implements JBinding {
 		/*
 		 * Bug fix#133 Wrong assumption about multiplicity of headers
 		 */
-		final JHeader header = headerPool.get();
-		
+		JHeader header = headerPool.get();
+
 		/*
 		 * How many header instances are in there?
 		 */
 		final int count = packet.getState().getInstanceCount(header.getId());
+//		System.out.printf("AnnotatedBinding.isBound() count=%d%n", count);
 
 		if (count == 1) {
-			packet.getHeader(header);
+			header = packet.getHeader(header);
+			assert header != null : "heading binding failed: id=" + sourceId;
+			
 		} else { // More then 1, find which instance
-			for (int i = 0; i < count; i ++) {
-				packet.getHeader(header, i);
+			for (int i = 0; i < count; i++) {
+				header = packet.getHeader(header, i);
 				if (header.getPayloadOffset() == offset) {
 					break;
 				}
 			}
 		}
+
+//		System.out
+//				.printf("AnnotatedBinding.isBound() header.getFlags()=%08X%n",
+//						header.getState().getFlags());
+//
+//		System.out.printf("AnnotatedBinding.isBound() isHeaderTruncated=%s%n",
+//				header.isHeaderTruncated());
+//
+//		System.out.printf("AnnotatedBinding.isBound() isBound=%s%n",
+//				annotatedBound.isBound(packet, offset, header));
+//		System.out.flush();
 
 		return header.isHeaderTruncated() == false
 				&& annotatedBound.isBound(packet, offset, header);
