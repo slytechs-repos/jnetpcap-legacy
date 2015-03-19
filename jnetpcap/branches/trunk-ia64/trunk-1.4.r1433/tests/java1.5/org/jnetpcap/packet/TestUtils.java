@@ -60,6 +60,7 @@ import org.jnetpcap.PcapHeader;
 import org.jnetpcap.PcapIf;
 import org.jnetpcap.PcapTask;
 import org.jnetpcap.nio.JBuffer;
+import org.jnetpcap.nio.JMemory;
 import org.jnetpcap.protocol.JProtocol;
 
 // TODO: Auto-generated Javadoc
@@ -598,7 +599,7 @@ public class TestUtils extends TestCase {
 			size += new File(f).length();
 		}
 
-		return size;
+		return size * 2;
 
 	}
 

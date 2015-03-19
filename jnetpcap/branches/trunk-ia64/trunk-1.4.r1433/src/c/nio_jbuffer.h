@@ -94,16 +94,16 @@ typedef uint64_t nio_uint_ptr;
 #define REF2_TO_LONG(p,m) 	(TO_LONG(p) + __builtin_offsetof(typeof(*p), m))
 
 #define IS_INT8_ALIGNED(p)		(TRUE)
-#define IS_INT16_ALIGNED(p)		((TO_LONG(p) & 0x0001) == 0)
-#define IS_INT32_ALIGNED(p)		((TO_LONG(p) & 0x0003) == 0)
-#define IS_INT64_ALIGNED(p)		((TO_LONG(p) & 0x0007) == 0)
-#define IS_INT128_ALIGNED(p)	((TO_LONG(p) & 0x000F) == 0)
-#define IS_INT256_ALIGNED(p)	((TO_LONG(p) & 0x001F) == 0)
-#define IS_INT512_ALIGNED(p)	((TO_LONG(p) & 0x003F) == 0)
-#define IS_INT1024_ALIGNED(p)	((TO_LONG(p) & 0x007F) == 0)
-#define IS_INT2048_ALIGNED(p)	((TO_LONG(p) & 0x00FF) == 0)
-#define IS_INT4096_ALIGNED(p)	((TO_LONG(p) & 0x01FF) == 0)
-#define IS_INT9182_ALIGNED(p)	((TO_LONG(p) & 0x03FF) == 0)
+#define IS_INT16_ALIGNED(p)		((TO_LONG(p) & 0x0003) == 0)
+#define IS_INT32_ALIGNED(p)		((TO_LONG(p) & 0x0007) == 0)
+#define IS_INT64_ALIGNED(p)		((TO_LONG(p) & 0x000F) == 0)
+#define IS_INT128_ALIGNED(p)	((TO_LONG(p) & 0x001F) == 0)
+#define IS_INT256_ALIGNED(p)	((TO_LONG(p) & 0x003F) == 0)
+#define IS_INT512_ALIGNED(p)	((TO_LONG(p) & 0x007F) == 0)
+#define IS_INT1024_ALIGNED(p)	((TO_LONG(p) & 0x00FF) == 0)
+#define IS_INT2048_ALIGNED(p)	((TO_LONG(p) & 0x01FF) == 0)
+#define IS_INT4096_ALIGNED(p)	((TO_LONG(p) & 0x03FF) == 0)
+#define IS_INT9182_ALIGNED(p)	((TO_LONG(p) & 0x07FF) == 0)
 
 #define IS_INT8_ALIGNED2(p,m)		(TRUE)
 #define IS_INT16_ALIGNED2(p,m)		((TO_LONG(REF2_TO_PTR(p,m)) & 0x0001) == 0)
@@ -162,10 +162,17 @@ typedef uint64_t nio_uint_ptr;
 #define BIG_ENDIAN8_GET(p) \
 	((uint8_t)((uint8_t *)p)[0])
 
+#define BIG_ENDIAN8_SET(p,v) \
+	(((uint8_t *)p)[0] = ((v >> 0L) & 0xFF))
+
 
 #define BIG_ENDIAN16_GET(p) \
 	(((uint16_t)((uint8_t *)p)[0]) << 8L) | \
 	(((uint16_t)((uint8_t *)p)[1]) << 0L)
+
+#define BIG_ENDIAN16_SET(p,v) \
+	(((uint8_t *)p)[0] = ((v >> 8L) & 0xFF)) ; \
+	(((uint8_t *)p)[1] = ((v >> 0L) & 0xFF))
 
 
 #define BIG_ENDIAN32_GET(p) \
@@ -173,6 +180,12 @@ typedef uint64_t nio_uint_ptr;
 	(((uint32_t)((uint8_t *)p)[1]) << 16L) | \
 	(((uint32_t)((uint8_t *)p)[2]) << 8L)  | \
 	(((uint32_t)((uint8_t *)p)[3]) << 0L)
+
+#define BIG_ENDIAN32_SET(p,v) \
+		(((uint8_t *)p)[0] = ((v >> 24L) & 0xFF)); \
+		(((uint8_t *)p)[1] = ((v >> 16L) & 0xFF)); \
+		(((uint8_t *)p)[2] = ((v >> 8L) & 0xFF)); \
+		(((uint8_t *)p)[3] = ((v >> 0L) & 0xFF))
 
 
 #define BIG_ENDIAN64_GET(p) \
@@ -184,6 +197,17 @@ typedef uint64_t nio_uint_ptr;
 	(((uint64_t)((uint8_t *)p)[5]) << 16L) | \
 	(((uint64_t)((uint8_t *)p)[6]) << 8L)  | \
 	(((uint64_t)((uint8_t *)p)[7]) << 0L)
+
+#define BIG_ENDIAN64_SET(p,v) \
+		(((uint8_t *)p)[0] = ((v >> 56L) & 0xFF)) ; \
+		(((uint8_t *)p)[1] = ((v >> 48L) & 0xFF)) ; \
+		(((uint8_t *)p)[2] = ((v >> 40L) & 0xFF)) ; \
+		(((uint8_t *)p)[3] = ((v >> 32L) & 0xFF)) ; \
+		(((uint8_t *)p)[4] = ((v >> 24L) & 0xFF)) ; \
+		(((uint8_t *)p)[5] = ((v >> 16L) & 0xFF)) ; \
+		(((uint8_t *)p)[6] = ((v >> 8L) & 0xFF)) ; \
+		(((uint8_t *)p)[7] = ((v >> 0L) & 0xFF))
+
 
 #define LITTLE_ENDIAN8_GET(p) \
 	((uint8_t)((uint8_t *)p)[0])
@@ -221,6 +245,11 @@ typedef uint64_t nio_uint_ptr;
 #define NATIVE_ENDIAN16_GET(p)	BIG_ENDIAN16_GET(p)
 #define NATIVE_ENDIAN32_GET(p)	BIG_ENDIAN32_GET(p)
 #define NATIVE_ENDIAN64_GET(p)	BIG_ENDIAN64_GET(p)
+
+#define NATIVE_ENDIAN8_SET(p,v)	BIG_ENDIAN8_SET(p,v)
+#define NATIVE_ENDIAN16_SET(p,v)	BIG_ENDIAN16_SET(p,v)
+#define NATIVE_ENDIAN32_SET(p,v)	BIG_ENDIAN32_SET(p,v)
+#define NATIVE_ENDIAN64_SET(p,v)	BIG_ENDIAN64_SET(p,v)
 
 #endif
 
@@ -340,6 +369,11 @@ typedef uint64_t nio_uint_ptr;
 #define UINT16_GET(p) (*(uint16_t *)p)
 #define UINT32_GET(p) (*(uint32_t *)p)
 #define UINT64_GET(p) (*(uint64_t *)p)
+
+#define UINT8_SET(p,v) ((*(uint8_t *)p) = v)
+#define UINT16_SET(p,v) ((*(uint16_t *)p) = v)
+#define UINT32_SET(p,v) ((*(uint32_t *)p) = v)
+#define UINT64_SET(p,v) ((*(uint64_t *)p) = v)
 
 #define INT8_GETA(a) (*TO_PTR_INT8(a))
 #define INT16_GETA(a) (*TO_PTR_INT16(a))

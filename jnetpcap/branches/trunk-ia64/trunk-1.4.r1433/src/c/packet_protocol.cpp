@@ -1211,10 +1211,18 @@ void scan_ip6(scan_t *scan) {
 	}
 
 	ip6_t *ip = (ip6_t *)(scan->buf + scan->offset);
+//	printf("scan_ip6() scan->buf@%p%%8=%ld, ip@%p%%8=%ld, scan->offset=%d\n",
+//			scan->buf, ((uint64_t)scan->buf) % 8,
+//			ip, ((uint64_t)ip) % 8,
+//			scan->offset
+//			);
+//	fflush(stdout);
+
 	scan->length = IP6_STRUCT_LENGTH;
 	scan->hdr_payload = IP6_GET_PLEN(ip);
 	uint8_t *buf = (uint8_t *)(scan->buf + scan->offset + sizeof(ip6_t));
 
+//	printf("scan_ip6() - is_accessible()\n"); fflush(stdout);
 	if(is_accessible(scan, 40) == FALSE) {
 		return;
 	}
@@ -1224,6 +1232,7 @@ void scan_ip6(scan_t *scan) {
 	 * 802.3 frames already contain data-length field so no need to rely on
 	 * IP.
 	 */
+//	printf("scan_ip6() - adjust trailer\n"); fflush(stdout);
 	if (scan->hdr_count > 1 && (eth = scan->header -1)->hdr_id == ETHERNET_ID) {
 		int postfix = (scan->buf_len - scan->offset - IP6_GET_PLEN(ip)
 				- IP6_STRUCT_LENGTH);
@@ -1241,6 +1250,7 @@ void scan_ip6(scan_t *scan) {
 	 * First, we check if Ip6 has already been set by looking in the
 	 * flow_key_t and checking if it has been previously been processed
 	 */
+//	printf("scan_ip6() - flow key\n"); fflush(stdout);
 	if ((scan->packet->pkt_flow_key.header_map & (1L << IP6_ID)) == 0) {
 		scan->packet->pkt_flow_key.header_map |= (1L << IP6_ID);
 
@@ -1253,24 +1263,32 @@ void scan_ip6(scan_t *scan) {
 		register uint32_t t;
 		scan->packet->pkt_flow_key.pair_count = 2;
 
-		t = *(uint32_t *)&ip->ip6_src[0] ^
-			*(uint32_t *)&ip->ip6_src[4] ^
-			*(uint32_t *)&ip->ip6_src[8] ^
-			*(uint32_t *)&ip->ip6_src[12];
+//		printf("scan_ip6() - flow key: ip6_src@%p%%8=%d\n",
+//				ip->ip6_src, ((uint64_t)ip->ip6_src) % 8
+//				); fflush(stdout);
+
+#define _IP6_U32(p)	BIG_ENDIAN32_GET(p)
+		t = _IP6_U32(&ip->ip6_src[0]) ^
+			_IP6_U32(&ip->ip6_src[4]) ^
+			_IP6_U32(&ip->ip6_src[8]) ^
+			_IP6_U32(&ip->ip6_src[12]);
 		scan->packet->pkt_flow_key.forward_pair[0][0] = t;
 
-		t = *(uint32_t *)&ip->ip6_dst[0] ^
-			*(uint32_t *)&ip->ip6_dst[4] ^
-			*(uint32_t *)&ip->ip6_dst[8] ^
-			*(uint32_t *)&ip->ip6_dst[12];
+//		printf("scan_ip6() - flow key: ip6_dst\n"); fflush(stdout);
+		t = _IP6_U32(&ip->ip6_dst[0]) ^
+			_IP6_U32(&ip->ip6_dst[4]) ^
+			_IP6_U32(&ip->ip6_dst[8]) ^
+			_IP6_U32(&ip->ip6_dst[12]);
 		scan->packet->pkt_flow_key.forward_pair[0][1] = t;
 
+//		printf("scan_ip6() - flow key: IP6_GET_NXT()\n"); fflush(stdout);
 		scan->packet->pkt_flow_key.forward_pair[1][0] = IP6_GET_NXT(ip);
 		scan->packet->pkt_flow_key.forward_pair[1][1] = IP6_GET_NXT(ip);
 
 		scan->packet->pkt_flow_key.id[0] = IP6_ID;
 		scan->packet->pkt_flow_key.id[1] = IP6_ID;
 	}
+//	printf("scan_ip6() - IP6_GET_NXT()\n"); fflush(stdout);
 
 	int type = IP6_GET_NXT(ip);
 	int len;
@@ -1284,6 +1302,7 @@ void scan_ip6(scan_t *scan) {
 #endif
 
 again:
+//printf("scan_ip6() - switch(type)\n"); fflush(stdout);
 	switch (type) {
 	case 1: scan->next_id = validate_next(ICMP_ID, scan); break;
 	case 4: scan->next_id = validate_next(IP4_ID, scan);  break;
@@ -1574,7 +1593,11 @@ void scan_802dot3(scan_t *scan) {
 		return;
 	}
 
- 	if (ETHERNET_GET_TYPE(eth) >= PROTO_802_3_MAX_LEN) { // We have an Ethernet frame
+	int type = ETHERNET_GET_TYPE(eth);
+	TRACE("scan_802dot3", "eth.len=0x%X(%d), PROTO_802_3_MAX_LEN=0x%X(%d)\n",
+			ETHERNET_GET_TYPE(eth), ETHERNET_GET_TYPE(eth),
+			PROTO_802_3_MAX_LEN, PROTO_802_3_MAX_LEN);
+ 	if (type >= PROTO_802_3_MAX_LEN) { // We have an Ethernet frame
  		scan_ethernet(scan);
 		return;
 
@@ -1582,7 +1605,7 @@ void scan_802dot3(scan_t *scan) {
 		scan->next_id = validate_next(IEEE_802DOT2_ID, scan); // LLC v2
 	}
 
- 	int frame_len = ETHERNET_GET_TYPE(eth);
+ 	int frame_len = type;
  	scan->hdr_payload = frame_len - PROTO_ETHERNET_HEADER_LENGTH;
  	scan->hdr_postfix = scan->buf_len - frame_len;
 
@@ -1649,7 +1672,7 @@ void scan_ethernet(scan_t *scan) {
 
 	int type = ETHERNET_GET_TYPE(eth);
 
-	TRACE("scan_ethernet", "eth.type=0x%X\n", type);
+	TRACE("scan_ethernet", "eth.type=0x%X(%d)\n", type, type);
 
 	/*
 	 * Set the flow key pair for Ethernet.

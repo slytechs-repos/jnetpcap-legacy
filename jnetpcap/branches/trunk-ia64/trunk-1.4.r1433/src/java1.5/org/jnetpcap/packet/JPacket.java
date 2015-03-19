@@ -739,7 +739,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 	 */
 	public JPacket(int size, int state) {
 		super(Type.POINTER);
-		
+
 		order(ByteOrder.BIG_ENDIAN);
 
 		allocate(size + state);
@@ -986,7 +986,7 @@ public abstract class JPacket extends JBuffer implements JHeaderAccessor,
 
 		JHeader.State hstate = header.getState();
 		this.state.peerHeaderByIndex(index, hstate);
-		
+
 		final int offset = hstate.getOffset();
 		final int length = hstate.getLength();
 

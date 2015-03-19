@@ -638,8 +638,13 @@ int scanJPacket(JNIEnv *env, jobject obj, jobject jpacket, jobject jstate,
 		scanner->sc_offset = 0;
 	}
 
+	if ((scanner->sc_offset % 8) != 0) {
+		scanner->sc_offset = 8 - (scanner->sc_offset % 8);
+	}
+
 	packet_state_t *packet = (packet_state_t *) (((char *) scanner->sc_packet)
 			+ scanner->sc_offset);
+
 
 	/*
 	 * Peer JPacket.state to packet_state_t structure
@@ -672,6 +677,11 @@ int scanJPacket(JNIEnv *env, jobject obj, jobject jpacket, jobject jstate,
 	debug_trace("before scan", "buf_len=%d wire_len=%d", buf_length, wirelen);
 #endif
 
+//	printf("scanJPacket(%d)#1: packet@%p%%8=%d\n",
+//			scanner->sc_cur_frame_num,
+//			packet, ((uint64_t)packet) % 8);
+//	fflush(stdout);
+
 	scan(env, obj, jpacket, scanner, packet, first_id, buf, buf_length, wirelen);
 
 #ifdef DEBUG
@@ -682,8 +692,16 @@ int scanJPacket(JNIEnv *env, jobject obj, jobject jpacket, jobject jstate,
 			* packet->pkt_header_count);
 
 	scanner->sc_offset += len;
+	if ((scanner->sc_offset % 8) != 0) {
+		scanner->sc_offset = 8 - (scanner->sc_offset % 8);
+	}
 
 	jmemoryResize(env, jstate, len);
+
+	packet = (packet_state_t *)getJMemoryPhysical(env, jstate);
+
+//	printf("scanJPacket()#2: packet@%p%%8=%d\n", packet, ((uint64_t)packet) % 8);
+//	fflush(stdout);
 
 #ifdef DEBUG
 	debug_exit("scanJPacket");

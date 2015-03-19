@@ -372,8 +372,15 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setInt0
 	address += index;
 
 	uint32_t *mem = (uint32_t *)toPtr(address);
+
+	register jint temp = (jint) jval;
+	temp = ENDIAN32_GET(big, temp);
 	
-	*(mem) = ENDIAN32_GET(big, jval);
+#ifdef __STRICT_ALIGNMENT
+	NATIVE_ENDIAN32_SET(mem, temp);
+#else
+	*mem = temp;
+#endif
 }
 
 /*
@@ -388,7 +395,14 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setLong0
 
 	uint64_t *mem = (uint64_t *)toPtr(address);
 	
-	*(mem) = ENDIAN64_GET(big, jval);
+	register jlong temp = (jlong) jval;
+	temp = ENDIAN64_GET(big, temp);
+
+#ifdef __STRICT_ALIGNMENT
+	NATIVE_ENDIAN64_SET(mem, temp);
+#else
+	*mem = temp;
+#endif
 }
 
 /*
@@ -401,7 +415,14 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setShort0
 	
 	uint16_t *mem = (uint16_t *)toPtr(address + index);
 	
-	*(mem) = ENDIAN16_GET(big, jval);
+	register jshort temp = (jshort) jval;
+	temp = ENDIAN16_GET(big, temp);
+
+#ifdef __STRICT_ALIGNMENT
+	NATIVE_ENDIAN16_SET(mem, temp);
+#else
+	*mem = temp;
+#endif
 }
 
 /*
@@ -428,8 +449,14 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setUInt0
 	uint32_t *mem = (uint32_t *)toPtr(address + index);
 	
 	register jint temp = (jint) jval;
-	
-	*(mem) = ENDIAN32_GET(big, temp);
+	temp = ENDIAN32_GET(big, temp);
+
+#ifdef __STRICT_ALIGNMENT
+	NATIVE_ENDIAN32_SET(mem, temp);
+#else
+	*mem = temp;
+#endif
+
 }
 
 /*
@@ -443,8 +470,13 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_nio_JBuffer_setUShort0
 	uint16_t *mem = (uint16_t *)toPtr(address + index);
 	
 	register jshort temp = (jshort) jval;
+	temp = ENDIAN16_GET(big, temp);
 	
-	*(mem) = ENDIAN16_GET(big, temp);
+#ifdef __STRICT_ALIGNMENT
+	NATIVE_ENDIAN16_SET(mem, temp);
+#else
+	*mem = temp;
+#endif
 }
 
 

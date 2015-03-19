@@ -181,6 +181,7 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_PcapDumper_dump1
 	b += position;
 
 	pcap_dump((u_char *)d, &hdr, b);
+//	pcap_dump_flush(d);
 }
 
 /*
@@ -240,17 +241,18 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_PcapDumper_dump2
 EXTERN jlong JNICALL Java_org_jnetpcap_PcapDumper_ftell
 (JNIEnv *env, jobject obj) {
 
-#ifdef WIN32
+//#ifdef WIN32
 	pcap_dumper_t *d = getPcapDumper(env, obj);
 	if (d == NULL) {
 		return -1; // Exception already thrown
 	}
 
+	pcap_dump_flush(d);
 	return (jlong) pcap_dump_ftell(d);
-#else
-	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, NULL);
-	return -1;
-#endif
+//#else
+//	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, NULL);
+//	return -1;
+//#endif
 }
 
 /*
@@ -282,6 +284,7 @@ EXTERN void JNICALL Java_org_jnetpcap_PcapDumper_close
 		return; // Exception already thrown
 	}
 
+	pcap_dump_flush(d);
 	pcap_dump_close(d);
 
 	setPcapDumper(env, obj, NULL);

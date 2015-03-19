@@ -90,11 +90,13 @@ public class JPcapRecordBuffer extends JBuffer implements JPcapRecordIterable {
 	 * Append.
 	 * 
 	 * @param header
-	 *          the header
+	 *          the header 
 	 * @param packet
 	 *          the packet
 	 */
 	public void append(PcapHeader header, JBuffer packet) {
+		position += JMemory.align(position);
+		
 		header.transferTo(this, position);
 		position += PcapHeader.sizeof();
 
@@ -192,9 +194,12 @@ public class JPcapRecordBuffer extends JBuffer implements JPcapRecordIterable {
 			// count);
 			// System.out.flush();
 
+			offset += JMemory.align(offset);
 			offset += header.peerTo(JPcapRecordBuffer.this, offset);
 			// offset += PCAP_HEADER_SIZEOF;
 
+			offset += JMemory.align(offset);
+			
 			offset += packet.peer(JPcapRecordBuffer.this, offset, header.caplen());
 			// offset += header.caplen();
 			index++;

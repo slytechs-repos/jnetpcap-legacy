@@ -46,12 +46,11 @@ import com.slytechs.library.LibraryMember;
  * @since 1.2
  * @author Sly Technologies, Inc.
  */
-@Library(preload = { JMemoryReference.class
+@Library(preload = {
+	JMemoryReference.class
 
 }, natives = {
-		"c",
-		"msvcmrt",
-		"msvcrt"
+		"c", "msvcmrt", "msvcrt"
 }, jni = Pcap.LIBRARY)
 public abstract class JMemory {
 
@@ -63,19 +62,20 @@ public abstract class JMemory {
 	 */
 	public enum Type {
 		/**
-		 * Peered object is being created as a reference pointer and has no memory
-		 * allocated on its own. It is expected that new object will be peered with
-		 * Existing memory location. The same concept as a native memory pointer,
-		 * think void * in C.
+		 * Peered object is being created as a reference pointer and has no
+		 * memory allocated on its own. It is expected that new object will be
+		 * peered with Existing memory location. The same concept as a native
+		 * memory pointer, think void * in C.
 		 */
 		POINTER
 	}
 
 	/**
 	 * The maximum amount of direct memory we are allowed to allocate. When the
-	 * limit is breached, we block the allocating thread and try to free up memory
-	 * from any unused references (using DisposableGC class). If that fails and a
-	 * timeout occurs on the blocked thread, an OutOfMemory exception is thrown.
+	 * limit is breached, we block the allocating thread and try to free up
+	 * memory from any unused references (using DisposableGC class). If that
+	 * fails and a timeout occurs on the blocked thread, an OutOfMemory
+	 * exception is thrown.
 	 * 
 	 * @see #maxDirectMemory()
 	 */
@@ -83,14 +83,15 @@ public abstract class JMemory {
 
 	/**
 	 * A soft limit for the amount of direct memory we are allowed to allocate.
-	 * When a soft memory limit is breached, the allocating thread is not blocked
-	 * and continues to honor memory allocations, at the same time (using
-	 * DisposableGC class), we kick off memory cleanup and try to free up memory.
-	 * The key feature is that memory allocation does not stop, while forced
-	 * cleaned up of released references is initiated.
+	 * When a soft memory limit is breached, the allocating thread is not
+	 * blocked and continues to honor memory allocations, at the same time
+	 * (using DisposableGC class), we kick off memory cleanup and try to free up
+	 * memory. The key feature is that memory allocation does not stop, while
+	 * forced cleaned up of released references is initiated.
 	 * <p>
-	 * If directMemorySoft == 0 or directMemorySoft == directMemory, this property
-	 * is ignored and only the directMemory property and its algorithm is used.
+	 * If directMemorySoft == 0 or directMemorySoft == directMemory, this
+	 * property is ignored and only the directMemory property and its algorithm
+	 * is used.
 	 * 
 	 * @see #softDirectMemory()
 	 */
@@ -100,9 +101,9 @@ public abstract class JMemory {
 	public static final String JNETPCAP_LIBRARY_NAME = "jnetpcap";
 	/**
 	 * The default maximum value for 'nio.mx' system property, if not set. The
-	 * actual runtime default value for 'nio.mx' property is calculated to be the
-	 * lower of either {@link #MAX_DIRECT_MEMORY_DEFAULT} constant or the value
-	 * specified on the JVM command line using '-Xmx<size>' option.
+	 * actual runtime default value for 'nio.mx' property is calculated to be
+	 * the lower of either {@link #MAX_DIRECT_MEMORY_DEFAULT} constant or the
+	 * value specified on the JVM command line using '-Xmx<size>' option.
 	 */
 	public static final long MAX_DIRECT_MEMORY_DEFAULT = 64 * Units.MEBIBYTE;
 
@@ -130,19 +131,38 @@ public abstract class JMemory {
 		}
 	}
 
+	/** Default alignment boundary in bytes (default 8) */
+	public static final int ALIGNMENT_SIZE = 8;
+
+	/**
+	 * Memory alignment calculation on addresses. The default is 8 byte
+	 * alignment. The method is static and final, allowing inlining by the java
+	 * compiler.
+	 * 
+	 * @param address
+	 *            the variable to use in calculation of the alignment
+	 * @return number of bytes between 0 and 7 to be added to the address in
+	 *         order to make it align at the ALIGNMENT_SIZE boundary
+	 * 
+	 */
+	public final static int align(int address) {
+		return (address % ALIGNMENT_SIZE) != 0 ? ALIGNMENT_SIZE
+				- (address % ALIGNMENT_SIZE) : 0;
+	}
+
 	/**
 	 * Allocate0.
 	 * 
 	 * @param size
-	 *          the size
+	 *            the size
 	 * @return the long
 	 */
 	@LibraryMember("malloc")
 	private synchronized static native long allocate0(int size);
 
 	/**
-	 * Returns how much native memory is available for allocation. This is a limit
-	 * set by method {@link #setMaxDirectMemorySize(long)}.
+	 * Returns how much native memory is available for allocation. This is a
+	 * limit set by method {@link #setMaxDirectMemorySize(long)}.
 	 * 
 	 * @return the difference between maxDirectMemory and reservedDirectMemory
 	 */
@@ -157,31 +177,32 @@ public abstract class JMemory {
 	/**
 	 * Returns the hard limit for the amount of memory native is allowed to
 	 * allocate. The memory setting defaults to JVMs max memory which can be
-	 * specified with JVM command line option '-Xmx&lt;size&gt;.Once the 'nio.mx'
-	 * limit is reached, the allocating thread is blocked and a JVM GC request is
-	 * issued. The allocating thread continues to wait, until sufficient minimum
-	 * amount (Default: {@literal DisposableGC#MIN_MEMORY_RELEASE})of native
-	 * memory was cleaned up or a timeout (Default:
+	 * specified with JVM command line option '-Xmx&lt;size&gt;.Once the
+	 * 'nio.mx' limit is reached, the allocating thread is blocked and a JVM GC
+	 * request is issued. The allocating thread continues to wait, until
+	 * sufficient minimum amount (Default:
+	 * {@literal DisposableGC#MIN_MEMORY_RELEASE})of native memory was cleaned
+	 * up or a timeout (Default:
 	 * 
 	 * @return the limit in number of bytes
 	 *         {@literal DisposableGC#OUT_OF_MEMORY_TIMEOUT} ms) occurs.
 	 *         <p>
 	 *         This limit can be set at startup of the application using the
-	 *         following system properties, which are checked in the order listed
-	 *         below:
+	 *         following system properties, which are checked in the order
+	 *         listed below:
 	 *         <ol>
 	 *         <li><code>org.jnetsoft.nio.MaxDirectMemorySize</code>
 	 *         <li><code>nio.MaxDirectMemorySize</code>
 	 *         <li><code>org.jnetsoft.nio.mx</code>
 	 *         <li><code>nio.mx</code>
 	 *         </ol>
-	 *         The different property names, from the most fully qualified to the
-	 *         least, are provided to property name conflict resolution. For
+	 *         The different property names, from the most fully qualified to
+	 *         the least, are provided to property name conflict resolution. For
 	 *         convenience, it is recommended that the user choose the least
-	 *         qualified property name to use. In the unlikely event that another
-	 *         library within the same runtime application uses the same property
-	 *         name, one of the more qualified (or longer) property names can be
-	 *         used to resolve the conflict.
+	 *         qualified property name to use. In the unlikely event that
+	 *         another library within the same runtime application uses the same
+	 *         property name, one of the more qualified (or longer) property
+	 *         names can be used to resolve the conflict.
 	 *         </p>
 	 */
 
@@ -208,8 +229,8 @@ public abstract class JMemory {
 	}
 
 	/**
-	 * Used to trigger garbage collector. The method is private, but invoked from
-	 * JNI space.
+	 * Used to trigger garbage collector. The method is private, but invoked
+	 * from JNI space.
 	 */
 	private static void maxDirectMemoryBreached() {
 		DisposableGC.getDefault().invokeSystemGCAndWait();
@@ -222,8 +243,8 @@ public abstract class JMemory {
 	 * specified.
 	 * <p>
 	 * The reason for the complexity with this calculation and we just don't
-	 * default to '-Xmx' or JVM default, is that JVM on 64-bit system defaults to
-	 * 512Mb, which way too much to also reserve our nio use. Without this
+	 * default to '-Xmx' or JVM default, is that JVM on 64-bit system defaults
+	 * to 512Mb, which way too much to also reserve our nio use. Without this
 	 * algorithm, the combined total on 64-bit system is 1Gb of memory.
 	 * </p>
 	 * 
@@ -243,7 +264,7 @@ public abstract class JMemory {
 	 * Parses the size.
 	 * 
 	 * @param v
-	 *          the v
+	 *            the v
 	 * @return the long
 	 */
 	static long parseSize(String v) {
@@ -281,8 +302,8 @@ public abstract class JMemory {
 
 	/**
 	 * Sets a hard limit for the amount of memory native is allowed to allocate.
-	 * When the limit is reached, and a GC collection can free up no more memory,
-	 * OutOfMemoryException is thrown by the allocate function.
+	 * When the limit is reached, and a GC collection can free up no more
+	 * memory, OutOfMemoryException is thrown by the allocate function.
 	 * <p>
 	 * jNetPcap keeps track of all memory allocated and freed. The following JVM
 	 * options set the limits: <code>-Dnio.mx=_size_</code>
@@ -290,14 +311,15 @@ public abstract class JMemory {
 	 * 
 	 * 
 	 * @param size
-	 *          size in bytes
+	 *            size in bytes
 	 */
 	private static native void setMaxDirectMemorySize(long size);
 
 	/**
 	 * Sets a soft limit for the amount of memory native is allowed to allocate.
-	 * When the limit is reached, and a GC collection can is invoked but with out
-	 * blocking and memory allocation continues until the hard limit is reached.
+	 * When the limit is reached, and a GC collection can is invoked but with
+	 * out blocking and memory allocation continues until the hard limit is
+	 * reached.
 	 * <p>
 	 * jNetPcap keeps track of all memory allocated and freed. The following JVM
 	 * options set the limits: <code>-Dnio.ms=_size_</code>
@@ -305,7 +327,7 @@ public abstract class JMemory {
 	 * 
 	 * 
 	 * @param size
-	 *          size in bytes
+	 *            size in bytes
 	 */
 	private static native void setSoftDirectMemorySize(long size);
 
@@ -313,11 +335,11 @@ public abstract class JMemory {
 	 * Returns the soft limit for native memory allocation. When the soft memory
 	 * allocation limit is reached, memory continues to be allocated without
 	 * interruption or blocking. At the same the a JVM GC request is issued to
-	 * start collecting unused objects and potentially cleanup memory. The JVM GC
-	 * request may be repeated while the current memory allocation is above this
-	 * soft limit, but is limited to a minimum delay between consecutive JVM GC
-	 * requests. This process continues until memory allocation falls below this
-	 * soft limit or the hard 'nio.mx' limit is reached.
+	 * start collecting unused objects and potentially cleanup memory. The JVM
+	 * GC request may be repeated while the current memory allocation is above
+	 * this soft limit, but is limited to a minimum delay between consecutive
+	 * JVM GC requests. This process continues until memory allocation falls
+	 * below this soft limit or the hard 'nio.mx' limit is reached.
 	 * <p>
 	 * This limit can be set at startup of the application using the following
 	 * system properties, which are checked in the order listed below:
@@ -329,8 +351,8 @@ public abstract class JMemory {
 	 * </ol>
 	 * The different property names, from the most fully qualified to the least,
 	 * are provided to property name conflict resolution. For convenience, it is
-	 * recommended that the user choose the least qualified property name to use.
-	 * In the unlikely event that another library within the same runtime
+	 * recommended that the user choose the least qualified property name to
+	 * use. In the unlikely event that another library within the same runtime
 	 * application uses the same property name, one of the more qualified (or
 	 * longer) property names can be used to resolve the conflict.
 	 * </p>
@@ -361,20 +383,21 @@ public abstract class JMemory {
 	}
 
 	/**
-	 * Soft limit has been reached. Invoke non-blocking JVM GC and inject a marker
-	 * reference. The marker reference will tell us when JVM GC reached the marker
-	 * and thus, at a minimum has started processing unused references. The JVM GC
-	 * can not be invoked more then once within a certain amount of time which is
-	 * defined as {@value DisposableGC#MIN_SYSTEM_GC_INVOKE_TIMEOUT}.
+	 * Soft limit has been reached. Invoke non-blocking JVM GC and inject a
+	 * marker reference. The marker reference will tell us when JVM GC reached
+	 * the marker and thus, at a minimum has started processing unused
+	 * references. The JVM GC can not be invoked more then once within a certain
+	 * amount of time which is defined as
+	 * {@value DisposableGC#MIN_SYSTEM_GC_INVOKE_TIMEOUT}.
 	 */
 	private static void softDirectMemoryBreached() {
 		DisposableGC.getDefault().invokeSystemGCWithMarker();
 	}
 
 	/**
-	 * Returns the total number of active native memory bytes currently allocated
-	 * that have not been deallocated as of yet. This number can be calculated by
-	 * the following formula:
+	 * Returns the total number of active native memory bytes currently
+	 * allocated that have not been deallocated as of yet. This number can be
+	 * calculated by the following formula:
 	 * 
 	 * <pre>
 	 * totalAllocated() - totalDeAllocated()
@@ -387,9 +410,9 @@ public abstract class JMemory {
 	}
 
 	/**
-	 * Returns total number of allocate calls through JMemory class. The memory is
-	 * allocated by JMemory class using native "malloc" calls and is not normally
-	 * reported by JRE memory usage.
+	 * Returns total number of allocate calls through JMemory class. The memory
+	 * is allocated by JMemory class using native "malloc" calls and is not
+	 * normally reported by JRE memory usage.
 	 * 
 	 * @return total number of function calls made to malloc since JMemory class
 	 *         was loaded into memory
@@ -401,43 +424,43 @@ public abstract class JMemory {
 	 * is allocated by JMemory class using native "malloc" calls and is not
 	 * normally reported by JRE memory usage.
 	 * 
-	 * @return total number of bytes allocated since JMemory class was loaded into
-	 *         memory
+	 * @return total number of bytes allocated since JMemory class was loaded
+	 *         into memory
 	 */
 	public native static long totalAllocated();
 
 	/**
-	 * Returns the number of memory segments that were allocated by JMemory class
-	 * in the range of 0 to 255 bytes in size. This is number of segments, not
-	 * amount of memory allocated.
+	 * Returns the number of memory segments that were allocated by JMemory
+	 * class in the range of 0 to 255 bytes in size. This is number of segments,
+	 * not amount of memory allocated.
 	 * 
 	 * @return the total number of memory segments in this size
 	 */
 	public native static long totalAllocatedSegments0To255Bytes();
 
 	/**
-	 * Returns the number of memory segments that were allocated by JMemory class
-	 * in the range of 256 bytes or above in size. This is number of segments, not
-	 * amount of memory allocated.
+	 * Returns the number of memory segments that were allocated by JMemory
+	 * class in the range of 256 bytes or above in size. This is number of
+	 * segments, not amount of memory allocated.
 	 * 
 	 * @return the total number of memory segments in this size
 	 */
 	public native static long totalAllocatedSegments256OrAbove();
 
 	/**
-	 * Returns total number of deallocate calls through JMemory class. The memory
-	 * is allocated by JMemory class using native "free" calls and is not normally
-	 * reported by JRE memory usage.
+	 * Returns total number of deallocate calls through JMemory class. The
+	 * memory is allocated by JMemory class using native "free" calls and is not
+	 * normally reported by JRE memory usage.
 	 * 
-	 * @return total number of function calls made to free since JMemory class was
-	 *         loaded into memory
+	 * @return total number of function calls made to free since JMemory class
+	 *         was loaded into memory
 	 */
 	public native static long totalDeAllocateCalls();
 
 	/**
-	 * Returns total number of bytes deallocated through JMemory class. The memory
-	 * is deallocated by JMemory class using native "free" calls and is not
-	 * normally reported by JRE memory usage.
+	 * Returns total number of bytes deallocated through JMemory class. The
+	 * memory is deallocated by JMemory class using native "free" calls and is
+	 * not normally reported by JRE memory usage.
 	 * 
 	 * @return total number of bytes deallocated since JMemory class was loaded
 	 *         into memory
@@ -448,22 +471,19 @@ public abstract class JMemory {
 	 * Transfer to0.
 	 * 
 	 * @param address
-	 *          the address
+	 *            the address
 	 * @param buffer
-	 *          the buffer
+	 *            the buffer
 	 * @param srcOffset
-	 *          the src offset
+	 *            the src offset
 	 * @param length
-	 *          the length
+	 *            the length
 	 * @param dstOffset
-	 *          the dst offset
+	 *            the dst offset
 	 * @return the int
 	 */
-	protected static native int transferTo0(long address,
-			byte[] buffer,
-			int srcOffset,
-			int length,
-			int dstOffset);
+	protected static native int transferTo0(long address, byte[] buffer,
+			int srcOffset, int length, int dstOffset);
 
 	/**
 	 * Used to keep a reference tied with this memory object.
@@ -486,9 +506,9 @@ public abstract class JMemory {
 	private boolean owner = false;
 
 	/**
-	 * Physical address of the peered structure. This variable is modified outside
-	 * java space as C structures are bound to it. Subclasses implement methods
-	 * and fields that understand the exact structure.
+	 * Physical address of the peered structure. This variable is modified
+	 * outside java space as C structures are bound to it. Subclasses implement
+	 * methods and fields that understand the exact structure.
 	 */
 	long physical;
 
@@ -502,7 +522,7 @@ public abstract class JMemory {
 	 * Instantiates a new j memory.
 	 * 
 	 * @param peer
-	 *          the peer
+	 *            the peer
 	 */
 	public JMemory(ByteBuffer peer) {
 		this(peer.limit() - peer.position());
@@ -514,7 +534,7 @@ public abstract class JMemory {
 	 * Pre-allocates memory for any structures the subclass may need to use.
 	 * 
 	 * @param size
-	 *          number of bytes to pre-allocate allocate
+	 *            number of bytes to pre-allocate allocate
 	 */
 	public JMemory(int size) {
 		if (size <= 0) {
@@ -528,7 +548,7 @@ public abstract class JMemory {
 	 * Performs a deep copy into a newly allocated memory block.
 	 * 
 	 * @param src
-	 *          the src
+	 *            the src
 	 */
 	public JMemory(JMemory src) {
 		allocate(src.size);
@@ -540,11 +560,12 @@ public abstract class JMemory {
 	 * No memory pre-allocation constructor.
 	 * 
 	 * @param type
-	 *          type of memory allocation model
+	 *            type of memory allocation model
 	 */
 	public JMemory(Type type) {
 		if (type != Type.POINTER) {
-			throw new IllegalArgumentException("Only POINTER types are supported");
+			throw new IllegalArgumentException(
+					"Only POINTER types are supported");
 		}
 	}
 
@@ -554,7 +575,7 @@ public abstract class JMemory {
 	 * the allocated structure.
 	 * 
 	 * @param size
-	 *          number of bytes to allocate.
+	 *            number of bytes to allocate.
 	 * @return the long
 	 */
 	private long allocate(int size) {
@@ -575,8 +596,8 @@ public abstract class JMemory {
 	 * Its intended to as an assert mechanism
 	 * 
 	 * @throws IllegalStateException
-	 *           if peered object is not initialized this unchecked exception will
-	 *           be thrown, otherwise it will exit silently
+	 *             if peered object is not initialized this unchecked exception
+	 *             will be thrown, otherwise it will exit silently
 	 */
 	public void check() throws IllegalStateException {
 		if (physical == 0) {
@@ -589,11 +610,11 @@ public abstract class JMemory {
 	 * Check.
 	 * 
 	 * @param index
-	 *          the index
+	 *            the index
 	 * @param len
-	 *          the len
+	 *            the len
 	 * @param address
-	 *          the address
+	 *            the address
 	 * @return the int
 	 */
 	private final int check(int index, int len, long address) {
@@ -610,13 +631,13 @@ public abstract class JMemory {
 	}
 
 	/**
-	 * Called to clean up and release any allocated memory. This method should be
-	 * Overridden if the allocated memory is not simply a single memory block and
-	 * something more complex. This method is safe to call at any time even if the
-	 * object does not hold any allocated memory or is not the owner of the memory
-	 * it is peered with. The method will reset this object to original un-peered
-	 * state releasing any allocated and own memory at the same time if
-	 * necessary.
+	 * Called to clean up and release any allocated memory. This method should
+	 * be Overridden if the allocated memory is not simply a single memory block
+	 * and something more complex. This method is safe to call at any time even
+	 * if the object does not hold any allocated memory or is not the owner of
+	 * the memory it is peered with. The method will reset this object to
+	 * original un-peered state releasing any allocated and own memory at the
+	 * same time if necessary.
 	 */
 	protected void cleanup() {
 		if (ref != null) {
@@ -641,15 +662,15 @@ public abstract class JMemory {
 	 * native memory pointer to the memory that potentially needs cleanup and
 	 * disposal.
 	 * <p>
-	 * This method is protected and allows subclasses to provide their own cleanup
-	 * code. If this method is not overridden, it will return a JMemoryReference
-	 * object suitable to cleanup after this memory object.
+	 * This method is protected and allows subclasses to provide their own
+	 * cleanup code. If this method is not overridden, it will return a
+	 * JMemoryReference object suitable to cleanup after this memory object.
 	 * </p>
 	 * 
 	 * @param address
-	 *          native memory address to use in the disposable
+	 *            native memory address to use in the disposable
 	 * @param size
-	 *          the size
+	 *            the size
 	 * @return a reference that is tied to this JMemory object
 	 */
 	protected JMemoryReference createReference(final long address, long size) {
@@ -657,8 +678,8 @@ public abstract class JMemory {
 	}
 
 	/**
-	 * Checks if this peered object is initialized. This method does not throw any
-	 * exceptions.
+	 * Checks if this peered object is initialized. This method does not throw
+	 * any exceptions.
 	 * 
 	 * @return if initialized true is returned, otherwise false
 	 */
@@ -670,10 +691,10 @@ public abstract class JMemory {
 	 * Checks if physical memory pointed to by this object, is owned either by
 	 * this JMemory based object or the actual owner is also JMemory based. This
 	 * method provides a check if the physical memory pointed to by this object
-	 * has been allocated through use of one of JMemory based functions or outside
-	 * its memory management scope. For example, memory allocated by libpcap
-	 * library will return false. While packets that copied their state to new
-	 * memory will return true.
+	 * has been allocated through use of one of JMemory based functions or
+	 * outside its memory management scope. For example, memory allocated by
+	 * libpcap library will return false. While packets that copied their state
+	 * to new memory will return true.
 	 * 
 	 * @return true if physical memory is managed by JMemory, otherwise false
 	 */
@@ -692,15 +713,15 @@ public abstract class JMemory {
 
 	/**
 	 * Peers the src structure with this instance. The physical memory that the
-	 * src peered object points to is set to this instance. The owner flag is not
-	 * copied and src remains at the same state as it did before. This instance
-	 * does not become the owner of the memory.
+	 * src peered object points to is set to this instance. The owner flag is
+	 * not copied and src remains at the same state as it did before. This
+	 * instance does not become the owner of the memory.
 	 * <p>
 	 * Further more, since we are peering with a ByteBuffer, the actual memory
-	 * that is peered is between ByteBuffer's position and limit properties. Those
-	 * 2 properties determine which portion of the memory that will be peered.
-	 * This allows a larger ByteBuffer to be peered with different objects
-	 * providing rudimentary memory allocation mechanism.
+	 * that is peered is between ByteBuffer's position and limit properties.
+	 * Those 2 properties determine which portion of the memory that will be
+	 * peered. This allows a larger ByteBuffer to be peered with different
+	 * objects providing rudimentary memory allocation mechanism.
 	 * </p>
 	 * <p>
 	 * Lastly care must be taken, to ensure that the life-spans do not conflict.
@@ -708,27 +729,27 @@ public abstract class JMemory {
 	 * termination of the life-span of this object or at minimum calling
 	 * 
 	 * @param peer
-	 *          The ByteBuffer whose allocated native memory we want to peer with.
-	 *          The ByteByffer must be if direct buffer type which can be checked
-	 *          using ByteBuffer.isDirect() call.
+	 *            The ByteBuffer whose allocated native memory we want to peer
+	 *            with. The ByteByffer must be if direct buffer type which can
+	 *            be checked using ByteBuffer.isDirect() call.
 	 * @return the int
 	 * @throws PeeringException
-	 *           the peering exception {@link #cleanup()} method to ensure that
-	 *           this object no longer references memory which may have been or
-	 *           become deallocated.
-	 *           </p>
+	 *             the peering exception {@link #cleanup()} method to ensure
+	 *             that this object no longer references memory which may have
+	 *             been or become deallocated.
+	 *             </p>
 	 * @see ByteBuffer#isDirect()
 	 */
 	protected native int peer(ByteBuffer peer) throws PeeringException;
 
 	/**
 	 * Peers the peer structure with this instance. The physical memory that the
-	 * peer object points to is set to this instance. The owner flag is not copied
-	 * and peer remains at the same state as it did before. This instance does not
-	 * become the owner of the memory.
+	 * peer object points to is set to this instance. The owner flag is not
+	 * copied and peer remains at the same state as it did before. This instance
+	 * does not become the owner of the memory.
 	 * 
 	 * @param peer
-	 *          the object whose allocated native memory we want to peer with
+	 *            the object whose allocated native memory we want to peer with
 	 * @return the int
 	 */
 	protected int peer(JMemory peer) {
@@ -737,30 +758,32 @@ public abstract class JMemory {
 
 	/**
 	 * Peers the peer structure with this instance. The physical memory that the
-	 * peer object points to is set to this instance. The owner flag is not copied
-	 * and peer remains at the same state as it did before. This instance does not
-	 * become the owner of the memory. The function allows peering to a sub
-	 * portion of the peer given the specified offset and length. The function
-	 * strictly checks and enforces the bounds of the request to guarantee that
-	 * peer is not allowed to access physical memory outside of actual peer range.
+	 * peer object points to is set to this instance. The owner flag is not
+	 * copied and peer remains at the same state as it did before. This instance
+	 * does not become the owner of the memory. The function allows peering to a
+	 * sub portion of the peer given the specified offset and length. The
+	 * function strictly checks and enforces the bounds of the request to
+	 * guarantee that peer is not allowed to access physical memory outside of
+	 * actual peer range.
 	 * 
 	 * @param peer
-	 *          object memory block to peer with
+	 *            object memory block to peer with
 	 * @param offset
-	 *          offset into the memory block
+	 *            offset into the memory block
 	 * @param length
-	 *          amount of memory to peer with
+	 *            amount of memory to peer with
 	 * @return the int
 	 * @throws IndexOutOfBoundsException
-	 *           if the specified memory offset and length have negative or out of
-	 *           bounds of peer objects address space
+	 *             if the specified memory offset and length have negative or
+	 *             out of bounds of peer objects address space
 	 */
 	protected int peer(JMemory peer, int offset, int length)
 			throws IndexOutOfBoundsException {
 
 		if (offset < 0 || length < 0 || offset + length > peer.size) {
 			throw new IndexOutOfBoundsException("Invalid [" + offset + ","
-					+ (offset + length) + "," + length + ") range.\n" + toDebugString());
+					+ (offset + length) + "," + length + ") range.\n"
+					+ toDebugString());
 		}
 
 		return peer0(peer.physical + offset, length, peer.keeper);
@@ -768,23 +791,24 @@ public abstract class JMemory {
 
 	/**
 	 * Peers the peer structure with this instance. The physical memory that the
-	 * peer object points to is set to this instance. The owner flag is not copied
-	 * and peer remains at the same state as it did before. This instance does not
-	 * become the owner of the memory. The function allows peering to a sub
-	 * portion of the peer given the specified offset and length. The function
-	 * strictly checks and inforces the bounds of the request to guarrantee that
-	 * peer is not allowed to access physical memory outside of actual peer range.
+	 * peer object points to is set to this instance. The owner flag is not
+	 * copied and peer remains at the same state as it did before. This instance
+	 * does not become the owner of the memory. The function allows peering to a
+	 * sub portion of the peer given the specified offset and length. The
+	 * function strictly checks and inforces the bounds of the request to
+	 * guarrantee that peer is not allowed to access physical memory outside of
+	 * actual peer range.
 	 * 
 	 * @param peerAddress
-	 *          the peer address
+	 *            the peer address
 	 * @param length
-	 *          amount of memory to peer with
+	 *            amount of memory to peer with
 	 * @param keeper
-	 *          the keeper
+	 *            the keeper
 	 * @return the int
 	 * @throws IndexOutOfBoundsException
-	 *           if the specified memory offset and length have negative or out of
-	 *           bounds of peer objects address space
+	 *             if the specified memory offset and length have negative or
+	 *             out of bounds of peer objects address space
 	 */
 	private int peer0(long peerAddress, int length, Object keeper)
 			throws IndexOutOfBoundsException {
@@ -797,16 +821,17 @@ public abstract class JMemory {
 		this.size = length;
 
 		/**
-		 * For specific reasons, we can never be the owner of the peered structure.
-		 * The owner should remain the object that initially created or was created
-		 * to manage the physical memory. The reasons are as follows:
+		 * For specific reasons, we can never be the owner of the peered
+		 * structure. The owner should remain the object that initially created
+		 * or was created to manage the physical memory. The reasons are as
+		 * follows:
 		 * <ul>
 		 * <li>Memory could be a revolving buffer
-		 * <li>Memory allocation could have been complex with sub structures that
-		 * need to be deallocated
-		 * <li>The src object may have been passed around and references stored to
-		 * it elsewhere. If we are GCed before src and we free up the memory the
-		 * original src object would become unstable
+		 * <li>Memory allocation could have been complex with sub structures
+		 * that need to be deallocated
+		 * <li>The src object may have been passed around and references stored
+		 * to it elsewhere. If we are GCed before src and we free up the memory
+		 * the original src object would become unstable
 		 * </ul>
 		 */
 
@@ -816,20 +841,19 @@ public abstract class JMemory {
 	}
 
 	/**
-	 * Changes the size of the current memory buffer. The size can only be reduced
-	 * in length and can not grow. The method throws exceptions if size parameter
-	 * is greater then current size or negative.
+	 * Changes the size of the current memory buffer. The size can only be
+	 * reduced in length and can not grow. The method throws exceptions if size
+	 * parameter is greater then current size or negative.
 	 * 
 	 * @param size
-	 *          size in bytes that is smaller then existing size
+	 *            size in bytes that is smaller then existing size
 	 */
 	public void setSize(int size) {
 		if (size > this.size) {
 			throw new IllegalArgumentException(
-					String
-							.format("size (%d) parameter must be less then buffer size (%d)",
-									size,
-									this.size));
+					String.format("size (%d) parameter must be less then buffer size (%d)",
+							size,
+							this.size));
 		}
 
 		if (size < 0) {
@@ -843,10 +867,11 @@ public abstract class JMemory {
 	 * Changes the size of the current memory buffer. This is a special private
 	 * version of setSize which does not check the bounds. Often, in the scanner
 	 * code, it is neccessary to resize JMemory peers up. This is possible since
-	 * the JScanner native buffer knows its size and allows objects to be resized.
+	 * the JScanner native buffer knows its size and allows objects to be
+	 * resized.
 	 * 
 	 * @param size
-	 *          size in bytes
+	 *            size in bytes
 	 */
 	private void setSize0(int size) {
 		this.size = size;
@@ -880,8 +905,8 @@ public abstract class JMemory {
 	 * <li>owner = the class name of the object that owns the physical memory
 	 * <li>isOwner = if true, means that this object is the owner of physical
 	 * memory
-	 * <li>size in parenthesis = the size of the physical memory allocated by the
-	 * owner
+	 * <li>size in parenthesis = the size of the physical memory allocated by
+	 * the owner
 	 * <li>offset in parenthesis = the offset into the physical memory block of
 	 * this memory object
 	 * </ul>
@@ -896,8 +921,10 @@ public abstract class JMemory {
 		b.append("size=").append(size).append(" bytes");
 		if (!owner) {
 			b.append("\n");
-			b.append("JMemory: owner=").append((keeper == null) ? "null" : keeper
-					.getClass().getName().replaceAll("org.jnetpcap.", ""));
+			b.append("JMemory: owner=").append((keeper == null)
+					? "null"
+					: keeper.getClass().getName()
+							.replaceAll("org.jnetpcap.", ""));
 			b.append(".class");
 			if (keeper instanceof JMemory) {
 				JMemory k = (JMemory) keeper;
@@ -935,19 +962,18 @@ public abstract class JMemory {
 	 * memory to textual hexdump.
 	 * 
 	 * @param length
-	 *          maximum number of bytes to dump to hex output
+	 *            maximum number of bytes to dump to hex output
 	 * @param address
-	 *          flag if set to true will print out address offset on every line
+	 *            flag if set to true will print out address offset on every
+	 *            line
 	 * @param text
-	 *          flag if set to true will print out a text characters at the end of
-	 *          everyline
+	 *            flag if set to true will print out a text characters at the
+	 *            end of everyline
 	 * @param data
-	 *          flag if set to true will print out raw HEX data on every line
+	 *            flag if set to true will print out raw HEX data on every line
 	 * @return multi-line hexdump of the entire memory region
 	 */
-	public String toHexdump(int length,
-			boolean address,
-			boolean text,
+	public String toHexdump(int length, boolean address, boolean text,
 			boolean data) {
 		length = (length < size) ? length : size;
 		JBuffer b = new JBuffer(Type.POINTER);
@@ -965,7 +991,7 @@ public abstract class JMemory {
 	 * Copies contents of byte array to memory.
 	 * 
 	 * @param buffer
-	 *          source buffer
+	 *            source buffer
 	 * @return number of bytes copied
 	 */
 	protected int transferFrom(byte[] buffer) {
@@ -976,25 +1002,23 @@ public abstract class JMemory {
 	 * Copies contents of byte array to memory.
 	 * 
 	 * @param buffer
-	 *          source buffer
+	 *            source buffer
 	 * @param srcOffset
-	 *          starting offset into the byte array
+	 *            starting offset into the byte array
 	 * @param length
-	 *          number of bytes to copy
+	 *            number of bytes to copy
 	 * @param dstOffset
-	 *          starting offset into memory buffer
+	 *            starting offset into memory buffer
 	 * @return number of bytes copied
 	 */
-	protected native int transferFrom(byte[] buffer,
-			int srcOffset,
-			int length,
+	protected native int transferFrom(byte[] buffer, int srcOffset, int length,
 			int dstOffset);
 
 	/**
 	 * Copies data from memory from direct byte buffer to this memory.
 	 * 
 	 * @param src
-	 *          source buffer
+	 *            source buffer
 	 * @return actual number of bytes that was copied
 	 */
 	protected int transferFrom(ByteBuffer src) {
@@ -1005,9 +1029,9 @@ public abstract class JMemory {
 	 * Copies data from memory from direct byte buffer to this memory.
 	 * 
 	 * @param src
-	 *          source buffer
+	 *            source buffer
 	 * @param dstOffset
-	 *          offset into our memory location
+	 *            offset into our memory location
 	 * @return actual number of bytes that was copied
 	 */
 	protected int transferFrom(ByteBuffer src, int dstOffset) {
@@ -1025,33 +1049,34 @@ public abstract class JMemory {
 	 * Copies data from memory from direct byte buffer to this memory.
 	 * 
 	 * @param src
-	 *          source buffer
+	 *            source buffer
 	 * @param dstOffset
-	 *          offset into our memory location
+	 *            offset into our memory location
 	 * @return actual number of bytes that was copied
 	 */
 	protected native int transferFromDirect(ByteBuffer src, int dstOffset);
 
 	/**
 	 * A special method that allows one object to transfer ownership of a memory
-	 * block. The supplied JMemory object must already be the owner of the memory
-	 * block. This policy is strictly enforced. If the ownership transfer
+	 * block. The supplied JMemory object must already be the owner of the
+	 * memory block. This policy is strictly enforced. If the ownership transfer
 	 * succeeds, this memory object will be responsible for freeing up memory
 	 * block when this object is garbage collected or the user calls
 	 * JMemory.cleanup() method. <h2>Warning!</h2> Care must be taken to only
 	 * transfer ownership for simple memory allocations. If a complex memory
 	 * allocation was used, one that sub allocates other memory blocks which are
-	 * referenced from the original memory block, to avoid creating memory leaks.
-	 * It is best practice to sub allocate other memory blocks using JMemory class
-	 * which will properly manage that memory block and ensure that it will freed
-	 * properly as well.
+	 * referenced from the original memory block, to avoid creating memory
+	 * leaks. It is best practice to sub allocate other memory blocks using
+	 * JMemory class which will properly manage that memory block and ensure
+	 * that it will freed properly as well.
 	 * 
 	 * @param memory
-	 *          memory block to transfer the ownership from
+	 *            memory block to transfer the ownership from
 	 * @return if tranfer succeeded true is returned, otherwise false.
 	 */
 	protected boolean transferOwnership(JMemory memory) {
-		if (!memory.owner || this.physical == 0 || this.physical != memory.physical) {
+		if (!memory.owner || this.physical == 0
+				|| this.physical != memory.physical) {
 			return false;
 		}
 
@@ -1075,7 +1100,7 @@ public abstract class JMemory {
 	 * Copies data from memory to byte array.
 	 * 
 	 * @param buffer
-	 *          destination buffer starting offset in byte array
+	 *            destination buffer starting offset in byte array
 	 * @return number of bytes copied
 	 */
 	protected int transferTo(byte[] buffer) {
@@ -1087,18 +1112,16 @@ public abstract class JMemory {
 	 * Copies data from memory to byte array.
 	 * 
 	 * @param buffer
-	 *          destination buffer
+	 *            destination buffer
 	 * @param srcOffset
-	 *          starting offset in memory
+	 *            starting offset in memory
 	 * @param length
-	 *          number of bytes to copy
+	 *            number of bytes to copy
 	 * @param dstOffset
-	 *          starting offset in byte array
+	 *            starting offset in byte array
 	 * @return number of bytes copied
 	 */
-	protected int transferTo(byte[] buffer,
-			int srcOffset,
-			int length,
+	protected int transferTo(byte[] buffer, int srcOffset, int length,
 			int dstOffset) {
 
 		if (buffer == null) {
@@ -1120,7 +1143,7 @@ public abstract class JMemory {
 	 * Copies teh contents of this memory to buffer.
 	 * 
 	 * @param dst
-	 *          destination buffer
+	 *            destination buffer
 	 * @return actual number of bytes that was copied
 	 */
 	public int transferTo(ByteBuffer dst) {
@@ -1131,11 +1154,11 @@ public abstract class JMemory {
 	 * Copies teh contents of this memory to buffer.
 	 * 
 	 * @param dst
-	 *          destination buffer
+	 *            destination buffer
 	 * @param srcOffset
-	 *          offset in source
+	 *            offset in source
 	 * @param length
-	 *          number of bytes to copy
+	 *            number of bytes to copy
 	 * @return number of bytes copied
 	 */
 	public int transferTo(ByteBuffer dst, int srcOffset, int length) {
@@ -1153,13 +1176,13 @@ public abstract class JMemory {
 	 * Transfers the contents of this memory to buffer.
 	 * 
 	 * @param dst
-	 *          destination buffer
+	 *            destination buffer
 	 * @param srcOffset
-	 *          offset in source
+	 *            offset in source
 	 * @param length
-	 *          number of bytes to copy
+	 *            number of bytes to copy
 	 * @param dstOffset
-	 *          offset in destination buffer
+	 *            offset in destination buffer
 	 * @return number of bytes copied
 	 */
 	public int transferTo(JBuffer dst, int srcOffset, int length, int dstOffset) {
@@ -1170,7 +1193,7 @@ public abstract class JMemory {
 	 * Copied the entire contents of this memory to destination memory.
 	 * 
 	 * @param dst
-	 *          destination memory
+	 *            destination memory
 	 * @return number of bytes copied
 	 */
 	protected int transferTo(JMemory dst) {
@@ -1181,30 +1204,29 @@ public abstract class JMemory {
 	 * Copied the entire contents of this memory to destination memory.
 	 * 
 	 * @param dst
-	 *          destination memory
+	 *            destination memory
 	 * @param srcOffset
-	 *          offset in source
+	 *            offset in source
 	 * @param length
-	 *          number of bytes to copy
+	 *            number of bytes to copy
 	 * @param dstOffset
-	 *          offset in destination buffer
+	 *            offset in destination buffer
 	 * @return number of bytes copied
 	 */
-	protected native int transferTo(JMemory dst,
-			int srcOffset,
-			int length,
+	protected native int transferTo(JMemory dst, int srcOffset, int length,
 			int dstOffset);
 
 	/**
 	 * Transfer to direct.
 	 * 
 	 * @param dst
-	 *          the dst
+	 *            the dst
 	 * @param srcOffset
-	 *          the src offset
+	 *            the src offset
 	 * @param length
-	 *          the length
+	 *            the length
 	 * @return actual number of bytes that was copied
 	 */
-	private native int transferToDirect(ByteBuffer dst, int srcOffset, int length);
+	private native int transferToDirect(ByteBuffer dst, int srcOffset,
+			int length);
 }
