@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010 Sly Technologies, Inc.
+ * Copyright (C) 2005-1017 Sly Technologies, Inc.
  *
  * This file is part of jNetPcap.
  *
@@ -20,7 +20,6 @@ package org.jnetpcap;
 
 import org.jnetpcap.nio.JBuffer;
 
-// TODO: Auto-generated Javadoc
 /**
  * This is a test interface with classes imbeded for a possible replacement to
  * loop and dispatch handers. These replacements are based on the JMemory class
@@ -34,21 +33,22 @@ import org.jnetpcap.nio.JBuffer;
  * of the pcap_pkthdr structure into Java.
  * 
  * @param <T>
- *          User specific type
+ *            User specific type
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public interface JBufferHandler<T> {
+public interface JBufferHandler<T> extends JHandler<T> {
 
 	/**
-	 * Callback method that will called by libpcap when a new packet is captured.
+	 * Callback method that will called by libpcap when a new packet is
+	 * captured.
 	 * 
 	 * @param header
-	 *          pcap capture header
+	 *            pcap capture header
 	 * @param buffer
-	 *          buffer containing packet data
+	 *            buffer containing packet data
 	 * @param user
-	 *          user supplied object
+	 *            user supplied object
 	 */
 	public void nextPacket(PcapHeader header, JBuffer buffer, T user);
 }

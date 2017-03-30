@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010 Sly Technologies, Inc.
+ * Copyright (C) 2005-2017 Sly Technologies, Inc.
  *
  * This file is part of jNetPcap.
  *
@@ -18,24 +18,25 @@
  */
 package org.jnetpcap.packet;
 
-// TODO: Auto-generated Javadoc
+import org.jnetpcap.JHandler;
+
 /**
  * The Interface PcapPacketHandler.
  * 
  * @param <T>
- *          the generic type
+ *            the generic type
  * @author Mark Bednarczyk
  * @author Sly Technologies, Inc.
  */
-public interface PcapPacketHandler<T> {
-	
+public interface PcapPacketHandler<T> extends JHandler<T> {
+
 	/**
 	 * Next packet.
 	 * 
 	 * @param packet
-	 *          the packet
+	 *            the packet
 	 * @param user
-	 *          the user
+	 *            the user
 	 */
 	public void nextPacket(PcapPacket packet, T user);
 
