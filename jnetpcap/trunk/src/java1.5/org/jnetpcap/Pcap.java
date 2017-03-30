@@ -20,6 +20,7 @@ package org.jnetpcap;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory.Type;
@@ -112,8 +113,8 @@ import com.slytechs.library.LibraryMember;
  * PcapIf netInterface = ifs.get(i);
  * </pre>
  * 
- * <h3>Opening a network interface for live capture</h3>
- * Next we open up a live capture from the network interface using
+ * <h3>Opening a network interface for live capture</h3> Next we open up a live
+ * capture from the network interface using
  * {@link #openLive(String, int, int, int, StringBuilder)}:
  * 
  * <pre>
@@ -132,9 +133,9 @@ import com.slytechs.library.LibraryMember;
  * 
  * Last argument is a buffer that will hold an error string, if error occures.
  * On error <code>openLive</code> will return null.
- * <h3>Compiling and applying a filter to network interface</h3>
- * Once we have an open interface for capture we can apply a filter to reduce
- * amount of packets captured to something that is interesting to us:
+ * <h3>Compiling and applying a filter to network interface</h3> Once we have an
+ * open interface for capture we can apply a filter to reduce amount of packets
+ * captured to something that is interesting to us:
  * 
  * <pre>
  * PcapBpfProgram filter = new PcapBpfProgram();
@@ -180,7 +181,8 @@ import com.slytechs.library.LibraryMember;
  * int cnt = 10; // Capture packet count
  * PrintStream out = System.out; // Our custom object to send into the handler
  * 
- * pcap.loop(cnt, handler, out); // Each packet will be dispatched to the handler
+ * pcap.loop(cnt, handler, out); // Each packet will be dispatched to the
+ * 								// handler
  * 
  * pcap.close();
  * </pre>
@@ -215,8 +217,8 @@ import com.slytechs.library.LibraryMember;
  * <h3>Omitted methods from standard libpcap API</h3> Certain deprecated methods
  * from libpcap API have been omitted such as <code>lookupDev</code>,
  * <code>lookupNet</code>. Also any methods that return <code>FILE *</code>
- * since that is not appropriate for java environment. <h3>Multithreading issues
- * </h3>
+ * since that is not appropriate for java environment.
+ * <h3>Multithreading issues</h3>
  * <p>
  * <code>Pcap</code> class does not provide any multithreading capabilities. As
  * a pure wrapper for native <em>libpcap</em> library, <code>Pcap</code> does
@@ -240,13 +242,19 @@ import com.slytechs.library.LibraryMember;
  * @author Sly Technologies, Inc.
  */
 @Library(preload = {
-		PcapDumper.class, PcapIf.class, PcapBpfProgram.class, PcapDumper.class
+		PcapDumper.class,
+		PcapIf.class,
+		PcapBpfProgram.class,
+		PcapDumper.class
 
 }, natives = {
-		Pcap.WINPCAP_LIBRARY, Pcap.PCAP_LIBRARY, "packet"
+		Pcap.WINPCAP_LIBRARY,
+		Pcap.PCAP_LIBRARY,
+		"packet"
 
 }, jni = {
-		Pcap.LIBRARY, Pcap.PCAP100_WRAPPER
+		Pcap.LIBRARY,
+		Pcap.PCAP100_WRAPPER
 
 })
 public class Pcap {
@@ -264,10 +272,9 @@ public class Pcap {
 	 * } pcap_direction_t;
 	 * 
 	 * </pre>
-	 * 
-	 * @since 1.4
-	 * 
+	 *
 	 * @author Sly Technologies, Inc.
+	 * @since 1.4
 	 */
 	public enum Direction {
 
@@ -505,8 +512,7 @@ public class Pcap {
 		JNILibrary.register(Pcap.class);
 
 		LIBRARY_LOAD_STATUS = JNILibrary.loadLibrary(Pcap.LIBRARY).isLoaded();
-		PCAP100_LOAD_STATUS =
-				JNILibrary.loadLibrary(Pcap.PCAP100_WRAPPER).isLoaded();
+		PCAP100_LOAD_STATUS = JNILibrary.loadLibrary(Pcap.PCAP100_WRAPPER).isLoaded();
 
 		// initIDs();
 	}
@@ -519,7 +525,7 @@ public class Pcap {
 	 * kernel-level filtering engine.
 	 * </p>
 	 * <p>
-	 * 
+	 *
 	 * @param snaplen
 	 *            generate code to truncate packets to this length upon a match
 	 * @param dlt
@@ -555,9 +561,9 @@ public class Pcap {
 	 *         Look at the Filtering expression syntax section for details on
 	 *         the str parameter.
 	 *         </p>
+	 * @since 1.0
 	 * @deprecated use
 	 *             {@link #compileNopcap(int, int, PcapBpfProgram, String, int, int)}
-	 * @since 1.0
 	 */
 	@Deprecated
 	public static int compile(int snaplen, int dlt, PcapBpfProgram program,
@@ -624,7 +630,8 @@ public class Pcap {
 	 * interfaces. The returned handle must be activated with pcap_activate()
 	 * before pack' ets can be captured with it; options for the capture, such
 	 * as promiscu' ous mode, can be set on the handle before activating it.
-	 * 
+	 *
+	 * @author Sly Technologies, Inc.
 	 * @param device
 	 *            a string that specifies the network device to open; on Linux
 	 *            systems with 2.2 or later kernels, a source argument of "any"
@@ -634,10 +641,8 @@ public class Pcap {
 	 *            error mes' sage
 	 * @return a new pcap object that needs to be activated using
 	 *         {@link #activate()} call
-	 * @since 1.4
 	 * @see #isPcap100Supported()
-	 * 
-	 * @author Sly Technologies, Inc.
+	 * @since 1.4
 	 */
 	@LibraryMember("pcap_create")
 	public native static Pcap create(String device, StringBuilder errbuf);
@@ -733,14 +738,14 @@ public class Pcap {
 	 * list immediately after its copied into Java objects in java space. The
 	 * source structures are immediately released. pcap_freealldevs() is used to
 	 * free a list allocated by pcap_findalldevs().
-	 * 
+	 *
 	 * @param alldevs
 	 *            is set to point to the first element of the list; each element
 	 *            of the list is of type PcapIf
 	 * @param errbuf
 	 *            error buffer containing error message as a string on failure
-	 * @deprecated use of byte[] errbuf is discouraged
 	 * @see #freeAllDevs(List, StringBuilder)
+	 * @deprecated use of byte[] errbuf is discouraged
 	 */
 	@Deprecated
 	public static void freeAllDevs(List<PcapIf> alldevs, byte[] errbuf) {
@@ -874,7 +879,7 @@ public class Pcap {
 	 * <p>
 	 * If this method evaluates to false, meaning that API calls are not
 	 * available, all libpcap 1.0.0 related calls will throw
-	 * 
+	 *
 	 * @return true if libpcap 1.0.0 API calls are available otherwise false
 	 *         {@link UnsatisfiedLinkError}.
 	 *         </p>
@@ -882,38 +887,37 @@ public class Pcap {
 	 *         Example:
 	 * 
 	 *         <pre>
-	 * StringBuilder errbuf = new StringBuilder();
-	 * List&lt;PcapIf&gt; alldevs = new ArrayList&lt;PcapIf&gt;();
-	 * int snaplen = 64 * 1024;
-	 * int promisc = Pcap.MODE_PROMISCUOUS;
-	 * int timeout = Pcap.DEFAULT_TIMEOUT;
-	 * int bufsize = 128 * 1024 * 1024;
-	 * int direction = Pcap.INOUT;
+	 *         StringBuilder errbuf = new StringBuilder();
+	 *         List&lt;PcapIf&gt; alldevs = new ArrayList&lt;PcapIf&gt;();
+	 *         int snaplen = 64 * 1024;
+	 *         int promisc = Pcap.MODE_PROMISCUOUS;
+	 *         int timeout = Pcap.DEFAULT_TIMEOUT;
+	 *         int bufsize = 128 * 1024 * 1024;
+	 *         int direction = Pcap.INOUT;
 	 * 
-	 * Pcap.findAllDevs(alldevs, errbuf);
-	 * String device = alldevs.get(0).getName();
+	 *         Pcap.findAllDevs(alldevs, errbuf);
+	 *         String device = alldevs.get(0).getName();
 	 * 
-	 * Pcap pcap;
-	 * if (Pcap.isPcap100Supported()) {
-	 * 	pcap = Pcap.create(device, errbuf);
+	 *         Pcap pcap;
+	 *         if (Pcap.isPcap100Supported()) {
+	 *         	pcap = Pcap.create(device, errbuf);
 	 * 
-	 * 	pcap.setSnaplen(snaplen);
-	 * 	pcap.setTimeout(timeout);
-	 * 	pcap.setPromisc(promisc);
-	 * 	pcap.setBufferSize(bufsize);
-	 * 	pcap.setDirection(direction);
+	 *         	pcap.setSnaplen(snaplen);
+	 *         	pcap.setTimeout(timeout);
+	 *         	pcap.setPromisc(promisc);
+	 *         	pcap.setBufferSize(bufsize);
+	 *         	pcap.setDirection(direction);
 	 * 
-	 * 	pcap.activate();
+	 *         	pcap.activate();
 	 * 
-	 * } else {
-	 * 	pcap = Pcap.openLive(device, promisc, timeout, errbuf);
-	 * }
+	 *         } else {
+	 *         	pcap = Pcap.openLive(device, promisc, timeout, errbuf);
+	 *         }
 	 * 
-	 * pcap.close();
-	 * </pre>
+	 *         pcap.close();
+	 *         </pre>
 	 * 
 	 *         </p>
-	 * @since 1.4
 	 * @see Pcap100
 	 * @see #activate
 	 * @see #create
@@ -925,6 +929,7 @@ public class Pcap {
 	 * @see #setRfmon
 	 * @see #setSnaplen
 	 * @see #setTimeout
+	 * @since 1.4
 	 */
 	public static boolean isPcap100Loaded() {
 		return PCAP100_LOAD_STATUS;
@@ -996,7 +1001,7 @@ public class Pcap {
 	 * <b>Note:</b> this method is deprecated in pcap as it can not be used to
 	 * pass back information about IP v6 addresses.
 	 * </p>
-	 * 
+	 *
 	 * @param device
 	 *            device to do the lookup on
 	 * @param netp
@@ -1006,8 +1011,8 @@ public class Pcap {
 	 * @param errbuf
 	 *            any error messages if return value is -1
 	 * @return 0 on success otherwise -1 on error
-	 * @deprecated use of PcapInteger has been deprecated
 	 * @see #lookupNet(String, JNumber, JNumber, StringBuilder)
+	 * @deprecated use of PcapInteger has been deprecated
 	 */
 	@Deprecated
 	@LibraryMember("pcap_lookupnet")
@@ -1128,6 +1133,7 @@ public class Pcap {
 	 */
 	private volatile long physical;
 
+	/** The id. */
 	private int id = -1;
 
 	/**
@@ -1143,7 +1149,8 @@ public class Pcap {
 	/**
 	 * Is used to activate a packet capture handle to look at packets on the
 	 * network, with the options that were set on the handle being in effect.
-	 * 
+	 *
+	 * @author Sly Technologies, Inc.
 	 * @return returns 0 on success without warnings,
 	 *         {@link #WARNING_PROMISC_NOT_SUP} on success on a device that
 	 *         doesn't support promiscuous mode if promiscuous mode was
@@ -1165,10 +1172,8 @@ public class Pcap {
 	 *         details about the problem that might be useful for debugging the
 	 *         problem if it's unexpected.
 	 *         </p>
-	 * @since 1.4
 	 * @see #isPcap100Supported()
-	 * 
-	 * @author Sly Technologies, Inc.
+	 * @since 1.4
 	 */
 	@LibraryMember("pcap_activate")
 	public native int activate();
@@ -1211,7 +1216,8 @@ public class Pcap {
 	 * Check whether monitor mode can be set for a not-yet-activated capture
 	 * handle. Checks whether monitor mode could be set on a capture handle when
 	 * the handle is activated.
-	 * 
+	 *
+	 * @author Sly Technologies, Inc.
 	 * @return returns 0 if monitor mode could not be set, 1 if monitor mode
 	 *         could be set, {@link #ERROR_NO_SUCH_DEVICE} if the device
 	 *         specified when the handle was created doesn't exist,
@@ -1219,13 +1225,87 @@ public class Pcap {
 	 *         been activated, or {@link #ERROR} if an error occurred. If
 	 *         {@link #ERROR} is returned, {@link #getErr()} gets the error
 	 *         text.
-	 * @since 1.4
 	 * @see #isPcap100Supported()
-	 * 
-	 * @author Sly Technologies, Inc.
+	 * @since 1.4
 	 */
 	@LibraryMember("pcap_can_set_rfmon")
 	public native int canSetRfmon();
+
+	/**
+	 * Capture packets using custom {@code JCcapture} implementation.
+	 *
+	 * @param <H>
+	 *            the capture handler generic type
+	 * @param <T>
+	 *            the opaque user data generic type
+	 * @param capture
+	 *            the packet capture implementation
+	 * @param handler
+	 *            the capture specific handler object instance
+	 * @param user
+	 *            the user specific object instance
+	 * @return the result of the capture is {@code JCapture} implementation
+	 *         specific, typically the number represents number of packet
+	 *         captured and if negative error code
+	 */
+	public <H extends JHandler<T>, T> int capture(JCapture<H, T> capture, H handler, T user) {
+		return capture.capture(this, 0, handler, user);
+	}
+
+	/**
+	 * Capture packets using custom {@code JCcapture} implementation.
+	 *
+	 * @param <H>
+	 *            the capture handler generic type
+	 * @param <T>
+	 *            the opaque user data generic type
+	 * @param capture
+	 *            the packet capture implementation
+	 * @param handler
+	 *            the capture specific handler object instance
+	 * @param user
+	 *            the user specific object instance
+	 * @param timeout
+	 *            the timeout duration between handler notifications
+	 * @param unit
+	 *            the timeout units
+	 * @return the result of the capture is {@code JCapture} implementation
+	 *         specific, typically the number represents number of packet
+	 *         captured and if negative error code
+	 */
+	public <H extends JHandler<T>, T> int capture(JCapture<H, T> capture, H handler, T user, long timeout,
+			TimeUnit unit) {
+		return capture.capture(this, 0, handler, user, timeout, unit);
+	}
+
+	/**
+	 * Capture packets using custom {@code JCcapture} implementation.
+	 *
+	 * @param <H>
+	 *            the capture handler generic type
+	 * @param <T>
+	 *            the opaque user data generic type
+	 * @param capture
+	 *            the packet capture implementation
+	 * @param cnt
+	 *            the number of packets to capture where the value and its
+	 *            meaning is capture implementation specific
+	 * @param handler
+	 *            the capture specific handler object instance
+	 * @param user
+	 *            the user specific object instance
+	 * @param timeout
+	 *            the timeout duration between handler notifications
+	 * @param unit
+	 *            the timeout units
+	 * @return the result of the capture is {@code JCapture} implementation
+	 *         specific, typically the number represents number of packet
+	 *         captured and if negative error code
+	 */
+	public <H extends JHandler<T>, T> int capture(JCapture<H, T> capture, int cnt, H handler, T user, long timeout,
+			TimeUnit unit) {
+		return capture.capture(this, cnt, handler, user, timeout, unit);
+	}
 
 	/**
 	 * Checks if the current Pcap structure is active and open. It automatically
@@ -1959,7 +2039,7 @@ public class Pcap {
 	 * capture loop to ``poll'' for user input periodically, as there's no
 	 * guarantee that pcap_dispatch() will return after the timeout expires.
 	 * </p>
-	 * 
+	 *
 	 * @param <T>
 	 *            handler's user object type
 	 * @param cnt
@@ -1970,8 +2050,8 @@ public class Pcap {
 	 *            opaque user object
 	 * @return 0 on success, -1 on error and -2 if breakloop was used interrupt
 	 *         the captue
-	 * @deprecated user of PcapHandler has been replaced with ByteBufferHandler
 	 * @see ByteBufferHandler
+	 * @deprecated user of PcapHandler has been replaced with ByteBufferHandler
 	 */
 	@Deprecated
 	public native <T> int dispatch(int cnt, PcapHandler<T> handler, T user);
@@ -2016,7 +2096,7 @@ public class Pcap {
 	 * capture loop to ``poll'' for user input periodically, as there's no
 	 * guarantee that pcap_dispatch() will return after the timeout expires.
 	 * </p>
-	 * 
+	 *
 	 * @param <T>
 	 *            handler's user object type
 	 * @param cnt
@@ -2027,8 +2107,8 @@ public class Pcap {
 	 *            opaque user object
 	 * @return 0 on success, -1 on error and -2 if breakloop was used interrupt
 	 *         the captue
-	 * @deprecated user of PcapHandler has been replaced with ByteBufferHandler
 	 * @see ByteBufferHandler
+	 * @deprecated user of PcapHandler has been replaced with ByteBufferHandler
 	 */
 	@Deprecated
 	public <T> int dispatch(int cnt, PcapPacketHandler<T> handler, T user) {
@@ -2083,7 +2163,7 @@ public class Pcap {
 	 * capture loop to ``poll'' for user input periodically, as there's no
 	 * guarantee that pcap_dispatch() will return after the timeout expires.
 	 * </p>
-	 * 
+	 *
 	 * @param <T>
 	 *            handler's user object type
 	 * @param cnt
@@ -2097,8 +2177,8 @@ public class Pcap {
 	 *            packet
 	 * @return 0 on success, -1 on error and -2 if breakloop was used interrupt
 	 *         the captue
-	 * @deprecated user of PcapHandler has been replaced with ByteBufferHandler
 	 * @see ByteBufferHandler
+	 * @deprecated user of PcapHandler has been replaced with ByteBufferHandler
 	 */
 	@Deprecated
 	public <T> int dispatch(int cnt, PcapPacketHandler<T> handler, T user,
@@ -2781,7 +2861,7 @@ public class Pcap {
 	 * due to a call to pcap_breakloop() before any packets were processed. If
 	 * your application uses pcap_breakloop(), make sure that you explicitly
 	 * check for -1 and -2, rather than just checking for a return value < 0.
-	 * 
+	 *
 	 * @param <T>
 	 *            handler's user object type
 	 * @param cnt
@@ -2792,8 +2872,8 @@ public class Pcap {
 	 *            opaque user object
 	 * @return 0 on success, -1 on error and -2 if breakloop was used interrupt
 	 *         the captue
-	 * @deprecated use of PcapHandler has been replaced with ByteBufferHandler
 	 * @see ByteBufferHandler
+	 * @deprecated use of PcapHandler has been replaced with ByteBufferHandler
 	 */
 	@Deprecated
 	@LibraryMember("pcap_loop")
@@ -3002,13 +3082,13 @@ public class Pcap {
 	 * device is in non-blocking mode and no packets were available to be read),
 	 * or if no more packets are available in a ``savefile.'' Unfortunately,
 	 * there is no way to determine whether an error occured or not.
-	 * 
+	 *
 	 * @param pkt_header
 	 *            a packet header that will be initialized to corresponding C
 	 *            structure captured values
 	 * @return buffer containing packet data or null if error occured
-	 * @deprecated use of PcapPktHdr has been replaced with PcapHeader
 	 * @see PcapHeader
+	 * @deprecated use of PcapPktHdr has been replaced with PcapHeader
 	 */
 	@Deprecated
 	@LibraryMember("pcap_next")
@@ -3019,7 +3099,8 @@ public class Pcap {
 	 * is used to retrieve the next available packet, bypassing the callback
 	 * method traditionally provided by libpcap. pcap_next_ex fills the
 	 * pkt_header and pkt_data parameters (see pcap_handler()) with the pointers
-	 * to the header and to the data of the next captured packet. </p>
+	 * to the header and to the data of the next captured packet.
+	 * </p>
 	 * 
 	 * @param pkt_header
 	 *            a packet header that will be initialized to corresponding C
@@ -3070,11 +3151,11 @@ public class Pcap {
 	 *            packet
 	 * @return the status code
 	 *         <ul>
-	 *         <li>1 if the packet has been read without problems <li>0 if the
-	 *         timeout set with pcap_open_live() has elapsed. In this case
-	 *         pkt_header and pkt_data don't point to a valid packet <li>-1 if
-	 *         an error occurred <li>-2 if EOF was reached reading from an
-	 *         offline capture
+	 *         <li>1 if the packet has been read without problems
+	 *         <li>0 if the timeout set with pcap_open_live() has elapsed. In
+	 *         this case pkt_header and pkt_data don't point to a valid packet
+	 *         <li>-1 if an error occurred
+	 *         <li>-2 if EOF was reached reading from an offline capture
 	 *         </ul>
 	 * @since 1.2
 	 */
@@ -3091,8 +3172,9 @@ public class Pcap {
 	 * is used to retrieve the next available packet, bypassing the callback
 	 * method traditionally provided by libpcap. pcap_next_ex fills the
 	 * pkt_header and pkt_data parameters (see pcap_handler()) with the pointers
-	 * to the header and to the data of the next captured packet. </p>
-	 * 
+	 * to the header and to the data of the next captured packet.
+	 * </p>
+	 *
 	 * @param pkt_header
 	 *            a packet header that will be initialized to corresponding C
 	 *            structure captured values
@@ -3106,9 +3188,9 @@ public class Pcap {
 	 *         <li>-1 if an error occurred
 	 *         <li>-2 if EOF was reached reading from an offline capture
 	 *         </ul>
-	 * @deprecated use PcapHeader and PcapPktBuffer has been deprecated
 	 * @see PcapHeader
 	 * @see JBuffer
+	 * @deprecated use PcapHeader and PcapPktBuffer has been deprecated
 	 */
 	@Deprecated
 	public native int nextEx(PcapPktHdr pkt_header, PcapPktBuffer buffer);
@@ -3223,15 +3305,14 @@ public class Pcap {
 	/**
 	 * sets the buffer size that will be used on a capture handle when the
 	 * handle is activated to buffer_size, which is in units of bytes.
-	 * 
+	 *
+	 * @author Sly Technologies, Inc.
 	 * @param size
 	 *            size that will be used on a capture handle
 	 * @return 0 on success or {@link #ERROR_ACTIVATED} if called on a capture
 	 *         handle that has been activated.
-	 * @since 1.4
 	 * @see #isPcap100Supported()
-	 * 
-	 * @author Sly Technologies, Inc.
+	 * @since 1.4
 	 */
 	@LibraryMember("pcap_set_buffer_size")
 	public native int setBufferSize(long size);
@@ -3251,7 +3332,8 @@ public class Pcap {
 	 * Set the direction for which packets will be captured. The method
 	 * <code>setDirection()</code> is used to specify a direction that packets
 	 * will be captured. dir is one of the constants {@link Direction#IN},
-	 * 
+	 *
+	 * @author Sly Technologies, Inc.
 	 * @param dir
 	 *            direction that packets will be captured.
 	 * @return returns 0 on success and {@link #ERROR} on failure. If
@@ -3271,9 +3353,8 @@ public class Pcap {
 	 *         </p>
 	 *         {@link #ERROR} is returned, {@link #getErr()} gets the error
 	 *         text.
-	 * @since 1.4
 	 * @see #isPcap100Supported()
-	 * @author Sly Technologies, Inc.
+	 * @since 1.4
 	 */
 	public int setDirection(Direction dir) {
 		return setDirection(dir.ordinal());
@@ -3283,7 +3364,8 @@ public class Pcap {
 	 * Set the direction for which packets will be captured. The method
 	 * <code>setDirection()</code> is used to specify a direction that packets
 	 * will be captured. dir is one of the constants {@link Direction#IN},
-	 * 
+	 *
+	 * @author Sly Technologies, Inc.
 	 * @param dir
 	 *            direction that packets will be captured.
 	 * @return returns 0 on success and {@link #ERROR} on failure. If
@@ -3310,9 +3392,8 @@ public class Pcap {
 	 *         </p>
 	 *         {@link #ERROR} is returned, {@link #getErr()} gets the error
 	 *         text.
-	 * @since 1.4
 	 * @see #isPcap100Supported()
-	 * @author Sly Technologies, Inc.
+	 * @since 1.4
 	 */
 	@LibraryMember("pcap_setdirection")
 	public native int setDirection(int dir);
@@ -3361,33 +3442,31 @@ public class Pcap {
 	 * promiscuous mode should be set on a capture handle when the handle is
 	 * activated. If promisc is non-zero, promiscuous mode will be set,
 	 * otherwise it will not be set.
-	 * 
+	 *
+	 * @author Sly Technologies, Inc.
 	 * @param promisc
 	 *            if promisc is non-zero, promiscuous mode will be set,
 	 *            otherwise it will not be set
 	 * @return returns 0 on success or {@link #ERROR_ACTIVATED} if called on a
 	 *         capture handle that has been activated
-	 * @since 1.4
 	 * @see #isPcap100Supported()
-	 * 
-	 * @author Sly Technologies, Inc.
+	 * @since 1.4
 	 */
 	@LibraryMember("pcap_set_promisc")
 	public native int setPromisc(int promisc);
 
 	/**
 	 * Set monitor mode for a not-yet-activated capture handle.
-	 * 
+	 *
+	 * @author Sly Technologies, Inc.
 	 * @param rfmon
 	 *            sets whether monitor mode should be set on a capture handle
 	 *            when the handle is activated. If rfmon is non-zero, monitor
 	 *            mode will be set, otherwise it will not be set.
 	 * @return returns 0 on success or {@link #ERROR_ACTIVATED} if called on a
 	 *         capture handle that has been activated
-	 * @since 1.4
 	 * @see #isPcap100Supported()
-	 * 
-	 * @author Sly Technologies, Inc.
+	 * @since 1.4
 	 */
 	@LibraryMember("pcap_set_rfmon")
 	public native int setRfmon(int rfmon);
@@ -3396,15 +3475,14 @@ public class Pcap {
 	 * Set the snapshot length for a not-yet-activated capture handle. Sets the
 	 * snapshot length to be used on a capture handle when the handle is
 	 * activated to snaplen.
-	 * 
+	 *
+	 * @author Sly Technologies, Inc.
 	 * @param snaplen
 	 *            snapshot length
 	 * @return returns 0 on success or {@link #ERROR_ACTIVATED} if called on a
 	 *         capture handle that has been activated
-	 * @since 1.4
 	 * @see #isPcap100Supported()
-	 * 
-	 * @author Sly Technologies, Inc.
+	 * @since 1.4
 	 */
 	@LibraryMember("pcap_set_snaplen")
 	public native int setSnaplen(int snaplen);
@@ -3413,15 +3491,14 @@ public class Pcap {
 	 * Set the read timeout for a not-yet-activated capture handle. Sets the
 	 * read timeout that will be used on a capture handle when the handle is
 	 * activated to timeout, which is in units of milliseconds.
-	 * 
+	 *
+	 * @author Sly Technologies, Inc.
 	 * @param timeout
 	 *            timeout value in milli seconds
 	 * @return returns 0 on success or {@link #ERROR_ACTIVATED} if called on a
 	 *         capture handle that has been activated
-	 * @since 1.4
 	 * @see #isPcap100Supported()
-	 * 
-	 * @author Sly Technologies, Inc.
+	 * @since 1.4
 	 */
 	@LibraryMember("pcap_set_timeout")
 	public native int setTimeout(int timeout);
