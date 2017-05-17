@@ -78,7 +78,7 @@ public class JNetPcapFormatter
 	}
 
 	/**
-	 * Prefix.
+	 * UnitPrefix.
 	 * 
 	 * @param record
 	 *          the record

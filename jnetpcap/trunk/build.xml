@@ -35,13 +35,13 @@
 
 	<!-- Incremented with each development build - SVN maintained -->
 	<property file="build.number" />
-	
+
 	<!-- Incremented everytime we increment the package release number - SVN maintained -->
 	<property file="pkg.number" />
 
 	<!-- Deployable packages and their structure -->
 	<property file="package.properties" />
-	
+
 	<!-- load the build properties file -->
 	<property file="compiler_${os.arch}.properties" />
 	<property file=".properties" />
@@ -54,11 +54,11 @@
 	<property file="${os.name}_${os.arch}.properties" />
 	<property file="${os.name}.properties" />
 
-	
+
 	<tstamp>
 		<format property="timestamp.svnformat" pattern="${format.timestamp.svn}" locale="${format.timestamp.locale}" />
 	</tstamp>
-	
+
 	<!-- load the SVN properties file -->
 	<property file="svn.properties" />
 
@@ -271,15 +271,15 @@
 	<target name="comp-manifest" depends="prep-meta-inf" description="Create manifest file">
 
 		<!-- Create manifest -->
-		<manifest file="${build.classes.inf}" >
+		<manifest file="${build.classes.inf}">
 			<attribute name="Built-By" value="${company.name}" />
 			<attribute name="Built-On" value="${timestamp.isoformat}" />
 			<attribute name="Created-By" value="Apache Ant ${ant.version}" />
-			
+
 			<attribute name="Specification-Title" value="jNetPcap" />
 			<attribute name="Specification-Vendor" value="Sly Technologies, Inc." />
 			<attribute name="Specification-Version" value="${pkg.version}" />
-			
+
 			<attribute name="Implementation-Title" value="jNetPcap runtime" />
 			<attribute name="Implementation-Vendor" value="Sly Technologies, Inc." />
 			<attribute name="Implementation-Version" value="${pkg.version}" />
@@ -330,9 +330,12 @@
 			<class name="org.jnetpcap.packet.JHeaderScanner" />
 			<class name="org.jnetpcap.packet.JScan" />
 
+			<class name="org.jnetpcap.extension.PcapExtension" />
+
 			<class name="org.jnetpcap.packet.JFlowKey" />
 			<class name="org.jnetpcap.util.checksum.Checksum" />
 			<class name="org.jnetpcap.util.Debug" />
+
 			<class name="com.slytechs.library.NativeLibrary" />
 			<class name="com.slytechs.library.NativeLibraryReference" />
 			<class name="com.slytechs.library.JNISymbol" />
@@ -358,13 +361,9 @@
 		<echo message="using ${compiler.cc.cmd} compiler" />
 		<echo message="system include = ${java.sdk.include.dir}" />
 		<echo message="path=${env.Path}" />
-		
-		<cc runtime="dynamic" 
-			debug="${compiler.debug}" 
-			objdir="${build.obj.dir}" 
-			multithreaded="${compiler.multithreaded}" 
-			exceptions="${compiler.exceptions}">
-			
+
+		<cc runtime="dynamic" debug="${compiler.debug}" objdir="${build.obj.dir}" multithreaded="${compiler.multithreaded}" exceptions="${compiler.exceptions}">
+
 			<compiler name="${compiler.cc.cmd}">
 				<compilerarg value="-DHAVE_REMOTE" />
 				<defineset define="LIBPCAP_VERSION=0x${compiler.LIBPCAP_VERSION}" if="compiler.LIBPCAP_VERSION" />
@@ -413,11 +412,11 @@
 			<arg line="${pcap100.files}" />
 
 			<arg line="-L ${pcap.lib.dir}" />
-			
+
 			<arg line="-L ${jni.build.dir}" />
 
 			<arg line="-l ${pcap.lib.name}" />
-			
+
 			<arg line="-l jnetpcap" />
 
 			<arg line="-l ${ms.lib.name}" />
@@ -429,7 +428,7 @@
 		<property name="jni.lib.file" value="${jni.build.filepath}" />
 		<property name="jni.lib.pcap100.file" value="${jni.build.pcap100.filepath}" />
 	</target>
-	
+
 	<target name="comp-jni-win64" depends="prep-checks,prep-jni,prep-lib,comp-javah" if="platform.win64">
 
 		<!-- Not supplying "outtype", disables the LINKER in CC tag
@@ -445,13 +444,9 @@
 		<echo message="using ${compiler.cc.cmd} compiler found at ${compiler.cc.bin.dir}" />
 		<echo message="system include = ${java.sdk.include.dir}" />
 		<echo message="path=${env.Path}" />
-		
-		<cc runtime="dynamic" 
-			debug="${compiler.debug}" 
-			objdir="${build.obj.dir}" 
-			multithreaded="${compiler.multithreaded}" 
-			exceptions="${compiler.exceptions}">
-			
+
+		<cc runtime="dynamic" debug="${compiler.debug}" objdir="${build.obj.dir}" multithreaded="${compiler.multithreaded}" exceptions="${compiler.exceptions}">
+
 			<compiler name="${compiler.cc.cmd}">
 				<compilerarg value="-DHAVE_REMOTE" />
 				<defineset define="LIBPCAP_VERSION=0x${compiler.LIBPCAP_VERSION}" if="compiler.LIBPCAP_VERSION" />
@@ -504,11 +499,11 @@
 			<arg line="${pcap100.files}" />
 
 			<arg line="-L ${pcap.lib.dir}" />
-			
+
 			<arg line="-L ${jni.build.dir}" />
 
 			<arg line="-l ${pcap.lib.name}" />
-			
+
 			<arg line="-l jnetpcap" />
 
 			<arg line="-l ${ms.lib.name}" />
@@ -628,37 +623,38 @@
 		</condition>
 		<echo message="dpkg = ${packager.dpkg}" />
 	</target>
-	
+
 	<!-- =================================================================== -->
 	<!-- Generates shared JNI library file from C++ sources                  -->
 	<!-- =================================================================== -->
 	<target name="prep-libpcap" if="platform.linux">
-		<exec executable="locate" outputproperty="result.locate_out" >
-			<arg value="libpcap.so"/>
+		<exec executable="locate" outputproperty="result.locate_out">
+			<arg value="libpcap.so" />
 		</exec>
-		
+
 		<exec executable="grep" inputstring="${result.locate_out}" outputproperty="result.grep_out">
 			<arg value="libpcap.so$" />
 		</exec>
-		
+
 		<echo message="Located libpcap.so file: ${result.grep_out}" />
-		
+
+		<property name="system.libpcap.so" value="${result.grep_out}" />
 		<property name="build.libpcap.so" value="${build.lib.dir}/libpcap.so" />
-		
+
 		<copy verbose="true" overwrite="true" file="${result.grep_out}" tofile="${build.libpcap.so}" />
-		
-		<exec executable="perl"  >
+
+		<exec executable="perl">
 			<arg value="-pi" />
 			<arg value="-e" />
 			<arg value="s/libpcap.so..../libpcap.so\x0\x0\x0\x0/g" />
 			<arg value="${build.libpcap.so}" />
 		</exec>
-		
+
 		<exec executable="readelf" outputproperty="out.readelf.libpcap.so">
 			<arg value="-d" />
 			<arg value="${build.libpcap.so}" />
 		</exec>
-		
+
 		<echo message="Fixed SONAME: ${build.libpcap.so}" />
 		<echo message="${out.readelf.libpcap.so}" />
 	</target>
@@ -705,7 +701,7 @@
 
 			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
 
-			<fileset dir="${src.c.dir}" >
+			<fileset dir="${src.c.dir}">
 				<include name="*_pcap100.cpp" />
 				<include name="api_*.cpp" />
 			</fileset>
@@ -738,7 +734,7 @@
 
 		<property name="jni.lib.file" value="${build.lib.dir}/${lib.pcap.name}" />
 		<property name="jni.lib.pcap100.file" value="${jni.build.pcap100.filepath}" />
-		
+
 		<echo message="Cleanup modified libpcap.so" />
 		<delete file="${build.libpcap.so}" />
 
@@ -763,7 +759,7 @@
 		<echo message="system include = ${java.sdk.include.dir}" />
 		<cc runtime="dynamic" outtype="shared" outfile="${build.lib.dir}/${lib.pcap.basename}" debug="${compiler.debug}" objdir="${build.obj.dir}" multithreaded="compiler.multithreaded" exceptions="compiler.exceptions" warnings="${compiler.warnings}">
 
-<!--                     	<compilerarg value="-mlp32" /> -->
+			<!--                     	<compilerarg value="-mlp32" /> -->
 
 			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
 
@@ -775,7 +771,7 @@
 			<defineset define="LIBPCAP_VERSION=0x100" />
 			<defineset define="DEBUG" if="DEBUG" />
 			<defineset define="HPUX" />
-			<defineset define="__STRICT_ALIGNMENT" if="compiler.cc.strict.alignment"/>
+			<defineset define="__STRICT_ALIGNMENT" if="compiler.cc.strict.alignment" />
 			<defineset define="__LITTLE_ENDIAN=1" />
 			<defineset define="__BIG_ENDIAN=2" />
 			<defineset define="__BYTE_ORDER=__BIG_ENDIAN" />
@@ -793,7 +789,7 @@
 
 			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
 
-			<fileset dir="${src.c.dir}" >
+			<fileset dir="${src.c.dir}">
 				<include name="*_pcap100.cpp" />
 				<include name="api_*.cpp" />
 			</fileset>
@@ -825,12 +821,12 @@
 
 		<property name="jni.lib.file" value="${build.lib.dir}/${lib.pcap.name}" />
 		<property name="jni.lib.pcap100.file" value="${jni.build.pcap100.filepath}" />
-		
+
 		<echo message="Cleanup modified libpcap.so" />
 		<delete file="${build.libpcap.so}" />
 
 	</target>
-	
+
 
 	<!-- =================================================================== -->
 	<!-- Generates shared JNI library file from C++ sources                  -->
@@ -875,7 +871,7 @@
 
 			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
 
-			<fileset dir="${src.c.dir}" >
+			<fileset dir="${src.c.dir}">
 				<include name="*_pcap100.cpp" />
 				<include name="api_*.cpp" />
 			</fileset>
@@ -907,12 +903,12 @@
 
 		<property name="jni.lib.file" value="${build.lib.dir}/${lib.pcap.name}" />
 		<property name="jni.lib.pcap100.file" value="${jni.build.pcap100.filepath}" />
-		
+
 		<echo message="Cleanup modified libpcap.so" />
 		<delete file="${build.libpcap.so}" />
 
 	</target>
-	
+
 	<!-- =================================================================== -->
 	<!-- Generates shared JNI library file from C++ sources                  -->
 	<!-- =================================================================== -->
@@ -956,7 +952,7 @@
 
 			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
 
-			<fileset dir="${src.c.dir}" >
+			<fileset dir="${src.c.dir}">
 				<include name="*_pcap100.cpp" />
 				<include name="api_*.cpp" />
 			</fileset>
@@ -988,271 +984,271 @@
 
 		<property name="jni.lib.file" value="${build.lib.dir}/${lib.pcap.name}" />
 		<property name="jni.lib.pcap100.file" value="${jni.build.pcap100.filepath}" />
-		
+
 		<echo message="Cleanup modified libpcap.so" />
 		<delete file="${build.libpcap.so}" />
 
 	</target>
 
-	
-    <target name="comp-jni-aix" depends="comp-jni-aix-xlc" if="platform.aix">
-    </target>
 
-     <!-- =================================================================== -->
-     <!-- Generates shared JNI library file from C++ sources                  -->
-     <!-- =================================================================== -->
-     <target name="comp-jni-aix-xlc" depends="prep-checks,prep-jni,prep-lib,comp-javah" if="platform.aix">
+	<target name="comp-jni-aix" depends="comp-jni-aix-xlc" if="platform.aix">
+	</target>
 
-             <!-- Not supplying "outtype", disables the LINKER in CC tag
+	<!-- =================================================================== -->
+	<!-- Generates shared JNI library file from C++ sources                  -->
+	<!-- =================================================================== -->
+	<target name="comp-jni-aix-xlc" depends="prep-checks,prep-jni,prep-lib,comp-javah" if="platform.aix">
+
+		<!-- Not supplying "outtype", disables the LINKER in CC tag
              outtype="shared"
              outfile="${build.library.filename.nosuffix}"
                              <linkerarg value="- -add-stdcall-alias" />
 
 
      -->
-             <echo> kobjfile=${build.obj.dir} </echo>
-             <echo message="Value of outfile = ${outfile}" />
+		<echo> kobjfile=${build.obj.dir} </echo>
+		<echo message="Value of outfile = ${outfile}" />
 
-             <echo>arch=${os.arch}</echo>
-             <echo>name=${os.name}</echo>
+		<echo>arch=${os.arch}</echo>
+		<echo>name=${os.name}</echo>
 
-             <echo message="Using pcap version 0x${compiler.LIBPCAP_VERSION}" />
-             <echo message="compiling JNI C++ files to object code" />
-             <echo message="using ${compiler.cc.cmd} compiler" />
-             <echo message="system include = ${java.sdk.include.dir}" />
+		<echo message="Using pcap version 0x${compiler.LIBPCAP_VERSION}" />
+		<echo message="compiling JNI C++ files to object code" />
+		<echo message="using ${compiler.cc.cmd} compiler" />
+		<echo message="system include = ${java.sdk.include.dir}" />
 
-                <fileset id="sources.fileset.id" dir="${src.c.dir}" >
-                        <exclude name="*_pcap100.cpp" />
-                        <exclude name="api_*.cpp" />
-                        <include name="*.cpp" />
-                        <include name="*.c" />
-                </fileset>
+		<fileset id="sources.fileset.id" dir="${src.c.dir}">
+			<exclude name="*_pcap100.cpp" />
+			<exclude name="api_*.cpp" />
+			<include name="*.cpp" />
+			<include name="*.c" />
+		</fileset>
 
-                <fileset id="sources-pcap100.fileset.id" dir="${src.c.dir}" >
-                        <include name="*_pcap100.cpp" />
-                        <include name="api_*.cpp" />
-                </fileset>
+		<fileset id="sources-pcap100.fileset.id" dir="${src.c.dir}">
+			<include name="*_pcap100.cpp" />
+			<include name="api_*.cpp" />
+		</fileset>
 
-                <pathconvert pathsep=" " property="sources.set" refid="sources.fileset.id" />
-                <pathconvert pathsep=" " property="sources-pcap100.set" refid="sources-pcap100.fileset.id" />
+		<pathconvert pathsep=" " property="sources.set" refid="sources.fileset.id" />
+		<pathconvert pathsep=" " property="sources-pcap100.set" refid="sources-pcap100.fileset.id" />
 
-                <!-- COMPILE jnetpcap.so sources -->
-                <exec executable="xlC">
+		<!-- COMPILE jnetpcap.so sources -->
+		<exec executable="xlC">
 
-                        <arg value="-DLIBPCAP_VERSION=0x${compiler.LIBPCAP_VERSION}" />
-                        <arg value="-DAIX" />
-                        <arg value="-g" />
-                        <arg value="-I${build.include.dir}" />
-                        <arg value="-I${java.sdk.include.dir}" />
-                        <arg value="-I${pcap.include.dir}" />
-                        <arg value="-I${src.c.dir}" />
+			<arg value="-DLIBPCAP_VERSION=0x${compiler.LIBPCAP_VERSION}" />
+			<arg value="-DAIX" />
+			<arg value="-g" />
+			<arg value="-I${build.include.dir}" />
+			<arg value="-I${java.sdk.include.dir}" />
+			<arg value="-I${pcap.include.dir}" />
+			<arg value="-I${src.c.dir}" />
 
-                        <arg line="-L${pcap.lib.dir}" />
-                        <arg value="-o${build.obj.dir}" />
+			<arg line="-L${pcap.lib.dir}" />
+			<arg value="-o${build.obj.dir}" />
 
-                        <arg value="-c" />
-                        <arg line="${sources.set}" />
-                </exec>
+			<arg value="-c" />
+			<arg line="${sources.set}" />
+		</exec>
 
-                <!-- COMPILE jnetpcap-pcap100.so sources -->
-                <exec executable="xlC">
+		<!-- COMPILE jnetpcap-pcap100.so sources -->
+		<exec executable="xlC">
 
-                    <arg value="-DLIBPCAP_VERSION=0x${compiler.LIBPCAP_VERSION}" />
-                    <arg value="-DAIX" />
-                    <arg value="-g" />
-                    <arg value="-I${build.include.dir}" />
-                    <arg value="-I${java.sdk.include.dir}" />
-                    <arg value="-I${pcap.include.dir}" />
-                    <arg value="-I${src.c.dir}" />
+			<arg value="-DLIBPCAP_VERSION=0x${compiler.LIBPCAP_VERSION}" />
+			<arg value="-DAIX" />
+			<arg value="-g" />
+			<arg value="-I${build.include.dir}" />
+			<arg value="-I${java.sdk.include.dir}" />
+			<arg value="-I${pcap.include.dir}" />
+			<arg value="-I${src.c.dir}" />
 
 
-                    <arg line="-L${pcap.lib.dir}" />
+			<arg line="-L${pcap.lib.dir}" />
 
-                    <arg value="-o${build.obj.dir}" />
+			<arg value="-o${build.obj.dir}" />
 
-                    <arg value="-c" />
+			<arg value="-c" />
 
-                    <arg line="${sources-pcap100.set}" />
-            </exec>
+			<arg line="${sources-pcap100.set}" />
+		</exec>
 
-            <!-- GENERATE exportlist symbol file -->
-            <exec executable="${compiler.ld.cmd}" dir=".">
-                    <arg value="-L/usr/local/lib" />
-                    <arg value="-qmkshrobj" />
-                    <arg value="-qexpfile=build/lib/exportlist" />
-                    <arg line="${jni.obj.files}" />
-                    <arg value="-lpcap" />
-            </exec>
+		<!-- GENERATE exportlist symbol file -->
+		<exec executable="${compiler.ld.cmd}" dir=".">
+			<arg value="-L/usr/local/lib" />
+			<arg value="-qmkshrobj" />
+			<arg value="-qexpfile=build/lib/exportlist" />
+			<arg line="${jni.obj.files}" />
+			<arg value="-lpcap" />
+		</exec>
 
-            <!-- LINK jnetpcap.so library with (-G) dynamic linking -->
-            <exec executable="${compiler.ld.cmd}" dir=".">
-                    <arg value="-G" />
-                    <!-- arg value="-qmkshrobj" / -->
-                    <!-- arg value="-bnoquiet" / -->
-                    <arg value="-L/usr/local/lib" />
-                    <arg value="-L/opt/freeware/64/lib" />
-                    <arg value="-L/opt/freeware/lib/gcc/powerpc-ibm-aix5.3.0.0/4.2.0" />
-                    <arg value="-L/opt/freeware/lib/gcc/powerpc-ibm-aix5.3.0.0/4.2.0/ppc64" />
-                    <arg value="-lstdc++" />
-                    <arg value="-lgcc" />
-                    <arg value="-lc" />
+		<!-- LINK jnetpcap.so library with (-G) dynamic linking -->
+		<exec executable="${compiler.ld.cmd}" dir=".">
+			<arg value="-G" />
+			<!-- arg value="-qmkshrobj" / -->
+			<!-- arg value="-bnoquiet" / -->
+			<arg value="-L/usr/local/lib" />
+			<arg value="-L/opt/freeware/64/lib" />
+			<arg value="-L/opt/freeware/lib/gcc/powerpc-ibm-aix5.3.0.0/4.2.0" />
+			<arg value="-L/opt/freeware/lib/gcc/powerpc-ibm-aix5.3.0.0/4.2.0/ppc64" />
+			<arg value="-lstdc++" />
+			<arg value="-lgcc" />
+			<arg value="-lc" />
 
-                    <arg line="${jni.obj.files}" />
+			<arg line="${jni.obj.files}" />
 
-                    <arg line="-o ${build.lib.dir}/lib${lib.pcap.basename}.so" />
-                    <!--arg value="-qexpfile=build/lib/exportlist" / -->
-                    <arg value="-lpcap" />
-            </exec>
+			<arg line="-o ${build.lib.dir}/lib${lib.pcap.basename}.so" />
+			<!--arg value="-qexpfile=build/lib/exportlist" / -->
+			<arg value="-lpcap" />
+		</exec>
 
-            <!-- LINK jnetpcap-pcap100.so library with (-G) dynamic linking -->
-            <exec executable="${compiler.ld.cmd}" dir=".">
-                    <arg value="-G" />
-                    <!--arg value="-qmkshrobj" / -->
-                    <!-- arg value="-bnoquiet" / -->
-                    <arg value="-L/usr/local/lib" />
-                    <arg value="-L/opt/freeware/64/lib" />
-                    <arg value="-L/opt/freeware/lib/gcc/powerpc-ibm-aix5.3.0.0/4.2.0" />
-                    <arg value="-L/opt/freeware/lib/gcc/powerpc-ibm-aix5.3.0.0/4.2.0/ppc64" />
-                    <arg value="-L./build/lib" />
-                    <arg value="-lstdc++" />
-                    <arg value="-lgcc" />
-                    <arg value="-lc" />
+		<!-- LINK jnetpcap-pcap100.so library with (-G) dynamic linking -->
+		<exec executable="${compiler.ld.cmd}" dir=".">
+			<arg value="-G" />
+			<!--arg value="-qmkshrobj" / -->
+			<!-- arg value="-bnoquiet" / -->
+			<arg value="-L/usr/local/lib" />
+			<arg value="-L/opt/freeware/64/lib" />
+			<arg value="-L/opt/freeware/lib/gcc/powerpc-ibm-aix5.3.0.0/4.2.0" />
+			<arg value="-L/opt/freeware/lib/gcc/powerpc-ibm-aix5.3.0.0/4.2.0/ppc64" />
+			<arg value="-L./build/lib" />
+			<arg value="-lstdc++" />
+			<arg value="-lgcc" />
+			<arg value="-lc" />
 
-                <arg line="build/obj/jnetpcap_pcap100.o" />
+			<arg line="build/obj/jnetpcap_pcap100.o" />
 
-                <arg line="-o ${build.lib.dir}/lib${lib.pcap.basename}-pcap100.so" />
-                <arg value="-lpcap" />
-                <arg value="-ljnetpcap" />
-                <!--arg value="-qexpfile=build/lib/exportlist" / -->
-       		 </exec>
+			<arg line="-o ${build.lib.dir}/lib${lib.pcap.basename}-pcap100.so" />
+			<arg value="-lpcap" />
+			<arg value="-ljnetpcap" />
+			<!--arg value="-qexpfile=build/lib/exportlist" / -->
+		</exec>
 
 	</target>
 
 
 
-    <!-- =================================================================== -->
-     <!-- Generates shared JNI library file from C++ sources                  -->
-     <!-- =================================================================== -->
-     <target name="comp-jni-aix-cc" depends="prep-checks,prep-jni,prep-lib,comp-javah" if="platform.aix">
+	<!-- =================================================================== -->
+	<!-- Generates shared JNI library file from C++ sources                  -->
+	<!-- =================================================================== -->
+	<target name="comp-jni-aix-cc" depends="prep-checks,prep-jni,prep-lib,comp-javah" if="platform.aix">
 
-             <!-- Not supplying "outtype", disables the LINKER in CC tag
+		<!-- Not supplying "outtype", disables the LINKER in CC tag
              outtype="shared"
              outfile="${build.library.filename.nosuffix}"
                              <linkerarg value="- -add-stdcall-alias" />
 
 
      -->
-             <echo> objfile=${build.obj.dir} </echo>
-             <copy todir="${build.obj.dir}" file="/usr/local/lib/libpcap.a" />
+		<echo> objfile=${build.obj.dir} </echo>
+		<copy todir="${build.obj.dir}" file="/usr/local/lib/libpcap.a" />
 
-             <echo message="Value of outfile = ${outfile}" />
+		<echo message="Value of outfile = ${outfile}" />
 
-             <echo>arch=${os.arch}</echo>
-             <echo>name=${os.name}</echo>
+		<echo>arch=${os.arch}</echo>
+		<echo>name=${os.name}</echo>
 
-             <echo message="Using pcap version 0x${compiler.LIBPCAP_VERSION}" />
-             <echo message="compiling JNI C++ files to object code" />
-             <echo message="using ${compiler.cc.cmd} compiler" />
-             <echo message="system include = ${java.sdk.include.dir}" />
-             <cc runtime="dynamic" outtype="shared" outfile="${build.lib.dir}/${lib.pcap.basename}" debug="${compiler.debug}" objdir="${build.obj.dir}" multithreaded="compiler.multithread
+		<echo message="Using pcap version 0x${compiler.LIBPCAP_VERSION}" />
+		<echo message="compiling JNI C++ files to object code" />
+		<echo message="using ${compiler.cc.cmd} compiler" />
+		<echo message="system include = ${java.sdk.include.dir}" />
+		<cc runtime="dynamic" outtype="shared" outfile="${build.lib.dir}/${lib.pcap.basename}" debug="${compiler.debug}" objdir="${build.obj.dir}" multithreaded="compiler.multithread
 ed" exceptions="compiler.exceptions" warnings="${compiler.warnings}">
 
-                     <env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
+			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
 
-                     <fileset dir="${src.c.dir}" >
-                             <exclude name="*_pcap100.cpp" />
-                             <exclude name="api_*.cpp" />
-                             <include name="*.cpp" />
-                             <include name="*.c" />
-                     </fileset>
+			<fileset dir="${src.c.dir}">
+				<exclude name="*_pcap100.cpp" />
+				<exclude name="api_*.cpp" />
+				<include name="*.cpp" />
+				<include name="*.c" />
+			</fileset>
 
-                     <includepath location="${build.include.dir}" />
-                     <includepath location="${src.c.dir}" />
-                     <sysincludepath location="${java.sdk.include.dir}" />
-                     <!-- <sysincludepath location="${java.sdk.include.dir}/aix" /> -->
-                     <defineset define="LIBPCAP_VERSION=0x${compiler.LIBPCAP_VERSION}" if="compiler.LIBPCAP_VERSION" />
-                     <defineset define="DEBUG" if="DEBUG" />
-                     <defineset define="AIX" />
-                     <!--defineset define="__BYTE_ORDER=__BIG_ENDIAN" /-->
+			<includepath location="${build.include.dir}" />
+			<includepath location="${src.c.dir}" />
+			<sysincludepath location="${java.sdk.include.dir}" />
+			<!-- <sysincludepath location="${java.sdk.include.dir}/aix" /> -->
+			<defineset define="LIBPCAP_VERSION=0x${compiler.LIBPCAP_VERSION}" if="compiler.LIBPCAP_VERSION" />
+			<defineset define="DEBUG" if="DEBUG" />
+			<defineset define="AIX" />
+			<!--defineset define="__BYTE_ORDER=__BIG_ENDIAN" /-->
 
-                     <!-- <compilerarg value="-mpowerpc64" /> -->
-                     <!--compilerarg value="-mbig" /-->
-                     <!--compilerarg value="-mbig-endian" /-->
-                     <!-- <compilerarg value="-maix64" /> -->
+			<!-- <compilerarg value="-mpowerpc64" /> -->
+			<!--compilerarg value="-mbig" /-->
+			<!--compilerarg value="-mbig-endian" /-->
+			<!-- <compilerarg value="-maix64" /> -->
 
-                     <linker name="${compiler.ld.cmd}">
-                             <syslibset libs="pcap" />
-                             <linkerarg value="-x64" />
+			<linker name="${compiler.ld.cmd}">
+				<syslibset libs="pcap" />
+				<linkerarg value="-x64" />
 
 
-                             <linkerarg value="-p1" />
-                             <linkerarg value="-bnoquiet" />
-                             <linkerarg value="-L/usr/local/lib" />
-                             <linkerarg value="-L/opt/freeware/64/lib" />
-                             <linkerarg value="-L/opt/freeware/lib/gcc/powerpc-ibm-aix5.3.0.0/4.2.0" />
-                             <linkerarg value="-L/opt/freeware/lib/gcc/powerpc-ibm-aix5.3.0.0/4.2.0/ppc64" />
-                        <linkerarg value="-lstdc++" />
-                        <linkerarg value="-lgcc" />
-                        <linkerarg value="-lc" />
+				<linkerarg value="-p1" />
+				<linkerarg value="-bnoquiet" />
+				<linkerarg value="-L/usr/local/lib" />
+				<linkerarg value="-L/opt/freeware/64/lib" />
+				<linkerarg value="-L/opt/freeware/lib/gcc/powerpc-ibm-aix5.3.0.0/4.2.0" />
+				<linkerarg value="-L/opt/freeware/lib/gcc/powerpc-ibm-aix5.3.0.0/4.2.0/ppc64" />
+				<linkerarg value="-lstdc++" />
+				<linkerarg value="-lgcc" />
+				<linkerarg value="-lc" />
 
-                        <linkerarg value="-qmkshrobj" />
+				<linkerarg value="-qmkshrobj" />
 
-                </linker>
-        </cc>
+			</linker>
+		</cc>
 
-        <copy tofile="${build.lib.dir}/${lib.pcap.fullname}" file="${build.lib.dir}/${lib.pcap.name}" />
+		<copy tofile="${build.lib.dir}/${lib.pcap.fullname}" file="${build.lib.dir}/${lib.pcap.name}" />
 
-        <echo message="Created shared JNI libary: ${build.lib.dir}/${lib.pcap.fullname}" />
+		<echo message="Created shared JNI libary: ${build.lib.dir}/${lib.pcap.fullname}" />
 
-        <echo message="Compiling pcap100: ${jni.build.pcap100.filepath}" />
-        <cc runtime="dynamic" outtype="shared" outfile="${jni.build.pcap100.filepath}" debug="${compiler.debug}" objdir="${build.obj.dir}" multithreaded="compiler.multithreaded" exceptions="compiler.exceptions" warnings="${compiler.warnings}">
+		<echo message="Compiling pcap100: ${jni.build.pcap100.filepath}" />
+		<cc runtime="dynamic" outtype="shared" outfile="${jni.build.pcap100.filepath}" debug="${compiler.debug}" objdir="${build.obj.dir}" multithreaded="compiler.multithreaded" exceptions="compiler.exceptions" warnings="${compiler.warnings}">
 
-                <env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
+			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
 
-                <fileset dir="${src.c.dir}" >
-                        <include name="*_pcap100.cpp" />
-                        <include name="api_*.cpp" />
-                </fileset>
-                <includepath location="${build.include.dir}" />
-                <includepath location="${src.c.dir}" />
-                <sysincludepath location="${java.sdk.include.dir}" />
-                <!-- <sysincludepath location="${java.sdk.include.dir}/linux" /> -->
-                <defineset define="LIBPCAP_VERSION=0x${compiler.LIBPCAP_VERSION}" if="compiler.LIBPCAP_VERSION" />
-                <defineset define="DEBUG" if="DEBUG" />
-                <defineset define="AIX" />
-                <!--defineset define="__BYTE_ORDER=__BIG_ENDIAN" /-->
+			<fileset dir="${src.c.dir}">
+				<include name="*_pcap100.cpp" />
+				<include name="api_*.cpp" />
+			</fileset>
+			<includepath location="${build.include.dir}" />
+			<includepath location="${src.c.dir}" />
+			<sysincludepath location="${java.sdk.include.dir}" />
+			<!-- <sysincludepath location="${java.sdk.include.dir}/linux" /> -->
+			<defineset define="LIBPCAP_VERSION=0x${compiler.LIBPCAP_VERSION}" if="compiler.LIBPCAP_VERSION" />
+			<defineset define="DEBUG" if="DEBUG" />
+			<defineset define="AIX" />
+			<!--defineset define="__BYTE_ORDER=__BIG_ENDIAN" /-->
 
-                <!-- <compilerarg value="-maix64" /> -->
-                <!--compilerarg value="-mbig-endian" /-->
+			<!-- <compilerarg value="-maix64" /> -->
+			<!--compilerarg value="-mbig-endian" /-->
 
-                <linker name="${compiler.ld.cmd}">
-                        <syslibset libs="pcap" />
-                        <libset dir="." />
-                        <linkerarg value="-x64" />
-                        <linkerarg value="-p1" />
-                        <linkerarg value="-bnoquiet" />
-                        <linkerarg value="-L/usr/local/lib" />
-                        <linkerarg value="-L/opt/freeware/64/lib" />
-                        <linkerarg value="-L/opt/freeware/lib/gcc/powerpc-ibm-aix5.3.0.0/4.2.0" />
-                        <linkerarg value="-L/opt/freeware/lib/gcc/powerpc-ibm-aix5.3.0.0/4.2.0/ppc64" />
-                        <linkerarg value="-L/opt/freeware/lib/gcc/powerpc-ibm-aix5.3.0.0/4.2.0" />
-                        <linkerarg value="-lstdc++" />
-                        <linkerarg value="-lgcc" />
-                        <linkerarg value="-lc" />
-                        <linkerarg value="-L." />
+			<linker name="${compiler.ld.cmd}">
+				<syslibset libs="pcap" />
+				<libset dir="." />
+				<linkerarg value="-x64" />
+				<linkerarg value="-p1" />
+				<linkerarg value="-bnoquiet" />
+				<linkerarg value="-L/usr/local/lib" />
+				<linkerarg value="-L/opt/freeware/64/lib" />
+				<linkerarg value="-L/opt/freeware/lib/gcc/powerpc-ibm-aix5.3.0.0/4.2.0" />
+				<linkerarg value="-L/opt/freeware/lib/gcc/powerpc-ibm-aix5.3.0.0/4.2.0/ppc64" />
+				<linkerarg value="-L/opt/freeware/lib/gcc/powerpc-ibm-aix5.3.0.0/4.2.0" />
+				<linkerarg value="-lstdc++" />
+				<linkerarg value="-lgcc" />
+				<linkerarg value="-lc" />
+				<linkerarg value="-L." />
 
-                        <linkerarg value="libjnetpcap.so" />
+				<linkerarg value="libjnetpcap.so" />
 
-                        <linkerarg value="-qmkshrobj" />
+				<linkerarg value="-qmkshrobj" />
 
-                </linker>
-        </cc>
+			</linker>
+		</cc>
 
-        <echo message="Created shared JNI libary: ${build.lib.dir}/${jni.build.pcap100.filepath}" />
+		<echo message="Created shared JNI libary: ${build.lib.dir}/${jni.build.pcap100.filepath}" />
 
-        <copy tofile="${build.lib.dir}/${lib.pcap.fullname}" file="${build.lib.dir}/${lib.pcap.name}" />
+		<copy tofile="${build.lib.dir}/${lib.pcap.fullname}" file="${build.lib.dir}/${lib.pcap.name}" />
 
-        <property name="jni.lib.file" value="${build.lib.dir}/${lib.pcap.fullname}" />
+		<property name="jni.lib.file" value="${build.lib.dir}/${lib.pcap.fullname}" />
 
 	</target>
 
@@ -1315,9 +1311,7 @@ ed" exceptions="compiler.exceptions" warnings="${compiler.warnings}">
 		<!-- ############################################################### -->
 		<!--       Create JAR file containing all the java classes  -->
 		<!-- ############################################################### -->
-		<jar destfile="${build.jnetpcap.jar}" 
-			manifest="${build.classes.inf}" 
-			description="jNetPcap Libpcap wrapper and packet decoder" >
+		<jar destfile="${build.jnetpcap.jar}" manifest="${build.classes.inf}" description="jNetPcap Libpcap wrapper and packet decoder">
 			<fileset dir="${build.classes.dir}1.5" />
 		</jar>
 	</target>
@@ -1692,7 +1686,7 @@ https://sourceforge.net/project/admin/editpackages.php?group_id=164277
 			<commit message="incremented the build number on ${timestamp.isoformat}" file="build.number" />
 		</svn>
 	</target>
-	
+
 	<!-- =================================================================== -->
 	<!-- Increment the build number and commit it to SVN                     -->
 	<!-- =================================================================== -->
@@ -1727,14 +1721,12 @@ https://sourceforge.net/project/admin/editpackages.php?group_id=164277
 		<echo>
 svn copy ${svn.jnp.trunk} ${svn.jnp.builds} -m "${svn.builds.comment}" 
 		</echo>
-		
+
 		<svn username="${svn.username}" password="${svn.password}">
-			<copy message="${svn.builds.comment}" 
-				srcUrl="${svn.jnp.trunk.url}" 
-				destUrl="${svn.jnp.builds.url}" />	
+			<copy message="${svn.builds.comment}" srcUrl="${svn.jnp.trunk.url}" destUrl="${svn.jnp.builds.url}" />
 		</svn>
 	</target>
-	
+
 	<!-- =================================================================== -->
 	<!-- Increment the build number and commit it to SVN                     -->
 	<!-- =================================================================== -->
@@ -1744,11 +1736,9 @@ svn copy ${svn.jnp.trunk} ${svn.jnp.builds} -m "${svn.builds.comment}"
 		<echo>
 svn copy ${svn.jnp.trunk} ${svn.jnp.builds} -m "${svn.tags.comment}" 
 		</echo>
-		
+
 		<svn username="${svn.username}" password="${svn.password}">
-			<copy message="${svn.tags.comment}" 
-				srcUrl="${svn.jnp.trunk.url}" 
-				destUrl="${svn.jnp.tags.url}" />	
+			<copy message="${svn.tags.comment}" srcUrl="${svn.jnp.trunk.url}" destUrl="${svn.jnp.tags.url}" />
 		</svn>
 	</target>
 
@@ -1876,7 +1866,7 @@ svn copy ${svn.jnp.trunk} ${svn.jnp.builds} -m "${svn.tags.comment}"
 
 	</target>
 
-	
+
 	<!-- =================================================================== -->
 	<!-- Execute jUnit test cases -->
 	<!-- =================================================================== -->

@@ -18,9 +18,6 @@
  */
 package org.jnetpcap;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.jnetpcap.format.TestFormatter;
 import org.jnetpcap.header.TestHttp;
 import org.jnetpcap.header.TestIcmp;
@@ -31,7 +28,6 @@ import org.jnetpcap.nio.TestJMemory;
 import org.jnetpcap.packet.JHandlerTest;
 import org.jnetpcap.packet.TestHeaderState;
 import org.jnetpcap.packet.TestJHeader;
-import org.jnetpcap.packet.TestJRegistry;
 import org.jnetpcap.packet.TestJScanner;
 import org.jnetpcap.packet.TestNoSystemOutOutput;
 import org.jnetpcap.packet.TestPcapPacket;
@@ -44,6 +40,9 @@ import org.jnetpcap.protocol.TestTcpIp;
 import org.jnetpcap.protocol.TestVoip;
 import org.jnetpcap.util.TestExpandableString;
 import org.jnetpcap.util.TestSearchPaths;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -64,9 +63,9 @@ public class BuildTests {
 			// $JUnit-BEGIN$
 			suite.addTestSuite(TestPcapUtils.class);
 			suite.addTestSuite(TestPcapPacket.class);
-//			suite.addTestSuite(TestPcapDumper.class);
+			// suite.addTestSuite(TestPcapDumper.class);
 			suite.addTestSuite(JHandlerTest.class);
-//			suite.addTestSuite(TestJRegistry.class);
+			// suite.addTestSuite(TestJRegistry.class);
 			suite.addTestSuite(TestJScanner.class);
 			suite.addTestSuite(TestPcapUtils.class);
 			suite.addTestSuite(TestSubHeader.class);

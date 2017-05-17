@@ -131,7 +131,7 @@ public @interface Header {
 	int length() default -1;
 	
 	/**
-	 * Prefix.
+	 * UnitPrefix.
 	 * 
 	 * @return the int
 	 */
