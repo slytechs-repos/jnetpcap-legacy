@@ -15,6 +15,10 @@ extern "C" {
 
 #include <jni.h>
 
+#ifdef __linux__
+#include <inttypes.h>
+#endif
+
 // Generic MACROS
 #ifndef __BYTE_ORDER
 

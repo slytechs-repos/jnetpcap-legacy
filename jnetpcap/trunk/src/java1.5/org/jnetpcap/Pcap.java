@@ -22,6 +22,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.jnetpcap.extension.JCapture;
 import org.jnetpcap.nio.JBuffer;
 import org.jnetpcap.nio.JMemory.Type;
 import org.jnetpcap.nio.JNumber;
@@ -38,7 +39,6 @@ import com.slytechs.library.Library;
 import com.slytechs.library.LibraryInitializer;
 import com.slytechs.library.LibraryMember;
 
-// TODO: Auto-generated Javadoc
 /**
  * <P>
  * This class is the main class peered with native <code>pcap_t</code> structure
@@ -1141,7 +1141,7 @@ public class Pcap {
 	 * 
 	 * {@link #openLive} methods.
 	 */
-	public Pcap() {
+	protected Pcap() {
 		// Empty on purpose, the private field 'physical' is initialized
 		// from JNI call. That is the only way it can be initialized.
 	}
@@ -1248,8 +1248,8 @@ public class Pcap {
 	 *         specific, typically the number represents number of packet
 	 *         captured and if negative error code
 	 */
-	public <H extends JHandler<T>, T> int capture(JCapture<H, T> capture, H handler, T user) {
-		return capture.capture(this, 0, handler, user);
+	public <H extends JHandler<T>, T> long capture(JCapture<H, T> capture, H handler, T user) {
+		return capture.capture(0, handler, user);
 	}
 
 	/**
@@ -1273,9 +1273,11 @@ public class Pcap {
 	 *         specific, typically the number represents number of packet
 	 *         captured and if negative error code
 	 */
-	public <H extends JHandler<T>, T> int capture(JCapture<H, T> capture, H handler, T user, long timeout,
+	public <H extends JHandler<T>, T> long capture(JCapture<H, T> capture, H handler, T user, long timeout,
 			TimeUnit unit) {
-		return capture.capture(this, 0, handler, user, timeout, unit);
+
+		capture.setPcap(this);
+		return capture.capture(handler, user, timeout, unit);
 	}
 
 	/**
@@ -1302,9 +1304,11 @@ public class Pcap {
 	 *         specific, typically the number represents number of packet
 	 *         captured and if negative error code
 	 */
-	public <H extends JHandler<T>, T> int capture(JCapture<H, T> capture, int cnt, H handler, T user, long timeout,
+	public <H extends JHandler<T>, T> long capture(JCapture<H, T> capture, int cnt, H handler, T user, long timeout,
 			TimeUnit unit) {
-		return capture.capture(this, cnt, handler, user, timeout, unit);
+
+		capture.setPcap(this);
+		return capture.capture(cnt, handler, user, timeout, unit);
 	}
 
 	/**
