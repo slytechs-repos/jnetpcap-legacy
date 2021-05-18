@@ -1,4 +1,4 @@
-jNetPcap OS version 1.4.r1425 is the latest stable release.
+jNetPcap OS version 1.5.r1500 is the latest quick release.
 
 * Release date: 2021-05-18
 
