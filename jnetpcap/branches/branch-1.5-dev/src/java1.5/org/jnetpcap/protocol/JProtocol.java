@@ -144,8 +144,8 @@ import org.jnetpcap.protocol.wan.PPP;
 public enum JProtocol {
 
 	/**
-	 * Builtin header type that encapsulates the portion of the packet buffer
-	 * not matched by any protocol header.
+	 * Builtin header type that encapsulates the portion of the packet buffer not
+	 * matched by any protocol header.
 	 */
 	PAYLOAD(JProtocol.PAYLOAD_ID, Payload.class),
 
@@ -257,7 +257,8 @@ public enum JProtocol {
 	SCTP_CWR(JProtocol.SCTP_CWR_ID, SctpCWR.class),
 
 	/** SCTP Shutdown Complete Chunk */
-	SCTP_SHUTDOWN_COMPLETE(JProtocol.SCTP_SHUTDOWN_COMPLETE_ID,
+	SCTP_SHUTDOWN_COMPLETE(
+			JProtocol.SCTP_SHUTDOWN_COMPLETE_ID,
 			SctpShutdownComplete.class),
 
 	/** NullHeader - loopback/null header */
@@ -267,7 +268,8 @@ public enum JProtocol {
 	RTCP_SENDER_REPORT(JProtocol.RTCP_SENDER_REPORT_ID, RtcpSenderReport.class),
 
 	/** RR: Receiver Report RTCP Packet */
-	RTCP_RECEIVER_REPORT(JProtocol.RTCP_RECEIVER_REPORT_ID,
+	RTCP_RECEIVER_REPORT(
+			JProtocol.RTCP_RECEIVER_REPORT_ID,
 			RtcpReceiverReport.class),
 
 	/** SDES: Source Description RTCP Packet */
@@ -277,11 +279,11 @@ public enum JProtocol {
 	RTCP_BYE(JProtocol.RTCP_BYE_ID, RtcpBye.class),
 
 	/** APP: Application-Defined RTCP Packet */
-	RTCP_APP(JProtocol.RTCP_APP_ID, RtcpApp.class), ;
+	RTCP_APP(JProtocol.RTCP_APP_ID, RtcpApp.class),;
 
 	/**
-	 * A protocol suite. Meta data interface that provides general category for
-	 * the protocol as a family of related protocols.
+	 * A protocol suite. Meta data interface that provides general category for the
+	 * protocol as a family of related protocols.
 	 * 
 	 * @author Mark Bednarczyk
 	 * @author Sly Technologies, Inc.
@@ -486,8 +488,7 @@ public enum JProtocol {
 	/**
 	 * Protocol descriptor constant
 	 * 
-	 * @param className
-	 *            main protocol header class
+	 * @param className main protocol header class
 	 */
 	private JProtocol(int id, String className) {
 		this(id, className, new PcapDLT[0]);
@@ -496,8 +497,7 @@ public enum JProtocol {
 	/**
 	 * Protocol descriptor constant
 	 * 
-	 * @param c
-	 *            protocol header class
+	 * @param c protocol header class
 	 */
 	private JProtocol(int id, Class<? extends JHeader> c) {
 		this(id, c, new PcapDLT[0]);
@@ -506,10 +506,8 @@ public enum JProtocol {
 	/**
 	 * Protocol descriptor constant
 	 * 
-	 * @param c
-	 *            protocol header class
-	 * @param dlt
-	 *            A corresponding Pcap data-link-type or first header for this
+	 * @param c   protocol header class
+	 * @param dlt A corresponding Pcap data-link-type or first header for this
 	 *            protocol
 	 */
 	private JProtocol(int id, Class<? extends JHeader> c, PcapDLT... dlt) {
@@ -524,11 +522,9 @@ public enum JProtocol {
 	/**
 	 * Protocol descriptor constant
 	 * 
-	 * @param className
-	 *            protocol header class
-	 * @param dlt
-	 *            A corresponding Pcap data-link-type or first header for this
-	 *            protocol
+	 * @param className protocol header class
+	 * @param dlt       A corresponding Pcap data-link-type or first header for this
+	 *                  protocol
 	 */
 	private JProtocol(int id, String className, PcapDLT... dlt) {
 		this.className = className;
@@ -573,8 +569,7 @@ public enum JProtocol {
 	/**
 	 * Checks the supplied ID if its is one of jNetPcap's core protocol set.
 	 * 
-	 * @param id
-	 *            numerical ID of the header as assigned by JRegistry
+	 * @param id numerical ID of the header as assigned by JRegistry
 	 * @return true if header is part of the core protocol set otherwise false
 	 */
 	public static boolean isCoreProtocol(int id) {
@@ -582,11 +577,10 @@ public enum JProtocol {
 	}
 
 	/**
-	 * Checks the supplied header by class if its is one of jNetPcap's core
-	 * protocol set.
+	 * Checks the supplied header by class if its is one of jNetPcap's core protocol
+	 * set.
 	 * 
-	 * @param c
-	 *            class name of the header to check
+	 * @param c class name of the header to check
 	 * @return true if header is part of the core protocol set otherwise false
 	 */
 	public static boolean isCoreProtocol(Class<? extends JHeader> c) {
@@ -596,10 +590,9 @@ public enum JProtocol {
 	/**
 	 * Converts a protocol header to a JPRotocol constant.
 	 * 
-	 * @param c
-	 *            header class to convert
-	 * @return an enum constant or null if class is not part of the core
-	 *         protocol set
+	 * @param c header class to convert
+	 * @return an enum constant or null if class is not part of the core protocol
+	 *         set
 	 */
 	public static JProtocol valueOf(Class<? extends JHeader> c) {
 		for (JProtocol p : values()) {
@@ -614,10 +607,9 @@ public enum JProtocol {
 	/**
 	 * Converts a protocol header to a JPRotocol constant.
 	 * 
-	 * @param id
-	 *            numerical ID of the header assigned by JRegistry
-	 * @return an enum constant or null if class is not part of the core
-	 *         protocol set
+	 * @param id numerical ID of the header assigned by JRegistry
+	 * @return an enum constant or null if class is not part of the core protocol
+	 *         set
 	 */
 	public static JProtocol valueOf(int id) {
 		if (id >= values().length) {
@@ -629,27 +621,25 @@ public enum JProtocol {
 
 	/**
 	 * Gets the numerical ID of the data link header for the open pcap handle. A
-	 * call to Pcap.datalink() is made and the value translated to an
-	 * appropriate jNetPcap protocol header ID.
+	 * call to Pcap.datalink() is made and the value translated to an appropriate
+	 * jNetPcap protocol header ID.
 	 * 
-	 * @param pcap
-	 *            open Pcap handle
-	 * @return enum constant or the Payload header as the catch all if no
-	 *         headers are matched
+	 * @param pcap open Pcap handle
+	 * @return enum constant or the Payload header as the catch all if no headers
+	 *         are matched
 	 */
 	public static JProtocol valueOf(Pcap pcap) {
 		return valueOf(PcapDLT.valueOf(pcap.datalink()));
 	}
 
 	/**
-	 * Gets the numerical ID of the data link header for supplied pcap dlt
-	 * constant. A call to Pcap.datalink() is made and the value translated to
-	 * an appropriate jNetPcap protocol header ID.
+	 * Gets the numerical ID of the data link header for supplied pcap dlt constant.
+	 * A call to Pcap.datalink() is made and the value translated to an appropriate
+	 * jNetPcap protocol header ID.
 	 * 
-	 * @param dlt
-	 *            pcap dlt constant
-	 * @return enum constant or the Payload header as the catch all if no
-	 *         headers are matched
+	 * @param dlt pcap dlt constant
+	 * @return enum constant or the Payload header as the catch all if no headers
+	 *         are matched
 	 */
 	public static JProtocol valueOf(PcapDLT dlt) {
 		if (dlt == null) {
@@ -678,8 +668,7 @@ public enum JProtocol {
 	}
 
 	/**
-	 * Gets a unique runtime numerica ID of this protocol assigned by
-	 * jNetStream.
+	 * Gets a unique runtime numerica ID of this protocol assigned by jNetStream.
 	 * 
 	 * @return the protocol id
 	 */
@@ -705,12 +694,10 @@ public enum JProtocol {
 	}
 
 	/**
-	 * Encodes a linear protocol index (a JRegistry index), into a bitmask based
-	 * ID.
+	 * Encodes a linear protocol index (a JRegistry index), into a bitmask based ID.
 	 * 
-	 * @param index
-	 *            zero based linear JRegistry protocol index (table index).
-	 *            Allowed values are from 0 to 1024.
+	 * @param index zero based linear JRegistry protocol index (table index).
+	 *              Allowed values are from 0 to 1024.
 	 * @return encoded 64-bit unique protocol identifier
 	 * @since 1.4
 	 */
@@ -729,13 +716,11 @@ public enum JProtocol {
 	}
 
 	/**
-	 * Given a packet header bitmask, creates a numerical ID that can be used
-	 * for array lookups
+	 * Given a packet header bitmask, creates a numerical ID that can be used for
+	 * array lookups
 	 * 
-	 * @param map
-	 *            map group to create the ID for
-	 * @param index
-	 *            zero based index within the group (0 to 31)
+	 * @param map   map group to create the ID for
+	 * @param index zero based index within the group (0 to 31)
 	 * @return numerical id
 	 * @since 1.4
 	 */
@@ -746,8 +731,7 @@ public enum JProtocol {
 	/**
 	 * Gets the map-group index from a bitmask
 	 * 
-	 * @param mask
-	 *            mask to extra map-group index
+	 * @param mask mask to extra map-group index
 	 * @return map-group index
 	 * @since 1.4
 	 */
@@ -759,8 +743,7 @@ public enum JProtocol {
 	/**
 	 * Gets the map-group index to which the given ID should be mapped
 	 * 
-	 * @param id
-	 *            id to use from map-group index calculation
+	 * @param id id to use from map-group index calculation
 	 * @return map-group index
 	 * @since 1.4
 	 */
@@ -771,8 +754,7 @@ public enum JProtocol {
 	/**
 	 * Converts a mask to a numerical ID
 	 * 
-	 * @param mask
-	 *            mask containing a single protocol bit encoded
+	 * @param mask mask containing a single protocol bit encoded
 	 * @return corresponding ID
 	 * @since 1.4
 	 */
@@ -801,8 +783,7 @@ public enum JProtocol {
 	 * header-map-bitmasks. The bitmasks must all belong to the same map-group
 	 * otherwise an exception is thrown.
 	 * 
-	 * @param masks
-	 *            masks to combine
+	 * @param masks masks to combine
 	 * @return combined masks
 	 * @since 1.4
 	 */
@@ -827,8 +808,7 @@ public enum JProtocol {
 	 * header-map-bitmasks. The bitmasks must all belong to the same map-group
 	 * otherwise an exception is thrown.
 	 * 
-	 * @param protocols
-	 *            protocols to combine
+	 * @param protocols protocols to combine
 	 * @return combined masks
 	 * @since 1.4
 	 */
@@ -854,8 +834,7 @@ public enum JProtocol {
 	 * header-map-bitmasks. The bitmasks must all belong to the same map-group
 	 * otherwise an exception is thrown.
 	 * 
-	 * @param masks
-	 *            masks to combine
+	 * @param masks masks to combine
 	 * @return combined masks
 	 * @since 1.4
 	 */
@@ -875,4 +854,6 @@ public enum JProtocol {
 
 		return c;
 	}
+
+	private native void __noop_force_native_javac_compile0();
 }

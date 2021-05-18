@@ -78,7 +78,7 @@
 	<!-- class path used for compiling                                       -->
 	<!-- =================================================================== -->
 	<path id="compiler.classpath">
-		<pathelement location="${build.classes.dir}${compiler.target}" />
+		<pathelement location="${build.classes.dir}1.5" />
 		<pathelement location="${build.tests.dir}" />
 	</path>
 
@@ -149,7 +149,7 @@
 	<!-- Creates classes/ directory -->
 	<!-- =================================================================== -->
 	<target name="prep-java" depends="prep-build">
-		<mkdir dir="${build.classes.dir}${compiler.target}" />
+		<mkdir dir="${build.classes.dir}1.5" />
 	</target>
 
 	<!-- =================================================================== -->
@@ -244,10 +244,10 @@
 	<target name="comp-java-jre" depends="prep-java">
 		<property name="compiler.debuglevel" value="lines,vars,source" />
 
-		<javac srcdir="${src.java.dir}${compiler.target}" destdir="${build.classes.dir}${compiler.target}" debug="${compiler.debug}" debuglevel="${compiler.debuglevel}" deprecation="${compiler.deprecate}" optimize="${compiler.optimize}" classpathref="compiler.classpath" source="${compiler.source}" target="${compiler.target}" />
+		<javac srcdir="${src.java.dir}1.5" verbose="yes" nativeHeaderDir="${build.include.dir}" destdir="${build.classes.dir}1.5" debug="${compiler.debug}" debuglevel="${compiler.debuglevel}" deprecation="${compiler.deprecate}" optimize="${compiler.optimize}" classpathref="compiler.classpath" source="${compiler.source}" target="${compiler.target}" />
 
-		<copy todir="${build.classes.dir}${compiler.target}/resources">
-			<fileset dir="${src.java.dir}${compiler.target}/resources" />
+		<copy todir="${build.classes.dir}1.5/resources">
+			<fileset dir="${src.java.dir}1.5/resources" />
 
 		</copy>
 
@@ -260,7 +260,7 @@
 
 		<antcall target="comp-java-jre">
 			<param name="jre" value="jre1.5" />
-			<param name="compiler.target" value="1.5" />
+			<param name="compiler.target" value="${release.target}" />
 		</antcall>
 
 	</target>
@@ -293,7 +293,12 @@
 	<!-- Compiles java binary classes, not sources, using javah              -->
 	<!-- =================================================================== -->
 	<target name="comp-javah" depends="prep-javah,comp-java">
-		<javah destdir="${build.include.dir}" classpathref="javah.classpath" force="${javah.force}" verbose="true">
+
+		<echo>Compiler target 9+ uses 'javac' to generate native headers. 'javah' deprecated.</echo>
+
+		<!--
+		<javah dstdir="${build.include.dir}" srcdir="${src.java.dir}1.5" classpathref="javah.classpath" verbose="true">
+
 
 			<class name="org.jnetpcap.Pcap" />
 			<class name="org.jnetpcap.PcapBpfProgram" />
@@ -339,8 +344,10 @@
 			<class name="com.slytechs.library.NativeLibrary" />
 			<class name="com.slytechs.library.NativeLibraryReference" />
 			<class name="com.slytechs.library.JNISymbol" />
+			
 
-		</javah>
+		</javac>
+-->
 	</target>
 
 	<!-- =================================================================== -->
@@ -633,14 +640,15 @@
 		</exec>
 
 		<exec executable="grep" inputstring="${result.locate_out}" outputproperty="result.grep_out">
-			<arg value="libpcap.so$" />
+			<arg value="libpcap.so.1.8.1" />
 		</exec>
 
-		<echo message="Located libpcap.so file: ${result.grep_out}" />
+		<echo message="Located libpcap.so file: '${result.grep_out}'" />
 
 		<property name="system.libpcap.so" value="${result.grep_out}" />
 		<property name="build.libpcap.so" value="${build.lib.dir}/libpcap.so" />
 
+		<echo message="Copy '${result.grep_out}' to ${build.libpcap.so}" />
 		<copy verbose="true" overwrite="true" file="${result.grep_out}" tofile="${build.libpcap.so}" />
 
 		<exec executable="perl">
@@ -840,11 +848,13 @@
       	-->
 		<echo>arch=${os.arch}</echo>
 		<echo>name=${os.name}</echo>
+		<echo>${basedir}</echo>
 
 		<echo message="Using pcap version ${compiler.LIBPCAP_VERSION}" />
 		<echo message="compiling JNI C++ files to object code" />
 		<echo message="using ${compiler.cc.cmd} compiler" />
 		<echo message="system include = ${java.sdk.include.dir}" />
+
 		<cc runtime="dynamic" outtype="shared" outfile="${build.lib.dir}/${lib.pcap.basename}" debug="${compiler.debug}" objdir="${build.obj.dir}" multithreaded="compiler.multithreaded" exceptions="compiler.exceptions" warnings="${compiler.warnings}">
 
 			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
@@ -854,16 +864,17 @@
 			<includepath location="${src.c.dir}" />
 			<sysincludepath location="${java.sdk.include.dir}" />
 			<sysincludepath location="${java.sdk.include.dir}/linux" />
-			<defineset define="LIBPCAP_VERSION=0x${compiler.LIBPCAP_VERSION}" if="compiler.LIBPCAP_VERSION" />
+			<defineset define="LIBPCAP_VERSION=0x100" />
 			<defineset define="DEBUG" if="DEBUG" />
 
 
 			<linker name="${compiler.ld.cmd}">
-				<syslibset libs=":../lib/libpcap.so" />
+				<syslibset libs="pcap" />
 
 				<linkerarg value="-Wl,-soname,lib${lib.pcap.basename}.so" />
 
 				<linkerarg value="-lstdc++" />
+				<linkerarg value="-L ${build.lib.dir}" />
 			</linker>
 		</cc>
 
@@ -879,13 +890,13 @@
 			<includepath location="${src.c.dir}" />
 			<sysincludepath location="${java.sdk.include.dir}" />
 			<sysincludepath location="${java.sdk.include.dir}/linux" />
-			<defineset define="LIBPCAP_VERSION=0x${compiler.LIBPCAP_VERSION}" if="compiler.LIBPCAP_VERSION" />
+			<defineset define="LIBPCAP_VERSION=0x100" />
 			<defineset define="DEBUG" if="DEBUG" />
 			<defineset define="Linux" />
 
 
 			<linker name="${compiler.ld.cmd}">
-				<syslibset libs="jnetpcap,:../lib/libpcap.so" />
+				<syslibset libs="jnetpcap,pcap" />
 				<libset dir="${build.lib.dir}" libs="jnetpcap" />
 
 				<linkerarg value="-Wl,-soname,${jni.pcap100.file}" />
@@ -1263,7 +1274,7 @@ ed" exceptions="compiler.exceptions" warnings="${compiler.warnings}">
 	<!-- Compiles java files using JavaDoc                                   -->
 	<!-- =================================================================== -->
 	<target name="comp-javadoc-jre" depends="prep-javadoc">
-		<javadoc sourcepath="${src.java.dir}${compiler.target}" source="${compiler.target}" destdir="${build.javadoc.dir}" doctitle="${doc.javadoc.title} (${pkg.version})" overview="${src.java.dir}${compiler.target}/${doc.javadoc.overview.html}" packagenames="org.jnetpcap.*" classpathref="javadoc.classpath" />
+		<javadoc sourcepath="${src.java.dir}1.5" source="${compiler.target}" destdir="${build.javadoc.dir}" doctitle="${doc.javadoc.title} (${pkg.version})" overview="${src.java.dir}1.5/${doc.javadoc.overview.html}" packagenames="org.jnetpcap.*" classpathref="javadoc.classpath" />
 	</target>
 
 	<!-- =================================================================== -->
@@ -1281,7 +1292,7 @@ ed" exceptions="compiler.exceptions" warnings="${compiler.warnings}">
 
 		<antcall target="comp-javadoc-jre">
 			<param name="jre" value="jre1.5" />
-			<param name="compiler.target" value="1.5" />
+			<param name="compiler.target" value="9" />
 		</antcall>
 
 	</target>
