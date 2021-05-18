@@ -1,6 +1,6 @@
 jNetPcap OS version 1.4.r1425 is the latest stable release.
 
-* Release date: 2013-08-19
+* Release date: 2021-05-18
 
 * Project website: http://jnetpcap.com
   - Community Support: http://jnetpcap.com/forum/support
@@ -9,7 +9,7 @@ jNetPcap OS version 1.4.r1425 is the latest stable release.
 * Authors: Sly Technologies Inc
 
 * Company information:
-  Sly Technologies™ Inc. specializes in native and "Java" middle-ware platforms 
+  Sly Technologiesï¿½ Inc. specializes in native and "Java" middle-ware platforms 
   for working with network communication protocols and data.
   
   - Sales: sales@slytechs.com or  (888) 789-6499 ext 1
@@ -41,6 +41,13 @@ jNetPcap OS version 1.4.r1425 is the latest stable release.
   - Userguide: http://jnetpcap.com/userguide
   - Examples:  http://jnetpcap.com/examples
   - Tutorials: http://jnetpcap.com/tutorial
+
+* Changes: == Release 1.5.r1500 (2021-05-18) ==
+  - Upgrades JRE support to Java 9+
+  - Added module-info.java and exports
+  - Updated build scripts to support latest Linux
+  - Updated build script to use 'javac' instead of deprecated 'javah' for JNI headers
+  - Fixed up java classes with native calls for new 'javac' requirements 
 
 * Bug fixes: == Release 1.4.r1425 (2013-08-19) ==
 
