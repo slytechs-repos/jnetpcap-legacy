@@ -841,11 +841,15 @@
 		<echo>arch=${os.arch}</echo>
 		<echo>name=${os.name}</echo>
 
+		<echo>current directory: ${basedir}</echo>
 		<echo message="Using pcap version ${compiler.LIBPCAP_VERSION}" />
 		<echo message="compiling JNI C++ files to object code" />
 		<echo message="using ${compiler.cc.cmd} compiler" />
 		<echo message="system include = ${java.sdk.include.dir}" />
 		<cc runtime="dynamic" outtype="shared" outfile="${build.lib.dir}/${lib.pcap.basename}" debug="${compiler.debug}" objdir="${build.obj.dir}" multithreaded="compiler.multithreaded" exceptions="compiler.exceptions" warnings="${compiler.warnings}">
+
+			<compilerarg value="-std=c11" />
+			<compilerarg value="-Wno-format" />
 
 			<env key="PATH" path="${compiler.cc.bin.dir};${env.PATH}" />
 
@@ -859,7 +863,8 @@
 
 
 			<linker name="${compiler.ld.cmd}">
-				<syslibset libs=":../lib/libpcap.so" />
+				<syslibset libs="pcap" />
+				<!--				<syslibset libs=":../lib/libpcap.so" />-->
 
 				<linkerarg value="-Wl,-soname,lib${lib.pcap.basename}.so" />
 

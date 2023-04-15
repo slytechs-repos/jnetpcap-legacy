@@ -1551,41 +1551,9 @@ JNIEXPORT void JNICALL Java_org_jnetpcap_Pcap_checkIsActive
 JNIEXPORT jstring JNICALL Java_org_jnetpcap_Pcap_lookupDev
 (JNIEnv *env, jclass clazz, jobject jerrbuf) {
 	
-	if (jerrbuf == NULL) {
-		throwException(env, NULL_PTR_EXCEPTION, "errbuf argument is null");
-		return NULL;
-	}
-	
-	
-	char errbuf[PCAP_ERRBUF_SIZE];
-	errbuf[0] = '\0'; // Reset the buffer;
+	throwException(env, UNSUPPORTED_OPERATION_EXCEPTION, "pcap_lookupdev is not longer supported");
 
-	//	printf("device=%s snaplen=%d, promisc=%d timeout=%d\n",
-	//			device, jsnaplen, jpromisc, jtimeout);
-
-	char *device = pcap_lookupdev(errbuf);
-	setString(env, jerrbuf, errbuf); // Even if no error, could have warning msg
-	if (device == NULL) {
-		return NULL;
-	}
-	
-#ifdef WIN32
-	/*
-	 * Name is in wide character format. So convert to plain UTF8.
-	 */
-	int size=WideCharToMultiByte(0, 0, (const WCHAR*)device, -1, NULL, 0, NULL, NULL);
-	char utf8[size + 1];
-	WideCharToMultiByte(0, 0, (const WCHAR*)device, -1, utf8, size, NULL, NULL);
-#ifdef DEBUG
-	printf("size=%d, utf8=%s device=%ws\n", size, utf8, device);
-#endif
-	
-	jstring jdevice = env->NewStringUTF(utf8);
-#else 
-	jstring jdevice = env->NewStringUTF(device);
-#endif
-	
-	return jdevice;
+	return NULL;
 }
 
 /*

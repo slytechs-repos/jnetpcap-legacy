@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdint.h>
 
 #ifdef Linux
 #include <sys/ioctl.h>
@@ -35,7 +36,7 @@
 #include <pcap.h>
 #endif
 
-int mac_addr_sys ( char *dev, u_char *addr)
+int mac_addr_sys ( char *dev, uint8_t *addr)
 {
 /* implementation for Linux */
 #ifdef Linux
@@ -43,7 +44,7 @@ int mac_addr_sys ( char *dev, u_char *addr)
 
    int sd = socket(PF_INET, SOCK_DGRAM, 0);
     if (sd < 0) {
-        return -1; // error: can't create socket.
+        return -1; /* error: can't create socket. */
     }
 
     /* set interface name (lo, eth0, eth1,..) */
