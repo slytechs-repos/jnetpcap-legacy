@@ -610,7 +610,8 @@ JNIEXPORT jbyteArray JNICALL Java_org_jnetpcap_PcapUtils_getHardwareAddress
 	u_char mac[6]; // MAC address is 6 bytes
 
 #if defined(Linux) || defined(HPUX) || defined(AIX) || defined(DARWIN) || \
-		defined(FREE_BSD) || defined(NET_BSD) || defined(OPEN_BSD)
+		defined(FREE_BSD) || defined(NET_BSD) || defined(OPEN_BSD) || \
+		defined(__APPLE__) || defined(__linux__) || defined(__unix__)
 
 	mac_addr_sys(buf, mac);
 
@@ -643,7 +644,7 @@ JNIEXPORT jint JNICALL Java_org_jnetpcap_PcapUtils_injectLoop
 		jobject jheader,
 		jobject jscanner) {
 
-//	printf("LOOP-JPacketHandler\n"); fflush(stdout);
+	printf("LOOP-JPacketHandler\n"); fflush(stdout);
 	if (jhandler == NULL) {
 		throwException(env, NULL_PTR_EXCEPTION, NULL);
 		return -1;
