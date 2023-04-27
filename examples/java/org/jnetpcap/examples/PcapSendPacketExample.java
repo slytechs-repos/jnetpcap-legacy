@@ -36,10 +36,17 @@ public class PcapSendPacketExample {
 		int r = Pcap.findAllDevs(alldevs, errbuf);
 		if (r == Pcap.NOT_OK || alldevs.isEmpty()) {
 			System.err.printf("Can't read list of devices, error is %s", errbuf
-			    .toString());
+					.toString());
 			return;
 		}
-		PcapIf device = alldevs.get(0); // We know we have atleast 1 device
+
+		final String deviceName = "enp0s25";
+		PcapIf device = alldevs.stream()
+				.filter(d -> d.getName().equals(deviceName))
+				.findAny()
+				.orElseThrow(IllegalStateException::new);
+
+		System.out.printf("Opening device \"%s\" for packet transmission%n", device.getName());
 
 		/***************************************************************************
 		 * Second we open a network interface
@@ -47,8 +54,12 @@ public class PcapSendPacketExample {
 		int snaplen = 64 * 1024; // Capture all packets, no trucation
 		int flags = Pcap.MODE_PROMISCUOUS; // capture all packets
 		int timeout = 10 * 1000; // 10 seconds in millis
-		Pcap pcap =
-		    Pcap.openLive(device.getName(), snaplen, flags, timeout, errbuf);
+		Pcap pcap = Pcap.openLive(device.getName(), snaplen, flags, timeout, errbuf);
+
+		if (pcap == null) {
+			System.err.println(errbuf);
+			System.exit(1);
+		}
 
 		/***************************************************************************
 		 * Third we create our crude packet we will transmit out This creates a
