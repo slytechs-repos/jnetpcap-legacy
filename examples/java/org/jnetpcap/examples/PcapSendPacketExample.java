@@ -12,6 +12,7 @@
  */
 package org.jnetpcap.examples;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +20,7 @@ import java.util.List;
 
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapIf;
+import org.jnetpcap.PcapUtils;
 
 /**
  * @author Mark Bednarczyk
@@ -47,6 +49,13 @@ public class PcapSendPacketExample {
 				.orElseThrow(IllegalStateException::new);
 
 		System.out.printf("Opening device \"%s\" for packet transmission%n", device.getName());
+		
+		try {
+			PcapUtils.getHardwareAddress(deviceName);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		/***************************************************************************
 		 * Second we open a network interface
